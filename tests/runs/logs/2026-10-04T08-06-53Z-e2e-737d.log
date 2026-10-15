@@ -1,0 +1,37 @@
+# Сквозные (e2e) · 04.10.2026 13:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 22150d8 (claude/ui-stale-specs-2026-10-03)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'integrations-channex' 'integrations.spec'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 2551ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP--claude-worktrees-dreamy-lederberg-a39394/b22b7482-dffc-49ee-99f8-80a1f1fce68b/scratchpad/ui-wt/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 19 tests using 1 worker
+
+  ✓   1 tests/ui/integrations-channex.spec.ts:36:1 › работает: соединение, сопоставление и webhook словами, ключей нет, вкладки модуля на месте (19.4s)
+  ✓   2 tests/ui/integrations-channex.spec.ts:77:1 › webhook не отвечает: причина словами и тот же вывод на карточке «Подключений» (5.8s)
+  ✓   3 tests/ui/integrations-channex.spec.ts:94:1 › устарело: очередь стоит, карточка «Подключений» зовёт в очередь (4.8s)
+  ✓   4 tests/ui/integrations-channex.spec.ts:107:1 › интеграция у другой организации: проверить нельзя, это сказано словами (6.0s)
+  ✓   5 tests/ui/integrations-channex.spec.ts:118:1 › ключ не задан: так и сказано, кнопки настройки без ключа не работают (2.8s)
+  ✓   6 tests/ui/integrations-channex.spec.ts:130:1 › телефон: страница без прокрутки вбок (937ms)
+  ✓   7 tests/ui/integrations-channex.spec.ts:151:3 › /connections: пока соединение проверяется, заголовок тот же, что у страницы (2.4s)
+  ✓   8 tests/ui/integrations-channex.spec.ts:151:3 › /connections/channex: пока соединение проверяется, заголовок тот же, что у страницы (1.5s)
+  ✓   9 tests/ui/integrations-channex.spec.ts:163:3 › снимки страницы настройки Channex для владельца, light (7.7s)
+  ✓  10 tests/ui/integrations-channex.spec.ts:163:3 › снимки страницы настройки Channex для владельца, dark (12.5s)
+  ✓  11 tests/ui/integrations.spec.ts:33:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек (3.5s)
+  ✓  12 tests/ui/integrations.spec.ts:79:1 › требует внимания: причины словами и ссылки прямо к месту исправления (3.1s)
+  ✓  13 tests/ui/integrations.spec.ts:97:1 › интеграция у другой организации: «Подключённые» пусты, Channex — в «Доступных» без ложной кнопки (3.0s)
+  ✓  14 tests/ui/integrations.spec.ts:118:1 › ключ Channex не задан — не подключено, а не «работает» (1.9s)
+  ✓  15 tests/ui/integrations.spec.ts:126:1 › только чтение: список и состояние видны, подключение — после оплаты (3.3s)
+  ✓  16 tests/ui/integrations.spec.ts:136:1 › не владелец технических деталей не видит; администратору раздел закрыт (3.0s)
+  ✓  17 tests/ui/integrations.spec.ts:151:1 › телефон: карточка без прокрутки вбок (2.9s)
+  ✓  18 tests/ui/integrations.spec.ts:167:3 › INT1, стоп-гейт: снимки для владельца, light (7.3s)
+  ✓  19 tests/ui/integrations.spec.ts:167:3 › INT1, стоп-гейт: снимки для владельца, dark (8.1s)
+
+  19 passed (2.5m)
+
+# код выхода 0 · 2 мин 36 с

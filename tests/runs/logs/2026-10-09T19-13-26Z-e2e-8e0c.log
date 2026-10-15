@@ -1,0 +1,9 @@
+# Сквозные (e2e) · 10.10.2026 00:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит d120f57 (worktree-marketing-module-b1), незакоммиченных файлов набора: 35
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/marketing-budget.spec.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id
+[WebServer]     at ignore-listed frames
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 4 с

@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 03.10.2026 14:58 Алматы · vm
+# коммит f27ac88 (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T09-58-51Z-integration-260c.json' 'tests/integration/function-search-path.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 315ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  09:58:52
+   Duration  1.86s (tests 48%, transform 36%, import 16%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T09-58-51Z-integration-260c.json
+
+# код выхода 0 · 3 с

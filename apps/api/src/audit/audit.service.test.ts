@@ -62,6 +62,49 @@ const row = (over: Record<string, unknown> = {}) => ({
 });
 
 describe('AuditService.list', () => {
+  it('отбирает автора и период до LIMIT, сортирует одинаковое время по id', async () => {
+    const { service, queries } = fakePrisma();
+    await service.list({
+      actor: '11111111-1111-4111-8111-111111111111',
+      from: '2026-10-01',
+      to: '2026-10-05',
+      timezone: 'Asia/Almaty',
+      group: 'finance',
+    } as never);
+    expect(queries[0]!.sql).toContain('a."user_id" =');
+    expect(queries[0]!.sql).toContain('a."created_at" >=');
+    expect(queries[0]!.sql).toContain('a."created_at" <');
+    expect(queries[0]!.sql).toContain('a."id" DESC');
+    expect(queries[0]!.values).toContain('finance.%');
+  });
+
+  it('не принимает неверные лимиты и даты', async () => {
+    for (const query of [
+      { limit: NaN },
+      { limit: 1.5 },
+      { from: '2026-02-30' },
+      { from: '2026-10-05', to: '2026-10-01' },
+      { actor: 'invalid' },
+      { cursor: 'invalid' },
+    ]) {
+      const { service, queries } = fakePrisma();
+      await expect(service.list(query as never)).rejects.toThrow();
+      expect(queries).toHaveLength(0);
+    }
+  });
+
+  it('выдаёт безопасные изменения и стабильный id автора', async () => {
+    const { service } = fakePrisma([
+      row({ user_id: 'u-1', before_safe: { amountMinor: '150000' }, after_safe: { voided: true } }),
+    ]);
+    const [entry] = await service.list({});
+    expect(entry).toMatchObject({
+      authorId: 'u-1',
+      before: { amountMinor: '150000' },
+      after: { voided: true },
+    });
+  });
+
   it('ищет номер брони или код ячейки в базе по всей истории, а не в последних 200 строках', async () => {
     const { service, queries } = fakePrisma();
     await service.list({ limit: 200, q: '20260914-513903-1263744450' });
@@ -83,9 +126,16 @@ describe('AuditService.list', () => {
     await service.list({ limit: 200 });
     const select = queries[0]!.sql.slice(0, queries[0]!.sql.indexOf('FROM'));
     // Выбираются короткие поля и сводка: снимки участвуют только внутри неё, отдельными колонками — нет
-    expect(select).toContain('SELECT a."id", a."created_at", a."entity_type", a."entity_id", a."action", COALESCE(');
+    expect(select).toContain(
+      'SELECT a."id", a."created_at", a."entity_type", a."entity_id", a."action", COALESCE(',
+    );
     expect(select).toContain('AS "subject"');
-    expect(select.replace(/COALESCE\([^]*\)\s*AS "subject"/, '')).not.toMatch(/"(before|after)"/);
+    expect(queries[0]!.sql).not.toMatch(/a\."(?:before|after)"\s*(?:,|AS)/);
+    const keys = queries[0]!.values.filter(Array.isArray).flat();
+    expect(keys).toContain('amountMinor');
+    expect(keys).not.toContain('passport');
+    expect(keys).not.toContain('email');
+    expect(keys).not.toContain('tokenHash');
   });
 
   it('одним запросом отмечает, можно ли открыть бронь из истории', async () => {
@@ -143,6 +193,10 @@ describe('AuditService.list — кто сделал', () => {
       row({ entity_type: 'user', action: 'user.login', subject: null, author: 'Дана Тестова' }),
     ]);
     const [entry] = await service.list({ limit: 10 });
-    expect(entry).toMatchObject({ entityType: 'user', action: 'user.login', author: 'Дана Тестова' });
+    expect(entry).toMatchObject({
+      entityType: 'user',
+      action: 'user.login',
+      author: 'Дана Тестова',
+    });
   });
 });

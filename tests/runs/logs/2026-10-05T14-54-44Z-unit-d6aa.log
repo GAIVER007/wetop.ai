@@ -1,0 +1,77 @@
+# Модульные (unit) · 05.10.2026 19:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (codex/staff-owner-journal), незакоммиченных файлов набора: 21
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-54-44Z-unit-d6aa.json' 'apps/api/src/audit' 'apps/api/src/accounts' 'packages/domain/src/accounts/permissions.test.ts' 'apps/api/src/finance/cash-category-audit.test.ts' 'apps/api/src/finance/finance-audit-transaction.test.ts' 'apps/web/src/lib/navigation-roles.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (28 tests) 122ms
+[Nest] 90006  - 10/05/2026, 7:54:46 AM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (13 tests) 87ms
+ ✓ |unit| apps/api/src/audit/audit.service.test.ts (12 tests) 6ms
+ ❯ |unit| apps/web/src/lib/navigation-roles.test.ts (17 tests | 1 failed) 6ms
+   ❯ меню по ролям (5)
+     ✓ у каждого пункта меню записано право — пункта «для всех по умолчанию» нет 1ms
+     ✓ администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности 0ms
+     × управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора 3ms
+     ✓ никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется 0ms
+     ✓ пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего 0ms
+   ✓ страница по адресу: какое право её открывает (4)
+     ✓ разделы меню и их вложенные адреса 0ms
+     ✓ адреса вне меню: настройки продавца и его агенты 0ms
+     ✓ первичная настройка не закрыта: туда гейт ведёт и администратора, страница говорит, кто настраивает 0ms
+     ✓ карточка ячейки и брони — работа смены, отдельного права нет 0ms
+   ✓ право вошедшего (4)
+     ✓ по роли; никто не вошёл — открыто, как в API без человека за запросом 0ms
+     ✓ роль не узнали (сбой `/auth/me`): меню и кнопки — как у администратора 0ms
+     ✓ страница по адресу: нет права — закрыта; роль не узнали — открыта, решает API, а не «нет доступа» 0ms
+     ✓ роль из `/auth/me`: незнакомая — администратор; никто не вошёл — роли нет 0ms
+   ✓ «ИИ-агенты» (S0) (3)
+     ✓ пункт меню зовётся «ИИ-агенты» и ведёт на вход раздела 0ms
+     ✓ страницы продавца подсвечивают пункт «ИИ-агенты», право у них прежнее 0ms
+     ✓ каталог не открывает продавца тем, у кого его не было: вкладки требуют расширение, карточка WETOP Support — только платформу 0ms
+   ✓ сотрудники доступны в настройках только владельцу и управляющему 0ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 77ms
+ ✓ |unit| apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 3ms
+ ✓ |unit| packages/domain/src/accounts/permissions.test.ts (13 tests) 3ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 2ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 6ms
+ ✓ |unit| apps/api/src/finance/cash-category-audit.test.ts (1 test) 2ms
+ ✓ |unit| apps/api/src/audit/owner-access.test.ts (3 tests) 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > меню по ролям > управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора
+AssertionError: expected [ '/today', '/chessboard', …(16) ] to deeply equal [ '/today', '/chessboard', …(17) ]
+
+- Expected
++ Received
+
+@@ -14,8 +14,7 @@
+    "/management/analytics",
+    "/inventory",
+    "/hotel-settings",
+    "/team",
+    "/connections",
+-   "/journal",
+    "/incidents",
+  ]
+
+ ❯ apps/web/src/lib/navigation-roles.test.ts:68:38
+     66|   it('управляющий и владелец — всё, кроме «Платформы»; «Платформа» — п…
+     67|     const noPlatform = everything.filter((h) => !h.startsWith('/platfo…
+     68|     expect(hrefs(access('MANAGER'))).toEqual(noPlatform);
+       |                                      ^
+     69|     expect(hrefs(access('OWNER'))).toEqual(noPlatform);
+     70|     expect(hrefs(access('STAFF', true))).toContain('/platform');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 10 passed (11)
+      Tests  1 failed | 111 passed (112)
+   Start at  07:54:45
+   Duration  2.38s (import 59%, transform 23%, tests 17%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-54-44Z-unit-d6aa.json
+
+# код выхода 1 · 3 с

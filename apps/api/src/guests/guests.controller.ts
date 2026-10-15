@@ -1,3 +1,4 @@
+import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import 'reflect-metadata';
 import {
   Body,
@@ -14,13 +15,16 @@ import {
 } from '@nestjs/common';
 import { piiStorageMode } from '@pms/shared';
 import { GuestsService } from './guests.service';
+import { RESTRICTED_GUESTS_MESSAGE } from '@pms/domain';
 import { Access } from '../auth/access.decorator';
+import { OrganizationLevel } from '../auth/organization-level.decorator';
 
 /**
  * Где лежат данные гостей (ADR-072): `real` — база в Казахстане, введённое хранится как есть; `pseudonymized` —
  * нет, и формы стойки не спрашивают имя, контакты и документы. Стойка читает режим заранее, а не узнаёт отказом.
  */
 @Access('desk')
+@RequiresBusinessCapability('hospitality.reservations')
 @Controller('system')
 export class PiiStorageController {
   @Get('pii-storage')
@@ -29,7 +33,10 @@ export class PiiStorageController {
   }
 }
 
+// Гости организационные (O3=A): у `Guest` нет ключа филиала, ограниченному сотруднику закрыто всё, что читает или правит гостя
 @Access('desk')
+@OrganizationLevel(RESTRICTED_GUESTS_MESSAGE)
+@RequiresBusinessCapability('hospitality.reservations')
 @Controller('guests')
 export class GuestsController {
   constructor(@Inject(GuestsService) private readonly service: GuestsService) {}
@@ -37,6 +44,12 @@ export class GuestsController {
   @Get()
   search(@Query('q') q?: string) {
     return this.service.search(q);
+  }
+
+  // объявлен до ':id', как и «directory»
+  @Get('birthdays')
+  birthdays(@Query('from') from?: string, @Query('days') days?: string) {
+    return this.service.birthdays(from, days);
   }
 
   // объявлен до ':id', иначе «directory» читался бы как идентификатор гостя
@@ -53,6 +66,14 @@ export class GuestsController {
       to?: string;
       visits?: string;
       sort?: string;
+      view?: string;
+      source?: string;
+      debt?: string;
+      fresh?: string;
+      nocontact?: string;
+      period?: string;
+      periodFrom?: string;
+      periodTo?: string;
     },
   ) {
     return this.service.directory(query);

@@ -1,0 +1,66 @@
+# Модульные (unit) · 03.10.2026 17:37 Алматы · vm
+# коммит 1c6ae3e (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-37-02Z-unit-1f5f.json' 'apps/api/src/channels/inbound.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 25514  - 10/03/2026, 12:37:05 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 25514  - 10/03/2026, 12:37:05 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 25514  - 10/03/2026, 12:37:05 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 25514  - 10/03/2026, 12:37:05 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 25514  - 10/03/2026, 12:37:05 PM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 25514  - 10/03/2026, 12:37:05 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ❯ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests | 1 failed) 339ms
+   ❯ inbound bookings from Channex (contract on fakes) (24)
+     ✓ helpers: guarantee (card data) is stripped, decimal amounts become minor units exactly 3ms
+     ✓ pull: new revision → reservation with the first free unit (Q-094), event PROCESSED without card data, ack; same revision again → duplicate skipped but acked; no free unit → without unit and a warning 48ms
+     × канал брони — одним именем по коду unique_id: BookingCom → Booking.com, новый канал Airbnb — именем из справочника кодов (ADR-138) 7ms
+     ✓ modified revision moves dates and re-dates an existing allocation; cancelled frees units and cancels 11ms
+     ✓ дельта доступности: новая, изменённая и отменённая ревизия ставят её после коммита; отмена — ещё и по снятым блокам соседних ночей 13ms
+     ✓ ревизия канала, которую стойка уже отразила: разница PMS пуста, но ночи брони уходят — Channex меняет свой остаток сам (allow_availability_autoupdate_*) 7ms
+     ✓ связывание брони стойки с ревизией канала: ночи и брони стойки, и комнат ревизии — Channex уменьшил остаток по своим 3ms
+     ✓ сбой постановки дельты после ACK не рвёт разбор ревизии и оставляет след для сторожа 3ms
+     ✓ перенесённая из Legacy бронь канала опознаётся по номеру брони OTA: модификация не создаёт дубль, отмена освобождает ячейку 5ms
+     ✓ ADR-071: бронь стойки с номером брони в канале при подключении канала СВЯЗЫВАЕТСЯ: гость, статус, ячейка и заметка стойки на месте, дубля нет 3ms
+     ✓ предупреждения разбора не теряются: записываются в журнал события (PROCESSED + текст) — и при webhook, где результат никто не читает 13ms
+     ✓ Q-086: бронь, оплаченную площадкой, счёт принимает предоплатой; оплату на месте — нет 5ms
+     ✓ после шести неудач ревизия ждёт человека, а «Обработать заново» разбирает её 16ms
+     ✓ ADR-018: в журнале события ревизия без заказчика, гостей, заметки и карты — пока база не в РК 3ms
+     ✓ PII_STORAGE=real (база в РК): ревизия хранится целиком, кроме карты 2ms
+     ✓ ADR-018: событие не о брони — в журнале только идентификаторы, текст гостя не хранится 3ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в заметке канала маскируются 2ms
+     ✓ SECURITY.md §7: текст ошибки разбора ревизии пишется в last_error без почты и телефонов 3ms
+     ✓ ADR-018: настоящие имя, телефон и почта гостя канала в базу не попадают 8ms
+     ✓ Q-108: отмена предоплаченной OTA-брони снимает платёж канала — на счёте не остаётся минуса 4ms
+     ✓ одна упавшая ревизия не рвёт ленту: следующая обработана и подтверждена 3ms
+     ✓ Q-086: модификация пересчитывает предоплату канала, а смена payment_collect её снимает 6ms
+     ✓ unmapped room type → event FAILED with a reason, no reservation, no ack 2ms
+     ✓ webhook: wrong secret → 401, missing secret config → 503, booking event → the feed of its property is read, never the revision by ID 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/inbound.controller.test.ts > inbound bookings from Channex (contract on fakes) > канал брони — одним именем по коду unique_id: BookingCom → Booking.com, новый канал Airbnb — именем из справочника кодов (ADR-138)
+AssertionError: expected 'BookingCom' to be 'Booking.com' // Object.is equality
+
+Expected: "Booking.com"
+Received: "BookingCom"
+
+ ❯ apps/api/src/channels/inbound.controller.test.ts:616:46
+    614|     expect(r.body).toMatchObject({ received: 2, acknowledged: 2 });
+    615|     const byNumber = new Map(fakes.state().map((x) => [x.confirmationN…
+    616|     expect(byNumber.get('BDC-111')?.channel).toBe('Booking.com');
+       |                                              ^
+    617|     expect(byNumber.get('ABB-HM222')?.channel).toBe('Airbnb');
+    618|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 23 passed (24)
+   Start at  12:37:03
+   Duration  2.29s (transform 57%, import 27%, tests 16%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-37-02Z-unit-1f5f.json
+
+# код выхода 1 · 3 с

@@ -18,5 +18,7 @@ import { PromoCodesService } from './promo-codes';
     PromoCodesService,
     { provide: RATES_REPOSITORY, useClass: PrismaRatesRepository },
   ],
+  // цену категории ставит «Категории номеров» тем же путём, что прежний экран цен (журнал, очередь каналов)
+  exports: [RatesService],
 })
 export class RatesModule {}

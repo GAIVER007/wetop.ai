@@ -1,0 +1,24 @@
+# Модульные (unit) · 13.10.2026 17:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 25a8873 (claude/booking-rules), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-08-28Z-unit-8ddb.json' 'packages/domain/src/food'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ✓ |unit| packages/domain/src/food/layout.test.ts (3 tests) 3ms
+ ✓ |unit| packages/domain/src/food/cash.test.ts (10 tests) 5ms
+ ✓ |unit| packages/domain/src/food/restaurant.test.ts (17 tests) 11ms
+ ✓ |unit| packages/domain/src/food/customer-marks.test.ts (5 tests) 4ms
+ ✓ |unit| packages/domain/src/food/food.test.ts (6 tests) 25ms
+ ✓ |unit| packages/domain/src/food/booking-rules.test.ts (5 tests) 3ms
+ ✓ |unit| packages/domain/src/food/stock.test.ts (12 tests) 14ms
+ ✓ |unit| packages/domain/src/food/ratings.test.ts (2 tests) 2ms
+ ✓ |unit| packages/domain/src/food/consumption.test.ts (5 tests) 2ms
+
+ Test Files  9 passed (9)
+      Tests  65 passed (65)
+   Start at  05:08:29
+   Duration  250ms (transform 58%, import 24%, tests 14%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-08-28Z-unit-8ddb.json
+
+# код выхода 0 · 1 с

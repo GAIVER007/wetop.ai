@@ -1,0 +1,79 @@
+# Сквозные (e2e) · 09.10.2026 21:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bdd5e4 (claude/sales2-impl), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/ai-seller.spec.ts' '--timeout=180000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/ai-seller.spec.ts:65:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (10.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4013024130'
+[WebServer] }
+  ✓   2 tests/ui/ai-seller.spec.ts:109:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (6.8s)
+  ✓   3 tests/ui/ai-seller.spec.ts:140:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (18.3s)
+  ✓   4 tests/ui/ai-seller.spec.ts:170:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (14.0s)
+  ✓   5 tests/ui/ai-seller.spec.ts:187:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (16.4s)
+  ✓   6 tests/ui/ai-seller.spec.ts:224:1 › продавец недоступен — метка, причина и обещание повтора (4.1s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✓   7 tests/ui/ai-seller.spec.ts:235:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (6.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   8 tests/ui/ai-seller.spec.ts:254:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (19.4s)
+  ✓   9 tests/ui/ai-seller.spec.ts:268:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (20.6s)
+  ✓  10 tests/ui/ai-seller.spec.ts:305:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (8.9s)
+  ✓  11 tests/ui/ai-seller.spec.ts:348:1 › карточка диалога по неизвестному id не падает, а говорит словами (4.9s)
+  ✓  12 tests/ui/ai-seller.spec.ts:354:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (17.4s)
+  ✓  13 tests/ui/ai-seller.spec.ts:382:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (23.9s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  14 tests/ui/ai-seller.spec.ts:397:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (18.6s)
+  ✓  15 tests/ui/ai-seller.spec.ts:415:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (19.9s)
+  ✓  16 tests/ui/ai-seller.spec.ts:447:1 › снимки экранов раздела (33.9s)
+  ✓  17 tests/ui/ai-seller.spec.ts:475:1 › Все агенты возвращает в единый каталог, а не только к черновикам (12.6s)
+  ✓  18 tests/ui/ai-seller.spec.ts:484:1 › закрытое расширение: администратор видит действие для управления доступом (7.6s)
+
+  18 passed (6.0m)
+
+# код выхода 0 · 6 мин 21 с

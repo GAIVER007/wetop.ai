@@ -1,0 +1,22 @@
+# Модульные (unit) · 03.10.2026 19:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5fabb2c (claude/birthdays), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T14-12-35Z-unit-0f69.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-rules.test.ts' 'tests/unit/build-tokens.test.ts' 'tests/unit/no-hardcoded-utc5.test.ts' 'packages/domain/src/guests' 'apps/api/src/guests' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ✓ |unit| packages/domain/src/guests/citizenship.test.ts (3 tests) 4ms
+ ✓ |unit| packages/domain/src/guests/directory.test.ts (7 tests) 10ms
+ ✓ |unit| packages/domain/src/guests/birthdays.test.ts (6 tests) 4ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 6ms
+ ✓ |unit| tests/unit/no-hardcoded-utc5.test.ts (2 tests) 296ms
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (16 tests) 661ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 35ms
+
+ Test Files  7 passed (7)
+      Tests  47 passed (47)
+   Start at  07:12:37
+   Duration  4.58s (transform 53%, import 34%, tests 12%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T14-12-35Z-unit-0f69.json
+
+# код выхода 0 · 7 с

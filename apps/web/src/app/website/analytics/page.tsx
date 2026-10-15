@@ -22,9 +22,11 @@ import {
   Table,
 } from '../../../components/ui';
 import { DateInput } from '../../../components/date-field';
+import { ShareBar } from '../../../components/share-bar';
 import { DailyChart } from './daily-chart';
-import { WebsiteTabs } from '../parts';
+import { MarketingCrumb, WebsiteTabs } from '../parts';
 import '../../directory.css';
+import '../website.css';
 
 const MAX_PERIOD_DAYS = 366;
 const periodDays = (from: string, to: string) =>
@@ -86,7 +88,11 @@ export default async function AnalyticsPage({
       else failure = e;
     }
   return (
-    <Page title={WEBSITE_TITLE} subtitle={<span data-testid="an-site-name">{site.name}</span>}>
+    <Page
+      crumbs={<MarketingCrumb />}
+      title={WEBSITE_TITLE}
+      subtitle={<span data-testid="an-site-name">{site.name}</span>}
+    >
       <WebsiteTabs current="analytics" />
       {!primaryHost(site) && (
         <Notice className="block" data-testid="an-domain-missing">
@@ -104,7 +110,7 @@ export default async function AnalyticsPage({
 
 function NoSites() {
   return (
-    <Page title={WEBSITE_TITLE}>
+    <Page crumbs={<MarketingCrumb />} title={WEBSITE_TITLE}>
       <WebsiteTabs current="analytics" />
       <EmptyState
         data-testid="an-no-sites"
@@ -344,7 +350,7 @@ function Report({ report }: { report: SiteReport }) {
                   </td>
                   <td className="num">{duration(r.avgDurationSeconds)}</td>
                   <td className="num">
-                    <Share value={r.share} />
+                    <Share value={r.share} of={r.source ?? KIND_RU[r.kind]} />
                   </td>
                 </tr>
               ))}
@@ -374,7 +380,7 @@ function Report({ report }: { report: SiteReport }) {
                   <td className="break-all">{p.path}</td>
                   <td className="num">{p.views}</td>
                   <td className="num">
-                    <Share value={p.share} />
+                    <Share value={p.share} of={p.path} />
                   </td>
                 </tr>
               ))}
@@ -605,7 +611,10 @@ function ShareTable({
               <td>{r.key === null ? 'не определено' : (label?.(r.key) ?? r.key)}</td>
               <td className="num">{r.sessions}</td>
               <td className="num">
-                <Share value={r.share} />
+                <Share
+                  value={r.share}
+                  of={r.key === null ? 'не определено' : (label?.(r.key) ?? r.key)}
+                />
               </td>
             </tr>
           ))}
@@ -615,16 +624,9 @@ function ShareTable({
   );
 }
 
-function Share({ value }: { value: number }) {
-  const pct = Math.round(value * 100);
-  return (
-    <span className="share">
-      <span aria-hidden className="share__track">
-        <span className="share__fill" style={{ width: `${pct}%` }} />
-      </span>
-      <span className="share__pct">{pct} %</span>
-    </span>
-  );
+/** Доля строки: общий `ShareBar` (MV8.5 DS1c) вместо своей полосы с шириной строкой стиля */
+function Share({ value, of }: { value: number; of: string }) {
+  return <ShareBar label={`Доля: ${of}`} value={Math.round(value * 100)} max={100} showValue />;
 }
 
 function duration(seconds: number): string {

@@ -1,0 +1,16 @@
+# Модульные (unit) · 12.10.2026 10:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит ef925b3 (claude/restaurant-vip-in-bookings), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T05-44-51Z-unit-a643.json' 'apps/web/src/app/food/guest-marks.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| apps/web/src/app/food/guest-marks.test.ts (2 tests) 2ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  22:44:56
+   Duration  867ms (import 69%, transform 27%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T05-44-51Z-unit-a643.json
+
+# код выхода 0 · 6 с

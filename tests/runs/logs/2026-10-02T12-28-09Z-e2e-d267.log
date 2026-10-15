@@ -1,0 +1,79 @@
+# Сквозные (e2e) · 02.10.2026 17:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8ff6876 (main), незакоммиченных файлов набора: 35
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/mobile-adaptation.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/ui/mobile-adaptation.spec.ts:24:1 › телефон: низ страницы не прячется под нижней навигацией (2.3s)
+  ✘  2 tests/ui/mobile-adaptation.spec.ts:44:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (1.7s)
+  ✓  3 tests/ui/mobile-adaptation.spec.ts:53:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (1.6s)
+  ✓  4 tests/ui/mobile-adaptation.spec.ts:68:1 › телефон: сетка календаря выше сводки «На стойке» (1.0s)
+  ✓  5 tests/ui/mobile-adaptation.spec.ts:76:1 › узкий телефон: плитки финансов встают в одну колонку (669ms)
+
+
+  1) tests/ui/mobile-adaptation.spec.ts:24:1 › телефон: низ страницы не прячется под нижней навигацией 
+
+    Error: /finance: padding-bottom 16 < панель 69.5
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 69.5
+    Received:    16
+
+      33 |       .first()
+      34 |       .evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
+    > 35 |     expect(padBottom, `${route}: padding-bottom ${padBottom} < панель ${navHeight}`).toBeGreaterThanOrEqual(navHeight);
+         |                                                                                      ^
+      36 |     // и страница не едет вбок
+      37 |     const overflow = await page.evaluate(
+      38 |       () => document.documentElement.scrollWidth - window.innerWidth,
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/mobile-adaptation.spec.ts:35:86
+
+    Error Context: test-results/mobile-adaptation-телефон--f729e-чется-под-нижней-навигацией/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--f729e-чется-под-нижней-навигацией/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--f729e-чется-под-нижней-навигацией/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/mobile-adaptation.spec.ts:44:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 150
+    Received:   109.75
+
+      48 |   const box = await title.boundingBox();
+      49 |   // зажатый заголовок был ~100 px шириной и переносился по буквам
+    > 50 |   expect(box!.width).toBeGreaterThan(150);
+         |                      ^
+      51 | });
+      52 |
+      53 | test('телефон: чипы отборов — цели нажатия не ниже 44 px', async ({ page }) => {
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/mobile-adaptation.spec.ts:50:22
+
+    Error Context: test-results/mobile-adaptation-телефон--1cf90-кой-а-не-колонкой-по-буквам/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--1cf90-кой-а-не-колонкой-по-буквам/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--1cf90-кой-а-не-колонкой-по-буквам/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/mobile-adaptation.spec.ts:24:1 › телефон: низ страницы не прячется под нижней навигацией 
+    tests/ui/mobile-adaptation.spec.ts:44:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам 
+  3 passed (16.7s)
+
+# код выхода 1 · 17 с

@@ -1,4 +1,4 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 import type { APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
@@ -8,8 +8,8 @@ import { mkdirSync } from 'node:fs';
  * вкладки, без «Обновить» и без дубля часов заезда; «Основное» — три блока, сохранение в шапке с состоянием;
  * правила отмены ушли к тарифам. Схема и API не менялись — стенд тот же подставной API.
  */
-const API = 'http://127.0.0.1:4311';
-const SHOTS = 'reports/property-settings-set1-2026-09-27';
+const API = FIXTURE_API;
+const SHOTS = 'reports/unified-sections-2026-10-01/property-settings-set1-2026-09-27';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
 
@@ -21,56 +21,74 @@ test.afterEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 
-test('один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов', async ({ page }) => {
+test('один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов', async ({
+  page,
+}) => {
   const main = page.getByRole('main');
   await page.goto('/hotel-settings');
   const tabs = main.getByRole('navigation', { name: 'Настройки объекта', exact: true });
-  await expect(tabs.getByRole('link')).toHaveText(['Основное', 'Проживание', 'Услуги']);
+  await expect(tabs.getByRole('link')).toHaveText([
+    'Основное',
+    'Проживание',
+    'Услуги',
+    'Продажи и каналы',
+    'Документы',
+  ]);
   for (const [tab, check] of [
     ['Основное', 'stored-property'],
     ['Проживание', 'stay-settings'],
     ['Услуги', 'services-table'],
+    ['Продажи и каналы', 'sales-summary'],
+    ['Документы', 'documents-summary'],
   ] as const) {
     await tabs.getByRole('link', { name: tab, exact: true }).click();
-    await expect(tabs.getByRole('link', { name: tab, exact: true })).toHaveAttribute('aria-current', 'page');
+    await expect(tabs.getByRole('link', { name: tab, exact: true })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
     await expect(main.getByTestId(check)).toBeVisible();
     await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
-    await expect(main.locator('.page__subtitle')).toHaveText('Luxx Aparts');
+    await expect(main.locator('.page__subtitle')).toContainText(
+      'Здесь вы настраиваете данные филиала',
+    );
     await expect(main.getByRole('button', { name: 'Обновить' })).toHaveCount(0);
-    await expect(main.locator('.page__crumbs')).toHaveCount(0);
+    await expect(main.locator('.page__crumbs')).toContainText('Настройки объекта');
   }
-  await expect(page.locator('.workspace-sidebar [aria-current="page"]')).toHaveText('Объект');
+  await expect(page.locator('.sidenav__items [aria-current="page"]')).toHaveText('Объект');
 
   await tabs.getByRole('link', { name: 'Основное', exact: true }).click();
   const general = main.getByTestId('stored-property');
-  for (const section of ['Основная информация', 'Региональные настройки', 'Юридическое лицо'])
+  for (const section of [
+    'Основная информация',
+    'Расположение и классификация',
+    'Юридические данные',
+  ])
     await expect(general.getByRole('heading', { name: section, level: 2 })).toBeVisible();
-  // часы заезда и выезда — только на «Проживании», на «Основном» их второй раз нет
-  await expect(main.getByTestId('stay-settings')).toHaveCount(0);
-  await expect(main).not.toContainText('14:00');
+  // «Основное» по верстке владельца (ADR-158) содержит и заезд с правилами; «Проживание» показывает их отдельно
+  await expect(main.getByTestId('stay-settings')).toBeVisible();
   await expect(tabs.getByRole('link', { name: 'Правила отмены' })).toHaveCount(0);
 });
 
-test('старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy', async ({ page }) => {
+test('старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy', async ({
+  page,
+}) => {
   const main = page.getByRole('main');
   await page.goto('/hotel-settings/check-in');
   await expect(page).toHaveURL(/\/hotel-settings\/stay$/);
-  await expect(main.getByTestId('stay-settings')).toContainText('14:00');
+  await expect(main.getByTestId('stay-settings').getByLabel('Заезд с')).toHaveValue('14:00');
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await page.goto('/hotel-settings/penalties');
-  await expect(page).toHaveURL(/\/rates\/plans$/);
-  const row = main.getByTestId('rate-plans-table').getByRole('row', { name: /Стандартный/ });
-  await expect(row).toContainText('Стоимость первой ночи');
-  await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');
+  // «Тарифы и цены» сняты 06.10.2026: старый адрес правил отмены ведёт в настройки объекта
+  await expect(page).toHaveURL(/\/hotel-settings$/, { timeout: 40_000 });
 });
 
 test('владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку', async ({
@@ -85,7 +103,8 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await expect(save).toBeDisabled();
   await expect(state).toHaveText('');
   await expect(form.getByLabel('Название объекта')).toHaveValue('Luxx Aparts');
-  await expect(form.getByLabel('Валюта')).toHaveCount(0);
+  // валюта и пояс только для чтения: меняет поддержка (ADR-158: поля стоят, но правки не принимают)
+  await expect(form.getByLabel('Валюта')).toHaveAttribute('readonly', '');
 
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
   await expect(state).toHaveText('• Есть несохранённые изменения');
@@ -93,23 +112,32 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await form.getByLabel('Телефон').fill('+7 700 000 00 00');
   await expect(save).toBeDisabled();
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
-  await form.getByLabel('Юридическое название').fill('ИП «Тестовый»');
+  await form.getByLabel('Юридическое лицо').fill('ИП «Тестовый»');
+  await form.getByLabel('Страна (ISO)').selectOption('KZ');
+  await form.getByLabel('Город', { exact: true }).fill('Вымышленный город');
+  await form.getByLabel('Тип размещения').selectOption('motel');
   await save.click();
   await expect(state).toHaveText('✓ Изменения сохранены');
   await expect(save).toBeDisabled();
   await expect(main.getByRole('alert')).toHaveCount(0);
   await page.reload();
   await expect(form.getByLabel('Телефон')).toHaveValue('+7 701 555 44 33');
-  await expect(form.getByLabel('Юридическое название')).toHaveValue('ИП «Тестовый»');
+  await expect(form.getByLabel('Юридическое лицо')).toHaveValue('ИП «Тестовый»');
+  await expect(form.getByLabel('Страна (ISO)')).toHaveValue('KZ');
+  await expect(form.getByLabel('Город', { exact: true })).toHaveValue('Вымышленный город');
+  await expect(form.getByLabel('Тип размещения')).toHaveValue('motel');
 
   await form.getByLabel('Почта').fill('не почта');
   await save.click();
-  await expect(main.getByRole('alert')).toContainText('Почта — в виде name@example.kz');
+  await expect(main.getByRole('alert')).toContainText('Почта в виде name@example.kz');
   await expect(form.getByLabel('Почта')).toHaveValue('не почта');
   await expect(state).toHaveText('• Есть несохранённые изменения');
 
   // «Проживание» шлёт только свои поля: сведения «Основного» не затираются
-  await main.getByRole('navigation', { name: 'Настройки объекта' }).getByRole('link', { name: 'Проживание' }).click();
+  await main
+    .getByRole('navigation', { name: 'Настройки объекта' })
+    .getByRole('link', { name: 'Проживание' })
+    .click();
   const stay = main.getByTestId('stay-settings');
   await expect(save).toBeDisabled();
   await stay.getByLabel('Заезд с').fill('15:00');
@@ -142,9 +170,26 @@ test('администратор и «только чтение» видят с�
     await page.goto(path);
     await expect(page.getByTestId('read-only-banner')).toBeVisible();
     await expect(main.getByRole('button', { name: 'Сохранить изменения' })).toHaveCount(0);
-    await expect(main.locator('input')).toHaveCount(0);
+    // поля стоят, но выключены или только для чтения: править нечем
+    await expect(main.locator('input:enabled:not([readonly]):not([type=hidden])')).toHaveCount(0);
   }
-  await expect(main.getByTestId('stay-settings')).toContainText('12:00');
+  await expect(main.getByTestId('stay-settings').getByLabel('Выезд до')).toHaveValue('12:00');
+});
+
+test('данные объекта и каналов помещаются на экране ноутбука', async ({ page }) => {
+  await signIn(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/hotel-settings');
+  const form = page.getByTestId('hotel-settings-form');
+  // три колонки по верстке владельца (ADR-158): тип размещения в первом экране, юридические данные ниже
+  for (const [label, bottom] of [
+    ['Тип размещения', 876],
+    ['ИИН/БИН', 1100],
+  ] as const) {
+    const box = await form.getByLabel(label).boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.y + box!.height).toBeLessThanOrEqual(bottom);
+  }
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -161,7 +206,9 @@ for (const theme of ['light', 'dark'] as const) {
     const shot = async (name: string) => {
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        ).toBe(true);
         await page.screenshot({ path: `${SHOTS}/${name}-${theme}-${width}.png`, fullPage: true });
       }
       await page.setViewportSize({ width: 1440, height: 900 });

@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 03.10.2026 17:43 Алматы · vm
+# коммит 000418f (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/beauty-catalog.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/beauty-catalog.spec.ts:47:1 › услуга каталога добавляется и видна в списке (5.3s)
+  ✓  2 tests/ui/beauty-catalog.spec.ts:60:1 › филиал включает услугу и ставит свою цену (5.9s)
+  ✓  3 tests/ui/beauty-catalog.spec.ts:79:1 › ошибки услуги словами, введённое не стирается (3.8s)
+  ✓  4 tests/ui/beauty-catalog.spec.ts:94:1 › мастер добавляется, умения ставятся и снимаются (8.7s)
+  ✘  5 tests/ui/beauty-catalog.spec.ts:124:1 › каталог салона на телефоне: без прокрутки вбок (5.0s)
+  ✓  6 tests/ui/beauty-catalog.spec.ts:142:3 › каталог салона доступен в светлой теме (6.2s)
+  ✓  7 tests/ui/beauty-catalog.spec.ts:142:3 › каталог салона доступен в тёмной теме (6.5s)
+
+
+  1) tests/ui/beauty-catalog.spec.ts:124:1 › каталог салона на телефоне: без прокрутки вбок ────────
+
+    Error: /beauty/services
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      129 |     await page.goto(path);
+      130 |     await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
+    > 131 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), path).toBe(
+          |                                                                                                 ^
+      132 |       true,
+      133 |     );
+      134 |     await page.screenshot({
+        at /home/user/wetop.ai/tests/ui/beauty-catalog.spec.ts:131:97
+
+    Error Context: test-results/beauty-catalog-каталог-салона-на-телефоне-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-catalog-каталог-салона-на-телефоне-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-catalog-каталог-салона-на-телефоне-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-catalog.spec.ts:124:1 › каталог салона на телефоне: без прокрутки вбок ─────────
+  6 passed (49.2s)
+
+# код выхода 1 · 50 с

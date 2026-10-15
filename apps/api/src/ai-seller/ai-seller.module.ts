@@ -1,3 +1,5 @@
+import { AgentTelegramService } from './agent-telegram.service';
+import { AgentTelegramController } from './agent-telegram.controller';
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
@@ -31,7 +33,7 @@ import { SellerSyncService } from './seller-sync.service';
  */
 @Module({
   imports: [PlatformModule],
-  controllers: [AiSellerController, BusinessAgentsController, AgentInstructionsController],
+  controllers: [AgentTelegramController, AiSellerController, BusinessAgentsController, AgentInstructionsController],
   providers: [
     PrismaService,
     { provide: SELLER_CONNECTION, useClass: EnvSellerConnection },
@@ -44,6 +46,7 @@ import { SellerSyncService } from './seller-sync.service';
     { provide: BUSINESS_AGENTS, useClass: PrismaBusinessAgentsRepository },
     BusinessAgentsService,
     AgentInstructionsService,
+    AgentTelegramService,
     SellerCatalogService,
     SellerSyncService,
   ],

@@ -1,0 +1,30 @@
+# Модульные (unit) · 02.10.2026 23:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0ac6085 (main), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T18-07-03Z-unit-861f.json' 'packages/domain/src/dashboard/units.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| packages/domain/src/dashboard/units.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/units.test.ts [ packages/domain/src/dashboard/units.test.ts ]
+Error: Cannot find module './units' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/packages/domain/src/dashboard/units.test.ts
+ ❯ packages/domain/src/dashboard/units.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { buildUnitStats, type UnitBoardTally } from './units';
+       | ^
+      3|
+      4| /** REP3: свод по единицам — те же клетки шахматки, что у сводки; дене…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  11:07:26
+   Duration  2.32s (worker 98%, environment 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T18-07-03Z-unit-861f.json
+
+# код выхода 1 · 26 с

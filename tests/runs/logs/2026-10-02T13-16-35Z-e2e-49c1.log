@@ -1,0 +1,62 @@
+# Сквозные (e2e) · 02.10.2026 18:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6a8d472 (main), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/navigation.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/navigation.spec.ts:35:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (4.7s)
+  ✓  2 tests/ui/navigation.spec.ts:48:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (4.9s)
+  ✓  3 tests/ui/navigation.spec.ts:89:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (4.7s)
+  ✘  4 tests/ui/navigation.spec.ts:116:1 › все пункты меню открывают существующие страницы (34.1s)
+  ✓  5 tests/ui/navigation.spec.ts:145:3 › навигация ровная, адаптивная и доступная: light (3.2s)
+  ✓  6 tests/ui/navigation.spec.ts:145:3 › навигация ровная, адаптивная и доступная: dark (2.7s)
+
+
+  1) tests/ui/navigation.spec.ts:116:1 › все пункты меню открывают существующие страницы ───────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/team$/
+    Received string:  "http://127.0.0.1:3002/?next=%2Fteam#login"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        4 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/hotel-settings"
+        - waiting for navigation to finish...
+        - navigated to "http://127.0.0.1:3002/?next=%2Fteam#login"
+        26 × locator resolved to <html lang="ru" data-scroll-behavior="smooth" class="manrope_e43ac67-module__aAKcTW__variable ibm_plex_sans_6979dae1-module__07KeAq__variable ibm_plex_mono_ed86ef51-module__ntsEZG__variable">…</html>
+           - unexpected value "http://127.0.0.1:3002/?next=%2Fteam#login"
+
+
+      133 |       const href = await link.getAttribute('href');
+      134 |       await link.click();
+    > 135 |       await expect(page).toHaveURL(new RegExp(`${href}$`));
+          |                          ^
+      136 |       await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
+      137 |       await expect(page.getByRole('main')).not.toContainText('Не удалось загрузить данные');
+      138 |       await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/navigation.spec.ts:135:26
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/navigation.spec.ts:116:1 › все пункты меню открывают существующие страницы ────────────
+  5 passed (1.2m)
+
+# код выхода 1 · 1 мин 16 с

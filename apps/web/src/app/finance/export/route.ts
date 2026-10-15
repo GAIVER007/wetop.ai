@@ -20,9 +20,9 @@ export async function GET(request: Request) {
   const to = q.get('to') ?? '';
   if (!validDate(from) || !validDate(to) || from > to)
     return text(400, 'Проверьте даты: окончание периода должно быть не раньше начала.');
-  const { type, method } = operationFilter(q.get('op'), q.get('method'));
+  const { type, method, source } = operationFilter(q.get('op'), q.get('method'), q.get('src'));
   try {
-    const ops = await financeApi.operations(from, to, { type, method, limit: MAX_ROWS });
+    const ops = await financeApi.operations(from, to, { type, method, source, limit: MAX_ROWS });
     if (ops.truncated)
       return text(
         422,

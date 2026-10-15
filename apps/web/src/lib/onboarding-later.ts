@@ -1,3 +1,4 @@
+import type { WebVertical } from './vertical-landing';
 /**
  * «Заполнить позже» в онбординге (plans/site-auth-dialog-tour-2026-09-27.md, Д3, ADR-100).
  *
@@ -10,7 +11,17 @@ export const ONBOARDING_LATER_COOKIE = 'wetop_onboarding_later';
 export const ONBOARDING_LATER_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
 /** Пути, где гейт не работает: сам онбординг, вход, регистрация, приглашение, сброс пароля — иначе был бы цикл. */
-const SKIP = ['/onboarding', '/login', '/register', '/invite', '/password-reset'];
+const SKIP = [
+  '/branches',
+  '/onboarding',
+  '/login',
+  '/register',
+  '/invite',
+  '/rate',
+  '/password-reset',
+  '/profile/access',
+  '/status',
+];
 
 export function needsOnboardingRedirect(input: {
   path: string;
@@ -18,10 +29,18 @@ export function needsOnboardingRedirect(input: {
   postponed: boolean;
   /** У организации нет объекта (после сброса, ADR-118): рабочие экраны пусты, «позже» не помогает */
   propertyMissing?: boolean;
+  /**
+   * Направление текущего филиала (срез B2, Q-254). У салона объекта нет и не будет: гостиничный онбординг
+   * создал бы ему номера, которых в этой вертикали не существует (DATA_MODEL §19), поэтому гейт его не трогает.
+   */
+  vertical?: WebVertical | undefined;
 }): boolean {
   const { path } = input;
   if (SKIP.some((p) => path === p || path.startsWith(`${p}/`))) return false;
   if (path.includes('/print')) return false;
+  if (input.vertical && input.vertical !== 'HOSPITALITY') return false;
   if (input.propertyMissing) return true;
+  // Existing objects can edit metadata before adding rooms. Missing objects still require onboarding.
+  if (path === '/hotel-settings' || path.startsWith('/hotel-settings/')) return false;
   return input.needsOnboarding && !input.postponed;
 }

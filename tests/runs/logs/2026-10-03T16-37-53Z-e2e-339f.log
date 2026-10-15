@@ -1,0 +1,301 @@
+# Сквозные (e2e) · 03.10.2026 21:37 Алматы · vm
+# коммит 8271095 (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'design-refresh' 'mobile-adaptation' 'guests-birthdays' 'invites' 'login-access'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 34 tests using 1 worker
+
+  ✓   1 tests/ui/design-refresh.spec.ts:9:1 › главная: новая бронь и данные гостиницы доступны на первом экране (3.6s)
+  ✘   2 tests/ui/design-refresh.spec.ts:26:1 › период Главной на телефоне и период «Аналитики»: подписанные поля и цели не меньше 44 px (1.2s)
+  ✘   3 tests/ui/design-refresh.spec.ts:70:1 › главная: период финансов в адресе, месячные показатели — на своём экране (17.5s)
+  ✓   4 tests/ui/design-refresh.spec.ts:90:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (10.4s)
+  ✓   5 tests/ui/design-refresh.spec.ts:90:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (9.1s)
+  ✓   6 tests/ui/design-refresh.spec.ts:90:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (9.1s)
+  ✓   7 tests/ui/design-refresh.spec.ts:90:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (9.1s)
+  ✘   8 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (4.3s)
+  ✓   9 tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (2.4s)
+  ✘  10 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (19.0s)
+  ✓  11 tests/ui/invites.spec.ts:45:1 › без сессии формы приглашения нет (321ms)
+  ✓  12 tests/ui/invites.spec.ts:52:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (4.1s)
+  ✓  13 tests/ui/invites.spec.ts:71:1 › мёртвая ссылка — один текст и путь на форму входа (1.1s)
+  ✓  14 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (2.7s)
+  ✓  15 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (3.5s)
+  ✓  16 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (2.0s)
+  ✓  17 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (3.2s)
+  ✓  18 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (2.9s)
+  ✓  19 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (7.4s)
+  ✓  20 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (6.5s)
+  ✓  21 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.6s)
+  ✘  22 tests/ui/login-access.spec.ts:130:1 › управление командой и сессиями открывается в профиле, не на входе (18.0s)
+  ✓  23 tests/ui/login-access.spec.ts:142:1 › вкладки входа и регистрации переключаются без перехода в приложение (2.2s)
+  ✓  24 tests/ui/login-access.spec.ts:152:1 › старая ссылка mode=register открывает регистрацию на главной (1.6s)
+  ✓  25 tests/ui/login-access.spec.ts:157:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (4.5s)
+  ✓  26 tests/ui/login-access.spec.ts:170:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (812ms)
+  ✓  27 tests/ui/login-access.spec.ts:175:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.5s)
+  ✓  28 tests/ui/login-access.spec.ts:186:1 › занятая почта и короткий пароль не создают сессию (2.4s)
+  ✓  29 tests/ui/mobile-adaptation.spec.ts:24:1 › телефон: низ страницы не прячется под нижней навигацией (6.2s)
+  ✓  30 tests/ui/mobile-adaptation.spec.ts:45:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (1.4s)
+  ✓  31 tests/ui/mobile-adaptation.spec.ts:54:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (2.2s)
+  ✘  32 tests/ui/mobile-adaptation.spec.ts:69:1 › телефон: сетка календаря выше сводки «На стойке» (45.3s)
+  ✓  33 tests/ui/mobile-adaptation.spec.ts:77:1 › узкий телефон: плитки финансов встают в одну колонку (1.6s)
+  ✓  34 tests/ui/mobile-adaptation.spec.ts:86:1 › телефон: месяц цен не растягивается на четыре экрана (1.2s)
+
+
+  1) tests/ui/design-refresh.spec.ts:26:1 › период Главной на телефоне и период «Аналитики»: подписанные поля и цели не меньше 44 px 
+
+    Error: getByLabel('Начало периода')
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 44
+    Received:    39.5
+
+      40 |     const box = await control.boundingBox();
+      41 |     expect(box, `${control}`).not.toBeNull();
+    > 42 |     expect(box!.height, `${control}`).toBeGreaterThanOrEqual(44);
+         |                                       ^
+      43 |     expect(box!.width, `${control}`).toBeGreaterThanOrEqual(44);
+      44 |   }
+      45 |   // «Показатели за период» с AN2 — «Аналитика» (ADR-114): обе вкладки, свой период — в панели «Период»
+        at /home/user/wetop.ai/tests/ui/design-refresh.spec.ts:42:39
+
+    Error Context: test-results/design-refresh-период-Глав-98f3a-поля-и-цели-не-меньше-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-refresh-период-Глав-98f3a-поля-и-цели-не-меньше-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-refresh-период-Глав-98f3a-поля-и-цели-не-меньше-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/design-refresh.spec.ts:70:1 › главная: период финансов в адресе, месячные показатели — на своём экране 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByTestId('pa-kpi-nights')
+    Expected: visible
+    Received: hidden
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('pa-kpi-nights') with timeout 15000ms
+      - waiting for getByTestId('pa-kpi-nights')
+        33 × locator resolved to <strong class="kpi__value" data-testid="pa-kpi-nights">31</strong>
+           - unexpected value "hidden"
+
+
+      80 |   await expect(page.getByTestId('pa-period')).toContainText(/(28|29|30|31) д/);
+      81 |   for (const id of ['occupancy', 'revenue', 'nights', 'bookings', 'cancelled', 'average']) {
+    > 82 |     await expect(page.getByTestId(`pa-kpi-${id}`)).toBeVisible();
+         |                                                    ^
+      83 |   }
+      84 |   await page.goto('/management/analytics?period=month&fund=rooms');
+      85 |   for (const id of ['adr', 'revpar']) await expect(page.getByTestId(`pa-kpi-${id}`)).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/design-refresh.spec.ts:82:52
+
+    Error Context: test-results/design-refresh-главная-пер-a0cd8-оказатели-—-на-своём-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-refresh-главная-пер-a0cd8-оказатели-—-на-своём-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-refresh-главная-пер-a0cd8-оказатели-—-на-своём-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 58
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#626872",
+    +               "contrastRatio": 1.57,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#7889a0",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 1.57 (foreground color: #7889a0, background color: #626872, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button class=\"workspace-search\" data-tour=\"search\" aria-label=\"Найти гостя или бронь\">",
+    +                 "target": Array [
+    +                   ".workspace-search",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 1.57 (foreground color: #7889a0, background color: #626872, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"workspace-search-full\">Поиск гостя, брони, номера...</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".workspace-search-full",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      45 |     await page.emulateMedia({ colorScheme: theme });
+      46 |     const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+    > 47 |     expect(axe.violations).toEqual([]);
+         |                            ^
+      48 |   }
+      49 | });
+      50 |
+        at /home/user/wetop.ai/tests/ui/guests-birthdays.spec.ts:47:28
+
+    Error Context: test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('invite-list')
+    Expected substring: "<email>"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('invite-list') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('invite-list')
+
+
+      29 |   await expect(main).not.toContainText('войдёт по коду');
+      30 |   const list = main.getByTestId('invite-list');
+    > 31 |   await expect(list).toContainText('<email>');
+         |                      ^
+      32 |   await expect(list).toContainText('ждёт ответа до');
+      33 |
+      34 |   await main.getByLabel('Почта приглашённого').fill('<email>');
+        at /home/user/wetop.ai/tests/ui/invites.spec.ts:31:22
+
+    Error Context: test-results/invites-вошедший-видит-ожи-e818b-очте-ошибки-формы-—-текстом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/invites-вошедший-видит-ожи-e818b-очте-ошибки-формы-—-текстом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/invites-вошедший-видит-ожи-e818b-очте-ошибки-формы-—-текстом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/login-access.spec.ts:130:1 › управление командой и сессиями открывается в профиле, не на входе 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('team')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('team') with timeout 15000ms
+      - waiting for getByTestId('team')
+
+
+      138 |   ).toBeVisible();
+      139 |   await expect(page.getByTestId('session-list')).toBeVisible();
+    > 140 |   await expect(page.getByTestId('team')).toBeVisible();
+          |                                          ^
+      141 | });
+      142 | test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
+      143 |   await page.goto('/login');
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:140:42
+
+    Error Context: test-results/login-access-управление-ко-b7d84-ается-в-профиле-не-на-входе/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-управление-ко-b7d84-ается-в-профиле-не-на-входе/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-управление-ко-b7d84-ается-в-профиле-не-на-входе/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/mobile-adaptation.spec.ts:69:1 › телефон: сетка календаря выше сводки «На стойке» ────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.boundingBox: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('.desk-strip')
+
+
+      71 |   await page.goto('/chessboard');
+      72 |   const board = await page.locator('.board-wrap').boundingBox();
+    > 73 |   const strip = await page.locator('.desk-strip').boundingBox();
+         |                                                   ^
+      74 |   expect(board!.y).toBeLessThan(strip!.y);
+      75 | });
+      76 |
+        at /home/user/wetop.ai/tests/ui/mobile-adaptation.spec.ts:73:51
+
+    Error Context: test-results/mobile-adaptation-телефон--e96ea-аря-выше-сводки-«На-стойке»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--e96ea-аря-выше-сводки-«На-стойке»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--e96ea-аря-выше-сводки-«На-стойке»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/design-refresh.spec.ts:26:1 › период Главной на телефоне и период «Аналитики»: подписанные поля и цели не меньше 44 px 
+    tests/ui/design-refresh.spec.ts:70:1 › главная: период финансов в адресе, месячные показатели — на своём экране 
+    tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» 
+    tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом 
+    tests/ui/login-access.spec.ts:130:1 › управление командой и сессиями открывается в профиле, не на входе 
+    tests/ui/mobile-adaptation.spec.ts:69:1 › телефон: сетка календаря выше сводки «На стойке» ─────
+  28 passed (3.8m)
+
+# код выхода 1 · 3 мин 47 с

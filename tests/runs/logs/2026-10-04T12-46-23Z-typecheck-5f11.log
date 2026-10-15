@@ -1,0 +1,18 @@
+# Типы (typecheck) · 04.10.2026 17:46 Алматы · MacBook-Air-Urij.local
+# коммит d91c207 (codex/mv2-registration-20261004), незакоммиченных файлов набора: 17
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/lib/auth-aliases.test.ts(12,9): error TS2554: Expected 1 arguments, but got 0.
+
+# код выхода 1 · 33 с

@@ -1,0 +1,49 @@
+# Модульные (unit) · 07.10.2026 18:37 Алматы · MacBook-Air-Urij.local
+# коммит 15ff587 (codex/mv9-acceptance-20261007), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-37-15Z-unit-a267.json' 'tests/unit/auto-deploy.test.ts' '--pool=threads' '--maxWorkers=1' '-t' 'после сборки не отвечает'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv9-acceptance-20261007
+
+ ❯ |unit| tests/unit/auto-deploy.test.ts (16 tests | 1 failed | 15 skipped) 7831ms
+   ❯ scripts/ops/auto-deploy.sh (16)
+     ↓ checked-out source stays readable by the container user under a private caller umask
+     ↓ ветка не ушла вперёд — ничего не делает и молчит
+     ↓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает
+     ↓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца
+     ↓ владелец применил миграции и назвал вершину — выкладывает ровно её
+     ↓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине
+     ↓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено
+     ↓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет
+     ↓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает
+     ↓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую
+     ↓ локальные правки в клоне — не затирает их
+     ↓ историю ветки переписали — не выкладывает поверх
+     × после сборки не отвечает — возвращает прежний коммит и прежний образ 7828ms
+     ↓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает
+     ↓ раннер занят дольше предела — выкладывает всё равно и говорит об этом
+     ↓ миграции проверяются раньше раннера: занятый раннер не прячет отказ
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > после сборки не отвечает — возвращает прежний коммит и прежний образ
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:271:3
+    269|   });
+    270|
+    271|   it('после сборки не отвечает — возвращает прежний коммит и прежний о…
+       |   ^
+    272|     const before = head();
+    273|     const target = commit('apps/web/page.txt', 'broken\n', 'broken');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 skipped (16)
+   Start at  17:37:19
+   Duration  8.34s (tests 98%, transform 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-37-15Z-unit-a267.json
+
+# код выхода 1 · 12 с

@@ -1,0 +1,44 @@
+# Сквозные (e2e) · 03.10.2026 16:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4987106 (claude/mobile-rest-screens), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/chessboard-range.spec.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/finance-cash.spec.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/channex-screens.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/rates-range.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/guests-design.spec.ts' 'tests/ui/inventory-catalog.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 126 tests using 1 worker
+
+  ✓    1 tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (2.1s)
+  ✓    2 tests/ui/channels-compact.spec.ts:27:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (863ms)
+  ✓    3 tests/ui/channels-compact.spec.ts:48:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (1.7s)
+  ✓    4 tests/ui/channels-compact.spec.ts:56:1 › sync never calls an empty disconnected queue successful (1.3s)
+  ✓    5 tests/ui/channex-screens.spec.ts:34:1 › обзор каналов: отчёт по источникам без дубля числа источников и без монограмм (1.5s)
+  ✘    6 tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой (16.2s)
+  ✘    7 tests/ui/channex-screens.spec.ts:108:1 › подключения каналов: настройка подключения только владельцу (18.0s)
+  ✓    8 tests/ui/channex-screens.spec.ts:145:1 › сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N» (2.3s)
+  ✓    9 tests/ui/channex-screens.spec.ts:215:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (1.2s)
+  ✓   10 tests/ui/channex-screens.spec.ts:275:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (1.1s)
+  ✓   11 tests/ui/channex-screens.spec.ts:294:1 › синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями» (967ms)
+  ✓   12 tests/ui/channex-screens.spec.ts:323:1 › события: фильтры, поиск и постраничность на своей вкладке (1.8s)
+  ✓   13 tests/ui/channex-screens.spec.ts:357:1 › старые адреса /channels с параметрами пульта открывают нужную вкладку (1.9s)
+  ✓   14 tests/ui/channex-screens.spec.ts:366:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (2.2s)
+  ✓   15 tests/ui/channex-screens.spec.ts:415:1 › приём брони: ревизия с двоеточиями в номере открывается (775ms)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:156:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:58:12)
+[WebServer]   154 |         /* тело не JSON */
+[WebServer]   155 |       }
+[WebServer] > 156 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   157 |   }
+[WebServer]   158 |   return (await res.json()) as T;
+[WebServer]   159 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   16 tests/ui/channex-screens.spec.ts:429:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (1.2s)
+  ✓   17 tests/ui/channex-screens.spec.ts:449:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (5.3s)
+
+# код выхода —, сигнал SIGTERM · 1 мин 12 с

@@ -1,0 +1,146 @@
+# Модульные (unit) · 04.10.2026 19:32 Алматы · MacBook-Air-Urij.local
+# коммит bc9b179 (codex/mv4-beauty-hardening-20261004), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-32-47Z-unit-08e4.json' 'apps/api/src/beauty/scope.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |unit| apps/api/src/beauty/scope.test.ts (6 tests | 6 failed) 8ms
+   ❯ MV4 explicit Beauty boundary (6)
+     × does not choose a salon without explicit Business 5ms
+     × Business context does not choose the first Location 0ms
+     × invalid explicit Location fails instead of degrading to Business 0ms
+     × HOSPITALITY is rejected before domain access 0ms
+     × FOOD_SERVICE is rejected before domain access 0ms
+     × every existing Beauty handler has the canonical capability 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/scope.test.ts > MV4 explicit Beauty boundary > does not choose a salon without explicit Business
+AssertionError: promise resolved "{ organizationId: 'org', …(5) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "businessId": "business",
++   "locationCurrency": "KZT",
++   "locationId": "first",
++   "locationName": "Salon",
++   "locationTimezone": "UTC",
++   "organizationId": "org",
+  }
+
+ ❯ apps/api/src/beauty/scope.test.ts:22:36
+     20|     const f = fixture();
+     21|     await expect(withSignedInUser({ ...actor, businessId: undefined, s…
+     22|       () => beautyScope(f.prisma))).rejects.toThrow();
+       |                                    ^
+     23|     expect(f.business.findFirst).not.toHaveBeenCalled();
+     24|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| apps/api/src/beauty/scope.test.ts > MV4 explicit Beauty boundary > Business context does not choose the first Location
+AssertionError: expected 'first' to be null
+
+- Expected:
+null
+
++ Received:
+"first"
+
+ ❯ apps/api/src/beauty/scope.test.ts:28:31
+     26|     const f = fixture();
+     27|     const result = await withSignedInUser(actor, () => beautyScope(f.p…
+     28|     expect(result.locationId).toBeNull();
+       |                               ^
+     29|     expect(f.location.findFirst).not.toHaveBeenCalled();
+     30|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| apps/api/src/beauty/scope.test.ts > MV4 explicit Beauty boundary > invalid explicit Location fails instead of degrading to Business
+AssertionError: promise resolved "{ organizationId: 'org', …(5) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "businessId": "business",
++   "locationCurrency": null,
++   "locationId": null,
++   "locationName": null,
++   "locationTimezone": null,
++   "organizationId": "org",
+  }
+
+ ❯ apps/api/src/beauty/scope.test.ts:35:36
+     33|     f.location.findFirst.mockResolvedValue(null);
+     34|     await expect(withSignedInUser({ ...actor, scope: 'LOCATION', locat…
+     35|       () => beautyScope(f.prisma))).rejects.toThrow();
+       |                                    ^
+     36|   });
+     37|   for (const vertical of ['HOSPITALITY', 'FOOD_SERVICE'] as const) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| apps/api/src/beauty/scope.test.ts > MV4 explicit Beauty boundary > HOSPITALITY is rejected before domain access
+ FAIL  |unit| apps/api/src/beauty/scope.test.ts > MV4 explicit Beauty boundary > FOOD_SERVICE is rejected before domain access
+AssertionError: promise resolved "{ organizationId: 'org', …(5) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "businessId": "business",
++   "locationCurrency": "KZT",
++   "locationId": "first",
++   "locationName": "Salon",
++   "locationTimezone": "UTC",
++   "organizationId": "org",
+  }
+
+ ❯ apps/api/src/beauty/scope.test.ts:40:90
+     38|     it(`${vertical} is rejected before domain access`, async () => {
+     39|       const f = fixture();
+     40|       await expect(withSignedInUser({ ...actor, vertical }, () => beau…
+       |                                                                                          ^
+     41|     });
+     42|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| apps/api/src/beauty/scope.test.ts > MV4 explicit Beauty boundary > every existing Beauty handler has the canonical capability
+AssertionError: services: expected undefined to be 'beauty.services' // Object.is equality
+
+- Expected:
+"beauty.services"
+
++ Received:
+undefined
+
+ ❯ apps/api/src/beauty/scope.test.ts:53:12
+     51|         const handler = (controller.prototype as unknown as Record<str…
+     52|         expect(Reflect.getMetadata(BUSINESS_CAPABILITY, handler) ?? Re…
+     53|           .toBe(capability);
+       |            ^
+     54|       }
+     55|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  18:32:48
+   Duration  686ms (transform 57%, import 41%, tests 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-32-47Z-unit-08e4.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,27 @@
+# Сквозные (e2e) · 03.10.2026 16:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.ai-seller.local.config.ts' 'tests/ui/ai-seller.spec.ts:390' '--workers=1'
+[WebServer] node:events:487
+[WebServer]       throw er; // Unhandled 'error' event
+[WebServer]       ^
+[WebServer] 
+[WebServer] Error: listen EADDRINUSE: address already in use 127.0.0.1:4321
+[WebServer]     at Server.setupListenHandle [as _listen2] (node:net:2167:16)
+[WebServer]     at listenInCluster (node:net:2224:12)
+[WebServer]     at node:net:2448:7
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[WebServer] Emitted 'error' event on Server instance at:
+[WebServer]     at emitErrorNT (node:net:2203:8)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+[WebServer]   code: 'EADDRINUSE',
+[WebServer]   errno: -48,
+[WebServer]   syscall: 'listen',
+[WebServer]   address: '127.0.0.1',
+[WebServer]   port: 4321
+[WebServer] }
+[WebServer] 
+[WebServer] Node.js v24.19.0
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 5 с

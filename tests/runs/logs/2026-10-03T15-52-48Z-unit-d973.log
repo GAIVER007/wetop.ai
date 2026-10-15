@@ -1,0 +1,39 @@
+# Модульные (unit) · 03.10.2026 20:52 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-52-48Z-unit-d973.json' 'apps/web/src/app/guests/filters.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/guests/filters.test.ts (5 tests | 1 failed) 13ms
+   ❯ отбор гостей в адресе (G7, ТЗ §31) (5)
+     ✓ читает раздел, поиск, визит, визиты, порядок и страницу; ссылка даёт тот же адрес 4ms
+     ✓ по умолчанию — короткий адрес /guests; старый ?status= читается разделом 0ms
+     × период: даты нужны обе и по порядку; без периода даты из адреса не едут 5ms
+     ✓ неизвестное значение — слово об ошибке и полный список, а не молча другой отбор 1ms
+     ✓ поиск и «Показать» уносят отбор, который сами не задают; отбор словами 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/guests/filters.test.ts > отбор гостей в адресе (G7, ТЗ §31) > период: даты нужны обе и по порядку; без периода даты из адреса не едут
+RangeError: Invalid time value
+ ❯ isDay apps/web/src/app/guests/filters.ts:56:63
+     54| };
+     55| const isDay = (v: string) =>
+     56|   /^\d{4}-\d{2}-\d{2}$/.test(v) && new Date(`${v}T00:00:00Z`).toISOStr…
+       |                                                               ^
+     57| const oneOf = <T extends string>(value: string, options: ReadonlyArray…
+     58|   options.some(([id]) => id === value);
+ ❯ parseGuestFilters apps/web/src/app/guests/filters.ts:88:38
+ ❯ apps/web/src/app/guests/filters.test.ts:66:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  15:52:48
+   Duration  243ms (transform 69%, import 13%, tests 13%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-52-48Z-unit-d973.json
+
+# код выхода 1 · 1 с

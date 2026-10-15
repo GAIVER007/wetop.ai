@@ -1,0 +1,38 @@
+# Типы (typecheck) · 03.10.2026 20:41 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 17
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+scripts/preview/fixture-api.ts(1611,54): error TS2379: Argument of type '{ knownChannels?: string[]; channel: string | undefined; sort: ChannelEfficiencySort; }' is not assignable to parameter of type '{ knownChannels?: string[]; channel?: string; sort?: ChannelEfficiencySort; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'channel' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+scripts/preview/fixture-api.ts(1612,64): error TS2379: Argument of type '{ knownChannels?: string[]; channel: string | undefined; sort: ChannelEfficiencySort; }' is not assignable to parameter of type '{ knownChannels?: string[]; channel?: string; sort?: ChannelEfficiencySort; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'channel' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+tests/ui/integrations-channex.spec.ts(52,41): error TS2379: Argument of type '{ name: string | undefined; exact: true; }' is not assignable to parameter of type '{ checked?: boolean; description?: string | RegExp; disabled?: boolean; exact?: boolean; expanded?: boolean; includeHidden?: boolean; level?: number; name?: string | RegExp; pressed?: boolean; selected?: boolean; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'name' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string | RegExp'.
+      Type 'undefined' is not assignable to type 'string | RegExp'.
+tests/ui/integrations-channex.spec.ts(52,89): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(name: string, value: string | RegExp, options?: { ignoreCase?: boolean; signal?: AbortSignal; timeout?: number; } | undefined): Promise<void>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | RegExp'.
+      Type 'undefined' is not assignable to type 'string | RegExp'.
+  Overload 2 of 2, '(name: string, options?: { signal?: AbortSignal; timeout?: number; } | undefined): Promise<void>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type '{ signal?: AbortSignal; timeout?: number; } | undefined'.
+      Type 'string' has no properties in common with type '{ signal?: AbortSignal; timeout?: number; }'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/management/analytics/channels/query.test.ts(52,29): error TS2345: Argument of type '{ from: string; to: string; rows: { label: string; source: string; channel: string; bookings: number; revenueMinor: string; revenueShare: number; nights: number; nightsShare: number; adrMinor: string; }[]; totals: { ...; }; }' is not assignable to parameter of type 'ChannelEfficiency'.
+  Property 'channels' is missing in type '{ from: string; to: string; rows: { label: string; source: string; channel: string; bookings: number; revenueMinor: string; revenueShare: number; nights: number; nightsShare: number; adrMinor: string; }[]; totals: { ...; }; }' but required in type 'ChannelEfficiency'.
+
+# код выхода 1 · 37 с

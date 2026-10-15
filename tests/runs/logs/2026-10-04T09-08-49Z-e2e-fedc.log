@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 04.10.2026 14:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c705dc (claude/mobile-rest-screens)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/desktop-compact.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/fixture-isolation.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+  ✓   1 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (13.9s)
+  ✓   2 tests/ui/desktop-compact.spec.ts:53:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (1.6s)
+  ✘   3 tests/ui/desktop-compact.spec.ts:70:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (3.1s)
+  ✓   4 tests/ui/fixture-isolation.spec.ts:7:1 › сброс после дизайн-сценария восстанавливает названия категорий и ячеек (88ms)
+  ✓   5 tests/ui/fixture-isolation.spec.ts:19:1 › сумма продления в подтверждении совпадает с подсказкой и записанным проживанием (20ms)
+  ✓   6 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (12.8s)
+  ✓   7 tests/ui/mobile-adaptation.spec.ts:61:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (2.4s)
+  ✓   8 tests/ui/mobile-adaptation.spec.ts:70:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (1.7s)
+  ✓   9 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана (1.4s)
+  ✓  10 tests/ui/mobile-adaptation.spec.ts:99:1 › узкий телефон: плитки финансов встают в одну колонку (1.7s)
+  ✓  11 tests/ui/mobile-adaptation.spec.ts:108:1 › телефон: месяц цен не растягивается на четыре экрана (1.9s)
+  ✓  12 tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (11.8s)
+  ✓  13 tests/ui/mobile-adaptation.spec.ts:156:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (14.5s)
+
+
+  1) tests/ui/desktop-compact.spec.ts:70:1 › ноутбук: под содержимым нет пустой полосы шире 32 px ──
+
+    Error: /channels: нижний отступ NaN px
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 32
+    Received:    NaN
+
+      77 |       .first()
+      78 |       .evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
+    > 79 |     expect(pad, `${route}: нижний отступ ${pad} px`).toBeLessThanOrEqual(32);
+         |                                                      ^
+      80 |   }
+      81 | });
+      82 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/desktop-compact.spec.ts:79:54
+
+    Error Context: test-results/desktop-compact-ноутбук-по-6bfbb-ет-пустой-полосы-шире-32-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop-compact-ноутбук-по-6bfbb-ет-пустой-полосы-шире-32-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop-compact-ноутбук-по-6bfbb-ет-пустой-полосы-шире-32-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/desktop-compact.spec.ts:70:1 › ноутбук: под содержимым нет пустой полосы шире 32 px ───
+  12 passed (1.3m)
+
+# код выхода 1 · 1 мин 21 с

@@ -2,7 +2,7 @@
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { useTheme, type Theme } from '../../components/theme-provider';
-import { RecordTabs } from '../../components/record-tabs';
+import { Tabs } from '../../components/tabs';
 import { Badge } from '../../components/ui';
 import type { ExtensionAccessView } from '../../lib/api';
 import type { DeskPerson } from '../../lib/desk-person';
@@ -16,9 +16,12 @@ import Link from 'next/link';
 export function ProfileView({
   person,
   seller,
+  hospitality = true,
 }: {
   person: DeskPerson | null;
   seller: ExtensionAccessView | null;
+  /** ИИ-продавец пока работает только у гостиницы: салону и ресторану вкладка расширений не нужна */
+  hospitality?: boolean;
 }) {
   const { theme, setTheme } = useTheme();
   return (
@@ -27,8 +30,9 @@ export function ProfileView({
       subtitle="Ваш интерфейс, в удобном для вас виде"
       width="narrow"
     >
-      <RecordTabs
-        tabs={[
+      <Tabs
+        label="Разделы карточки"
+        panels={[
           {
             id: 'appearance',
             label: 'Оформление',
@@ -64,12 +68,11 @@ export function ProfileView({
                   <Icon name="shield" />
                 </span>
                 <h2 className="section-title">Вход и сотрудники</h2>
-                {/* Правда на 25.09 (ADR-053, ADR-083): вход по почте и паролю; на стойке все равны (ADR-023), у владельца
-                    организации — приглашения и настройки ИИ-продавца */}
+                {/* Вход по почте и паролю (ADR-053); права даёт должность (ADR-107), приглашения в «Сотрудниках и доступе» */}
                 <p className="muted" data-testid="profile-access">
-                  Кто вошёл, приглашения, где ещё открыт вход и выход везде — на экране входа. Вход
-                  по почте и паролю. На стойке все вошедшие видят и делают одно и то же; владелец
-                  организации ещё приглашает сотрудников и настраивает ИИ-продавца.
+                  Вход по почте и паролю. Активные сессии и выход на всех устройствах: в управлении
+                  доступом. Права зависят от должности; владелец организации и управляющий
+                  приглашают сотрудников в разделе «Сотрудники и доступ».
                 </p>
                 {person && (
                   <p data-testid="profile-role">
@@ -77,17 +80,21 @@ export function ProfileView({
                     {person.caption.toLocaleLowerCase('ru')}.
                   </p>
                 )}
-                <Link href="/login" className="btn btn--secondary">
-                  Экран входа
+                <Link href="/profile/access" className="btn btn--secondary">
+                  Управление доступом
                 </Link>
               </section>
             ),
           },
-          {
-            id: 'extensions',
-            label: 'Расширения',
-            content: <SellerExtension seller={seller} signedIn={person !== null} />,
-          },
+          ...(hospitality
+            ? [
+                {
+                  id: 'extensions',
+                  label: 'Расширения',
+                  content: <SellerExtension seller={seller} signedIn={person !== null} />,
+                },
+              ]
+            : []),
         ]}
       />
     </Page>

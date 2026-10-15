@@ -15,12 +15,22 @@
  * `reservations-states`, «загрузка словом» в `system-screens` и `channex-screens`). Длинное
  * ожидание здесь отдавало бы им уже загруженную страницу и проверяло пустоту вместо скелетона.
  */
-import { test as base, expect, type Page } from '@playwright/test';
+import { test as base, expect, type Locator, type Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { settleNextRedirect } from '../tools/next-redirect';
 
 const STREAM_GRACE_MS = 700;
 
-/** Скрытый потоковый сегмент ещё в DOM? Даём ему уйти; не ушёл за форой — отдаём страницу как есть */
-async function settleStreaming(page: Page): Promise<void> {
+/**
+ * Скрытый потоковый сегмент ещё в DOM? Даём ему уйти; не ушёл за форой — отдаём страницу как есть.
+ *
+ * Обёртки ниже зовут это сами на `goto` и `reload`, но до перехода **щелчком по ссылке** фикстура не
+ * достаёт. На спокойной машине он укладывается мгновенно (замер 03.10.2026 на `/reports/print`: один
+ * `main`, скрытых сегментов ноль, пять повторов), а на загруженном раннере, где стойка отдаёт 503 и
+ * рвёт поток, обе копии висят в DOM, и строгий режим Playwright находит `data-testid` дважды. Спеку,
+ * который после щелчка ищет элемент по testid, это ожидание нужно позвать самому.
+ */
+export async function settleStreaming(page: Page): Promise<void> {
   // Выражение строкой: в корневом tsconfig нет библиотеки DOM, `document` тут не типизирован
   await page
     .waitForFunction('!document.querySelector(\'body > div[hidden][id^="S:"]\')', null, {
@@ -28,6 +38,59 @@ async function settleStreaming(page: Page): Promise<void> {
     })
     .catch(() => undefined);
 }
+
+/**
+ * Смена темы меняет цвета не мгновенно: `premium.css` даёт всем `button`, `a`, `input`, `select` и
+ * `textarea` переход `--ease` (180 мс) по фону, кромке и цвету текста, а сам `data-theme` ставит
+ * слушатель React, то есть мгновением позже, чем вернётся `emulateMedia`. Спеки с axe в двух темах
+ * переключают тему и сразу замеряют контраст, попадая в это окно: axe видит цвета, которых нет ни в
+ * одной теме (замер 03.10.2026 на `/guests/birthdays`: подпись поиска `#8192a9` на фоне `#353d4a`,
+ * 3.45:1 — при том, что в настоящей тёмной теме та же подпись даёт 6.48:1 и норму проходит).
+ * Отсюда «блуждающий» красный: падает тот спек, чей замер попал в 180 мс. Причина чинится здесь,
+ * а не в тестах и не в токенах (тот же разбор, что у анимации панели в срезе B4 03.10.2026).
+ */
+const THEME_APPLY_MS = 400;
+const THEME_TRANSITION_MS = 600;
+
+async function settleTheme(page: Page, scheme: 'light' | 'dark' | 'no-preference'): Promise<void> {
+  // Выражения строкой: в корневом tsconfig нет библиотеки DOM, `document` тут не типизирован
+  if (scheme === 'light' || scheme === 'dark') {
+    await page
+      .waitForFunction(`document.documentElement.dataset.theme === '${scheme}'`, null, {
+        timeout: THEME_APPLY_MS,
+      })
+      .catch(() => undefined);
+  }
+  await page
+    .waitForFunction(
+      "!document.getAnimations().some((a) => a.constructor.name === 'CSSTransition')",
+      null,
+      { timeout: THEME_TRANSITION_MS },
+    )
+    .catch(() => undefined);
+}
+
+/**
+ * Тот же класс без смены темы (разбор 09.10.2026, «История ночи» в `market.spec`): панель выезжает CSS-анимацией
+ * `drawer-in`, и axe, позванный сразу после щелчка, мерил полупрозрачный текст, цвета плавали от прогона к прогону.
+ * Обёртка `emulateMedia` тут не срабатывает (темы не меняли, анимация не переход), поэтому ждём перед каждым
+ * замером axe: конец всех конечных анимаций и переходов, с потолком. Бесконечные (спиннер) не ждём.
+ */
+const MOTION_SETTLE_MS = 1000;
+const SETTLE_MOTION = `Promise.race([
+  Promise.all(document.getAnimations()
+    .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+    .map((a) => a.finished.catch(() => undefined))),
+  new Promise((r) => setTimeout(r, ${MOTION_SETTLE_MS})),
+]).then(() => true)`;
+
+const axeAnalyze = AxeBuilder.prototype.analyze;
+AxeBuilder.prototype.analyze = async function analyze(this: AxeBuilder) {
+  // `page` у AxeBuilder приватное поле; публичного способа дождаться страницы перед замером нет
+  const page = (this as unknown as { page: Page }).page;
+  await page.evaluate(SETTLE_MOTION).catch(() => undefined);
+  return axeAnalyze.call(this);
+};
 
 export * from '@playwright/test';
 
@@ -38,6 +101,44 @@ export * from '@playwright/test';
  * исключение страницы; в сборке этой дорожки нет (разбор 21.09.2026).
  */
 export const devNoise = /Failed to execute 'measure' on 'Performance'/;
+
+/**
+ * ADR-134 (02.10.2026, поручение владельца): навигация стойки сверху, шапка из двух строк, `--header-h` 72 → 100 px.
+ * Владелец принял, что экраны отдают шапке эту высоту («шахматка на компьютере теряет 28 px высоты»). Проверки
+ * «помещается на экране ноутбука», заданные до 02.10.2026, считали место под содержимое при прежней шапке: бюджет
+ * содержимого у них прежний, бюджет окна больше ровно на рост шапки. Всё, что сверх, это рост самого экрана, и
+ * проверка его ловит (разбор полного UI 03.10.2026, `docs/history/2026-10-03-double-shift.md`).
+ */
+export const HEADER_GROWTH_PX = 28;
+
+/**
+ * Оживил ли React этот узел. Сервер рисует кнопку раньше, чем браузер получит и выполнит скрипты стойки, и клик в
+ * этот промежуток пропадает: кнопка видна, а обработчика у неё ещё нет. Признак оживления: служебное свойство React
+ * на самом узле (`__reactProps$…`), его ставят вместе с обработчиками (тот же признак, что у `ai-seller.spec.ts`).
+ * На медленном раннере GitHub промежуток доходит до секунд: TESTING.md, строки 20.09 (`real-data`), 27.09
+ * (`ai-seller`) и 03.10 (`login-access`, release-checks #7).
+ */
+export async function hydrated(target: Locator): Promise<void> {
+  await expect
+    .poll(
+      () =>
+        target.evaluate((node) => Object.keys(node).some((key) => key.startsWith('__reactProps$'))),
+      { message: 'React не оживил элемент: скрипты стойки не дошли или упали', timeout: 30_000 },
+    )
+    .toBe(true);
+}
+
+/**
+ * «Меню администратора» в шапке: нажать, когда React оживил кнопку, и убедиться, что меню раскрылось. Спеки открывают
+ * меню профиля только так (сторож `tests/unit/ui-profile-menu.test.ts`); возвращает саму кнопку.
+ */
+export async function openProfileMenu(page: Page): Promise<Locator> {
+  const menu = page.getByRole('button', { name: 'Меню администратора' });
+  await hydrated(menu);
+  await menu.click();
+  await expect(menu).toHaveAttribute('aria-expanded', 'true');
+  return menu;
+}
 
 /**
  * Обучение в стойке (ADR-100) само открывается на Главной у вошедшего, пока в браузере нет отметки «пройдено».
@@ -60,18 +161,131 @@ export const test = base.extend<{ tour: boolean }>({
     if (!tour) await page.addInitScript(TOUR_DONE_SCRIPT);
     const goto = page.goto.bind(page);
     page.goto = async (url, options) => {
+      // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      await settleNextRedirect(page, 'commit');
       const response = await goto(url, options);
+      const until = options?.waitUntil ?? 'load';
+      await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
       await settleStreaming(page);
       return response;
     };
     const reload = page.reload.bind(page);
     page.reload = async (options) => {
+      await settleNextRedirect(page, 'commit');
       const response = await reload(options);
+      const until = options?.waitUntil ?? 'load';
+      await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
       await settleStreaming(page);
       return response;
+    };
+    const emulateMedia = page.emulateMedia.bind(page);
+    page.emulateMedia = async (options) => {
+      await emulateMedia(options);
+      if (options?.colorScheme) await settleTheme(page, options.colorScheme);
     };
     await use(page);
   },
 });
 
 export { expect };
+
+/**
+ * Адрес подставного API для запросов спека (`__test/reset`, `__test/control`). Дерево делят несколько сессий, и
+ * 4311 бывает занят соседним прогоном: `playwright.alt.config.ts` поднимает свой стенд и передаёт его адрес
+ * `UI_FIXTURE_API` (календарные спеки задавали тот же стенд через `FIXTURE_PORT`, поэтому понимаем и его).
+ * Спек, у которого адрес зашит константой, в этом случае сбрасывает и настраивает ЧУЖУЮ фикстуру,
+ * а страницу читает со своей. 03.10.2026 так падал `ai-seller.spec` на «Коде для сайта»: `sellerHosts: []` уехал
+ * соседу, своя фикстура осталась с доменом, и подсказка «сайта нет» на странице не появлялась.
+ */
+const fixturePort = process.env['FIXTURE_PORT'];
+export const FIXTURE_API =
+  process.env['UI_FIXTURE_API'] ??
+  (fixturePort ? `http://127.0.0.1:${fixturePort}` : 'http://127.0.0.1:4311');
+
+/**
+ * Полная карточка брони двойным щелчком по плашке календаря. Событие подаётся плашке напрямую, а не двумя
+ * щелчками мыши: от 1280 px первый щелчок открывает панель брони рядом с сеткой, сетка сужается и плашка
+ * уезжает из-под курсора, поэтому второй щелчок попадает в панель. Плашка «заезд сегодня» стоит правее
+ * середины недели по субботам и воскресеньям (выходные по Алматы), и в эти дни гейт краснел сам по себе.
+ */
+export async function openFullCard(stay: Locator) {
+  // событие, поданное до оживления React, пропадает так же, как щелчок: сначала дожидаемся обработчиков
+  await hydrated(stay);
+  await stay.dispatchEvent('dblclick');
+}
+
+/**
+ * Окошко «Фильтры» календаря. С 09.10.2026 (образец владельца) категория и «Места» живут в нём, а не
+ * в строке над сеткой: открыть, выбрать и «Применить».
+ */
+export async function openBoardFilters(page: Page) {
+  await page
+    .getByRole('main')
+    .getByRole('button', { name: /^Фильтры( \d+)?$/ })
+    .click();
+  const pop = page.getByRole('dialog', { name: 'Фильтры календаря' });
+  await expect(pop).toBeVisible();
+  return pop;
+}
+
+/** Выбирает утверждённый пресет в едином контроле и применяет его к шахматке. */
+export async function chooseBoardPeriod(
+  page: Page,
+  preset: 'Сегодня' | '7 дней' | '14 дней' | '30 дней' | 'Текущий месяц',
+) {
+  await page.getByTestId('board-period-button').click();
+  const menu = page.locator('.board-nav .date-range');
+  await menu.getByRole('button', { name: preset, exact: true }).click();
+  await menu.getByRole('button', { name: 'Применить', exact: true }).click();
+}
+
+/** Выбрать категорию и/или состояние места в окошке «Фильтры» и применить */
+export async function boardFilter(page: Page, pick: { category?: string; state?: string }) {
+  const pop = await openBoardFilters(page);
+  if (pick.category !== undefined)
+    await pop.getByLabel('Категория в календаре').selectOption(pick.category);
+  if (pick.state !== undefined) await pop.getByLabel('Места в календаре').selectOption(pick.state);
+  await pop.getByRole('button', { name: 'Применить', exact: true }).click();
+  await expect(pop).toBeHidden();
+}
+
+/**
+ * Левое меню (ADR-161). `sideNav`: навигация «Разделы» в колонке слева; `menuLinks`: все адреса меню, каждый ровно
+ * один раз (подразделы всех разделов лежат в панели, виден один).
+ */
+export const sideNav = (page: Page) => page.locator('.sidenav');
+export const menuLinks = (page: Page) =>
+  page
+    .locator('.sidenav__panel a')
+    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+
+/** Открывает панель разделов наведением на кнопку текущего раздела и показывает подразделы `section` */
+export async function openSection(page: Page, section: string) {
+  const nav = sideNav(page);
+  // шапка клиентская: до гидрации наведение без обработчика, поэтому повтор. Мышь сперва уводим: после перехода
+  // панель закрывается по смене адреса, а курсор, уже стоящий на кнопке, нового pointerenter не даёт
+  // Увод мыши запускает закрытие панели через 150 мс (CLOSE_DELAY): открытой она может быть ещё мгновение.
+  // Поэтому ждём закрытия и открываем заново, а наведение на раздел проверяем внутри того же повтора
+  const panel = nav.locator('.sidenav__panel');
+  await expect(async () => {
+    await page.mouse.move(page.viewportSize()!.width - 1, page.viewportSize()!.height - 1);
+    await page.waitForTimeout(250);
+    if ((await nav.locator('.sidenav__current').getAttribute('aria-expanded')) !== 'true')
+      await nav.locator('.sidenav__current').click();
+    await expect(panel).toBeVisible({ timeout: 1_000 });
+    const group = nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) });
+    if (await group.getAttribute('aria-expanded') === 'false') await group.click();
+    await expect(panel).toBeVisible({ timeout: 1_000 });
+  }).toPass({ timeout: 15_000 });
+  return nav.locator('.sidenav__items:not([hidden])');
+}
+
+/** Переход через панель: раздел → подраздел, как человек мышью */
+export async function goViaMenu(page: Page, section: string, item: string) {
+  const items = await openSection(page, section);
+  if (await items.count()) await items.getByRole('link', { name: item, exact: true }).click();
+  else
+    await sideNav(page)
+      .locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) })
+      .click();
+}

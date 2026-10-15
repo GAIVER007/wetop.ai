@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 03.10.2026 21:55 Алматы · vm
+# коммит a1410b6 (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'incidents' 'rates-design' 'rates-range' 'rates-derived' 'unified-sections'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 25 tests using 1 worker
+
+  ✓   1 tests/ui/incidents-design.spec.ts:19:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами (1.4s)
+  ✓   2 tests/ui/incidents-design.spec.ts:57:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс (1.5s)
+  ✓   3 tests/ui/incidents-design.spec.ts:81:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку (1.2s)
+  ✓   4 tests/ui/incidents-design.spec.ts:96:1 › неисправности: телефон — карточка, цели 44 px, без прокрутки вбок, доступность (5.6s)
+  ✓   5 tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента (4.4s)
+  ✓   6 tests/ui/rates-derived.spec.ts:65:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить (4.6s)
+  ✓   7 tests/ui/rates-derived.spec.ts:103:1 › «только чтение»: производные тарифы и промокоды видны, кнопок правки нет (2.2s)
+  ✓   8 tests/ui/rates-derived.spec.ts:117:3 › снимки D4 и доступность: light (7.2s)
+  ✓   9 tests/ui/rates-derived.spec.ts:117:3 › снимки D4 и доступность: dark (7.4s)
+  ✓  10 tests/ui/rates-design.spec.ts:18:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (1.4s)
+  ✓  11 tests/ui/rates-design.spec.ts:64:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (1.9s)
+  ✓  12 tests/ui/rates-design.spec.ts:94:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (2.4s)
+  ✓  13 tests/ui/rates-design.spec.ts:110:1 › фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать» (2.7s)
+  ✓  14 tests/ui/rates-design.spec.ts:131:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (1.5s)
+  ✘  15 tests/ui/rates-design.spec.ts:162:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь (1.6s)
+  ✓  16 tests/ui/rates-design.spec.ts:192:1 › нет цены в воскресенье: подсказка не расширяет страницу (1.0s)
+  ✓  17 tests/ui/rates-range.spec.ts:35:1 › один день: выбор, панель с фактами, предпросмотр, одна отправка, календарь обновлён и выбор сброшен (2.2s)
+  ✓  18 tests/ui/rates-range.spec.ts:88:1 › отрезок: второе касание задаёт отрезок, третье начинает заново, то же касание снимает выбор (2.7s)
+  ✓  19 tests/ui/rates-range.spec.ts:145:1 › разные исходные цены: «отличаются» с наименьшей и наибольшей, в предпросмотре — только новая цена (2.1s)
+  ✓  20 tests/ui/rates-range.spec.ts:191:1 › щелчок по цене — прежняя правка ячейки, выбор дат он не трогает; смена месяца выбор сбрасывает (1.8s)
+  ✓  21 tests/ui/rates-range.spec.ts:210:1 › отказ API: причина в панели, панель, введённая цена и выбор остаются (2.1s)
+  ✓  22 tests/ui/rates-range.spec.ts:236:1 › «только чтение»: выбор и предпросмотр доступны, сохранить нельзя — общая фраза, запроса нет (2.7s)
+  ✓  23 tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение помещаются на ноутбуке (2.4s)
+  ✓  24 tests/ui/unified-sections.spec.ts:26:1 › интеграции: незавершённая настройка не называется подключением (2.3s)
+  ✓  25 tests/ui/unified-sections.spec.ts:32:1 › адаптивный обзор разделов (6.2s)
+
+
+  1) tests/ui/rates-design.spec.ts:162:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      179 |   const after = await cal.boundingBox();
+      180 |   expect(after!.y).toBe(before!.y);
+    > 181 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
+          |                                                                                               ^
+      182 |     true,
+      183 |   );
+      184 |   await page.getByRole('button', { name: 'Переключить тему' }).click();
+        at /home/user/wetop.ai/tests/ui/rates-design.spec.ts:181:95
+
+    Error Context: test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/rates-design.spec.ts:162:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь 
+  24 passed (1.4m)
+
+# код выхода 1 · 1 мин 23 с

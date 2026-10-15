@@ -1,0 +1,75 @@
+# Сквозные (e2e) · 01.10.2026 12:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 68
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'login-access.spec.ts' '--grep' 'занятая почта' '--workers=1'
+[WebServer] (node:99218) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99249) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99285) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:99322) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99323) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:99327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/login-access.spec.ts:158:1 › занятая почта и короткий пароль не создают сессию (17.2s)
+
+
+  1) tests/ui/login-access.spec.ts:158:1 › занятая почта и короткий пароль не создают сессию ───────
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('dialog').getByLabel('Почта')
+    Expected: "<email>"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('dialog').getByLabel('Почта') with timeout 15000ms
+      - waiting for getByRole('dialog').getByLabel('Почта')
+        33 × locator resolved to <input value="" required="" type="email" name="email" inputmode="email" autocomplete="username" class="auth-field__input" placeholder="<email>"/>
+           - unexpected value ""
+
+
+      21 |   await form.getByLabel('Пароль', { exact: true }).fill('synthetic-password');
+      22 |   await form.getByRole('checkbox').check();
+    > 23 |   await expect(form.getByLabel('Почта')).toHaveValue(email);
+         |                                          ^
+      24 |   await expect(form.getByLabel('Имя', { exact: true })).toHaveValue('Тестовый Пользователь');
+      25 |   await expect(form.getByLabel('Название гостиницы')).toHaveValue('Тестовый объект');
+      26 |   await expect(form.getByLabel('Телефон', { exact: true })).toHaveValue('7015554433');
+        at fillRegister (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/login-access.spec.ts:23:42)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/login-access.spec.ts:160:3
+
+    Error Context: test-results/login-access-занятая-почта-7a252-ий-пароль-не-создают-сессию/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-занятая-почта-7a252-ий-пароль-не-создают-сессию/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-занятая-почта-7a252-ий-пароль-не-создают-сессию/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/login-access.spec.ts:158:1 › занятая почта и короткий пароль не создают сессию ────────
+
+# код выхода 1 · 25 с

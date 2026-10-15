@@ -1,0 +1,254 @@
+# Сквозные (e2e) · 03.10.2026 20:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 74f3bc8 (main), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/today-operations.spec.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' 'tests/ui/loading-performance.spec.ts' 'tests/ui/today-attention.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 32 tests using 1 worker
+
+  ✘   1 tests/ui/dashboard-design.spec.ts:20:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (16.5s)
+  ✘   2 tests/ui/dashboard-design.spec.ts:57:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (15.9s)
+  ✓   3 tests/ui/dashboard-design.spec.ts:95:1 › главная: «Требуют внимания» разбито по важности, сумма равна счётчику; быстрых действий нет (1.1s)
+  ✓   4 tests/ui/dashboard-desk.spec.ts:18:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез (737ms)
+  ✓   5 tests/ui/dashboard-desk.spec.ts:28:1 › 5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди (789ms)
+  ✓   6 tests/ui/dashboard-desk.spec.ts:36:1 › 6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка (739ms)
+  ✓   7 tests/ui/dashboard-desk.spec.ts:45:1 › 7. краткие подписи без декоративных разделителей (551ms)
+  ✓   8 tests/ui/dashboard-desk.spec.ts:49:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (736ms)
+  ✘   9 tests/ui/dashboard-desk.spec.ts:83:1 › 9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px (1.1s)
+  ✓  10 tests/ui/dashboard-desk.spec.ts:126:1 › 10. заголовок страницы и панели брони — по шкале §6 (3.1s)
+  ✓  11 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (614ms)
+  ✘  12 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (15.7s)
+  ✓  13 tests/ui/dashboard-resilience.spec.ts:36:1 › Главная открывается и с упавшими показателями периода: операционный блок остаётся доступен (889ms)
+  ✓  14 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (688ms)
+  ✓  15 tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (1.6s)
+  ✓  16 tests/ui/loading-performance.spec.ts:48:1 › стойка и её шахматка запрашиваются параллельно (6.1s)
+  ✓  17 tests/ui/loading-performance.spec.ts:73:1 › мобильное меню использует уже загруженную свежесть без второго опроса (803ms)
+TODAY_LOADING_MS [{"heading":1201,"strip":1201,"desk":1201},{"heading":1216,"strip":1217,"desk":1217},{"heading":1198,"strip":1198,"desk":1199}]
+  ✓  18 tests/ui/loading-performance.spec.ts:97:1 › замер: блоки Главной при задержке настроек 2000 мс (6.9s)
+  ✓  19 tests/ui/loading-performance.spec.ts:127:1 › фоновый опрос не перекрывается и восстанавливается после отказа (1.1s)
+  ✓  20 tests/ui/owner-dashboard.spec.ts:13:1 › owner dashboard: today widgets and money, no desk buttons, no expenses tile (1.1s)
+  ✓  21 tests/ui/owner-dashboard.spec.ts:34:1 › dashboard period changes and mobile retains content (925ms)
+  ✓  22 tests/ui/owner-dashboard.spec.ts:45:1 › owner dashboard keeps operations visible when finance fails (586ms)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="today/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/today?per..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="today/page...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <TodayPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                           <header>
+[WebServer]                           <div className="owner-dash..." data-testid="owner-dash...">
+[WebServer]                             <Suspense>
+[WebServer]                             <div className="owner-toolbar">
+[WebServer]                               <h2>
+[WebServer]                               <nav>
+[WebServer]                               <form action="/today">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="period"
+[WebServer]                                   value="custom"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <input
+[WebServer]                                   aria-label="Начало периода"
+[WebServer]                                   type="date"
+[WebServer]                                   name="from"
+[WebServer]                                   defaultValue="2026-09-27"
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <span>
+[WebServer]                                 <input
+[WebServer]                                   aria-label="Конец периода"
+[WebServer]                                   type="date"
+[WebServer]                                   name="to"
+[WebServer]                                   defaultValue="2026-10-03"
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+  ✓  23 tests/ui/owner-dashboard.spec.ts:57:1 › owner dashboard dark desktop and mobile remain usable (982ms)
+  ✓  24 tests/ui/today-attention.spec.ts:76:1 › очередь: каждое событие дня с числом, важностью и одним действием; порядок Critical → Warning → Info (893ms)
+  ✓  25 tests/ui/today-attention.spec.ts:117:1 › незаезд ведёт в бронь, долг — в счёт; брони строками с именем и номером (791ms)
+  ✓  26 tests/ui/today-attention.spec.ts:136:1 › сторож не ответил — строк инцидентов нет, остальная очередь на месте (798ms)
+  ✓  27 tests/ui/today-attention.spec.ts:150:1 › финансовый период в будущем не скрывает текущие задачи гостиницы (748ms)
+  ✓  28 tests/ui/today-attention.spec.ts:163:1 › снимки панелей Главной после редизайна (4.4s)
+  ✓  29 tests/ui/today-operations.spec.ts:52:1 › виджеты дня: загрузка, гости и состояние номеров — числа шахматки и стойки дня (924ms)
+  ✓  30 tests/ui/today-operations.spec.ts:81:1 › финансовые показатели совпадают с dashboard API и не подменяют расходы нулём (1.2s)
+  ✓  31 tests/ui/today-operations.spec.ts:101:1 › финансы будущего периода не меняют текущую уборку (553ms)
+  ✓  32 tests/ui/today-operations.spec.ts:107:1 › сбой сторожа не скрывает показатели и действия (622ms)
+
+
+  1) tests/ui/dashboard-design.spec.ts:20:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('pa-categories').getByRole('columnheader', { name: 'Продано ночей' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('pa-categories').getByRole('columnheader', { name: 'Продано ночей' }) with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-categories').getByRole('columnheader', { name: 'Продано ночей' })
+
+
+      39 |   const table = main.getByTestId('pa-categories');
+      40 |   await expect(table.getByRole('columnheader', { name: 'Загрузка' })).toHaveCount(0);
+    > 41 |   await expect(table.getByRole('columnheader', { name: 'Продано ночей' })).toBeVisible();
+         |                                                                            ^
+      42 |
+      43 |   // подписи плиток и полос — словами через запятую, не « · »
+      44 |   for (const hint of await main.locator('.kpi__hint').allTextContents())
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/dashboard-design.spec.ts:41:76
+
+    Error Context: test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/dashboard-design.spec.ts:57:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('main').getByTestId('pa-categories')
+    Expected: visible
+    Received: hidden
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('pa-categories') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-categories')
+        33 × locator resolved to <table data-testid="pa-categories" class="tbl tbl--nowrap dash-table dash-table--categories pa-categories">…</table>
+           - unexpected value "hidden"
+
+
+      62 |   await page.goto(`${OVERVIEW}?period=week`);
+      63 |   const table = main.getByTestId('pa-categories');
+    > 64 |   await expect(table).toBeVisible();
+         |                       ^
+      65 |   const clipped = await table.evaluate((el) => {
+      66 |     const scroller = el.closest('.table-scroll') ?? el.parentElement!;
+      67 |     return scroller.scrollWidth - scroller.clientWidth;
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/dashboard-design.spec.ts:64:23
+
+    Error Context: test-results/dashboard-design-показател-e34d1--а-не-обрезается-прокруткой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-design-показател-e34d1--а-не-обрезается-прокруткой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-design-показател-e34d1--а-не-обрезается-прокруткой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/dashboard-desk.spec.ts:83:1 › 9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px 
+
+    Error: аналитика, обзор, ширина 1440
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "28px h1.page__title",
+    +   "12px div.kpi__hint",
+    +   "16px b.panel__title",
+    + ]
+
+      112 |     await page.goto('/management/analytics?period=week');
+      113 |     await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();
+    > 114 |     expect(await offScale(main), `аналитика, обзор, ширина ${width}`).toEqual([]);
+          |                                                                       ^
+      115 |     if (width === 1440) expect(await fontSize(main.getByTestId('pa-kpi-occupancy'))).toBe('26px');
+      116 |     await page.goto('/management/analytics/occupancy');
+      117 |     await expect(main.getByTestId('statistics-table')).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/dashboard-desk.spec.ts:114:71
+
+    Error Context: test-results/dashboard-desk-9-размеры-ш-8b684-шкалы-§6-число-плитки-26-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-9-размеры-ш-8b684-шкалы-§6-число-плитки-26-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-9-размеры-ш-8b684-шкалы-§6-число-плитки-26-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('pa-period')
+    Expected pattern: /дн(я|ей)/
+    Received string:  "1 окт. — 31 окт., 31 день, будущие дни — по броням"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('pa-period') with timeout 15000ms
+      - waiting for getByTestId('pa-period')
+        34 × locator resolved to <p data-testid="pa-period" class="pa-toolbar__caption">…</p>
+           - unexpected value "1 окт. — 31 окт., 31 день, будущие дни — по броням"
+
+
+      29 | test('период выбирается: «этот месяц» открывается с числами', async ({ page }) => {
+      30 |   await page.goto('/management/analytics?period=month');
+    > 31 |   await expect(page.getByTestId('pa-period')).toContainText(/дн(я|ей)/);
+         |                                               ^
+      32 |   await expect(page.getByTestId('pa-kpi-occupancy')).toBeVisible();
+      33 |   await expect(page.getByTestId('pa-error')).toHaveCount(0);
+      34 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/dashboard-resilience.spec.ts:31:47
+
+    Error Context: test-results/dashboard-resilience-перио-3a774-есяц»-открывается-с-числами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-resilience-перио-3a774-есяц»-открывается-с-числами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-resilience-перио-3a774-есяц»-открывается-с-числами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/dashboard-design.spec.ts:20:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек 
+    tests/ui/dashboard-design.spec.ts:57:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой 
+    tests/ui/dashboard-desk.spec.ts:83:1 › 9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px 
+    tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами 
+  28 passed (1.7m)
+
+# код выхода 1 · 1 мин 42 с

@@ -1,0 +1,197 @@
+# Сквозные (e2e) · 04.10.2026 11:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/desk-tasks.spec.ts' '--config' 'tests/ui/playwright.nights-alt.config.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1851ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/ui/desk-tasks.spec.ts:27:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря (51.1s)
+  ✘  2 tests/ui/desk-tasks.spec.ts:61:1 › ошибка словами у формы, введённое не теряется (47.3s)
+  ✘  3 tests/ui/desk-tasks.spec.ts:72:1 › «только чтение»: список виден, создавать и закрывать нельзя (47.4s)
+  ✘  4 tests/ui/desk-tasks.spec.ts:83:3 › снимки и доступность: light (59.9s)
+  ✘  5 tests/ui/desk-tasks.spec.ts:83:3 › снимки и доступность: dark (28.0s)
+
+
+  1) tests/ui/desk-tasks.spec.ts:27:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Задачи', exact: true })
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Задачи', exact: true }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Задачи', exact: true })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      28 |   const t0 = await today(request);
+      29 |   await page.goto('/tasks');
+    > 30 |   await expect(page.getByRole('heading', { name: 'Задачи', exact: true })).toBeVisible();
+         |                                                                            ^
+      31 |   await expect(page.getByText('Задач пока нет')).toBeVisible();
+      32 |
+      33 |   await page.getByTestId('task-new').click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/desk-tasks.spec.ts:30:76
+
+    Error Context: test-results/desk-tasks-создать-задачу--4cb8c--счётчик-в-панели-календаря/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-создать-задачу--4cb8c--счётчик-в-панели-календаря/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-создать-задачу--4cb8c--счётчик-в-панели-календаря/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/desk-tasks.spec.ts:61:1 › ошибка словами у формы, введённое не теряется ──────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('task-new')
+
+
+      61 | test('ошибка словами у формы, введённое не теряется', async ({ page }) => {
+      62 |   await page.goto('/tasks');
+    > 63 |   await page.getByTestId('task-new').click();
+         |                                      ^
+      64 |   const form = page.getByTestId('task-form');
+      65 |   await form.getByTestId('task-title').fill('Проверить кондиционеры');
+      66 |   await form.getByTestId('task-time').fill('25:00');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/desk-tasks.spec.ts:63:38
+
+    Error Context: test-results/desk-tasks-ошибка-словами-у-формы-введённое-не-теряется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-ошибка-словами-у-формы-введённое-не-теряется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-ошибка-словами-у-формы-введённое-не-теряется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/desk-tasks.spec.ts:72:1 › «только чтение»: список виден, создавать и закрывать нельзя 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('task-row')
+    Expected substring: "Вымышленная задача"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('task-row') with timeout 15000ms
+      - waiting for getByTestId('task-row')
+
+
+      75 |   await request.post(`${API}/__test/control`, { data: { orgTrialDays: 'ended' } });
+      76 |   await page.goto('/tasks');
+    > 77 |   await expect(page.getByTestId('task-row')).toContainText('Вымышленная задача');
+         |                                              ^
+      78 |   await expect(page.getByTestId('task-new')).toHaveCount(0);
+      79 |   await expect(page.getByRole('checkbox', { name: /Сделано/ })).toBeDisabled();
+      80 | });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/desk-tasks.spec.ts:77:46
+
+    Error Context: test-results/desk-tasks-«только-чтение»-28166-оздавать-и-закрывать-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-«только-чтение»-28166-оздавать-и-закрывать-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-«только-чтение»-28166-оздавать-и-закрывать-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/desk-tasks.spec.ts:83:3 › снимки и доступность: light ────────────────────────────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('task-row')
+    Expected: 3
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('task-row') with timeout 15000ms
+      - waiting for getByTestId('task-row')
+        32 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |     await page.setViewportSize({ width: 1440, height: 900 });
+      95 |     await page.goto('/tasks');
+    > 96 |     await expect(page.getByTestId('task-row')).toHaveCount(3);
+         |                                                ^
+      97 |     const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+      98 |     expect(axe.violations.map((v) => v.id)).toEqual([]);
+      99 |     await page.screenshot({ path: `${SHOTS}/${theme}-1440.png` });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/desk-tasks.spec.ts:96:48
+
+    Error Context: test-results/desk-tasks-снимки-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-снимки-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-снимки-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/desk-tasks.spec.ts:83:3 › снимки и доступность: dark ─────────────────────────────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('task-row')
+    Expected: 3
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('task-row') with timeout 15000ms
+      - waiting for getByTestId('task-row')
+        32 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |     await page.setViewportSize({ width: 1440, height: 900 });
+      95 |     await page.goto('/tasks');
+    > 96 |     await expect(page.getByTestId('task-row')).toHaveCount(3);
+         |                                                ^
+      97 |     const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+      98 |     expect(axe.violations.map((v) => v.id)).toEqual([]);
+      99 |     await page.screenshot({ path: `${SHOTS}/${theme}-1440.png` });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/desk-tasks.spec.ts:96:48
+
+    Error Context: test-results/desk-tasks-снимки-и-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-снимки-и-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-снимки-и-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/desk-tasks.spec.ts:27:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря 
+    tests/ui/desk-tasks.spec.ts:61:1 › ошибка словами у формы, введённое не теряется ───────────────
+    tests/ui/desk-tasks.spec.ts:72:1 › «только чтение»: список виден, создавать и закрывать нельзя ─
+    tests/ui/desk-tasks.spec.ts:83:3 › снимки и доступность: light ─────────────────────────────────
+    tests/ui/desk-tasks.spec.ts:83:3 › снимки и доступность: dark ──────────────────────────────────
+
+# код выхода 1 · 7 мин 3 с

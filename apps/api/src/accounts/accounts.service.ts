@@ -1,16 +1,21 @@
 import 'reflect-metadata';
-import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional, ServiceUnavailableException } from '@nestjs/common';
 import {
   INVITES_PER_DAY,
   INVITE_TTL_MS,
   MEMBERSHIP_ROLES,
   canInvite,
+  canEditMemberDetails,
   canManageStaff,
   canRemoveMember,
   canSetRoleAtDesk,
   checkInvite,
   invitableRoles,
   parseInviteRole,
+  parseScopeAssignments,
+  membershipRoleFor,
+  validateAssignments,
+  type ScopeAssignment,
   type MembershipRole,
   checkSession,
   describeUserAgent,
@@ -19,6 +24,7 @@ import {
   isEmailShaped,
   normalizeEmail,
   resetExpiry,
+  parseMemberDetails,
 } from '@pms/domain';
 import { hashEquals, hashSecret, newSessionToken } from '@pms/shared';
 import { mail } from '@pms/integrations';
@@ -26,6 +32,7 @@ import {
   ACCOUNTS_REPOSITORY,
   type AccountsRepository,
   type InviteRecord,
+  type OrganizationStructure,
   type SessionRecord,
 } from './accounts.repository';
 import type { Actor } from './actor';
@@ -50,6 +57,11 @@ export interface InviteView {
   role: MembershipRole;
   /** Может ли этот вошедший его отозвать: тот, кто вправе позвать с этой ролью */
   revocable: boolean;
+  /** Что указал пригласивший (DATA_MODEL §31.3) и назначения; пусто: вся организация */
+  firstName: string | null;
+  lastName: string | null;
+  position: string | null;
+  scopes: ScopeAssignment[];
 }
 
 /** Строка списка «Сотрудники» (ADR-107): кто, роль, с какого дня и что с ним может сделать этот вошедший */
@@ -59,16 +71,39 @@ export interface MemberView {
   name: string | null;
   role: MembershipRole;
   joinedAt: Date;
+  /** Последний вход в систему: не входил — null (TEAM1, «Был в системе») */
+  lastLoginAt: Date | null;
   /** Это вы */
   you: boolean;
   /** Этот вошедший может его отключить */
   removable: boolean;
   /** Этот вошедший может сменить ему роль (между управляющим и администратором) */
   roleEditable: boolean;
+  /** Телефон и должность в организации (v2.10, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
+  /** Этот вошедший может поменять ему телефон и должность */
+  detailsEditable: boolean;
+  /** Доступ приостановлен (DATA_MODEL §31.2): человек не входит, место в команде за ним остаётся */
+  suspended: boolean;
+  /** Этот вошедший может приостановить или возобновить его доступ: тот же круг, что у отключения */
+  suspendable: boolean;
+  /** Назначения по бизнесам и филиалам (DATA_MODEL §31.1); пусто: вся организация */
+  scopes: ScopeAssignment[];
+  /** Этот вошедший может заменить ему назначения: тот же круг, что у отключения */
+  scopesEditable: boolean;
 }
 
 /** Отказ в действии над сотрудником: сессии нет — `null` у вызова; остальное — здесь */
-export type MemberRefusal = 'staff' | 'missing' | 'self' | 'owner-target' | 'manager-target' | 'role' | 'owner-only';
+export type MemberRefusal =
+  | 'staff'
+  | 'missing'
+  | 'self'
+  | 'owner-target'
+  | 'manager-target'
+  | 'role'
+  | 'owner-only'
+  | 'details-target';
 
 /** Что видит человек, открывший ссылку: кто зовёт и кого. */
 export interface InvitePreview {
@@ -85,7 +120,8 @@ export interface InvitePreview {
 
 export type InviteOutcome =
   | { ok: true; invite: InviteView }
-  | { ok: false; reason: 'email' | 'member' | 'owner' | 'limit' | 'role' | 'manager-role' };
+  | { ok: false; reason: 'email' | 'member' | 'owner' | 'limit' | 'role' | 'manager-role' }
+  | { ok: false; reason: 'invalid'; message: string };
 
 @Injectable()
 export class AccountsService {
@@ -151,15 +187,34 @@ export class AccountsService {
     sessionToken: string | null,
     rawEmail: unknown,
     rawRole?: unknown,
+    rawExtra?: unknown,
   ): Promise<InviteOutcome | null> {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
     // приглашают владелец и управляющий (DATA_MODEL §16.5, ADR-107); ярлык 'owner' — отказ «не ваше»
     if (!canManageStaff(who.role)) return { ok: false, reason: 'owner' };
     // без роли — администратор, как принимались приглашения до ADR-107; владельца приглашением не назначают
-    const role = rawRole === undefined || rawRole === null || rawRole === '' ? 'STAFF' : parseInviteRole(rawRole);
+    const role =
+      rawRole === undefined || rawRole === null || rawRole === ''
+        ? 'STAFF'
+        : parseInviteRole(rawRole);
     if (!role) return { ok: false, reason: 'role' };
     if (!canInvite(who.role, role)) return { ok: false, reason: 'manager-role' };
+    // имя, телефон, должность и назначения приглашения (DATA_MODEL §31.3): ошибки формы словами, до любой записи
+    const extra = parseInviteExtra(rawExtra);
+    if (!extra.ok) return { ok: false, reason: 'invalid', message: extra.message };
+    let inviteRole: MembershipRole = role;
+    if (extra.scopes.length > 0) {
+      const structure = await this.repo.organizationStructure(who.organizationId);
+      const check = validateAssignments({
+        actor: who.role,
+        assignments: extra.scopes,
+        known: knownOf(structure),
+      });
+      if (!check.ok) return { ok: false, reason: 'invalid', message: check.reason };
+      // роль приглашения при назначениях: старшая из назначенных; роль из формы не может быть выше назначений
+      inviteRole = membershipRoleFor(extra.scopes, role);
+    }
     if (typeof rawEmail !== 'string') return { ok: false, reason: 'email' };
     const email = normalizeEmail(rawEmail);
     if (!isEmailShaped(email)) return { ok: false, reason: 'email' };
@@ -177,19 +232,39 @@ export class AccountsService {
       tokenHash: hashSecret(token),
       expiresAt: inviteExpiresAt(now),
       createdBy: who.userId,
-      role,
+      role: inviteRole,
+      firstName: extra.firstName,
+      lastName: extra.lastName,
+      phone: extra.phone,
+      position: extra.position,
+      scopes: extra.scopes,
     });
     const link = `${this.appUrl.replace(/\/+$/, '')}/invite/${token}`;
     try {
-      if (!this.mailReady) {
-        this.log.error('MAIL_* не настроены — приглашение создано, но письмо не отправлено');
-      } else {
-        await this.sender.send(
-          mail.inviteLetter(email, who.organizationName, link, INVITE_TTL_MS, MEMBERSHIP_ROLES[role]),
-        );
-      }
-    } catch (e) {
-      this.log.error(`письмо с приглашением не отправлено: ${(e as Error).message}`);
+      if (!this.mailReady) throw new Error('Mail is not configured');
+      await this.sender.send(
+        mail.inviteLetter(
+          email,
+          who.organizationName,
+          link,
+          INVITE_TTL_MS,
+          MEMBERSHIP_ROLES[inviteRole],
+        ),
+      );
+    } catch {
+      // A possibly delivered link must not grant access after a reported delivery failure.
+      await this.repo.revokeInvite(
+        invite.id,
+        who.organizationId,
+        new Date(),
+        invitableRoles(who.role),
+        who.userId,
+        true,
+      );
+      this.log.error('Не удалось отправить приглашение; ссылка отозвана');
+      throw new ServiceUnavailableException(
+        'Не удалось отправить письмо. Приглашение отозвано. Проверьте настройку почты и попробуйте снова.',
+      );
     }
     return { ok: true, invite: toInviteView(invite, who.role) };
   }
@@ -208,7 +283,9 @@ export class AccountsService {
     if (!canManageStaff(who.role)) return 'owner';
     // отзывает тот, кто вправе позвать с этой ролью: приглашение управляющего управляющему «не найдено»
     const allowed = invitableRoles(who.role);
-    return (await this.repo.revokeInvite(id, who.organizationId, new Date(), allowed)) ? 'ok' : 'missing';
+    return (await this.repo.revokeInvite(id, who.organizationId, new Date(), allowed, who.userId))
+      ? 'ok'
+      : 'missing';
   }
 
   /**
@@ -237,16 +314,115 @@ export class AccountsService {
         ...m,
         you,
         removable: !you && canRemoveMember(who.role, m.role),
-        roleEditable: !you && canSetRoleAtDesk(who.role, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+        roleEditable:
+          !you && canSetRoleAtDesk(who.role, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+        detailsEditable: canEditMemberDetails(who.role, m.role, you),
+        suspendable: !you && canRemoveMember(who.role, m.role),
+        scopesEditable: !you && canRemoveMember(who.role, m.role),
       };
     });
+  }
+
+  /** Бизнесы и филиалы организации для выбора области доступа. `null` — сессии нет, `'staff'` — раздел закрыт */
+  async accessStructure(
+    sessionToken: string | null,
+  ): Promise<OrganizationStructure | 'staff' | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return 'staff';
+    return this.repo.organizationStructure(who.organizationId);
+  }
+
+  /**
+   * Заменить назначения сотрудника (DATA_MODEL §31.1, Q-286, Q-287): список из роли, бизнеса и филиала; пустой список
+   * возвращает работу на всю организацию. Круг тот же, что у отключения: владелец назначает управляющих и
+   * администраторов, управляющий администраторов; себе и владельцу нельзя. Роль в назначении не выше полномочий выдающего.
+   */
+  async setMemberScopes(
+    sessionToken: string | null,
+    userId: string,
+    raw: unknown,
+  ): Promise<
+    | { ok: true; scopes: ScopeAssignment[] }
+    | { ok: false; reason: MemberRefusal }
+    | { ok: false; message: string }
+    | null
+  > {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return { ok: false, reason: 'staff' };
+    const parsed = parseScopeAssignments(raw);
+    if (!parsed.ok) return { ok: false, message: parsed.message };
+    const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
+    if (!target) return { ok: false, reason: 'missing' };
+    if (target.userId === who.userId) return { ok: false, reason: 'self' };
+    if (target.role === 'OWNER') return { ok: false, reason: 'owner-target' };
+    if (!canRemoveMember(who.role, target.role)) return { ok: false, reason: 'manager-target' };
+    if (parsed.assignments.length > 0) {
+      const structure = await this.repo.organizationStructure(who.organizationId);
+      const check = validateAssignments({
+        actor: who.role,
+        assignments: parsed.assignments,
+        known: knownOf(structure),
+      });
+      if (!check.ok) return { ok: false, message: check.reason };
+    }
+    const write = await this.repo.replaceMemberScopes({
+      organizationId: who.organizationId,
+      userId,
+      assignments: parsed.assignments,
+      by: who.userId,
+      roles: invitableRoles(who.role),
+    });
+    if (write.outcome === 'missing') return { ok: false, reason: 'missing' };
+    if (write.outcome === 'role')
+      return { ok: false, reason: write.role === 'OWNER' ? 'owner-target' : 'manager-target' };
+    return { ok: true, scopes: parsed.assignments };
+  }
+
+  /** Телефон и должность (TEAM2, Q-244): свои: каждому, кому открыт раздел; чужие: тому, кто вправе отключить */
+  async setMemberDetails(
+    sessionToken: string | null,
+    userId: string,
+    raw: unknown,
+  ): Promise<
+    | { ok: true; member: { userId: string; phone: string | null; position: string | null } }
+    | { ok: false; reason: MemberRefusal }
+    | { ok: false; message: string }
+    | null
+  > {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return { ok: false, reason: 'staff' };
+    const details = parseMemberDetails(raw);
+    if (!details.ok) return { ok: false, message: details.message };
+    const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
+    if (!target) return { ok: false, reason: 'missing' };
+    const self = target.userId === who.userId;
+    if (!canEditMemberDetails(who.role, target.role, self))
+      return { ok: false, reason: 'details-target' };
+    // роль сверяется ещё раз в момент записи, как у отключения: владелец мог повысить человека
+    const write = await this.repo.setMemberDetails({
+      organizationId: who.organizationId,
+      userId,
+      phone: details.phone,
+      position: details.position,
+      by: who.userId,
+      roles: self ? null : invitableRoles(who.role),
+    });
+    if (write.outcome === 'missing') return { ok: false, reason: 'missing' };
+    if (write.outcome === 'role') return { ok: false, reason: 'details-target' };
+    return { ok: true, member: { userId, phone: details.phone, position: details.position } };
   }
 
   /**
    * Отключить сотрудника: владелец — управляющих и администраторов, управляющий — администраторов; себя и владельца — нет.
    * Членство удаляется, сессии этой организации гаснут на следующем запросе.
    */
-  async removeMember(sessionToken: string | null, userId: string): Promise<'ok' | MemberRefusal | null> {
+  async removeMember(
+    sessionToken: string | null,
+    userId: string,
+  ): Promise<'ok' | MemberRefusal | null> {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
     if (!canManageStaff(who.role)) return 'staff';
@@ -267,12 +443,45 @@ export class AccountsService {
     return 'ok';
   }
 
+  /**
+   * Приостановить или возобновить доступ (DATA_MODEL §31.2, Q-289): круг тот же, что у отключения (владелец: управляющих
+   * и администраторов, управляющий: администраторов); себя и владельца нельзя. Сессии приостановленного гаснут сразу.
+   */
+  async setMemberSuspended(
+    sessionToken: string | null,
+    userId: string,
+    suspended: boolean,
+  ): Promise<'ok' | MemberRefusal | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return 'staff';
+    const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
+    if (!target) return 'missing';
+    if (target.userId === who.userId) return 'self';
+    if (target.role === 'OWNER') return 'owner-target';
+    if (!canRemoveMember(who.role, target.role)) return 'manager-target';
+    const write = await this.repo.setMemberSuspended({
+      organizationId: who.organizationId,
+      userId,
+      suspended,
+      by: who.userId,
+      roles: invitableRoles(who.role),
+    });
+    if (write.outcome === 'missing') return 'missing';
+    if (write.outcome === 'role') return write.role === 'OWNER' ? 'owner-target' : 'manager-target';
+    return 'ok';
+  }
+
   /** Сменить роль между управляющим и администратором — только владелец; владельца назначает команда на сервере */
   async setMemberRole(
     sessionToken: string | null,
     userId: string,
     rawRole: unknown,
-  ): Promise<{ ok: true; member: { userId: string; role: MembershipRole } } | { ok: false; reason: MemberRefusal } | null> {
+  ): Promise<
+    | { ok: true; member: { userId: string; role: MembershipRole } }
+    | { ok: false; reason: MemberRefusal }
+    | null
+  > {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
     if (!canManageStaff(who.role)) return { ok: false, reason: 'staff' };
@@ -282,7 +491,8 @@ export class AccountsService {
     const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
     if (!target) return { ok: false, reason: 'missing' };
     if (target.userId === who.userId) return { ok: false, reason: 'self' };
-    if (!canSetRoleAtDesk(who.role, target.role, role)) return { ok: false, reason: 'owner-target' };
+    if (!canSetRoleAtDesk(who.role, target.role, role))
+      return { ok: false, reason: 'owner-target' };
     // владельца так не задеть: роль меняется, только если в момент записи она управляющий или администратор
     const write = await this.repo.setMemberRole({
       organizationId: who.organizationId,
@@ -317,7 +527,11 @@ export class AccountsService {
       const stored = await this.repo.sessionByTokenHash(hash);
       if (!stored) continue;
       if (!checkSession(stored, new Date()).ok) return null;
-      if (stored.organizationStatus === 'SUSPENDED' || stored.userStatus !== 'ACTIVE' || !stored.member)
+      if (
+        stored.organizationStatus === 'SUSPENDED' ||
+        stored.userStatus !== 'ACTIVE' ||
+        !stored.member
+      )
         return null;
       return stored;
     }
@@ -345,30 +559,21 @@ export class AccountsService {
   async acceptInvite(rawToken: string): Promise<InvitePreview | null> {
     const invite = await this.liveInvite(rawToken);
     if (!invite) return null;
-    await this.repo.joinOrganization({
-      email: invite.email,
-      organizationId: invite.organizationId,
-      role: invite.role,
-    });
     const now = new Date();
-    await this.repo.markInviteAccepted(invite.id, now);
-    // Раньше здесь уходил код на почту. С 20.09.2026 вход один — по паролю (ADR-053), и код с экрана
-    // снят; вдобавок письмо требует настроенной почтовой службы, а её может не быть. Поэтому выдаём
-    // одноразовую ссылку «задайте пароль» прямо в ответ: сама ссылка-приглашение и есть доказательство,
-    // что перед нами приглашённый, — второго такого же секрета в письме не нужно.
     const token = newSessionToken();
-    const issued = await this.repo.issuePasswordSetToken({
-      email: invite.email,
-      tokenHash: hashSessionToken(token),
-      expiresAt: resetExpiry(now),
+    const accepted = await this.repo.acceptInvite({
+      id: invite.id,
       now,
+      passwordTokenHash: hashSessionToken(token),
+      passwordExpiresAt: resetExpiry(now),
     });
+    if (!accepted) return null;
     return {
       organizationName: invite.organizationName,
       email: invite.email,
       expiresAt: invite.expiresAt,
       // null — пароль у человека уже есть: он просто входит им, задавать заново нечего
-      setPasswordToken: issued ? token : null,
+      setPasswordToken: accepted.passwordTokenIssued ? token : null,
     };
   }
 
@@ -390,5 +595,50 @@ function toInviteView(i: InviteRecord, actor: MembershipRole): InviteView {
     createdAt: i.createdAt,
     role: i.role,
     revocable: canInvite(actor, i.role),
+    firstName: i.firstName,
+    lastName: i.lastName,
+    position: i.position,
+    scopes: i.scopes,
+  };
+}
+
+const knownOf = (s: OrganizationStructure) =>
+  s.businesses.map((b) => ({ businessId: b.id, locationIds: b.locations.map((l) => l.id) }));
+
+const NAME_MESSAGE = 'Имя и фамилия: не длиннее 100 знаков.';
+
+/** Необязательное в приглашении: имя, фамилия, телефон, должность, назначения (DATA_MODEL §31.3) */
+function parseInviteExtra(raw: unknown):
+  | {
+      ok: true;
+      firstName: string | null;
+      lastName: string | null;
+      phone: string | null;
+      position: string | null;
+      scopes: ScopeAssignment[];
+    }
+  | { ok: false; message: string } {
+  const b = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const name = (v: unknown): string | null | undefined => {
+    if (v === undefined || v === null || v === '') return null;
+    if (typeof v !== 'string') return undefined;
+    const t = v.replace(/\s+/g, ' ').trim();
+    return t.length > 100 ? undefined : t || null;
+  };
+  const firstName = name(b.firstName);
+  const lastName = name(b.lastName);
+  if (firstName === undefined || lastName === undefined)
+    return { ok: false, message: NAME_MESSAGE };
+  const details = parseMemberDetails({ phone: b.phone, position: b.position });
+  if (!details.ok) return { ok: false, message: details.message };
+  const scopes = parseScopeAssignments(b.scopes);
+  if (!scopes.ok) return { ok: false, message: scopes.message };
+  return {
+    ok: true,
+    firstName,
+    lastName,
+    phone: details.phone,
+    position: details.position,
+    scopes: scopes.assignments,
   };
 }

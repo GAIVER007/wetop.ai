@@ -1,0 +1,19 @@
+# Модульные (unit) · 04.10.2026 13:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 046a3ed (claude/infallible-blackwell-89a732), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T08-03-12Z-unit-5132.json' 'tests/unit/design-slop.test.ts' 'apps/web/src/design-rules.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/app/today/owner-metrics.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/infallible-blackwell-89a732
+
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 5ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 4ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (14 tests) 174ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 379ms
+
+ Test Files  4 passed (4)
+      Tests  40 passed (40)
+   Start at  01:03:21
+   Duration  626ms (tests 48%, transform 25%, import 24%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T08-03-12Z-unit-5132.json
+
+# код выхода 0 · 10 с

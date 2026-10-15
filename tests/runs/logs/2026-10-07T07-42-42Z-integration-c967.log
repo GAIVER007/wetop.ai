@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 07.10.2026 12:42 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-42-42Z-integration-c967.json' 'tests/integration/finance-operations.test.ts' 'tests/integration/rates-derived-api.test.ts' '--testTimeout=15000'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261007
+
+ ✓ |integration| tests/integration/rates-derived-api.test.ts (1 test) 1495ms
+   ✓ derived rate plans and promo codes API (1)
+     ✓ creates and edits a derived plan and a promo code with validation and audit 1488ms
+ ❯ |integration| tests/integration/finance-operations.test.ts (2 tests | 1 failed) 1304ms
+   ❯ оплаты и возвраты за период — запрос (integration, ADR-113 F2) (2)
+     × операции периода новыми первыми: время по часам объекта, статус аннулированной, способ возврата, бронь 56ms
+     ✓ границы суток — по поясу объекта; отборы по типу и способу; предел строк 238ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/finance-operations.test.ts > оплаты и возвраты за период — запрос (integration, ADR-113 F2) > операции периода новыми первыми: время по часам объекта, статус аннулированной, способ возврата, бронь
+AssertionError: expected '2031-05-10 21:30' to match /^2031-05-11 0[12]:30$/
+
+- Expected:
+/^2031-05-11 0[12]:30$/
+
++ Received:
+"2031-05-10 21:30"
+
+ ❯ tests/integration/finance-operations.test.ts:194:29
+    192|       guestLabel: 'Тестов Операций',
+    193|     });
+    194|     expect(got[3]!.localAt).toMatch(/^2031-05-11 0[12]:30$/);
+       |                             ^
+    195|     expect(summary).toEqual(
+    196|       expect.arrayContaining([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 2 passed (3)
+   Start at  11:42:44
+   Duration  12.44s (transform 38%, import 32%, tests 30%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-42-42Z-integration-c967.json
+
+# код выхода 1 · 15 с

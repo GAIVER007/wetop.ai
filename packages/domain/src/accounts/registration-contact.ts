@@ -30,6 +30,7 @@ export const PHONE_COUNTRIES: readonly PhoneCountry[] = [
   { code: 'MN', name: 'Монголия', dial: '+976' },
   { code: 'TR', name: 'Турция', dial: '+90' },
   { code: 'AE', name: 'ОАЭ', dial: '+971' },
+  { code: 'QA', name: 'Катар', dial: '+974' },
   { code: 'CN', name: 'Китай', dial: '+86' },
   { code: 'KR', name: 'Южная Корея', dial: '+82' },
   { code: 'TH', name: 'Таиланд', dial: '+66' },
@@ -65,6 +66,7 @@ const COUNTRY_BY_TIMEZONE: Record<string, string> = {
   'Asia/Ulaanbaatar': 'MN',
   'Europe/Istanbul': 'TR',
   'Asia/Dubai': 'AE',
+  'Asia/Qatar': 'QA',
   'Asia/Shanghai': 'CN',
   'Asia/Seoul': 'KR',
   'Asia/Bangkok': 'TH',
@@ -112,6 +114,20 @@ export function registrationPhone(countryCode: string, raw: string): string | nu
   if (national.length < NATIONAL_MIN || full.length < E164_MIN || full.length > E164_MAX) return null;
   return `+${full}`;
 }
+
+/**
+ * Язык интерфейса человека (Q-REG-1, DATA_MODEL §13.2 `users.locale`): тот же список, что CHECK в базе.
+ * Пропуск означает русский; чужой код или не строка: `null`, сервис отказывает словами.
+ */
+export const INTERFACE_LOCALES = ['ru', 'kk', 'en'] as const;
+export type InterfaceLocale = (typeof INTERFACE_LOCALES)[number];
+
+export function registrationLocale(raw: unknown): InterfaceLocale | null {
+  if (raw === undefined || raw === '') return 'ru';
+  return INTERFACE_LOCALES.find((code) => code === raw) ?? null;
+}
+
+export const REGISTRATION_LOCALE_MESSAGE = 'Выберите язык системы из списка';
 
 export const REGISTRATION_PHONE_MESSAGE = 'Проверьте телефон: номер целиком, с кодом страны';
 export const REGISTRATION_PRIVACY_MESSAGE =

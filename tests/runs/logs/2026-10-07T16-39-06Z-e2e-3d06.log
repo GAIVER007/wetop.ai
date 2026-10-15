@@ -1,0 +1,134 @@
+# Сквозные (e2e) · 07.10.2026 21:39 Алматы · vm
+# коммит 522502c (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-assets.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/site-assets.spec.ts:25:1 › библиотека: карточки с картинкой, назначением, размером и источником; ключей хранилища на странице нет (4.7s)
+  ✘  2 tests/ui/site-assets.spec.ts:42:1 › загрузка: новый файл в библиотеке; SVG отклоняется словами; больше 10 МиБ не уходит на сервер (17.7s)
+  ✓  3 tests/ui/site-assets.spec.ts:69:1 › подпись ALT сохраняется; удаление с вопросом: опубликованная картинка удерживается, черновая удаляется (3.4s)
+  ✓  4 tests/ui/site-assets.spec.ts:90:1 › импорт из менеджера каналов: фото по выбору, итог словами; без подключения состояние словами (3.8s)
+  ✓  5 tests/ui/site-assets.spec.ts:110:1 › хранилище выключено: библиотека читается, загрузка и импорт недоступны (1.6s)
+  ✓  6 tests/ui/site-assets.spec.ts:120:1 › пустая библиотека и переход со страницы публикации (2.6s)
+  ✘  7 tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: light (5.5s)
+  ✘  8 tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: dark (5.4s)
+
+
+  1) tests/ui/site-assets.spec.ts:42:1 › загрузка: новый файл в библиотеке; SVG отклоняется словами; больше 10 МиБ не уходит на сервер 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').visible().getByTestId('site-assets-message')
+    Expected: "Такое изображение уже есть в библиотеке"
+    Received: "Изображение загружено"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByTestId('site-assets-message') with timeout 15000ms
+      - waiting for getByRole('main').visible().getByTestId('site-assets-message')
+        33 × locator resolved to <div class="notice" data-testid="site-assets-message">Изображение загружено</div>
+           - unexpected value "Изображение загружено"
+
+
+      50 |   await m.getByLabel('Файл').setInputFiles({ name: 'facade-copy.png', mimeType: 'image/png', buffer: PNG });
+      51 |   await m.getByTestId('site-assets-submit').click();
+    > 52 |   await expect(m.getByTestId('site-assets-message')).toHaveText('Такое изображение уже есть в библиотеке');
+         |                                                      ^
+      53 |   await expect(m.getByTestId('site-asset')).toHaveCount(4);
+      54 |   // SVG под видом PNG: отказ по содержимому
+      55 |   await m.getByLabel('Файл').setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>') });
+        at /home/user/wetop.ai/tests/ui/site-assets.spec.ts:52:54
+
+    Error Context: test-results/site-assets-загрузка-новый-c5132--10-МиБ-не-уходит-на-сервер/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-assets-загрузка-новый-c5132--10-МиБ-не-уходит-на-сервер/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-assets-загрузка-новый-c5132--10-МиБ-не-уходит-на-сервер/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: light ────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 7
+
+    - Array []
+    + Array [
+    +   "B.panel__title 424",
+    +   "FORM.asset-upload 424",
+    +   "LABEL.field 424",
+    +   "SELECT.inp 424",
+    +   "BUTTON.btn 424",
+    + ]
+
+      146 |           .map((el) => `${el.tagName}.${el.className} ${Math.round(el.getBoundingClientRect().right)}`),
+      147 |       );
+    > 148 |       expect(wide).toEqual([]);
+          |                    ^
+      149 |       const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      150 |       expect(audit.violations).toEqual([]);
+      151 |       await page.screenshot({ path: `${SHOTS}/assets-${theme}-${width}.png`, fullPage: true });
+        at /home/user/wetop.ai/tests/ui/site-assets.spec.ts:148:20
+
+    Error Context: test-results/site-assets-страница-на-ко-e3bd5--телефоне-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-assets-страница-на-ко-e3bd5--телефоне-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-assets-страница-на-ко-e3bd5--телефоне-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: dark ─────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 7
+
+    - Array []
+    + Array [
+    +   "B.panel__title 424",
+    +   "FORM.asset-upload 424",
+    +   "LABEL.field 424",
+    +   "SELECT.inp 424",
+    +   "BUTTON.btn 424",
+    + ]
+
+      146 |           .map((el) => `${el.tagName}.${el.className} ${Math.round(el.getBoundingClientRect().right)}`),
+      147 |       );
+    > 148 |       expect(wide).toEqual([]);
+          |                    ^
+      149 |       const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      150 |       expect(audit.violations).toEqual([]);
+      151 |       await page.screenshot({ path: `${SHOTS}/assets-${theme}-${width}.png`, fullPage: true });
+        at /home/user/wetop.ai/tests/ui/site-assets.spec.ts:148:20
+
+    Error Context: test-results/site-assets-страница-на-ко-aff2e-и-телефоне-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-assets-страница-на-ко-aff2e-и-телефоне-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-assets-страница-на-ко-aff2e-и-телефоне-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/site-assets.spec.ts:42:1 › загрузка: новый файл в библиотеке; SVG отклоняется словами; больше 10 МиБ не уходит на сервер 
+    tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: light ─────
+    tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: dark ──────
+  5 passed (1.2m)
+
+# код выхода 1 · 1 мин 15 с

@@ -1,0 +1,39 @@
+# Модульные (unit) · 14.10.2026 17:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 84a7397 (codex/market-runtime-readiness-20261014), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T12-43-31Z-unit-2454.json' 'apps/api/src/market' 'scripts/market' 'packages/domain/src/market'
+
+ RUN  v5.0.0 /private/tmp/wetop-market-ready-20261014
+
+ ✓ |unit| packages/domain/src/market/occupancy.test.ts (27 tests) 8ms
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 15ms
+ ✓ |unit| packages/domain/src/marketing/generation.test.ts (18 tests) 31ms
+ ✓ |unit| packages/domain/src/marketing/builder.test.ts (18 tests) 38ms
+ ✓ |unit| packages/domain/src/marketing/edit.test.ts (30 tests) 56ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (39 tests) 93ms
+ ✓ |unit| apps/api/src/marketing-site/asset-fetch.test.ts (50 tests) 11ms
+ ✓ |unit| packages/domain/src/marketing/editor.test.ts (14 tests) 21ms
+ ✓ |unit| apps/api/src/marketing-site/asset-storage.test.ts (8 tests) 18ms
+ ✓ |unit| packages/domain/src/marketing/assets.test.ts (10 tests) 4ms
+ ✓ |unit| packages/domain/src/marketing/conversation.test.ts (9 tests) 5ms
+ ✓ |unit| packages/domain/src/market/rates.test.ts (8 tests) 5ms
+ ✓ |unit| packages/domain/src/marketing/budget.test.ts (24 tests) 6ms
+ ✓ |unit| packages/domain/src/marketing/diff.test.ts (9 tests) 15ms
+ ✓ |unit| apps/api/src/marketing-site/preview-token.test.ts (5 tests) 3ms
+ ✓ |unit| scripts/market/pages.test.ts (4 tests) 15ms
+ ✓ |unit| scripts/market/collect.test.ts (9 tests) 31ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 5ms
+ ✓ |unit| packages/domain/src/marketing/host.test.ts (26 tests) 7ms
+ ✓ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (8 tests) 8ms
+ ✓ |unit| apps/api/src/market/collector-selection.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/market/market.service.test.ts (11 tests) 19ms
+ ✓ |unit| apps/api/src/marketing-site/asset-image.test.ts (9 tests) 181ms
+ ✓ |unit| apps/api/src/market/collector.controller.test.ts (8 tests) 131ms
+
+ Test Files  24 passed (24)
+      Tests  394 passed (394)
+   Start at  05:43:33
+   Duration  1.79s (transform 48%, import 43%, tests 8%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T12-43-31Z-unit-2454.json
+
+# код выхода 0 · 3 с

@@ -1,0 +1,112 @@
+# Сквозные (e2e) · 07.10.2026 16:37 Алматы · vm
+# коммит a8a1f29 (claude/quirky-franklin-mo3gcn)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/booking-widget-turnstile.spec.ts' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 25 tests using 1 worker
+
+  ✓   1 tests/ui/booking-widget-turnstile.spec.ts:131:1 › с ключом: поиск цен без проверки, кнопка брони ждёт токена, токен уходит в /w/book (1.1s)
+  ✓   2 tests/ui/booking-widget-turnstile.spec.ts:158:1 › токен одноразовый: после отказа проверка сбрасывается, кнопка ждёт нового токена (566ms)
+  ✓   3 tests/ui/booking-widget-turnstile.spec.ts:186:1 › токен истёк, пока гость заполнял форму, — кнопка снова ждёт проверки (331ms)
+  ✓   4 tests/ui/booking-widget-turnstile.spec.ts:200:1 › без публичного ключа форма как раньше: кнопка доступна, Cloudflare не грузится, токена в запросе нет (424ms)
+  ✓   5 tests/ui/booking-widget-turnstile.spec.ts:215:1 › скрипт Cloudflare не загрузился (блокировщик, сеть): гость видит понятный текст, брони не отправить (325ms)
+  ✓   6 tests/ui/booking-widget-turnstile.spec.ts:229:1 › ключ создания: UUID v4; повтор той же формы после обрыва сети уходит с тем же ключом (539ms)
+  ✓   7 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (467ms)
+  ✓   8 tests/ui/booking-widget-turnstile.spec.ts:267:1 › ключ создания: форму изменили после сбоя: новая попытка с новым ключом (499ms)
+  ✓   9 tests/ui/booking-widget-turnstile.spec.ts:288:1 › ключ создания: после подтверждённой брони следующая бронь: новый ключ (617ms)
+  ✓  10 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (6.3s)
+  ✓  11 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (5.6s)
+  ✘  12 tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (20.1s)
+  ✘  13 tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview (2.1s)
+  ✓  14 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.8s)
+  ✓  15 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (10.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  16 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.7s)
+  ✓  17 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  18 tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (6.8s)
+  ✓  19 tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (6.6s)
+  ✓  20 tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль (3.4s)
+  ✓  21 tests/ui/roles.spec.ts:304:1 › администратор: сотрудниками ведают владелец и управляющий (2.7s)
+  ✓  22 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 1440px (7.0s)
+  ✓  23 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 1440px (6.5s)
+  ✓  24 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 390px (6.1s)
+  ✓  25 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.8s)
+
+
+  1) tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.workspace-header').getByRole('region', { name: 'Выбор филиала' }).getByText('Текущий филиал')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.workspace-header').getByRole('region', { name: 'Выбор филиала' }).getByText('Текущий филиал') with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('region', { name: 'Выбор филиала' }).getByText('Текущий филиал')
+
+
+      114 |   await expect(choices.getByText('Филиалы не найдены')).toBeVisible();
+      115 |   await choices.getByLabel('Найти филиал').fill('');
+    > 116 |   await expect(choices.getByText('Текущий филиал')).toBeVisible();
+          |                                                     ^
+      117 |   await choices.getByRole('button', { name: /Филиал Север/ }).click();
+      118 |   await expect(trigger).toContainText('Филиал Север');
+      119 |   await expect(page).toHaveURL(/\/chessboard$/);
+        at /home/user/wetop.ai/tests/ui/branches.spec.ts:116:53
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 400
+    Received:   375.203125
+
+      11 |   const board = page.getByRole('region', { name: 'Календарь по дням' });
+      12 |   const box = await board.boundingBox();
+    > 13 |   expect(box!.height).toBeGreaterThan(400);
+         |                       ^
+      14 |   expect(await page.evaluate('document.documentElement.scrollHeight <= innerHeight + 1')).toBe(
+      15 |     true,
+      16 |   );
+        at /home/user/wetop.ai/tests/ui/chessboard-compact-screen.spec.ts:13:23
+
+    Error Context: test-results/chessboard-compact-screen--60848-emembered-category-overview/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-compact-screen--60848-emembered-category-overview/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-compact-screen--60848-emembered-category-overview/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+    tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview 
+  23 passed (2.2m)
+
+# код выхода 1 · 2 мин 16 с

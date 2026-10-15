@@ -242,6 +242,9 @@ SERVICE_ROUTES = frozenset({
     ("POST", "/conversations/{conv_id}/reply"),
     # Кабинет техподдержки (S1): «Закрыть обращение».
     ("POST", "/conversations/{conv_id}/close"),
+    # S2.6: ответственный, следующий шаг и внутренние заметки к диалогу.
+    ("PATCH", "/conversations/{conv_id}/handling"),
+    ("POST", "/conversations/{conv_id}/notes"),
     ("GET", "/knowledge"),
     ("POST", "/knowledge"),
     ("GET", "/summary"),
@@ -261,6 +264,10 @@ SERVICE_ROUTES = frozenset({
     ("GET", "/seller/organizations/{org_id}/whatsapp"),
     ("PUT", "/seller/organizations/{org_id}/whatsapp"),
     ("POST", "/seller/organizations/{org_id}/whatsapp/check"),
+    ("GET", "/seller/organizations/{org_id}/telegram"),
+    ("PUT", "/seller/organizations/{org_id}/telegram"),
+    ("POST", "/seller/organizations/{org_id}/telegram/check"),
+    ("POST", "/seller/organizations/{org_id}/telegram/disconnect"),
 })
 
 # «Платформа → Техподдержка» (ADR-084): помощник — бот самой платформы, его

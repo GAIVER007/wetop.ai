@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, chooseBoardPeriod } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -9,7 +9,7 @@ import { mkdirSync } from 'node:fs';
  * red→green: он снимает артефакты гейта, а счётчики строк подтверждают, что снят настоящий экран.
  */
 const DIR = 'reports/chessboard-v2-pr3-2026-09-27/gate';
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const row = (code: string) => `[data-testid="unit-row"][data-unit-code="${code}"]`;
 
 for (const theme of ['light', 'dark'] as const) {
@@ -69,7 +69,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.keyboard.press('Escape');
 
     // 30 дней: узкие плашки — «Имя Ф.», точка долга; длинные — имя у края при прокрутке
-    await page.getByRole('link', { name: '30 дней', exact: true }).click();
+    await chooseBoardPeriod(page, '30 дней');
     await expect(page.getByTestId('date-col')).toHaveCount(30);
     await toTop();
     await page.screenshot({ caret: 'initial', path: `${DIR}/${theme}-30-days.png` });

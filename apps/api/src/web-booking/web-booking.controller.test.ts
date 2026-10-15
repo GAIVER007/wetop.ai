@@ -19,6 +19,8 @@ import { INCIDENTS_REPOSITORY } from '../guard/incidents.repository';
 import { currentOrganizationId } from '../auth/request-context';
 import { WebBookingModule } from './web-booking.module';
 import { BOOKING_RATE_LIMITS, WebBookingService } from './web-booking.service';
+import { BOOKING_MAILER } from './booking-mailer';
+import { mail } from '@pms/integrations';
 
 /**
  * Виджет на фальшивках: сайт с включённым бронированием и тарифом, две категории (одиночная 1 место,
@@ -127,7 +129,13 @@ const fakeRepo = {
   async promoByCode(code: string) {
     return fakeRepo.promos[code] ?? null;
   },
-  async nightRates(typeId: string, _p?: string, _f?: string, _t?: string, promoPercent?: number | null) {
+  async nightRates(
+    typeId: string,
+    _p?: string,
+    _f?: string,
+    _t?: string,
+    promoPercent?: number | null,
+  ) {
     fakeRepo.lastPromoPercent = promoPercent ?? null;
     const price = typeId === 't1' ? 1_100_000n : 1_500_000n;
     return ['2026-09-13', '2026-09-14', '2026-09-15'].flatMap((date) => [
@@ -181,9 +189,14 @@ const createBooking = async (dto: { arrivalDate: string; departureDate: string }
     ],
   };
 };
-const reservations = { create: vi.fn(createBooking) };
+/** Ранний повтор (MKT1B BOOK-2): по умолчанию брони с этим ключом ещё нет */
+const reservations = { create: vi.fn(createBooking), replayOf: vi.fn(async () => null) };
+/** Письма гостю (ADR-144): только заглушка, живых писем в тестах нет */
+const mailer = new mail.StubMailSender();
 
 const booking = () => ({
+  // MKT1B BOOK-2: ключ создания обязателен (UUID v4)
+  creationKey: '6a1f0b2c-3d4e-4f50-8a6b-7c8d9e0f1a2b',
   k: SITE.publicKey,
   arrival: '2026-09-13',
   departure: '2026-09-15',
@@ -230,6 +243,8 @@ describe('виджет бронирования /w/*', () => {
       .useValue({})
       .overrideProvider(INCIDENTS_REPOSITORY)
       .useValue(incidents)
+      .overrideProvider(BOOKING_MAILER)
+      .useValue(mailer)
       .compile();
     app = m.createNestApplication();
     await app.init();
@@ -381,7 +396,9 @@ describe('виджет бронирования /w/*', () => {
       uses: 0,
     };
     const q = (promo: string) =>
-      get(`/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1&promo=${promo}`);
+      get(
+        `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1&promo=${promo}`,
+      );
     const ok = await q('summer10').expect(200);
     expect(ok.body.promo).toEqual({ code: 'SUMMER10', discountPercent: 10 });
     expect(fakeRepo.lastPromoPercent).toBe(10);
@@ -414,7 +431,9 @@ describe('виджет бронирования /w/*', () => {
     const closed = await get(
       `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`,
     ).expect(200);
-    expect((closed.body.categories as Array<{ closed: boolean }>).every((c) => c.closed)).toBe(true);
+    expect((closed.body.categories as Array<{ closed: boolean }>).every((c) => c.closed)).toBe(
+      true,
+    );
     (plan as { derivedRule?: unknown }).derivedRule = {
       discountPercent: 15,
       minDaysBeforeArrival: null,
@@ -424,7 +443,11 @@ describe('виджет бронирования /w/*', () => {
     const open = await get(
       `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`,
     ).expect(200);
-    expect((open.body.categories as Array<{ code: string; closed: boolean }>).find((c) => c.code === 'category-single')?.closed).toBe(false);
+    expect(
+      (open.body.categories as Array<{ code: string; closed: boolean }>).find(
+        (c) => c.code === 'category-single',
+      )?.closed,
+    ).toBe(false);
   });
 
   it('расчёт и бронь идут от имени организации сайта, а не объекта Luxx по имени', async () => {
@@ -576,6 +599,44 @@ describe('виджет бронирования /w/*', () => {
 
   // Аудит 26.09, С-33: после записи брони шли привязка сессии и журнал без защиты. Их сбой отдавал гостю ошибку, кнопка
   // снова была активна, и повтор создавал вторую настоящую бронь.
+  describe('письмо гостю с подтверждением (ADR-144)', () => {
+    const lettersTo = (to: string) => mailer.sent.filter((m) => m.to === to);
+    it('почта в форме: письмо уходит на настоящий адрес из формы, а в бронь пишется псевдоним; в журнале адреса нет', async () => {
+      const before = lettersTo('a@example.com').length;
+      await post(booking()).expect(201);
+      const letters = lettersTo('a@example.com');
+      expect(letters).toHaveLength(before + 1);
+      const letter = letters[letters.length - 1]!;
+      expect(letter.subject).toBe(`Бронь 20260912-ABC123 подтверждена: ${SITE.name}`);
+      expect(letter.text).toContain('Здравствуйте, Айгерим!');
+      expect(letter.text).toContain('Сумма: 22 000 ₸.');
+      const dto = created.dtos[0] as { guest: { email: string | null } };
+      expect(dto.guest.email).not.toBe('a@example.com');
+      const audit = sites.audits.find((a) => a.action === 'analytics.site.booking');
+      expect(audit?.details).toMatchObject({ confirmationEmail: 'sent' });
+      expect(JSON.stringify(audit?.details)).not.toContain('a@example.com');
+    });
+    it('язык гостя: письмо на казахском', async () => {
+      await post({ ...booking(), lang: 'kk' }).expect(201);
+      const letter = mailer.last!;
+      expect(letter.subject).toBe(`20260912-ABC123 брондау расталды: ${SITE.name}`);
+    });
+    it('почты нет: письма нет, бронь есть', async () => {
+      const before = mailer.sent.length;
+      await post({ ...booking(), guest: { ...booking().guest, email: '' } }).expect(201);
+      expect(mailer.sent).toHaveLength(before);
+      const audit = sites.audits.find((a) => a.action === 'analytics.site.booking');
+      expect(audit?.details).toMatchObject({ confirmationEmail: 'none' });
+    });
+    it('почта не ушла: гость всё равно получает номер брони, в журнале «failed»', async () => {
+      mailer.failOnce();
+      const res = await post(booking()).expect(201);
+      expect(res.body.confirmationNumber).toBe('20260912-ABC123');
+      const audit = sites.audits.find((a) => a.action === 'analytics.site.booking');
+      expect(audit?.details).toMatchObject({ confirmationEmail: 'failed' });
+    });
+  });
+
   it('сбой после записи брони не превращается в ошибку для гостя', async () => {
     const link = sites.linkSessionReservation;
     sites.linkSessionReservation = async () => {
@@ -591,6 +652,23 @@ describe('виджет бронирования /w/*', () => {
   });
 
   // Аудит 26.09, С-36: цены с сайта — около 30 обращений к базе на запрос, ключ публичен, лимита не было
+  it('Q-276: GET /w/from-prices — свой домен с CORS и коротким кэшем, чужой домен 403 без CORS, без ключа 404', async () => {
+    const own = await request(app.getHttpServer())
+      .get(`/w/from-prices?k=${SITE.publicKey}`)
+      .set('Origin', ORIGIN)
+      .set('cf-connecting-ip', '203.0.113.60')
+      .expect(200);
+    expect(own.headers['access-control-allow-origin']).toBe(ORIGIN);
+    expect(own.headers['cache-control']).toBe('public, max-age=60');
+    expect(Object.keys(own.body).sort()).toEqual(['categories', 'currency', 'window']);
+    const foreign = await request(app.getHttpServer())
+      .get(`/w/from-prices?k=${SITE.publicKey}`)
+      .set('Origin', 'http://evil.local')
+      .expect(403);
+    expect(foreign.headers['access-control-allow-origin']).toBeUndefined();
+    await request(app.getHttpServer()).get('/w/from-prices').set('Origin', ORIGIN).expect(404);
+  });
+
   it('цены: больше 60 запросов в минуту с одного адреса — 429', async () => {
     const quote = () =>
       request(app.getHttpServer())

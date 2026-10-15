@@ -9,7 +9,7 @@ import { defineConfig } from '@playwright/test';
 const executablePath = process.env['UI_BROWSER_EXECUTABLE'];
 export default defineConfig({
   testDir: '.',
-  testMatch: 'booking-widget-turnstile.spec.ts',
+  testMatch: ['booking-widget-turnstile.spec.ts', 'booking-widget-langs.spec.ts'],
   workers: 1,
   use: {
     ...(executablePath ? { launchOptions: { executablePath } } : { channel: 'chrome' }),

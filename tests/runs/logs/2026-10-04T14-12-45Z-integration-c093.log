@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 04.10.2026 19:12 Алматы · MacBook-Air-Urij.local
+# коммит 07f5cf1 (codex/mv3-onboarding-20261004), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-12-45Z-integration-c093.json' 'tests/integration/inventory-editor.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 770ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 768ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  18:12:47
+   Duration  3.41s (transform 44%, tests 33%, import 23%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-12-45Z-integration-c093.json
+
+# код выхода 0 · 5 с

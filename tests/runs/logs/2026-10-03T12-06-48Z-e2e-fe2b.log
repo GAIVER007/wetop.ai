@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 03.10.2026 17:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.ai-seller.local.config.ts' 'tests/ui/ai-seller.spec.ts:391' '--workers=1' '--timeout=150000'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1271ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/ai-seller.spec.ts:391:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (53.0s)
+
+
+  1) tests/ui/ai-seller.spec.ts:391:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('seller-embed-no-site')
+    Expected substring: "Настройках сайта"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('seller-embed-no-site') with timeout 15000ms
+      - waiting for getByTestId('seller-embed-no-site')
+
+
+      404 |   await request.post(`${API}/__test/control`, { data: { sellerHosts: [] } });
+      405 |   await page.reload();
+    > 406 |   await expect(page.getByTestId('seller-embed-no-site')).toContainText('Настройках сайта');
+          |                                                          ^
+      407 | });
+      408 |
+      409 | test('«Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить', async ({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/ai-seller.spec.ts:406:58
+
+    Error Context: test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ai-seller.spec.ts:391:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) 
+
+# код выхода 1 · 2 мин 25 с

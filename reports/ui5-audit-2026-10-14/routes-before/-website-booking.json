@@ -1,0 +1,31 @@
+{
+ "/website/booking": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Добавить домен 115x17",
+    "INPUT: 13x13"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

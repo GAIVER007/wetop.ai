@@ -1,0 +1,74 @@
+# Сквозные (e2e) · 02.10.2026 16:53 Алматы · vm
+# коммит 62e3193 (claude/great-cray-1d5t94), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/seller-workspace.spec.ts' 'tests/ui/booking-compact.spec.ts' 'tests/ui/staff.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/platform-support.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 27 tests using 1 worker
+
+  ✓   1 tests/ui/booking-compact.spec.ts:3:1 › быстрые даты сохраняют гостя, заметки и позволяют создать бронь (7.5s)
+  ✓   2 tests/ui/booking-compact.spec.ts:29:1 › боковое окно компактно, псевдонимная бронь и мобильный экран (6.4s)
+  ✓   3 tests/ui/booking-compact.spec.ts:63:1 › пустой филиал не позволяет создать бронь без категории (1.3s)
+  ✓   4 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (5.5s)
+  ✓   5 tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (6.2s)
+  ✓   6 tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (10.5s)
+  ✓   7 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (5.7s)
+  ✘   8 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (45.2s)
+  ✓   9 tests/ui/platform-support.spec.ts:100:1 › знания помощника: список и загрузка документа (4.2s)
+  ✓  10 tests/ui/platform-support.spec.ts:120:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (6.1s)
+  ✓  11 tests/ui/platform-support.spec.ts:172:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.3s)
+  ✓  12 tests/ui/platform-support.spec.ts:189:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.5s)
+  ✓  13 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 1440px (15.1s)
+  ✓  14 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 1440px (14.3s)
+  ✓  15 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 390px (12.4s)
+  ✓  16 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 390px (13.0s)
+  ✓  17 tests/ui/seller-workspace.spec.ts:5:1 › five steps, back navigation preserves instruction, desktop and mobile do not overflow (8.8s)
+  ✓  18 tests/ui/seller-workspace.spec.ts:38:1 › model key persists after reload and empty save cannot erase it (4.1s)
+  ✓  19 tests/ui/staff.spec.ts:13:1 › сотрудники: приглашение управляющего сохраняется после перезагрузки и сразу отзывается (5.1s)
+  ✓  20 tests/ui/staff.spec.ts:38:1 › сотрудники: компактный экран и доступность на desktop и mobile (4.7s)
+  ✓  21 tests/ui/staff.spec.ts:54:1 › администратор не получает список сотрудников по прямому адресу (1.7s)
+  ✓  22 tests/ui/staff.spec.ts:64:1 › выбор роли показывает конкретные разрешения (1.9s)
+  ✓  23 tests/ui/staff.spec.ts:81:1 › навигация разделяет задачи и сохраняет единый экран подключения (5.1s)
+  ✓  24 tests/ui/top-menu.spec.ts:50:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (2.9s)
+  ✓  25 tests/ui/top-menu.spec.ts:114:1 › вложенные адреса подсвечивают свою вкладку (6.0s)
+  ✓  26 tests/ui/top-menu.spec.ts:147:3 › шапка ровная, без прокрутки вбок и доступная: light (3.5s)
+  ✓  27 tests/ui/top-menu.spec.ts:147:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.0s)
+
+
+  1) tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'Техподдержка' })
+
+
+      66 |   // агентов на «ИИ-продавце» (перенос раздела под общую навигацию ботов)
+      67 |   await page.goto('/ai-seller');
+    > 68 |   await page.getByRole('link', { name: 'Техподдержка' }).click();
+         |                                                          ^
+      69 |   await page.waitForURL('**/platform/support');
+      70 |   const main = page.getByRole('main');
+      71 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Техподдержка');
+        at /home/user/wetop.ai/tests/ui/platform-support.spec.ts:68:58
+
+    Error Context: test-results/platform-support-главный-а-5406d-чередь-карточка-—-кто-пишет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-support-главный-а-5406d-чередь-карточка-—-кто-пишет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-support-главный-а-5406d-чередь-карточка-—-кто-пишет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет 
+  26 passed (3.7m)
+
+# код выхода 1 · 3 мин 45 с

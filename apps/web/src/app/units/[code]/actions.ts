@@ -22,7 +22,7 @@ const done = (code: string) => {
     '/rooms/availability',
     '/management/analytics',
     '/management/analytics/occupancy',
-    '/today',
+    '/finance',
   ])
     revalidatePath(path);
   return { error: null };

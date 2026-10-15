@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, openFullCard, test, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -7,7 +7,7 @@ import { mkdirSync } from 'node:fs';
  * design/reference/current/<экран>-<тема>.png, 1440×1000. Это не эталон Playwright: эталоны
  * страницы компонентов живут в design/reference/kit (шаг 4).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const dir = 'design/reference/current';
 const booking = '20260913-TESTAA';
 
@@ -44,7 +44,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(main.getByTestId('date-col').first()).toBeVisible();
     await shot(page, 'chessboard-month-full', theme);
 
-    // главная (в документе ментора — «служба приёма»)
+    // главная (в документе ментора «служба приёма»): с 13.10 снова своя, /today (ADR-180)
     await page.goto('/today');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Главная');
     await shot(page, 'today', theme);
@@ -52,7 +52,7 @@ for (const theme of ['light', 'dark'] as const) {
 
     // карточка брони панелью поверх шахматки, четыре вкладки
     await page.goto('/chessboard');
-    await main.getByTestId('stay-cell').first().dblclick();
+    await openFullCard(main.getByTestId('stay-cell').first());
     const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
     await expect(drawer).toBeVisible();
     await shot(page, 'reservation-drawer-overview', theme);
@@ -84,31 +84,10 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.getByRole('main').getByTestId('group-hint')).toBeVisible();
     await shot(page, 'reservation-form-group', theme, true);
 
-    // календарь цен (ТЗ v2, RT1): сетка месяца, правка — панелью за кнопкой «Изменить цены»
-    await page.goto('/rates');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Тарифы');
-    await expect(main.getByTestId('rates-calendar')).toBeVisible();
-    await shot(page, 'rates', theme);
-    await shot(page, 'rates-full', theme, true);
-    await main.getByTestId('rates-edit-open').click();
-    await expect(main.getByTestId('bulk-editor')).toBeVisible();
-    await shot(page, 'rates-drawer', theme);
-    await page.keyboard.press('Escape');
-    // Телефон: длинное название категории («Одноместная комната с окном и балконом») растягивало
-    // выпадающий список фильтра, и экран уезжал вбок на 94 px — найдено обходом стойки 17.09.2026
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/rates');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Тарифы');
-    const ratesLayout = await page.evaluate(() => {
-      const w = globalThis as unknown as {
-        innerWidth: number;
-        document: { documentElement: { scrollWidth: number } };
-      };
-      return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
-    });
-    expect(ratesLayout.content, 'цены шире экрана телефона').toBeLessThanOrEqual(
-      ratesLayout.viewport + 1,
-    );
+    // цена категории (план categories-price-2026-10-06): раздела «Тарифы и цены» больше нет
+    await page.goto('/rooms/categories');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Категории номеров');
+    await shot(page, 'categories-price', theme);
     await page.setViewportSize({ width: 1440, height: 1000 });
 
     // модуль «Каналы продаж» (ADR-112): обзор и журнал событий

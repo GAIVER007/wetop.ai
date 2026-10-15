@@ -1,0 +1,85 @@
+# Модульные (unit) · 03.10.2026 17:39 Алматы · vm
+# коммит 8b16c6e (ci-release-gate), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-39-06Z-unit-8c64.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/main-snap
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (19 tests | 3 failed) 264ms
+   ❯ свой раннер CI (10)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 2ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 1ms
+     × на каждый пуш только быстрые задачи, и они идут на свой раннер: минуты GitHub берегутся для выкладки 11ms
+     × перед выкладкой: база и весь UI на раннерах GitHub, по кнопке или пушем в release-candidate (ADR-138) 2ms
+     ✓ тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота 1ms
+     ✓ на своём раннере Playwright ставится без --with-deps: sudo под no-new-privileges не работает 1ms
+     ✓ образ раннера ставит всё, что Playwright просит для Chromium на Ubuntu 24.04 79ms
+     ✓ прогон main не отменяется следующим пушем: иначе при частых слияниях у main нет ни одного итога 0ms
+     ✓ проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория 1ms
+     × задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 1ms
+   ✓ свой раннер не выполняет код из чужого форка (ADR-137) (5)
+     ✓ образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh 1ms
+     ✓ запрос на слияние из форка: отказ, задача краснеет, а не пропускается 34ms
+     ✓ форк уже удалён (head.repo пуст): чей код, не проверить, тоже отказ 18ms
+     ✓ ветка самого репозитория и пуш в main выполняются 27ms
+     ✓ нет файла события или он битый: отказ, а не молчаливый пропуск проверки 13ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ образец «…» вместо токена: отказ словами до регистрации, config.sh не зовётся 8ms
+     ✓ токен с пробелом или в кавычках и адрес не GitHub: тоже отказ 31ms
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 14ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > на каждый пуш только быстрые задачи, и они идут на свой раннер: минуты GitHub берегутся для выкладки
+AssertionError: db: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/unit/ci-runner.test.ts:67:87
+     65|       expect(job(name), name).toMatch(/runs-on: \[self-hosted, linux, …
+     66|     // UI и база на каждый пуш не идут: на сервере UI не помещается, а…
+     67|     for (const name of ['db', 'ui-shard', 'ui']) expect(hasJob(name, W…
+       |                                                                                       ^
+     68|   });
+     69|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > перед выкладкой: база и весь UI на раннерах GitHub, по кнопке или пушем в release-candidate (ADR-138)
+AssertionError: .github/workflows/release-checks.yml: expected '' not to be '' // Object.is equality
+ ❯ tests/unit/ci-runner.test.ts:71:65
+     69|
+     70|   it('перед выкладкой: база и весь UI на раннерах GitHub, по кнопке ил…
+     71|     expect(RELEASE, '.github/workflows/release-checks.yml').not.toBe('…
+       |                                                                 ^
+     72|     const triggers = withoutComments(/\non:\n([\s\S]*?)\n(?=\S)/.exec(…
+     73|     expect(triggers).toContain('workflow_dispatch:');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > задача с базой остаётся на GitHub: ей нужен Docker для services: postgres
+AssertionError: задача db не найдена: expected -1 to be greater than -1
+ ❯ job tests/unit/ci-runner.test.ts:41:46
+     39| function job(name: string, text = WORKFLOW): string {
+     40|   const start = text.indexOf(`\n  ${name}:\n`);
+     41|   expect(start, `задача ${name} не найдена`).toBeGreaterThan(-1);
+       |                                              ^
+     42|   const rest = text.slice(start + 1);
+     43|   const next = rest.search(/\n {2}[a-z][a-z-]*:\n/);
+ ❯ tests/unit/ci-runner.test.ts:140:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 16 passed (19)
+   Start at  05:39:08
+   Duration  727ms (tests 56%, transform 35%, import 8%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-39-06Z-unit-8c64.json
+
+# код выхода 1 · 2 с

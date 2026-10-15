@@ -1,0 +1,87 @@
+# Модульные (unit) · 03.10.2026 17:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6cd2fa4 (main), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T12-15-12Z-unit-5540.json' 'tests/unit/auto-deploy.test.ts' '--testTimeout=20000'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| tests/unit/auto-deploy.test.ts (16 tests | 7 failed) 297437ms
+   ❯ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 11849ms
+     × ветка не ушла вперёд — ничего не делает и молчит 10583ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 14838ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 10353ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 13148ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 10996ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 23809ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 24359ms
+     × прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 16240ms
+     × release перемотали после отказа — флаг со старой вершиной не выкладывает новую 43751ms
+     ✓ локальные правки в клоне — не затирает их 18858ms
+     × историю ветки переписали — не выкладывает поверх 18335ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 23846ms
+     × CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 12665ms
+     × раннер занят дольше предела — выкладывает всё равно и говорит об этом 16056ms
+     × миграции проверяются раньше раннера: занятый раннер не прячет отказ 22107ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > ветка не ушла вперёд — ничего не делает и молчит
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > историю ветки переписали — не выкладывает поверх
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > миграции проверяются раньше раннера: занятый раннер не прячет отказ
+Error: Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:60:1
+     58| const head = () => git(server, 'rev-parse', 'HEAD');
+     59|
+     60| beforeEach(() => {
+       | ^
+     61|   dir = mkdtempSync(join(tmpdir(), 'auto-deploy-'));
+     62|   origin = join(dir, 'origin.git');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > release перемотали после отказа — флаг со старой вершиной не выкладывает новую
+Error: Test timed out in 20000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:231:3
+    229|   });
+    230|
+    231|   it('release перемотали после отказа — флаг со старой вершиной не вык…
+       |   ^
+    232|     const applied = commit('packages/database/prisma/migrations/0002_m…
+    233|     expect(run().code).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > раннер занят дольше предела — выкладывает всё равно и говорит об этом
+AssertionError: expected '2026-10-03T12:20:02Z auto-deploy: вык…' to contain 'раннер CI занят дольше 0 мин'
+
+- Expected
++ Received
+
+- раннер CI занят дольше 0 мин
++ 2026-10-03T12:20:02Z auto-deploy: выкладываю f75803f3 поверх f5ca4170
++ 2026-10-03T12:20:03Z auto-deploy: f75803f3 выложен за 0 с: new page
++
+
+ ❯ tests/unit/auto-deploy.test.ts:307:19
+    305|     expect(r.code, r.out).toBe(0);
+    306|     expect(head()).toBe(target);
+    307|     expect(r.out).toContain('раннер CI занят дольше 0 мин');
+       |                   ^
+    308|   });
+    309|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 9 passed (16)
+   Start at  05:15:33
+   Duration  307.91s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T12-15-12Z-unit-5540.json
+
+# код выхода 1 · 5 мин 32 с

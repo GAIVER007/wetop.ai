@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.10.2026 14:42 Алматы · MacBook-Air-Urij.local
+# коммит 66fe9e5 (claude/desk-polish-20261013), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-42-16Z-unit-a2c4.json' 'apps/web/src/app/incidents/incident-view.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-urijzapojnov-Documents-ChatGPT-WETOP/a8708228-98f1-45e4-a395-95f6ac3385d1/scratchpad/ui-wt
+
+ ✓ |unit| apps/web/src/app/incidents/incident-view.test.ts (17 tests) 3ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  13:42:18
+   Duration  112ms (transform 62%, import 22%, tests 9%, worker 7%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-42-16Z-unit-a2c4.json
+
+# код выхода 0 · 1 с

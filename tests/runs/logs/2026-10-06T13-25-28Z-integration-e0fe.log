@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 06.10.2026 18:25 Алматы · vm
+# коммит 8526d50 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T13-25-28Z-integration-e0fe.json' 'tests/integration/integration-tables-role.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 22975  - 10/06/2026, 1:25:33 PM    WARN [InboundBookingsService] ревизия role-q225-muwpojih (BDC-role-q225-muwpojih) отклонена: Комната 1 брони BDC-role-q225-muwpojih: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+[Nest] 22975  - 10/06/2026, 1:25:33 PM    WARN [InboundBookingsService] ревизия role-q225-muwpojih (BDC-role-q225-muwpojih) отклонена: Комната 1 брони BDC-role-q225-muwpojih: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+ ✓ |integration| tests/integration/integration-tables-role.test.ts (6 tests) 518ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  13:25:29
+   Duration  4.23s (transform 61%, import 19%, tests 19%)
+
+JSON report written to /tmp/pms-test-2026-10-06T13-25-28Z-integration-e0fe.json
+
+# код выхода 0 · 5 с

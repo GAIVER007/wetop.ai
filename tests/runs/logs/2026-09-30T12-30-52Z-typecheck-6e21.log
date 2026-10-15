@@ -1,0 +1,61 @@
+# Типы (typecheck) · 30.09.2026 17:30 Алматы · vm
+# коммит bd06cd0 (claude/sa25-contract), незакоммиченных файлов набора: 175
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/rates/promo-codes.ts(47,39): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(52,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/promo-codes.ts(89,30): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(92,28): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/rates/promo-codes.ts(126,30): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(144,29): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/rates/rate-plans.ts(93,37): error TS2339: Property 'name' does not exist on type 'never'.
+apps/api/src/reservations/reservations.repository.ts(552,17): error TS2353: Object literal may only specify known properties, and 'parentRatePlanId' does not exist in type 'RatePlanSelect<DefaultArgs>'.
+apps/api/src/reservations/reservations.repository.ts(554,18): error TS2339: Property 'parentRatePlanId' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(565,17): error TS2353: Object literal may only specify known properties, and 'parentRatePlanId' does not exist in type 'RatePlanSelect<DefaultArgs>'.
+apps/api/src/reservations/reservations.repository.ts(570,27): error TS2339: Property 'parentRatePlanId' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(576,44): error TS2339: Property 'discountPercent' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(585,31): error TS2339: Property 'promoCode' does not exist on type 'TransactionClient | Db'.
+  Property 'promoCode' does not exist on type 'TransactionClient'.
+apps/api/src/reservations/reservations.repository.ts(885,36): error TS2339: Property 'discountPercent' does not exist on type 'never'.
+tests/integration/derived-rate-plans.test.ts(42,20): error TS2339: Property 'discountPercent' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+tests/integration/derived-rate-plans.test.ts(73,30): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(78,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(81,16): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(83,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(86,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(89,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(92,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(103,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(106,16): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rates-booking.test.ts(88,20): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/derived-rates-booking.test.ts(91,20): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/derived-rates-booking.test.ts(94,20): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/rates-derived-api.test.ts(107,16): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/rates/promo-codes.ts(47,39): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(52,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/promo-codes.ts(89,30): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(92,28): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/rates/promo-codes.ts(126,30): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(144,29): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/rates/rate-plans.ts(93,37): error TS2339: Property 'name' does not exist on type 'never'.
+apps/api/src/reservations/reservations.repository.ts(552,17): error TS2353: Object literal may only specify known properties, and 'parentRatePlanId' does not exist in type 'RatePlanSelect<DefaultArgs>'.
+apps/api/src/reservations/reservations.repository.ts(554,18): error TS2339: Property 'parentRatePlanId' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(565,17): error TS2353: Object literal may only specify known properties, and 'parentRatePlanId' does not exist in type 'RatePlanSelect<DefaultArgs>'.
+apps/api/src/reservations/reservations.repository.ts(570,27): error TS2339: Property 'parentRatePlanId' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(576,44): error TS2339: Property 'discountPercent' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(585,31): error TS2339: Property 'promoCode' does not exist on type 'TransactionClient | Db'.
+  Property 'promoCode' does not exist on type 'TransactionClient'.
+apps/api/src/reservations/reservations.repository.ts(885,36): error TS2339: Property 'discountPercent' does not exist on type 'never'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 48 с

@@ -14,13 +14,13 @@ import {
  */
 
 describe('статус карточки рабочего продавца', () => {
-  it('расширение не подключено — карточки нет', () => {
+  it('расширение не подключено, карточки нет', () => {
     expect(
       agentStatus({ extension: 'off', connection: 'ready', profileApplied: true }),
     ).toBeNull();
   });
 
-  it('срок расширения вышел — «Подписка не активна», что бы ни было с ботом и профилем', () => {
+  it('срок расширения вышел, «Подписка не активна», что бы ни было с ботом и профилем', () => {
     for (const connection of ['ready', 'not-configured'] as const)
       for (const profileApplied of [true, false])
         expect(agentStatus({ extension: 'expired', connection, profileApplied })).toBe(
@@ -28,19 +28,19 @@ describe('статус карточки рабочего продавца', () =
         );
   });
 
-  it('у платформы нет адреса и ключа бота — «Бот не подключён», даже если профиль применён', () => {
+  it('у платформы нет адреса и ключа бота, «Бот не подключён», даже если профиль применён', () => {
     expect(
       agentStatus({ extension: 'active', connection: 'not-configured', profileApplied: true }),
     ).toBe('BOT_OFFLINE');
   });
 
-  it('профиль применён — «Работает»', () => {
+  it('профиль применён, «Работает»', () => {
     expect(
       agentStatus({ extension: 'active', connection: 'ready', profileApplied: true }),
     ).toBe('WORKING');
   });
 
-  it('профиля нет или продавец его не принял — «Не настроен»', () => {
+  it('профиля нет или продавец его не принял, «Не настроен»', () => {
     expect(
       agentStatus({ extension: 'active', connection: 'ready', profileApplied: false }),
     ).toBe('NOT_CONFIGURED');
@@ -48,7 +48,7 @@ describe('статус карточки рабочего продавца', () =
 });
 
 describe('слова статуса и каналов', () => {
-  it('на каждый статус — своё слово, без повторов', () => {
+  it('на каждый статус, своё слово, без повторов', () => {
     const statuses: AgentStatus[] = [
       'WORKING',
       'NOT_CONFIGURED',

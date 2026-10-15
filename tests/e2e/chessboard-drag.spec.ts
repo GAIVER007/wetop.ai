@@ -5,9 +5,9 @@ import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
- * Переселение перетаскиванием в шахматке: администратор тянет клетку брони на другую строку-ячейку
+ * Переселение перетаскиванием в календаре: администратор тянет клетку брони на другую строку-ячейку
  * той же категории. Проверяется то, что видит стойка: вопрос с номером брони и ячейкой, после
- * подтверждения — на карточке брони новая ячейка, на шахматке новая клетка занята, старая свободна.
+ * подтверждения — на карточке брони новая ячейка, в календаре новая клетка занята, старая свободна.
  * Гость вымышленный (ADR-010), бронь отменяется в конце; метка E2E-АВТОТЕСТ — для уборки и сверок.
  */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -36,6 +36,10 @@ test('перетаскивание клетки брони на свободну
   // ── бронь на койке A ──────────────────────────────────────────────────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const unitSelect = form.locator('select[name="unitCode"]');
@@ -107,7 +111,7 @@ test('перетаскивание клетки брони на свободну
   // прибрать за собой: бронь отменяется, койка освобождается
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Отменена');
 });

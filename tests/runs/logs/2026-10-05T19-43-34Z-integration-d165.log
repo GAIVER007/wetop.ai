@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 06.10.2026 00:43 Алматы · MacBook-Air-Urij.local
+# коммит 53d355d (codex/mv8-food-branch-contract-20261005), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T19-43-34Z-integration-d165.json' 'tests/integration/mv8-branches-contract.test.ts' 'tests/integration/beauty-catalog.test.ts' 'tests/integration/platform-p3-branches.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-unblock-20261005
+
+ ✓ |integration| tests/integration/mv8-branches-contract.test.ts (2 tests) 581ms
+   ✓ MV8 requires real branches contract to expose selected Food Location and current timezone 425ms
+ ✓ |integration| tests/integration/beauty-catalog.test.ts (9 tests) 320ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  23:43:36
+   Duration  3.00s (tests 41%, transform 31%, import 28%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T19-43-34Z-integration-d165.json
+
+# код выхода 0 · 4 с

@@ -89,6 +89,10 @@ describe('deploy/Dockerfile', () => {
     expect(DOCKERFILE).toContain('npm run build -w apps/web');
   });
 
+  it('сборка стойки с потолком кучи: на 8 ГБ рядом с боевыми службами next build не берёт всю память', () => {
+    expect(DOCKERFILE).toMatch(/NODE_OPTIONS=--max-old-space-size=2048 npm run build -w apps\/web/);
+  });
+
   it('ставит пояс объекта', () => {
     expect(DOCKERFILE).toContain('TZ=Asia/Almaty');
   });
@@ -117,6 +121,15 @@ describe('deploy/compose.yml', () => {
     expect(COMPOSE).toContain('image: pms-lux:latest');
     // api и web; у cloudflared свой образ провайдера. Было три, пока в compose жил legacy-sync (ADR-052)
     expect(COMPOSE.match(/<<: \*app/g)?.length).toBeGreaterThanOrEqual(2);
+  });
+
+  // Сбой 03.10.2026 (plans/deploy-build-outage-2026-10-03.md): сборка образа и проверки CI на одном сервере съели
+  // память, туннель 4–7 минут отвечал 530. Ядро при нехватке убивает того, у кого oom_score больше: боевые службы
+  // должны уходить последними, после сборки и проверок
+  it('API, стойка и туннель последними под OOM-killer: сборку и проверки ядро убьёт раньше', () => {
+    const app = COMPOSE.slice(COMPOSE.indexOf('x-app: &app'), COMPOSE.indexOf('\nnetworks:'));
+    expect(app, 'x-app (api и web)').toMatch(/oom_score_adj: -500/);
+    expect(service('cloudflared')).toMatch(/oom_score_adj: -500/);
   });
 
   it('туннель ровно один и никогда не масштабируется', () => {
@@ -391,5 +404,25 @@ describe('контекст сборки', () => {
       `/x/channels/whatsapp/webhook/${org}`,
     ])
       expect(path.test(closed), closed).toBe(false);
+  });
+
+  // MKT1B BOOK-3: образец туннеля обязан пропускать наружу каждый путь, который зовёт публичный виджет брони, иначе
+  // на краю туннеля `/w/config` получает 404, Turnstile не рисуется и обязательная проверка отказывает каждой брони
+  it('виджет брони наружу целиком: все пути, которые зовёт widget.js, проходят туннель, демо-страницы нет', () => {
+    const rules = withoutComments(read('deploy/cloudflared.example.yml'));
+    const api = [...rules.matchAll(/- hostname: api\.wetop\.ai\n\s+path: (\S+)\n\s+service: (\S+)/g)];
+    const open = (path: string) => api.some((m) => new RegExp(m[1]!).test(path));
+    const widget = read('apps/api/src/web-booking/widget.js');
+    // Пути сетевых вызовов виджета: request('GET'|'POST', '/w/...'), в том числе с переносом строки внутри вызова
+    const called = [
+      ...widget.matchAll(/request\(\s*'(?:GET|POST)',\s*'(\/[^'?]+)/g),
+    ].map((m) => m[1]!);
+    // Сам скрипт сайт берёт по адресу /w/widget.js (шапка widget.js)
+    const required = [...new Set(['/w/widget.js', ...called])].sort();
+    expect(required).toEqual(['/w/availability', '/w/book', '/w/config', '/w/widget.js']);
+    for (const path of required) expect(open(path), path).toBe(true);
+    // Бронь с демо-страницы настоящая (SECURITY.md §11): наружу не выходит
+    for (const closed of ['/w/demo', '/a/demo', '/w/config/x', '/w/configs'])
+      expect(open(closed), closed).toBe(false);
   });
 });

@@ -1,0 +1,88 @@
+# Модульные (unit) · 03.10.2026 18:12 Алматы · vm
+# коммит b31830a (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T13-12-16Z-unit-f143.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 77ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 75ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(238) } to deeply equal { 'GET /branches': 'desk', …(243) }
+
+- Expected
++ Received
+
+@@ -1,10 +1,9 @@
+  {
+    "DELETE /analytics/sites/:id": "settings",
+    "DELETE /auth/invites/:id": "staff",
+    "DELETE /auth/members/:userId": "staff",
+-   "DELETE /beauty/employees/:id/time-offs/:timeOffId": "property",
+    "DELETE /guests/:id/documents/:documentId": "desk",
+    "DELETE /units/:code/blocks/:blockId": "desk",
+    "GET /a/demo": "public",
+    "GET /a/pms.js": "public",
+    "GET /ai-seller/agents/:id": "dialogs",
+@@ -41,11 +40,10 @@
+    "GET /auth/sessions": "self",
+    "GET /availability": "desk",
+    "GET /availability/nearest": "desk",
+    "GET /availability/offers": "desk",
+    "GET /beauty/employees": "desk",
+-   "GET /beauty/schedule": "desk",
+    "GET /beauty/services": "desk",
+    "GET /bot/agent-origins": "public",
+    "GET /bot/availability": "public",
+    "GET /branches": "desk",
+    "GET /branches/overview": "reports",
+@@ -165,11 +163,10 @@
+    "POST /auth/password": "self",
+    "POST /auth/password-reset/confirm": "public",
+    "POST /auth/password-reset/request": "public",
+    "POST /auth/register": "public",
+    "POST /beauty/employees": "property",
+-   "POST /beauty/employees/:id/time-offs": "property",
+    "POST /beauty/services": "rates",
+    "POST /branches": "owner",
+    "POST /channels/channex/availability/changed": "channels",
+    "POST /channels/channex/events/:revisionId/retry": "channels",
+    "POST /channels/channex/outbox/flush": "channels",
+@@ -232,13 +229,11 @@
+    "PUT /ai-seller/agents/:id/telegram": "seller",
+    "PUT /ai-seller/llm-key": "seller",
+    "PUT /ai-seller/profile": "seller",
+    "PUT /ai-seller/prompt": "seller",
+    "PUT /ai-seller/whatsapp": "seller",
+-   "PUT /beauty/employees/:id/locations": "property",
+    "PUT /beauty/employees/:id/services": "property",
+-   "PUT /beauty/employees/:id/working-hours": "property",
+    "PUT /beauty/services/:id/location": "rates",
+    "PUT /platform/organizations/:id/extensions/ai-seller": "platform",
+    "PUT /platform/organizations/:id/status": "platform",
+    "PUT /platform/support/kb/:id": "platform",
+    "PUT /platform/support/prompt": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:338:20
+    336|       .map(([key]) => key);
+    337|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    338|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    339|   });
+    340|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  13:12:17
+   Duration  3.80s (transform 67%, import 31%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-03T13-12-16Z-unit-f143.json
+
+# код выхода 1 · 5 с

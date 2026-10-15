@@ -11,13 +11,32 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-       ca-certificates curl git jq sudo unzip libicu74 tini \
+       ca-certificates curl git jq unzip libicu74 tini \
   && rm -rf /var/lib/apt/lists/*
 
-# Раннер отказывается работать от root, а `playwright install --with-deps` зовёт apt через sudo.
-RUN useradd -m -s /bin/bash runner \
-  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
-  && chmod 0440 /etc/sudoers.d/runner
+# Системные библиотеки и шрифты Chromium для Playwright ставятся здесь, при сборке, от root. Внутри контейнера sudo
+# не работает: compose задаёт no-new-privileges, и `playwright install --with-deps` падал за две секунды с «The "no new
+# privileges" flag is set, which prevents sudo from running as root» (первый настоящий прогон 03.10.2026, все три части
+# UI и проверка главной). Поэтому задачи на этом раннере зовут `playwright install chromium` без --with-deps. Список —
+# то, что ставит `playwright install-deps chromium` версии 1.63 для Ubuntu 24.04 (инструменты и chromium), сверяет
+# tests/unit/ci-runner.test.ts.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+       xvfb fonts-noto-color-emoji fonts-unifont libfontconfig1 libfreetype6 xfonts-cyrillic xfonts-scalable \
+       fonts-liberation fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf fonts-freefont-ttf \
+       libasound2t64 libatk-bridge2.0-0t64 libatk1.0-0t64 libatspi2.0-0t64 libcairo2 libcups2t64 libdbus-1-3 \
+       libdrm2 libgbm1 libglib2.0-0t64 libnspr4 libnss3 libpango-1.0-0 libx11-6 libxcb1 libxcomposite1 \
+       libxdamage1 libxext6 libxfixes3 libxkbcommon0 libxrandr2 \
+  && rm -rf /var/lib/apt/lists/*
+
+# Раннер отказывается работать от root. sudo в образе нет: под no-new-privileges он всё равно не работает.
+RUN useradd -m -s /bin/bash runner
+
+# Хук перед каждой задачей: задачи из запроса на слияние из чужого форка раннер не выполняет (job-started.sh,
+# ADR-137). Файл root и лежит вне тома раннера: хук приходит с образом, а не с проверяемой веткой.
+COPY job-started.sh /usr/local/lib/wetop-ci/job-started.sh
+RUN chmod 0755 /usr/local/lib/wetop-ci/job-started.sh
+ENV ACTIONS_RUNNER_HOOK_JOB_STARTED=/usr/local/lib/wetop-ci/job-started.sh
 
 USER runner
 WORKDIR /home/runner/actions-runner

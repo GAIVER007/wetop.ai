@@ -1,0 +1,47 @@
+# Модульные (unit) · 04.10.2026 14:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит f041de4 (claude/desk-tasks)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T09-54-28Z-unit-379a.json' 'packages/domain/src/tasks/tasks.test.ts' 'apps/api/src/tasks/tasks.controller.test.ts' 'apps/api/src/desk/desk.controller.test.ts' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ✓ |unit| packages/domain/src/tasks/tasks.test.ts (6 tests) 3ms
+ ❯ |unit| tests/unit/ui-fixture-address.test.ts (2 tests | 1 failed) 63ms
+   ❯ адрес подставного API в наборе UI (2)
+     × ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API 62ms
+     ✓ FIXTURE_API берёт адрес из UI_FIXTURE_API, а 4311 оставляет умолчанием 0ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests) 153ms
+ ✓ |unit| apps/api/src/tasks/tasks.controller.test.ts (3 tests) 164ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 21ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ui-fixture-address.test.ts > адрес подставного API в наборе UI > ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API
+AssertionError: expected [ 'desk-tasks.spec.ts' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "desk-tasks.spec.ts",
++ ]
+
+ ❯ tests/unit/ui-fixture-address.test.ts:30:41
+     28| describe('адрес подставного API в наборе UI', () => {
+     29|   it('ни один спек не зашивает адрес стенда: он приходит из FIXTURE_AP…
+     30|     expect(specsWithHardcodedAddress()).toEqual([]);
+       |                                         ^
+     31|   });
+     32|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 15 passed (16)
+   Start at  02:54:28
+   Duration  1.52s (transform 45%, import 42%, tests 13%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T09-54-28Z-unit-379a.json
+
+# код выхода 1 · 3 с

@@ -34,6 +34,8 @@ export function securityHeaders(env: SecurityHeaderEnv): Record<string, string> 
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
     withAssistant("connect-src 'self'"),
+    // окно Channex раздела «Каналы» (ADR-140, channel-iframe.md): подключение канала внутри стойки
+    "frame-src 'self' https://staging.channex.io https://app.channex.io",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",

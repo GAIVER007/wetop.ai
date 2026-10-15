@@ -1,0 +1,77 @@
+# Модульные (unit) · 07.10.2026 13:11 Алматы · vm
+# коммит 012c06d (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-11-33Z-unit-afc0.json' 'packages/domain/src/marketing/brief.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/brief.test.ts (28 tests | 1 failed) 62ms
+   ✓ SiteBrief v0: форма и белые списки (9)
+     ✓ версия схемы, время сбора, хэш sha256 нижним регистром 6ms
+     ✓ факты платформы: имя, адрес филиала, контакты филиала, пояс, валюта, время заезда и выезда 4ms
+     ✓ категории по коду, без id; activeUnits как есть 1ms
+     ✓ профиль продавца: только белый список; языки сайта как пересечение с ru, kk, en в порядке продавца 1ms
+     ✓ пустые тексты продавца становятся null; языки без ru, kk, en дают пустую подсказку без ошибки 1ms
+     ✓ Channex: белый список; адресов фото нет, только сводка 1ms
+     ✓ без продавца и без Channex бриф строится; блоки null 10ms
+     ✓ недоверенный текст остаётся строкой данных, ничего не выполняется и не вырезается 1ms
+     ✓ возможности гостиницы: бронь и цена «от» как способность, без обещания опубликованного сайта 2ms
+   ✓ SiteBrief v0: старшинство (6)
+     ✓ телефон и почта филиала главнее Channex; расхождение записано 2ms
+     ✓ телефона и почты у филиала нет: берётся Channex без расхождения; телефон объекта в бриф не идёт 1ms
+     ✓ адрес: филиал, затем объект, затем Channex 1ms
+     ✓ пробелы и регистр не дают расхождения адреса; другой адрес даёт 1ms
+     ✓ время заезда и выезда платформы главное; другое время Channex это расхождение 1ms
+     ✓ кандидат названия: Channex, иначе филиал, иначе объект; заметно другое название Channex это расхождение 1ms
+   ❯ SiteBrief v0: найдено, нет, недоступно (4)
+     ✓ found по коду, с источником; отсортировано 1ms
+     ✓ Channex не подключён: факты, которые давал только он, отсутствуют 0ms
+     × Channex недоступен: его факты не «нет», а источник в sourceUnavailable; ответ тот же по платформе 11ms
+     ✓ нет категорий и контактов: accommodations и public.contact отсутствуют 1ms
+   ✓ SiteBrief v0: предлагаемая структура (3)
+     ✓ полный набор данных: секции по порядку, у каждой причины и доказательства 2ms
+     ✓ минимум данных: hero, booking, cta; без выдуманных секций 0ms
+     ✓ «что входит в цену» продавца без удобств Channex поддерживает amenities 1ms
+   ✓ SiteBrief v0: briefHash (4)
+     ✓ другое collectedAt и checkedAt: тот же хэш 1ms
+     ✓ другое состояние недоступного Channex: тот же хэш 1ms
+     ✓ другой порядок категорий и удобств: тот же хэш и тот же бриф 2ms
+     ✓ значимые правки меняют хэш: описание, FAQ, категория, условие структуры 1ms
+   ✓ SiteBrief v0: пределы (2)
+     ✓ длинное описание режется детерминированно; усечение видно в метаданных, исходника нет 1ms
+     ✓ удобств и подписей фото не больше предела 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/brief.test.ts > SiteBrief v0: найдено, нет, недоступно > Channex недоступен: его факты не «нет», а источник в sourceUnavailable; ответ тот же по платформе
+AssertionError: expected [] to deeply equal [ { source: 'CHANNEX', …(1) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "code": "UNREACHABLE",
+-     "source": "CHANNEX",
+-   },
+- ]
++ []
+
+ ❯ packages/domain/src/marketing/brief.test.ts:327:33
+    325|     const s = snapshot({ channex: { state: 'UNREACHABLE', checkedAt: A…
+    326|     const b = buildSiteBrief(s, AT);
+    327|     expect(b.sourceUnavailable).toEqual([{ source: 'CHANNEX', code: 'U…
+       |                                 ^
+    328|     expect(codes(b.missing)).not.toContain('photos');
+    329|     expect(codes(b.missing)).not.toContain('marketing.description');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 passed (28)
+   Start at  08:11:34
+   Duration  640ms (transform 76%, tests 14%, import 9%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-11-33Z-unit-afc0.json
+
+# код выхода 1 · 2 с

@@ -9,7 +9,7 @@ import {
   type DropRow,
 } from './drag-plan';
 
-/** Переселение перетаскиванием по шахматке: что уезжает в dataTransfer и что спрашиваем у стойки. */
+/** Переселение перетаскиванием по календарю: что уезжает в dataTransfer и что спрашиваем у стойки. */
 const payload = {
   number: '20260911-ABC123',
   itemId: 'item-1',
@@ -36,7 +36,7 @@ const row = (unitCode: string, categoryCode: string, cells: DropRow['cells']): D
 });
 const days = ['2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17'];
 
-describe('drag-plan: перетаскивание брони по шахматке', () => {
+describe('drag-plan: перетаскивание брони по календарю', () => {
   it('тип данных свой — чужой drop (файл, текст, ссылка) не читается как бронь', () => {
     expect(DRAG_MIME).toBe('application/x-pms-stay');
   });

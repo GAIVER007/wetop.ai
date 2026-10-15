@@ -1,4 +1,4 @@
-import { FundTabs } from './fund-tabs';
+import { requireVertical } from '../../lib/vertical-guard';
 import './fund.css';
 import Link from 'next/link';
 import { api, inventoryEditorApi } from '../../lib/api';
@@ -6,15 +6,27 @@ import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { pluralRu } from '../../lib/plural';
 import { AddMenu } from './add-menu';
+import { channelMarks } from './channel-marks';
 import { InventoryCatalog } from './inventory-catalog';
+import { InventoryPeriodSelect, InventorySummaryTiles } from './summary-tiles';
 import './inventory.css';
 
-/** Состав фонда из API; занятость и команды остаются в шахматке и карточке места. */
-export default async function InventoryPage() {
-  const [summary, units, categories] = await Promise.all([
+/** Состав фонда из API; занятость и команды остаются в календаре и карточке места. */
+export default async function InventoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  await requireVertical(['HOSPITALITY']);
+  const period = Number((await searchParams).period);
+  const days = period === 7 || period === 90 ? period : 30;
+  const [summary, units, categories, trend, occupancy, marks] = await Promise.all([
     api.inventorySummary(),
     api.inventoryUnits(),
     inventoryEditorApi.categories(),
+    api.inventoryTrend(days).catch(() => null),
+    api.inventoryOccupancy().catch(() => []),
+    channelMarks(),
   ]);
   return (
     <Page
@@ -26,15 +38,19 @@ export default async function InventoryPage() {
       }
       actions={
         <>
+          <InventoryPeriodSelect days={days} />
           <AddMenu categories={categories} />
+          <Link href="/rooms/categories" className="btn btn--secondary">
+            <Icon name="rates" />
+            Категории
+          </Link>
           <Link href="/chessboard" className="btn btn--secondary">
             <Icon name="board" />
-            Шахматка
+            Календарь
           </Link>
         </>
       }
     >
-      <FundTabs active="inventory" />
       {!summary.totalUnits && (
         <section className="fund-empty">
           <h2>Создайте свой номерной фонд</h2>
@@ -45,24 +61,14 @@ export default async function InventoryPage() {
           </ol>
         </section>
       )}
-      <dl className="inventory-summary" data-testid="inventory-summary">
-        {[
-          ['Единиц продажи', summary.totalUnits, 'total-units'],
-          ['Номеров', summary.rooms, 'rooms'],
-          ['Койко-мест', summary.beds, 'beds'],
-          ['Вместимость', summary.maxGuests, 'max-guests'],
-          ['Недоступно', summary.blocks, 'blocks'],
-        ].map(([label, value, id]) => (
-          <div key={id}>
-            <dt>{label}</dt>
-            <dd data-testid={id}>{value}</dd>
-          </div>
-        ))}
-      </dl>
+      <InventorySummaryTiles units={units} trend={trend} />
       <InventoryCatalog
         units={units}
         categories={summary.byCategory}
         editorCategories={categories}
+        occupancy={occupancy}
+        channels={marks.channels}
+        channelCategories={marks.mapped}
       />
     </Page>
   );

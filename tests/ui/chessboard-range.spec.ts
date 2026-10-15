@@ -1,5 +1,5 @@
 import type { APIRequestContext, Locator, Page } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, hydrated } from './fixtures';
 
 /**
  * Шахматка v2, PR 5 (ТЗ §31–32): создание брони выделением и щелчок по пустой клетке.
@@ -11,7 +11,7 @@ import { expect, test } from './fixtures';
  * Данные — базовые брони стенда (вымышленные, ADR-010): «Клиент Пример» (TEST1) — R02, три ночи с
  * сегодняшнего дня; R07 и R08 свободны; закрытую ночь тест ставит сам блокировкой через API стенда.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 
 const add = (date: string, n: number) => {
@@ -29,6 +29,9 @@ async function openWeek(page: Page, request: APIRequestContext): Promise<string>
   };
   const from = add(stay.arrivalDate, -1);
   await page.goto(`/chessboard?from=${from}&to=${add(from, 6)}`);
+  // Сетка оживлена: с UI3.1 постоянной правой сводки нет (поручение владельца 11.10.2026), и `data-docked`
+  // ставится только у открытой брони, поэтому ждём оживления самой сетки, а не появления сводки.
+  await hydrated(page.locator('.board-stage'));
   return stay.arrivalDate;
 }
 
@@ -37,6 +40,10 @@ const cell = (page: Page, unit: string, date: string) =>
 
 /** Прижать мышь на одной клетке и провести до другой (обычные события указателя, не HTML5 drag) */
 async function sweep(page: Page, from: Locator, to: Locator) {
+  await hydrated(from);
+  await page.evaluate('document.fonts.ready');
+  await to.scrollIntoViewIfNeeded();
+  await from.scrollIntoViewIfNeeded();
   const a = (await from.boundingBox())!;
   const b = (await to.boundingBox())!;
   await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
@@ -152,7 +159,7 @@ test('«только чтение» (ADR-102): окошко говорит, чт
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { orgTrialDays: 'ended' } });
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

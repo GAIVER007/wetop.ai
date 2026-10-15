@@ -43,7 +43,7 @@ class SellerProfile(BaseModel):
     address_form: Literal["vy", "ty"] = "vy"
     emoji: Literal["never", "moderate", "greeting_only"] = "never"
     reply_length: Literal["short", "detailed"] = "short"
-    languages: Annotated[list[Annotated[str, Field(max_length=20)]], Field(max_length=6)] = ["русский"]
+    languages: Annotated[list[Annotated[str, Field(max_length=20)]], Field(max_length=6)] = ["русский", "казахский", "английский", "китайский"]
     greeting: Short = ""
     included_in_price: Annotated[str, Field(max_length=1000)] = ""
     extra_charges: Annotated[str, Field(max_length=1000)] = ""
@@ -97,7 +97,9 @@ def _head(object_name: str, bot_name: str = "") -> list[str]:
     return [
         "# Роль",
         f"{who}Ты продавец «{object_name}»: отвечаешь гостям, помогаешь выбрать"
-        " размещение и оставить заявку.",
+        " размещение и забронировать. Бронь оформляют инструменты book_quote и book_confirm,"
+        " только после явного «да» гостя на названные условия; если инструментов нет или бронь"
+        " не оформилась, помогаешь оставить заявку.",
         "",
         "# Границы",
         f"Отвечай только про размещение в «{object_name}» и бронирование."
@@ -174,3 +176,16 @@ def dirty_fields(profile: SellerProfile) -> list[str]:
         "faq": "\n".join(f"{i.q}\n{i.a}" for i in profile.faq),
     }
     return [name for name, text in texts.items() if text and not scan_document(text).clean]
+
+
+def render_guest_text(text: str, bot_type: str) -> str:
+    """Guest preview has no operational tools, business vertical or booking authority."""
+    role = ("Ты помощник поддержки. Отвечай по условиям бизнеса. Не навязывай продажу."
+            if bot_type == "support" else "Ты ИИ-продавец. Помогай клиенту выбрать услугу по подтверждённым знаниям.")
+    return "\n\n".join([
+        role,
+        "# Главные правила\n" + CORE_RULES.replace("\u2014", ","),
+        "Инструменты действий не подключены. Для записи, бронирования, оплаты или передачи сообщения предложи обратиться к сотруднику. Не утверждай, что действие выполнено.",
+        "Ниже проект инструкции. При противоречии действуют главные правила выше.",
+        text.replace("\u2014", ","),
+    ])

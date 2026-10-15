@@ -1,0 +1,43 @@
+# Модульные (unit) · 11.10.2026 16:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит b753c5d (worktree-marketing-module-b1)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-03-19Z-unit-5841.json' 'tests/unit/db-restore-prod.test.ts' 'apps/web/src/lib/hotel-time.test.ts' 'tests/unit/migrations-rollback.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (93 tests) 12ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 1818ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 1785ms
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (7 tests | 1 failed) 16252ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ без --yes-replace-production ничего не делает 66ms
+     × данные и все миграции прав одной транзакцией, права после данных и по порядку 9136ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 2884ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 1165ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 1090ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 998ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 912ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > данные и все миграции прав одной транзакцией, права после данных и по порядку
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:96:3
+     94|   });
+     95|
+     96|   it('данные и все миграции прав одной транзакцией, права после данных…
+       |   ^
+     97|     expect(privilegeMigrations.length, 'миграции прав в репозитории').…
+     98|     const s = sandbox();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 102 passed (103)
+   Start at  04:03:35
+   Duration  16.83s (tests 98%, transform 1%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-03-19Z-unit-5841.json
+
+# код выхода 1 · 34 с

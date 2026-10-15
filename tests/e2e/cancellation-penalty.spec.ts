@@ -31,6 +31,10 @@ test('отмена заранее — без штрафа, незаезд — с
   test.setTimeout(120_000);
   await page.goto(`/reservations/new?arrival=${plus(20)}&departure=${plus(23)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('PHONE');
   await form
     .locator('select[name="accommodationTypeCode"]')
@@ -55,7 +59,7 @@ test('отмена заранее — без штрафа, незаезд — с
   // Окно подтверждения (срез 7.3, Д5) говорит об этом до нажатия — тем же кодом, что потом пишет счёт
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь', /Штраф не начисляется/);
+  await confirmDialog(page, 'Подтвердить отмену', /Штраф не начисляется/);
   await expect(page.getByText('отменена').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const accommodation = panel.getByTestId('charge-row').filter({ hasText: 'проживание' }).first();
@@ -66,6 +70,10 @@ test('отмена заранее — без штрафа, незаезд — с
   // Незаезд: штраф есть всегда, потому что место простояло
   await page.goto(`/reservations/new?arrival=${plus(21)}&departure=${plus(24)}`);
   const f2 = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await f2.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await f2.locator('select[name="source"]').selectOption('PHONE');
   await f2
     .locator('select[name="accommodationTypeCode"]')
@@ -85,14 +93,15 @@ test('отмена заранее — без штрафа, незаезд — с
     await page.getByRole('main').getByTestId('stay-row').first().locator('td').nth(5).innerText(),
   );
   await cardTab(page, 'Действия');
-  await page.getByRole('main').locator('[data-testid^="no-show-"]').click();
+  await page.getByRole('main').locator('[data-testid^="cancel-stay-"]').click();
+  await page.getByRole('dialog').getByLabel('Причина отмены').selectOption('no_show');
   // сумма в окне = сумма начисления: предпросмотр и штраф считает одна функция (Д5)
   await expect(page.getByRole('main').getByTestId('no-show-penalty')).toContainText(
     'останется на счёте',
   ); // предпросмотр дошёл
   const shownText = await page.getByRole('main').getByTestId('no-show-penalty').innerText();
   const shown = minor(shownText); // общий помощник уже переводит и целые тенге, и тиыны
-  await confirmDialog(page, 'Отметить незаезд', /Штраф .* останется на счёте/);
+  await confirmDialog(page, 'Подтвердить незаезд', /Штраф .* останется на счёте/);
   await expect(page.getByText('незаезд').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const penalty = page

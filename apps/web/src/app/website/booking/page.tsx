@@ -7,7 +7,8 @@ import { Page } from '../../../components/page';
 import { Icon } from '../../../components/icon';
 import { Alert, Panel, Row, Stack, StateBar, StateFact } from '../../../components/ui';
 import { BookingSettings, InstallWidgetButton } from '../forms';
-import { WebsiteNotConnected, WebsiteTabs } from '../parts';
+import { ManagedSitesNotice, MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from '../parts';
+import '../website.css';
 
 /**
  * «Сайт и онлайн-бронирование → Бронирование» (ADR-117, WEB1; WEB3 — состояние, демо, «Что увидит гость», окно
@@ -16,20 +17,25 @@ import { WebsiteNotConnected, WebsiteTabs } from '../parts';
  */
 export default async function WebsiteBookingPage() {
   const sites = await analyticsApi.sites();
-  const [cards, plans, settings] = await Promise.all([
+  const [all, plans, settings] = await Promise.all([
     Promise.all(sites.map((s) => analyticsApi.card(s.id))),
     reservationsApi.ratePlans().catch(() => null),
     hotelApi.settings().catch(() => null),
   ]);
+  // MKT7: бронь сайта WETOP настраивает публикация, здесь только ссылка туда
+  const cards = all.filter((c) => !c.site.managed);
+  const managed = all.filter((c) => c.site.managed);
   return (
     <Page
+      crumbs={<MarketingCrumb />}
       title={WEBSITE_TITLE}
       subtitle="Виджет на сайте объекта: свободные места, цены и бронь сразу в PMS."
     >
       <WebsiteTabs current="booking" />
-      {cards.length === 0 ? (
+      <ManagedSitesNotice cards={managed} />
+      {cards.length === 0 && managed.length === 0 ? (
         <WebsiteNotConnected drafts={[]} />
-      ) : (
+      ) : cards.length === 0 ? null : (
         <div className="settings-site">
           <Stack>
             {cards.map((card) => (
@@ -93,7 +99,7 @@ function SiteBooking({
 
       <p className="hint--lg" data-testid="booking-explained">
         Когда гость выбирает даты на вашем сайте, WETOP показывает свободные места и цены по тарифу
-        сайта и создаёт бронь сразу в PMS — с источником «сайт», как на шахматке и в «Бронях».
+        сайта и создаёт бронь сразу в PMS — с источником «сайт», как в календаре и в «Бронях».
       </p>
       {!state.connected && (
         <Alert tone="warning" data-testid="booking-domain-missing">
@@ -117,13 +123,16 @@ function SiteBooking({
             Свободные категории тарифа «{planName ?? 'не выбран'}» с ценой за весь период
             {currency ? `, ${currency}` : ''}. Занятые и не проданные в тарифе — с пометкой.
           </li>
-          <li>Имя, фамилия и телефон; почта и комментарий — по желанию.</li>
+          <li>Имя, фамилия и телефон; почта и комментарий по желанию.</li>
           <li>Номер брони и «К оплате при заселении»: бронь сразу подтверждена.</li>
+          <li data-testid="booking-guest-letter">
+            Если гость оставил почту, письмо с подтверждением брони на его языке.
+          </li>
         </ol>
-        {/* языки — Q-116, письмо гостю — Q-115, предоплата — Q-114: до решения владельца виджет их не умеет */}
+        {/* ADR-144: языки и письмо-подтверждение сделаны; дети и SMS не решены, предоплата — срез платёжных ссылок */}
         <p className="hint" data-testid="booking-guest-limits">
-          Пока не умеет: другие языки кроме русского, детей, письмо или SMS гостю, предоплату.
-          Скидка тарифа и промокода не суммируется: гостю применяется большая.
+          Языки формы: русский, казахский, английский, китайский. Пока не умеет: детей, SMS гостю,
+          предоплату. Скидка тарифа и промокода не суммируется: гостю применяется большая.
         </p>
       </Panel>
 

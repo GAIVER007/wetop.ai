@@ -1,0 +1,50 @@
+# Модульные (unit) · 01.10.2026 14:06 Алматы · MacBook-Air-Urij.local
+# коммит 52ff092 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 93
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T09-06-10Z-unit-e958.json' 'apps/api/src/ai-seller/agent-telegram.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/api/src/ai-seller/agent-telegram.test.ts (4 tests | 1 failed) 45ms
+   ✓ Telegram selected agent (3)
+     ✓ uses both scopes and filters secret fields 14ms
+     ✓ rejects foreign agent before service access 8ms
+     ✓ rejects staff writes 2ms
+   × resolves the migrated working seller on the server 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/agent-telegram.test.ts > resolves the migrated working seller on the server
+AssertionError: expected "vi.fn()" to be called with arguments: [ …(2) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "11111111-1111-4111-8111-111111111111",
+-   "11111111-1111-4111-8111-111111111111",
++   "22222222-2222-4222-8222-222222222222",
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/api/src/ai-seller/agent-telegram.test.ts:33:30
+     31| it('resolves the migrated working seller on the server', async () => {
+     32|  const s = setup(); await owner(() => s.service.run('working','status'…
+     33|  expect(s.connection.client).toHaveBeenCalledWith(ORG, ORG);
+       |                              ^
+     34|  expect(s.agents.get).not.toHaveBeenCalled();
+     35| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  13:06:21
+   Duration  4.98s (transform 65%, import 34%, tests 1%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T09-06-10Z-unit-e958.json
+
+# код выхода 1 · 16 с

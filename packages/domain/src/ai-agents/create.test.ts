@@ -34,7 +34,7 @@ describe('parseAgentInput', () => {
     if (result.ok) expect(Object.keys(result.value).sort()).toEqual(['businessId', 'locationId', 'name']);
   });
 
-  it('пустое название и название из пробелов — ошибка у поля', () => {
+  it('пустое название и название из пробелов, ошибка у поля', () => {
     for (const name of ['', '   ', undefined, null, 7]) {
       const result = parseAgentInput({ name, businessId: BUSINESS, locationId: LOCATION });
       expect(result.ok).toBe(false);
@@ -42,7 +42,7 @@ describe('parseAgentInput', () => {
     }
   });
 
-  it(`название длиннее ${AGENT_NAME_MAX} знаков — ошибка, ровно ${AGENT_NAME_MAX} — можно`, () => {
+  it(`название длиннее ${AGENT_NAME_MAX} знаков, ошибка, ровно ${AGENT_NAME_MAX}, можно`, () => {
     expect(parseAgentInput({ name: 'а'.repeat(AGENT_NAME_MAX), businessId: BUSINESS, locationId: LOCATION }).ok).toBe(true);
     const long = parseAgentInput({ name: 'а'.repeat(AGENT_NAME_MAX + 1), businessId: BUSINESS, locationId: LOCATION });
     expect(long.ok).toBe(false);
@@ -55,7 +55,7 @@ describe('parseAgentInput', () => {
     }
   });
 
-  it('идентификаторы — только UUID; ошибка называет нужное поле', () => {
+  it('идентификаторы, только UUID; ошибка называет нужное поле', () => {
     const result = parseAgentInput({ name: 'Агент', businessId: 'не-uuid', locationId: 42 });
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -65,7 +65,7 @@ describe('parseAgentInput', () => {
     }
   });
 
-  it('не объект — все поля с ошибкой, без исключения', () => {
+  it('не объект, все поля с ошибкой, без исключения', () => {
     for (const raw of [null, undefined, 'x', 5, []]) {
       const result = parseAgentInput(raw);
       expect(result.ok).toBe(false);
@@ -74,7 +74,7 @@ describe('parseAgentInput', () => {
 });
 
 describe('список настройки страницы агента', () => {
-  it('«Основное» готово, остальные шесть — ещё нет и недоступны; шагов мастера нет', () => {
+  it('«Основное» готово, остальные шесть, ещё нет и недоступны; шагов мастера нет', () => {
     expect(AGENT_SETUP_ITEMS.map((i) => [i.code, i.done])).toEqual([
       ['basics', true],
       ['behavior', false],
@@ -99,11 +99,11 @@ describe('список настройки страницы агента', () => 
 describe('состояние кнопки «+ Подключить AI-продавца»', () => {
   const base = { extension: 'active' as const, canManage: true, locations: { total: 2, free: 1 } };
 
-  it('расширение, право и свободный филиал есть — кнопка активна', () => {
+  it('расширение, право и свободный филиал есть, кнопка активна', () => {
     expect(createAgentAvailability(base)).toEqual({ enabled: true, reason: null });
   });
 
-  it('расширение не подключено или истекло — причина словами', () => {
+  it('расширение не подключено или истекло, причина словами', () => {
     expect(createAgentAvailability({ ...base, extension: 'off' })).toEqual({
       enabled: false,
       reason: 'Расширение «ИИ-продавец» не подключено.',
@@ -114,26 +114,26 @@ describe('состояние кнопки «+ Подключить AI-прода
     });
   });
 
-  it('нет права seller — причина про владельца и управляющего', () => {
+  it('нет права seller, причина про владельца и управляющего', () => {
     expect(createAgentAvailability({ ...base, canManage: false }).reason).toBe(
       'Создавать агентов могут владелец и управляющий.',
     );
   });
 
-  it('единственный филиал занят — «Нет свободного филиала» с объяснением', () => {
+  it('единственный филиал занят, «Нет свободного филиала» с объяснением', () => {
     expect(createAgentAvailability({ ...base, locations: { total: 1, free: 0 } })).toEqual({
       enabled: false,
       reason: 'Нет свободного филиала. Для этого филиала AI-продавец уже создан.',
     });
   });
 
-  it('несколько филиалов, все заняты — «Во всех филиалах…»', () => {
+  it('несколько филиалов, все заняты, «Во всех филиалах…»', () => {
     expect(createAgentAvailability({ ...base, locations: { total: 3, free: 0 } }).reason).toBe(
       'Нет свободного филиала. Во всех филиалах AI-продавец уже создан.',
     );
   });
 
-  it('филиалов нет совсем — причина про создание филиала', () => {
+  it('филиалов нет совсем, причина про создание филиала', () => {
     expect(createAgentAvailability({ ...base, locations: { total: 0, free: 0 } }).reason).toBe(
       'Нет ни одного филиала. Сначала настройте объект.',
     );

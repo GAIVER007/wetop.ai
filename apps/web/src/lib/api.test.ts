@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { ApiError, apiErrorStatus, getJsonPublic, reservationsApi } from './api';
+import { authApi, ApiError, apiErrorStatus, getJsonPublic, reservationsApi } from './api';
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
@@ -165,4 +165,19 @@ it('ApiError carries its status in digest, so the client error boundary can tell
   expect(apiErrorStatus('API_503')).toBe(503);
   expect(apiErrorStatus('1234567890')).toBeUndefined();
   expect(apiErrorStatus(undefined)).toBeUndefined();
+});
+
+ it('auth/me переносит организацию рабочего API в контекст пользователя', async () => {
+  const organization = { name: 'Test organization', status: 'ACTIVE', trialEndsAt: null };
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({user: {id: 'u', organizationId: 'o', role: 'OWNER'}, organization}))));
+  expect((await authApi.me()).user?.organization).toEqual(organization);
+ });
+
+it('auth/me не придумывает организацию и сохраняет отсутствие сессии', async () => {
+  for (const response of [{user: null}, {user: {id: 'u', organization: {name: 'old'}}, organization: null}]) {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response))));
+    const result = await authApi.me();
+    if (response.user === null) expect(result.user).toBeNull();
+    else expect(result.user?.organization).toBeNull();
+  }
 });

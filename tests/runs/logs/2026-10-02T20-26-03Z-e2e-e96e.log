@@ -1,0 +1,76 @@
+# Сквозные (e2e) · 03.10.2026 01:26 Алматы · vm
+# коммит f494412 (claude/bold-planck-k2ls6o)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' '-g' 'кнопки|одной фразой'
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/site/homepage-blocks.spec.ts:66:1 › первый экран: две кнопки стоят в одну строку, факты уехали в полосу под ним (578ms)
+  ✘  2 tests/site/homepage-blocks.spec.ts:90:1 › карточки блоков читаются одной фразой, а не абзацем (575ms)
+
+
+  1) tests/site/homepage-blocks.spec.ts:66:1 › первый экран: две кнопки стоят в одну строку, факты уехали в полосу под ним 
+
+    Error: кнопки первого экрана встали в столбик
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 639
+    Received: 568
+
+      71 |     .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
+      72 |   expect(tops.length, 'кнопок на первом экране две').toBe(2);
+    > 73 |   expect(tops[0], 'кнопки первого экрана встали в столбик').toBe(tops[1]);
+         |                                                             ^
+      74 |   // три факта под чертой ушли с первого экрана: он и без них в семь уровней
+      75 |   await expect(page.locator('.hero .hero__points')).toHaveCount(0);
+      76 |
+        at /home/user/wetop.ai/tests/site/homepage-blocks.spec.ts:73:61
+
+    Error Context: test-results/homepage-blocks-первый-экр-da904-кты-уехали-в-полосу-под-ним/error-context.md
+
+  2) tests/site/homepage-blocks.spec.ts:90:1 › карточки блоков читаются одной фразой, а не абзацем ─
+
+    Error: текст карточки длиннее одной фразы
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 19
+
+    - Array []
+    + Array [
+    +   "#features: 176 знаков — Номера и койко-места на одной сетке: нед",
+    +   "#features: 148 знаков — Ручные и групповые брони, заезд, выезд и",
+    +   "#features: 110 знаков — Подключение через менеджер каналов: новы",
+    +   "#features: 132 знаков — Календарь цен и ограничений по тарифам. ",
+    +   "#features: 162 знаков — Счёт на каждое проживание и девять спосо",
+    +   "#features: 173 знаков — Виджет бронирования: бронь с сайта сразу",
+    +   "#features: 128 знаков — Загрузка по категориям, выручка и брони ",
+    +   "#features: 121 знаков — Каждую минуту проверяет каналы, очереди ",
+    +   "#sales: 164 знаков — Подключаются через менеджер каналов. Кат",
+    +   "#sales: 169 знаков — Виджет бронирования на вашем сайте: гост",
+    +   "#sales: 150 знаков — Администратор заводит бронь сам. Поиск с",
+    +   "#sales: 147 знаков — Отвечает клиентам в чате на сайте и в Wh",
+    +   "#sales: 121 знаков — Посчитайте на своих цифрах, сколько вы п",
+    +   "#team: 126 знаков — Владелец, управляющий и администратор. К",
+    +   "#team: 112 знаков — Кто и когда создал бронь, изменил цену и",
+    +   "#team: 149 знаков — Стойка открывается по адресу в браузере,",
+    +   "#audience: 122 знаков — Салоны и студии: записи, мастера, услуги",
+    + ]
+
+       97 |     }
+       98 |   }
+    >  99 |   expect(long, 'текст карточки длиннее одной фразы').toEqual([]);
+          |                                                      ^
+      100 |   // «Что умеет WETOP»: восемь строк-пунктов в две колонки вместо восьми карточек-колонок
+      101 |   await expect(page.locator('#features .card-grid--2')).toBeVisible();
+      102 |   await expect(page.locator('#features .card--compact')).toHaveCount(8);
+        at /home/user/wetop.ai/tests/site/homepage-blocks.spec.ts:99:54
+
+    Error Context: test-results/homepage-blocks-карточки-б-52d48-я-одной-фразой-а-не-абзацем/error-context.md
+
+  2 failed
+    tests/site/homepage-blocks.spec.ts:66:1 › первый экран: две кнопки стоят в одну строку, факты уехали в полосу под ним 
+    tests/site/homepage-blocks.spec.ts:90:1 › карточки блоков читаются одной фразой, а не абзацем ──
+
+# код выхода 1 · 9 с

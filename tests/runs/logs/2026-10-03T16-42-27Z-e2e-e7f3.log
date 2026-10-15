@@ -1,0 +1,89 @@
+# Сквозные (e2e) · 03.10.2026 21:42 Алматы · vm
+# коммит 8271095 (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'design-refresh' 'mobile-adaptation' 'guests-birthdays' 'invites' 'login-access'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 34 tests using 1 worker
+
+  ✓   1 tests/ui/design-refresh.spec.ts:9:1 › главная: новая бронь и данные гостиницы доступны на первом экране (3.7s)
+  ✓   2 tests/ui/design-refresh.spec.ts:26:1 › период Главной на телефоне и период «Аналитики»: подписанные поля и цели не меньше 44 px (4.0s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="analytics/" loading={[...]}>
+[WebServer]         <Suspense name="analytics/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url={"/managem..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="management...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <AnalyticsPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page analy...">
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <section>
+[WebServer]                           <Suspense fallback={<div>}>
+[WebServer]                             <section>
+[WebServer]                             <p>
+[WebServer]                             <div>
+[WebServer]                             <details
+[WebServer]                               className="pa-details"
+[WebServer] -                             open=""
+[WebServer]                             >
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓   3 tests/ui/design-refresh.spec.ts:70:1 › главная: период финансов в адресе, месячные показатели — на своём экране (3.5s)
+  ✓   4 tests/ui/design-refresh.spec.ts:97:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (9.6s)
+  ✓   5 tests/ui/design-refresh.spec.ts:97:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (9.1s)
+  ✓   6 tests/ui/design-refresh.spec.ts:97:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (9.2s)
+  ✓   7 tests/ui/design-refresh.spec.ts:97:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (9.4s)
+  ✓   8 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (3.8s)
+  ✓   9 tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (2.2s)
+  ✓  10 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения: из профиля — ссылка в «Сотрудников», там список (2.5s)
+  ✓  11 tests/ui/invites.spec.ts:38:1 › без сессии формы приглашения нет (249ms)
+  ✓  12 tests/ui/invites.spec.ts:45:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (2.5s)
+  ✓  13 tests/ui/invites.spec.ts:64:1 › мёртвая ссылка — один текст и путь на форму входа (796ms)
+  ✓  14 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (1.7s)
+  ✓  15 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (3.8s)
+  ✓  16 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (2.1s)
+  ✓  17 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (2.9s)
+  ✓  18 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (3.0s)
+  ✓  19 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (7.7s)
+  ✓  20 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (6.9s)
+  ✓  21 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.6s)
+  ✓  22 tests/ui/login-access.spec.ts:130:1 › управление командой и сессиями открывается в профиле, не на входе (3.4s)
+  ✓  23 tests/ui/login-access.spec.ts:143:1 › вкладки входа и регистрации переключаются без перехода в приложение (2.3s)
+  ✓  24 tests/ui/login-access.spec.ts:153:1 › старая ссылка mode=register открывает регистрацию на главной (1.6s)
+  ✓  25 tests/ui/login-access.spec.ts:158:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (3.3s)
+  ✓  26 tests/ui/login-access.spec.ts:171:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (727ms)
+  ✓  27 tests/ui/login-access.spec.ts:176:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.6s)
+  ✓  28 tests/ui/login-access.spec.ts:187:1 › занятая почта и короткий пароль не создают сессию (2.5s)
+  ✓  29 tests/ui/mobile-adaptation.spec.ts:24:1 › телефон: низ страницы не прячется под нижней навигацией (6.4s)
+  ✓  30 tests/ui/mobile-adaptation.spec.ts:45:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (1.3s)
+  ✓  31 tests/ui/mobile-adaptation.spec.ts:54:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (1.9s)
+  ✓  32 tests/ui/mobile-adaptation.spec.ts:69:1 › телефон: сетка календаря на первом экране, сводки дня над ней нет (2.0s)
+  ✓  33 tests/ui/mobile-adaptation.spec.ts:79:1 › узкий телефон: плитки финансов встают в одну колонку (1.2s)
+  ✓  34 tests/ui/mobile-adaptation.spec.ts:88:1 › телефон: месяц цен не растягивается на четыре экрана (1.1s)
+
+  34 passed (2.2m)
+
+# код выхода 0 · 2 мин 11 с

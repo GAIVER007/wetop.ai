@@ -1,15 +1,15 @@
+import { requireVertical } from '../../../lib/vertical-guard';
+import design from './new-reservation.module.css';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
-import Link from 'next/link';
 import { api, guestsApi, reservationsApi } from '../../../lib/api';
 import { bookingPrefill } from '../../../lib/booking-link';
 import { hotelToday } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
-import { Alert, Button, Field } from '../../../components/ui';
-import { DateInput } from '../../../components/date-field';
-import { pluralRu } from '../../../lib/plural';
+import { Alert } from '../../../components/ui';
 import { NewReservationForm } from './form';
 import type { BookingGuest } from '../actions';
 import '../../directory.css';
+import './booking-compact.css';
 
 const plusDays = (iso: string, n: number) => {
   const x = new Date(`${iso}T00:00:00Z`);
@@ -25,9 +25,14 @@ const isDate = (value: string) => {
 /** Slice 3, шаг 3.5: форма ручной брони. Доступность и ячейки — по датам из адресной строки. */
 export default async function NewReservationPage({
   searchParams,
+  embedded = false,
 }: {
   searchParams: Promise<SearchParams>;
+  /** Форма внутри панели «Новая бронь»: без повторного `id="main-content"` (`Page.embedded`) */
+  embedded?: boolean;
 }) {
+  // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
+  await requireVertical(['HOSPITALITY']);
   const raw = await searchParams;
   const q = normalizeSearchParams(raw);
   const today = await hotelToday();
@@ -38,7 +43,9 @@ export default async function NewReservationPage({
   const [summary, ratePlans, availability, piiStorage, found] = await Promise.all([
     api.inventorySummary().catch(() => null),
     reservationsApi.ratePlans().catch(() => null),
-    validDates ? reservationsApi.availability(arrival, departure) : Promise.resolve(null),
+    validDates
+      ? reservationsApi.availability(arrival, departure).catch(() => null)
+      : Promise.resolve(null),
     api.piiStorage(),
     // G6 (ТЗ «Гости v2» §33): «Новая бронь» из карточки гостя приходит с `?guest=` — бронь на него
     q.guest ? guestsApi.preview(q.guest).catch(() => null) : Promise.resolve(null),
@@ -64,50 +71,12 @@ export default async function NewReservationPage({
     return (Array.isArray(value) ? value : value ? [value] : []).map((v) => [name, v] as const);
   });
   return (
-    <Page width="narrow" crumbs={<Link href="/chessboard">← шахматка</Link>} title="Новая бронь">
-      {/* Шаг 01 — даты: отдельная GET-форма (доступность считается сервером на эти даты), но в
-          общем ряду шагов с размещением (02) и гостем (03) */}
-      <section className="panel panel--lg booking-dates" aria-labelledby="booking-dates-title">
-        <div className="form-section-title">
-          <span>01</span>
-          <div>
-            <h2 id="booking-dates-title">Даты</h2>
-          </div>
-        </div>
-        {/* id — для скрытого поля выбранного гостя из формы ниже (`form=`): смена дат его не теряет */}
-        <form
-          method="get"
-          id="booking-dates-form"
-          className="row row--end row--lg booking-dates__form"
-        >
-          {carried.map(([name, value], index) => (
-            <input key={index} type="hidden" name={name} value={value} />
-          ))}
-          <Field label="Заезд">
-            <DateInput name="arrival" defaultValue={arrival} />
-          </Field>
-          <Field label="Выезд">
-            <DateInput name="departure" rangeFromName="arrival" defaultValue={departure} />
-          </Field>
-          <Button type="submit" tone="secondary">
-            Проверить доступность
-          </Button>
-        </form>
-        {availability ? (
-          <p data-testid="availability" className="booking-dates__availability">
-            {pluralRu(availability.nights, ['ночь', 'ночи', 'ночей'])}, свободно{' '}
-            {availability.total.available} из {availability.total.units} ячеек
-            {summary?.byCategory.length
-              ? `: ${summary.byCategory
-                  .map((c) => `${c.name} — ${availability.byCategory[c.code]?.available ?? 0}`)
-                  .join(', ')}`
-              : ''}
-            .
-          </p>
-        ) : (
-          <p className="danger-text">Даты некорректны: выезд должен быть позже заезда.</p>
-        )}
-      </section>
+    <Page
+      width="medium"
+      className={`booking-create ${design.screen}`}
+      title="Новая бронь"
+      embedded={embedded}
+    >
       {ratePlans === null && (
         <Alert boxed tone="warning">
           Справочник тарифов не загрузился: без тарифа бронь не создать. Обновите страницу.
@@ -127,8 +96,9 @@ export default async function NewReservationPage({
       {summary !== null && ratePlans !== null && (
         <NewReservationForm
           key={`${arrival}-${departure}-${carried.map(([name, value]) => `${name}=${value}`).join('&')}-${guest?.id ?? ''}`}
+          today={today}
+          initialAvailability={availability}
           prefill={prefill}
-          canSubmit={availability !== null}
           arrival={arrival}
           departure={departure}
           categories={summary.byCategory.map((c) => ({

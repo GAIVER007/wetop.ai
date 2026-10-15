@@ -20,6 +20,8 @@ COPY apps/web/package.json apps/web/
 # apps/site наружу с этого сервера не выкладывается (главная живёт на Cloudflare Pages),
 # но это рабочий пакет: без его манифеста `npm ci` не сойдётся с package-lock.json.
 COPY apps/site/package.json apps/site/
+# apps/sites (MKT4) тоже не отсюда: это Cloudflare Worker, но рабочий пакет, манифест нужен `npm ci`.
+COPY apps/sites/package.json apps/sites/
 COPY packages/database/package.json packages/database/
 COPY packages/domain/package.json packages/domain/
 COPY packages/integrations/package.json packages/integrations/
@@ -36,7 +38,9 @@ COPY packages/database/prisma.config.ts packages/database/
 RUN npm ci --no-audit --no-fund --include=dev
 
 COPY . .
-RUN npm run build -w apps/web
+# Потолок кучи для next build: сервер один на 8 ГБ с боевыми службами и CI-раннером, без предела сборка забирала всё
+# (сбой 03.10.2026, plans/deploy-build-outage-2026-10-03.md). Не хватит — сборка упадёт, auto-deploy вернёт прежний образ.
+RUN NODE_OPTIONS=--max-old-space-size=2048 npm run build -w apps/web
 
 # --- рабочий слой ---------------------------------------------------------------------------------
 FROM node:24-alpine AS runtime

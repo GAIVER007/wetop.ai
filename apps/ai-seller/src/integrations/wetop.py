@@ -44,6 +44,9 @@ from src.integrations.wetop_support import PATH_ERRORS, PATH_GUARD_STATUS, PATH_
 # Дверь котировки продавца (ADR-085, подробности в шапке файла) и бронь.
 PATH_AVAILABILITY = "/bot/availability"
 PATH_BOOK = "/w/book"
+# Бронь из чата (DATA_MODEL §25 платформы, ADR-144): узкий ключ записи SELLER_BOOK_KEY, только POST
+PATH_BOOKING_INTENTS = "/bot/booking-intents"
+PATH_BOOKING_CONFIRM = "/bot/booking-intents/confirm"
 
 # Порог «мест мало». Число остатка наружу не уходит — только признак.
 FEW_LEFT = 2
@@ -78,6 +81,8 @@ class WetopProviders(WetopSupportMixin):
         self._base_url = settings.integration_base_url.rstrip("/")
         self._api_key = settings.integration_api_key
         self._act_key = (getattr(settings, "integration_act_key", "") or "").strip()
+        # ADR-144: ключ записи продавца; пусто — бронь из чата не оформляется (инструмент скажет «не знаю»)
+        self._book_key = (getattr(settings, "integration_book_key", "") or "").strip()
         self._timeout = settings.integration_timeout_seconds
         # Клиент общий на процесс: соединения дорогие, свой плодить незачем.
         self._http = http_client
@@ -257,3 +262,36 @@ class WetopProviders(WetopSupportMixin):
             logger.error("wetop: бронь без идентификатора в ответе")
             raise ProviderUnavailable("no_external_id")
         return LeadRef(external_id=str(raw_id), created=True)
+
+    # ─── Бронь из чата (ADR-144) ───
+
+    async def create_booking_intent(
+        self, *, agent: str, conversation: str, channel: str, category: str,
+        arrival: date, departure: date, adults: int,
+    ) -> dict:
+        """Предложение брони: цену, место и срок 30 минут считает платформа. Отказ — ProviderUnavailable с кодом."""
+        if not self._book_key:
+            raise ProviderUnavailable("no_book_key")
+        problem = _dates_problem(arrival, departure)
+        if problem:
+            raise ProviderUnavailable("bad_dates")
+        body = await self._request(
+            "POST", PATH_BOOKING_INTENTS, key=self._book_key,
+            json={"agent": agent, "conversation": conversation, "channel": channel, "category": category,
+                  "arrival": arrival.isoformat(), "departure": departure.isoformat(), "adults": adults},
+        )
+        if not body.get("intent") or body.get("totalMinor") is None:
+            raise ProviderUnavailable("bad_body")
+        return body
+
+    async def confirm_booking_intent(self, *, agent: str, intent: str, message: str, guest: dict) -> dict:
+        """Бронь по предложению; повтор того же сообщения возвращает ту же бронь (ключ на платформе)."""
+        if not self._book_key:
+            raise ProviderUnavailable("no_book_key")
+        body = await self._request(
+            "POST", PATH_BOOKING_CONFIRM, key=self._book_key,
+            json={"agent": agent, "intent": intent, "message": message, "guest": guest},
+        )
+        if not body.get("confirmationNumber"):
+            raise ProviderUnavailable("bad_body")
+        return body

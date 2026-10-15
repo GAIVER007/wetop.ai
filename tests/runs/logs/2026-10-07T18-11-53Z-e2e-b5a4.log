@@ -1,0 +1,320 @@
+# Сквозные (e2e) · 07.10.2026 23:11 Алматы · vm
+# коммит cdf986e (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/site-editor.spec.ts:21:1 › открыть голову, править героя, «изменено», сохранить: ревизия растёт, история и разница словами (6.6s)
+  ✘   2 tests/ui/site-editor.spec.ts:50:1 › предпросмотр: с несохранёнными правками просит сохранить, без них открывает ссылку (3.9s)
+  ✘   3 tests/ui/site-editor.spec.ts:63:1 › восстановить старую версию как новый черновик (2.9s)
+  ✓   4 tests/ui/site-editor.spec.ts:74:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (3.0s)
+  ✘   5 tests/ui/site-editor.spec.ts:91:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (1.7s)
+  ✘   6 tests/ui/site-editor.spec.ts:109:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (1.8s)
+  ✘   7 tests/ui/site-editor.spec.ts:125:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (1.9s)
+  ✓   8 tests/ui/site-editor.spec.ts:143:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (2.3s)
+  ✓   9 tests/ui/site-editor.spec.ts:152:1 › добавить секцию, переставить и сделать копию с клавиатуры (2.5s)
+  ✘  10 tests/ui/site-editor.spec.ts:169:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (45.3s)
+  ✓  11 tests/ui/site-editor.spec.ts:181:1 › ИИ всего сайта: в очереди → готово, новая версия, разница; команда как данные (6.2s)
+  ✘  12 tests/ui/site-editor.spec.ts:195:1 › ИИ одной секции: цель выбранная секция, команда необязательна (1.8s)
+  ✓  13 tests/ui/site-editor.spec.ts:205:1 › ИИ с несохранёнными правками недоступен; ошибка ИИ словами, команда на месте (6.1s)
+  ✓  14 tests/ui/site-editor.spec.ts:220:1 › сайт без версий: первая версия ИИ существующим потоком (6.0s)
+  ✓  15 tests/ui/site-editor.spec.ts:231:3 › редактор на компьютере, доступность и снимки: light (19.9s)
+  ✘  16 tests/ui/site-editor.spec.ts:276:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: light (4.1s)
+  ✓  17 tests/ui/site-editor.spec.ts:231:3 › редактор на компьютере, доступность и снимки: dark (6.4s)
+  ✘  18 tests/ui/site-editor.spec.ts:276:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: dark (4.7s)
+
+
+  1) tests/ui/site-editor.spec.ts:50:1 › предпросмотр: с несохранёнными правками просит сохранить, без них открывает ссылку 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "preview.sites.test"
+    Received string:    "chrome-error://chromewebdata/"
+
+      58 |   const popup = page.waitForEvent('popup');
+      59 |   await m.getByTestId('ed-preview').click();
+    > 60 |   expect((await popup).url()).toContain('preview.sites.test');
+         |                               ^
+      61 | });
+      62 |
+      63 | test('восстановить старую версию как новый черновик', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:60:31
+
+    Error Context: test-results/site-editor-предпросмотр-с-0799a-ть-без-них-открывает-ссылку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-предпросмотр-с-0799a-ть-без-них-открывает-ссылку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-предпросмотр-с-0799a-ть-без-них-открывает-ссылку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/site-editor.spec.ts:63:1 › восстановить старую версию как новый черновик ─────────────
+
+    Error: locator.click: Error: strict mode violation: getByRole('dialog').getByRole('button', { name: 'Восстановить' }) resolved to 2 elements:
+        1) <button type="button" class="btn btn--danger">Восстановить</button> aka getByTestId('confirm-dialog').getByRole('button', { name: 'Восстановить' })
+        2) <button type="button" data-testid="ed-restore" class="btn btn--secondary btn--sm">Восстановить как черновик</button> aka getByTestId('ed-restore')
+
+    Call log:
+      - waiting for getByRole('dialog').getByRole('button', { name: 'Восстановить' })
+
+
+      66 |   await m.getByTestId('ed-history-open').click();
+      67 |   await page.getByTestId('ed-history').getByTestId('ed-history-row').nth(1).getByTestId('ed-restore').click();
+    > 68 |   await page.getByRole('dialog').getByRole('button', { name: 'Восстановить' }).click();
+         |                                                                                ^
+      69 |   await expect(m.getByTestId('ed-message')).toHaveText('Версия 1 восстановлена как черновик: версия 3');
+      70 |   await expect(m.getByTestId('ed-revision')).toHaveText('версия 3');
+      71 |   await expect(heroHeading(page)).toHaveValue('Тихие номера у вокзала');
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:68:80
+
+    Error Context: test-results/site-editor-восстановить-старую-версию-как-новый-черновик/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-восстановить-старую-версию-как-новый-черновик/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-восстановить-старую-версию-как-новый-черновик/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/site-editor.spec.ts:91:1 › галерея: добавить, переставить, подписать и убрать; сохраняется 
+
+    Error: locator.click: Error: strict mode violation: getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'Галерея: Фото' }) resolved to 5 elements:
+        1) <button type="button" class="ed-node">Галерея: Фото</button> aka getByRole('button', { name: 'Галерея: Фото', exact: true })
+        2) <button type="button" class="btn btn--ghost btn--sm" aria-label="Галерея: Фото: выше">↑</button> aka getByRole('button', { name: 'Галерея: Фото: выше' })
+        3) <button type="button" class="btn btn--ghost btn--sm" aria-label="Галерея: Фото: ниже">↓</button> aka getByRole('button', { name: 'Галерея: Фото: ниже' })
+        4) <button type="button" class="btn btn--ghost btn--sm" aria-label="Галерея: Фото: копия">Копия</button> aka getByRole('button', { name: 'Галерея: Фото: копия' })
+        5) <button type="button" class="btn btn--ghost btn--sm" aria-label="Галерея: Фото: удалить">Удалить</button> aka getByRole('button', { name: 'Галерея: Фото: удалить' })
+
+    Call log:
+      - waiting for getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'Галерея: Фото' })
+
+
+      92 |   await page.goto('/marketing/site/editor');
+      93 |   const m = main(page);
+    > 94 |   await structure(page).getByRole('button', { name: 'Галерея: Фото' }).click();
+         |                                                                        ^
+      95 |   const items = m.getByTestId('ed-gallery-item');
+      96 |   await expect(items).toHaveCount(3);
+      97 |   await m.getByTestId('ed-gallery-add').click();
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:94:72
+
+    Error Context: test-results/site-editor-галерея-добави-aff55-писать-и-убрать-сохраняется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-галерея-добави-aff55-писать-и-убрать-сохраняется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-галерея-добави-aff55-писать-и-убрать-сохраняется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/site-editor.spec.ts:109:1 › ошибка проверки: ввод на месте, сводка ведёт к полю ──────
+
+    Error: locator.click: Error: strict mode violation: getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'О гостинице: О нас' }) resolved to 5 elements:
+        1) <button type="button" class="ed-node">О гостинице: О нас</button> aka getByRole('button', { name: 'О гостинице: О нас', exact: true })
+        2) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: выше">↑</button> aka getByRole('button', { name: 'О гостинице: О нас: выше' })
+        3) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: ниже">↓</button> aka getByRole('button', { name: 'О гостинице: О нас: ниже' })
+        4) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: копия">Копия</button> aka getByRole('button', { name: 'О гостинице: О нас: копия' })
+        5) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: удалить">Удалить</button> aka getByRole('button', { name: 'О гостинице: О нас: удалить' })
+
+    Call log:
+      - waiting for getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'О гостинице: О нас' })
+
+
+      110 |   await page.goto('/marketing/site/editor');
+      111 |   const m = main(page);
+    > 112 |   await structure(page).getByRole('button', { name: 'О гостинице: О нас' }).click();
+          |                                                                             ^
+      113 |   await m.getByLabel('Абзацы: 1').fill('Мой новый текст о гостинице');
+      114 |   await m.getByLabel('Заголовок секции', { exact: true }).fill('');
+      115 |   await m.getByTestId('ed-save').click();
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:112:77
+
+    Error Context: test-results/site-editor-ошибка-проверк-7e0a8-а-месте-сводка-ведёт-к-полю/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-ошибка-проверк-7e0a8-а-месте-сводка-ведёт-к-полю/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-ошибка-проверк-7e0a8-а-месте-сводка-ведёт-к-полю/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/site-editor.spec.ts:125:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить 
+
+    Error: locator.click: Error: strict mode violation: getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'О гостинице: О нас' }) resolved to 5 elements:
+        1) <button type="button" class="ed-node">О гостинице: О нас</button> aka getByRole('button', { name: 'О гостинице: О нас', exact: true })
+        2) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: выше">↑</button> aka getByRole('button', { name: 'О гостинице: О нас: выше' })
+        3) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: ниже">↓</button> aka getByRole('button', { name: 'О гостинице: О нас: ниже' })
+        4) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: копия">Копия</button> aka getByRole('button', { name: 'О гостинице: О нас: копия' })
+        5) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: удалить">Удалить</button> aka getByRole('button', { name: 'О гостинице: О нас: удалить' })
+
+    Call log:
+      - waiting for getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'О гостинице: О нас' })
+
+
+      126 |   await page.goto('/marketing/site/editor');
+      127 |   const m = main(page);
+    > 128 |   await structure(page).getByRole('button', { name: 'О гостинице: О нас' }).click();
+          |                                                                             ^
+      129 |   await m.getByLabel('Абзацы: 1').fill('Мои правки');
+      130 |   await control(request, { addRevision: true });
+      131 |   await m.getByTestId('ed-save').click();
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:128:77
+
+    Error Context: test-results/site-editor-конфликт-409-п-54b48-лжить-со-своими-и-сохранить/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-конфликт-409-п-54b48-лжить-со-своими-и-сохранить/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-конфликт-409-п-54b48-лжить-со-своими-и-сохранить/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/site-editor.spec.ts:169:1 › уход со страницы с правками спрашивает; отказ оставляет на месте 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('button', { name: 'Отмена' })
+
+
+      174 |   const dialog = page.getByRole('dialog');
+      175 |   await expect(dialog).toContainText('Уйти без сохранения?');
+    > 176 |   await dialog.getByRole('button', { name: 'Отмена' }).click();
+          |                                                        ^
+      177 |   await expect(page).toHaveURL(/\/marketing\/site\/editor$/);
+      178 |   await expect(heroHeading(page)).toHaveValue('Не ушло');
+      179 | });
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:176:56
+
+    Error Context: test-results/site-editor-уход-со-страни-ec5fc-ет-отказ-оставляет-на-месте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-уход-со-страни-ec5fc-ет-отказ-оставляет-на-месте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-уход-со-страни-ec5fc-ет-отказ-оставляет-на-месте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/site-editor.spec.ts:195:1 › ИИ одной секции: цель выбранная секция, команда необязательна 
+
+    Error: locator.click: Error: strict mode violation: getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'О гостинице: О нас' }) resolved to 5 elements:
+        1) <button type="button" class="ed-node">О гостинице: О нас</button> aka getByRole('button', { name: 'О гостинице: О нас', exact: true })
+        2) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: выше">↑</button> aka getByRole('button', { name: 'О гостинице: О нас: выше' })
+        3) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: ниже">↓</button> aka getByRole('button', { name: 'О гостинице: О нас: ниже' })
+        4) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: копия">Копия</button> aka getByRole('button', { name: 'О гостинице: О нас: копия' })
+        5) <button type="button" class="btn btn--ghost btn--sm" aria-label="О гостинице: О нас: удалить">Удалить</button> aka getByRole('button', { name: 'О гостинице: О нас: удалить' })
+
+    Call log:
+      - waiting for getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'О гостинице: О нас' })
+
+
+      196 |   await page.goto('/marketing/site/editor');
+      197 |   const m = main(page);
+    > 198 |   await structure(page).getByRole('button', { name: 'О гостинице: О нас' }).click();
+          |                                                                             ^
+      199 |   await m.getByText('Изменить эту секцию с ИИ').click();
+      200 |   await m.getByTestId('ed-ai-section').getByRole('button', { name: 'Изменить секцию с ИИ' }).click();
+      201 |   await expect(m.getByTestId('ed-ai-done')).toContainText('ИИ создал версию 3');
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:198:77
+
+    Error Context: test-results/site-editor-ИИ-одной-секци-bb11f-екция-команда-необязательна/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-ИИ-одной-секци-bb11f-екция-команда-необязательна/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-ИИ-одной-секци-bb11f-екция-команда-необязательна/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/site-editor.spec.ts:276:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: light 
+
+    Error: locator.click: Error: strict mode violation: getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'Номера: Номера' }) resolved to 5 elements:
+        1) <button type="button" class="ed-node">Номера: Номера</button> aka getByRole('button', { name: 'Номера: Номера', exact: true })
+        2) <button type="button" class="btn btn--ghost btn--sm" aria-label="Номера: Номера: выше">↑</button> aka getByRole('button', { name: 'Номера: Номера: выше' })
+        3) <button type="button" class="btn btn--ghost btn--sm" aria-label="Номера: Номера: ниже">↓</button> aka getByRole('button', { name: 'Номера: Номера: ниже' })
+        4) <button type="button" class="btn btn--ghost btn--sm" aria-label="Номера: Номера: копия">Копия</button> aka getByRole('button', { name: 'Номера: Номера: копия' })
+        5) <button type="button" class="btn btn--ghost btn--sm" aria-label="Номера: Номера: удалить">Удалить</button> aka getByRole('button', { name: 'Номера: Номера: удалить' })
+
+    Call log:
+      - waiting for getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'Номера: Номера' })
+
+
+      299 |     const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      300 |     expect(result.violations).toEqual([]);
+    > 301 |     await structure(page).getByRole('button', { name: 'Номера: Номера' }).click();
+          |                                                                           ^
+      302 |     await expect(m.getByRole('tab', { name: 'Редактор' })).toHaveAttribute('aria-selected', 'true');
+      303 |     await expect(m.getByLabel('Категория гостиницы')).toHaveValue('std');
+      304 |     await heroHeading(page).fill('Номера и цены');
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:301:75
+
+    Error Context: test-results/site-editor-редактор-на-те-eeba9-лета-вбок-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-редактор-на-те-eeba9-лета-вбок-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-редактор-на-те-eeba9-лета-вбок-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/site-editor.spec.ts:276:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: dark 
+
+    Error: locator.click: Error: strict mode violation: getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'Номера: Номера' }) resolved to 5 elements:
+        1) <button type="button" class="ed-node">Номера: Номера</button> aka getByRole('button', { name: 'Номера: Номера', exact: true })
+        2) <button type="button" class="btn btn--ghost btn--sm" aria-label="Номера: Номера: выше">↑</button> aka getByRole('button', { name: 'Номера: Номера: выше' })
+        3) <button type="button" class="btn btn--ghost btn--sm" aria-label="Номера: Номера: ниже">↓</button> aka getByRole('button', { name: 'Номера: Номера: ниже' })
+        4) <button type="button" class="btn btn--ghost btn--sm" aria-label="Номера: Номера: копия">Копия</button> aka getByRole('button', { name: 'Номера: Номера: копия' })
+        5) <button type="button" class="btn btn--ghost btn--sm" aria-label="Номера: Номера: удалить">Удалить</button> aka getByRole('button', { name: 'Номера: Номера: удалить' })
+
+    Call log:
+      - waiting for getByRole('main').visible().getByTestId('ed-structure').getByRole('button', { name: 'Номера: Номера' })
+
+
+      299 |     const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      300 |     expect(result.violations).toEqual([]);
+    > 301 |     await structure(page).getByRole('button', { name: 'Номера: Номера' }).click();
+          |                                                                           ^
+      302 |     await expect(m.getByRole('tab', { name: 'Редактор' })).toHaveAttribute('aria-selected', 'true');
+      303 |     await expect(m.getByLabel('Категория гостиницы')).toHaveValue('std');
+      304 |     await heroHeading(page).fill('Номера и цены');
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:301:75
+
+    Error Context: test-results/site-editor-редактор-на-те-dbdae-ылета-вбок-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-редактор-на-те-dbdae-ылета-вбок-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-редактор-на-те-dbdae-ылета-вбок-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    tests/ui/site-editor.spec.ts:50:1 › предпросмотр: с несохранёнными правками просит сохранить, без них открывает ссылку 
+    tests/ui/site-editor.spec.ts:63:1 › восстановить старую версию как новый черновик ──────────────
+    tests/ui/site-editor.spec.ts:91:1 › галерея: добавить, переставить, подписать и убрать; сохраняется 
+    tests/ui/site-editor.spec.ts:109:1 › ошибка проверки: ввод на месте, сводка ведёт к полю ───────
+    tests/ui/site-editor.spec.ts:125:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить 
+    tests/ui/site-editor.spec.ts:169:1 › уход со страницы с правками спрашивает; отказ оставляет на месте 
+    tests/ui/site-editor.spec.ts:195:1 › ИИ одной секции: цель выбранная секция, команда необязательна 
+    tests/ui/site-editor.spec.ts:276:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: light 
+    tests/ui/site-editor.spec.ts:276:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: dark 
+  9 passed (2.7m)
+
+# код выхода 1 · 2 мин 44 с

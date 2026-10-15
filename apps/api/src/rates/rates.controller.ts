@@ -1,3 +1,4 @@
+import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import 'reflect-metadata';
 import { Body, Controller, Get, Inject, Param, Patch, Post, Query } from '@nestjs/common';
 import { RatesService, type RateChangeDto } from './rates.service';
@@ -10,6 +11,7 @@ import { Access } from '../auth/access.decorator';
  * «Тарифные планы» (SET4): список тарифов с правилом отмены и правка правила — то же право `rates`.
  */
 @Access('rates')
+@RequiresBusinessCapability('hospitality.rates')
 @Controller('rates')
 export class RatesController {
   constructor(

@@ -1,0 +1,75 @@
+# Модульные (unit) · 04.10.2026 11:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-24-17Z-unit-b6c0.json' 'apps/api/src/desk'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ❯ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests | 2 failed) 902ms
+   ❯ desk day API (3)
+     × делит сутки на заезды, выезды и живущих; называет, что мешает заселить; считает долг уезжающих 170ms
+     ✓ не заехали вовремя: подтверждены, дата заезда прошла, выезд не сегодня 5ms
+     × пустые сутки и неверная дата 3ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  23:24:29
+   Duration  10.26s (import 53%, transform 38%, tests 9%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/desk/desk.controller.test.ts > desk day API > делит сутки на заезды, выезды и живущих; называет, что мешает заселить; считает долг уезжающих
+AssertionError: expected { arrivals: 5, departures: 2, …(4) } to deeply equal { arrivals: 5, departures: 2, …(5) }
+
+- Expected
++ Received
+
+  {
+    "arrivals": 5,
+    "departures": 2,
+    "inHouse": 1,
+    "overdueArrivals": 1,
+-   "tasksOpen": 3,
+    "toCheckIn": 5,
+    "toCheckOut": 1,
+  }
+
+ ❯ apps/api/src/desk/desk.controller.test.ts:100:27
+     98|   it('делит сутки на заезды, выезды и живущих; называет, что мешает за…
+     99|     const r = await request(app.getHttpServer()).get('/desk/today?date…
+    100|     expect(r.body.counts).toEqual({
+       |                           ^
+    101|       arrivals: 5,
+    102|       departures: 2,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/desk/desk.controller.test.ts > desk day API > пустые сутки и неверная дата
+AssertionError: expected { arrivals: +0, departures: +0, …(4) } to deeply equal { arrivals: +0, departures: +0, …(5) }
+
+- Expected
++ Received
+
+  {
+    "arrivals": 0,
+    "departures": 0,
+    "inHouse": 0,
+    "overdueArrivals": 0,
+-   "tasksOpen": 3,
+    "toCheckIn": 0,
+    "toCheckOut": 0,
+  }
+
+ ❯ apps/api/src/desk/desk.controller.test.ts:162:31
+    160|   it('пустые сутки и неверная дата', async () => {
+    161|     const empty = await request(app.getHttpServer()).get('/desk/today?…
+    162|     expect(empty.body.counts).toEqual({
+       |                               ^
+    163|       arrivals: 0,
+    164|       departures: 0,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-24-17Z-unit-b6c0.json
+
+# код выхода 1 · 22 с

@@ -1,0 +1,35 @@
+# Сквозные (e2e) · 10.10.2026 20:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5413b09 (HEAD), незакоммиченных файлов набора: 232
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+[WebServer] 
+[WebServer] > Build error occurred
+[WebServer] Error: Turbopack build failed with 1 error:
+[WebServer] ./apps/site/src/i18n/ru.ts:1019:2
+[WebServer] Error: Expected ',', got ';'
+[WebServer]   1017 |     signedIn: 'Готово, открываем стойку…',
+[WebServer]   1018 |   },
+[WebServer] > 1019 | };
+[WebServer]        |  ^
+[WebServer]   1020 |
+[WebServer] 
+[WebServer] Parsing ecmascript source code failed
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Server Component:
+[WebServer]     ./apps/site/src/i18n/ru.ts
+[WebServer]     ./apps/site/src/i18n/index.ts
+[WebServer]     ./apps/site/src/app/for/[segment]/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (./apps/site/src/i18n/ru.ts:1019:2)
+[WebServer] npm error Lifecycle script `build` failed with error:
+[WebServer] npm error code 1
+[WebServer] npm error path /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/***/scratchpad/mergewk/apps/site
+[WebServer] npm error workspace @pms/site@0.0.0
+[WebServer] npm error location /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/***/scratchpad/mergewk/apps/site
+[WebServer] npm error command failed
+[WebServer] npm error command sh -c next build
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 2 с

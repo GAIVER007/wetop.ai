@@ -1,0 +1,16 @@
+# Модульные (unit) · 01.10.2026 14:07 Алматы · MacBook-Air-Urij.local
+# коммит 52ff092 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 94
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T09-07-13Z-unit-53ef.json' 'apps/api/src/ai-seller/agent-telegram.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/api/src/ai-seller/agent-telegram.test.ts (4 tests) 19ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  13:07:18
+   Duration  2.96s (transform 65%, import 34%, tests 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T09-07-13Z-unit-53ef.json
+
+# код выхода 0 · 7 с

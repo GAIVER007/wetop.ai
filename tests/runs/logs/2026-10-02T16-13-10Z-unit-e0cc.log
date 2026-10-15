@@ -1,0 +1,16 @@
+# Модульные (unit) · 02.10.2026 21:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит ef4e829 (main), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T16-13-10Z-unit-e0cc.json' 'apps/web/src/app/finance/services-csv.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/web/src/app/finance/services-csv.test.ts (2 tests) 2ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  09:13:10
+   Duration  80ms (transform 59%, import 24%, worker 9%, tests 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T16-13-10Z-unit-e0cc.json
+
+# код выхода 0 · 1 с

@@ -1,0 +1,64 @@
+# Сквозные (e2e) · 13.10.2026 23:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит bd936cc (codex/organizations-card-editor), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/organization-card-workflow.spec.ts' '--workers=1'
+[WebServer] (node:3486) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3521) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3557) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:3661) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:3914) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/organization-card-workflow.spec.ts:3:1 › business metadata and branch archive survive reload; second brand keeps its identity (49.1s)
+
+
+  1) tests/ui/organization-card-workflow.spec.ts:3:1 › business metadata and branch archive survive reload; second brand keeps its identity 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.evaluate: Target page, context or browser has been closed
+
+      16 |     await first
+      17 |       .locator('.org-business-kind')
+    > 18 |       .evaluate((element) => parseFloat(getComputedStyle(element).marginTop)),
+         |        ^
+      19 |   ).toBeLessThanOrEqual(4);
+      20 |   const originalBranch = await first.locator('.org-branch-rows strong').first().innerText();
+      21 |   await first.getByRole('button', { name: /^Редактировать:/ }).click();
+        at /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP/tests/ui/organization-card-workflow.spec.ts:18:8
+
+    Error Context: test-results/organization-card-workflow-46e6b-nd-brand-keeps-its-identity/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/organization-card-workflow-46e6b-nd-brand-keeps-its-identity/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/organization-card-workflow-46e6b-nd-brand-keeps-its-identity/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/organization-card-workflow.spec.ts:3:1 › business metadata and branch archive survive reload; second brand keeps its identity 
+
+# код выхода 1 · 1 мин 51 с

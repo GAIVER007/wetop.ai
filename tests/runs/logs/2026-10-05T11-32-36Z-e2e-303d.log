@@ -1,0 +1,140 @@
+# Сквозные (e2e) · 05.10.2026 16:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит ae6df20 (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-mobile.spec.ts' '--grep' 'телефон' '--workers=1'
+[WebServer] (node:28787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28821) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28822) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+(node:28867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (4.3s)
+  ✓  2 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (2.1s)
+  ✓  3 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (2.1s)
+  ✘  4 tests/ui/chessboard-mobile.spec.ts:99:3 › телефон light: карточка брони, фильтры и длинный календарь (16.8s)
+(node:28957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 tests/ui/chessboard-mobile.spec.ts:99:3 › телефон dark: карточка брони, фильтры и длинный календарь (17.1s)
+(node:29003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/ui/chessboard-mobile.spec.ts:143:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (5.4s)
+  ✓  7 tests/ui/chessboard-mobile.spec.ts:276:3 › телефон light: длинное имя и бронь на 28 ночей (2.7s)
+  ✓  8 tests/ui/chessboard-mobile.spec.ts:276:3 › телефон dark: длинное имя и бронь на 28 ночей (2.2s)
+[WebServer] (node:29056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] (node:29057) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  9 tests/ui/chessboard-mobile.spec.ts:309:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (6.1s)
+
+
+  1) tests/ui/chessboard-mobile.spec.ts:99:3 › телефон light: карточка брони, фильтры и длинный календарь 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByTestId('unit-row').last()
+    Expected: in viewport
+    Received: viewport ratio 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByTestId('unit-row').last() with timeout 15000ms
+      - waiting for getByTestId('unit-row').last()
+        33 × locator resolved to <tr data-unit-code="F36" data-testid="unit-row">…</tr>
+           - unexpected value "viewport ratio 0"
+
+
+      136 |       el.scrollTop = el.scrollHeight;
+      137 |     });
+    > 138 |     await expect(page.getByTestId('unit-row').last()).toBeInViewport();
+          |                                                       ^
+      139 |     await context.close();
+      140 |   });
+      141 | }
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/chessboard-mobile.spec.ts:138:55
+
+    Error Context: test-results/chessboard-mobile-телефон--e95a9-фильтры-и-длинный-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--e95a9-фильтры-и-длинный-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--e95a9-фильтры-и-длинный-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-mobile.spec.ts:99:3 › телефон dark: карточка брони, фильтры и длинный календарь 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByTestId('unit-row').last()
+    Expected: in viewport
+    Received: viewport ratio 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByTestId('unit-row').last() with timeout 15000ms
+      - waiting for getByTestId('unit-row').last()
+        33 × locator resolved to <tr data-unit-code="F36" data-testid="unit-row">…</tr>
+           - unexpected value "viewport ratio 0"
+
+
+      136 |       el.scrollTop = el.scrollHeight;
+      137 |     });
+    > 138 |     await expect(page.getByTestId('unit-row').last()).toBeInViewport();
+          |                                                       ^
+      139 |     await context.close();
+      140 |   });
+      141 | }
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/chessboard-mobile.spec.ts:138:55
+
+    Error Context: test-results/chessboard-mobile-телефон--15d2a-фильтры-и-длинный-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--15d2a-фильтры-и-длинный-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--15d2a-фильтры-и-длинный-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-mobile.spec.ts:99:3 › телефон light: карточка брони, фильтры и длинный календарь 
+    tests/ui/chessboard-mobile.spec.ts:99:3 › телефон dark: карточка брони, фильтры и длинный календарь 
+  7 passed (1.1m)
+
+# код выхода 1 · 1 мин 9 с

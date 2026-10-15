@@ -1,0 +1,24 @@
+# Модульные (unit) · 05.10.2026 16:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 75ce038 (codex/release-finance-disclosure-20261005), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T11-58-45Z-unit-9963.json' 'tests/unit/migrations-rollback.test.ts' 'tests/unit/db-restore-prod.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP
+
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (68 tests) 5ms
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 4327ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 1306ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 558ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 572ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 525ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 636ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 720ms
+
+ Test Files  2 passed (2)
+      Tests  75 passed (75)
+   Start at  04:58:46
+   Duration  4.43s (tests 99%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T11-58-45Z-unit-9963.json
+
+# код выхода 0 · 5 с

@@ -1,0 +1,47 @@
+# Типы (typecheck) · 06.10.2026 18:15 Алматы · vm
+# коммит 8526d50 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/web-booking/web-booking.service.ts(393,73): error TS2345: Argument of type '{ source: "WEBSITE"; creationKey: string | null; arrivalDate: string; departureDate: string; notes: string; promoCode: string | null; guest: { firstName: string; lastName: string; phone: string | null; email: string | null; }; items: { ...; }[]; }' is not assignable to parameter of type 'CreateReservationDto'.
+  Types of property 'creationKey' are incompatible.
+    Type 'string | null' is not assignable to type 'string'.
+      Type 'null' is not assignable to type 'string'.
+apps/api/src/web-booking/web-booking.service.ts(447,32): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(dto: CreateReservationDto, opts: { preview: true; }): Promise<ReservationQuote>', gave the following error.
+    Argument of type '{ source: "WEBSITE"; creationKey: string | null; arrivalDate: string; departureDate: string; notes: string; promoCode: string | null; guest: { firstName: string; lastName: string; phone: string | null; email: string | null; }; items: { ...; }[]; }' is not assignable to parameter of type 'CreateReservationDto'.
+      Types of property 'creationKey' are incompatible.
+        Type 'string | null' is not assignable to type 'string'.
+          Type 'null' is not assignable to type 'string'.
+  Overload 2 of 2, '(dto: CreateReservationDto, opts?: { guestPrepared?: boolean; onReplay?: () => void; } | undefined): Promise<ReservationCard>', gave the following error.
+    Argument of type '{ source: "WEBSITE"; creationKey: string | null; arrivalDate: string; departureDate: string; notes: string; promoCode: string | null; guest: { firstName: string; lastName: string; phone: string | null; email: string | null; }; items: { ...; }[]; }' is not assignable to parameter of type 'CreateReservationDto'.
+      Types of property 'creationKey' are incompatible.
+        Type 'string | null' is not assignable to type 'string'.
+          Type 'null' is not assignable to type 'string'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/web-booking/web-booking.service.ts(393,73): error TS2345: Argument of type '{ source: "WEBSITE"; creationKey: string | null; arrivalDate: string; departureDate: string; notes: string; promoCode: string | null; guest: { firstName: string; lastName: string; phone: string | null; email: string | null; }; items: { ...; }[]; }' is not assignable to parameter of type 'CreateReservationDto'.
+  Types of property 'creationKey' are incompatible.
+    Type 'string | null' is not assignable to type 'string'.
+      Type 'null' is not assignable to type 'string'.
+apps/api/src/web-booking/web-booking.service.ts(447,32): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(dto: CreateReservationDto, opts: { preview: true; }): Promise<ReservationQuote>', gave the following error.
+    Argument of type '{ source: "WEBSITE"; creationKey: string | null; arrivalDate: string; departureDate: string; notes: string; promoCode: string | null; guest: { firstName: string; lastName: string; phone: string | null; email: string | null; }; items: { ...; }[]; }' is not assignable to parameter of type 'CreateReservationDto'.
+      Types of property 'creationKey' are incompatible.
+        Type 'string | null' is not assignable to type 'string'.
+          Type 'null' is not assignable to type 'string'.
+  Overload 2 of 2, '(dto: CreateReservationDto, opts?: { guestPrepared?: boolean; onReplay?: () => void; } | undefined): Promise<ReservationCard>', gave the following error.
+    Argument of type '{ source: "WEBSITE"; creationKey: string | null; arrivalDate: string; departureDate: string; notes: string; promoCode: string | null; guest: { firstName: string; lastName: string; phone: string | null; email: string | null; }; items: { ...; }[]; }' is not assignable to parameter of type 'CreateReservationDto'.
+      Types of property 'creationKey' are incompatible.
+        Type 'string | null' is not assignable to type 'string'.
+          Type 'null' is not assignable to type 'string'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 58 с

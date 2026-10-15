@@ -1,15 +1,18 @@
+import { requireVertical } from '../../../lib/vertical-guard';
+import { ChannelConnectionSetup } from '../connection-setup';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, redirect, unstable_rethrow } from 'next/navigation';
 import {
   type OutboxRow,
   type OutboxRowStatus,
   type OutboxSummary,
   api,
   channelsApi,
+  guardApi,
   ratesApi,
 } from '../../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { RefreshButton } from '../../../components/refresh-button';
 import {
   Alert,
@@ -17,7 +20,6 @@ import {
   EmptyState,
   Fact,
   Grid,
-  Panel,
   SectionTitle,
   StateBar,
   StateFact,
@@ -30,13 +32,14 @@ import { OutboxTable } from '../outbox-table';
 import { EVENTS_PAGE, EventsTable, type EventsFilter } from '../events-table';
 import { hotelClock } from '../../../lib/hotel-api';
 import type { PropertyClock } from '../../../lib/property-time';
-import { currentMe } from '../../../lib/desk-shell';
-import { eventTime } from '../format';
+import { eventTime, reconciliationView } from '../format';
 import { ChannelReport } from '../report';
+import { ChannelList } from '../channel-list';
 import { categoryMappings, planMappings } from '../mapping';
 import { Icon } from '../../../components/icon';
 import '../../directory.css';
 import '../channels.css';
+import { CHANNEL_TABS, ChannelTabs } from '../tabs';
 
 /**
  * Модуль «Каналы продаж» (ADR-112, поручение владельца 27.09.2026): один вход вместо пунктов
@@ -44,19 +47,12 @@ import '../channels.css';
  * сколько броней принесли каналы?»), технический слой — очередь, payload, попытки, внутренние ID —
  * раскрывается «Техническими деталями» и живёт на вкладках «Синхронизация» и «События»; опасные
  * ручные команды — в «Настройке подключения» на вкладке «Подключения», только владельцу.
- * Вкладки — как у «Настроек гостиницы» (`.settings-tabs`); команды, их `data-testid` и порядок
+ * Вкладки: общий `Tabs` (`channels/tabs.tsx`); команды, их `data-testid` и порядок
  * не менялись — на них стоит запись показа для сертификации Channex.
  */
-const tabs = [
-  { view: '', href: '/channels', label: 'Обзор' },
-  { view: 'connections', href: '/channels/connections', label: 'Подключения' },
-  { view: 'mapping', href: '/channels/mapping', label: 'Сопоставление' },
-  { view: 'sync', href: '/channels/sync', label: 'Синхронизация' },
-  { view: 'events', href: '/channels/events', label: 'События' },
-] as const;
-
 const subtitles: Record<string, string> = {
   '': 'Состояние обмена с каналами и брони по источникам.',
+  list: 'Подключённые каналы, брони за 30 дней и все каналы, которые можно подключить.',
   connections: 'Подключение менеджера каналов и настройка обмена.',
   mapping: 'Категории и тарифы WETOP в менеджере каналов.',
   sync: 'Что уходит в каналы и что приходит обратно.',
@@ -67,7 +63,10 @@ const subtitles: Record<string, string> = {
 const settle = <T,>(p: Promise<T>) =>
   p.then(
     (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
+    (e: unknown) => {
+      unstable_rethrow(e);
+      return { ok: false as const, e };
+    },
   );
 
 /**
@@ -75,7 +74,7 @@ const settle = <T,>(p: Promise<T>) =>
  * может стоять не в поясе объекта); без пробы подпись не нужна
  */
 const checkedAt = (iso: string | null | undefined, clock: PropertyClock) =>
-  iso ? `, проверено ${clock.clock(iso)} по Алматы` : '';
+  iso ? `, проверено ${clock.clock(iso)} по времени объекта` : '';
 
 export default async function ChannelSalesPage({
   params,
@@ -84,9 +83,11 @@ export default async function ChannelSalesPage({
   params: Promise<{ section?: string[] }>;
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const { section = [] } = await params;
   if (section.length > 1) notFound();
   const view = section[0] ?? '';
+  if (view === 'connections') redirect('/connections/channex');
   const sp = normalizeSearchParams(await searchParams);
   // Старые адреса пульта «/channels?…» ведут на свои вкладки: queue — очередь, type — журнал событий
   if (!view && sp.queue) redirect(`/channels/sync?queue=${encodeURIComponent(sp.queue)}`);
@@ -95,29 +96,19 @@ export default async function ChannelSalesPage({
     for (const key of ['status', 'type', 'q', 'page'] as const) if (sp[key]) u.set(key, sp[key]);
     redirect(`/channels/events?${u.toString()}`);
   }
-  const tab = tabs.find((item) => item.view === view);
+  const tab = CHANNEL_TABS.find((item) => item.view === view);
   if (!tab) notFound();
   return (
     <Page
       title={view ? tab.label : 'Каналы продаж'}
       subtitle={view ? subtitles[view] : undefined}
-      crumbs={view ? <Link href="/channels">Каналы продаж</Link> : undefined}
+      crumbs={view ? <BackCrumb href="/channels">Каналы продаж</BackCrumb> : undefined}
       actions={view === 'connections' ? <RefreshButton label="Проверить соединение" /> : undefined}
     >
-      <nav className="settings-tabs channels-tabs" aria-label="Каналы продаж">
-        {tabs.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch={false}
-            aria-current={item.view === view ? 'page' : undefined}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <ChannelTabs current={view} />
       {view === '' && <Overview sp={sp} />}
-      {view === 'connections' && <Connections />}
+      {view === 'list' && <ChannelList sp={sp} />}
+      {view === 'connections' && <ChannelConnectionSetup />}
       {view === 'mapping' && <Mapping />}
       {view === 'sync' && <Sync queue={queueFilter(sp.queue)} />}
       {view === 'events' && <Events sp={sp} />}
@@ -132,28 +123,39 @@ const queueFilter = (raw: string | undefined): OutboxRowStatus | '' =>
 
 async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
   const clock = await hotelClock();
-  const [connection, webhook, loadedOutbox, failedEvents, recentEvents, summaryFund] =
-    await Promise.all([
-      channelsApi.connection().catch(() => null),
-      channelsApi.webhookStatus().catch(() => null),
-      settle(channelsApi.outbox()),
-      channelsApi
-        .events({ limit: 1, status: 'FAILED' })
-        .then((r) => r.total)
-        .catch(() => null),
-      // наблюдаемые каналы (решение владельца по Q-205, дополнение к ADR-112): только факты из событий
-      channelsApi
-        .events({ limit: 50 })
-        .then((r) => r.rows)
-        .catch(() => null),
-      api.inventorySummary().catch(() => null),
-    ]);
+  const [
+    connection,
+    webhook,
+    loadedOutbox,
+    failedEvents,
+    recentEvents,
+    summaryFund,
+    reconciliation,
+  ] = await Promise.all([
+    channelsApi.connection().catch(() => null),
+    channelsApi.webhookStatus().catch(() => null),
+    settle(channelsApi.outbox()),
+    channelsApi
+      .events({ limit: 1, status: 'FAILED' })
+      .then((r) => r.total)
+      .catch(() => null),
+    // наблюдаемые каналы (решение владельца по Q-205, дополнение к ADR-112): только факты из событий
+    channelsApi
+      .events({ limit: 50 })
+      .then((r) => r.rows)
+      .catch(() => null),
+    api.inventorySummary().catch(() => null),
+    // X3 (ADR-144): сверка остатков у сторожа; чужой организации и без права — 403, тогда «не известно»
+    guardApi.reconciliation().catch(() => null),
+  ]);
   const outbox = loadedOutbox.ok ? loadedOutbox.r : null;
   const stalledMinutes = outbox?.oldestPendingAt
     ? Math.floor((Date.now() - Date.parse(outbox.oldestPendingAt)) / 60_000)
     : 0;
   const notConnected = !connection?.propertyAccessible;
-  const alarm = (outbox?.failed ?? 0) > 0 || stalledMinutes >= 10 || (failedEvents ?? 0) > 0;
+  const oversold = !!reconciliation?.mismatch;
+  const alarm =
+    (outbox?.failed ?? 0) > 0 || stalledMinutes >= 10 || (failedEvents ?? 0) > 0 || oversold;
   const tone = alarm ? 'alarm' : !outbox || notConnected || outbox.pending > 0 ? 'warn' : 'calm';
   const word = notConnected
     ? 'не подключены'
@@ -176,17 +178,21 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
           ? `Очередь стоит ${stalledMinutes} мин — каналы продают по старому остатку.`
           : (failedEvents ?? 0) > 0
             ? 'Входящая бронь требует разбора — откройте «События».'
-            : outbox.pending > 0
-              ? 'Изменения ждут отправки в каналы.'
-              : connection?.environment === 'staging'
-                ? 'Channex staging · тестовое подключение.'
-                : 'Доступ к объекту проверен. Получение броней — в журнале событий.';
+            : oversold
+              ? 'Канал видит больше мест, чем есть: сторож запустил полную выгрузку остатков.'
+              : outbox.pending > 0
+                ? 'Изменения ждут отправки в каналы.'
+                : connection?.environment === 'staging'
+                  ? 'Менеджер каналов: тестовое подключение.'
+                  : 'Доступ к объекту проверен. Получение броней — в журнале событий.';
   const lastExchange =
     [outbox?.lastSentAt, connection?.lastWebhookAt, connection?.lastPullAt]
       .filter((x): x is string => !!x)
       .sort()
       .at(-1) ?? null;
   const failedTotal = (outbox?.failed ?? 0) + (failedEvents ?? 0);
+  // X3 (ADR-144): ежедневная сверка остатков с каналом видна владельцу, не только сторожу
+  const reconcile = reconciliationView(reconciliation, clock);
   /**
    * Наблюдаемые OTA (Q-205, дополнение владельца к ADR-112): «Booking.com — работает» запрещено,
    * пока backend не может это подтвердить — показываем только факты из последних событий Channex:
@@ -216,7 +222,21 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
         value={<span data-testid="channels-state">{word}</span>}
         summary={summary}
       >
-        <StateFact label="Последний обмен" value={eventTime(lastExchange, clock)} />
+        <StateFact label="Последний обмен" value={eventTime(lastExchange, clock)}>
+          {/* X3 (ADR-144): ежедневная сверка остатков с каналом видна владельцу; подробности в подсказке */}
+          {!notConnected && (
+            <span
+              className={`state-bar__sub${reconcile.tone === 'danger' ? ' danger-text' : ''}`}
+              title={reconcile.sub}
+              data-testid="channels-reconcile-sub"
+            >
+              сверка:{' '}
+              <span data-testid="channels-reconcile" data-tone={reconcile.tone}>
+                {reconcile.value}
+              </span>
+            </span>
+          )}
+        </StateFact>
         <StateFact
           label="Очередь"
           value={outbox ? <span data-testid="outbox-pending">{String(outbox.pending)}</span> : '—'}
@@ -278,8 +298,11 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
       </StateBar>
       {outbox && alarm && (
         <Alert boxed data-testid="overbooking-alarm">
-          Остатки могут быть неактуальны. <Link href="/channels/sync">Проверить очередь</Link> ·{' '}
-          <Link href="/channels/events?status=FAILED">Ошибки входящих</Link>
+          {oversold && <div>Сверка: {reconcile.sub}.</div>}
+          <div>
+            Остатки могут быть неактуальны. <Link href="/channels/sync">Проверить очередь</Link> ·{' '}
+            <Link href="/channels/events?status=FAILED">Ошибки входящих</Link>
+          </div>
         </Alert>
       )}
       <ChannelReport sp={sp} />
@@ -340,9 +363,10 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
               </p>
             ) : (
               <p className="note" data-testid="mapping-note">
-                Сопоставление — общее для всех каналов: категорий {mappedCategories}
-                {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифов{' '}
-                {connection?.mappedRatePlans ?? '—'}.
+                Сопоставление общее для всех каналов: категорий {mappedCategories}
+                {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифных планов{' '}
+                {connection?.mappedLocalRatePlans ?? 'неизвестно'}, сопоставлений тарифов{' '}
+                {connection?.mappedRatePlans ?? 'неизвестно'}.
               </p>
             ))}
         </section>
@@ -392,119 +416,6 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
 }
 
 /* ── Подключения: состояние Channex и настройка обмена (кнопки — владельцу) ── */
-
-async function Connections() {
-  const clock = await hotelClock();
-  const [connection, webhook, me] = await Promise.all([
-    channelsApi.connection().catch(() => null),
-    channelsApi.webhookStatus().catch(() => null),
-    settle(currentMe()),
-  ]);
-  const owner = me.ok && me.r.user?.role === 'OWNER';
-  const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
-  return (
-    <div className="stack">
-      {!connection && <Alert boxed>Не удалось проверить подключение менеджера каналов.</Alert>}
-      <Panel title="Менеджер каналов" data-testid="channel-connection">
-        <Badge tone={connection?.propertyAccessible ? 'ok' : 'warn'}>
-          {connection?.message ?? 'Не проверено'}
-        </Badge>
-        {connection && (
-          <Grid min={180}>
-            <Fact
-              label="Среда"
-              value={
-                connection.environment === 'production'
-                  ? 'Рабочая'
-                  : connection.environment === 'staging'
-                    ? 'Тестовая'
-                    : 'Свой сервер'
-              }
-            />
-            <Fact
-              label="Объект в менеджере каналов"
-              value={
-                connection.propertyId ? (
-                  <span className="mono break-all">{connection.propertyId}</span>
-                ) : (
-                  'не создан'
-                )
-              }
-            />
-            <Fact
-              label="Сопоставлено"
-              value={`категорий ${connection.mappedCategories}, тарифов ${connection.mappedRatePlans}`}
-            />
-            <Fact
-              label="Последний webhook, по Алматы"
-              value={clock.local(connection.lastWebhookAt)}
-            />
-            <Fact label="Последний импорт, по Алматы" value={clock.local(connection.lastPullAt)} />
-          </Grid>
-        )}
-      </Panel>
-      <Panel title="Webhook менеджера каналов" data-testid="channel-webhook">
-        {webhook === null ? (
-          <Alert>
-            Статус webhook не загрузился. Его состояние неизвестно — обновите страницу перед
-            настройкой.
-          </Alert>
-        ) : (
-          <>
-            <Badge tone={webhook.registered && webhook.active ? 'ok' : 'warn'}>
-              <span data-testid="webhook-state">
-                {webhook.registered
-                  ? `${webhook.active ? 'активен' : 'выключен'}, события ${webhook.eventMask}`
-                  : webhook.expectedUrl
-                    ? 'не зарегистрирован'
-                    : 'нет PUBLIC_API_URL'}
-              </span>
-            </Badge>
-            {webhook.registered && <p className="note break-all">{webhook.callbackUrl}</p>}
-            {webhook.registered &&
-              webhook.expectedUrl &&
-              webhook.callbackUrl !== webhook.expectedUrl && (
-                <p className="note danger-text" data-testid="webhook-url-mismatch">
-                  зарегистрирован не постоянный адрес PMS ({webhook.expectedUrl}) — события уходят
-                  не туда, нажмите «Зарегистрировать webhook»
-                </p>
-              )}
-            {webhook.registered &&
-              webhook.callbackReachable === false &&
-              (!webhook.expectedUrl || webhook.callbackUrl === webhook.expectedUrl) && (
-                <p className="note danger-text">
-                  адрес не отвечает{checkedAt(webhook.callbackCheckedAt, clock)} — брони подберёт
-                  опрос ленты, но webhook надо поднять
-                </p>
-              )}
-            {webhook.registered && webhook.callbackReachable === true && (
-              <p className="note ok-text">
-                адрес отвечает{checkedAt(webhook.callbackCheckedAt, clock)}
-              </p>
-            )}
-          </>
-        )}
-      </Panel>
-      {owner ? (
-        <ChannelButtons
-          group="setup"
-          webhookReady={webhookReady}
-          configured={!!connection?.apiConfigured}
-          connected={!!connection?.propertyAccessible}
-        />
-      ) : (
-        <p className="note" data-testid="channel-setup-owner-only">
-          Настройку подключения меняет владелец организации.
-        </p>
-      )}
-      <p className="note" data-testid="channel-content-location">
-        Ключ менеджера каналов хранится только на сервере. Общий экран подключений гостиницы —{' '}
-        <Link href="/connections">«Интеграции»</Link>; фото, удобства и описание для каналов
-        настраиваются в кабинете менеджера каналов или самого канала.
-      </p>
-    </div>
-  );
-}
 
 /* ── Сопоставление: категории и тарифы WETOP ↔ Channex ── */
 
@@ -665,8 +576,17 @@ async function Mapping() {
           )
         )}
         <p className="note">
-          В каналы уходит один тариф: он сопоставлен с каждой категорией объекта. Остальные тарифы
-          работают только в WETOP — это не ошибка.
+          Сопоставлено тарифов:{' '}
+          {
+            new Set(
+              mapping
+                .filter((m) => m.providerRatePlanId && m.localRatePlanId)
+                .map((m) => m.localRatePlanId),
+            ).size
+          }
+          . Покрытие категорий показано отдельно для каждого тарифа. Тарифы без сопоставлений
+          доступны только в WETOP. Сопоставление само по себе не подтверждает подключение OTA или
+          успешную передачу цен.
         </p>
       </section>
       <details className="context-help" data-testid="mapping-tech">
@@ -741,27 +661,44 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
   const stalledMinutes = outbox?.oldestPendingAt
     ? Math.floor((Date.now() - Date.parse(outbox.oldestPendingAt)) / 60_000)
     : 0;
-  const tone = !outbox
-    ? 'warn'
-    : outbox.failed > 0 || stalledMinutes >= 10
-      ? 'alarm'
-      : outbox.pending > 0
-        ? 'warn'
-        : 'calm';
-  const summaryWord = !outbox
-    ? 'Сводка очереди не загрузилась.'
-    : outbox.failed > 0
-      ? `Ошибок отправки ${outbox.failed} — каналы продают по старому остатку.`
-      : stalledMinutes >= 10
-        ? `Очередь стоит ${stalledMinutes} мин — каналы продают по старому остатку.`
+  const notConnected = !connection?.apiConfigured || !connection.propertyAccessible;
+  const tone =
+    !outbox || notConnected
+      ? 'warn'
+      : outbox.failed > 0 || stalledMinutes >= 10
+        ? 'alarm'
         : outbox.pending > 0
-          ? 'Ждут отправки в каналы.'
-          : 'Очередь пуста: всё ушло в каналы.';
+          ? 'warn'
+          : 'calm';
+  const summaryWord = !connection
+    ? 'Не удалось проверить подключение каналов.'
+    : notConnected
+      ? 'Каналы не подключены. Обмен с OTA не подтверждён.'
+      : !outbox
+        ? 'Сводка очереди не загрузилась.'
+        : outbox.failed > 0
+          ? `Ошибок отправки: ${outbox.failed}. Проверьте журнал.`
+          : stalledMinutes >= 10
+            ? `Очередь ожидает ${stalledMinutes} мин. Проверьте отправку.`
+            : outbox.pending > 0
+              ? 'Изменения ждут отправки в менеджер каналов.'
+              : connection.environment !== 'production'
+                ? 'Тестовый контур. Ожидающих заданий нет; обмен с рабочими OTA не подтверждён.'
+                : 'Ожидающих заданий нет. Результаты обмена смотрите в журнале.';
   const lastInbound =
     [connection?.lastWebhookAt, connection?.lastPullAt]
       .filter((x): x is string => !!x)
       .sort()
       .at(-1) ?? null;
+  const inboundLabel = !connection
+    ? 'Не проверено'
+    : notConnected
+      ? 'Не подключено'
+      : connection.environment !== 'production'
+        ? 'Тестовый контур'
+        : lastInbound
+          ? 'События получены'
+          : 'Событий ещё нет';
   const kindState = (kind: OutboxRow['kind']) => {
     const ofKind = (allRows ?? []).filter((r) => r.kind === kind);
     const failed = ofKind.filter((r) => r.status === 'FAILED').length;
@@ -780,7 +717,9 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
       <StateBar
         tone={tone}
         label="В очереди"
-        value={outbox ? <span data-testid="sync-pending">{String(outbox.pending)}</span> : '—'}
+        value={
+          outbox ? <span data-testid="sync-pending">{String(outbox.pending)}</span> : 'Неизвестно'
+        }
         summary={summaryWord}
       >
         <StateFact
@@ -796,7 +735,7 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
                 )}
               </>
             ) : (
-              '—'
+              'Неизвестно'
             )
           }
         >
@@ -816,7 +755,7 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
             ) : failedEvents > 0 ? (
               <span className="danger-text">требуют разбора: {failedEvents}</span>
             ) : (
-              'принимаются'
+              inboundLabel
             )
           }
         >
@@ -842,13 +781,23 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
                 <td>{label}</td>
                 <td>
                   {allRows === null ? (
-                    '—'
+                    'Неизвестно'
                   ) : s.failed > 0 ? (
                     <Badge tone="danger">ошибка</Badge>
                   ) : s.pending > 0 ? (
                     <Badge tone="info">в очереди: {s.pending}</Badge>
                   ) : (
-                    <Badge tone="ok">актуально</Badge>
+                    <Badge tone="info">
+                      {!connection
+                        ? 'Не проверено'
+                        : notConnected
+                          ? 'Не подключено'
+                          : connection.environment !== 'production'
+                            ? 'Тестовый контур'
+                            : s.lastSent
+                              ? 'Отправлено в менеджер'
+                              : 'Не отправлялось'}
+                    </Badge>
                   )}
                 </td>
                 <td className="nowrap">{eventTime(s.lastSent, clock)}</td>
@@ -859,14 +808,14 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
             <td>Брони из каналов</td>
             <td>
               {failedEvents === null ? (
-                '—'
+                'Неизвестно'
               ) : failedEvents > 0 ? (
                 <>
                   <Badge tone="danger">требуют разбора: {failedEvents}</Badge>{' '}
                   <Link href="/channels/events?status=FAILED">к событиям</Link>
                 </>
               ) : (
-                <Badge tone="ok">принимаются</Badge>
+                <Badge tone="info">{inboundLabel}</Badge>
               )}
             </td>
             <td className="nowrap">{eventTime(lastInbound, clock)}</td>

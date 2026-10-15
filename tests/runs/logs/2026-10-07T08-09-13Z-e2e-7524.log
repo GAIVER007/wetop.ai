@@ -1,0 +1,378 @@
+# Сквозные (e2e) · 07.10.2026 13:09 Алматы · vm
+# коммит 33f3014 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/finance-card-actions.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✘   1 tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (45.2s)
+  ✘   2 tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (17.1s)
+  ✘   3 tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (45.2s)
+  ✘   4 tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (45.2s)
+  ✘   5 tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (45.2s)
+  ✘   6 tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (45.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✘   7 tests/ui/finance-card-actions.spec.ts:169:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (21.4s)
+  ✘   8 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (45.2s)
+  ✘   9 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (45.2s)
+  ✘  10 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (45.2s)
+  ✘  11 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (45.2s)
+
+
+  1) tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.boundingBox: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('folio-panel').first().getByTestId('folio-charges-title')
+
+
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+    > 22 |   locator.boundingBox().then((b) => b?.y ?? Number.NaN);
+         |           ^
+      23 |
+      24 | async function signIn(page: Page) {
+      25 |   await page.goto('/auth/fallback');
+        at top (/home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:22:11)
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:42:26
+
+    Error Context: test-results/finance-card-actions-поряд-fa3fa-апросы-оплаты-свёрнуты-ниже/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-поряд-fa3fa-апросы-оплаты-свёрнуты-ниже/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-поряд-fa3fa-апросы-оплаты-свёрнуты-ниже/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByTestId('folio-panel').first().getByTestId('payment-row').first()
+    Expected: "COMPLETED"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('folio-panel').first().getByTestId('payment-row').first() with timeout 15000ms
+      - waiting for getByTestId('folio-panel').first().getByTestId('payment-row').first()
+        34 × locator resolved to <tr data-testid="payment-row">…</tr>
+           - unexpected value "null"
+
+
+      62 |   const panel = await openAccounts(page);
+      63 |   const row = panel.getByTestId('payment-row').first();
+    > 64 |   await expect(row).toHaveAttribute('data-status', 'COMPLETED');
+         |                     ^
+      65 |   await expect(panel.getByTestId('refund-form')).toHaveCount(0);
+      66 |   await row.getByTestId('refund-btn').click();
+      67 |   const form = row.getByTestId('refund-form');
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:64:21
+
+    Error Context: test-results/finance-card-actions-возвр-f8441-а-строка-и-баланс-обновлены/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-возвр-f8441-а-строка-и-баланс-обновлены/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-возвр-f8441-а-строка-и-баланс-обновлены/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('folio-panel').first().getByTestId('payment-row').first().getByTestId('payment-edit')
+
+
+      84 |   const panel = await openAccounts(page);
+      85 |   const before = await panel.getByTestId('folio-balance').innerText();
+    > 86 |   await panel.getByTestId('payment-row').first().getByTestId('payment-edit').click();
+         |                                                                              ^
+      87 |   const form = page.getByTestId('payment-edit-form');
+      88 |   await expect(form).toBeVisible();
+      89 |   await expect(form.getByLabel('Сумма, KZT')).toHaveValue('8000.00');
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:86:78
+
+    Error Context: test-results/finance-card-actions-«Изме-a1711-ний-остаётся-аннулированным/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-«Изме-a1711-ний-остаётся-аннулированным/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-«Изме-a1711-ний-остаётся-аннулированным/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('folio-panel').first().getByTestId('payment-row').first().getByTestId('payment-void')
+
+
+      109 |   const panel = await openAccounts(page);
+      110 |   const row = panel.getByTestId('payment-row').first();
+    > 111 |   await row.getByTestId('payment-void').click();
+          |                                         ^
+      112 |   const dialog = page.getByRole('dialog');
+      113 |   await expect(dialog).toContainText('Аннулировать платёж 8 000 ₸?');
+      114 |   await dialog.getByRole('button', { name: 'Аннулировать', exact: true }).click();
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:111:41
+
+    Error Context: test-results/finance-card-actions-«Анну-1ba92-нной-остаток-к-оплате-вырос/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-«Анну-1ba92-нной-остаток-к-оплате-вырос/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-«Анну-1ba92-нной-остаток-к-оплате-вырос/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('folio-panel').first().getByTestId('charge-form').getByLabel('Вид начисления')
+        - locator resolved to <select class="inp" name="kind" aria-label="Вид начисления">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        85 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+      131 |   const panel = await openAccounts(page);
+      132 |   const form = panel.getByTestId('charge-form');
+    > 133 |   await form.getByLabel('Вид начисления').selectOption('DISCOUNT');
+          |                                           ^
+      134 |   await expect(form.getByTestId('discount-hint')).toContainText('Процент считается от проживания');
+      135 |   await form.getByLabel('Процент скидки').fill('10');
+      136 |   await form.getByRole('button', { name: 'Применить скидку' }).click();
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:133:43
+
+    Error Context: test-results/finance-card-actions-скидк-42bff-м-минус-сумма-скидки-—-тоже/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-скидк-42bff-м-минус-сумма-скидки-—-тоже/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-скидк-42bff-м-минус-сумма-скидки-—-тоже/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('folio-panel').first().getByTestId('stay-price-btn')
+
+
+      156 | }) => {
+      157 |   const panel = await openAccounts(page);
+    > 158 |   await panel.getByTestId('stay-price-btn').click();
+          |                                             ^
+      159 |   const form = panel.getByTestId('stay-price-form');
+      160 |   await expect(form.getByLabel('Цена проживания')).not.toHaveValue('');
+      161 |   await form.getByLabel('Цена проживания').fill('55000');
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:158:45
+
+    Error Context: test-results/finance-card-actions-цена--34c55-ена-в-счёте-и-в-шапке-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-цена--34c55-ена-в-счёте-и-в-шапке-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-цена--34c55-ена-в-счёте-и-в-шапке-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/finance-card-actions.spec.ts:169:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('folio-panel').first().getByTestId('refund-btn').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('folio-panel').first().getByTestId('refund-btn').first() with timeout 15000ms
+      - waiting for getByTestId('folio-panel').first().getByTestId('refund-btn').first()
+
+
+      182 |   panel = await openAccounts(page);
+      183 |   for (const id of ['refund-btn', 'payment-edit', 'payment-void'])
+    > 184 |     await expect(panel.getByTestId(id).first()).toBeVisible();
+          |                                                 ^
+      185 |   await expect(panel.getByTestId('charge-form').getByRole('option', { name: 'скидка' })).toHaveCount(1);
+      186 | });
+      187 |
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:184:49
+
+    Error Context: test-results/finance-card-actions-админ-2b9b6-дки-у-управляющего-они-есть/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-админ-2b9b6-дки-у-управляющего-они-есть/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-админ-2b9b6-дки-у-управляющего-они-есть/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('folio-panel').first().getByTestId('payment-row').first().getByTestId('refund-btn')
+
+
+      194 |       await page.setViewportSize({ width, height: 900 });
+      195 |       const panel = await openAccounts(page);
+    > 196 |       await panel.getByTestId('payment-row').first().getByTestId('refund-btn').click();
+          |                                                                                ^
+      197 |       await expect(panel.getByTestId('refund-form')).toBeVisible();
+      198 |       const page1 = await new AxeBuilder({ page }).include('[data-testid="folio-panel"]').analyze();
+      199 |       expect(page1.violations).toEqual([]);
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:196:80
+
+    Error Context: test-results/finance-card-actions-досту-bbed8-правки-платежа-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-досту-bbed8-правки-платежа-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-досту-bbed8-правки-платежа-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('folio-panel').first().getByTestId('payment-row').first().getByTestId('refund-btn')
+
+
+      194 |       await page.setViewportSize({ width, height: 900 });
+      195 |       const panel = await openAccounts(page);
+    > 196 |       await panel.getByTestId('payment-row').first().getByTestId('refund-btn').click();
+          |                                                                                ^
+      197 |       await expect(panel.getByTestId('refund-form')).toBeVisible();
+      198 |       const page1 = await new AxeBuilder({ page }).include('[data-testid="folio-panel"]').analyze();
+      199 |       expect(page1.violations).toEqual([]);
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:196:80
+
+    Error Context: test-results/finance-card-actions-досту-58f1c--правки-платежа-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-досту-58f1c--правки-платежа-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-досту-58f1c--правки-платежа-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('folio-panel').first().getByTestId('payment-row').first().getByTestId('refund-btn')
+
+
+      194 |       await page.setViewportSize({ width, height: 900 });
+      195 |       const panel = await openAccounts(page);
+    > 196 |       await panel.getByTestId('payment-row').first().getByTestId('refund-btn').click();
+          |                                                                                ^
+      197 |       await expect(panel.getByTestId('refund-form')).toBeVisible();
+      198 |       const page1 = await new AxeBuilder({ page }).include('[data-testid="folio-panel"]').analyze();
+      199 |       expect(page1.violations).toEqual([]);
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:196:80
+
+    Error Context: test-results/finance-card-actions-досту-b0eb2--правки-платежа-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-досту-b0eb2--правки-платежа-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-досту-b0eb2--правки-платежа-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('folio-panel').first().getByTestId('payment-row').first().getByTestId('refund-btn')
+
+
+      194 |       await page.setViewportSize({ width, height: 900 });
+      195 |       const panel = await openAccounts(page);
+    > 196 |       await panel.getByTestId('payment-row').first().getByTestId('refund-btn').click();
+          |                                                                                ^
+      197 |       await expect(panel.getByTestId('refund-form')).toBeVisible();
+      198 |       const page1 = await new AxeBuilder({ page }).include('[data-testid="folio-panel"]').analyze();
+      199 |       expect(page1.violations).toEqual([]);
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:196:80
+
+    Error Context: test-results/finance-card-actions-досту-0aae0-ю-правки-платежа-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-досту-0aae0-ю-правки-платежа-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-досту-0aae0-ю-правки-платежа-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11 failed
+    tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже 
+    tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены 
+    tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным 
+    tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос 
+    tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже 
+    tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони 
+    tests/ui/finance-card-actions.spec.ts:169:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть 
+    tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px 
+    tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px 
+    tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px 
+    tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px 
+
+# код выхода 1 · 7 мин 47 с

@@ -1,0 +1,224 @@
+# Сквозные (e2e) · 03.10.2026 17:15 Алматы · vm
+# коммит d950eb4 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/channels-list.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/ui/channels-list.spec.ts:22:1 › вкладка «Каналы»: подключённые с ID, названием, бронями за 30 дней и честным статусом (2.1s)
+  ✓   2 tests/ui/channels-list.spec.ts:41:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых (2.8s)
+  ✓   3 tests/ui/channels-list.spec.ts:52:1 › владелец открывает окно Channex; после «Готово» окно закрывается (2.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   4 tests/ui/channels-list.spec.ts:62:1 › управляющий видит каналы, но не подключает: окно Channex только у владельца (2.7s)
+  ✓   5 tests/ui/channels-list.spec.ts:72:1 › Channex не ответил: причина словами, брони мимо подключений видны (1.8s)
+  ✓   6 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: light, 1440px (3.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="list/" loading={[...]}>
+[WebServer]         <Suspense name="list/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/channels/..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <ChannelSalesPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <ChannelList>
+[WebServer]                             <div className="stack chan..." data-testid="channel-list">
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               <form className="channel-li..." role="search" action="/channels/...">
+[WebServer]                                 <Input>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="search"
+[WebServer]                                     name="q"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     placeholder="Канал или ID в канале"
+[WebServer]                                     aria-label="Найти канал"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓   7 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: light, 390px (3.0s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="list/" loading={[...]}>
+[WebServer]         <Suspense name="list/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/channels/..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <ChannelSalesPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <ChannelList>
+[WebServer]                             <div className="stack chan..." data-testid="channel-list">
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               <form className="channel-li..." role="search" action="/channels/...">
+[WebServer]                                 <Input>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="search"
+[WebServer]                                     name="q"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     placeholder="Канал или ID в канале"
+[WebServer]                                     aria-label="Найти канал"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓   8 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: dark, 1440px (3.2s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="list/" loading={[...]}>
+[WebServer]         <Suspense name="list/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/channels/..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <ChannelSalesPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <ChannelList>
+[WebServer]                             <div className="stack chan..." data-testid="channel-list">
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               <form className="channel-li..." role="search" action="/channels/...">
+[WebServer]                                 <Input>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="search"
+[WebServer]                                     name="q"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     placeholder="Канал или ID в канале"
+[WebServer]                                     aria-label="Найти канал"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓   9 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: dark, 390px (3.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="list/" loading={[...]}>
+[WebServer]         <Suspense name="list/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/channels/..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <ChannelSalesPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <ChannelList>
+[WebServer]                             <div className="stack chan..." data-testid="channel-list">
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               <form className="channel-li..." role="search" action="/channels/...">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="view"
+[WebServer]                                   value="available"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <Input>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="search"
+[WebServer]                                     name="q"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     placeholder="Найти канал"
+[WebServer]                                     aria-label="Найти канал"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓  10 tests/ui/channels-list.spec.ts:99:1 › снимок «Все доступные» и окна Channex (3.5s)
+
+  10 passed (33.4s)
+
+# код выхода 0 · 35 с

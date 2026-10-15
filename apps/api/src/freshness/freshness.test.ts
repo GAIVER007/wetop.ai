@@ -68,7 +68,10 @@ describe('FreshnessController — состояние каналов только
         db: {
           property: { findFirst: async () => ({ organizationId: integrationOrg }) },
           // SEC-2: объект интеграции — по сопоставлениям Channex раньше названия; здесь их нет — остаётся название
-          channelMapping: { findFirst: async () => null },
+          channelMapping: {
+            findFirst: async (query: { where: { property: { organizationId: string } } }) =>
+              query.where.property.organizationId === integrationOrg ? { id: 'mapping' } : null,
+          },
         },
       } as never,
     );

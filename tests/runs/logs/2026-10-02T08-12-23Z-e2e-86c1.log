@@ -1,0 +1,163 @@
+# Сквозные (e2e) · 02.10.2026 13:12 Алматы · vm
+# коммит c7eb913 (claude/great-cannon-41n7h4), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/top-menu.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/top-menu.spec.ts:50:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (17.4s)
+  ✘  2 tests/ui/top-menu.spec.ts:114:1 › вложенные адреса подсвечивают свою вкладку (17.6s)
+  ✘  3 tests/ui/top-menu.spec.ts:147:3 › шапка ровная, без прокрутки вбок и доступная: light (16.8s)
+  ✘  4 tests/ui/top-menu.spec.ts:147:3 › шапка ровная, без прокрутки вбок и доступная: dark (16.7s)
+
+
+  1) tests/ui/top-menu.spec.ts:50:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.workspace-sidebar')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.workspace-sidebar') with timeout 15000ms
+      - waiting for locator('.workspace-sidebar')
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      53 |   const menu = menuOf(page);
+      54 |   // бокового меню больше нет: все разделы в шапке
+    > 55 |   await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
+         |                                                    ^
+      56 |   await expect(menu.locator('.topmenu__tab')).toHaveText(TABS);
+      57 |   // вкладки стоят второй строкой, под поиском
+      58 |   const search = await header.getByRole('button', { name: 'Найти гостя или бронь' }).boundingBox();
+        at /home/user/wetop.ai/tests/ui/top-menu.spec.ts:55:52
+
+    Error Context: test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/top-menu.spec.ts:114:1 › вложенные адреса подсвечивают свою вкладку ──────────────────
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Настройки', exact: true })
+    Expected pattern: /has-current-page/
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveClass" locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Настройки', exact: true }) with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Настройки', exact: true })
+
+
+      116 |   const menu = menuOf(page);
+      117 |   const settings = menu.getByRole('button', { name: 'Настройки', exact: true });
+    > 118 |   await expect(settings).toHaveClass(/has-current-page/);
+          |                          ^
+      119 |   await expect(settings).toHaveAttribute('aria-expanded', 'false');
+      120 |   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
+      121 |   await expect(menu.locator('[aria-current="page"]')).toHaveText('Объект');
+        at /home/user/wetop.ai/tests/ui/top-menu.spec.ts:118:26
+
+    Error Context: test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/top-menu.spec.ts:147:3 › шапка ровная, без прокрутки вбок и доступная: light ─────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).locator('.topmenu__tab')
+    Expected: 9
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).locator('.topmenu__tab') with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).locator('.topmenu__tab')
+        33 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      158 |       await page.setViewportSize({ width, height: 900 });
+      159 |       const tabs = menuOf(page).locator('.topmenu__tab');
+    > 160 |       await expect(tabs).toHaveCount(TABS.length);
+          |                          ^
+      161 |       const boxes = await tabs.evaluateAll((items) =>
+      162 |         items.map((item) => {
+      163 |           const box = item.getBoundingClientRect();
+        at /home/user/wetop.ai/tests/ui/top-menu.spec.ts:160:26
+
+    Error Context: test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/top-menu.spec.ts:147:3 › шапка ровная, без прокрутки вбок и доступная: dark ──────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).locator('.topmenu__tab')
+    Expected: 9
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).locator('.topmenu__tab') with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).locator('.topmenu__tab')
+        33 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      158 |       await page.setViewportSize({ width, height: 900 });
+      159 |       const tabs = menuOf(page).locator('.topmenu__tab');
+    > 160 |       await expect(tabs).toHaveCount(TABS.length);
+          |                          ^
+      161 |       const boxes = await tabs.evaluateAll((items) =>
+      162 |         items.map((item) => {
+      163 |           const box = item.getBoundingClientRect();
+        at /home/user/wetop.ai/tests/ui/top-menu.spec.ts:160:26
+
+    Error Context: test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/top-menu.spec.ts:50:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры 
+    tests/ui/top-menu.spec.ts:114:1 › вложенные адреса подсвечивают свою вкладку ───────────────────
+    tests/ui/top-menu.spec.ts:147:3 › шапка ровная, без прокрутки вбок и доступная: light ──────────
+    tests/ui/top-menu.spec.ts:147:3 › шапка ровная, без прокрутки вбок и доступная: dark ───────────
+
+# код выхода 1 · 1 мин 33 с

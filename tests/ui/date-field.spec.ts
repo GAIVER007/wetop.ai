@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { FIXTURE_API, openFullCard } from './fixtures';
 
 /**
  * Поле даты с календарём (21.09.2026, поручение владельца: «выбор даты удобнее»).
@@ -8,7 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
  * без отрезка «с … по», без стиля стойки. Стало: родное поле остаётся (ввод с клавиатуры, `fill()`
  * в тестах), а кнопка справа открывает наш месяц: стрелки, Enter, Escape, отрезок от парного поля.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -55,6 +56,9 @@ test('показатели за период: календарь открыва�
 test('показатели за период: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности', async ({
   page,
 }) => {
+  // Проверяем сентябрьский диапазон с фиксированным сегодняшним днём в этом месяце.
+  // Реальные часы октября не должны требовать отметку «сегодня» в сентябрьской сетке.
+  await page.clock.setFixedTime(new Date('2026-09-15T12:00:00Z'));
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/management/analytics?period=custom&from=2026-09-10&to=2026-09-21');
   await openRange(page);
@@ -64,8 +68,11 @@ test('показатели за период: у поля «По» календ�
   await expect(dialog).toBeVisible();
   // отрезок 10 → 21 сентября — 12 дней подсвечены
   await expect(dialog.locator('.date-field__day.is-range')).toHaveCount(12);
-  // сегодня отмечено ровно один день (какой — зависит от часов объекта в момент прогона)
+  // Отмечен ровно один день, именно фиксированное сегодня объекта.
   await expect(dialog.locator('.date-field__day[aria-current="date"]')).toHaveCount(1);
+  await expect(
+    dialog.getByRole('button', { name: '15 сентября 2026', exact: true }),
+  ).toHaveAttribute('aria-current', 'date');
   // календарь целиком на экране, хотя поле стоит у правого края планки
   const box = await dialog.boundingBox();
   expect(box!.x + box!.width).toBeLessThanOrEqual(1440);
@@ -74,6 +81,7 @@ test('показатели за период: у поля «По» календ�
   // ‹ › листают месяц
   await dialog.getByRole('button', { name: 'Предыдущий месяц' }).click();
   await expect(dialog).toContainText('август 2026');
+  await expect(dialog.locator('.date-field__day[aria-current="date"]')).toHaveCount(0);
 });
 
 test('телефон: кнопки календаря нет, родное поле остаётся', async ({ page }) => {
@@ -90,7 +98,7 @@ test('панель брони: календарь открывается пов�
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/chessboard');
-  await page.getByTestId('stay-cell').first().dblclick();
+  await openFullCard(page.getByTestId('stay-cell').first());
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer).toBeVisible();
   await drawer.getByRole('tab', { name: 'Действия', exact: true }).click();

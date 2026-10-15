@@ -1,0 +1,53 @@
+# Сквозные (e2e) · 03.10.2026 18:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит b7f04bd (claude/ui-stale-specs-2026-10-03)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'integrations-channex' 'empty-base' 'dashboard-design' 'design-refresh' 'dashboard-resilience' 'ai-agents-create' 'fund-workspace' 'guests-design' 'booking-dates' 'channex-screens' 'channel-booking-number' 'booking-widget-turnstile' 'design-system' 'accessibility' 'chessboard-compact-screen' 'finance-compact' 'finance-units-design' 'incidents-design'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 137 tests using 1 worker
+
+  ✘    1 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 1440px (6.3m)
+  ✘    2 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 1440px (6.2m)
+  ✓    3 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 390px (4.7m)
+  ✓    4 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 390px (2.8m)
+  ✘    5 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 1440px (28.5s)
+  ✓    6 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: dark, 1440px (34.5s)
+  ✓    7 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 390px (37.6s)
+  ✓    8 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: dark, 390px (1.3m)
+  ✘    9 tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (52.0s)
+  ✘   10 tests/ui/ai-agents-create.spec.ts:97:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (55.3s)
+  ✘   11 tests/ui/ai-agents-create.spec.ts:123:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (48.8s)
+  ✘   12 tests/ui/ai-agents-create.spec.ts:144:1 › двойной щелчок по «Создать черновик» даёт одного агента (47.6s)
+  ✓   13 tests/ui/ai-agents-create.spec.ts:155:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (15.5s)
+  ✓   14 tests/ui/ai-agents-create.spec.ts:171:1 › сотрудник смены: страница создания объясняет роль, формы нет (9.7s)
+  ✓   15 tests/ui/ai-agents-create.spec.ts:181:1 › управляющий может создать агента (16.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1150316694'
+[WebServer] }
+  ✓   16 tests/ui/ai-agents-create.spec.ts:190:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (12.0s)
+  ✓   17 tests/ui/ai-agents-create.spec.ts:204:1 › расширения нет: на странице создания причина про расширение (6.4s)
+  ✓   18 tests/ui/ai-agents-create.spec.ts:213:1 › несуществующий агент, страница «не найдено», а не пустая карточка (6.9s)
+  ✓   19 tests/ui/ai-agents-create.spec.ts:225:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком (8.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   20 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, form, light, 1440 (6.4s)
+  ✓   21 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, agent, light, 1440 (6.3s)
+  ✓   22 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, blocked, light, 1440 (5.3s)
+  ✓   23 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, form, light, 390 (12.7s)
+
+# код выхода —, сигнал SIGTERM · 31 мин 41 с

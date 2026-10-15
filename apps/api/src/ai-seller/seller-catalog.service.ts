@@ -22,14 +22,14 @@ import { SELLER_NO_ORGANIZATION, profileApplied } from './seller.service';
 
 /** Не больше карточек-черновиков на страницу: гостевой мастер их не ограничивает, страница не должна расти без конца */
 export const CATALOG_DRAFTS_MAX = 50;
-/** Бот отвечает медленно или молчит — страница не ждёт дольше: канал показывается как «нет данных» */
+/** Бот отвечает медленно или молчит, страница не ждёт дольше: канал показывается как «нет данных» */
 export const CATALOG_BOT_TIMEOUT_MS = 1_500;
 export const SELLER_AGENT_DEFAULT_NAME = 'AI-продавец';
 
 export interface AgentCardView {
-  /** `seller` — рабочий продавец организации; иначе — id записи `seller_agents` */
+  /** `seller`, рабочий продавец организации; иначе, id записи `seller_agents` */
   id: string;
-  /** `seller` — рабочий продавец; `agent` — агент с филиалом (SA2); `draft` — черновик гостевого мастера без филиала */
+  /** `seller`, рабочий продавец; `agent`, агент с филиалом (SA2); `draft`, черновик гостевого мастера без филиала */
   kind: 'seller' | 'agent' | 'draft';
   name: string;
   status: AgentStatus;
@@ -51,7 +51,7 @@ export interface AgentCatalogView {
 }
 
 /**
- * Каталог Business Agents (SA1, plans/business-ai-seller-v2-2026-09-29.md §8): только чтение. Организация — из сессии
+ * Каталог Business Agents (SA1, plans/business-ai-seller-v2-2026-09-29.md §8): только чтение. Организация, из сессии
  * вошедшего, чужих строк здесь нет. Ни схема, ни бот, ни права не менялись: карточка собирается из расширения, профиля
  * продавца, объекта организации, доменов её сайтов и черновиков гостевого мастера.
  */
@@ -81,7 +81,7 @@ export class SellerCatalogService {
     const config = this.connection.config();
     const connection = !config.baseUrl || !config.serviceKey ? 'not-configured' : 'ready';
     const [row, placement, hosts, drafts, whatsapp] = await Promise.all([
-      // карточка рабочего продавца: профиль — агента (SA2.5), у перенесённого он равен организации
+      // карточка рабочего продавца: профиль, агента (SA2.5), у перенесённого он равен организации
       this.profiles.get(workingSellerScope(organizationId).agentId),
       this.catalog.placement(organizationId),
       this.orgs.hosts(organizationId),
@@ -124,7 +124,7 @@ export class SellerCatalogService {
     };
   }
 
-  /** Подключён ли WhatsApp — по ответу бота; не ответил вовремя или упал — «нет данных», а не ошибка страницы */
+  /** Подключён ли WhatsApp, по ответу бота; не ответил вовремя или упал, «нет данных», а не ошибка страницы */
   private async whatsappState(organizationId: string): Promise<ChannelState> {
     const client = this.connection.client(organizationId, workingSellerScope(organizationId).agentId);
     if (!client) return 'UNKNOWN';

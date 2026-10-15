@@ -1,0 +1,31 @@
+# Модульные (unit) · 06.10.2026 20:45 Алматы · vm
+# коммит c6044ba (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T15-45-54Z-unit-6bc8.json' 'apps/web/src/app/today/vertical-metrics.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/today/vertical-metrics.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-metrics.test.ts [ apps/web/src/app/today/vertical-metrics.test.ts ]
+Error: Cannot find module './vertical-metrics' imported from /home/user/wetop.ai/apps/web/src/app/today/vertical-metrics.test.ts
+ ❯ apps/web/src/app/today/vertical-metrics.test.ts:4:1
+      2| import type { BeautyAppointmentRow, BeautyDay } from '../../lib/api';
+      3| import type { DiningArea, DiningTable, RestaurantReservation } from '.…
+      4| import { beautyToday, foodToday, localMinute } from './vertical-metric…
+       | ^
+      5|
+      6| const column = (id: string, name: string) => ({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  15:46:00
+   Duration  535ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-06T15-45-54Z-unit-6bc8.json
+
+# код выхода 1 · 7 с

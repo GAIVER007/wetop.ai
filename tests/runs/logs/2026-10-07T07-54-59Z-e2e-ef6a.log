@@ -1,0 +1,84 @@
+# Сквозные (e2e) · 07.10.2026 12:54 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'analytics.spec.ts' '--workers=1'
+[WebServer] (node:21841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21872) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21888) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21951) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+(node:21973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/branches-ui/analytics.spec.ts:27:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (3.7s)
+  ✓   2 tests/branches-ui/analytics.spec.ts:68:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance (2.4s)
+  ✘   3 tests/branches-ui/analytics.spec.ts:129:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (3.0s)
+(node:22671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/branches-ui/analytics.spec.ts:170:7 › MV9 beauty 1440 light: accessibility, keyboard and screenshot (1.9s)
+  ✓   5 tests/branches-ui/analytics.spec.ts:170:7 › MV9 food 1440 light: accessibility, keyboard and screenshot (1.9s)
+  ✓   6 tests/branches-ui/analytics.spec.ts:170:7 › MV9 beauty 1440 dark: accessibility, keyboard and screenshot (1.7s)
+  ✓   7 tests/branches-ui/analytics.spec.ts:170:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot (1.8s)
+  ✓   8 tests/branches-ui/analytics.spec.ts:170:7 › MV9 beauty 390 light: accessibility, keyboard and screenshot (1.6s)
+  ✓   9 tests/branches-ui/analytics.spec.ts:170:7 › MV9 food 390 light: accessibility, keyboard and screenshot (1.5s)
+  ✓  10 tests/branches-ui/analytics.spec.ts:170:7 › MV9 beauty 390 dark: accessibility, keyboard and screenshot (1.5s)
+  ✓  11 tests/branches-ui/analytics.spec.ts:170:7 › MV9 food 390 dark: accessibility, keyboard and screenshot (1.5s)
+
+
+  1) tests/branches-ui/analytics.spec.ts:129:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('period-DONE')
+    Expected: visible
+    Error: strict mode violation: getByTestId('period-DONE') resolved to 2 elements:
+        1) <div class="stat__value" data-testid="period-DONE">1</div> aka getByRole('region', { name: 'Салоны' }).getByTestId('period-DONE')
+        2) <div class="stat__value" data-testid="period-DONE">1</div> aka getByTestId('period-DONE').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('period-DONE') with timeout 5000ms
+      - waiting for getByTestId('period-DONE')
+        3 × locator resolved to <div class="stat__value" data-testid="period-DONE">1</div>
+          - unexpected value "hidden"
+
+
+      152 |   await request.post(`${api}/__test/control`, { data: { readOnly: true, role: 'STAFF' } });
+      153 |   await page.reload();
+    > 154 |   await expect(page.getByTestId('period-DONE')).toBeVisible();
+          |                                                 ^
+      155 |   const before = ((await (await request.get(`${api}/__test/calls`)).json()) as string[]).length;
+      156 |   await page.goto('/management/analytics/units');
+      157 |   await expect(page).toHaveURL(/\/today$/);
+        at /Users/urijzapojnov/wetop-mv8-20261007/tests/branches-ui/analytics.spec.ts:154:49
+
+    Error Context: test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics/error-context.md
+
+    Error Context: test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/analytics.spec.ts:129:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics 
+  10 passed (35.8s)
+
+# код выхода 1 · 38 с

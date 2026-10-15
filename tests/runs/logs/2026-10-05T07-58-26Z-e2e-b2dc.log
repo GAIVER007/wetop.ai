@@ -1,0 +1,302 @@
+# Сквозные (e2e) · 05.10.2026 12:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2278432 (codex/calendar-mobile), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-week.spec.ts' '--workers=1'
+[WebServer] (node:86545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86586) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 30 tests using 1 worker
+
+(node:86657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (2.1s)
+  ✓   2 tests/ui/chessboard-calendar.spec.ts:41:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (1.2s)
+  ✓   3 tests/ui/chessboard-calendar.spec.ts:54:3 › гейт «Календарь»: light (2.0s)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:54:3 › гейт «Календарь»: dark (2.4s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:67:1 › пустая клетка не дублирует дату из шапки календаря (1.4s)
+  ✓   6 tests/ui/chessboard-calendar.spec.ts:75:1 › даты в шапке не повторяют свободные и занятые места (1.4s)
+  ✓   7 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (1.8s)
+  ✓   8 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (4.7s)
+  ✓   9 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (26.0s)
+  ✓  10 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (51.4s)
+  ✘  11 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (4.4s)
+(node:87427) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (2.3s)
+(node:87476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (23.3s)
+(node:87584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/chessboard-mobile.spec.ts:77:1 › мобильный период останавливается перед занятой ночью (9.4s)
+  ✘  15 tests/ui/chessboard-mobile.spec.ts:98:3 › телефон light: карточка брони, фильтры и длинный календарь (10.2s)
+(node:87698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  16 tests/ui/chessboard-mobile.spec.ts:98:3 › телефон dark: карточка брони, фильтры и длинный календарь (17.4m)
+(node:87975) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  17 tests/ui/chessboard-mobile.spec.ts:142:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (15.8m)
+(node:88089) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  18 tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 360: восемь показателей перед календарём и вертикальная прокрутка (5.4m)
+(node:88116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 390: восемь показателей перед календарём и вертикальная прокрутка (5.2s)
+  ✘  20 tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 430: восемь показателей перед календарём и вертикальная прокрутка (1.4m)
+(node:88256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (4.8s)
+  ✓  22 tests/ui/chessboard-week.spec.ts:28:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (4.6s)
+  ✓  23 tests/ui/chessboard-week.spec.ts:74:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (1.9s)
+  ✓  24 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (2.9s)
+  ✓  25 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (3.9s)
+  ✓  26 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (18.1s)
+[WebServer] (node:88818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 tests/ui/chessboard-week.spec.ts:126:1 › в неделе работают бронь, категории и создание на воскресенье (16.1s)
+  ✓  28 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: light, обе панели и телефон (24.3s)
+  ✓  29 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: dark, обе панели и телефон (13.8s)
+  ✓  30 tests/ui/chessboard-week.spec.ts:205:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (3.5s)
+
+
+  1) tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей 
+
+    Error: cdpSession.send: Protocol error (Input.synthesizeScrollGesture): Position out of bounds
+
+      41 |     const box = (await wrap.boundingBox())!;
+      42 |     const cdp = await context.newCDPSession(page);
+    > 43 |     await cdp.send('Input.synthesizeScrollGesture', {
+         |               ^
+      44 |       x: width - 30,
+      45 |       y: Math.round(box.y + 150),
+      46 |       xDistance: -230,
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:43:15
+
+    Error Context: test-results/chessboard-mobile-телефон--41ffa--и-бронь-на-несколько-ночей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--41ffa--и-бронь-на-несколько-ночей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--41ffa--и-бронь-на-несколько-ночей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей 
+
+    Error: apiRequestContext.get: read ECONNRESET
+    Call log:
+      - → GET http://127.0.0.1:4339/reservations/20260913-TEST1
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - x-wetop-test-client: 1
+
+
+      24 |     const page = await context.newPage();
+      25 |     const stay = await (
+    > 26 |       await request.get(`${FIXTURE_API}/reservations/20260913-TEST1`, {
+         |                     ^
+      27 |         headers: { 'x-wetop-test-client': '1' },
+      28 |       })
+      29 |     ).json();
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:26:21
+
+    Error Context: test-results/chessboard-mobile-телефон--2f068--и-бронь-на-несколько-ночей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--2f068--и-бронь-на-несколько-ночей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--2f068--и-бронь-на-несколько-ночей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 100
+    Received:   0
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      48 |       gestureSourceType: 'touch',
+      49 |     });
+    > 50 |     await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBeGreaterThan(100);
+         |                                                                   ^
+      51 |     expect((await unit.boundingBox())!.x).toBeCloseTo(before, 0);
+      52 |     await expect(page.getByTestId('free-menu')).toBeHidden();
+      53 |     await wrap.evaluate((el) => {
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:50:67
+
+    Error Context: test-results/chessboard-mobile-телефон--bf536--и-бронь-на-несколько-ночей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--bf536--и-бронь-на-несколько-ночей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--bf536--и-бронь-на-несколько-ночей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-mobile.spec.ts:98:3 › телефон light: карточка брони, фильтры и длинный календарь 
+
+    Error: page.goto: net::ERR_NETWORK_IO_SUSPENDED at http://127.0.0.1:3139/chessboard?from=2026-10-05&to=2026-10-18
+    Call log:
+      - navigating to "http://127.0.0.1:3139/chessboard?from=2026-10-05&to=2026-10-18", waiting until "load"
+
+
+      114 |     ).json();
+      115 |     const from = stay.arrivalDate as string;
+    > 116 |     await page.goto(`/chessboard?from=${from}&to=${add(from, 13)}`);
+          |                ^
+      117 |     await page.getByLabel('Поиск в календаре').fill('R02');
+      118 |     const plate = page.locator('[data-unit-code="R02"] .board__stay').first();
+      119 |     await plate.tap();
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:116:16
+
+    Error Context: test-results/chessboard-mobile-телефон--e95a9-фильтры-и-длинный-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--e95a9-фильтры-и-длинный-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--e95a9-фильтры-и-длинный-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-mobile.spec.ts:98:3 › телефон dark: карточка брони, фильтры и длинный календарь 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: browserContext.newPage: Test ended.
+    Browser logs:
+
+    <launching> /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/playwright_chromiumdev_profile-ifh3oR --remote-debugging-pipe --no-startup-window
+    <launched> pid=87706
+    [pid=87706] <gracefully close start>
+    [pid=87706] <kill>
+    [pid=87706] <will force kill>
+
+      107 |       reducedMotion: 'reduce',
+      108 |     });
+    > 109 |     const page = await context.newPage();
+          |                                ^
+      110 |     const stay = await (
+      111 |       await request.get(`${FIXTURE_API}/reservations/20260913-TEST1`, {
+      112 |         headers: { 'x-wetop-test-client': '1' },
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:109:32
+
+    Error Context: test-results/chessboard-mobile-телефон--15d2a-фильтры-и-длинный-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--15d2a-фильтры-и-длинный-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--15d2a-фильтры-и-длинный-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/chessboard-mobile.spec.ts:142:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  locator('.booking-create').locator('[name="arrivalDate"]')
+    Expected: "2026-11-10"
+    Received: ""
+
+
+      146 |   await page.goto('/reservations/new?arrival=2026-11-10&departure=2026-11-13&unit=R07');
+      147 |   const form = page.locator('.booking-create');
+    > 148 |   await expect(form.locator('[name="arrivalDate"]')).toHaveValue('2026-11-10');
+          |                                                      ^
+      149 |   await expect(form.locator('[name="departureDate"]')).toHaveValue('2026-11-13');
+      150 |   await expect(form.locator('[name="unitCode"]')).toHaveValue('R07');
+      151 |   for (const control of await form
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:148:54
+
+    Error Context: test-results/chessboard-mobile-форма-бр-2d24b-ные-даты-и-доступная-кнопка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-форма-бр-2d24b-ные-даты-и-доступная-кнопка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-форма-бр-2d24b-ные-даты-и-доступная-кнопка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 360: восемь показателей перед календарём и вертикальная прокрутка 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.boundingBox: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' })
+
+
+      195 |     await expect(stats.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+      196 |     const grid = page.locator('.board-wrap');
+    > 197 |     expect((await stats.boundingBox())!.y).toBeLessThan((await grid.boundingBox())!.y);
+          |                         ^
+      198 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      199 |       true,
+      200 |     );
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:197:25
+
+    Error Context: test-results/chessboard-mobile-статисти-aa62d-ём-и-вертикальная-прокрутка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-статисти-aa62d-ём-и-вертикальная-прокрутка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-статисти-aa62d-ём-и-вертикальная-прокрутка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 430: восемь показателей перед календарём и вертикальная прокрутка 
+
+    Test timeout of 45000ms exceeded while setting up "page".
+
+    Error Context: test-results/chessboard-mobile-статисти-8c5d0-ём-и-вертикальная-прокрутка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-статисти-8c5d0-ём-и-вертикальная-прокрутка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-статисти-8c5d0-ём-и-вертикальная-прокрутка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей 
+    tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей 
+    tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей 
+    tests/ui/chessboard-mobile.spec.ts:98:3 › телефон light: карточка брони, фильтры и длинный календарь 
+    tests/ui/chessboard-mobile.spec.ts:98:3 › телефон dark: карточка брони, фильтры и длинный календарь 
+    tests/ui/chessboard-mobile.spec.ts:142:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка 
+    tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 360: восемь показателей перед календарём и вертикальная прокрутка 
+    tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 430: восемь показателей перед календарём и вертикальная прокрутка 
+  22 passed (1.1h)
+
+# код выхода 1 · 1 ч 3 мин

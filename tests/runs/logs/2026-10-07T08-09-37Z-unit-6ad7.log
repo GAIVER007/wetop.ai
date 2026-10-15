@@ -1,0 +1,30 @@
+# Модульные (unit) · 07.10.2026 13:09 Алматы · vm
+# коммит 012c06d (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-09-37Z-unit-6ad7.json' 'packages/domain/src/marketing/brief.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/brief.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/brief.test.ts [ packages/domain/src/marketing/brief.test.ts ]
+Error: Cannot find module './brief' imported from /home/user/wetop.ai/packages/domain/src/marketing/brief.test.ts
+ ❯ packages/domain/src/marketing/brief.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   BRIEF_TEXT_LIMITS,
+      4|   SITE_BRIEF_SCHEMA_VERSION,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  08:09:42
+   Duration  1.03s (worker 98%, environment 2%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-09-37Z-unit-6ad7.json
+
+# код выхода 1 · 5 с

@@ -33,9 +33,12 @@ import { SUPPORT_AUDIT, type SupportAudit } from './support.audit';
 import { SUPPORT_CONNECTION, type SupportConnection, type SupportPort } from './support.connection';
 import {
   OPEN_REQUEST,
+  categoryCounts,
+  filterByCategory,
   queueCounts,
   queueItems,
   queueRequest,
+  supportCategoryFilter,
   sortQueue,
   supportQueue,
 } from './support.queue';
@@ -104,14 +107,22 @@ export class SupportService {
    * Очередь кабинета (S1): без пустых диалогов, открытые или закрытые, отбор — у помощника в SQL. Числа очереди — из
    * одной выборки открытых; «все открытые» отдаются из неё же, без второго вызова.
    */
-  async queue(rawQueue: unknown) {
+  async queue(rawQueue: unknown, rawCategory?: unknown) {
     requirePlatformAdmin();
     const queue = supportQueue(rawQueue);
+    const category = supportCategoryFilter(rawCategory);
     const client = this.client();
     const open = queueItems(await call(() => client.listConversations(OPEN_REQUEST)));
     const wanted = queueRequest(queue);
     const items = wanted ? queueItems(await call(() => client.listConversations(wanted))) : open;
-    return { queue, items: sortQueue(items), counts: queueCounts(open) };
+    // Категорию считает платформа по первому сообщению: помощнику про неё знать нечего
+    return {
+      queue,
+      category,
+      items: sortQueue(filterByCategory(items, category)),
+      counts: queueCounts(open),
+      categoryCounts: categoryCounts(items),
+    };
   }
 
   async conversation(rawId: string) {
@@ -198,7 +209,8 @@ export class SupportService {
   async summary() {
     requirePlatformAdmin();
     const client = this.client();
-    return summaryView(await call(() => client.summary()));
+    // Проверки агента не должны раздувать числа над очередью, из которой они же и убраны
+    return summaryView(await call(() => client.summary(true)));
   }
 
   // ── настройка помощника (ADR-084): правила, модель, песочница ─────────────────────────────────

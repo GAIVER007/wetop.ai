@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, boardFilter, expect, test, chooseBoardPeriod } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -10,7 +10,7 @@ import { mkdirSync } from 'node:fs';
  * подтверждают, что снят настоящий экран, а не пустая страница.
  */
 const DIR = 'reports/chessboard-v2-pr2-2026-09-27/gate';
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -39,13 +39,22 @@ test('гейт: светлая тема — полный экран, верх, �
   });
   // заголовок и главное действие
   await page.locator('.page__head').screenshot({ path: `${DIR}/header.png` });
-  // строка дат: стрелки, период, «Сегодня», 7/14/30, «Даты», «? Помощь»
-  await page.locator('.board-controls').screenshot({ path: `${DIR}/controls.png` });
-  // раскрытые «Даты»: С, По, «Применить» и «Месяц»
-  await page.getByRole('button', { name: 'Даты', exact: true }).click();
-  await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toBeVisible();
-  await page.locator('.board-controls').screenshot({ path: `${DIR}/controls-dates-open.png` });
-  await page.getByRole('button', { name: 'Даты', exact: true }).click();
+  // полоса календаря (образец владельца 09.10.2026): «Сегодня», стрелки, «Октябрь 2026 ▾»,
+  // «День / Неделя / Месяц», «7 дней ▾», поиск, «Фильтры», «Новая бронь»
+  await page.locator('.board-toolbar').screenshot({ path: `${DIR}/controls.png` });
+  // раскрытый период: поля С / По и «Применить»
+  await page.getByTestId('board-period-button').click();
+  await expect(page.getByRole('button', { name: 'Применить', exact: true })).toBeVisible();
+  await page.screenshot({
+    caret: 'initial',
+    path: `${DIR}/controls-dates-open.png`,
+    clip: { x: 0, y: 0, width: 900, height: 560 },
+  });
+  await page.getByTestId('board-period-button').click();
+  // длина окна: пресеты единого контрола периода (Q-DES-1, 13.10.2026)
+  await page.getByTestId('board-period-button').click();
+  await expect(page.getByRole('button', { name: '14 дней', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
   // строка поиска и фильтров: поиск, категория, тип места, статусы
   await page.locator('.board-toolbar').screenshot({ path: `${DIR}/toolbar.png` });
 
@@ -87,7 +96,7 @@ test('гейт: тёмная тема — полный экран и верх', 
     path: `${DIR}/today-column-dark.png`,
     clip: { x: today!.x - 140, y: 0, width: today!.width + 180, height: 700 },
   });
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  await chooseBoardPeriod(page, '30 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   await page.screenshot({ caret: 'initial', path: `${DIR}/mode-30-days-dark.png` });
 });
@@ -117,15 +126,15 @@ test('гейт: овербукинг (critical), режим 30 дней и вк�
   const seeded = await request.post(`${fixture}/__test/design-seed`);
   expect(seeded.ok()).toBe(true);
   await page.goto('/chessboard');
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  await chooseBoardPeriod(page, '30 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   await page.screenshot({ caret: 'initial', path: `${DIR}/mode-30-days.png` });
 
   // включённый фильтр: категория номеров — показано 16 из 88, счётчик и «Сбросить» на виду
   // (с PR 7 тип места — в окошке «Фильтры», в строке остались категория и места)
-  await page.getByRole('link', { name: '7 дней', exact: true }).click();
+  await chooseBoardPeriod(page, '7 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(7);
-  await page.getByLabel('Категория на шахматке').selectOption('ROOM');
+  await boardFilter(page, { category: 'ROOM' });
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   await page.screenshot({ caret: 'initial', path: `${DIR}/filters-applied.png` });
 });

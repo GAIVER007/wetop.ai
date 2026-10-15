@@ -1,0 +1,31 @@
+# Интеграционные (integration) · 05.10.2026 11:09 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/mv6-food-domain-20261005), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-09-48Z-integration-b8e4.json' 'tests/integration/mv6-food.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |integration| tests/integration/mv6-food.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/mv6-food.test.ts [ tests/integration/mv6-food.test.ts ]
+Error: Cannot find module '../../apps/api/src/food-service/food.service' imported from /Users/urijzapojnov/wetop-mv1-20261004/tests/integration/mv6-food.test.ts
+ ❯ tests/integration/mv6-food.test.ts:4:1
+      2| import { afterAll,beforeAll,beforeEach,describe,expect,it } from 'vite…
+      3| import { createPrismaClient,type Db } from '@pms/database';
+      4| import { FoodService } from '../../apps/api/src/food-service/food.serv…
+       | ^
+      5| import { PrismaService } from '../../apps/api/src/database/prisma.prov…
+      6| import { withSignedInUser } from '../../apps/api/src/auth/request-cont…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  10:09:49
+   Duration  711ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-09-48Z-integration-b8e4.json
+
+# код выхода 1 · 2 с

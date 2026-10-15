@@ -1,0 +1,88 @@
+# Сквозные (e2e) · 03.10.2026 20:50 Алматы · vm
+# коммит 6af7487 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 23
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/homepage-blocks.spec.ts'
+
+Running 18 tests using 1 worker
+
+  ✘   1 tests/site/homepage-blocks.spec.ts:25:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (544ms)
+  ✓   2 tests/site/homepage-blocks.spec.ts:43:1 › содержимое блоков видно сразу: без вкладок, восемь возможностей, четыре входа броней, три карточки команды (548ms)
+  ✓   3 tests/site/homepage-blocks.spec.ts:68:1 › первый экран: две кнопки стоят в одну строку, факты уехали в полосу под ним (464ms)
+  ✓   4 tests/site/homepage-blocks.spec.ts:92:1 › карточки блоков читаются одной фразой, а не абзацем (514ms)
+  ✓   5 tests/site/homepage-blocks.spec.ts:109:1 › ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки (435ms)
+  ✓   6 tests/site/homepage-blocks.spec.ts:126:1 › первый экран: карта разделов ведёт на блоки страницы (1.5s)
+  ✓   7 tests/site/homepage-blocks.spec.ts:149:1 › на главной нет дорожной карты направлений (381ms)
+  ✓   8 tests/site/homepage-blocks.spec.ts:163:1 › салоны и студии названы среди тех, кого подключаем, со ссылкой написать (454ms)
+  ✓   9 tests/site/homepage-blocks.spec.ts:184:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (370ms)
+  ✓  10 tests/site/homepage-blocks.spec.ts:196:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (359ms)
+  ✓  11 tests/site/homepage-blocks.spec.ts:204:1 › в текстах главной нет длинного тире и разделителя « · » (289ms)
+  ✓  12 tests/site/homepage-blocks.spec.ts:212:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (516ms)
+  ✓  13 tests/site/homepage-blocks.spec.ts:212:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (538ms)
+  ✓  14 tests/site/homepage-blocks.spec.ts:212:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (525ms)
+  ✓  15 tests/site/homepage-blocks.spec.ts:212:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (580ms)
+  ✓  16 tests/site/homepage-blocks.spec.ts:231:1 › блоки доступны в обеих темах (2.8s)
+  ✓  17 tests/site/homepage-blocks.spec.ts:245:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (881ms)
+  ✘  18 tests/site/homepage-blocks.spec.ts:256:1 › «Загрузка конкурентов»: четыре пункта, пример помечен примером, кнопка ведёт в раздел стойки, сбор ИИ не обещан готовым (10.4s)
+
+
+  1) tests/site/homepage-blocks.spec.ts:25:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 0
+
+    @@ -1,9 +1,8 @@
+      Array [
+        "audience",
+        "features",
+    -   "market",
+        "sales",
+        "ai-sellers",
+        "team",
+        "start",
+        "faq",
+
+      28 |     .locator('main section[id]')
+      29 |     .evaluateAll((els) => els.map((el) => el.getAttribute('id')));
+    > 30 |   expect(ids.filter((id) => BLOCKS.some((b) => b.id === id))).toEqual(BLOCKS.map((b) => b.id));
+         |                                                               ^
+      31 |   for (const block of BLOCKS) {
+      32 |     const section = page.locator(`#${block.id}`);
+      33 |     await expect(section.locator('.eyebrow').first(), `надзаголовок #${block.id}`).toBeVisible();
+        at /home/user/wetop.ai/tests/site/homepage-blocks.spec.ts:30:63
+
+    Error Context: test-results/homepage-blocks-блоки-идут-032af-головок-и-заголовок-словами/error-context.md
+
+  2) tests/site/homepage-blocks.spec.ts:256:1 › «Загрузка конкурентов»: четыре пункта, пример помечен примером, кнопка ведёт в раздел стойки, сбор ИИ не обещан готовым 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#market').locator('.seller-details__steps > li')
+    Expected: 4
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#market').locator('.seller-details__steps > li') with timeout 10000ms
+      - waiting for locator('#market').locator('.seller-details__steps > li')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      259 |   await page.goto('/');
+      260 |   const block = page.locator('#market');
+    > 261 |   await expect(block.locator('.seller-details__steps > li')).toHaveCount(4);
+          |                                                              ^
+      262 |   await expect(block.getByRole('complementary')).toContainText('Пример');
+      263 |   await expect(block.getByRole('link', { name: /Открыть раздел/ })).toHaveAttribute('href', /\/market$/);
+      264 |   await expect(block).toContainText(/готовим/);
+        at /home/user/wetop.ai/tests/site/homepage-blocks.spec.ts:261:62
+
+    Error Context: test-results/homepage-blocks-«Загрузка--f422f-и-сбор-ИИ-не-обещан-готовым/error-context.md
+
+  2 failed
+    tests/site/homepage-blocks.spec.ts:25:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами 
+    tests/site/homepage-blocks.spec.ts:256:1 › «Загрузка конкурентов»: четыре пункта, пример помечен примером, кнопка ведёт в раздел стойки, сбор ИИ не обещан готовым 
+  16 passed (36.4s)
+
+# код выхода 1 · 38 с

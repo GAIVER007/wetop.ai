@@ -5,7 +5,8 @@ import { WEBSITE_TITLE, primaryHost, siteState } from '../../lib/website';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Notice, StateBar, StateFact, Stack } from '../../components/ui';
-import { WebsiteNotConnected, WebsiteTabs } from './parts';
+import { MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from './parts';
+import './website.css';
 
 /**
  * «Сайт и онлайн-бронирование → Обзор» (ADR-117, WEB1): как сайт объекта связан с WETOP — одним взглядом.
@@ -18,6 +19,7 @@ export default async function WebsiteOverviewPage() {
   const drafts = cards.filter((c) => !primaryHost(c.site));
   return (
     <Page
+      crumbs={<MarketingCrumb />}
       title={WEBSITE_TITLE}
       subtitle="Как сайт объекта связан с WETOP: домен, счётчик посещений и брони с сайта."
     >

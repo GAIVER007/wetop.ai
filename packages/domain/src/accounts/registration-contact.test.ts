@@ -4,10 +4,16 @@ import {
   PRIVACY_POLICY_URL,
   PRIVACY_POLICY_VERSION,
   defaultPhoneCountry,
+  registrationLocale,
   registrationPhone,
 } from './registration-contact';
 
 describe('registrationPhone', () => {
+  it('Катар: местный номер и международный код без удвоения', () => {
+    expect(registrationPhone('QA', '5550 1234')).toBe('+97455501234');
+    expect(registrationPhone('QA', '+974 5550 1234')).toBe('+97455501234');
+    expect(defaultPhoneCountry([], 'Asia/Qatar')).toBe('QA');
+  });
   it('Казахстан: код +7 и десять цифр номера', () => {
     expect(registrationPhone('KZ', '701 555 44 33')).toBe('+77015554433');
   });
@@ -58,5 +64,18 @@ describe('политика конфиденциальности', () => {
   it('адрес на главной и версия-дата', () => {
     expect(PRIVACY_POLICY_URL).toBe('https://wetop.ai/privacy/');
     expect(PRIVACY_POLICY_VERSION).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe('registrationLocale (Q-REG-1)', () => {
+  it('известный язык интерфейса принимается, пропуск означает русский', () => {
+    expect(registrationLocale('kk')).toBe('kk');
+    expect(registrationLocale(undefined)).toBe('ru');
+    expect(registrationLocale('')).toBe('ru');
+  });
+  it('чужой код и не строка: null, сервис отказывает словами', () => {
+    expect(registrationLocale('xx')).toBeNull();
+    expect(registrationLocale('RU')).toBeNull();
+    expect(registrationLocale(7)).toBeNull();
   });
 });

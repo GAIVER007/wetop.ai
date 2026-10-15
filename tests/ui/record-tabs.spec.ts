@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Locator, type Page } from './fixtures';
 import { cardTab } from '../e2e/card-tabs';
 
 /**
@@ -11,7 +11,7 @@ import { cardTab } from '../e2e/card-tabs';
  * В точные миллисекунды тест не попадает, поэтому первый тест воспроизводит сам ингредиент: пока человек уже на
  * «Обзоре», роутер записывает старый адрес — и тут же приходит свежая разметка карточки с сервера.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const BOOKING = '20260913-TESTAA';
 
 test.beforeEach(async ({ request }) => {
@@ -132,4 +132,12 @@ test('переход между бронями без перезагрузки �
     has: page.getByRole('heading', { level: 1, name: `Бронь ${BOOKING}` }),
   });
   await expect(tab(underneath, 'Действия')).toHaveAttribute('aria-selected', 'true');
+});
+
+// Карточка брони в панели не повторяет id="main-content": цель ссылки «К содержимому» одна (мастер-проход UI, этап 4)
+test('панель брони не дублирует цель «К содержимому»', async ({ page }) => {
+  await page.goto('/reservations');
+  await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.locator('#main-content')).toHaveCount(1);
 });

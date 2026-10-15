@@ -4,7 +4,7 @@ import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { decryptPii } from '@pms/shared';
-import { countGuestNights, summarizeGuestStays } from '@pms/domain';
+import { countGuestNights, pickMainStay, summarizeGuestStays } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { GuestsModule } from './guests.module';
 import {
@@ -92,6 +92,11 @@ function makeFakes() {
   /** Записи журнала целиком: какой документ добавлен, удалён, показан (SECURITY.md §1, §6) */
   const auditDetails: Array<{ action: string; details?: Record<string, unknown> }> = [];
   const repo: GuestsRepository = {
+    async withBirthDates() {
+      return [...guests.values()]
+        .filter((g) => g.birthDate)
+        .map((g) => ({ id: g.id, firstName: g.firstName, lastName: g.lastName, birthDate: g.birthDate! }));
+    },
     async search(q) {
       // как настоящий репозиторий: телефон ищется только от 4 цифр — пустые цифры матчили всех
       const digits = q.replace(/\D/g, '');
@@ -132,6 +137,7 @@ function makeFakes() {
           middleName: g.middleName,
           phone: g.phone,
           email: g.email,
+          stay: pickMainStay(g.stays, FAKE_TODAY),
           ...summarizeGuestStays(g.stays, FAKE_TODAY),
         }));
       const counts = { ALL: all.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0, NONE: 0 };
@@ -142,6 +148,18 @@ function makeFakes() {
         page,
         pageSize,
         counts,
+        views: { all: rows.length, today: 0, inhouse: counts.INHOUSE, expected: counts.EXPECTED, departures: 0, attention: 0 },
+        kpi: {
+          all: all.length,
+          inhouse: counts.INHOUSE,
+          arrivalsToday: 0,
+          departuresToday: 0,
+          expected: counts.EXPECTED,
+          attention: 0,
+          none: counts.NONE,
+          arrivalsYesterday: 0,
+          departuresYesterday: 0,
+        },
         rows: rows.slice((page - 1) * pageSize, page * pageSize),
       };
     },
@@ -159,6 +177,10 @@ function makeFakes() {
         middleName: g.middleName,
         phone: g.phone,
         email: g.email,
+        notes: g.notes,
+        stay: pickMainStay(g.stays, FAKE_TODAY),
+        visits: [],
+        services: [],
         ...summarizeGuestStays(g.stays, FAKE_TODAY),
         nightsTotal: countGuestNights(g.stays),
         hasFolios: id === '00000000-0000-4000-8000-000000000002',
@@ -219,6 +241,25 @@ describe('guests API', () => {
   });
   afterAll(async () => {
     await app.close();
+  });
+
+  it('дни рождения: гости с днём рождения в окне, по порядку дат, с возрастом (Q-249 T0)', async () => {
+    const [a, b] = [...fakes.guests.values()];
+    a!.birthDate = '1990-10-06';
+    b!.birthDate = '1985-10-03';
+    const res = await request(app.getHttpServer())
+      .get('/guests/birthdays?from=2026-10-03&days=7')
+      .expect(200);
+    expect(res.body).toEqual([
+      { id: b!.id, firstName: b!.firstName, lastName: b!.lastName, date: '2026-10-03', age: 41 },
+      { id: a!.id, firstName: a!.firstName, lastName: a!.lastName, date: '2026-10-06', age: 36 },
+    ]);
+    const today = await request(app.getHttpServer())
+      .get('/guests/birthdays?from=2026-10-03&days=1')
+      .expect(200);
+    expect(today.body).toHaveLength(1);
+    await request(app.getHttpServer()).get('/guests/birthdays?from=03.10.2026&days=7').expect(400);
+    await request(app.getHttpServer()).get('/guests/birthdays?from=2026-10-03&days=400').expect(400);
   });
 
   it('id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026)', async () => {
@@ -338,6 +379,82 @@ describe('guests API', () => {
       'last=period&from=2026-02-30&to=2026-03-01',
       'visits=5%2B',
       'sort=debt',
+    ])
+      await request(app.getHttpServer()).get(`/guests/directory?${bad}`).expect(400);
+  });
+
+  it('directory «Гости и бронирования»: вид, источник, флаги и период доходят до выборки; умолчания пусты', async () => {
+    await request(app.getHttpServer()).get('/guests/directory').expect(200);
+    expect(fakes.directoryQueries.at(-1)).toMatchObject({
+      view: 'all',
+      source: null,
+      channel: null,
+      debt: false,
+      fresh: false,
+      noContact: false,
+      stayPeriod: null,
+    });
+    await request(app.getHttpServer())
+      .get('/guests/directory?view=attention&source=website&debt=1&fresh=1&nocontact=1&period=7d')
+      .expect(200);
+    expect(fakes.directoryQueries.at(-1)).toMatchObject({
+      view: 'attention',
+      source: 'WEBSITE',
+      channel: null,
+      debt: true,
+      fresh: true,
+      noContact: true,
+      stayPeriod: { days: 7 },
+    });
+    // как в «Бронях»: не код источника, а подстрока названия канала продаж
+    await request(app.getHttpServer()).get('/guests/directory?source=booking').expect(200);
+    expect(fakes.directoryQueries.at(-1)).toMatchObject({ source: null, channel: 'booking' });
+    await request(app.getHttpServer()).get('/guests/directory?period=today').expect(200);
+    expect(fakes.directoryQueries.at(-1)?.stayPeriod).toEqual({ days: 1 });
+    await request(app.getHttpServer())
+      .get('/guests/directory?period=range&periodFrom=2026-10-01&periodTo=2026-10-31')
+      .expect(200);
+    expect(fakes.directoryQueries.at(-1)?.stayPeriod).toEqual({
+      from: '2026-10-01',
+      to: '2026-10-31',
+    });
+    for (const view of ['all', 'today', 'inhouse', 'expected', 'departures', 'attention'])
+      await request(app.getHttpServer()).get(`/guests/directory?view=${view}`).expect(200);
+  });
+
+  it('directory «Гости и бронирования»: ответ несёт числа видов, плитки и основное проживание строки', async () => {
+    const r = (await request(app.getHttpServer()).get('/guests/directory').expect(200)).body;
+    expect(r.views).toMatchObject({ all: 2, inhouse: 1, expected: 1 });
+    expect(r.kpi).toMatchObject({ all: 2, inhouse: 1, expected: 1, none: 0 });
+    const live = r.rows.find((x: { lastName: string }) => x.lastName === 'Постоялец');
+    expect(live.stay).toMatchObject({
+      kind: 'current',
+      confirmationNumber: 'B-2',
+      nights: 4,
+      unitCode: '9002',
+      source: 'DESK',
+    });
+    const preview = (
+      await request(app.getHttpServer())
+        .get('/guests/00000000-0000-4000-8000-000000000002/preview')
+        .expect(200)
+    ).body;
+    expect(preview).toMatchObject({ notes: null, visits: [], services: [] });
+    expect(preview.stay.kind).toBe('current');
+  });
+
+  it('directory «Гости и бронирования»: опечатка в виде, периоде или флаге даёт 400 словами', async () => {
+    for (const bad of [
+      'view=debt',
+      'debt=yes',
+      'fresh=0',
+      'nocontact=true',
+      'period=week',
+      'period=range',
+      'period=range&periodFrom=2026-10-10&periodTo=2026-10-01',
+      'period=range&periodFrom=2026-02-30&periodTo=2026-03-01',
+      'period=range&periodFrom=2025-01-01&periodTo=2026-12-31',
+      `source=${'а'.repeat(65)}`,
     ])
       await request(app.getHttpServer()).get(`/guests/directory?${bad}`).expect(400);
   });

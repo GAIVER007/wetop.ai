@@ -1,0 +1,326 @@
+# Модульные (unit) · 03.10.2026 15:05 Алматы · vm
+# коммит a1a01d7 (double-shift), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T10-05-40Z-unit-c5a7.json' 'scripts/reconciliation/src/shift-check.test.ts' 'scripts/reconciliation/src/shift-check-sources.test.ts' 'tests/unit/shift-check-wrapper.test.ts' 'tests/unit/shift-check-cli.test.ts' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ❯ |unit| tests/unit/shift-check-cli.test.ts (4 tests | 4 failed) 1243ms
+   ❯ cli-shift-check.ts (4)
+     × расхождение по деньгам: строка журнала с заголовком в stdout, сводка в stderr, код 1, только GET со служебным ключом 247ms
+     × то же расхождение уже открыто в журнале: stdout пуст, номер в «ещё не сошлись» 506ms
+     × API не принял служебный ключ: код 2 и понятная причина, журнал не трогается 255ms
+     × пустая таблица: код 2 до обращения к API 223ms
+ ❯ |unit| tests/unit/shift-check-wrapper.test.ts (4 tests | 4 failed) 31ms
+   ❯ scripts/ops/shift-check.sh (4)
+     × таблица из файла: один вход в контейнер, аргументы как есть, новые строки в журнал вне клона 14ms
+     × повторный срез: журнал целиком уходит в контейнер после разделителя, без новых строк файл не меняется 6ms
+     × пустая таблица и незнакомый ключ: код 2, контейнер не зовётся 5ms
+     × без --date день смены сегодняшний по Алматы 5ms
+ ❯ |unit| tests/unit/ci-runner.test.ts (15 tests | 4 failed) 128ms
+   ✓ свой раннер CI (6)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 3ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 1ms
+     ✓ тяжёлые задачи идут на свой раннер: минуты GitHub выбраны 1ms
+     ✓ тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота 1ms
+     ✓ проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория 1ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 0ms
+   ✓ свой раннер не выполняет код из чужого форка (ADR-137) (5)
+     ✓ образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh 1ms
+     ✓ запрос на слияние из форка: отказ, задача краснеет, а не пропускается 17ms
+     ✓ форк уже удалён (head.repo пуст): чей код, не проверить, тоже отказ 18ms
+     ✓ ветка самого репозитория и пуш в main выполняются 31ms
+     ✓ нет файла события или он битый: отказ, а не молчаливый пропуск проверки 15ms
+   ❯ скрипт запуска раннера: регистрация (4)
+     × образец «…» вместо токена: отказ словами до регистрации, config.sh не зовётся 20ms
+     × токен с пробелом или в кавычках и адрес не GitHub: тоже отказ 5ms
+     × настоящий токен: регистрация с меткой wetop, затем работа 6ms
+     × уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 5ms
+ ❯ |unit| scripts/reconciliation/src/shift-check.test.ts (0 test)
+ ❯ |unit| scripts/reconciliation/src/shift-check-sources.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check-sources.test.ts [ scripts/reconciliation/src/shift-check-sources.test.ts ]
+Error: Cannot find module './shift-check' imported from /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/reconciliation/src/shift-check-sources.test.ts
+ ❯ scripts/reconciliation/src/shift-check-sources.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { checkShift, parseShiftTable } from './shift-check';
+       | ^
+      3| import { gatherShift, localStamp, plusDays, type ApiGet, type ChannexS…
+      4|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check.test.ts [ scripts/reconciliation/src/shift-check.test.ts ]
+Error: Cannot find module './shift-check' imported from /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/reconciliation/src/shift-check.test.ts
+ ❯ scripts/reconciliation/src/shift-check.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   checkShift,
+      4|   discrepancyId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > скрипт запуска раннера: регистрация > образец «…» вместо токена: отказ словами до регистрации, config.sh не зовётся
+AssertionError: expected 1 to be 64 // Object.is equality
+
+- Expected
++ Received
+
+- 64
++ 1
+
+ ❯ tests/unit/ci-runner.test.ts:189:20
+    187|   it('образец «…» вместо токена: отказ словами до регистрации, config.…
+    188|     const r = start({ RUNNER_REPO_URL: URL, RUNNER_TOKEN: '…' });
+    189|     expect(r.code).toBe(64);
+       |                    ^
+    190|     expect(r.err).toContain('RUNNER_TOKEN в .env раннера не похож на т…
+    191|     expect(r.calls).toBe('');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > скрипт запуска раннера: регистрация > токен с пробелом или в кавычках и адрес не GitHub: тоже отказ
+AssertionError: expected 1 to be 64 // Object.is equality
+
+- Expected
++ Received
+
+- 64
++ 1
+
+ ❯ tests/unit/ci-runner.test.ts:195:93
+    193|
+    194|   it('токен с пробелом или в кавычках и адрес не GitHub: тоже отказ', …
+    195|     expect(start({ RUNNER_REPO_URL: URL, RUNNER_TOKEN: '<скрыто>
+       |                                                                                             ^
+    196|     expect(start({ RUNNER_REPO_URL: URL, RUNNER_TOKEN: '"AAAABBBBCCCCD…
+    197|     const r = start({ RUNNER_REPO_URL: 'https://github.com/GAIVER007/w…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > скрипт запуска раннера: регистрация > настоящий токен: регистрация с меткой wetop, затем работа
+AssertionError: /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/ops/ci-runner/entrypoint.sh: line 7: cd: /home/runner/actions-runner: No such file or directory
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/unit/ci-runner.test.ts:204:27
+    202|   it('настоящий токен: регистрация с меткой wetop, затем работа', () =…
+    203|     const r = start({ RUNNER_REPO_URL: URL, RUNNER_TOKEN: '<скрыто>
+    204|     expect(r.code, r.err).toBe(0);
+       |                           ^
+    205|     expect(r.calls).toMatch(/^config --unattended --replace --url http…
+    206|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > скрипт запуска раннера: регистрация > уже зарегистрирован (настройка в томе): токен не нужен и не проверяется
+AssertionError: /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/ops/ci-runner/entrypoint.sh: line 7: cd: /home/runner/actions-runner: No such file or directory
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/unit/ci-runner.test.ts:210:27
+    208|   it('уже зарегистрирован (настройка в томе): токен не нужен и не пров…
+    209|     const r = start({ RUNNER_REPO_URL: URL }, { registered: true });
+    210|     expect(r.code, r.err).toBe(0);
+       |                           ^
+    211|     expect(r.calls).toBe('run\n');
+    212|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+
+ FAIL  |unit| tests/unit/shift-check-cli.test.ts > cli-shift-check.ts > расхождение по деньгам: строка журнала с заголовком в stdout, сводка в stderr, код 1, только GET со служебным ключом
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/shift-check-cli.test.ts:85:63
+     83|     const r = await run(`${TABLE}\n${MARKER}\n`);
+     84|     expect(r.code, r.err).toBe(1);
+     85|     expect(r.out.startsWith('\uFEFF№;когда (Алматы);список')).toBe(tru…
+       |                                                               ^
+     86|     expect(r.out).toContain(`;деньги;${A} оплата;12 000 ₸, Наличные, 0…
+     87|     expect(r.err).toContain('Сверка смены 06.10.2026, окно 00:00–14:05…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+
+ FAIL  |unit| tests/unit/shift-check-cli.test.ts > cli-shift-check.ts > то же расхождение уже открыто в журнале: stdout пуст, номер в «ещё не сошлись»
+AssertionError: expected '\nnode:internal/modules/run_main:123\…' to match /Ещё не сошлись \(открыты в журнале\):…/
+
+- Expected:
+/Ещё не сошлись \(открыты в журнале\): Д-[0-9a-f]{6}/
+
++ Received:
+"
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/reconciliation/src/cli-shift-check.ts' imported from /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at resolveBase (file:///tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/node_modules/tsx/dist/register-SoqaU4rg.mjs:2:10334)
+    at resolveDirectory (file:///tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/node_modules/tsx/dist/register-SoqaU4rg.mjs:2:11421)
+    at resolveTsPaths (file:///tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/node_modules/tsx/dist/register-SoqaU4rg.mjs:2:13062)
+    at resolve (file:///tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/node_modules/tsx/dist/register-SoqaU4rg.mjs:2:14748)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/reconciliation/src/cli-shift-check.ts'
+}
+
+Node.js v22.22.2
+"
+
+ ❯ tests/unit/shift-check-cli.test.ts:98:24
+     96|     expect(second.code).toBe(1);
+     97|     expect(second.out).toBe('');
+     98|     expect(second.err).toMatch(/Ещё не сошлись \(открыты в журнале\): …
+       |                        ^
+     99|   }, 30_000);
+    100|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯
+
+ FAIL  |unit| tests/unit/shift-check-cli.test.ts > cli-shift-check.ts > API не принял служебный ключ: код 2 и понятная причина, журнал не трогается
+AssertionError: expected 1 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ tests/unit/shift-check-cli.test.ts:103:20
+    101|   it('API не принял служебный ключ: код 2 и понятная причина, журнал н…
+    102|     const r = await run(`${TABLE}\n${MARKER}\n`, { key: 'wrong' });
+    103|     expect(r.code).toBe(2);
+       |                    ^
+    104|     expect(r.out).toBe('');
+    105|     expect(r.err).toContain('сверка не выполнена: API не принял служеб…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯
+
+ FAIL  |unit| tests/unit/shift-check-cli.test.ts > cli-shift-check.ts > пустая таблица: код 2 до обращения к API
+AssertionError: expected 1 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ tests/unit/shift-check-cli.test.ts:111:20
+    109|     const before = seen.length;
+    110|     const r = await run(`\n${MARKER}\n`);
+    111|     expect(r.code).toBe(2);
+       |                    ^
+    112|     expect(r.err).toContain('таблица смены пустая');
+    113|     expect(seen.length).toBe(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/14]⎯
+
+ FAIL  |unit| tests/unit/shift-check-wrapper.test.ts > scripts/ops/shift-check.sh > таблица из файла: один вход в контейнер, аргументы как есть, новые строки в журнал вне клона
+AssertionError: expected 127 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 127
+
+ ❯ tests/unit/shift-check-wrapper.test.ts:58:20
+     56|     writeFileSync(table, 'время\tсобытие\tбронь\n09:10\tновая бронь\tA…
+     57|     const r = s.run([table, '--date', '2026-10-06', '--to', '14:05']);
+     58|     expect(r.code).toBe(1);
+       |                    ^
+     59|     expect(s.read('calls').trim()).toBe(
+     60|       'exec -T -w /app api node --import tsx scripts/reconciliation/sr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/14]⎯
+
+ FAIL  |unit| tests/unit/shift-check-wrapper.test.ts > scripts/ops/shift-check.sh > повторный срез: журнал целиком уходит в контейнер после разделителя, без новых строк файл не меняется
+AssertionError: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/shift-check-wrapper.test.ts:79:20
+     77|     writeFileSync(join(day, 'discrepancies.csv'), HEADER + ROW);
+     78|     const r = s.run(['--date', '2026-10-06'], 'событие\tбронь\nзаезд\t…
+     79|     expect(r.code).toBe(0);
+       |                    ^
+     80|     expect(s.read('stdin')).toBe(`событие\tбронь\nзаезд\tA\n\n${MARKER…
+     81|     expect(readFileSync(join(day, 'discrepancies.csv'), 'utf8')).toBe(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/14]⎯
+
+ FAIL  |unit| tests/unit/shift-check-wrapper.test.ts > scripts/ops/shift-check.sh > пустая таблица и незнакомый ключ: код 2, контейнер не зовётся
+AssertionError: expected 127 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 127
+
+ ❯ tests/unit/shift-check-wrapper.test.ts:87:60
+     85|   it('пустая таблица и незнакомый ключ: код 2, контейнер не зовётся', …
+     86|     const s = sandbox();
+     87|     expect(s.run(['--date', '2026-10-06'], '  \n\n').code).toBe(2);
+       |                                                            ^
+     88|     expect(s.run(['--force'], 'событие\tбронь\n').code).toBe(2);
+     89|     expect(s.run(['--date', '06.10.2026'], 'событие\tбронь\n').err).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/14]⎯
+
+ FAIL  |unit| tests/unit/shift-check-wrapper.test.ts > scripts/ops/shift-check.sh > без --date день смены сегодняшний по Алматы
+AssertionError: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/shift-check-wrapper.test.ts:95:58
+     93|   it('без --date день смены сегодняшний по Алматы', () => {
+     94|     const s = sandbox();
+     95|     expect(s.run([], 'событие\tбронь\nзаезд\tA\n').code).toBe(0);
+       |                                                          ^
+     96|     const almaty = new Date(Date.now() + 5 * 3600 * 1000).toISOString(…
+     97|     expect(existsSync(join(s.shiftDir, almaty))).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/14]⎯
+
+
+ Test Files  5 failed (5)
+      Tests  12 failed | 11 passed (23)
+   Start at  03:05:41
+   Duration  2.60s (tests 84%, transform 9%, import 5%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T10-05-40Z-unit-c5a7.json
+
+# код выхода 1 · 4 с

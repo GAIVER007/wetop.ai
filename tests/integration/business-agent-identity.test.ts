@@ -109,7 +109,7 @@ describe.skipIf(!url)('Business Agent: личность и перенос (integ
       expect(link.agent_id).toBe(a.orgId);
     });
 
-    it('профиль без принятия продавцом остаётся черновиком, имя по умолчанию — «AI-продавец»', async () => {
+    it('профиль без принятия продавцом остаётся черновиком, имя по умолчанию, «AI-продавец»', async () => {
       const a = await organization('Перенос черновик');
       await profile(a.orgId, false);
       await backfill();
@@ -146,7 +146,7 @@ describe.skipIf(!url)('Business Agent: личность и перенос (integ
       expect(await db.sellerProfile.count({ where: { organizationId: org.id } })).toBe(0);
     });
 
-    it('организация с расширением, но без объекта и профиля — черновик без филиала', async () => {
+    it('организация с расширением, но без объекта и профиля, черновик без филиала', async () => {
       const a = await organization('Перенос без объекта', false);
       await db.organizationExtension.create({
         data: { organizationId: a.orgId, extension: 'AI_SELLER', status: 'ACTIVE', updatedAt: new Date() },
@@ -234,7 +234,7 @@ describe.skipIf(!url)('Business Agent: личность и перенос (integ
       ).rejects.toThrow(/принадлеж|organization|филиал/i);
     });
 
-    it('профиль связан с агентом своей организации: чужой агент — отказ', async () => {
+    it('профиль связан с агентом своей организации: чужой агент, отказ', async () => {
       const a = await organization('Профиль своей', false);
       const b = await organization('Профиль чужой', false);
       const foreignAgent = randomUUID();

@@ -1,0 +1,725 @@
+# Сквозные (e2e) · 03.10.2026 21:19 Алматы · vm
+# коммит 627a4e9 (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'booking-dates' 'channel-booking-number' 'channex-screens' 'dashboard-design' 'dashboard-desk' 'dashboard-resilience' 'empty-base' 'integrations.spec' 'fund-workspace' 'reservation-promo-field' 'pii-storage' 'guests-design'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 90 tests using 1 worker
+
+  ✓   1 tests/ui/booking-dates.spec.ts:9:1 › invalid departure preserves input, marks field and clears price (2.3s)
+  ✓   2 tests/ui/booking-dates.spec.ts:35:1 › equal, empty, later arrival and recovery work on mobile (2.3s)
+  ✓   3 tests/ui/booking-dates.spec.ts:59:1 › pending quote blocks submit and old responses cannot restore old period (6.2s)
+  ✓   4 tests/ui/booking-dates.spec.ts:83:1 › failed quote and availability can be retried without reopening (3.3s)
+  ✘   5 tests/ui/booking-dates.spec.ts:112:1 › calendar and keyboard produce the same period (17.0s)
+  ✓   6 tests/ui/booking-dates.spec.ts:128:1 › occupied selection stays visible and cannot silently become unassigned (4.9s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="new/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/reservati..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="reservatio...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <NewReservationPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                           <header>
+[WebServer]                           <NewReservationForm today="2026-10-03" initialAvailability={{...}} prefill={[...]} ...>
+[WebServer]                             <form ref={{current:null}} action={function bound dispatchActionState} ...>
+[WebServer]                               <section>
+[WebServer]                               <div>
+[WebServer]                               <input>
+[WebServer]                               <input>
+[WebServer]                               <fieldset>
+[WebServer]                               <PriceByNight>
+[WebServer]                               <h2>
+[WebServer]                               <Grid>
+[WebServer]                               <GuestMatches>
+[WebServer]                               <details
+[WebServer]                                 className="booking-create__extras"
+[WebServer] -                               open=""
+[WebServer]                               >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+  ✓   7 tests/ui/channel-booking-number.spec.ts:9:1 › новая бронь OTA: канал и номер брони в канале обязательны и уходят в API (2.3s)
+  ✓   8 tests/ui/channex-screens.spec.ts:34:1 › обзор каналов: отчёт по источникам без дубля числа источников и без монограмм (3.1s)
+  ✓   9 tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой (1.8s)
+  ✓  10 tests/ui/channex-screens.spec.ts:108:1 › подключения каналов: настройка подключения только владельцу (4.7s)
+  ✓  11 tests/ui/channex-screens.spec.ts:145:1 › сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N» (4.3s)
+  ✓  12 tests/ui/channex-screens.spec.ts:215:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (2.2s)
+  ✓  13 tests/ui/channex-screens.spec.ts:275:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (2.1s)
+  ✓  14 tests/ui/channex-screens.spec.ts:294:1 › синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями» (2.0s)
+  ✓  15 tests/ui/channex-screens.spec.ts:323:1 › события: фильтры, поиск и постраничность на своей вкладке (4.7s)
+  ✓  16 tests/ui/channex-screens.spec.ts:357:1 › старые адреса /channels с параметрами пульта открывают нужную вкладку (4.1s)
+  ✘  17 tests/ui/channex-screens.spec.ts:366:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (16.9s)
+  ✘  18 tests/ui/channex-screens.spec.ts:415:1 › приём брони: ревизия с двоеточиями в номере открывается (16.1s)
+  ✘  19 tests/ui/channex-screens.spec.ts:429:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (16.3s)
+  ✓  20 tests/ui/channex-screens.spec.ts:449:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (7.1s)
+  ✓  21 tests/ui/channex-screens.spec.ts:517:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (10.1s)
+  ✓  22 tests/ui/channex-screens.spec.ts:609:1 › отчёт по источникам и интеграции: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (9.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="analytics/" loading={[...]}>
+[WebServer]         <Suspense name="analytics/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="management...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <AnalyticsPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page analy...">
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <section>
+[WebServer]                           <Suspense fallback={<div>}>
+[WebServer]                             <section>
+[WebServer]                             <p>
+[WebServer]                             <div>
+[WebServer]                             <details
+[WebServer]                               className="pa-details"
+[WebServer] -                             open=""
+[WebServer]                             >
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="analytics/" loading={[...]}>
+[WebServer]         <Suspense name="analytics/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="management...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <AnalyticsPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page analy...">
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <section>
+[WebServer]                           <Suspense fallback={<div>}>
+[WebServer]                             <section>
+[WebServer]                             <p>
+[WebServer]                             <div>
+[WebServer]                             <details
+[WebServer]                               className="pa-details"
+[WebServer] -                             open=""
+[WebServer]                             >
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓  23 tests/ui/dashboard-design.spec.ts:20:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (2.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="analytics/" loading={[...]}>
+[WebServer]         <Suspense name="analytics/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="management...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <AnalyticsPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page analy...">
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <section>
+[WebServer]                           <Suspense fallback={<div>}>
+[WebServer]                             <section>
+[WebServer]                             <p>
+[WebServer]                             <div>
+[WebServer]                             <details
+[WebServer]                               className="pa-details"
+[WebServer] -                             open=""
+[WebServer]                             >
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓  24 tests/ui/dashboard-design.spec.ts:64:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (1.5s)
+  ✓  25 tests/ui/dashboard-design.spec.ts:105:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам (3.2s)
+  ✓  26 tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать (3.0s)
+  ✘  27 tests/ui/dashboard-desk.spec.ts:60:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания (17.5s)
+  ✓  28 tests/ui/dashboard-desk.spec.ts:91:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез (1.6s)
+  ✓  29 tests/ui/dashboard-desk.spec.ts:101:1 › 4. действия сохраняют читаемые размеры внутри панели (1.6s)
+  ✓  30 tests/ui/dashboard-desk.spec.ts:110:1 › 5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди (1.6s)
+  ✓  31 tests/ui/dashboard-desk.spec.ts:118:1 › 6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка (1.6s)
+  ✓  32 tests/ui/dashboard-desk.spec.ts:127:1 › 7. краткие подписи без декоративных разделителей (1.1s)
+  ✓  33 tests/ui/dashboard-desk.spec.ts:131:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (1.6s)
+  ✘  34 tests/ui/dashboard-desk.spec.ts:165:1 › 9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px (19.2s)
+  ✘  35 tests/ui/dashboard-desk.spec.ts:208:1 › 10. заголовок страницы и панели брони — по шкале §6 (20.4s)
+  ✓  36 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (1.4s)
+  ✓  37 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (1.3s)
+  ✓  38 tests/ui/dashboard-resilience.spec.ts:36:1 › Главная открывается и с упавшими показателями периода: операционный блок остаётся доступен (1.4s)
+  ✓  39 tests/ui/empty-base.spec.ts:41:3 › пустая база: /today открывается и объясняет пустоту (1.3s)
+  ✓  40 tests/ui/empty-base.spec.ts:41:3 › пустая база: /chessboard открывается и объясняет пустоту (1.6s)
+  ✓  41 tests/ui/empty-base.spec.ts:41:3 › пустая база: /reservations открывается и объясняет пустоту (1.2s)
+  ✓  42 tests/ui/empty-base.spec.ts:41:3 › пустая база: /guests открывается и объясняет пустоту (1.1s)
+  ✓  43 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms открывается и объясняет пустоту (1.6s)
+  ✓  44 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms/categories открывается и объясняет пустоту (1.2s)
+  ✓  45 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms/availability открывается и объясняет пустоту (1.3s)
+  ✓  46 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rates открывается и объясняет пустоту (1.3s)
+  ✓  47 tests/ui/empty-base.spec.ts:41:3 › пустая база: /finance открывается и объясняет пустоту (1.2s)
+  ✓  48 tests/ui/empty-base.spec.ts:41:3 › пустая база: /management/analytics открывается и объясняет пустоту (916ms)
+  ✘  49 tests/ui/empty-base.spec.ts:41:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту (15.8s)
+  ✓  50 tests/ui/empty-base.spec.ts:41:3 › пустая база: /journal открывается и объясняет пустоту (1.1s)
+  ✓  51 tests/ui/empty-base.spec.ts:41:3 › пустая база: /incidents открывается и объясняет пустоту (955ms)
+  ✓  52 tests/ui/empty-base.spec.ts:41:3 › пустая база: /channels открывается и объясняет пустоту (1.2s)
+  ✓  53 tests/ui/empty-base.spec.ts:41:3 › пустая база: /connections открывается и объясняет пустоту (1.1s)
+  ✓  54 tests/ui/empty-base.spec.ts:41:3 › пустая база: /website открывается и объясняет пустоту (1.0s)
+  ✓  55 tests/ui/empty-base.spec.ts:41:3 › пустая база: /website/analytics открывается и объясняет пустоту (1.2s)
+  ✓  56 tests/ui/empty-base.spec.ts:41:3 › пустая база: /hotel-settings открывается и объясняет пустоту (1.6s)
+  ✓  57 tests/ui/empty-base.spec.ts:41:3 › пустая база: /channels/mapping открывается и объясняет пустоту (1.1s)
+  ✓  58 tests/ui/empty-base.spec.ts:51:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.9s)
+  ✘  59 tests/ui/empty-base.spec.ts:62:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (16.2s)
+  ✓  60 tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload (5.6s)
+  ✘  61 tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design (16.7s)
+  ✓  62 tests/ui/fund-workspace.spec.ts:81:1 › guests filter categories by capacity; toggle shows all; tab renamed (1.6s)
+  ✓  63 tests/ui/fund-workspace.spec.ts:109:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (1.3s)
+  ✘  64 tests/ui/fund-workspace.spec.ts:130:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (16.6s)
+  ✓  65 tests/ui/fund-workspace.spec.ts:210:1 › AV4: a category without places stays on screen with the nearest availability (2.7s)
+  ✓  66 tests/ui/fund-workspace.spec.ts:255:1 › dark categories and availability; invalid dates and empty onboarding (6.0s)
+  ✓  67 tests/ui/guests-design.spec.ts:22:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (3.7s)
+  ✓  68 tests/ui/guests-design.spec.ts:67:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (1.6s)
+  ✘  69 tests/ui/guests-design.spec.ts:96:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (16.5s)
+  ✓  70 tests/ui/guests-design.spec.ts:166:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (4.8s)
+  ✓  71 tests/ui/guests-design.spec.ts:238:1 › гости: документы и финансовый свод гостя (G5) (5.1s)
+  ✓  72 tests/ui/guests-design.spec.ts:290:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (4.2s)
+  ✘  73 tests/ui/guests-design.spec.ts:336:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (16.6s)
+  ✓  74 tests/ui/guests-design.spec.ts:417:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (10.0s)
+  ✓  75 tests/ui/guests-design.spec.ts:491:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) (2.7s)
+  ✓  76 tests/ui/integrations.spec.ts:33:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек (2.4s)
+  ✓  77 tests/ui/integrations.spec.ts:78:1 › требует внимания: причины словами и ссылки прямо к месту исправления (1.7s)
+  ✓  78 tests/ui/integrations.spec.ts:96:1 › интеграция у другой организации: «Подключённые» пусты, Channex — в «Доступных» без ложной кнопки (1.6s)
+  ✓  79 tests/ui/integrations.spec.ts:117:1 › ключ Channex не задан — не подключено, а не «работает» (979ms)
+  ✓  80 tests/ui/integrations.spec.ts:125:1 › только чтение: список и состояние видны, подключение — после оплаты (1.9s)
+  ✓  81 tests/ui/integrations.spec.ts:135:1 › не владелец технических деталей не видит; администратору раздел закрыт (2.9s)
+  ✓  82 tests/ui/integrations.spec.ts:150:1 › телефон: карточка без прокрутки вбок (1.0s)
+  ✓  83 tests/ui/integrations.spec.ts:166:3 › INT1, стоп-гейт: снимки для владельца, light (6.6s)
+  ✓  84 tests/ui/integrations.spec.ts:166:3 › INT1, стоп-гейт: снимки для владельца, dark (6.5s)
+  ✓  85 tests/ui/pii-storage.spec.ts:14:1 › новая бронь без имени и контактов: компактная форма, бронь создаётся (2.6s)
+  ✓  86 tests/ui/pii-storage.spec.ts:39:1 › бронь существующему гостю (G6) — без имён: гость показан, нового псевдонима нет (2.0s)
+  ✓  87 tests/ui/pii-storage.spec.ts:62:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (1.8s)
+  ✓  88 tests/ui/pii-storage.spec.ts:102:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (2.9s)
+  ✓  89 tests/ui/reservation-promo-field.spec.ts:34:1 › промокод из формы уходит в запрос брони (2.2s)
+  ✓  90 tests/ui/reservation-promo-field.spec.ts:39:1 › пустой промокод в запрос не попадает (2.2s)
+
+
+  1) tests/ui/booking-dates.spec.ts:112:1 › calendar and keyboard produce the same period ──────────
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByTestId('new-reservation-form').getByRole('button', { name: 'Создать бронь', exact: true })
+    Expected: enabled
+    Received: disabled
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeEnabled" getByTestId('new-reservation-form').getByRole('button', { name: 'Создать бронь', exact: true }) with timeout 15000ms
+      - waiting for getByTestId('new-reservation-form').getByRole('button', { name: 'Создать бронь', exact: true })
+        34 × locator resolved to <button disabled class="btn" type="submit">Создать бронь</button>
+           - unexpected value "disabled"
+
+
+      122 |   await form.getByLabel('Выезд', { exact: true }).fill('2029-02-02');
+      123 |   await form.getByLabel('Выезд', { exact: true }).fill('2029-02-04');
+    > 124 |   await expect(form.getByRole('button', { name: 'Создать бронь', exact: true })).toBeEnabled();
+          |                                                                                  ^
+      125 |   await expect(form.locator('.booking-create__price strong')).toHaveText(price);
+      126 | });
+      127 |
+        at /home/user/wetop.ai/tests/ui/booking-dates.spec.ts:124:82
+
+    Error Context: test-results/booking-dates-calendar-and-keyboard-produce-the-same-period/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-dates-calendar-and-keyboard-produce-the-same-period/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-dates-calendar-and-keyboard-produce-the-same-period/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/channex-screens.spec.ts:366:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Приём брони из канала"
+    Received: "Страница не найдена"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        34 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      370 |   await page.getByRole('link', { name: 'ui-rev-new-2' }).click();
+      371 |   await expect(page).toHaveURL(/\/channels\/events\/ui-rev-new-2$/);
+    > 372 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Приём брони из канала');
+          |                                                         ^
+      373 |   const chain = page.getByRole('main').getByTestId('revision-chain');
+      374 |   await expect(chain).toContainText('новая бронь');
+      375 |   await expect(chain).toContainText('Booking.com');
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:372:57
+
+    Error Context: test-results/channex-screens-приём-брон-d319f-нальных-данных-ошибка-и-404/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-приём-брон-d319f-нальных-данных-ошибка-и-404/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-приём-брон-d319f-нальных-данных-ошибка-и-404/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/channex-screens.spec.ts:415:1 › приём брони: ревизия с двоеточиями в номере открывается 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Приём брони из канала"
+    Received: "Страница не найдена"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        3 × locator resolved to <h1 class="page__title">Каналы продаж</h1>
+          - unexpected value "Каналы продаж"
+        30 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      417 |     `/channels/events/${encodeURIComponent('test:2026-09-16T18:35:20.672058Z:74234e98afe7')}`,
+      418 |   );
+    > 419 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Приём брони из канала');
+          |                                                         ^
+      420 |   await expect(page.getByRole('main').getByTestId('revision-chain')).toContainText(
+      421 |     'test:2026-09-16T18:35:20',
+      422 |   );
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:419:57
+
+    Error Context: test-results/channex-screens-приём-брон-29a64-очиями-в-номере-открывается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-приём-брон-29a64-очиями-в-номере-открывается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-приём-брон-29a64-очиями-в-номере-открывается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/channex-screens.spec.ts:429:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert').first()
+    Expected pattern: /Проверьте подключение|Сервер отклонил/
+    Received string:  ""
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('alert').first() with timeout 15000ms
+      - waiting for getByRole('alert').first()
+        34 × locator resolved to <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div>
+           - unexpected value ""
+
+
+      436 |   await page.goto('/channels/events/ui-rev-new-2');
+      437 |   await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('Страница не найдена');
+    > 438 |   await expect(page.getByRole('alert').first()).toContainText(
+          |                                                 ^
+      439 |     /Проверьте подключение|Сервер отклонил/,
+      440 |   );
+      441 | });
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:438:49
+
+    Error Context: test-results/channex-screens-приём-брон-e1ac2--а-не-«страница-не-найдена»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-приём-брон-e1ac2--а-не-«страница-не-найдена»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-приём-брон-e1ac2--а-не-«страница-не-найдена»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/dashboard-desk.spec.ts:60:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator: getByTestId('check-out-ui-item-3')
+    Expected: focused
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeFocused" getByTestId('check-out-ui-item-3') with timeout 15000ms
+      - waiting for getByTestId('check-out-ui-item-3')
+
+
+      83 |     const target = page.getByTestId(c.target);
+      84 |     // фокус и видимая рамка, но не нажатие: действие по-прежнему подтверждает человек
+    > 85 |     await expect(target).toBeFocused();
+         |                          ^
+      86 |     await expect(target).toHaveAttribute('data-quick-target', '');
+      87 |     await expect(target).toBeInViewport();
+      88 |   }
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:85:26
+
+    Error Context: test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/dashboard-desk.spec.ts:165:1 › 9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('statistics-table')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('statistics-table') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('statistics-table')
+
+
+      197 |     if (width === 1440) expect(await fontSize(main.getByTestId('pa-kpi-occupancy'))).toBe('26px');
+      198 |     await page.goto('/management/analytics/occupancy');
+    > 199 |     await expect(main.getByTestId('statistics-table')).toBeVisible();
+          |                                                        ^
+      200 |     expect(await offScale(main), `аналитика, загрузка, ширина ${width}`).toEqual([]);
+      201 |   }
+      202 | });
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:199:56
+
+    Error Context: test-results/dashboard-desk-9-размеры-ш-8b684-шкалы-§6-число-плитки-26-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-9-размеры-ш-8b684-шкалы-§6-число-плитки-26-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-9-размеры-ш-8b684-шкалы-§6-число-плитки-26-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/dashboard-desk.spec.ts:208:1 › 10. заголовок страницы и панели брони — по шкале §6 ───
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.booking-drawer .page__title')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.booking-drawer .page__title') with timeout 15000ms
+      - waiting for locator('.booking-drawer .page__title')
+
+
+      232 |     .click();
+      233 |   const drawer = page.locator('.booking-drawer .page__title');
+    > 234 |   await expect(drawer).toBeVisible();
+          |                        ^
+      235 |   expect(await fontSize(drawer)).toBe('22px'); // --text-2xl
+      236 | });
+      237 |
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:234:24
+
+    Error Context: test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/empty-base.spec.ts:41:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByRole('heading', { level: 1 })
+    Expected pattern: /Аналитика/
+    Received string:  "Страница не найдена"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      42 |     await page.goto(screen.route);
+      43 |     const main = page.getByRole('main');
+    > 44 |     await expect(main.getByRole('heading', { level: 1 })).toContainText(screen.title);
+         |                                                           ^
+      45 |     const text = (await main.innerText()).replace(/\s+/g, ' ');
+      46 |     expect(ERROR_TEXT.exec(text)?.[0] ?? '').toBe('');
+      47 |     if (screen.says) expect(text).toMatch(screen.says);
+        at /home/user/wetop.ai/tests/ui/empty-base.spec.ts:44:59
+
+    Error Context: test-results/empty-base-пустая-база-man-6db49-ывается-и-объясняет-пустоту/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/empty-base-пустая-база-man-6db49-ывается-и-объясняет-пустоту/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/empty-base-пустая-база-man-6db49-ывается-и-объясняет-пустоту/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/empty-base.spec.ts:62:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('c-arrivals')
+    Expected substring: "0"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('c-arrivals') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('c-arrivals')
+
+
+      63 |   await page.goto('/today');
+      64 |   const main = page.getByRole('main');
+    > 65 |   await expect(main.getByTestId('c-arrivals')).toContainText('0');
+         |                                                ^
+      66 |   const text = (await main.innerText()).replace(/\s+/g, ' ');
+      67 |   expect(text).toMatch(/Заезд|Выезд|Проживают/);
+      68 | });
+        at /home/user/wetop.ai/tests/ui/empty-base.spec.ts:65:48
+
+    Error Context: test-results/empty-base-пустая-база-гла-f70f9-овами-а-не-пустыми-плитками/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/empty-base-пустая-база-гла-f70f9-овами-а-не-пустыми-плитками/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/empty-base-пустая-база-гла-f70f9-овами-а-не-пустыми-плитками/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Новая бронь', exact: true, level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Новая бронь', exact: true, level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Новая бронь', exact: true, level: 1 })
+
+
+      58 |   await expect(
+      59 |     page.getByRole('heading', { name: 'Новая бронь', exact: true, level: 1 }),
+    > 60 |   ).toBeVisible();
+         |     ^
+      61 |   for (const width of [1440, 768, 320]) {
+      62 |     await page.setViewportSize({ width, height: 1000 });
+      63 |     await page.goto('/rooms/categories');
+        at /home/user/wetop.ai/tests/ui/fund-workspace.spec.ts:60:5
+
+    Error Context: test-results/fund-workspace-availabilit-7f64f--responsive-category-design/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-availabilit-7f64f--responsive-category-design/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-availabilit-7f64f--responsive-category-design/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/fund-workspace.spec.ts:130:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByTestId('new-reservation-form').locator('[name="accommodationTypeCode"]')
+    Expected: "ROOM"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByTestId('new-reservation-form').locator('[name="accommodationTypeCode"]') with timeout 15000ms
+      - waiting for getByTestId('new-reservation-form').locator('[name="accommodationTypeCode"]')
+
+
+      151 |   await room.getByRole('link', { name: 'Выбрать автоматически', exact: true }).click();
+      152 |   const form = page.getByTestId('new-reservation-form');
+    > 153 |   await expect(form.locator('[name="accommodationTypeCode"]')).toHaveValue('ROOM');
+          |                                                                ^
+      154 |   await expect(form.locator('[name="ratePlanCode"]')).toHaveValue('BASE');
+      155 |   await expect(form.locator('[name="adults"]')).toHaveValue('2');
+      156 |   await expect(form.locator('[name="unitCode"]')).toHaveValue('@auto');
+        at /home/user/wetop.ai/tests/ui/fund-workspace.spec.ts:153:64
+
+    Error Context: test-results/fund-workspace-AV3-places--b4eb5-ed-beds-prefill-the-booking/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-AV3-places--b4eb5-ed-beds-prefill-the-booking/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-AV3-places--b4eb5-ed-beds-prefill-the-booking/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/guests-design.spec.ts:96:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Гость', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Гость', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Гость', exact: true })
+
+
+      106 |   await main.getByRole('link', { name: /Задолжавший/ }).click();
+      107 |   const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
+    > 108 |   await expect(drawer).toBeVisible();
+          |                        ^
+      109 |   await expect(drawer.locator('.guest-preview__name')).toContainText('живёт');
+      110 |   await expect(drawer.getByTestId('guest-preview-now')).toContainText('R11');
+      111 |   await expect(drawer.getByTestId('guest-preview-now')).toContainText('до');
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:108:24
+
+    Error Context: test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/guests-design.spec.ts:336:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('new-reservation-form').getByTestId('booking-guest')
+    Expected substring: "Возвращающийся Гость"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('new-reservation-form').getByTestId('booking-guest') with timeout 15000ms
+      - waiting for getByTestId('new-reservation-form').getByTestId('booking-guest')
+
+
+      354 |   const form = page.getByTestId('new-reservation-form');
+      355 |   const picked = form.getByTestId('booking-guest');
+    > 356 |   await expect(picked).toContainText('Возвращающийся Гость');
+          |                        ^
+      357 |   await expect(picked).toContainText('<телефон>');
+      358 |   await expect(picked).toContainText('3 визита');
+      359 |   for (const name of ['firstName', 'lastName', 'middleName', 'email', 'phone'])
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:356:24
+
+    Error Context: test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13 failed
+    tests/ui/booking-dates.spec.ts:112:1 › calendar and keyboard produce the same period ───────────
+    tests/ui/channex-screens.spec.ts:366:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 
+    tests/ui/channex-screens.spec.ts:415:1 › приём брони: ревизия с двоеточиями в номере открывается 
+    tests/ui/channex-screens.spec.ts:429:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» 
+    tests/ui/dashboard-desk.spec.ts:60:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания 
+    tests/ui/dashboard-desk.spec.ts:165:1 › 9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px 
+    tests/ui/dashboard-desk.spec.ts:208:1 › 10. заголовок страницы и панели брони — по шкале §6 ────
+    tests/ui/empty-base.spec.ts:41:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту 
+    tests/ui/empty-base.spec.ts:62:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками 
+    tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design 
+    tests/ui/fund-workspace.spec.ts:130:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking 
+    tests/ui/guests-design.spec.ts:96:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) 
+    tests/ui/guests-design.spec.ts:336:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) 
+  77 passed (7.7m)
+
+# код выхода 1 · 7 мин 40 с

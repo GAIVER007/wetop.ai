@@ -49,8 +49,8 @@ export class SupportController {
 
   @Get('queue')
   @Header('Cache-Control', 'no-store')
-  queue(@Query('queue') queue?: string) {
-    return this.support.queue(queue);
+  queue(@Query('queue') queue?: string, @Query('category') category?: string) {
+    return this.support.queue(queue, category);
   }
 
   @Get('conversations/:id')

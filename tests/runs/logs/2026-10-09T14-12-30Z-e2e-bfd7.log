@@ -1,0 +1,904 @@
+# Сквозные (e2e) · 09.10.2026 19:12 Алматы · vm
+# коммит 35ada50 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+[WebServer] ⨯ ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] ⨯ ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer] [browser] Uncaught Error: ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (Error: ./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (Error: (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+  ✘  1 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (19.1s)
+[WebServer] [browser] Uncaught Error: ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (Error: ./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (Error: (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+  ✘  2 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (15.9s)
+[WebServer] ⨯ ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer] [browser] Uncaught Error: ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (Error: ./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (Error: (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+  ✘  3 tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля, у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (16.2s)
+[WebServer] [browser] Uncaught Error: ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (Error: ./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (Error: (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+  ✘  4 tests/ui/marketing.spec.ts:154:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (45.1s)
+[WebServer] ⨯ ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer] [browser] Uncaught Error: ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (Error: ./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (Error: (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+  ✘  5 tests/ui/marketing.spec.ts:176:3 › хаб на компьютере и телефоне, доступность: light (16.1s)
+[WebServer] ⨯ ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer] [browser] Uncaught Error: ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (Error: ./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (Error: (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+  ✘  6 tests/ui/marketing.spec.ts:176:3 › хаб на компьютере и телефоне, доступность: dark (16.1s)
+[WebServer] [browser] Uncaught Error: ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (Error: ./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (Error: (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer]     at <unknown> (./apps/web/src/app/marketing/marketing.css:990:1)
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/web/src/app/marketing/marketing.css:
+[WebServer] ./apps/web/src/app/marketing/marketing.css:990:1
+[WebServer]   988 |   }
+[WebServer]   989 | }
+[WebServer] > 990 |
+[WebServer]       | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/web/src/app/marketing/marketing.css [Client Component Browser]
+[WebServer]     ./apps/web/src/app/marketing/page.tsx [Server Component] 
+  ✘  7 tests/ui/marketing.spec.ts:217:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (45.1s)
+
+
+  1) tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Маркетинг', exact: true })
+    Expected pattern: /has-current-page/
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveClass" locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Маркетинг', exact: true }) with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Маркетинг', exact: true })
+
+
+      49 |   await page.keyboard.press('Enter');
+      50 |   await expect(page).toHaveURL(/\/marketing$/);
+    > 51 |   await expect(marketing).toHaveClass(/has-current-page/);
+         |                           ^
+      52 |   await expect(menu.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
+      53 |   // «Продажи» без сайта
+      54 |   const sales = menu.getByRole('button', { name: 'Продажи', exact: true });
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:51:27
+
+    Error Context: test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Маркетинг', exact: true })
+    Expected pattern: /has-current-page/
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveClass" locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Маркетинг', exact: true }) with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Маркетинг', exact: true })
+
+
+      65 |     await page.goto(path);
+      66 |     const menu = menuOf(page);
+    > 67 |     await expect(menu.getByRole('button', { name: 'Маркетинг', exact: true })).toHaveClass(
+         |                                                                                ^
+      68 |       /has-current-page/,
+      69 |     );
+      70 |     await expect(menu.getByRole('button', { name: 'Продажи', exact: true })).not.toHaveClass(
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:67:80
+
+    Error Context: test-results/marketing--website-подсвеч-0d915-нает-что-она-в-«Маркетинге»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing--website-подсвеч-0d915-нает-что-она-в-«Маркетинге»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing--website-подсвеч-0d915-нает-что-она-в-«Маркетинге»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля, у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').visible().getByRole('heading', { level: 1 })
+    Expected: "Маркетинг"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('heading', { level: 1 })
+
+
+       98 |
+       99 |   const hub = main(page);
+    > 100 |   await expect(hub.getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
+          |                                                        ^
+      101 |   await expect(hub.locator('.page__subtitle')).toHaveText(
+      102 |     'Привлекайте гостей, развивайте сайт и продвигайте бизнес с помощью ИИ.',
+      103 |   );
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:100:56
+
+    Error Context: test-results/marketing-хаб-Marketing-2--ea8b3-ел-ни-одного-запроса-данных/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-Marketing-2--ea8b3-ел-ни-одного-запроса-данных/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-Marketing-2--ea8b3-ел-ни-одного-запроса-данных/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/marketing.spec.ts:154:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Email', { exact: true })
+
+
+      157 | }) => {
+      158 |   await page.goto('/auth/fallback');
+    > 159 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+          |                                                   ^
+      160 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      161 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      162 |   await page.waitForURL('**/today');
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:159:51
+
+    Error Context: test-results/marketing-администратор-бе-e8e41-ямой-адрес-не-открывает-хаб/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-администратор-бе-e8e41-ямой-адрес-не-открывает-хаб/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-администратор-бе-e8e41-ямой-адрес-не-открывает-хаб/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/marketing.spec.ts:176:3 › хаб на компьютере и телефоне, доступность: light ───────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').visible().getByRole('heading', { level: 1 })
+    Expected: "Маркетинг"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('heading', { level: 1 })
+
+
+      185 |       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      186 |       await page.goto('/marketing');
+    > 187 |       await expect(main(page).getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
+          |                                                                   ^
+      188 |       expect(
+      189 |         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      190 |       ).toBe(true);
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:187:67
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/marketing.spec.ts:176:3 › хаб на компьютере и телефоне, доступность: dark ────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').visible().getByRole('heading', { level: 1 })
+    Expected: "Маркетинг"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('heading', { level: 1 })
+
+
+      185 |       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      186 |       await page.goto('/marketing');
+    > 187 |       await expect(main(page).getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
+          |                                                                   ^
+      188 |       expect(
+      189 |         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      190 |       ).toBe(true);
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:187:67
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/marketing.spec.ts:217:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Email', { exact: true })
+
+
+      217 | test('MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня»', async ({ page }) => {
+      218 |   await page.goto('/auth/fallback');
+    > 219 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+          |                                                   ^
+      220 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      221 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      222 |   await page.waitForURL('**/today');
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:219:51
+
+    Error Context: test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп 
+    tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» 
+    tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля, у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных 
+    tests/ui/marketing.spec.ts:154:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб 
+    tests/ui/marketing.spec.ts:176:3 › хаб на компьютере и телефоне, доступность: light ────────────
+    tests/ui/marketing.spec.ts:176:3 › хаб на компьютере и телефоне, доступность: dark ─────────────
+    tests/ui/marketing.spec.ts:217:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» 
+
+# код выхода 1 · 3 мин 14 с

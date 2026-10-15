@@ -1,0 +1,105 @@
+# Интеграционные (integration) · 07.10.2026 21:11 Алматы · vm
+# коммит b9744a4 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-11-27Z-integration-b88e.json' 'tests/integration/site-assets-db.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/site-assets-db.test.ts (5 tests | 5 failed) 659ms
+   ❯ MKT8 site_assets: инварианты базы (5)
+     × ключ объекта выводится из строки: филиал, id, sha256 и расширение по виду 17ms
+     × тип, размер, стороны, sha256 и ALT по правилам вида 28ms
+     × один живой ассет на филиал, вид и sha256; удалённый место освобождает; другой вид и филиал отдельно 4ms
+     × готовый ассет не меняет владельца, вид, байты и ключ; переходы; DELETED конечный и требует deleted_at 3ms
+     × RLS: организация видит только свои ассеты; у ролей приложения нет DELETE 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-assets-db.test.ts > MKT8 site_assets: инварианты базы > ключ объекта выводится из строки: филиал, id, sha256 и расширение по виду
+error: insert or update on table "site_assets" violates foreign key constraint "site_assets_location_id_fkey"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/site-assets-db.test.ts:34:21
+     32|         await sql.query('SAVEPOINT probe');
+     33|         try {
+     34|           const r = await sql.query(q, params);
+       |                     ^
+     35|           await sql.query('RELEASE SAVEPOINT probe');
+     36|           return r;
+ ❯ tests/integration/site-assets-db.test.ts:107:7
+ ❯ probe tests/integration/site-assets-db.test.ts:31:7
+ ❯ tests/integration/site-assets-db.test.ts:106:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |integration| tests/integration/site-assets-db.test.ts > MKT8 site_assets: инварианты базы > тип, размер, стороны, sha256 и ALT по правилам вида
+error: insert or update on table "site_assets" violates foreign key constraint "site_assets_location_id_fkey"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/site-assets-db.test.ts:34:21
+     32|         await sql.query('SAVEPOINT probe');
+     33|         try {
+     34|           const r = await sql.query(q, params);
+       |                     ^
+     35|           await sql.query('RELEASE SAVEPOINT probe');
+     36|           return r;
+ ❯ tests/integration/site-assets-db.test.ts:129:7
+ ❯ probe tests/integration/site-assets-db.test.ts:31:7
+ ❯ tests/integration/site-assets-db.test.ts:118:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |integration| tests/integration/site-assets-db.test.ts > MKT8 site_assets: инварианты базы > один живой ассет на филиал, вид и sha256; удалённый место освобождает; другой вид и филиал отдельно
+error: insert or update on table "site_assets" violates foreign key constraint "site_assets_location_id_fkey"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/site-assets-db.test.ts:34:21
+     32|         await sql.query('SAVEPOINT probe');
+     33|         try {
+     34|           const r = await sql.query(q, params);
+       |                     ^
+     35|           await sql.query('RELEASE SAVEPOINT probe');
+     36|           return r;
+ ❯ tests/integration/site-assets-db.test.ts:135:21
+ ❯ probe tests/integration/site-assets-db.test.ts:31:7
+ ❯ tests/integration/site-assets-db.test.ts:134:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |integration| tests/integration/site-assets-db.test.ts > MKT8 site_assets: инварианты базы > готовый ассет не меняет владельца, вид, байты и ключ; переходы; DELETED конечный и требует deleted_at
+error: insert or update on table "site_assets" violates foreign key constraint "site_assets_location_id_fkey"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/site-assets-db.test.ts:34:21
+     32|         await sql.query('SAVEPOINT probe');
+     33|         try {
+     34|           const r = await sql.query(q, params);
+       |                     ^
+     35|           await sql.query('RELEASE SAVEPOINT probe');
+     36|           return r;
+ ❯ tests/integration/site-assets-db.test.ts:146:18
+ ❯ probe tests/integration/site-assets-db.test.ts:31:7
+ ❯ tests/integration/site-assets-db.test.ts:145:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |integration| tests/integration/site-assets-db.test.ts > MKT8 site_assets: инварианты базы > RLS: организация видит только свои ассеты; у ролей приложения нет DELETE
+error: insert or update on table "site_assets" violates foreign key constraint "site_assets_location_id_fkey"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/site-assets-db.test.ts:34:21
+     32|         await sql.query('SAVEPOINT probe');
+     33|         try {
+     34|           const r = await sql.query(q, params);
+       |                     ^
+     35|           await sql.query('RELEASE SAVEPOINT probe');
+     36|           return r;
+ ❯ tests/integration/site-assets-db.test.ts:167:20
+ ❯ probe tests/integration/site-assets-db.test.ts:31:7
+ ❯ tests/integration/site-assets-db.test.ts:166:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  16:11:29
+   Duration  6.28s (transform 62%, tests 21%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-11-27Z-integration-b88e.json
+
+# код выхода 1 · 8 с

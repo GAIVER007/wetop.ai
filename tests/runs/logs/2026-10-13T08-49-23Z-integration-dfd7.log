@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 13.10.2026 13:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5f9671f (claude/floor-layout), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-49-23Z-integration-dfd7.json' 'tests/integration/restaurant-cash-database.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ✓ |integration| tests/integration/restaurant-cash-database.test.ts (5 tests) 61ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  01:49:24
+   Duration  1.07s (transform 70%, import 18%, tests 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-49-23Z-integration-dfd7.json
+
+# код выхода 0 · 2 с

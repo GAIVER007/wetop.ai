@@ -1,0 +1,157 @@
+# Интеграционные (integration) · 03.10.2026 17:04 Алматы · vm
+# коммит 1497435 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-04-26Z-integration-0e8c.json' 'tests/integration/beauty-branch.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/beauty-branch.test.ts (6 tests | 6 failed) 258ms
+   ❯ филиал салона (integration, DATA_MODEL §19) (6)
+     × создаёт бизнес BEAUTY и филиал, объекта не создаёт 71ms
+     × повтор того же запроса возвращает тот же филиал и не плодит салоны 10ms
+     × тот же запрос с другими данными отклоняется, молча не перезаписывает 13ms
+     × создание салона пишется в журнал 3ms
+     × список филиалов отдаёт салон с его направлением 14ms
+     × второй салон той же организации берёт тот же бизнес 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-branch.test.ts > филиал салона (integration, DATA_MODEL §19) > создаёт бизнес BEAUTY и филиал, объекта не создаёт
+PrismaClientKnownRequestError: 
+Invalid `prisma.auditLog.create()` invocation:
+
+
+Invalid input value: invalid input syntax for type uuid: "synthetic-owner"
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/hotel/branches.ts:217:7
+    215|         currency: data.currency,
+    216|       });
+    217|       await tx.auditLog.create({
+       |       ^
+    218|         data: {
+    219|           organizationId,
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ apps/api/src/auth/request-context.ts:56:41
+ ❯ tests/integration/beauty-branch.test.ts:62:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |integration| tests/integration/beauty-branch.test.ts > филиал салона (integration, DATA_MODEL §19) > повтор того же запроса возвращает тот же филиал и не плодит салоны
+PrismaClientKnownRequestError: 
+Invalid `prisma.auditLog.create()` invocation:
+
+
+Invalid input value: invalid input syntax for type uuid: "synthetic-owner"
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/hotel/branches.ts:217:7
+    215|         currency: data.currency,
+    216|       });
+    217|       await tx.auditLog.create({
+       |       ^
+    218|         data: {
+    219|           organizationId,
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ apps/api/src/auth/request-context.ts:56:41
+ ❯ tests/integration/beauty-branch.test.ts:86:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |integration| tests/integration/beauty-branch.test.ts > филиал салона (integration, DATA_MODEL §19) > тот же запрос с другими данными отклоняется, молча не перезаписывает
+AssertionError: expected [Function] to throw error matching /уже сохранён/i but got '\nInvalid `prisma.auditLog.create()` …'
+
+- Expected:
+/уже сохранён/i
+
++ Received:
+"
+Invalid `prisma.auditLog.create()` invocation:
+
+
+Invalid input value: invalid input syntax for type uuid: \"synthetic-owner\""
+
+ ❯ tests/integration/beauty-branch.test.ts:93:82
+     91|
+     92|   it('тот же запрос с другими данными отклоняется, молча не перезаписы…
+     93|     await expect(asOwner(() => service.create({ ...input, name: 'Друго…
+       |                                                                                  ^
+     94|       /уже сохранён/i,
+     95|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |integration| tests/integration/beauty-branch.test.ts > филиал салона (integration, DATA_MODEL §19) > создание салона пишется в журнал
+PrismaClientKnownRequestError: 
+Invalid `prisma.auditLog.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/beauty-branch.test.ts:99:17
+     97|
+     98|   it('создание салона пишется в журнал', async () => {
+     99|     const log = await db.auditLog.findFirstOrThrow({
+       |                 ^
+    100|       where: { organizationId, action: 'location.salon_created' },
+    101|       select: { entityType: true, entityId: true },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |integration| tests/integration/beauty-branch.test.ts > филиал салона (integration, DATA_MODEL §19) > список филиалов отдаёт салон с его направлением
+AssertionError: expected undefined to be 'BEAUTY' // Object.is equality
+
+- Expected:
+"BEAUTY"
+
++ Received:
+undefined
+
+ ❯ tests/integration/beauty-branch.test.ts:110:29
+    108|     const { items } = await asOwner(() => service.list());
+    109|     const salon = items.find((item) => item.id === salonId);
+    110|     expect(salon?.vertical).toBe('BEAUTY');
+       |                             ^
+    111|     expect(salon?.locationId).toBe(salonId);
+    112|     expect(items.every((item) => item.vertical === 'BEAUTY' || item.ve…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |integration| tests/integration/beauty-branch.test.ts > филиал салона (integration, DATA_MODEL §19) > второй салон той же организации берёт тот же бизнес
+PrismaClientKnownRequestError: 
+Invalid `prisma.auditLog.create()` invocation:
+
+
+Invalid input value: invalid input syntax for type uuid: "synthetic-owner"
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/hotel/branches.ts:217:7
+    215|         currency: data.currency,
+    216|       });
+    217|       await tx.auditLog.create({
+       |       ^
+    218|         data: {
+    219|           organizationId,
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ apps/api/src/auth/request-context.ts:56:41
+ ❯ tests/integration/beauty-branch.test.ts:119:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  12:04:27
+   Duration  2.53s (transform 56%, import 23%, tests 21%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-04-26Z-integration-0e8c.json
+
+# код выхода 1 · 3 с

@@ -2,7 +2,7 @@
   "name": "@pms/site",
   "version": "0.0.0",
   "private": true,
-  "description": "Главная wetop.ai: о платформе, блог, вход и заявка на пробный период. Статическая сборка для Cloudflare Pages",
+  "description": "Главная wetop.ai: о платформе, блог, вход и регистрация. Статическая сборка для Cloudflare Pages",
   "scripts": {
     "dev": "next dev --port 3002 --hostname 127.0.0.1",
     "build": "next build",
@@ -10,11 +10,13 @@
   },
   "devDependencies": {
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.7"
+    "@types/react-dom": "^19.2.7",
+    "agentation": "3.1.2"
   },
   "dependencies": {
+    "lucide-react": "^1.45.0",
     "marked": "18.0.13",
-    "next": "^16.3.4",
+    "next": "^16.3.6",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   }

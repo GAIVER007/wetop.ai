@@ -1,0 +1,47 @@
+# Интеграционные (integration) · 14.10.2026 17:36 Алматы · MacBook-Air-Urij.local
+# коммит 519326e (claude/food-fix-01-20261014), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-36-26Z-integration-c8b7.json' 'tests/integration/food-fix-01.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01
+
+ ❯ |integration| tests/integration/food-fix-01.test.ts (7 tests) 412ms
+   ❯ FOOD-FIX-01: деньги ресторана (ADR-181), настоящая PostgreSQL (7)
+     ✓ выплата оклада видна из второго филиала того же бизнеса 85ms
+     ✓ второй филиал не может выплатить тот же оклад ещё раз 28ms
+     ✓ процент считает закрытые заказы всех филиалов бизнеса 12ms
+     ✓ дневная выручка идёт в день закрытия заказа, не открытия 23ms
+     ✓ вчерашняя дельта выручки тоже считается по дате закрытия 9ms
+     ✓ касса отдаёт период целиком, а не последние 100 строк 36ms
+     ✓ границы периода кассы включительны по поясу филиала 12ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/food-fix-01.test.ts > FOOD-FIX-01: деньги ресторана (ADR-181), настоящая PostgreSQL
+PrismaClientKnownRequestError: 
+Invalid `prisma.auditLog.deleteMany()` invocation:
+
+
+Database error. Code: `P0001`. Message: `audit_logs: журнал только дописывается (append-only), DELETE запрещён; уборка тестовых данных ставит set_config('wetop.audit_purge','on',true) в своей транзакции`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/food-fix-01.test.ts:122:5
+    120|   afterAll(async () => {
+    121|     const here = { location: { business: { organizationId: org } } };
+    122|     await db.auditLog.deleteMany({ where: { organizationId: org } });
+       |     ^
+    123|     await db.restaurantPayment.deleteMany({ where: here });
+    124|     await db.restaurantCashOperation.deleteMany({ where: here });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 passed (7)
+   Start at  16:36:27
+   Duration  1.97s (transform 44%, tests 36%, import 20%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-36-26Z-integration-c8b7.json
+
+# код выхода 1 · 3 с

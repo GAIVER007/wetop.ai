@@ -19,13 +19,17 @@ import { describe, expect, it } from 'vitest';
  * тесту не нужен: на 23.09.2026 их ноль, и так и должно остаться.
  *
  * Исключения ровно два, оба названы в §19.3 и §19.4:
- *   - макеты первого экрана (`.mockup*` — шахматка, `.ops*` — экран «Сегодня») — иллюстрации со своей мелкой
- *     сеткой, а не компоненты страницы;
+ *   - макет шахматки (`.mockup*`) — иллюстрация со своей мелкой сеткой, а не компонент страницы;
  *   - `.visually-hidden` — общепринятый приём с `margin: -1px`.
+ *
+ * С 01.10.2026 сторож читает и `app/home.module.css` (композиция главной, ADR-132): правила 1–5 действуют
+ * и там, чтобы стили главной не обходили реестр через CSS Module.
  */
 const ROOT = resolve(import.meta.dirname, '../..');
 const SITE = resolve(ROOT, 'apps/site/src');
 const GLOBALS = resolve(SITE, 'app/globals.css');
+/** Композиция главной поверх общих стилей (ADR-132): те же правила, тот же сторож. */
+const MODULE = resolve(SITE, 'app/home.module.css');
 const TOKENS = resolve(SITE, 'app/tokens.css');
 const DESIGN = resolve(ROOT, 'DESIGN.md');
 
@@ -46,8 +50,8 @@ function rules(css: string): Rule[] {
     .filter((r) => r.selector !== '' && !r.selector.startsWith('@'));
 }
 
-/** Макеты живут по своим правилам (§19.4): у них сетка мельче страницы. `.ops*` — экран «Сегодня» внутри `.mockup`. */
-const isMockup = (selector: string) => /\.(mockup|ops)(?![a-z0-9-])/.test(selector);
+/** Макет шахматки живёт по своим правилам (§19.4): у него сетка мельче страницы. */
+const isMockup = (selector: string) => /\.mockup(?![a-z0-9-])/.test(selector);
 
 function walk(dir: string, ext: RegExp): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -58,13 +62,20 @@ function walk(dir: string, ext: RegExp): string[] {
 }
 
 const globals = readFileSync(GLOBALS, 'utf8');
+const module = readFileSync(MODULE, 'utf8');
+/** Правила обоих файлов стилей: общего и композиции главной. */
+const styleRules = () => [...rules(globals), ...rules(module)];
 const design = readFileSync(DESIGN, 'utf8');
 const here = (file: string) => relative(ROOT, file);
 
 describe('главная wetop.ai — правила DESIGN.md §19', () => {
   it('цвет только через токены: литерала нет нигде, кроме tokens.css', () => {
     // `app/layout.tsx` — второе разрешённое место (§19.2): метатег темы браузера, он проверяется ниже
-    const files = [GLOBALS, ...walk(SITE, /\.tsx$/).filter((f) => !f.endsWith('app/layout.tsx'))];
+    const files = [
+      GLOBALS,
+      MODULE,
+      ...walk(SITE, /\.tsx$/).filter((f) => !f.endsWith('app/layout.tsx')),
+    ];
     const found: string[] = [];
     for (const file of files) {
       const src = readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
@@ -101,7 +112,7 @@ describe('главная wetop.ai — правила DESIGN.md §19', () => {
 
   it('отступы — только из лестницы §19.3', () => {
     const found: string[] = [];
-    for (const rule of rules(globals)) {
+    for (const rule of styleRules()) {
       if (isMockup(rule.selector) || rule.selector.includes('.visually-hidden')) continue;
       for (const m of rule.body.matchAll(
         /(?:^|[;\s])(?:padding|margin|gap|row-gap|column-gap)(?:-(?:top|right|bottom|left|block|inline))?\s*:\s*([^;]+)/g,
@@ -119,7 +130,7 @@ describe('главная wetop.ai — правила DESIGN.md §19', () => {
 
   it('радиус — только токен, круг, pill или «без скругления»', () => {
     const found: string[] = [];
-    for (const rule of rules(globals)) {
+    for (const rule of styleRules()) {
       if (isMockup(rule.selector)) continue;
       for (const m of rule.body.matchAll(/border-radius\s*:\s*([^;]+)/g)) {
         const value = (m[1] ?? '').trim();
@@ -133,7 +144,7 @@ describe('главная wetop.ai — правила DESIGN.md §19', () => {
 
   it('текст не мельче 12 px', () => {
     const found: string[] = [];
-    for (const rule of rules(globals)) {
+    for (const rule of styleRules()) {
       if (isMockup(rule.selector)) continue;
       for (const m of rule.body.matchAll(/font-size\s*:\s*([0-9.]+)rem/g)) {
         if (Number(m[1]) < MIN_FONT_REM) found.push(`${rule.selector} — ${m[1]}rem`);
@@ -144,7 +155,7 @@ describe('главная wetop.ai — правила DESIGN.md §19', () => {
 
   /*
    * Реестр блоков. Слева — имя блока в §19.5 (первая ячейка строки таблицы в обратных кавычках),
-   * справа — корневые классы страницы в globals.css. Корневым считаем класс верхнего уровня:
+   * справа — корневые классы страницы в globals.css и home.module.css. Корневым считаем класс верхнего уровня:
    * `.hero__badge` относится к блоку `.hero`, `.card__title` — к `.card`.
    */
   it('каждый блок страницы назван в DESIGN.md §19.5 — и наоборот', () => {
@@ -158,7 +169,7 @@ describe('главная wetop.ai — правила DESIGN.md §19', () => {
     );
 
     const inCode = new Set<string>();
-    for (const rule of rules(globals)) {
+    for (const rule of styleRules()) {
       for (const m of rule.selector.matchAll(/\.([a-z][a-z0-9-]*)/g)) {
         const name = m[1]!;
         // `block__element` и `block--modifier` принадлежат блоку `block`

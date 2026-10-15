@@ -26,6 +26,10 @@ test('заселить → карточка и шахматка показыва
   test.setTimeout(240_000);
   await page.goto(`/reservations/new?arrival=${plus(3)}&departure=${plus(4)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form
     .locator('select[name="accommodationTypeCode"]')
@@ -52,6 +56,7 @@ test('заселить → карточка и шахматка показыва
       )
     )
       await warn.getByRole('button', { name: 'Заселить всё равно' }).click();
+    else await confirmDialog(page, 'Заселить');
   }
   await expect(page.getByRole('alert').first()).toContainText('гражданство');
   await cardTab(page, 'Обзор');
@@ -93,11 +98,12 @@ test('заселить → карточка и шахматка показыва
       )
     )
       await warn.getByRole('button', { name: 'Заселить всё равно' }).click();
+    else await confirmDialog(page, 'Заселить');
   }
   // статус читаем в строке проживания: слово встречается ещё и в заголовке брони. Сначала итог, потом вкладка:
   // заселение — серверное действие, и по его ответу карточка возвращает вкладку, где его выполнили (#… адреса
   // на старте действия), — щелчок по «Обзору» до ответа откатывался (упало 26.09.2026 в наборе на два потока)
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Проживает');
   await cardTab(page, 'Обзор');
   await page.goto(`/chessboard?from=${plus(3)}&to=${plus(4)}`);
   const cell = page.locator(`td[data-state="OCCUPIED"] a[href*="${number}"]`).first();
@@ -107,22 +113,24 @@ test('заселить → карточка и шахматка показыва
 
   // T3: на счёте есть начисление за проживание и нет оплаты, значит выселение должно быть остановлено.
   // Окно «Выселить с долгом?» (срез 7.3) называет сумму; «Оставить» — проверяем именно защиту:
-  // статус обязан остаться «заселён».
+  // статус обязан остаться «Проживает».
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
+  await confirmDialog(page, 'Выселить');
   await expect(page.getByRole('main').getByTestId('debt-amount')).toContainText('Долг');
   await confirmDialog(page, 'Оставить');
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Проживает');
   await cardTab(page, 'Счета');
   await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('к оплате');
 
   // то же действие с подтверждением администратора — гость выселен, долг за ним остаётся
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
+  await confirmDialog(page, 'Выселить');
   await confirmDialog(page, 'Выселить с долгом');
   // итог действия — до смены вкладки (см. заселение выше)
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('выселен');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Выехал');
   await cardTab(page, 'Обзор');
   await cardTab(page, 'Счета');
   await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('к оплате');
@@ -131,6 +139,10 @@ test('заселить → карточка и шахматка показыва
   // незаезд
   await page.goto(`/reservations/new?arrival=${plus(5)}&departure=${plus(6)}`);
   const f2 = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await f2.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await f2.locator('select[name="source"]').selectOption('PHONE');
   await f2
     .locator('select[name="accommodationTypeCode"]')
@@ -144,10 +156,11 @@ test('заселить → карточка и шахматка показыва
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   await cardTab(page, 'Действия');
-  await page.getByRole('main').locator('[data-testid^="no-show-"]').click();
-  await confirmDialog(page, 'Отметить незаезд');
+  await page.getByRole('main').locator('[data-testid^="cancel-stay-"]').click();
+  await page.getByRole('dialog').getByLabel('Причина отмены').selectOption('no_show');
+  await confirmDialog(page, 'Подтвердить незаезд');
   // статус читаем в строке проживания: слово «Незаезд» есть ещё и на кнопке; итог — до смены вкладки
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('незаезд');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Незаезд');
   await cardTab(page, 'Обзор');
   // §14: пустое значение — прочерк; ячейка снята, в колонке «—»
   await expect(

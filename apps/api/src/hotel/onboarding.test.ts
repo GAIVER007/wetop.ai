@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
 import { withSignedInUser } from '../auth/request-context';
 import { OnboardingService } from './onboarding';
@@ -17,10 +13,17 @@ const PROPERTY = {
 };
 
 function makeDb(opts: { property?: typeof PROPERTY | null; typeCount?: number } = {}) {
-  let property: Record<string, unknown> | null = opts.property === undefined ? PROPERTY : opts.property;
+  let property: Record<string, unknown> | null =
+    opts.property === undefined ? PROPERTY : opts.property;
   const rec = {
     businesses: [] as { id: string; organizationId: string; name: string; vertical: string }[],
-    locations: [] as { id: string; businessId: string; name: string; timezone: string; currency: string }[],
+    locations: [] as {
+      id: string;
+      businessId: string;
+      name: string;
+      timezone: string;
+      currency: string;
+    }[],
     properties: [] as Record<string, unknown>[],
     buildings: [] as unknown[],
     floors: [] as unknown[],
@@ -266,9 +269,18 @@ describe('OnboardingService', () => {
     expect(rec.properties).toHaveLength(0);
   });
 
-  it('provision: у организации нет объекта — создаёт его в цепочке и заводит номера под ним', async () => {
+  it('provision: у организации нет объекта — владелец создаёт его в цепочке и заводит номера под ним', async () => {
     const { service, rec } = makeDb({ property: null });
-    const res = await asUser(() => service.provision(SETUP, NOW));
+    // новое направление создаёт только владелец (ADR-183), менеджер получает 403
+    await expect(
+      withSignedInUser({ userId: 'u-1', organizationId: 'org-1', role: 'MANAGER' } as never, () =>
+        service.provision(SETUP, NOW),
+      ),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    const res = await withSignedInUser(
+      { userId: 'u-1', organizationId: 'org-1', role: 'OWNER' } as never,
+      () => service.provision(SETUP, NOW),
+    );
     expect(res).toMatchObject({ ok: true, categories: 2, units: 11 });
     expect(rec.businesses).toEqual([
       expect.objectContaining({ organizationId: 'org-1', vertical: 'HOSPITALITY' }),
@@ -287,6 +299,31 @@ describe('OnboardingService', () => {
     ]);
     const propertyId = rec.properties[0]!['id'];
     expect(rec.types.every((t) => t.propertyId === propertyId)).toBe(true);
-    expect(rec.audits).toEqual([expect.objectContaining({ action: 'hotel.onboarding', entityId: propertyId })]);
+    expect(rec.audits).toEqual([
+      expect.objectContaining({ action: 'hotel.onboarding', entityId: propertyId }),
+    ]);
   });
 });
+
+it.each(['BEAUTY', 'FOOD_SERVICE'] as const)(
+  'MV3 rejects explicit %s Business in legacy hotel onboarding',
+  async (vertical) => {
+    const { service, rec } = makeDb({ property: null });
+    const actor = {
+      userId: 'u-1',
+      organizationId: 'org-1',
+      role: 'OWNER' as const,
+      scope: 'BUSINESS' as const,
+      businessId: 'pilot-business',
+      vertical,
+    };
+    await expect(withSignedInUser(actor, () => service.status())).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+    await expect(
+      withSignedInUser(actor, () => service.provision(SETUP, NOW)),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(rec.businesses).toHaveLength(0);
+    expect(rec.properties).toHaveLength(0);
+  },
+);

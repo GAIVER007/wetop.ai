@@ -1,0 +1,103 @@
+# Модульные (unit) · 11.10.2026 00:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит cf107b0 (claude/register-country-locale), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T19-07-11Z-unit-aaf0.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/test-journal-merge.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt
+
+ ❯ |unit| tests/unit/test-journal-merge.test.ts (3 tests | 1 failed) 18217ms
+   ✓ журнал прогонов: две ветки сливаются без конфликта (1)
+     ✓ у каждой ветки свой прогон от одного предка, merge-tree чистый 1157ms
+   ❯ журнал из записей: test:status видит то же, что видел по общему файлу (2)
+     × нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты 16941ms
+     ✓ архив и записи вместе: старое из архива, новое из записи, порядок по времени 97ms
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (7 tests | 2 failed) 28426ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ без --yes-replace-production ничего не делает 69ms
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 4039ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 5299ms
+     × схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 5224ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 3479ms
+     × транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 6118ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 4154ms
+ ❯ |unit| tests/unit/auto-deploy.test.ts (16 tests | 1 failed) 73966ms
+   ❯ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 3616ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 2162ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 5511ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 4650ms
+     × владелец применил миграции и назвал вершину — выкладывает ровно её 9409ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 5003ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 2717ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 4556ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 3814ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 6891ms
+     ✓ локальные правки в клоне — не затирает их 3617ms
+     ✓ историю ветки переписали — не выкладывает поверх 4508ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 6394ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 5374ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 3730ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1981ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и назвал вершину — выкладывает ровно её
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:177:3
+    175|   });
+    176|
+    177|   it('владелец применил миграции и назвал вершину — выкладывает ровно …
+       |   ^
+    178|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    179|     const refusal = run();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:126:3
+    124|   });
+    125|
+    126|   it('схема public из копии не пересоздаётся: её записи вычеркнуты из …
+       |   ^
+    127|     const s = sandbox();
+    128|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:144:3
+    142|   });
+    143|
+    144|   it('транзакция упала: код 1 и прямое «откатилось целиком», пароль в …
+       |   ^
+    145|     const s = sandbox({ psqlFails: true });
+    146|     const r = s.run([s.dump, '--yes-replace-production']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| tests/unit/test-journal-merge.test.ts > журнал из записей: test:status видит то же, что видел по общему файлу > нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/test-journal-merge.test.ts:94:3
+     92|
+     93| describe('журнал из записей: test:status видит то же, что видел по общ…
+     94|   it('нынешний journal.jsonl, разложенный по записям, даёт те же прого…
+       |   ^
+     95|     const archive = readFileSync(resolve(ROOT, JOURNAL_FILE), 'utf8');
+     96|     const before = parseJournal(archive);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  4 failed | 22 passed (26)
+   Start at  12:07:20
+   Duration  74.80s (tests 96%, transform 3%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T19-07-11Z-unit-aaf0.json
+
+# код выхода 1 · 1 мин 26 с

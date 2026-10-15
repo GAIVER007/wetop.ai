@@ -1,0 +1,73 @@
+# Модульные (unit) · 03.10.2026 20:35 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-35-38Z-unit-520c.json' 'packages/domain/src/dashboard/channels.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/dashboard/channels.test.ts (4 tests | 1 failed) 14ms
+   ❯ эффективность каналов: доход, ночи, средняя стоимость ночи по каналу (брони с заездом в периоде) (4)
+     × строки по каналу: сумма, доля дохода, ночи, доля ночей, средняя стоимость; прямые источники отдельными строками 10ms
+     ✓ каналы без броней — нулевыми строками, только если просили; известные дубликаты не повторяются 1ms
+     ✓ отбор по каналу и порядок: по ночам, по средней стоимости 1ms
+     ✓ средняя стоимость — целые тиыны, как ADR «Обзора» (остаток отбрасывается); пустой период — без деления 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/channels.test.ts > эффективность каналов: доход, ночи, средняя стоимость ночи по каналу (брони с заездом в периоде) > строки по каналу: сумма, доля дохода, ночи, доля ночей, средняя стоимость; прямые источники отдельными строками
+AssertionError: expected [ …(3) ] to deeply equal [ …(3) ]
+
+- Expected
++ Received
+
+@@ -1,28 +1,28 @@
+  [
+    [
+      "Booking.com",
+      "5300000",
+-     70.7,
++     74.6,
+      5,
+      62.5,
+      "1060000",
+      2,
+    ],
+    [
+      "Trip.com",
+      "1000000",
+-     13.3,
++     14.1,
+      2,
+      25,
+      "500000",
+      1,
+    ],
+    [
+      "DESK",
+      "800000",
+-     10.7,
++     11.3,
+      1,
+      12.5,
+      "800000",
+      1,
+    ],
+
+ ❯ packages/domain/src/dashboard/channels.test.ts:34:123
+     32|   it('строки по каналу: сумма, доля дохода, ночи, доля ночей, средняя …
+     33|     const r = buildChannelEfficiency(stays, '2026-10-01', '2026-10-31'…
+     34|     expect(r.rows.map((x) => [x.label, x.revenueMinor, x.revenueShare,…
+       |                                                                                                                           ^
+     35|       ['Booking.com', '5300000', 70.7, 5, 62.5, '1060000', 2],
+     36|       ['Trip.com', '1000000', 13.3, 2, 25, '500000', 1],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  15:35:38
+   Duration  216ms (transform 63%, tests 17%, import 15%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-35-38Z-unit-520c.json
+
+# код выхода 1 · 1 с

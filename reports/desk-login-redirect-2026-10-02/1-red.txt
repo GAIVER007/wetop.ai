@@ -1,0 +1,107 @@
+# Модульные (unit) · 02.10.2026 21:41 Алматы · vm
+# коммит 731d630 (master), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T16-41-11Z-unit-a463.json' 'scripts/lib/desk-page.test.ts' 'apps/web/src/next-rethrow.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main
+
+ ❯ |unit| scripts/lib/desk-page.test.ts (11 tests | 2 failed) 15ms
+   ❯ экран стойки под замком (11)
+     ✓ переброс на /login — это «пропущено (замок)», а не FAIL 2ms
+     ✓ страница открылась и ожидание нашлось — ок 0ms
+     ✓ страница открылась, а ожидания нет — настоящий FAIL 0ms
+     ✓ экран входа по тому же адресу — «пропущено (замок)», а не FAIL 0ms
+     ✓ страница со сбоем загрузки называет сбой, а не просто «HTTP 200» 0ms
+     ✓ обычная страница без искомого говорит об этом прямо и называет длину 0ms
+     × переход на вход потоком (метка Next) — «пропущено (замок)», а не «искомого нет» 6ms
+     × метка перехода на вход проверяется раньше искомого: номер брони из адреса не даёт ложного «ок» 1ms
+     ✓ метка перехода не на вход — не замок: страница судится как обычно 1ms
+     ✓ сессия для стойки берётся из WEB_SESSION_COOKIE и только оттуда 0ms
+     ✓ отчёт пишется туда, куда можно писать: REPORTS_DIR, иначе reports/ проекта 0ms
+ ❯ |unit| apps/web/src/next-rethrow.test.ts (3 tests | 1 failed) 12ms
+   ❯ страницы стойки не глотают переход на вход (3)
+     ✓ сторож видит обработчики отказа — иначе он молча ничего не проверяет 1ms
+     × каждый обработчик отказа сначала зовёт unstable_rethrow 7ms
+     ✓ unstable_rethrow пробрасывает переход на вход, а обычный отказ — нет 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/lib/desk-page.test.ts > экран стойки под замком > переход на вход потоком (метка Next) — «пропущено (замок)», а не «искомого нет»
+AssertionError: expected 'fail' to be 'locked' // Object.is equality
+
+Expected: "locked"
+Received: "fail"
+
+ ❯ scripts/lib/desk-page.test.ts:93:23
+     91|       (h) => h.includes('BDC-1'),
+     92|     );
+     93|     expect(v.verdict).toBe('locked');
+       |                       ^
+     94|     expect(v.detail).toMatch(/переход на вход/);
+     95|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| scripts/lib/desk-page.test.ts > экран стойки под замком > метка перехода на вход проверяется раньше искомого: номер брони из адреса не даёт ложного «ок»
+AssertionError: expected 'ok' to be 'locked' // Object.is equality
+
+Expected: "locked"
+Received: "ok"
+
+ ❯ scripts/lib/desk-page.test.ts:106:23
+    104|       (h) => h.includes('BDC-1'),
+    105|     );
+    106|     expect(v.verdict).toBe('locked');
+       |                       ^
+    107|   });
+    108|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/next-rethrow.test.ts > страницы стойки не глотают переход на вход > каждый обработчик отказа сначала зовёт unstable_rethrow
+AssertionError: expected [ …(19) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "ai-seller/[[...section]]/page.tsx",
++   "branches/workspace.tsx",
++   "channels/[[...section]]/page.tsx",
++   "channels/connection-setup.tsx",
++   "channels/report.tsx",
++   "finance/page.tsx",
++   "guests/page.tsx",
++   "hotel-settings/[[...section]]/page.tsx",
++   "incidents/page.tsx",
++   "invite/[token]/page.tsx",
++   "journal/page.tsx",
++   "platform/page.tsx",
++   "platform/support/[[...section]]/page.tsx",
++   "platform/support/actions-view.tsx",
++   "platform/support/kb-view.tsx",
++   "rates/page.tsx",
++   "rates/plans/page.tsx",
++   "rates/promo/page.tsx",
++   "reservations/page.tsx",
++ ]
+
+ ❯ apps/web/src/next-rethrow.test.ts:49:7
+     47|     expect(
+     48|       found.filter((x) => !x.handler.includes('unstable_rethrow(')).ma…
+     49|     ).toEqual([]);
+       |       ^
+     50|   });
+     51|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 11 passed (14)
+   Start at  09:41:12
+   Duration  993ms (import 78%, transform 16%, tests 4%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-02T16-41-11Z-unit-a463.json
+
+# код выхода 1 · 2 с

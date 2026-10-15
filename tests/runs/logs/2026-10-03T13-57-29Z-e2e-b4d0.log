@@ -1,0 +1,89 @@
+# Сквозные (e2e) · 03.10.2026 18:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5fabb2c (claude/birthdays), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/guests-birthdays.spec.ts' '--config' 'tests/ui/playwright.nights-alt.config.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 2141ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (21.5s)
+  ✘  2 tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (18.5s)
+
+
+  1) tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays')
+    Expected: "1"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays')
+
+
+      30 |   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+      31 |   const birthdays = panel.getByTestId('day-birthdays');
+    > 32 |   await expect(birthdays).toHaveText('1');
+         |                           ^
+      33 |   const panelBox = (await panel.boundingBox())!;
+      34 |   const navBox = (await page.locator('.board-date-nav').boundingBox())!;
+      35 |   expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(navBox.x);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/guests-birthdays.spec.ts:32:27
+
+    Error Context: test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays')
+    Expected: "0"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays')
+
+
+      53 |   await expect(
+      54 |     page.getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays'),
+    > 55 |   ).toHaveText('0');
+         |     ^
+      56 |   await page.goto('/guests/birthdays');
+      57 |   await expect(page.getByText('В ближайшую неделю дней рождения нет')).toBeVisible();
+      58 | });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/guests-birthdays.spec.ts:55:5
+
+    Error Context: test-results/guests-birthdays-нет-дат-р-5da6e--говорит-что-в-неделю-пусто/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-birthdays-нет-дат-р-5da6e--говорит-что-в-неделю-пусто/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-birthdays-нет-дат-р-5da6e--говорит-что-в-неделю-пусто/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» 
+    tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто 
+
+# код выхода 1 · 1 мин 24 с

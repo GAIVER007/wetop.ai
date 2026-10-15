@@ -1,0 +1,55 @@
+# Интеграционные (integration) · 04.10.2026 01:16 Алматы · vm
+# коммит dab0ee4 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 50
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T20-16-43Z-integration-6481.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+No test files found, exiting with code 0
+
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+JSON report written to /tmp/pms-test-2026-10-03T20-16-43Z-integration-6481.json
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: миграция 20261003000045_payment_requests на схеме pms_test не применилась: type "PaymentRequestStatus" already exists
+ ❯ ensureTestSchema tests/tools/test-schema.ts:82:15
+     80|       } catch (e) {
+     81|         await client.query('ROLLBACK');
+     82|         throw new Error(`миграция ${name} на схеме ${TEST_SCHEMA} не п…
+       |               ^
+     83|           cause: e,
+     84|         });
+ ❯ processTicksAndRejections node:internal/process/task_queues:105:5
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+ ❯ start node_modules/vitest/dist/chunks/cac.D805sv8h.js:2370:15
+
+Caused by: error: type "PaymentRequestStatus" already exists
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ processTicksAndRejections node:internal/process/task_queues:105:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:76:9
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 100, severity: 'ERROR', code: '42710', detail: undefined, hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'typecmds.c', routine: 'DefineEnum' }
+
+
+
+
+# код выхода 1 · 2 с

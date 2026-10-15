@@ -12,6 +12,7 @@ import { DashboardService } from './dashboard.service';
 
 @Module({
   controllers: [DashboardController],
+  exports: [DashboardService],
   providers: [
     PrismaService,
     ChessboardService,

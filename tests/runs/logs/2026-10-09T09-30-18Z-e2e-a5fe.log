@@ -1,0 +1,84 @@
+# Сквозные (e2e) · 09.10.2026 14:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит f78f8c4 (claude/laughing-roentgen-24fee8)
+# npx playwright test --workers=2 --reporter=list,json '--workers=1'
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at h (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1760)
+[WebServer]     at async Object.me (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5195) {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+[pms_test] миграций применено 0 из 75; данные от 2026-10-09T09:30:10.609Z (сид)
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at h (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1760)
+[WebServer]     at async Object.me (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5195) {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at h (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1760)
+[WebServer]     at async Object.me (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5195) {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at h (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1760)
+[WebServer]     at async Object.me (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5195) {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at h (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1760)
+[WebServer]     at async Object.me (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5195) {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+
+Running 26 tests using 1 worker
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (119ms)
+  ✓   2 [auth] › tests/e2e/_auth.setup.ts:21:1 › вход сотрудника автотестов: замок включён, сессия и филиал в cookie стойки (829ms)
+[WebServer] (node:27830) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   3 [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (3.6s)
+  ✓   4 [isolated] › tests/e2e/check-in-out.spec.ts:21:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (5.2s)
+  ✓   5 [isolated] › tests/e2e/chessboard-drag.spec.ts:26:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (1.9s)
+  ✓   6 [isolated] › tests/e2e/chessboard-unassigned.spec.ts:30:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (2.2s)
+  ✓   7 [isolated] › tests/e2e/chessboard.spec.ts:13:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными (537ms)
+  ✓   8 [isolated] › tests/e2e/chessboard.spec.ts:36:1 › щелчок по занятой клетке — предпросмотр, двойной — карточка брони с проживаниями (948ms)
+  ✓   9 [isolated] › tests/e2e/desk-day.spec.ts:16:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (3.2s)
+  ✓  10 [isolated] › tests/e2e/desk-edit.spec.ts:28:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта (2.2s)
+  ✓  11 [isolated] › tests/e2e/desk-tasks.spec.ts:28:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (2.1s)
+  ✓  12 [isolated] › tests/e2e/finance.spec.ts:30:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (2.5s)
+  ✓  13 [isolated] › tests/e2e/full-day.spec.ts:26:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (3.2s)
+  ✓  14 [isolated] › tests/e2e/incidents.spec.ts:76:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную (586ms)
+  ✓  15 [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (340ms)
+  ✓  16 [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (539ms)
+  ✓  17 [isolated] › tests/e2e/manual-reservation.spec.ts:13:1 › создать бронь с ячейкой → видна в календаре → отменить → ячейка свободна (2.3s)
+  ✓  18 [isolated] › tests/e2e/print-and-journal.spec.ts:5:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия (1.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3129154527'
+[WebServer] }
+  ✓  19 [isolated] › tests/e2e/print-forms.spec.ts:29:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки (4.0s)
+  ✓  20 [isolated] › tests/e2e/stay-extras.spec.ts:25:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (2.4s)
+  ✓  21 [isolated] › tests/e2e/unit-blocks.spec.ts:28:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (2.6s)
+  ✓  22 [isolated] › tests/e2e/web-analytics.spec.ts:72:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте (1.6s)
+  ✓  23 [isolated] › tests/e2e/web-analytics.spec.ts:184:1 › настройки сайта: код с ключом, «Проверить счётчик» видит события (465ms)
+  ✓  24 [isolated] › tests/e2e/web-analytics.spec.ts:199:1 › демо-страница на адресе API: просмотры и клики доходят и видны в отчёте (1.3s)
+  ✓  25 [isolated] › tests/e2e/web-booking.spec.ts:48:1 › виджет: цены на завтра, бронь одноместной, номер, карточка в PMS с источником «сайт» (789ms)
+  ✓  26 [isolated] › tests/e2e/web-booking.spec.ts:103:1 › аналитика: бронь связана с сессией счётчика — «брони с сайта» 1 (201ms)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 4)
+  свежих, моложе 15 мин, оставлено: 4 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+[WebServer] [analytics] событие не записано: 
+[WebServer] Invalid `prisma.webSession.upsert()` invocation:
+[WebServer] 
+[WebServer] 
+[WebServer] Foreign key constraint violated on the constraint: `web_sessions_site_id_fkey`
+
+  26 passed (53.2s)
+
+# код выхода 0 · 54 с

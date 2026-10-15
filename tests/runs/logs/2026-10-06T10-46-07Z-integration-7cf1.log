@@ -1,0 +1,60 @@
+# Интеграционные (integration) · 06.10.2026 15:46 Алматы · vm
+# коммит 03496b2 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T10-46-07Z-integration-7cf1.json' 'tests/integration/scope-hardening.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:1648) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/scope-hardening.test.ts (2 tests | 2 failed) 1210ms
+   ❯ SCOPE-HARDENING: Hospitality property follows the selected branch (1)
+     × two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only 597ms
+   ❯ SCOPE-HARDENING: /branches/overview is a Hospitality-only summary (1)
+     × mixed Organization: 200, rows and totals only for Hospitality branches 574ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/scope-hardening.test.ts > SCOPE-HARDENING: Hospitality property follows the selected branch > two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only
+AssertionError: repository property for Location B: expected '0e5a27f7-963e-40bf-8ee6-619d93f8e5c0' to be 'c0df6016-14e3-47c8-9459-644759fe51d0' // Object.is equality
+
+Expected: "c0df6016-14e3-47c8-9459-644759fe51d0"
+Received: "0e5a27f7-963e-40bf-8ee6-619d93f8e5c0"
+
+ ❯ tests/integration/scope-hardening.test.ts:163:68
+    161|     forgetPropertyRef();
+    162|
+    163|     expect(seen['property'], 'repository property for Location B').toB…
+       |                                                                    ^
+    164|     expect(seen['quote'], 'two nights at B price (20 000 ₸ a night)').…
+    165|     expect(seen['created'], 'reservation stored in property B').toBe(s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/scope-hardening.test.ts > SCOPE-HARDENING: /branches/overview is a Hospitality-only summary > mixed Organization: 200, rows and totals only for Hospitality branches
+AssertionError: {"message":"У вашей организации ещё нет объекта. Создайте его в настройках.","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/integration/scope-hardening.test.ts:224:62
+    222|       await app.listen(0, '127.0.0.1');
+    223|       const response = await fetch(`${await app.getUrl()}/branches/ove…
+    224|       expect(response.status, await response.clone().text()).toBe(200);
+       |                                                              ^
+    225|       const body = (await response.json()) as { rows: Array<{ branch: …
+    226|       expect(body.rows.map((row) => row.branch.name)).toEqual(['SH Оте…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  10:46:08
+   Duration  4.97s (transform 48%, tests 37%, import 16%)
+
+JSON report written to /tmp/pms-test-2026-10-06T10-46-07Z-integration-7cf1.json
+
+# код выхода 1 · 6 с

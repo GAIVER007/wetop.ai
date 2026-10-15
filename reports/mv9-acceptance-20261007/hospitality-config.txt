@@ -1,0 +1,9 @@
+import { defineConfig } from '/Users/urijzapojnov/wetop-mv9-acceptance-20261007/node_modules/@playwright/test/index.mjs';
+export default defineConfig({
+ testDir: '/Users/urijzapojnov/wetop-mv9-acceptance-20261007/tests/ui', workers: 1, fullyParallel: false, timeout: 45000, expect: { timeout: 15000 },
+ use: { baseURL: 'http://127.0.0.1:56073', channel: 'chromium', viewport: { width: 1440, height: 1000 }, trace: 'retain-on-failure' },
+ webServer: [
+ { command: 'npx tsx tests/ui/fixture-api.ts', cwd: '/Users/urijzapojnov/wetop-mv9-acceptance-20261007', url: 'http://127.0.0.1:56074/__test/health', reuseExistingServer: false, env: { FIXTURE_PORT: '56074' } },
+ { command: 'npm exec -w apps/web -- next dev --port 56073 --hostname 127.0.0.1', cwd: '/Users/urijzapojnov/wetop-mv9-acceptance-20261007', url: 'http://127.0.0.1:56073/today', reuseExistingServer: false, timeout: 120000, env: { APP_UI_TEST: '1', APP_API_URL: 'http://127.0.0.1:56074', APP_ALLOW_TEST_DATA: '1', APP_URL: 'http://127.0.0.1:56073' } }
+ ]
+});

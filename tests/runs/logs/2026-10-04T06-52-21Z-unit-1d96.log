@@ -1,0 +1,101 @@
+# Модульные (unit) · 04.10.2026 11:52 Алматы · vm
+# коммит 27376a9 (claude/busy-dirac-sx971u)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-04T06-52-21Z-unit-1d96.json' 'scripts/design' 'apps/web/src'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (14 tests) 41ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 192ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests) 801ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 797ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 143ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 927ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 895ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 75ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests) 66ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 76ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 68ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (8 tests) 71ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 50ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (4 tests) 63ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 54ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 47ms
+ ✓ |unit| apps/web/src/app/ai-seller/actions.test.ts (2 tests) 47ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 44ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 51ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (7 tests) 44ms
+ ✓ |unit| apps/web/src/components/property-time.test.ts (2 tests) 27ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 12ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (29 tests) 13ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 14ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/board-filters.test.ts (12 tests) 10ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (17 tests) 11ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (7 tests) 12ms
+ ✓ |unit| apps/web/src/app/management/analytics/channels/query.test.ts (7 tests) 10ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 10ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 5ms
+ ✓ |unit| apps/web/src/app/website/actions.test.ts (8 tests) 11ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 10ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 12ms
+ ✓ |unit| apps/web/src/app/reservations/filters.test.ts (8 tests) 8ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (15 tests) 9ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (12 tests) 8ms
+ ✓ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests) 11ms
+ ✓ |unit| apps/web/src/app/reservations/reservations-csv.test.ts (2 tests) 7ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 7ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (6 tests) 12ms
+ ✓ |unit| apps/web/src/app/chessboard/unassigned-plan.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/app/login/signed-in.test.ts (8 tests) 8ms
+ ✓ |unit| apps/web/src/app/guests/filters.test.ts (5 tests) 8ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 8ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 7ms
+ ✓ |unit| apps/web/src/app/incidents/incident-view.test.ts (14 tests) 9ms
+ ✓ |unit| apps/web/src/app/management/analytics/params.test.ts (7 tests) 7ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (5 tests) 7ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 7ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 7ms
+ ✓ |unit| apps/web/src/app/rates/range-summary.test.ts (8 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/range-plan.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 6ms
+ ✓ |unit| apps/web/src/app/journal/journal-view.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (8 tests) 6ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 6ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 7ms
+ ✓ |unit| apps/web/src/app/reservations/finance-state.test.ts (8 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 5ms
+ ✓ |unit| apps/web/src/app/channels/mapping.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 7ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (8 tests) 5ms
+ ✓ |unit| apps/web/src/app/channels/format.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/phone-mask.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/next-rethrow.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/app/finance/operations-csv.test.ts (5 tests) 5ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/app/channels/channel-list.test.ts (3 tests) 6ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/app/finance/debts-csv.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/app/finance/services-csv.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 4ms
+
+ Test Files  83 passed (83)
+      Tests  592 passed (592)
+   Start at  06:52:22
+   Duration  6.61s (tests 37%, import 35%, transform 23%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-04T06-52-21Z-unit-1d96.json
+
+# код выхода 0 · 8 с

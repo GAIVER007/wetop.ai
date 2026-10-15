@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CATEGORY_CHIPS,
   QUEUE_CHIPS,
+  categoryChipCount,
+  categoryOf,
   chipCount,
   emptyQueueText,
   lastMessageLine,
@@ -84,5 +87,32 @@ describe('очередь техподдержки: слова экрана', () 
     expect(emptyQueueText('waiting').title).toBe('Никто не ждёт ответа');
     expect(emptyQueueText('needs_human').title).toBe('Человек никому не нужен');
     expect(emptyQueueText('closed').title).toBe('Закрытых обращений нет');
+  });
+});
+
+describe('категории обращений: слова экрана', () => {
+  const categoryCounts = { all: 7, platform: 3, error: 2, payment: 1, access: 0, other: 1 };
+
+  it('чипы словами владельца, «Все» первой и «Другое» последней', () => {
+    expect(CATEGORY_CHIPS.map((c) => c.label)).toEqual([
+      'Все',
+      'Вопрос по платформе',
+      'Ошибка',
+      'Возврат и оплата',
+      'Доступ и права',
+      'Другое',
+    ]);
+  });
+
+  it('число в чипе; пустая категория показывает ноль, а не прячется', () => {
+    expect(categoryChipCount('all', categoryCounts)).toBe('7');
+    expect(categoryChipCount('payment', categoryCounts)).toBe('1');
+    expect(categoryChipCount('access', categoryCounts)).toBe('0');
+  });
+
+  it('категория из адреса: чужое слово даёт «Все»', () => {
+    expect(categoryOf('payment')).toBe('payment');
+    expect(categoryOf('деньги')).toBe('all');
+    expect(categoryOf(undefined)).toBe('all');
   });
 });

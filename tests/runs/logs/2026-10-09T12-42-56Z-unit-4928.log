@@ -1,0 +1,16 @@
+# Модульные (unit) · 09.10.2026 17:42 Алматы · vm
+# коммит d0eb1e6 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 24
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-42-56Z-unit-4928.json' 'apps/api/src/bar/bar-scan.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/bar/bar-scan.test.ts (8 tests) 220ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  12:42:57
+   Duration  3.00s (transform 68%, import 24%, tests 8%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-42-56Z-unit-4928.json
+
+# код выхода 0 · 4 с

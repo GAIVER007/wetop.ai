@@ -1,0 +1,9 @@
+{
+  "time": "2026-10-05T18:45:08.732255+00:00",
+  "postgresPort": 55943,
+  "portClosed": true,
+  "dataDirectoryRemoved": true,
+  "binariesRemoved": true,
+  "data": "synthetic only",
+  "productionChanged": false
+}

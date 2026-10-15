@@ -1,0 +1,23 @@
+# Типы (typecheck) · 04.10.2026 15:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6f3191b (codex/release-self-hosted-mac), незакоммиченных файлов набора: 3
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(407,19): error TS2353: Object literal may only specify known properties, and 'phone' does not exist in type 'MembershipSelect<DefaultArgs>'.
+apps/api/src/accounts/accounts.prisma-repository.ts(420,60): error TS2339: Property 'position' does not exist on type '{ organizationId: string; createdAt: Date; userId: string; role: MembershipRole; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(424,34): error TS2339: Property 'phone' does not exist on type '{ organizationId: string; createdAt: Date; userId: string; role: MembershipRole; }'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(407,19): error TS2353: Object literal may only specify known properties, and 'phone' does not exist in type 'MembershipSelect<DefaultArgs>'.
+apps/api/src/accounts/accounts.prisma-repository.ts(420,60): error TS2339: Property 'position' does not exist on type '{ organizationId: string; createdAt: Date; userId: string; role: MembershipRole; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(424,34): error TS2339: Property 'phone' does not exist on type '{ organizationId: string; createdAt: Date; userId: string; role: MembershipRole; }'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 17 с

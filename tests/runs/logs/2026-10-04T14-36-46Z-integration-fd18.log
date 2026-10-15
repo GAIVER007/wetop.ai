@@ -1,0 +1,131 @@
+# Интеграционные (integration) · 04.10.2026 19:36 Алматы · MacBook-Air-Urij.local
+# коммит bc9b179 (codex/mv4-beauty-hardening-20261004), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-36-46Z-integration-fd18.json' 'tests/integration/mv4-beauty.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |integration| tests/integration/mv4-beauty.test.ts (7 tests | 2 failed) 287ms
+   ❯ MV4 Beauty acceptance on PostgreSQL (7)
+     ✓ empty employee skills do not authorize every service 42ms
+     ✓ READ_ONLY blocks all mutation families even on direct service calls 12ms
+     ✓ concurrent overlap in same location gives one success and one domain conflict 30ms
+     ✓ concurrent overlap in different location gives one success and one domain conflict 12ms
+     ✓ concurrent terminal transitions cannot overwrite one another 18ms
+     × customer visibility is restricted to CustomerBusiness and appears after atomic appointment 4ms
+     × archived customer cannot receive a new appointment or visibility link 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/mv4-beauty.test.ts > MV4 Beauty acceptance on PostgreSQL > customer visibility is restricted to CustomerBusiness and appears after atomic appointment
+TypeError: catalog.customers is not a function
+ ❯ tests/integration/mv4-beauty.test.ts:115:37
+    113|   });
+    114|   it('customer visibility is restricted to CustomerBusiness and appear…
+    115|     expect((await run(() => catalog.customers())).items).toEqual([]);
+       |                                     ^
+    116|     await run(() => appointments.create(input()));
+    117|     expect((await run(() => catalog.customers())).items.map(c => c.id)…
+ ❯ apps/api/src/auth/request-context.ts:59:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:59:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:69:10
+ ❯ run tests/integration/mv4-beauty.test.ts:24:5
+ ❯ tests/integration/mv4-beauty.test.ts:115:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/mv4-beauty.test.ts > MV4 Beauty acceptance on PostgreSQL > archived customer cannot receive a new appointment or visibility link
+AssertionError: promise resolved "{ location: { …(4) }, …(5) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "appointments": [
++     {
++       "currency": "KZT",
++       "customer": {
++         "id": "462e5f9a-6072-460a-940f-2ff12caf7efc",
++         "name": "Synthetic client",
++         "phone": null,
++       },
++       "employeeId": "4d36ebb8-daab-49f0-ae94-2ba74b1c3c83",
++       "endMinutes": 660,
++       "endsAt": "2026-10-12T06:00:00.000Z",
++       "id": "b3ef3088-0812-473a-ba25-4cb6d7f1287b",
++       "next": [
++         "CONFIRMED",
++         "DONE",
++         "NO_SHOW",
++         "CANCELLED",
++       ],
++       "notes": null,
++       "priceMinor": "12345",
++       "serviceId": "19cb6844-0c37-4953-8727-0a0b47d041ca",
++       "serviceName": "Synthetic service",
++       "startMinutes": 600,
++       "startsAt": "2026-10-12T05:00:00.000Z",
++       "status": "BOOKED",
++     },
++   ],
++   "bounds": {
++     "fromMinutes": 0,
++     "toMinutes": 1439,
++   },
++   "columns": [
++     {
++       "id": "4d36ebb8-daab-49f0-ae94-2ba74b1c3c83",
++       "intervals": [
++         {
++           "timeFrom": "00:00",
++           "timeTo": "23:59",
++         },
++       ],
++       "name": "Synthetic employee",
++       "serviceIds": [
++         "19cb6844-0c37-4953-8727-0a0b47d041ca",
++       ],
++       "timeOff": false,
++       "timeOffReason": null,
++     },
++   ],
++   "date": "2026-10-12",
++   "location": {
++     "currency": "KZT",
++     "id": "61b1a0e6-d4b6-4bdf-8274-a84c5dca55f8",
++     "name": "MV4 branch",
++     "timezone": "Asia/Almaty",
++   },
++   "services": [
++     {
++       "category": null,
++       "currency": "KZT",
++       "durationMinutes": 60,
++       "id": "19cb6844-0c37-4953-8727-0a0b47d041ca",
++       "name": "Synthetic service",
++       "priceMinor": "12345",
++       "sellable": true,
++     },
++   ],
+  }
+
+ ❯ tests/integration/mv4-beauty.test.ts:125:60
+    123|     await db.customer.update({ where: { id: customer }, data: { status…
+    124|     try {
+    125|       await expect(run(() => appointments.create(input()))).rejects.to…
+       |                                                            ^
+    126|       expect(await db.customerBusiness.count({ where: { customerId: cu…
+    127|     } finally { await db.customer.update({ where: { id: customer }, da…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 passed (7)
+   Start at  18:36:47
+   Duration  1.18s (tests 38%, transform 36%, import 26%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-36-46Z-integration-fd18.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,153 @@
+# Сквозные (e2e) · 06.10.2026 16:01 Алматы · vm
+# коммит 84670ec (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/branches-ui/branches.spec.ts:36:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (7.0s)
+  ✘  2 tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (6.7s)
+  ✘  3 tests/branches-ui/branches.spec.ts:64:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (6.5s)
+  ✘  4 tests/branches-ui/branches.spec.ts:76:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (3.3s)
+  ✓  5 tests/branches-ui/branches.spec.ts:104:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (5.8s)
+  ✓  6 tests/branches-ui/branches.spec.ts:131:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (5.4s)
+
+
+  1) tests/branches-ui/branches.spec.ts:36:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/branches$/
+    Received string:  "http://127.0.0.1:55863/scope/resolve?next=%2Ftoday"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        13 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:55863/scope/resolve?next=%2Ftoday"
+
+
+      40 |     await reset(request);
+      41 |     await page.goto('/scope/resolve?next=%2Ftoday');
+    > 42 |     await expect(page).toHaveURL(/\/branches$/);
+         |                        ^
+      43 |     expect(await scopeCookie(page)).toBe('');
+      44 |     await expect(
+      45 |       page.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+        at /home/user/wetop.ai/tests/branches-ui/branches.spec.ts:42:24
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-a9319-ый-филиал-сам-не-выбирается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-a9319-ый-филиал-сам-не-выбирается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-a9319-ый-филиал-сам-не-выбирается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/branches$/
+    Received string:  "http://127.0.0.1:55863/floor-plan"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:55863/floor-plan"
+
+
+      58 |     await request.post(`${api}/__test/archive`, { data: { location: f.locations[0] } });
+      59 |     await page.goto('/floor-plan');
+    > 60 |     await expect(page).toHaveURL(/\/branches$/);
+         |                        ^
+      61 |     expect(await scopeCookie(page)).toBe('');
+      62 |   });
+      63 |
+        at /home/user/wetop.ai/tests/branches-ui/branches.spec.ts:60:24
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-0cf51-лах-выбор-без-403-на-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-0cf51-лах-выбор-без-403-на-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-0cf51-лах-выбор-без-403-на-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/branches-ui/branches.spec.ts:64:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/branches$/
+    Received string:  "http://127.0.0.1:55863/calendar"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        13 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:55863/calendar"
+
+
+      70 |     await request.post(`${api}/__test/archive`, { data: { location: f.locations[3] } });
+      71 |     await page.goto('/calendar');
+    > 72 |     await expect(page).toHaveURL(/\/branches$/);
+         |                        ^
+      73 |     expect(await scopeCookie(page)).toBe('');
+      74 |   });
+      75 |
+        at /home/user/wetop.ai/tests/branches-ui/branches.spec.ts:72:24
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-e8d13-раница-не-открывается-молча/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-e8d13-раница-не-открывается-молча/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-e8d13-раница-не-открывается-молча/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/branches-ui/branches.spec.ts:76:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "business=f1a39984-66f3-4c54-a7c0-da59712ccf01;location=0062fbce-a702-4528-8695-2b425b8b8524"
+    Received: "business=8d66a5c1-364f-4652-82b6-90cd64ed9372;location=28fea7ac-6c33-4e53-b7a7-6c5246c1ddd7"
+
+      84 |     await expect(page).toHaveURL(/\/floor-plan$/);
+      85 |     await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
+    > 86 |     expect(await scopeCookie(page)).toBe(
+         |                                     ^
+      87 |       `business=${f.foodB.business};location=${f.foodB.location}`,
+      88 |     );
+      89 |     await page.reload();
+        at /home/user/wetop.ai/tests/branches-ui/branches.spec.ts:86:37
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-1eab1-нственный-филиал-выбран-сам/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-1eab1-нственный-филиал-выбран-сам/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-1eab1-нственный-филиал-выбран-сам/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/branches-ui/branches.spec.ts:36:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается 
+    tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране 
+    tests/branches-ui/branches.spec.ts:64:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча 
+    tests/branches-ui/branches.spec.ts:76:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам 
+  2 passed (42.9s)
+
+# код выхода 1 · 44 с

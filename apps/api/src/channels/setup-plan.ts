@@ -13,6 +13,7 @@ export interface LocalPropertyForChannex {
   /** ISO 3166-1 alpha-2, у объекта KZ */
   country: string;
   city: string;
+  propertyType: string;
   address: string | null;
   email: string | null;
   phone: string | null;
@@ -67,15 +68,18 @@ export function buildChannexSetup(input: {
     timezone: input.property.timezone,
     country: input.property.country,
     city: input.property.city,
-    property_type: 'hostel',
+    property_type: input.property.propertyType,
     ...(input.property.address ? { address: input.property.address } : {}),
     ...(input.property.email ? { email: input.property.email } : {}),
     ...(input.property.phone ? { phone: input.property.phone } : {}),
     settings: {
-      // бронь из канала уменьшает доступность сразу; мы всё равно шлём availability сами (ari.md)
+      // Новая бронь из канала закрывает место сразу, до разбора ревизии в PMS; остаток мы всё равно шлём сами (ari.md).
+      // Изменение и отмену Channex сам не считает: остаток по ним присылает PMS. Документация Channex советует
+      // false (hotels-collection.md, «Recommended Setting is false»), замечание ментора 02.10.2026: при true
+      // остаток двигали и Channex, и дельта PMS.
       allow_availability_autoupdate_on_confirmation: true,
-      allow_availability_autoupdate_on_modification: true,
-      allow_availability_autoupdate_on_cancellation: true,
+      allow_availability_autoupdate_on_modification: false,
+      allow_availability_autoupdate_on_cancellation: false,
       min_stay_type: 'both',
     },
   };

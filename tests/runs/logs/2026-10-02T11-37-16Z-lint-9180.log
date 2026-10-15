@@ -1,0 +1,14 @@
+# Линтер (lint) · 02.10.2026 16:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 042c413 (main), незакоммиченных файлов набора: 34
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/src/app/finance/debts-csv.ts
+  48:11  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/tests/integration/cash-operations.test.ts
+  20:7  error  'propertyId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 34 с

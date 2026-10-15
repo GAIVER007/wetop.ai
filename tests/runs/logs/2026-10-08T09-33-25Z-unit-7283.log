@@ -1,0 +1,31 @@
+# Модульные (unit) · 08.10.2026 14:33 Алматы · vm
+# коммит 616c25b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T09-33-25Z-unit-7283.json' 'packages/domain/src/marketing/conversation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/conversation.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/conversation.test.ts [ packages/domain/src/marketing/conversation.test.ts ]
+Error: Cannot find module './conversation' imported from /home/user/wetop.ai/packages/domain/src/marketing/conversation.test.ts
+ ❯ packages/domain/src/marketing/conversation.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import type { PlanQuestion } from './builder';
+      3| import {
+       | ^
+      4|   ASSISTANT_HISTORY_MAX_CHARS,
+      5|   ASSISTANT_HISTORY_MAX_TURNS,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  09:33:26
+   Duration  262ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-08T09-33-25Z-unit-7283.json
+
+# код выхода 1 · 1 с

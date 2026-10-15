@@ -1,0 +1,111 @@
+# Модульные (unit) · 07.10.2026 22:45 Алматы · vm
+# коммит 1505fc2 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T17-45-32Z-unit-65cd.json' 'packages/domain/src/marketing/editor.test.ts' 'packages/domain/src/marketing/diff.test.ts' 'packages/domain/src/marketing/edit.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/diff.test.ts (9 tests | 1 failed) 94ms
+   ❯ diffSiteSpecs (9)
+     ✓ одинаковые версии: пусто; порядок ключей не важен 11ms
+     ✓ поля сайта 10ms
+     ✓ страница добавлена и удалена 4ms
+     ✓ страница переставлена: moved, а не удаление и добавление 3ms
+     ✓ секция добавлена, удалена и переставлена 10ms
+     ✓ вариант и содержимое секции 14ms
+     ✓ замена картинки героя: одно событие replaced, без «изменилось содержимое» 6ms
+     × картинка галереи добавлена и убрана 28ms
+     ✓ детерминирован: тот же вход, тот же вывод 4ms
+ ✓ |unit| packages/domain/src/marketing/editor.test.ts (13 tests) 96ms
+ ❯ |unit| packages/domain/src/marketing/edit.test.ts (30 tests | 1 failed) 189ms
+   ✓ команда человека (1)
+     ✓ обрезка, переводы строк, пустая, длина, управляющие символы 8ms
+   ❯ конверт SECTION (2)
+     × туда и обратно; худший случай помещается в колонку 20ms
+     ✓ строгий разбор: лишнее поле, другая версия, не JSON, неверный id 2ms
+   ✓ PATCH: что ИИ не меняет (17)
+     ✓ название 39ms
+     ✓ телефон 5ms
+     ✓ почта 5ms
+     ✓ язык 10ms
+     ✓ язык по умолчанию 26ms
+     ✓ бронь 3ms
+     ✓ аналитика 2ms
+     ✓ SEO сайта 2ms
+     ✓ SEO страницы 4ms
+     ✓ юридическое 4ms
+     ✓ новая внешняя ссылка 6ms
+     ✓ новая картинка 3ms
+     ✓ чужая категория 3ms
+     ✓ новая страница 3ms
+     ✓ разметка FAQ 2ms
+     ✓ допустимая правка: заголовок героя, слоган, тема, порядок секций, подписи навигации 2ms
+     ✓ документ не по схеме отклоняется валидатором 2ms
+   ✓ SECTION: меняется только цель (10)
+     ✓ другая секция 3ms
+     ✓ навигация 3ms
+     ✓ SEO страницы 3ms
+     ✓ порядок страниц 2ms
+     ✓ id цели 2ms
+     ✓ тип цели 4ms
+     ✓ место цели 2ms
+     ✓ новая картинка в цели 3ms
+     ✓ допустимо: содержимое и вариант того же типа 2ms
+     ✓ инъекция в тексте остаётся текстом и проходит только в границах 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/diff.test.ts > diffSiteSpecs > картинка галереи добавлена и убрана
+AssertionError: expected [ { area: 'asset', …(3) }, …(1) ] to deeply equal [ { area: 'asset', …(3) }, …(1) ]
+
+- Expected
++ Received
+
+  [
+    {
+      "area": "asset",
+      "kind": "added",
+-     "slot": "section:sec-gallery:images",
++     "slot": "section:sec-gallery:image",
+      "to": "11111111-2222-4333-8444-555555555555",
+    },
+    {
+      "area": "asset",
+      "from": "c3d4e5f6-2031-4c4d-8e5f-6a7b8c9d0e1f",
+      "kind": "removed",
+-     "slot": "section:sec-gallery:images",
++     "slot": "section:sec-gallery:image",
+    },
+  ]
+
+ ❯ packages/domain/src/marketing/diff.test.ts:86:67
+     84|     const old = gallery.images[0].assetId;
+     85|     gallery.images[0] = { ...gallery.images[0], assetId: ASSET };
+     86|     expect(diffSiteSpecs(a, b).filter((c) => c.area === 'asset')).toEq…
+       |                                                                   ^
+     87|       { area: 'asset', kind: 'added', slot: 'section:sec-gallery:image…
+     88|       { area: 'asset', kind: 'removed', slot: 'section:sec-gallery:ima…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/edit.test.ts > конверт SECTION > туда и обратно; худший случай помещается в колонку
+Error: Конверт команды длиннее колонки
+ ❯ encodeSectionInstruction packages/domain/src/marketing/edit.ts:52:50
+     50|   if (!ID_RE.test(target.pageId) || !ID_RE.test(target.sectionId)) thr…
+     51|   const out = canonicalJson({ v: 1, pageId: target.pageId, sectionId: …
+     52|   if (out.length > INSTRUCTION_COLUMN_MAX) throw new Error('Конверт ко…
+       |                                                  ^
+     53|   return out;
+     54| }
+ ❯ packages/domain/src/marketing/edit.test.ts:50:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  2 failed | 50 passed (52)
+   Start at  17:45:37
+   Duration  1.40s (transform 78%, tests 12%, import 9%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T17-45-32Z-unit-65cd.json
+
+# код выхода 1 · 6 с

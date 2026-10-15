@@ -1,0 +1,101 @@
+# Сквозные (e2e) · 05.10.2026 15:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 35f8ab5 (codex/release-finance-disclosure-20261005), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/empty-base.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/mobile-adaptation.spec.ts:85' 'tests/ui/chessboard-calendar.spec.ts:12' 'tests/ui/chessboard-mobile.spec.ts:171' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] (node:17752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17919) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17959) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 28 tests using 1 worker
+
+(node:17982) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (3.5s)
+  ✓   2 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 360: шесть показателей перед календарём и вертикальная прокрутка (2.3s)
+  ✓   3 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 390: шесть показателей перед календарём и вертикальная прокрутка (1.5s)
+  ✓   4 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 430: шесть показателей перед календарём и вертикальная прокрутка (1.3s)
+  ✓   5 tests/ui/empty-base.spec.ts:41:3 › пустая база: /today открывается и объясняет пустоту (917ms)
+  ✓   6 tests/ui/empty-base.spec.ts:41:3 › пустая база: /chessboard открывается и объясняет пустоту (1.2s)
+  ✓   7 tests/ui/empty-base.spec.ts:41:3 › пустая база: /reservations открывается и объясняет пустоту (1.9s)
+  ✓   8 tests/ui/empty-base.spec.ts:41:3 › пустая база: /guests открывается и объясняет пустоту (836ms)
+[WebServer] (node:18189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms открывается и объясняет пустоту (1.5s)
+[WebServer] (node:18222) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms/categories открывается и объясняет пустоту (641ms)
+[WebServer] (node:18230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms/availability открывается и объясняет пустоту (748ms)
+  ✓  12 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rates открывается и объясняет пустоту (1.0s)
+  ✓  13 tests/ui/empty-base.spec.ts:41:3 › пустая база: /finance открывается и объясняет пустоту (757ms)
+  ✓  14 tests/ui/empty-base.spec.ts:41:3 › пустая база: /management/analytics открывается и объясняет пустоту (887ms)
+  ✓  15 tests/ui/empty-base.spec.ts:41:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту (949ms)
+  ✓  16 tests/ui/empty-base.spec.ts:41:3 › пустая база: /journal открывается и объясняет пустоту (1.1s)
+  ✓  17 tests/ui/empty-base.spec.ts:41:3 › пустая база: /incidents открывается и объясняет пустоту (1.0s)
+[WebServer] (node:18368) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 tests/ui/empty-base.spec.ts:41:3 › пустая база: /channels открывается и объясняет пустоту (1.4s)
+  ✓  19 tests/ui/empty-base.spec.ts:41:3 › пустая база: /connections открывается и объясняет пустоту (1.1s)
+  ✓  20 tests/ui/empty-base.spec.ts:41:3 › пустая база: /website открывается и объясняет пустоту (839ms)
+  ✓  21 tests/ui/empty-base.spec.ts:41:3 › пустая база: /website/analytics открывается и объясняет пустоту (1.6s)
+[WebServer] (node:18435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/empty-base.spec.ts:41:3 › пустая база: /hotel-settings открывается и объясняет пустоту (1.8s)
+[WebServer] (node:18475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 tests/ui/empty-base.spec.ts:41:3 › пустая база: /channels/mapping открывается и объясняет пустоту (996ms)
+  ✓  24 tests/ui/empty-base.spec.ts:51:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.6s)
+  ✓  25 tests/ui/empty-base.spec.ts:62:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (811ms)
+  ✓  26 tests/ui/guests-birthdays.spec.ts:15:1 › дни рождения доступны на отдельной странице, но не дублируются в календаре (2.8s)
+  ✓  27 tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто (1.7s)
+  ✘  28 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана (1.3s)
+
+
+  1) tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана
+
+    Error: сетка начинается на 566 px
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 422
+    Received:   565.5
+
+      89 |   await expect(page.getByRole('group', { name: 'Сегодня на объекте' })).toBeVisible();
+      90 |   const board = await page.locator('.board-wrap').boundingBox();
+    > 91 |   expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThan(422);
+         |                                                                      ^
+      92 |   // и всё управление осталось с целями 44 px (цели ниже ловит отдельный тест ниже)
+      93 |   await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
+      94 | });
+        at /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/tests/ui/mobile-adaptation.spec.ts:91:70
+
+    Error Context: test-results/mobile-adaptation-телефон--1a667-отнимает-у-сетки-пол-экрана/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--1a667-отнимает-у-сетки-пол-экрана/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--1a667-отнимает-у-сетки-пол-экрана/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана
+  27 passed (44.2s)
+
+# код выхода 1 · 45 с

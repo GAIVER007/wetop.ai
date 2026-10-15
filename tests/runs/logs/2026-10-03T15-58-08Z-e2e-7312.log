@@ -1,0 +1,229 @@
+# Сквозные (e2e) · 03.10.2026 20:58 Алматы · vm
+# коммит 6af7487 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 29
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/market.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/platform-access.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 68 tests using 1 worker
+
+  ✓   1 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (4.6s)
+  ✓   2 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (5.1s)
+  ✓   3 tests/ui/market.spec.ts:148:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (2.2s)
+  ✓   4 tests/ui/market.spec.ts:164:3 › снимки и доступность: light (5.4s)
+  ✓   5 tests/ui/market.spec.ts:164:3 › снимки и доступность: dark (5.3s)
+  ✘   6 tests/ui/navigation.spec.ts:49:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (1.6s)
+  ✓   7 tests/ui/navigation.spec.ts:90:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (3.6s)
+  ✓   8 tests/ui/navigation.spec.ts:117:1 › все пункты меню открывают существующие страницы (20.4s)
+  ✓   9 tests/ui/navigation.spec.ts:165:3 › меню телефона и планшета ровное и доступное: light (3.8s)
+  ✓  10 tests/ui/navigation.spec.ts:165:3 › меню телефона и планшета ровное и доступное: dark (5.2s)
+  ✓  11 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (3.7s)
+  ✓  12 tests/ui/platform-access.spec.ts:80:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (4.8s)
+  ✓  13 tests/ui/platform-access.spec.ts:102:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (4.5s)
+  ✓  14 tests/ui/platform-access.spec.ts:141:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (4.2s)
+  ✓  15 tests/ui/platform-access.spec.ts:169:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (2.4s)
+  ✓  16 tests/ui/platform-access.spec.ts:189:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (3.6s)
+  ✓  17 tests/ui/platform-access.spec.ts:212:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (6.5s)
+  ✓  18 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, light, 1440px (11.0s)
+  ✓  19 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, dark, 1440px (11.0s)
+  ✓  20 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, light, 390px (10.4s)
+  ✓  21 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, dark, 390px (10.8s)
+  ✓  22 tests/ui/requests.spec.ts:78:3 › экран /today: данные берутся одним запросом на путь (1.6s)
+  ✓  23 tests/ui/requests.spec.ts:78:3 › экран /chessboard: данные берутся одним запросом на путь (1.8s)
+  ✓  24 tests/ui/requests.spec.ts:78:3 › экран /reservations: данные берутся одним запросом на путь (1.7s)
+  ✓  25 tests/ui/requests.spec.ts:78:3 › экран /guests: данные берутся одним запросом на путь (1.5s)
+  ✓  26 tests/ui/requests.spec.ts:78:3 › экран /inventory: данные берутся одним запросом на путь (1.7s)
+  ✓  27 tests/ui/requests.spec.ts:78:3 › экран /rooms/categories: данные берутся одним запросом на путь (2.3s)
+  ✓  28 tests/ui/requests.spec.ts:78:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.7s)
+  ✓  29 tests/ui/requests.spec.ts:78:3 › экран /rates: данные берутся одним запросом на путь (1.5s)
+  ✓  30 tests/ui/requests.spec.ts:78:3 › экран /management/analytics: данные берутся одним запросом на путь (1.6s)
+  ✓  31 tests/ui/requests.spec.ts:78:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.9s)
+  ✓  32 tests/ui/requests.spec.ts:78:3 › экран /management/analytics/units: данные берутся одним запросом на путь (2.3s)
+  ✓  33 tests/ui/requests.spec.ts:78:3 › экран /finance: данные берутся одним запросом на путь (1.7s)
+  ✓  34 tests/ui/requests.spec.ts:78:3 › экран /reports: данные берутся одним запросом на путь (1.5s)
+  ✓  35 tests/ui/requests.spec.ts:78:3 › экран /channels: данные берутся одним запросом на путь (1.7s)
+  ✓  36 tests/ui/requests.spec.ts:78:3 › экран /connections/channex: данные берутся одним запросом на путь (1.8s)
+  ✓  37 tests/ui/requests.spec.ts:78:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.5s)
+  ✓  38 tests/ui/requests.spec.ts:78:3 › экран /channels/sync: данные берутся одним запросом на путь (1.6s)
+  ✓  39 tests/ui/requests.spec.ts:78:3 › экран /channels/events: данные берутся одним запросом на путь (1.5s)
+  ✓  40 tests/ui/requests.spec.ts:78:3 › экран /website: данные берутся одним запросом на путь (1.4s)
+  ✓  41 tests/ui/requests.spec.ts:78:3 › экран /website/booking: данные берутся одним запросом на путь (1.8s)
+  ✓  42 tests/ui/requests.spec.ts:78:3 › экран /website/analytics: данные берутся одним запросом на путь (2.0s)
+  ✓  43 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.5s)
+  ✓  44 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.5s)
+  ✓  45 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.5s)
+  ✓  46 tests/ui/requests.spec.ts:78:3 › экран /team: данные берутся одним запросом на путь (1.4s)
+  ✓  47 tests/ui/requests.spec.ts:78:3 › экран /connections: данные берутся одним запросом на путь (1.5s)
+  ✓  48 tests/ui/requests.spec.ts:78:3 › экран /ai-agents: данные берутся одним запросом на путь (1.5s)
+  ✓  49 tests/ui/requests.spec.ts:78:3 › экран /website/settings: данные берутся одним запросом на путь (1.8s)
+  ✓  50 tests/ui/requests.spec.ts:78:3 › экран /incidents: данные берутся одним запросом на путь (2.1s)
+  ✓  51 tests/ui/requests.spec.ts:78:3 › экран /journal: данные берутся одним запросом на путь (1.8s)
+  ✓  52 tests/ui/requests.spec.ts:78:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.3s)
+  ✘  53 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (16.2s)
+  ✓  54 tests/ui/roles.spec.ts:62:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (6.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  55 tests/ui/roles.spec.ts:100:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (3.4s)
+  ✓  56 tests/ui/roles.spec.ts:117:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (5.2s)
+  ✓  57 tests/ui/roles.spec.ts:145:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (6.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  58 tests/ui/roles.spec.ts:207:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (4.4s)
+  ✓  59 tests/ui/roles.spec.ts:262:1 › владелец: зовёт управляющего и администратора, меняет роль (2.8s)
+  ✓  60 tests/ui/roles.spec.ts:293:1 › администратор: сотрудниками ведают владелец и управляющий (1.7s)
+  ✓  61 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, light, 1440px (4.9s)
+  ✓  62 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.0s)
+  ✓  63 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, light, 390px (4.7s)
+  ✓  64 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, dark, 390px (4.8s)
+  ✘  65 tests/ui/top-menu.spec.ts:52:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (1.5s)
+  ✓  66 tests/ui/top-menu.spec.ts:116:1 › вложенные адреса подсвечивают свою вкладку (3.9s)
+  ✓  67 tests/ui/top-menu.spec.ts:149:3 › шапка ровная, без прокрутки вбок и доступная: light (3.6s)
+  ✓  68 tests/ui/top-menu.spec.ts:149:3 › шапка ровная, без прокрутки вбок и доступная: dark (3.4s)
+
+
+  1) tests/ui/navigation.spec.ts:49:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+    @@ -8,10 +8,11 @@
+        "/hotel-settings",
+        "/incidents",
+        "/inventory",
+        "/journal",
+        "/management/analytics",
+    +   "/market",
+        "/rates",
+        "/reports",
+        "/reservations",
+        "/team",
+        "/today",
+
+      58 |     .locator('.workspace-links a')
+      59 |     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+    > 60 |   expect([...links].sort()).toEqual([...routes].sort());
+         |                             ^
+      61 |   expect(new Set(links).size).toBe(links.length);
+      62 |   await expect(menu.locator('[aria-current="page"]')).toHaveText('Главная');
+      63 |   // «Календарь» больше не спрятан в группе: прямая ссылка с подписью
+        at /home/user/wetop.ai/tests/ui/navigation.spec.ts:60:29
+
+    Error Context: test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+    @@ -2,10 +2,11 @@
+        "/today",
+        "/chessboard",
+        "/reservations",
+        "/guests",
+        "/finance",
+    +   "/market",
+        "/ai-agents",
+        "/reports",
+        "/management/analytics",
+        "/incidents",
+      ]
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      43 |   await expect
+      44 |     .poll(() => menuLinks(page))
+    > 45 |     .toEqual([
+         |      ^
+      46 |       '/today',
+      47 |       '/chessboard',
+      48 |       '/reservations',
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:45:6
+
+    Error Context: test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/top-menu.spec.ts:52:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+    @@ -8,10 +8,11 @@
+        "/hotel-settings",
+        "/incidents",
+        "/inventory",
+        "/journal",
+        "/management/analytics",
+    +   "/market",
+        "/rates",
+        "/reports",
+        "/reservations",
+        "/team",
+        "/today",
+
+      65 |     .locator('a')
+      66 |     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+    > 67 |   expect([...links].sort()).toEqual([...routes].sort());
+         |                             ^
+      68 |   expect(new Set(links).size).toBe(links.length);
+      69 |   await expect(menu.locator('[aria-current="page"]')).toHaveText('Главная');
+      70 |
+        at /home/user/wetop.ai/tests/ui/top-menu.spec.ts:67:29
+
+    Error Context: test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/navigation.spec.ts:49:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+    tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+    tests/ui/top-menu.spec.ts:52:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры 
+  65 passed (4.6m)
+
+# код выхода 1 · 4 мин 35 с

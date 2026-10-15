@@ -1,0 +1,17 @@
+# Модульные (unit) · 04.10.2026 15:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2142b73 (claude/team-phone-position), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T10-03-25Z-unit-ee15.json' 'tests/unit/migrations-rollback.test.ts' 'tests/unit/migrations-hold.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate
+
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 4ms
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (57 tests) 6ms
+
+ Test Files  2 passed (2)
+      Tests  61 passed (61)
+   Start at  03:03:26
+   Duration  106ms (transform 50%, import 22%, tests 20%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T10-03-25Z-unit-ee15.json
+
+# код выхода 0 · 1 с

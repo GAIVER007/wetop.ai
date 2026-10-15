@@ -1,0 +1,16 @@
+...                                                                      [100%]
+=============================== warnings summary ===============================
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[replied-DONE-None]
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[send_failed-FAILED-delivery_unconfirmed]
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[interrupted-FAILED-processing_interrupted]
+  /usr/local/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'organization_id' as primary_key=True, not matching locally specified columns 'agent_id'; setting the current primary key columns to 'agent_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[replied-DONE-None]
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[send_failed-FAILED-delivery_unconfirmed]
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[interrupted-FAILED-processing_interrupted]
+  /usr/local/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'organization_id', 'agent_id' as primary_key=True, not matching locally specified columns 'agent_id'; setting the current primary key columns to 'agent_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 6 warnings in 1.14s

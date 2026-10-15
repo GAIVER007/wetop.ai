@@ -7,8 +7,11 @@ ROOT = Path(__file__).resolve().parent.parent
 
 def test_entrypoint_applies_migrations_before_web_process() -> None:
     script = (ROOT / "scripts" / "docker-entrypoint.sh").read_text(encoding="utf-8")
-    assert "alembic upgrade head" in script
-    assert 'exec "$@"' in script
+    # С 01.10.2026 не `upgrade head`: запуск доходит только до 0009, 0010 и 0011 идут отдельной
+    # выкладкой (DECISIONS.md, «граница миграций при запуске seller runtime»). Саму границу по
+    # ревизиям проверяет test_entrypoint_migration_boundary.py, здесь только порядок: миграции, потом процесс.
+    assert "alembic upgrade" in script
+    assert script.index("alembic upgrade") < script.index('exec "$@"')
 
 
 def test_only_web_process_runs_migrations() -> None:

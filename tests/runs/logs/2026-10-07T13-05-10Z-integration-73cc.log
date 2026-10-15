@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 07.10.2026 18:05 Алматы · vm
+# коммит 8b734d0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 19
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T13-05-10Z-integration-73cc.json' 'tests/integration/site-publication.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:18171) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-publication.test.ts (12 tests) 3121ms
+   ✓ MKT7 публикация управляемого сайта (12)
+     ✓ §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 832ms
+     ✓ §84: тариф брони только явный, связанный или канонический; первый активный не берётся 383ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  13:05:11
+   Duration  9.15s (tests 46%, transform 39%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-07T13-05-10Z-integration-73cc.json
+
+# код выхода 0 · 10 с

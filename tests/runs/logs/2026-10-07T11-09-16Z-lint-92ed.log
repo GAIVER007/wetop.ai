@@ -1,0 +1,14 @@
+# Линтер (lint) · 07.10.2026 16:09 Алматы · vm
+# коммит 0745160 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 9
+# npx eslint .
+
+/home/user/wetop.ai/packages/domain/src/marketing/generation.test.ts
+  53:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/user/wetop.ai/tests/integration/site-generation.test.ts
+  56:76  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 52 с

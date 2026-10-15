@@ -1,0 +1,1 @@
+Pilot completion: explicit HttpOnly verified scope, reload, desktop/mobile axe, no hotel API calls: PASS

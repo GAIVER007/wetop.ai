@@ -1,3 +1,8 @@
+import { OrganizationSummaryService, OrganizationSummaryController } from './organization-summary';
+import { BranchLifecycleService, BranchLifecycleController } from './branch-lifecycle';
+import { BusinessCardsModule } from './business-cards';
+import { DashboardModule } from '../dashboard/dashboard.module';
+import { BranchesController, BranchesService } from './branches';
 import 'reflect-metadata';
 import { randomUUID } from 'node:crypto';
 import { ReservationDirectory, ReservationDirectoryController } from './reservation-directory';
@@ -17,7 +22,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ReservationStatus } from '@pms/database';
+import { Prisma, ReservationStatus } from '@pms/database';
 import {
   LUXX_APARTS_PROPERTY,
   REGISTRATION_NAME_TAKEN_MESSAGE,
@@ -28,7 +33,14 @@ import {
   type ServiceInput,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
-import { actorMay, currentOrganizationId, hasSignedInActor } from '../auth/request-context';
+import {
+  actorMay,
+  currentOrganizationId,
+  currentBusinessId,
+  currentLocationId,
+  currentScope,
+  hasSignedInActor,
+} from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE } from '../database/property-ref';
 import { Access } from '../auth/access.decorator';
@@ -41,6 +53,13 @@ import { Access } from '../auth/access.decorator';
  * не стойка, поэтому правка появится на экранах не позже чем через минуту.
  */
 const SETTINGS_TTL_MS = () => Number(process.env.HOTEL_SETTINGS_TTL_MS ?? 60_000);
+
+/** Значения поля равны: списки (удобства) сравниваются по составу и порядку, остальное как есть */
+function sameValue(a: unknown, b: unknown): boolean {
+  if (Array.isArray(a) && Array.isArray(b))
+    return a.length === b.length && a.every((x, i) => x === b[i]);
+  return a === b;
+}
 
 /** Read-only projections of the approved model. No provider calls or financial mutations. */
 @Injectable()
@@ -58,7 +77,12 @@ export class HotelService {
   /** По какому объекту отвечаем: вошедший — по своей организации, служебный ходок — по имени (Luxx). */
   private settingsKey(): string {
     if (!hasSignedInActor()) return '__service__';
-    return currentOrganizationId() ?? '__nobody__';
+    return [
+      currentOrganizationId() ?? '__nobody__',
+      currentScope(),
+      currentBusinessId(),
+      currentLocationId(),
+    ].join('|');
   }
 
   private async property() {
@@ -67,11 +91,21 @@ export class HotelService {
       ? (() => {
           const organizationId = currentOrganizationId();
           if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
-          return { organizationId };
+          return {
+            organizationId,
+            ...(currentScope() === 'LOCATION' && currentLocationId()
+              ? { locationId: currentLocationId()! }
+              : {}),
+            ...(currentBusinessId()
+              ? { location: { businessId: currentBusinessId()!, business: { organizationId } } }
+              : {}),
+          };
         })()
       : { name: LUXX_APARTS_PROPERTY.name };
     const property = await this.prisma.db.property.findFirst({
       where,
+      // детерминизм на орг- и бизнес-скоупе: тот же «ранний» объект, что у property-ref (ADR-183)
+      orderBy: { createdAt: 'asc' },
       select: {
         id: true,
         name: true,
@@ -82,14 +116,39 @@ export class HotelService {
         // контакты для печатных форм — тоже из записи (v1.7, ADR-082)
         phone: true,
         email: true,
+        countryCode: true,
+        city: true,
+        channexPropertyType: true,
         timezone: true,
         currency: true,
         checkInTime: true,
         checkOutTime: true,
+        // карточка объекта (ADR-158, DATA_MODEL §32)
+        description: true,
+        website: true,
+        publicName: true,
+        earlyCheckIn: true,
+        lateCheckOut: true,
+        childrenAllowed: true,
+        petsAllowed: true,
+        smokingAllowed: true,
+        onsitePayment: true,
+        cancellationRule: true,
+        depositRule: true,
+        minGuestAge: true,
+        quietHoursFrom: true,
+        quietHoursTo: true,
+        houseRulesNote: true,
+        amenities: true,
       },
     });
     if (!property) throw new NotFoundException('Гостиница ещё не настроена');
     return property;
+  }
+
+  /** Объект вошедшего: файлы объекта (фото, договор) привязаны к нему */
+  async currentPropertyId(): Promise<string> {
+    return (await this.property()).id;
   }
 
   async settings() {
@@ -115,7 +174,7 @@ export class HotelService {
 
   private async readSettings() {
     const property = await this.property();
-    const [ratePlans, categories] = await Promise.all([
+    const [ratePlans, categories, rooms, beds] = await Promise.all([
       this.prisma.db.ratePlan.findMany({
         where: { propertyId: property.id },
         orderBy: { code: 'asc' },
@@ -124,8 +183,20 @@ export class HotelService {
       // Нужен ли онбординг: у объекта ещё нет ни одной категории. Читаем здесь, чтобы гейт в layout
       // не делал отдельный рейс — layout и так берёт настройки (и они кэшируются по организации).
       this.prisma.db.accommodationType.count({ where: { propertyId: property.id } }),
+      // «Количество номеров» и «мест» не хранятся: единицы продажи (ADR-013), активные
+      this.prisma.db.inventoryUnit.count({
+        where: { propertyId: property.id, active: true, kind: 'ROOM' },
+      }),
+      this.prisma.db.inventoryUnit.count({
+        where: { propertyId: property.id, active: true, kind: 'BED' },
+      }),
     ]);
-    return { property, ratePlans, needsOnboarding: categories === 0 };
+    return {
+      property,
+      ratePlans,
+      needsOnboarding: categories === 0,
+      capacity: { rooms, beds },
+    };
   }
 
   /**
@@ -167,17 +238,17 @@ export class HotelService {
     }
     // пишем только изменённое: форма шлёт все поля, а журнал только дописывается
     const keys = (Object.keys(patch) as Array<keyof HotelSettingsPatch>).filter(
-      (k) => patch[k] !== (property[k] ?? null),
+      (k) => !sameValue(patch[k], property[k] ?? null),
     );
     if (keys.length === 0) return this.settings();
     const changed = Object.fromEntries(
       keys.map((k) => [k, patch[k] ?? null]),
     ) as HotelSettingsPatch;
     // ИИН/БИН у ИП — ИИН человека: в неудаляемый журнал только последние 4 цифры (как В-5 для гостей)
-    const masked = (row: Record<string, string | null>): Record<string, string | null> =>
+    const masked = (row: Record<string, unknown>): Prisma.InputJsonObject =>
       'bin' in row && typeof row['bin'] === 'string'
-        ? { ...row, bin: `••••${row['bin'].slice(-4)}` }
-        : row;
+        ? ({ ...row, bin: `••••${row['bin'].slice(-4)}` } as Prisma.InputJsonObject)
+        : (row as Prisma.InputJsonObject);
     const before = masked(Object.fromEntries(keys.map((k) => [k, property[k] ?? null])));
     const organizationId = currentOrganizationId();
     await this.prisma.db.$transaction(async (tx) => {
@@ -193,7 +264,7 @@ export class HotelService {
           entityId: property.id,
           action: 'hotel.settings.updated',
           before,
-          after: masked({ ...changed } as Record<string, string | null>),
+          after: masked({ ...changed }),
         },
       });
     });
@@ -453,7 +524,23 @@ export class HotelController {
 }
 
 @Module({
-  controllers: [HotelController, ReservationDirectoryController, OnboardingController],
-  providers: [PrismaService, HotelService, ReservationDirectory, OnboardingService],
+  imports: [DashboardModule, BusinessCardsModule],
+  controllers: [
+    BranchesController,
+    OrganizationSummaryController,
+    BranchLifecycleController,
+    HotelController,
+    ReservationDirectoryController,
+    OnboardingController,
+  ],
+  providers: [
+    BranchesService,
+    OrganizationSummaryService,
+    BranchLifecycleService,
+    PrismaService,
+    HotelService,
+    ReservationDirectory,
+    OnboardingService,
+  ],
 })
 export class HotelModule {}

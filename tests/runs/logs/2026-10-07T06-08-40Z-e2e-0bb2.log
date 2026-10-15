@@ -1,0 +1,15 @@
+# Сквозные (e2e) · 07.10.2026 11:08 Алматы · vm
+# коммит 7ee1d7b (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts' '--workers=1'
+[WebServer] /home/user/wetop.ai/tests/branches-ui/fixture-api.ts:28
+[WebServer]   throw new Error('Own local database required');
+[WebServer]         ^
+[WebServer] 
+[WebServer] Error: Own local database required
+[WebServer]     at <anonymous> (/home/user/wetop.ai/tests/branches-ui/fixture-api.ts:28:9)
+[WebServer] 
+[WebServer] Node.js v22.22.0
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 4 с

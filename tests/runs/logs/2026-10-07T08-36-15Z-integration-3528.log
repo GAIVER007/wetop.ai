@@ -1,0 +1,51 @@
+# Интеграционные (integration) · 07.10.2026 13:36 Алматы · vm
+# коммит 9644569 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-36-15Z-integration-3528.json' 'tests/integration/payment-void.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:1829) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/payment-void.test.ts (4 tests | 1 failed) 1443ms
+   ❯ аннулирование платежа под блокировкой (integration) (4)
+     ✓ аннулированный платёж уходит из распределений счёта; второй раз не аннулируется 100ms
+     ✓ возврат и аннулирование наперегонки: проходит ровно одно 1046ms
+     ✓ платёж с возвратом не аннулируется и не заменяется: отказ из транзакции словами 31ms
+     × запрос оплаты: аннулирование возвращает его в ожидание, замена переводит на новый платёж 30ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/payment-void.test.ts > аннулирование платежа под блокировкой (integration) > запрос оплаты: аннулирование возвращает его в ожидание, замена переводит на новый платёж
+AssertionError: expected { status: 'PAID', …(2) } to deeply equal { status: 'PENDING', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "closedAt": null,
+-   "paymentId": null,
+-   "status": "PENDING",
++   "closedAt": 2026-10-07T08:36:20.184Z,
++   "paymentId": "47c96b15-a8ed-4308-aa8c-e804382f56ea",
++   "status": "PAID",
+  }
+
+ ❯ tests/integration/payment-void.test.ts:141:22
+    139|       select: { status: true, paymentId: true, closedAt: true },
+    140|     });
+    141|     expect(reopened).toEqual({ status: 'PENDING', paymentId: null, clo…
+       |                      ^
+    142|
+    143|     const second = await payment(2_000n);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  08:36:15
+   Duration  4.27s (tests 51%, transform 36%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-36-15Z-integration-3528.json
+
+# код выхода 1 · 5 с

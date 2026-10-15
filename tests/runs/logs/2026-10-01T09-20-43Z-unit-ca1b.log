@@ -1,0 +1,77 @@
+# Модульные (unit) · 01.10.2026 14:20 Алматы · MacBook-Air-Urij.local
+# коммит 8c8b125 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 67
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T09-20-43Z-unit-ca1b.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| tests/unit/auto-deploy.test.ts (13 tests | 3 failed) 37805ms
+   ❯ scripts/ops/auto-deploy.sh (13)
+     × checked-out source stays readable by the container user under a private caller umask 2792ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1141ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 2660ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 2062ms
+     × владелец применил миграции и назвал вершину — выкладывает ровно её 8308ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 2396ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1822ms
+     × --migrations-applied с номером вершины выкладывает ровно её, другую — нет 2003ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2498ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 3064ms
+     ✓ локальные правки в клоне — не затирает их 1723ms
+     ✓ историю ветки переписали — не выкладывает поверх 2722ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 4611ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > checked-out source stays readable by the container user under a private caller umask
+AssertionError: expected 256 to be 292 // Object.is equality
+
+- Expected
++ Received
+
+- 292
++ 256
+
+ ❯ tests/unit/auto-deploy.test.ts:110:79
+    108|     const result = run({DEPLOY_NOTIFY: 'off'}, [], true);
+    109|     expect(result.code).toBe(0);
+    110|     expect(statSync(join(server, 'apps/api/src/new-module.ts')).mode &…
+       |                                                                               ^
+    111|     expect(statSync(join(server, 'apps/api/src')).mode & 0o111).toBe(0…
+    112|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и назвал вершину — выкладывает ровно её
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:156:3
+    154|   });
+    155|
+    156|   it('владелец применил миграции и назвал вершину — выкладывает ровно …
+       |   ^
+    157|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    158|     const refusal = run();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > --migrations-applied с номером вершины выкладывает ровно её, другую — нет
+AssertionError: expected +0 not to be +0 // Object.is equality
+ ❯ tests/unit/auto-deploy.test.ts:203:68
+    201|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    202|     expect(run().code).toBe(1);
+    203|     expect(run({}, ['--migrations-applied', 'deadbeef']).code).not.toB…
+       |                                                                    ^
+    204|     const r = run({}, ['--migrations-applied', target.slice(0, 8)]);
+    205|     expect(r.code, r.out).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 10 passed (13)
+   Start at  13:20:45
+   Duration  38.02s (tests 100%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T09-20-43Z-unit-ca1b.json
+
+# код выхода 1 · 40 с

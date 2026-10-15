@@ -1,0 +1,29 @@
+{
+ "/management/analytics/channels": {
+  "390": [
+   {
+    "cols": 4,
+    "noHead": false,
+    "rows": 2,
+    "rowHeights": [
+     116
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 4,
+    "noHead": false,
+    "rows": 2,
+    "rowHeights": [
+     57,
+     58
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

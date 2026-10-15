@@ -1,0 +1,58 @@
+# Сквозные (e2e) · 08.10.2026 00:09 Алматы · vm
+# коммит 9346cc7 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' '-g' 'окно «Создать сайт»' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/site-editor.spec.ts:224:1 › окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор (20.5s)
+  ✓  2 tests/ui/site-editor.spec.ts:246:1 › окно «Создать сайт»: сайт есть без версий, адреса нет; ошибка ИИ словами, текст на месте (6.8s)
+  ✓  3 tests/ui/site-editor.spec.ts:259:3 › окно «Создать сайт»: снимки и доступность, light (7.2s)
+  ✓  4 tests/ui/site-editor.spec.ts:259:3 › окно «Создать сайт»: снимки и доступность, dark (6.1s)
+
+
+  1) tests/ui/site-editor.spec.ts:224:1 › окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').visible().getByTestId('create-site').getByRole('list', { name: 'Примеры описаний' })
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').visible().getByTestId('create-site').getByRole('list', { name: 'Примеры описаний' }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByTestId('create-site').getByRole('list', { name: 'Примеры описаний' })
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      230 |   await expect(win.getByLabel('Адрес сайта')).toHaveValue('luxx-aparts');
+      231 |   // Готовых примеров под полем нет (слово владельца 07.10): только строка ввода и «Создать сайт».
+    > 232 |   await expect(win.getByRole('list', { name: 'Примеры описаний' })).toHaveCount(0);
+          |                                                                     ^
+      233 |   await expect(win.getByRole('button')).toHaveText(['Создать сайт']);
+      234 |   await win.getByLabel('Опишите сайт').fill('Спокойный сайт у вокзала');
+      235 |   await win.getByLabel('Адрес сайта').fill('busy-hotel');
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:232:69
+
+    Error Context: test-results/site-editor-окно-«Создать--deedf-ётся-и-открывается-редактор/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-окно-«Создать--deedf-ётся-и-открывается-редактор/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-окно-«Создать--deedf-ётся-и-открывается-редактор/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/site-editor.spec.ts:224:1 › окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор 
+  3 passed (1.5m)
+
+# код выхода 1 · 1 мин 32 с

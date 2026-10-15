@@ -8,7 +8,6 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 const affected = [
-  '/today',
   '/management/analytics',
   '/management/analytics/occupancy',
   '/rooms/availability',

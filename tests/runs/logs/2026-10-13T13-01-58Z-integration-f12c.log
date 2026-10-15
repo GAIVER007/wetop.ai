@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 13.10.2026 18:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 507efb0 (claude/bar-location-api), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-01-58Z-integration-f12c.json' 'tests/integration/bar-restaurant-cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ❯ |integration| tests/integration/bar-restaurant-cash.test.ts (3 tests | 1 failed) 319ms
+   ❯ бар: деньги по направлению филиала (integration) (3)
+     ✓ ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 155ms
+     × салон: склад работает, продажа и оплата закрыты до кассы салона 32ms
+     ✓ филиал ресторана не видит бар салона и наоборот 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-restaurant-cash.test.ts > бар: деньги по направлению филиала (integration) > салон: склад работает, продажа и оплата закрыты до кассы салона
+PrismaClientKnownRequestError: 
+Invalid `prisma.restaurantCashOperation.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Restaurant location required`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/bar/bar.repository.ts:341:41
+
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ apps/api/src/auth/request-context.ts:61:41
+ ❯ tests/integration/bar-restaurant-cash.test.ts:98:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  06:01:58
+   Duration  1.78s (transform 46%, tests 28%, import 26%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-01-58Z-integration-f12c.json
+
+# код выхода 1 · 2 с

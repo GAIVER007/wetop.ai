@@ -6,8 +6,8 @@ import { BusinessAgentsService } from './business-agents.service';
 import { FakeBusinessAgents, FakeSellerExtensions } from './fakes';
 
 /**
- * Область запроса вошедшего не шире выбора (Platform P2, ADR-120): выбран филиал — агента не создать и не увидеть на другом,
- * выбран Business — на чужом Business. Проверяется на службе: указатель scope на HTTP-уровне ставит `AuthorInterceptor`,
+ * Область запроса вошедшего не шире выбора (Platform P2, ADR-120): выбран филиал, агента не создать и не увидеть на другом,
+ * выбран Business, на чужом Business. Проверяется на службе: указатель scope на HTTP-уровне ставит `AuthorInterceptor`,
  * а здесь важно, что служба его уважает.
  */
 
@@ -54,7 +54,7 @@ describe('scope запроса', () => {
     expect(options.businesses.flatMap((b) => b.locations.map((l) => l.id))).toEqual([LOC_1, LOC_2, LOC_3]);
   });
 
-  it('выбран филиал: варианты — только он; создать на другом — 404, на выбранном — можно', async () => {
+  it('выбран филиал: варианты, только он; создать на другом, 404, на выбранном, можно', async () => {
     const scoped = actor('LOCATION', { businessId: BIZ_1, locationId: LOC_2 });
     const options = await withSignedInUser(scoped, () => service.options());
     expect(options.businesses.flatMap((b) => b.locations.map((l) => l.id))).toEqual([LOC_2]);

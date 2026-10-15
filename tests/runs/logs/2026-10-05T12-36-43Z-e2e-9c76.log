@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 05.10.2026 17:36 Алматы · MacBook-Air-Urij.local
+# коммит 87fea09 (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '--grep' 'every registered|marker guarded'
+[WebServer] (node:89950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89993) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90078) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90126) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:90260) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/food-ui/food.spec.ts:573:1 › Food excludes every registered foreign workspace route before API requests (8.5s)
+(node:90637) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/food-ui/food.spec.ts:583:1 › marker guarded cleanup (125ms)
+
+
+  1) tests/food-ui/food.spec.ts:573:1 › Food excludes every registered foreign workspace route before API requests
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/floor-plan$/
+    Received string:  "http://127.0.0.1:55823/finance"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        13 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:55823/finance"
+
+
+      576 |   for (const route of ['/finance', '/rooms/categories', '/onboarding', '/calendar', '/appointments', '/employees', '/services', '/beauty', '/chessboard', '/reservations', '/today', '/guests', '/inventory', '/rates', '/channels', '/bar', '/hotel-settings']) {
+      577 |     await page.goto(route);
+    > 578 |     await expect(page).toHaveURL(/\/floor-plan$/);
+          |                        ^
+      579 |   }
+      580 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+      581 |   expect(calls.slice(before).filter((c) => /^\/(hotel|beauty|inventory|reservations|guests|rates|channels|bar|finance)(?:\/|$)/.test(c))).toEqual([]);
+        at /Users/urijzapojnov/wetop-mv7-20261005/tests/food-ui/food.spec.ts:578:24
+
+    Error Context: test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:573:1 › Food excludes every registered foreign workspace route before API requests
+  1 passed (18.1s)
+
+# код выхода 1 · 20 с

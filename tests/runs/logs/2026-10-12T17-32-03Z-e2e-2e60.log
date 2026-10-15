@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 12.10.2026 22:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит bd73277 (claude/ui-master-pass4), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/record-tabs.spec.ts' '-g' 'не дублирует'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/record-tabs.spec.ts:138:1 › панель брони не дублирует цель «К содержимому» (16.8s)
+
+
+  1) tests/ui/record-tabs.spec.ts:138:1 › панель брони не дублирует цель «К содержимому» ───────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#main-content')
+    Expected: 1
+    Received: 2
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#main-content') with timeout 15000ms
+      - waiting for locator('#main-content')
+        34 × locator resolved to 2 elements
+           - unexpected value "2"
+
+
+      140 |   await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+      141 |   await expect(page.getByRole('dialog')).toBeVisible();
+    > 142 |   await expect(page.locator('#main-content')).toHaveCount(1);
+          |                                               ^
+      143 | });
+      144 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/record-tabs.spec.ts:142:47
+
+    Error Context: test-results/record-tabs-панель-брони-не-дублирует-цель-«К-содержимому»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/record-tabs-панель-брони-не-дублирует-цель-«К-содержимому»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/record-tabs-панель-брони-не-дублирует-цель-«К-содержимому»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/record-tabs.spec.ts:138:1 › панель брони не дублирует цель «К содержимому» ────────────
+
+# код выхода 1 · 20 с

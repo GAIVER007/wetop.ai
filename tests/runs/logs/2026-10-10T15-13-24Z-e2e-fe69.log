@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 10.10.2026 20:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит a1f631e (claude/beauty-salons-landing), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+Error: http://127.0.0.1:4320/ is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 1 с

@@ -1,0 +1,211 @@
+# Модульные (unit) · 07.10.2026 17:53 Алматы · vm
+# коммит 8b734d0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T12-53-43Z-unit-0e8e.json' 'packages/domain/src/marketing/host.test.ts' 'packages/domain/src/marketing/runtime.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 14ms
+ ❯ |unit| packages/domain/src/marketing/host.test.ts (29 tests | 21 failed) 26ms
+   ❯ MKT7: один нормализатор хоста для API, рантайма и Worker (12)
+     × IDN в punycode: отель.кз → xn--e1amhq6c.xn--g1af 8ms
+     × IDN в punycode: Luxx-Отель.Example.KZ → xn--luxx--3we6bw0b4g.example.kz 1ms
+     × IDN в punycode: münchen.de:8787 → xn--mnchen-3ya.de 1ms
+     ✓ IDN в punycode: xn--e1amhq6c.xn--g1af. → xn--e1amhq6c.xn--g1af 0ms
+     ✓ не хост: https://hotel.kz → null 0ms
+     ✓ не хост: hotel.kz/ → null 0ms
+     ✓ не хост: hotel.kz?x=1 → null 0ms
+     ✓ не хост: hotel.kz#a → null 0ms
+     × не хост: hotel.kz:99999 → null 1ms
+     ✓ не хост: hotel.kz: → null 0ms
+     ✓ не хост: [::1] → null 0ms
+     ✓ не хост: a b.kz → null 0ms
+   ❯ MKT7: SITES_BASE_DOMAIN (Q-271) (14)
+     × годится sites.test 1ms
+     × годится Hotels-Wetop.KZ 1ms
+     × годится wetopsites.com 1ms
+     × отказ undefined 0ms
+     × отказ  0ms
+     × отказ https://sites.test 0ms
+     × отказ sites.test/ 0ms
+     × отказ sites.test:443 0ms
+     × отказ localhost 0ms
+     × отказ wetop.ai 0ms
+     × отказ WETOP.AI. 0ms
+     × отказ sites.wetop.ai 0ms
+     × отказ a.b.wetop.ai 1ms
+     × адрес сайта и превью строит только сервер из slug и базы 0ms
+   ❯ MKT7: медиа в документе до MKT8 (3)
+     × пример SiteSpec с галереей и картинками: пути всех ссылок 1ms
+     × документ без картинок и галереи: пусто 1ms
+     × галерея без картинок всё равно медиа 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 21 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: один нормализатор хоста для API, рантайма и Worker > IDN в punycode: отель.кз → xn--e1amhq6c.xn--g1af
+AssertionError: expected null to be 'xn--e1amhq6c.xn--g1af' // Object.is equality
+
+- Expected:
+"xn--e1amhq6c.xn--g1af"
+
++ Received:
+null
+
+ ❯ packages/domain/src/marketing/host.test.ts:17:36
+     15|     ['xn--e1amhq6c.xn--g1af.', 'xn--e1amhq6c.xn--g1af'],
+     16|   ])('IDN в punycode: %s → %s', (raw, host) => {
+     17|     expect(normalizeSiteHost(raw)).toBe(host);
+       |                                    ^
+     18|   });
+     19|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: один нормализатор хоста для API, рантайма и Worker > IDN в punycode: Luxx-Отель.Example.KZ → xn--luxx--3we6bw0b4g.example.kz
+AssertionError: expected null to be 'xn--luxx--3we6bw0b4g.example.kz' // Object.is equality
+
+- Expected:
+"xn--luxx--3we6bw0b4g.example.kz"
+
++ Received:
+null
+
+ ❯ packages/domain/src/marketing/host.test.ts:17:36
+     15|     ['xn--e1amhq6c.xn--g1af.', 'xn--e1amhq6c.xn--g1af'],
+     16|   ])('IDN в punycode: %s → %s', (raw, host) => {
+     17|     expect(normalizeSiteHost(raw)).toBe(host);
+       |                                    ^
+     18|   });
+     19|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/21]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: один нормализатор хоста для API, рантайма и Worker > IDN в punycode: münchen.de:8787 → xn--mnchen-3ya.de
+AssertionError: expected null to be 'xn--mnchen-3ya.de' // Object.is equality
+
+- Expected:
+"xn--mnchen-3ya.de"
+
++ Received:
+null
+
+ ❯ packages/domain/src/marketing/host.test.ts:17:36
+     15|     ['xn--e1amhq6c.xn--g1af.', 'xn--e1amhq6c.xn--g1af'],
+     16|   ])('IDN в punycode: %s → %s', (raw, host) => {
+     17|     expect(normalizeSiteHost(raw)).toBe(host);
+       |                                    ^
+     18|   });
+     19|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/21]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: один нормализатор хоста для API, рантайма и Worker > не хост: hotel.kz:99999 → null
+AssertionError: expected 'hotel.kz' to be null
+
+- Expected:
+null
+
++ Received:
+"hotel.kz"
+
+ ❯ packages/domain/src/marketing/host.test.ts:23:38
+     21|     'не хост: %s → null',
+     22|     (raw) => {
+     23|       expect(normalizeSiteHost(raw)).toBeNull();
+       |                                      ^
+     24|     },
+     25|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/21]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > годится sites.test
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > годится Hotels-Wetop.KZ
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > годится wetopsites.com
+TypeError: parseSitesBaseDomain is not a function
+ ❯ packages/domain/src/marketing/host.test.ts:34:12
+     32|     ['wetopsites.com', 'wetopsites.com'],
+     33|   ])('годится %s', (raw, base) => {
+     34|     expect(parseSitesBaseDomain(raw)).toEqual({ ok: true, domain: base…
+       |            ^
+     35|   });
+     36|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/21]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > отказ undefined
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > отказ 
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > отказ https://sites.test
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > отказ sites.test/
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > отказ sites.test:443
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > отказ localhost
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > отказ wetop.ai
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > отказ WETOP.AI.
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > отказ sites.wetop.ai
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > отказ a.b.wetop.ai
+TypeError: parseSitesBaseDomain is not a function
+ ❯ packages/domain/src/marketing/host.test.ts:49:20
+     47|     ['a.b.wetop.ai', 'не wetop.ai'],
+     48|   ])('отказ %s', (raw, reason) => {
+     49|     const parsed = parseSitesBaseDomain(raw);
+       |                    ^
+     50|     expect(parsed.ok).toBe(false);
+     51|     expect(parsed.ok ? '' : parsed.message).toContain(reason);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/21]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: SITES_BASE_DOMAIN (Q-271) > адрес сайта и превью строит только сервер из slug и базы
+TypeError: platformHost is not a function
+ ❯ packages/domain/src/marketing/host.test.ts:55:12
+     53|
+     54|   it('адрес сайта и превью строит только сервер из slug и базы', () =>…
+     55|     expect(platformHost('luxx-aparts', 'sites.test')).toBe('luxx-apart…
+       |            ^
+     56|     expect(previewHost('sites.test')).toBe('preview.sites.test');
+     57|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/21]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: медиа в документе до MKT8 > пример SiteSpec с галереей и картинками: пути всех ссылок
+TypeError: siteSpecMediaPaths is not a function
+ ❯ packages/domain/src/marketing/host.test.ts:62:19
+     60| describe('MKT7: медиа в документе до MKT8', () => {
+     61|   it('пример SiteSpec с галереей и картинками: пути всех ссылок', () =…
+     62|     const paths = siteSpecMediaPaths(EXAMPLE);
+       |                   ^
+     63|     expect(paths.length).toBeGreaterThan(0);
+     64|     expect(paths.some((p) => p.endsWith('assetId') || p.endsWith('Asse…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/21]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: медиа в документе до MKT8 > документ без картинок и галереи: пусто
+TypeError: siteSpecMediaPaths is not a function
+ ❯ packages/domain/src/marketing/host.test.ts:72:12
+     70|       pages: [{ sections: [{ type: 'hero', variant: 'TEXT_ONLY' }, { t…
+     71|     };
+     72|     expect(siteSpecMediaPaths(spec)).toEqual([]);
+       |            ^
+     73|   });
+     74|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/21]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/host.test.ts > MKT7: медиа в документе до MKT8 > галерея без картинок всё равно медиа
+TypeError: siteSpecMediaPaths is not a function
+ ❯ packages/domain/src/marketing/host.test.ts:76:12
+     74|
+     75|   it('галерея без картинок всё равно медиа', () => {
+     76|     expect(siteSpecMediaPaths({ pages: [{ sections: [{ type: 'gallery'…
+       |            ^
+     77|   });
+     78| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/21]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  21 failed | 28 passed (49)
+   Start at  12:53:45
+   Duration  886ms (transform 86%, import 9%, tests 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T12-53-43Z-unit-0e8e.json
+
+# код выхода 1 · 2 с

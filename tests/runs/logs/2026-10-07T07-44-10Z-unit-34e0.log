@@ -1,0 +1,19 @@
+# Модульные (unit) · 07.10.2026 12:44 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-44-10Z-unit-34e0.json' 'apps/web/src/app/branches/switch.test.ts' 'tests/unit/design-slop.test.ts' 'apps/web/src/app/management/analytics/vertical'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261007
+
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 79ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (2 tests) 68ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 12ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (11 tests) 45ms
+
+ Test Files  4 passed (4)
+      Tests  29 passed (29)
+   Start at  11:44:12
+   Duration  1.73s (transform 65%, import 24%, tests 8%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-44-10Z-unit-34e0.json
+
+# код выхода 0 · 4 с

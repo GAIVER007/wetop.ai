@@ -1,0 +1,26 @@
+# Сквозные (e2e) · 07.10.2026 17:50 Алматы · vm
+# коммит 94a2ae3 (claude/quirky-franklin-mo3gcn), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/workspace.spec.ts:1247' 'tests/ui/booking-widget-turnstile.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/ui/booking-widget-turnstile.spec.ts:131:1 › с ключом: поиск цен без проверки, кнопка брони ждёт токена, токен уходит в /w/book (674ms)
+  ✓   2 tests/ui/booking-widget-turnstile.spec.ts:158:1 › токен одноразовый: после отказа проверка сбрасывается, кнопка ждёт нового токена (610ms)
+  ✓   3 tests/ui/booking-widget-turnstile.spec.ts:186:1 › токен истёк, пока гость заполнял форму, — кнопка снова ждёт проверки (381ms)
+  ✓   4 tests/ui/booking-widget-turnstile.spec.ts:200:1 › без публичного ключа форма как раньше: кнопка доступна, Cloudflare не грузится, токена в запросе нет (475ms)
+  ✓   5 tests/ui/booking-widget-turnstile.spec.ts:215:1 › скрипт Cloudflare не загрузился (блокировщик, сеть): гость видит понятный текст, брони не отправить (323ms)
+  ✓   6 tests/ui/booking-widget-turnstile.spec.ts:229:1 › ключ создания: UUID v4; повтор той же формы после обрыва сети уходит с тем же ключом (511ms)
+  ✓   7 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (498ms)
+  ✓   8 tests/ui/booking-widget-turnstile.spec.ts:270:1 › ключ создания: форму изменили после сбоя: новая попытка с новым ключом (500ms)
+  ✓   9 tests/ui/booking-widget-turnstile.spec.ts:291:1 › ключ создания: после подтверждённой брони следующая бронь: новый ключ (595ms)
+  ✓  10 tests/ui/workspace.spec.ts:1247:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (3.7s)
+
+  10 passed (16.7s)
+
+# код выхода 0 · 18 с

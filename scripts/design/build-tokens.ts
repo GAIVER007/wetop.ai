@@ -176,7 +176,10 @@ export function cssColor(v: Json): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 const fontFamily = (v: Json): string =>
-  (Array.isArray(v) ? v : [v]).map((f) => (/\s/.test(String(f)) ? `'${f}'` : String(f))).join(', ');
+  (Array.isArray(v) ? v : [v])
+    // `var(--x, запасной)`: ссылка на переменную, а не имя гарнитуры: в кавычки не берётся (шрифт стойки, 13.10.2026)
+    .map((f) => (/\s/.test(String(f)) && !String(f).startsWith('var(') ? `'${f}'` : String(f)))
+    .join(', ');
 const shadow = (v: Json): string => {
   const one = (s: Json) => {
     if (!isObject(s)) throw new Error('тень: ожидался объект');
@@ -221,20 +224,23 @@ export function buildTokensCss(tree: TokenTree): string {
     ' * СГЕНЕРИРОВАНО из design/tokens.json командой `npm run design:tokens` — руками не править.',
     ' * Правила и смысл каждого токена — DESIGN.md. Тест scripts/design/build-tokens.test.ts',
     ' * сверяет этот файл с генератором: ручная правка делает его красным.',
+    ' * Слой `tokens` (DESIGN.md §20.6): порядок слоёв объявлен первым в globals.css.',
     ' */',
+    '@layer tokens {',
   ];
   for (const [name, spec] of Object.entries(tree.themes)) {
     const body: string[] = [`  color-scheme: ${spec.colorScheme};`];
     for (const t of tree.tokens) {
-      if (!(name in t.values)) continue;
+      if (!(name in t.values) && name !== 'contrast') continue;
       const note = t.deprecated && name === 'light' ? ' /* устарел */' : '';
-      body.push(`  ${t.cssVar}: ${toCss(t.type, t.values[name]!)};${note}`);
+      body.push(`  ${t.cssVar}: ${toCss(t.type, t.values[name] ?? t.values.light!)};${note}`);
     }
     if (body.length === 1) continue;
     const block = [`${spec.selector} {`, ...body, '}'];
     if (spec.media) lines.push(`@media ${spec.media} {`, ...block.map((l) => `  ${l}`), '}');
     else lines.push(...block);
   }
+  lines.push('}');
   return `${lines.join('\n')}\n`;
 }
 
@@ -288,6 +294,12 @@ export const CONTRAST_PAIRS: ContrastPair[] = [
     bg: 'color.semantic.primary',
     min: 4.5,
     note: 'текст главной кнопки',
+  },
+  {
+    fg: 'color.semantic.on-primary',
+    bg: 'color.semantic.primary-hover',
+    min: 4.5,
+    note: 'текст главной кнопки под курсором',
   },
   {
     fg: 'color.semantic.primary',

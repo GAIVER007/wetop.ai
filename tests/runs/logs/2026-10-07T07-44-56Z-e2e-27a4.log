@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 07.10.2026 12:44 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'analytics.spec.ts' '--grep' 'Beauty numbers'
+[WebServer] (node:74046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74385) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:74723) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/branches-ui/analytics.spec.ts:15:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (25.8s)
+
+
+  1) tests/branches-ui/analytics.spec.ts:15:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('vertical-analytics')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('vertical-analytics') with timeout 5000ms
+      - waiting for getByTestId('vertical-analytics')
+
+
+      24 |   const aggregates = await db.appointment.groupBy({ by: ['status','currency'], where: { locationId: f.salon, startsAt: { gte: from, lt: to } }, _sum: { price: true }, _count: { _all: true } });
+      25 |   await page.goto(`/management/analytics?from=${f.localDay}&to=${f.localDay}`);
+    > 26 |   await expect(page.getByTestId('vertical-analytics')).toBeVisible();
+         |                                                        ^
+      27 |   for (const status of ['BOOKED','CONFIRMED','DONE','CANCELLED','NO_SHOW']) {
+      28 |     const count = day.appointments.filter((r: {status: string}) => r.status === status).length;
+      29 |     expect(aggregates.filter(a => a.status === status).reduce((sum,a) => sum+a._count._all,0)).toBe(count);
+        at /Users/urijzapojnov/wetop-mv8-20261007/tests/branches-ui/analytics.spec.ts:26:56
+
+    Error Context: test-results/analytics-MV9-Beauty-numbe-4df35-ase-aggregates-after-reload/error-context.md
+
+    Error Context: test-results/analytics-MV9-Beauty-numbe-4df35-ase-aggregates-after-reload/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-Beauty-numbe-4df35-ase-aggregates-after-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-Beauty-numbe-4df35-ase-aggregates-after-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/analytics.spec.ts:15:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload 
+
+# код выхода 1 · 1 мин 8 с

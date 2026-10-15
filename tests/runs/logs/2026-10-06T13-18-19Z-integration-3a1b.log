@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 06.10.2026 18:18 Алматы · vm
+# коммит 8526d50 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T13-18-19Z-integration-3a1b.json' 'tests/integration/web-booking-exact-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:2710) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/web-booking-exact-property.test.ts (9 tests) 1453ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  13:18:20
+   Duration  5.76s (transform 48%, tests 35%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-10-06T13-18-19Z-integration-3a1b.json
+
+# код выхода 0 · 7 с

@@ -1,0 +1,19 @@
+# Модульные (unit) · 04.10.2026 18:02 Алматы · MacBook-Air-Urij.local
+# коммит d91c207 (codex/mv2-registration-20261004), незакоммиченных файлов набора: 24
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T13-02-47Z-unit-248b.json' 'tests/unit/site-design.test.ts' 'apps/api/src/auth/route-access.test.ts' 'apps/web/src/lib/auth-fallback.test.ts' 'apps/web/src/lib/site-auth-flow.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 22ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (4 tests) 31ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 32ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 45ms
+
+ Test Files  4 passed (4)
+      Tests  16 passed (16)
+   Start at  17:02:48
+   Duration  2.62s (transform 67%, import 29%, tests 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T13-02-47Z-unit-248b.json
+
+# код выхода 0 · 4 с

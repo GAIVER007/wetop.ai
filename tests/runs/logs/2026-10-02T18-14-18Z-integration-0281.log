@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 02.10.2026 23:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0ac6085 (main), незакоммиченных файлов набора: 19
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T18-14-18Z-integration-0281.json' 'tests/integration/rls-credential-grants.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (8 tests) 35ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  11:14:18
+   Duration  368ms (tests 65%, import 25%, transform 6%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T18-14-18Z-integration-0281.json
+
+# код выхода 0 · 1 с

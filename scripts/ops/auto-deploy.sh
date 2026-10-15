@@ -12,7 +12,7 @@
 #   - в обновлении есть новые миграции: боевую миграцию делает владелец (AGENTS.md §15).
 # Отказ по одной вершине сообщается один раз; следующий коммит в ветке проверяется заново.
 #
-# Выложил — проверяет: /health API, /login стойки (200) и что страницы без входа не падают (не 5xx). Не прошло —
+# Выложил — проверяет: /health API, /auth/fallback стойки (200) и что страницы без входа не падают (не 5xx). Не прошло —
 # возвращает прежний коммит и прежний образ, поднимает их и пишет дежурным.
 #
 #   scripts/ops/auto-deploy.sh                        одна проверка (так его зовёт cron)
@@ -27,9 +27,14 @@
 # DEPLOY_STATE_DIR   состояние между запусками (/var/lib/wetop-deploy)
 # DEPLOY_IMAGE       образ api и web (pms-lux)
 # DEPLOY_HEALTH_WAIT сколько секунд ждать, пока новые контейнеры ответят (180); DEPLOY_HEALTH_STEP — шаг опроса (5)
+# DEPLOY_CI_PROJECT  проект compose CI-раннера (pms-lux-ci); пока он выполняет задачу, сборка ждёт. Пусто — не ждать
+# DEPLOY_CI_MAX_WAIT сколько минут ждать раннер (30), потом выкладывать всё равно и писать дежурным
 # DEPLOY_NOTIFY=off  не писать в Telegram (тесты)
 # TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID — из окружения или .env клона; в журнал и сообщения не попадают
 set -euo pipefail
+# Git checkout files are copied into an image running as a non-root user.
+# A private caller umask must not turn application source into root-only files.
+umask 022
 # cron даёт скупой PATH: системные каталоги дописываются в конец, свои (и подставные в тестах) остаются первыми
 export PATH="${PATH:+$PATH:}/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -39,6 +44,8 @@ STATE="${DEPLOY_STATE_DIR:-/var/lib/wetop-deploy}"
 IMAGE="${DEPLOY_IMAGE:-pms-lux}"
 WAIT="${DEPLOY_HEALTH_WAIT:-180}"
 STEP="${DEPLOY_HEALTH_STEP:-5}"
+CI_PROJECT="${DEPLOY_CI_PROJECT-pms-lux-ci}"
+CI_MAX_WAIT="${DEPLOY_CI_MAX_WAIT:-30}"
 ENV_FILE="$REPO/.env"
 APPLIED_SHA=""
 if [ "${1:-}" = --migrations-applied ]; then
@@ -111,7 +118,7 @@ applied_ok=0
 if [ -n "$APPLIED_SHA" ]; then
   applied_commit="$(git rev-parse --verify --quiet "${APPLIED_SHA}^{commit}" || true)"
   if [ -z "$applied_commit" ]; then
-    say "--migrations-applied: не узнаю вершину «$APPLIED_SHA» — возьмите sha из сообщения об отказе"
+    say "--migrations-applied: не узнаю вершину «${APPLIED_SHA}» — возьмите sha из сообщения об отказе"
     exit 2
   fi
   if [ "$applied_commit" != "$target" ]; then
@@ -146,7 +153,7 @@ healthy() {
   while [ "$SECONDS" -lt "$deadline" ]; do
     if "${compose[@]}" exec -T api wget -qO- http://127.0.0.1:3001/health 2>/dev/null | grep -q '"status":"ok"' &&
       "${compose[@]}" exec -T web node -e "
-        const pages = ['/login', '/today', '/chessboard', '/reservations'];
+        const pages = ['/auth/fallback', '/today', '/chessboard', '/reservations'];
         Promise.all(pages.map((p) => fetch('http://127.0.0.1:3000' + p, { redirect: 'manual' }).then((r) => [p, r.status])))
           .then((all) => process.exit(all[0][1] === 200 && all.every(([, s]) => s < 500) ? 0 : 1))
           .catch(() => process.exit(1));" >/dev/null 2>&1; then
@@ -156,6 +163,34 @@ healthy() {
   done
   return 1
 }
+
+# CI-раннер на этом же сервере (scripts/ops/ci-runner) выполняет задачу — сборку откладываем: 03.10.2026 сборка образа
+# совпала с его проверками, памяти не хватило обоим, туннель 4–7 минут отвечал 530 (plans/deploy-build-outage-2026-10-03.md).
+# Процесс Runner.Worker живёт только во время задачи; смотрим снаружи (`docker top`), в образ раннера ничего не нужно.
+# Повтор — следующим запуском cron через две минуты; ждём не дольше DEPLOY_CI_MAX_WAIT минут, потом выкладываем всё равно.
+ci_busy() {
+  local id procs
+  for id in $(docker ps -q --filter "label=com.docker.compose.project=$CI_PROJECT" 2>/dev/null || true); do
+    # без канала в grep -q: под pipefail ранний выход grep даёт docker top SIGPIPE, и занятый раннер выглядел бы свободным
+    procs="$(docker top "$id" 2>/dev/null || true)"
+    [[ "$procs" == *Runner.Worker* ]] && return 0
+  done
+  return 1
+}
+if [ -n "$CI_PROJECT" ] && ci_busy; then
+  since="$(sed -n "s/^$target //p" "$STATE/ci-wait" 2>/dev/null || true)"
+  if [ -z "$since" ]; then
+    printf '%s %s\n' "$target" "$(date +%s)" >"$STATE/ci-wait"
+    say "$(short "$target") ждёт: раннер CI выполняет задачу, сборка откладывается"
+  fi
+  if [ -n "$since" ] && [ $(($(date +%s) - since)) -lt $((CI_MAX_WAIT * 60)) ]; then exit 0; fi
+  if [ -n "$since" ] || [ "$CI_MAX_WAIT" -le 0 ]; then
+    notify "раннер CI занят дольше $CI_MAX_WAIT мин — выкладываю $(short "$target") не дожидаясь"
+  else
+    exit 0
+  fi
+fi
+rm -f "$STATE/ci-wait"
 
 # Точка отката: прежний коммит и прежний образ под своим именем
 previous_tag="$IMAGE:rollback-$(short "$current")"

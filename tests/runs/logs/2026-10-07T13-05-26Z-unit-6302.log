@@ -1,0 +1,40 @@
+# Модульные (unit) · 07.10.2026 18:05 Алматы · vm
+# коммит 8b734d0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T13-05-26Z-unit-6302.json' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/web-booking' 'apps/api/src/analytics' 'apps/api/src/sites-runtime' 'apps/api/src/marketing-site'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (20 tests) 749ms
+   ✓ котировка продавца /bot/availability (7)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 386ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 996ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 466ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 152ms
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ✓ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (25 tests) 436ms
+ ✓ |unit| apps/api/src/analytics/collect.limits.test.ts (2 tests) 80ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (13 tests) 257ms
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests) 272ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 12ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 114ms
+ ✓ |unit| apps/api/src/marketing-site/preview-token.test.ts (5 tests) 14ms
+[Nest] 18371  - 10/07/2026, 1:05:37 PM     LOG [WebRetentionService] счётчик сайта: удалено сессий 3, начатых до 2026-09-13 (хранение 13 мес.)
+ ✓ |unit| apps/api/src/analytics/retention.service.test.ts (4 tests) 10ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (2 tests) 6ms
+
+ Test Files  13 passed (13)
+      Tests  171 passed (171)
+   Start at  13:05:27
+   Duration  10.54s (transform 46%, import 40%, tests 13%)
+
+JSON report written to /tmp/pms-test-2026-10-07T13-05-26Z-unit-6302.json
+
+# код выхода 0 · 12 с

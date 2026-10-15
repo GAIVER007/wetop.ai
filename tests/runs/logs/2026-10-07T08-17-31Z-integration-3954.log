@@ -1,0 +1,112 @@
+# Интеграционные (integration) · 07.10.2026 13:17 Алматы · vm
+# коммит 012c06d (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-17-31Z-integration-3954.json' 'tests/integration/site-brief.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/site-brief.test.ts (11 tests | 3 failed) 1446ms
+   ❯ MKT5 site brief (11)
+     ✓ строгий scope: без филиала и с одним бизнесом 409, чужой, архивный, салон и ресторан 403, филиал гостиницы 200 160ms
+     ✓ право settings: администратор без него получает 403 8ms
+     × точный филиал: объект, категории, продавец и Channex только филиала А 47ms
+     ✓ второй филиал той же организации видит только своё 23ms
+     ✓ сторожевые строки ПД, инструкций продавца, мастера и id провайдера в бриф не попадают 19ms
+     × старый продавец организации без филиала и чужой агент не подставляются; у филиала без агента продавца нет 17ms
+     × агент есть, профиля нет: 200, продавец MISSING NO_PROFILE; объект без сопоставления: NO_MAPPING 28ms
+     ✓ ключа Channex нет: 200, NO_KEY, данные платформы на месте 22ms
+     ✓ отказы Channex: 200, источник недоступен, факты платформы остаются, текст ошибки провайдера не уходит 108ms
+     ✓ кэш Channex 10 минут; refresh=1 читает заново; хэш не зависит от времени сбора 54ms
+     ✓ только чтение: таблицы организации не меняются; строки MarketingSite нет и не появляется 167ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-brief.test.ts > MKT5 site brief > точный филиал: объект, категории, продавец и Channex только филиала А
+AssertionError: expected { …(5) } to deeply equal { …(5) }
+
+- Expected
++ Received
+
+  {
+-   "extraCharges": "EXTRA_A",
++   "extraCharges": "EXTRA_B",
+    "faq": [
+      {
+-       "answer": "FAQ_A",
+-       "question": "Q_A",
++       "answer": "FAQ_B",
++       "question": "Q_B",
+      },
+    ],
+-   "houseRules": "RULES_A",
+-   "includedInPrice": "INCLUDED_A",
++   "houseRules": "RULES_B",
++   "includedInPrice": "INCLUDED_B",
+    "siteLocaleHints": [
+      "ru",
+      "kk",
+    ],
+  }
+
+ ❯ tests/integration/site-brief.test.ts:430:38
+    428|       { categoryCode: 'cat-a', name: 'Номер А', kind: 'PRIVATE_ROOM', …
+    429|     ]);
+    430|     expect(body.input.sellerContent).toEqual({
+       |                                      ^
+    431|       siteLocaleHints: ['ru', 'kk'],
+    432|       includedInPrice: 'INCLUDED_A',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/site-brief.test.ts > MKT5 site brief > старый продавец организации без филиала и чужой агент не подставляются; у филиала без агента продавца нет
+AssertionError: expected { state: 'READY' } to deeply equal { Object (state, reason) }
+
+- Expected
++ Received
+
+  {
+-   "reason": "NO_AGENT",
+-   "state": "MISSING",
++   "state": "READY",
+  }
+
+ ❯ tests/integration/site-brief.test.ts:469:35
+    467|     const d = await get(base, pointer(hotel, a5));
+    468|     expect(d.status).toBe(200);
+    469|     expect(d.body.sources.seller).toEqual({ state: 'MISSING', reason: …
+       |                                   ^
+    470|     expect(d.body.input.sellerContent).toBeNull();
+    471|     expect(d.text).not.toContain(SENTINELS.legacyFaq);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/site-brief.test.ts > MKT5 site brief > агент есть, профиля нет: 200, продавец MISSING NO_PROFILE; объект без сопоставления: NO_MAPPING
+AssertionError: expected { state: 'READY' } to deeply equal { state: 'MISSING', …(1) }
+
+- Expected
++ Received
+
+  {
+-   "reason": "NO_PROFILE",
+-   "state": "MISSING",
++   "state": "READY",
+  }
+
+ ❯ tests/integration/site-brief.test.ts:480:35
+    478|   it('агент есть, профиля нет: 200, продавец MISSING NO_PROFILE; объек…
+    479|     const r = await briefOf(a4);
+    480|     expect(r.body.sources.seller).toEqual({ state: 'MISSING', reason: …
+       |                                   ^
+    481|     expect(r.body.sources.channex).toEqual({ state: 'NO_MAPPING', chec…
+    482|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 8 passed (11)
+   Start at  08:17:32
+   Duration  7.17s (transform 49%, tests 32%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-17-31Z-integration-3954.json
+
+# код выхода 1 · 8 с

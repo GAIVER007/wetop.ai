@@ -1,0 +1,39 @@
+# Сквозные (e2e) · 03.10.2026 19:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5fabb2c (claude/birthdays), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-week.spec.ts' '--config' 'tests/ui/playwright.nights-alt.config.ts' '--workers=1' '--repeat-each=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1619ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 21 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (5.7s)
+  ✓   2 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (5.3s)
+  ✓   3 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (16.3s)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (27.9s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (7.3s)
+  ✓   6 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (15.0s)
+  ✓   7 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (20.2s)
+  ✓   8 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (48.1s)
+  ✓   9 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (52.7s)
+  ✓  10 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (8.1s)
+  ✓  11 tests/ui/chessboard-week.spec.ts:26:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (24.0s)
+  ✓  12 tests/ui/chessboard-week.spec.ts:72:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (6.8s)
+  ✓  13 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (11.4s)
+  ✓  14 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (10.2s)
+  ✓  15 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (12.1s)
+  ✓  16 tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье (18.7s)
+  ✓  17 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: light, обе панели и телефон (51.5s)
+  ✓  18 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: dark, обе панели и телефон (32.4s)
+  ✓  19 tests/ui/chessboard-week.spec.ts:199:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (2.4s)
+  ✓  20 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (9.1s)
+  ✓  21 tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (3.0s)
+
+  21 passed (7.1m)
+
+# код выхода 0 · 7 мин 14 с

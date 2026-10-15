@@ -1,0 +1,25 @@
+# Модульные (unit) · 05.10.2026 19:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (codex/staff-owner-journal), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-48-33Z-unit-46d4.json' 'apps/api/src/audit' 'apps/api/src/accounts' 'packages/domain/src/accounts/permissions.test.ts' 'apps/api/src/finance/finance-audit-transaction.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+[Nest] 88446  - 10/05/2026, 7:48:35 AM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (13 tests) 132ms
+ ✓ |unit| apps/api/src/audit/audit.service.test.ts (12 tests) 6ms
+ ✓ |unit| apps/api/src/audit/owner-access.test.ts (3 tests) 2ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 62ms
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (28 tests) 92ms
+ ✓ |unit| apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 3ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 6ms
+ ✓ |unit| packages/domain/src/accounts/permissions.test.ts (13 tests) 3ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 2ms
+
+ Test Files  9 passed (9)
+      Tests  94 passed (94)
+   Start at  07:48:34
+   Duration  2.11s (import 60%, transform 20%, tests 18%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-48-33Z-unit-46d4.json
+
+# код выхода 0 · 3 с

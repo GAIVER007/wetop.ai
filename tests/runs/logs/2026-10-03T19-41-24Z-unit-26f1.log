@@ -1,0 +1,23 @@
+# Модульные (unit) · 04.10.2026 00:41 Алматы · vm
+# коммит ba73071 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-41-24Z-unit-26f1.json' 'apps/api/src/finance' 'apps/api/src/auth/route-access.test.ts' 'packages/domain/src/finance'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/finance/payment-requests.controller.test.ts (10 tests) 215ms
+ ✓ |unit| packages/domain/src/finance/cash.test.ts (10 tests) 13ms
+ ✓ |unit| packages/domain/src/finance/finance.test.ts (19 tests) 11ms
+ ✓ |unit| packages/domain/src/finance/payment-request.test.ts (14 tests) 10ms
+ ✓ |unit| apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 13ms
+ ✓ |unit| packages/domain/src/finance/fiscal-receipt.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (29 tests) 625ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 45ms
+
+ Test Files  8 passed (8)
+      Tests  91 passed (91)
+   Start at  19:41:25
+   Duration  3.57s (transform 58%, import 30%, tests 11%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-41-24Z-unit-26f1.json
+
+# код выхода 0 · 4 с

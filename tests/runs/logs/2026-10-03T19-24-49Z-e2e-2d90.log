@@ -1,0 +1,227 @@
+# Сквозные (e2e) · 04.10.2026 00:24 Алматы · vm
+# коммит a59d8d9 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/status-page.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/status-page.spec.ts:13:1 › без входа: всё работает, четыре части словами (16.7s)
+  ✘  2 tests/ui/status-page.spec.ts:26:1 › каналы с перебоями: общая плашка и строка каналов (15.8s)
+  ✘  3 tests/ui/status-page.spec.ts:36:5 › доступность: light, 1440px (15.8s)
+  ✘  4 tests/ui/status-page.spec.ts:36:5 › доступность: light, 390px (15.8s)
+  ✘  5 tests/ui/status-page.spec.ts:36:5 › доступность: dark, 1440px (15.7s)
+  ✘  6 tests/ui/status-page.spec.ts:36:5 › доступность: dark, 390px (15.8s)
+
+
+  1) tests/ui/status-page.spec.ts:13:1 › без входа: всё работает, четыре части словами ─────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Состояние WETOP', level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Состояние WETOP', level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Состояние WETOP', level: 1 })
+
+
+      15 |   const page = await context.newPage();
+      16 |   await page.goto('/status');
+    > 17 |   await expect(page.getByRole('heading', { level: 1, name: 'Состояние WETOP' })).toBeVisible();
+         |                                                                                  ^
+      18 |   await expect(page.getByTestId('status-overall')).toHaveAttribute('data-state', 'ok');
+      19 |   await expect(page.getByTestId('status-overall')).toContainText('Все части WETOP работают.');
+      20 |   for (const key of ['app', 'database', 'channels', 'booking'])
+        at /home/user/wetop.ai/tests/ui/status-page.spec.ts:17:82
+
+    Error Context: test-results/status-page-без-входа-всё-работает-четыре-части-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/status-page-без-входа-всё-работает-четыре-части-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/status-page-без-входа-всё-работает-четыре-части-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/status-page.spec.ts:26:1 › каналы с перебоями: общая плашка и строка каналов ─────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByTestId('status-overall')
+    Expected: "degraded"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('status-overall') with timeout 15000ms
+      - waiting for getByTestId('status-overall')
+
+
+      27 |   await request.post(`${fixture}/__test/control`, { data: { channex: 'attention' } });
+      28 |   await page.goto('/status');
+    > 29 |   await expect(page.getByTestId('status-overall')).toHaveAttribute('data-state', 'degraded');
+         |                                                    ^
+      30 |   await expect(page.getByTestId('status-channels')).toContainText('С перебоями');
+      31 |   await expect(page.getByTestId('status-app')).toContainText('Работает');
+      32 | });
+        at /home/user/wetop.ai/tests/ui/status-page.spec.ts:29:52
+
+    Error Context: test-results/status-page-каналы-с-перебоями-общая-плашка-и-строка-каналов/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/status-page-каналы-с-перебоями-общая-плашка-и-строка-каналов/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/status-page-каналы-с-перебоями-общая-плашка-и-строка-каналов/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/status-page.spec.ts:36:5 › доступность: light, 1440px ────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('status-overall')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('status-overall') with timeout 15000ms
+      - waiting for getByTestId('status-overall')
+
+
+      38 |       await page.setViewportSize({ width, height: 900 });
+      39 |       await page.goto('/status');
+    > 40 |       await expect(page.getByTestId('status-overall')).toBeVisible();
+         |                                                        ^
+      41 |       const overflow = await page.evaluate(
+      42 |         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      43 |       );
+        at /home/user/wetop.ai/tests/ui/status-page.spec.ts:40:56
+
+    Error Context: test-results/status-page-доступность-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/status-page-доступность-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/status-page-доступность-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/status-page.spec.ts:36:5 › доступность: light, 390px ─────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('status-overall')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('status-overall') with timeout 15000ms
+      - waiting for getByTestId('status-overall')
+
+
+      38 |       await page.setViewportSize({ width, height: 900 });
+      39 |       await page.goto('/status');
+    > 40 |       await expect(page.getByTestId('status-overall')).toBeVisible();
+         |                                                        ^
+      41 |       const overflow = await page.evaluate(
+      42 |         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      43 |       );
+        at /home/user/wetop.ai/tests/ui/status-page.spec.ts:40:56
+
+    Error Context: test-results/status-page-доступность-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/status-page-доступность-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/status-page-доступность-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/status-page.spec.ts:36:5 › доступность: dark, 1440px ─────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('status-overall')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('status-overall') with timeout 15000ms
+      - waiting for getByTestId('status-overall')
+
+
+      38 |       await page.setViewportSize({ width, height: 900 });
+      39 |       await page.goto('/status');
+    > 40 |       await expect(page.getByTestId('status-overall')).toBeVisible();
+         |                                                        ^
+      41 |       const overflow = await page.evaluate(
+      42 |         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      43 |       );
+        at /home/user/wetop.ai/tests/ui/status-page.spec.ts:40:56
+
+    Error Context: test-results/status-page-доступность-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/status-page-доступность-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/status-page-доступность-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/status-page.spec.ts:36:5 › доступность: dark, 390px ──────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('status-overall')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('status-overall') with timeout 15000ms
+      - waiting for getByTestId('status-overall')
+
+
+      38 |       await page.setViewportSize({ width, height: 900 });
+      39 |       await page.goto('/status');
+    > 40 |       await expect(page.getByTestId('status-overall')).toBeVisible();
+         |                                                        ^
+      41 |       const overflow = await page.evaluate(
+      42 |         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      43 |       );
+        at /home/user/wetop.ai/tests/ui/status-page.spec.ts:40:56
+
+    Error Context: test-results/status-page-доступность-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/status-page-доступность-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/status-page-доступность-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/status-page.spec.ts:13:1 › без входа: всё работает, четыре части словами ──────────────
+    tests/ui/status-page.spec.ts:26:1 › каналы с перебоями: общая плашка и строка каналов ──────────
+    tests/ui/status-page.spec.ts:36:5 › доступность: light, 1440px ─────────────────────────────────
+    tests/ui/status-page.spec.ts:36:5 › доступность: light, 390px ──────────────────────────────────
+    tests/ui/status-page.spec.ts:36:5 › доступность: dark, 1440px ──────────────────────────────────
+    tests/ui/status-page.spec.ts:36:5 › доступность: dark, 390px ───────────────────────────────────
+
+# код выхода 1 · 1 мин 49 с

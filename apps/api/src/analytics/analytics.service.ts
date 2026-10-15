@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { randomBytes } from 'node:crypto';
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   bookingFunnel,
   dailyBreakdown,
@@ -148,6 +148,7 @@ export class AnalyticsService {
     },
   ): Promise<SiteCard> {
     const site = await this.mustSite(id);
+    assertNotManaged(site);
     const patch: {
       name?: string;
       hosts?: string[];
@@ -197,14 +198,16 @@ export class AnalyticsService {
       }
     }
     if (!Object.keys(patch).length) throw new BadRequestException('нечего менять');
-    await this.repo.updateSite(id, patch);
+    // репозиторий сам не трогает управляемый сайт: строка могла стать управляемой между чтением и записью
+    if (!(await this.repo.updateSite(id, patch))) throw managedReadOnly();
     await this.repo.audit('analytics.site.update', id, patch);
     return this.card(id);
   }
 
   async delete(id: string): Promise<{ deleted: true }> {
     const site = await this.mustSite(id);
-    await this.repo.deleteSite(id);
+    assertNotManaged(site);
+    if (!(await this.repo.deleteSite(id))) throw managedReadOnly();
     await this.repo.audit('analytics.site.delete', id, {
       name: site.name,
       publicKey: site.publicKey,
@@ -257,4 +260,15 @@ export class AnalyticsService {
     if (!site) throw new NotFoundException('сайт не найден');
     return site;
   }
+}
+
+/** MKT7: сайт счётчика управляемого сайта WETOP настраивает только публикация (`/marketing/site`) */
+function managedReadOnly() {
+  return new ConflictException({
+    code: 'MANAGED_SITE_READ_ONLY',
+    message: 'Управляемый сайт настраивается в «Маркетинг → Сайт и SEO»',
+  });
+}
+function assertNotManaged(site: SiteRecord) {
+  if (site.managed) throw managedReadOnly();
 }

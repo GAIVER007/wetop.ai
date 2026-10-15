@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
+import { purgeAuditRows } from '../tools/audit-purge';
 import { hashSecret, newSessionToken } from '@pms/shared';
 import { PrismaAccountsRepository } from '../../apps/api/src/accounts/accounts.prisma-repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
@@ -42,6 +43,7 @@ describe.skipIf(!url)('invites repository (integration, DATABASE_URL required)',
 
   afterAll(async () => {
     if (!db) return;
+    await purgeAuditRows(db, { organizationId });
     await db.invite.deleteMany({ where: { organizationId } });
     await db.session.deleteMany({ where: { organizationId } });
     await db.membership.deleteMany({ where: { organizationId } });

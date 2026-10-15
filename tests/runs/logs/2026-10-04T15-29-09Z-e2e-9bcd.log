@@ -1,0 +1,952 @@
+# Сквозные (e2e) · 04.10.2026 20:29 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 36
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--max-failures=1'
+[WebServer] (node:98695) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98719) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98729) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98755) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98756) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+(node:98763) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/beauty-ui/beauty.spec.ts:81:1 › empty setup through real UI, persisted appointment, move, confirm, complete (8.8s)
+  ✓  2 tests/beauty-ui/beauty.spec.ts:162:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (3.7s)
+  ✘  3 tests/beauty-ui/beauty.spec.ts:201:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (3.3s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/beauty-ui/beauty.spec.ts:201:5 › calendar and drawer 1440 light, keyboard, axe, no overflow
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 883
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f4f8fc",
+    +               "contrastRatio": 3.52,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#7d8490",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.52 (foreground color: #7d8490, background color: #f4f8fc, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"overlay-heading\">",
+    +                 "target": Array [
+    +                   ".ui-drawer > .overlay-heading",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.52 (foreground color: #7d8490, background color: #f4f8fc, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<h2 id=\"_R_2eatpeuqqlb_\">Запись</h2>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#_R_2eatpeuqqlb_",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 2.09,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a1adbc",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dt>Клиент</dt>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(1) > dt",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 3.47,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#7d8490",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dd>Тестовая клиентка</dd>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(1) > dd",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 2.09,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a1adbc",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dt>Услуга</dt>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(2) > dt",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 3.47,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#7d8490",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dd>Тестовая стрижка</dd>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(2) > dd",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 2.09,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a1adbc",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dt>Мастер</dt>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(3) > dt",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 3.47,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#7d8490",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dd>Тестовый мастер Анна</dd>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(3) > dd",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 2.09,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a1adbc",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dt>Время</dt>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(4) > dt",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 3.47,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#7d8490",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dd>2026-10-12, 10:00 до 11:00</dd>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(4) > dd",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 2.09,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a1adbc",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dt>Цена</dt>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(5) > dt",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 3.47,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#7d8490",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dd>12 000 ₸</dd>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(5) > dd",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 2.09,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a1adbc",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.09 (foreground color: #a1adbc, background color: #f2f6fb, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dt>Состояние</dt>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(6) > dt",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f2f6fb",
+    +               "contrastRatio": 3.47,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#7d8490",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<body style=\"overflow: hidden;\">",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.47 (foreground color: #7d8490, background color: #f2f6fb, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dd data-testid=\"beauty-card-status\">Записан</dd>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "dd[data-testid=\"beauty-card-status\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbfdff",
+    +               "contrastRatio": 2.16,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a8afbb",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.16 (foreground color: #a8afbb, background color: #fbfdff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button class=\"btn btn--secondary btn--sm\" type=\"button\">Подтвердить</button>",
+    +                 "target": Array [
+    +                   ".btn--sm.btn--secondary.btn:nth-child(1)",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.16 (foreground color: #a8afbb, background color: #fbfdff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<button class=\"btn btn--secondary btn--sm\" type=\"button\">Подтвердить</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".btn--sm.btn--secondary.btn:nth-child(1)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbfdff",
+    +               "contrastRatio": 2.16,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a8afbb",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.16 (foreground color: #a8afbb, background color: #fbfdff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button class=\"btn btn--secondary btn--sm\" type=\"button\">Завершить</button>",
+    +                 "target": Array [
+    +                   ".btn--sm.btn--secondary.btn:nth-child(2)",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.16 (foreground color: #a8afbb, background color: #fbfdff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<button class=\"btn btn--secondary btn--sm\" type=\"button\">Завершить</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".btn--sm.btn--secondary.btn:nth-child(2)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbfdff",
+    +               "contrastRatio": 2.16,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a8afbb",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.16 (foreground color: #a8afbb, background color: #fbfdff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button class=\"btn btn--secondary btn--sm\" type=\"button\">Не пришёл</button>",
+    +                 "target": Array [
+    +                   ".btn--sm.btn--secondary.btn:nth-child(3)",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.16 (foreground color: #a8afbb, background color: #fbfdff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<button class=\"btn btn--secondary btn--sm\" type=\"button\">Не пришёл</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".btn--sm.btn--secondary.btn:nth-child(3)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbf7fa",
+    +               "contrastRatio": 2.16,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#e197a3",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.16 (foreground color: #e197a3, background color: #fbf7fa, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button class=\"btn btn--danger btn--sm\" type=\"button\">Отменить запись</button>",
+    +                 "target": Array [
+    +                   ".btn--danger",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.16 (foreground color: #e197a3, background color: #fbf7fa, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<button class=\"btn btn--danger btn--sm\" type=\"button\">Отменить запись</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".btn--danger",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#ffffff",
+    +               "contrastRatio": 3.37,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#888c93",
+    +               "fontSize": "13.2pt (17.55px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.37 (foreground color: #888c93, background color: #ffffff, font size: 13.2pt (17.55px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<div class=\"beauty-col-body\" style=\"height:1440px\">",
+    +                 "target": Array [
+    +                   "div:nth-child(4) > .beauty-col-body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.37 (foreground color: #888c93, background color: #ffffff, font size: 13.2pt (17.55px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<h3>Перенести</h3>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "h3",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#ffffff",
+    +               "contrastRatio": 2.18,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a9b0bb",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.18 (foreground color: #a9b0bb, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<div class=\"beauty-col-body\" style=\"height:1440px\">",
+    +                 "target": Array [
+    +                   "div:nth-child(4) > .beauty-col-body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.18 (foreground color: #a9b0bb, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<label class=\"field\">Мастер<select class=\"inp\" name=\"employeeId\"><option value=\"e81a0c96-f8aa-4a3d-b2c2-c73900accdb8\" selected=\"\">Тестовый мастер Анна</option></select></label>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "form > label:nth-child(3)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#ffffff",
+    +               "contrastRatio": 2.18,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a9b0bb",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.18 (foreground color: #a9b0bb, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<button type=\"button\" class=\"beauty-tile beauty-tile--booked\" style=\"top:240px;height:120px\">",
+    +                 "target": Array [
+    +                   "div:nth-child(4) > .beauty-col-body > .beauty-tile.beauty-tile--booked[type=\"button\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.18 (foreground color: #a9b0bb, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<label class=\"field\">Начало<input class=\"inp\" data-testid=\"beauty-move-start\" type=\"datetime-local\" value=\"2026-10-12T10:00\"></label>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "label:nth-child(4)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#ffffff",
+    +               "contrastRatio": 3.37,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#888c93",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.37 (foreground color: #888c93, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<input class=\"inp\" data-testid=\"beauty-move-start\" type=\"datetime-local\" value=\"2026-10-12T10:00\">",
+    +                 "target": Array [
+    +                   "input[data-testid=\"beauty-move-start\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.37 (foreground color: #888c93, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<input class=\"inp\" data-testid=\"beauty-move-start\" type=\"datetime-local\" value=\"2026-10-12T10:00\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "input[data-testid=\"beauty-move-start\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#ffffff",
+    +               "contrastRatio": 2.18,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#a9b0bb",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.18 (foreground color: #a9b0bb, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button class=\"btn btn--secondary\" type=\"submit\">Перенести</button>",
+    +                 "target": Array [
+    +                   "button[type=\"submit\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.18 (foreground color: #a9b0bb, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<button class=\"btn btn--secondary\" type=\"submit\">Перенести</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[type=\"submit\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      224 |       await page.keyboard.press('Enter');
+      225 |       await expect(page.getByRole('dialog')).toBeVisible();
+    > 226 |       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+          |                                                                     ^
+      227 |       await page.screenshot({ path: `${shots}/drawer-${width}-${theme}.png`, fullPage: true });
+      228 |       await page.keyboard.press('Escape');
+      229 |       await expect(page.getByRole('dialog')).toBeHidden();
+        at /Users/urijzapojnov/wetop-mv1-20261004/tests/beauty-ui/beauty.spec.ts:226:69
+
+    Error Context: test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:201:5 › calendar and drawer 1440 light, keyboard, axe, no overflow
+  3 did not run
+  2 passed (20.8s)
+  1 error was not a part of any test, see above for details
+
+# код выхода 1 · 22 с

@@ -1,0 +1,2843 @@
+# Сквозные (e2e) · 03.10.2026 15:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит a82fced (main), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' './playwright.ui-support.local.config.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 3106ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 26 tests using 1 worker
+
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/today" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/today" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/today" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✘   1 tests/ui/ai-seller.spec.ts:64:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (58.8s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓   2 tests/ui/ai-seller.spec.ts:101:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (30.4s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✘   3 tests/ui/ai-seller.spec.ts:132:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (26.6s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓   4 tests/ui/ai-seller.spec.ts:162:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (7.9s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✘   5 tests/ui/ai-seller.spec.ts:179:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (21.2s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✘   6 tests/ui/ai-seller.spec.ts:216:1 › продавец недоступен — метка, причина и обещание повтора (18.5s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✘   7 tests/ui/ai-seller.spec.ts:227:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (17.7s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓   8 tests/ui/ai-seller.spec.ts:246:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (5.6s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓   9 tests/ui/ai-seller.spec.ts:260:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (1.5s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓  10 tests/ui/ai-seller.spec.ts:298:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (2.1s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓  11 tests/ui/ai-seller.spec.ts:341:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.6s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓  12 tests/ui/ai-seller.spec.ts:347:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (8.4s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓  13 tests/ui/ai-seller.spec.ts:375:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (2.4s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✘  14 tests/ui/ai-seller.spec.ts:390:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (17.7s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓  15 tests/ui/ai-seller.spec.ts:408:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (3.6s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✘  16 tests/ui/ai-seller.spec.ts:440:1 › снимки экранов раздела (17.2s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓  17 tests/ui/ai-seller.spec.ts:468:1 › Все агенты возвращает в единый каталог, а не только к черновикам (6.9s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/today" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/today" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/today" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/ai-seller" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/ai-agents" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✘  18 tests/ui/ai-seller.spec.ts:477:1 › закрытое расширение: администратор видит действие для управления доступом (24.7s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/today" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/today" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/today" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/platform/..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/platform/..." open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/platform/..." open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓  19 tests/ui/support-queue.spec.ts:48:1 › очередь: без пустых диалогов, срочные первыми, последнее сообщение и сколько ждёт (19.7s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/today" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/today" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/today" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/platform/..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/platform/..." open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/platform/..." open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/platform/..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/platform/..." open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/platform/..." open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✓  20 tests/ui/support-queue.spec.ts:87:1 › переписка открывается рядом со списком; забрать, ответить, вернуть ИИ (23.6s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/today" desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/today" open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/today" open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <TopNav account={<Suspense>} demo={false} desk={Promise} property={{...}}>
+[WebServer]       <DataFreshnessProvider>
+[WebServer]         <div className="workspace">
+[WebServer]           <a>
+[WebServer]           <header className="workspace-...">
+[WebServer]             <div>
+[WebServer]             <TopMenu path="/platform/..." desk={Promise}>
+[WebServer]               <nav className="topmenu" aria-label="Разделы" ref={{...}} onKeyDown={function onKeyDown} ...>
+[WebServer]                 <div className="topmenu__tabs">
+[WebServer]                   <Suspense fallback={<Tabs>}>
+[WebServer]                     <GrantedTabs desk={Promise} id="_R_4iqlb_" active="/platform/..." open={null} ...>
+[WebServer]                       <Tabs sections={[...]} id="_R_4iqlb_" active="/platform/..." open={null} ...>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent>
+[WebServer]                         <LinkComponent href="/finance" prefetch={false} className="topmenu__tab" aria-current={undefined} ...>
+[WebServer]                           <a
+[WebServer]                             className="topmenu__tab"
+[WebServer]                             aria-current={undefined}
+[WebServer] +                           data-tour="section-finance"
+[WebServer] -                           data-tour="section-inventory"
+[WebServer]                             ref={function}
+[WebServer]                             onClick={function onClick}
+[WebServer]                             onMouseEnter={function onMouseEnter}
+[WebServer]                             onTouchStart={function onTouchStart}
+[WebServer] +                           href="/finance"
+[WebServer] -                           href="/inventory"
+[WebServer]                           >
+[WebServer] +                           Финансы
+[WebServer] -                           Номерной фонд
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]           ...
+[WebServer]     ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at a (<anonymous>)
+[WebServer]     at <unknown> (src/components/shell/top-menu.tsx:109:13)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at Tabs (src/components/shell/top-menu.tsx:103:17)
+[WebServer]     at GrantedTabs (src/components/shell/top-menu.tsx:97:10)
+[WebServer]     at TopMenu (src/components/shell/top-menu.tsx:72:11)
+[WebServer]     at TopNav (src/components/top-nav.tsx:201:11)
+[WebServer]     at RootLayout (src/app/layout.tsx:105:17)
+[WebServer]   107 |         if (single)
+[WebServer]   108 |           return (
+[WebServer] > 109 |             <Link
+[WebServer]       |             ^
+[WebServer]   110 |               key={section.id}
+[WebServer]   111 |               href={single.href}
+[WebServer]   112 |               prefetch={false}
+  ✘  21 tests/ui/support-queue.spec.ts:128:1 › закрыть обращение: с подтверждением, уходит в «Закрытые», переписка только для чтения (46.9s)
+  ✓  22 tests/ui/support-queue.spec.ts:158:1 › помощник не отвечает — отдельно от «не подключён», с повтором (32.7s)
+  ✓  23 tests/ui/support-queue.spec.ts:168:1 › телефон: список на весь экран, переписка вместо него и «К списку» (31.4s)
+  ✓  24 tests/ui/support-queue.spec.ts:196:1 › снимки для владельца: тёмная тема, компьютер и телефон (11.9s)
+  ✓  25 tests/ui/support-queue.spec.ts:215:1 › проверки агента в очередь не попадают; категория второй строкой чипов, статус держится (17.8s)
+  ✓  26 tests/ui/support-queue.spec.ts:255:1 › категории на телефоне и в тёмной теме (16.1s)
+
+
+  1) tests/ui/ai-seller.spec.ts:64:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3109/ai-seller", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:63:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:73:14
+
+    Error Context: test-results/ai-seller-раздел-в-меню-«П-13f24-я-и-что-осталось-до-запуска/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-раздел-в-меню-«П-13f24-я-и-что-осталось-до-запуска/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-раздел-в-меню-«П-13f24-я-и-что-осталось-до-запуска/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-seller.spec.ts:132:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Инструкция продавцу' })
+    Timeout: 15000ms
+    Expected pattern: /Тебя зовут Айгерим\./
+    Received string:  "Ты — продавец хостела «Тёплый». Обращайся к гостю на «ты», отвечай коротко.
+    Парковки нет, рядом городская."
+
+    Call log:
+      - Expect "toHaveValue" getByRole('textbox', { name: 'Инструкция продавцу' }) with timeout 15000ms
+      - waiting for getByRole('textbox', { name: 'Инструкция продавцу' })
+        32 × locator resolved to <textarea rows="10" class="inp" name="text" required="" maxlength="20000" data-testid="seller-prompt-text" aria-labelledby="seller-prompt-title">Ты — продавец хостела «Тёплый». Обращайся к гостю…</textarea>
+           - unexpected value "Ты — продавец хостела «Тёплый». Обращайся к гостю на «ты», отвечай коротко.
+    Парковки нет, рядом городская."
+
+
+      151 |   await page.goto('/ai-seller');
+      152 |   await openStep(page, 'Инструкция');
+    > 153 |   await expect(instruction(page)).toHaveValue(/Тебя зовут Айгерим\./);
+          |                                   ^
+      154 |   await expect(instruction(page)).toHaveValue(/Тишина после 23:00/);
+      155 |   await expect(instruction(page)).toHaveValue(
+      156 |     /Есть ли парковка\? → Парковки нет, рядом городская\./,
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:153:35
+
+    Error Context: test-results/ai-seller-черновик-собирае-a409e-дно-окно-ничего-не-теряется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-черновик-собирае-a409e-дно-окно-ничего-не-теряется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-черновик-собирае-a409e-дно-окно-ничего-не-теряется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ai-seller.spec.ts:179:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('seller-state')
+    Expected substring: "не подключён"
+    Received string:    "отклонил правкиПродавец отклонил правки"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('seller-state') with timeout 15000ms
+      - waiting for getByTestId('seller-state')
+        33 × locator resolved to <span class="seller-state" data-testid="seller-state">…</span>
+           - unexpected value "отклонил правкиПродавец отклонил правки"
+
+
+      183 |   await request.post(`${API}/__test/control`, { data: { sellerState: 'not-configured' } });
+      184 |   await page.goto('/ai-seller');
+    > 185 |   await expect(page.getByTestId('seller-state')).toContainText('не подключён');
+          |                                                  ^
+      186 |   await expect(page.getByTestId('seller-checklist-connect')).toHaveAttribute('data-state', 'todo');
+      187 |   await expect(page.getByTestId('seller-check')).toContainText(
+      188 |     'Проверка заработает, когда продавец будет подключён',
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:185:50
+
+    Error Context: test-results/ai-seller-продавец-не-подк-809d8-охраняется-заранее-ТЗ-§4-4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-продавец-не-подк-809d8-охраняется-заранее-ТЗ-§4-4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-продавец-не-подк-809d8-охраняется-заранее-ТЗ-§4-4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ai-seller.spec.ts:216:1 › продавец недоступен — метка, причина и обещание повтора ────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('seller-state')
+    Expected substring: "Продавец не принял правки"
+    Received string:    "отклонил правкиПродавец отклонил правки"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('seller-state') with timeout 15000ms
+      - waiting for getByTestId('seller-state')
+        33 × locator resolved to <span class="seller-state" data-testid="seller-state">…</span>
+           - unexpected value "отклонил правкиПродавец отклонил правки"
+
+
+      219 |   });
+      220 |   await page.goto('/ai-seller');
+    > 221 |   await expect(page.getByTestId('seller-state')).toContainText('Продавец не принял правки');
+          |                                                  ^
+      222 |   const reason = page.getByTestId('seller-state-reason');
+      223 |   await expect(reason).toContainText('ИИ-продавец недоступен (HTTP 502)');
+      224 |   await expect(reason).toContainText('Повторяем отправку автоматически раз в минуту');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:221:50
+
+    Error Context: test-results/ai-seller-продавец-недосту-02186--причина-и-обещание-повтора/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-продавец-недосту-02186--причина-и-обещание-повтора/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-продавец-недосту-02186--причина-и-обещание-повтора/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ai-seller.spec.ts:227:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('seller-state-reason')
+    Expected substring: "«Инструкция»"
+    Received string:    "В тексте найдены инструкции для модели. Сами не повторяем: исправьте, что назвал продавец, и нажмите «Сохранить и применить» во вкладке «Настройка»."
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('seller-state-reason') with timeout 15000ms
+      - waiting for getByTestId('seller-state-reason')
+        33 × locator resolved to <div role="alert" class="alert" data-testid="seller-state-reason">В тексте найдены инструкции для модели. Сами не п…</div>
+           - unexpected value "В тексте найдены инструкции для модели. Сами не повторяем: исправьте, что назвал продавец, и нажмите «Сохранить и применить» во вкладке «Настройка»."
+
+
+      239 |   await expect(page.getByTestId('seller-state')).toContainText('отклонил правки');
+      240 |   const reason = page.getByTestId('seller-state-reason');
+    > 241 |   await expect(reason).toContainText('«Инструкция»');
+          |                        ^
+      242 |   await expect(reason).toContainText('нажмите «Сохранить и применить» во вкладке «Настройка»');
+      243 |   await expect(reason).not.toContainText('Повторяем');
+      244 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:241:24
+
+    Error Context: test-results/ai-seller-продавец-отклони-19fde-о-делать-повтора-не-обещаем/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-продавец-отклони-19fde-о-делать-повтора-не-обещаем/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-продавец-отклони-19fde-о-делать-повтора-не-обещаем/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ai-seller.spec.ts:390:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('seller-embed-no-site')
+    Expected substring: "Настройках сайта"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('seller-embed-no-site') with timeout 15000ms
+      - waiting for getByTestId('seller-embed-no-site')
+
+
+      403 |   await request.post(`${API}/__test/control`, { data: { sellerHosts: [] } });
+      404 |   await page.reload();
+    > 405 |   await expect(page.getByTestId('seller-embed-no-site')).toContainText('Настройках сайта');
+          |                                                          ^
+      406 | });
+      407 |
+      408 | test('«Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить', async ({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:405:58
+
+    Error Context: test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/ai-seller.spec.ts:440:1 › снимки экранов раздела ─────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('seller-checklist')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('seller-checklist') with timeout 15000ms
+      - waiting for getByTestId('seller-checklist')
+
+
+      445 |   await page.goto('/ai-seller');
+      446 |   await openStep(page, 'Готовность');
+    > 447 |   await expect(page.getByTestId('seller-checklist')).toBeVisible();
+          |                                                      ^
+      448 |   await page.screenshot({ path: `${dir}/setup-1440.png`, fullPage: false });
+      449 |   await ask(page, 'Здравствуйте, есть места на выходные?');
+      450 |   await expect(page.getByTestId('sandbox-history')).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:447:54
+
+    Error Context: test-results/ai-seller-снимки-экранов-раздела/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-снимки-экранов-раздела/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-снимки-экранов-раздела/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/ai-seller.spec.ts:477:1 › закрытое расширение: администратор видит действие для управления доступом 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' })
+    Expected: "/platform"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' }) with timeout 15000ms
+      - waiting for getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' })
+
+
+      490 |   await expect(
+      491 |     page.getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' }),
+    > 492 |   ).toHaveAttribute('href', '/platform');
+          |     ^
+      493 | });
+      494 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:492:5
+
+    Error Context: test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/support-queue.spec.ts:128:1 › закрыть обращение: с подтверждением, уходит в «Закрытые», переписка только для чтения 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('support-queue-list').locator('[data-id="8c3d4e5f-6a7b-4c8d-8e9f-1a2b3c4d5e6f"]')
+    Expected: 1
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('support-queue-list').locator('[data-id="8c3d4e5f-6a7b-4c8d-8e9f-1a2b3c4d5e6f"]') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('support-queue-list').locator('[data-id="8c3d4e5f-6a7b-4c8d-8e9f-1a2b3c4d5e6f"]')
+        31 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      147 |   await expect(queue(page).locator(`[data-id="${WAITING}"]`)).toHaveCount(0);
+      148 |   await chips(page).getByRole('link', { name: 'Закрытые' }).click();
+    > 149 |   await expect(queue(page).locator(`[data-id="${WAITING}"]`)).toHaveCount(1);
+          |                                                               ^
+      150 |   await expect(queue(page).locator(`[data-id="${CLOSED}"]`)).toHaveCount(1);
+      151 |
+      152 |   await chips(page)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/support-queue.spec.ts:149:63
+
+    Error Context: test-results/support-queue-закрыть-обра-20211-переписка-только-для-чтения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-queue-закрыть-обра-20211-переписка-только-для-чтения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-queue-закрыть-обра-20211-переписка-только-для-чтения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    tests/ui/ai-seller.spec.ts:64:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска 
+    tests/ui/ai-seller.spec.ts:132:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется 
+    tests/ui/ai-seller.spec.ts:179:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) 
+    tests/ui/ai-seller.spec.ts:216:1 › продавец недоступен — метка, причина и обещание повтора ─────
+    tests/ui/ai-seller.spec.ts:227:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем 
+    tests/ui/ai-seller.spec.ts:390:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) 
+    tests/ui/ai-seller.spec.ts:440:1 › снимки экранов раздела ──────────────────────────────────────
+    tests/ui/ai-seller.spec.ts:477:1 › закрытое расширение: администратор видит действие для управления доступом 
+    tests/ui/support-queue.spec.ts:128:1 › закрыть обращение: с подтверждением, уходит в «Закрытые», переписка только для чтения 
+  17 passed (10.3m)
+
+# код выхода 1 · 10 мин 32 с

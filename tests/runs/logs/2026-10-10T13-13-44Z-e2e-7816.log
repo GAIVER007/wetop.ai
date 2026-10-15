@@ -1,0 +1,11 @@
+# Сквозные (e2e) · 10.10.2026 18:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 64
+# npx playwright test --workers=2 --reporter=list,json 'tests/site/public-intro.spec.ts:75' '--config' 'tests/site/playwright.config.ts'
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog (892ms)
+
+  1 passed (10.6s)
+
+# код выхода 0 · 13 с

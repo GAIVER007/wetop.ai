@@ -1,0 +1,29 @@
+# Интеграционные (integration) · 03.10.2026 17:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/team-phone-position), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T12-24-41Z-integration-b24f.json' 'tests/integration/manager-role.test.ts' 'tests/integration/rls-credential-grants.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate
+
+ ✓ |integration| tests/integration/manager-role.test.ts (8 tests) 17223ms
+   ✓ роли управляющего и администратора (integration, DATABASE_URL required) (8)
+     ✓ в типе роли три значения — владелец, управляющий, администратор 3708ms
+     ✓ приглашение хранит роль, по умолчанию — администратор; владельца база не примет 2129ms
+     ✓ сессия знает, заблокирован ли человек и есть ли ещё членство (С-4, С-10) 655ms
+     ✓ хранилище: приглашение с ролью, отзыв по роли, вступление с ролью из приглашения 2220ms
+     ✓ сотрудники по порядку ролей; отключение и смена роли — вместе с записью в журнале организации 2257ms
+     ✓ телефон и должность (v2.10, Q-244): запись под замком роли, в журнале нет номера 3084ms
+     ✓ база не примет телефон не в виде +цифры и пустую должность 552ms
+     ✓ агенты продавца: управляющему — можно, администратору — нет (ADR-107) 1539ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (9 tests) 2172ms
+   ✓ RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) (9)
+     ✓ password_resets: wetop_app не может ни читать, ни писать 350ms
+     ✓ внешний ключ audit_logs.user_id проверяется и без прав на users: запись журнала под организацией проходит 375ms
+
+ Test Files  2 passed (2)
+      Tests  17 passed (17)
+   Start at  05:26:23
+   Duration  107.72s (transform 49%, tests 26%, import 21%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T12-24-41Z-integration-b24f.json
+
+# код выхода 0 · 3 мин 31 с

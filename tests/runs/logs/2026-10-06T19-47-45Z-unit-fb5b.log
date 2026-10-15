@@ -1,0 +1,252 @@
+# Модульные (unit) · 07.10.2026 00:47 Алматы · vm
+# коммит e8497b0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-47-45Z-unit-fb5b.json' 'apps/sites'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/sites/src/contract.test.ts (14 tests) 76ms
+ ❯ |unit| apps/sites/src/render/from-price.test.ts (21 tests | 2 failed) 54ms
+   ✓ подпись цены: ru, kk, en (11)
+     ✓ ru 15ms
+     ✓ kk 0ms
+     ✓ en 1ms
+     ✓ тиыны показываются, если они есть 0ms
+     ✓ не число abc: цены нет 1ms
+     ✓ не число : цены нет 0ms
+     ✓ не число null: цены нет 0ms
+     ✓ не число -100: цены нет 0ms
+     ✓ не число 1e9: цены нет 0ms
+     ✓ не число 2500000: цены нет 0ms
+     ✓ неверная валюта: цены нет 0ms
+   ❯ карточки номеров (3)
+     × showFromPrice=true: скрытое место под цену, без числа в HTML 10ms
+     × showFromPrice=false: места под цену нет 15ms
+     ✓ цены не могут работать (бронь сайта выключена): места под цену нет 1ms
+   ✓ секция pricing (4)
+     ✓ строки по категориям секции, скрыты до ответа цен; секция скрыта; названия из карточек номеров 1ms
+     ✓ неактивная категория (B-CATEGORY) строки не получает; все неактивны: секции нет 1ms
+     ✓ цены не могут работать: секции нет вовсе 1ms
+     ✓ пункт меню на секцию цен не выводится: до ответа цен она скрыта 2ms
+   ✓ скрипт цен на странице (3)
+     ✓ внешний файл WETOP с ключом, адресом API, языком и подписью; без встроенного скрипта 1ms
+     ✓ на странице без мест под цену скрипта нет 1ms
+     ✓ скрипт ходит только в /w/from-prices, цену не кэширует и подставляет её через ту же функцию формата 1ms
+ ❯ |unit| apps/sites/src/worker.test.ts (16 tests | 1 failed) 98ms
+   ❯ страница сайта (9)
+     ✓ главная: 200, HTML с lang, H1, заголовки безопасности, короткий кэш, noindex в dev 53ms
+     × скрипты только WETOP: счётчик и виджет с ключом связанного сайта, своих встроенных скриптов нет 17ms
+     ✓ согласие на счётчик: data-consent="wait" 2ms
+     ✓ бронь выключена у сайта счётчика: ни виджета, ни Turnstile в CSP 2ms
+     ✓ связанного сайта счётчика нет: ни одного внешнего скрипта, script-src none 3ms
+     ✓ вторая страница по адресу, хвостовая косая черта 301, неизвестный путь 404 в оболочке сайта 5ms
+     ✓ HEAD без тела; POST 405 2ms
+     ✓ robots.txt и sitemap.xml по хосту 2ms
+     ✓ стили: файл с хэшем, долгий неизменяемый кэш, без запроса к API 2ms
+   ✓ цена «от» (Q-276) (3)
+     ✓ главная: скрипт цен в CSP через self, числа цены в HTML нет 2ms
+     ✓ файл цен: JavaScript, долгий кэш, без запроса к API 1ms
+     ✓ бронь сайта выключена: ни скрипта цен, ни секции цен, ни self в script-src 2ms
+   ✓ отказы без имени сайта (4)
+     ✓ неизвестный хост 404: нейтральная страница, имени нет 1ms
+     ✓ неверный документ: 503, не кэшируется 1ms
+     ✓ незнакомая секция в документе: 503 и запись в лог, а не частичная страница 1ms
+     ✓ сайт не запрашивает API за favicon.ico 0ms
+ ✓ |unit| apps/sites/src/seo.test.ts (13 tests) 16ms
+ ✓ |unit| apps/sites/src/render/theme.test.ts (29 tests) 16ms
+ ❯ |unit| apps/sites/src/headers.test.ts (14 tests | 1 failed) 20ms
+   ✓ CSP рантайма (3)
+     ✓ ни unsafe-eval, ни unsafe-inline для скриптов; только API WETOP и Turnstile при брони 2ms
+     ✓ без брони Turnstile не разрешён 0ms
+     ✓ без ключа и адреса API скриптов нет вовсе 0ms
+   ❯ CSP со скриптом цены «от» (Q-276) (2)
+     × свой файл цен с того же хоста ('self') и запрос к API, без unsafe-inline 12ms
+     ✓ без адреса API цен нет и в CSP 0ms
+   ✓ адрес API (9)
+     ✓ https://api.wetop.ai/ → https://api.wetop.ai 0ms
+     ✓ http://127.0.0.1:3001 → http://127.0.0.1:3001 0ms
+     ✓ http://localhost:3001/x → http://localhost:3001 0ms
+     ✓ http://api.wetop.ai → null 1ms
+     ✓ javascript:alert(1) → null 0ms
+     ✓ data:text/html,x → null 0ms
+     ✓  → null 0ms
+     ✓ null → null 0ms
+     ✓ not a url → null 0ms
+ ❯ |unit| apps/sites/src/render/variants.test.ts (22 tests | 1 failed) 27ms
+   ❯ каждый вариант рисуется (22)
+     ✓ hero IMAGE_FULL 3ms
+     ✓ hero IMAGE_SIDE 1ms
+     ✓ hero TEXT_ONLY 1ms
+     ✓ about TEXT_ONLY 1ms
+     ✓ about TEXT_IMAGE 1ms
+     ✓ features GRID 1ms
+     ✓ features LIST 1ms
+     ✓ accommodations CARDS 1ms
+     ✓ accommodations ROWS 1ms
+     ✓ amenities LIST 1ms
+     ✓ amenities ICONS 1ms
+     ✓ gallery GRID 1ms
+     ✓ gallery CAROUSEL 0ms
+     ✓ booking INLINE 1ms
+     ✓ contacts PLAIN 1ms
+     ✓ contacts WITH_MAP 1ms
+     ✓ faq ACCORDION 1ms
+     ✓ faq LIST 1ms
+     ✓ cta BANNER 1ms
+     ✓ cta SPLIT 1ms
+     × pricing не рисуется до Q-276: рендерер отказывает, а не выдумывает цену 7ms
+     ✓ картинка с картой ассетов: адрес из карты, ALT экранирован, ленивая загрузка 1ms
+ ❯ |unit| apps/sites/src/render/sections.test.ts (30 tests | 1 failed) 29ms
+   ✓ реестр рендереров совпадает с реестром валидатора SiteSpec v0 (1)
+     ✓ у каждого типа и варианта валидатора есть рендерер, лишних нет 2ms
+   ✓ незнакомая секция или вариант: отказ, а не «как получится» (3)
+     ✓ тип 1ms
+     ✓ вариант 0ms
+     ✓ тип из прототипа 0ms
+   ❯ каждая секция примера (18)
+     ✓ один H1: заголовок первой секции hero 1ms
+     ✓ секция sec-hero выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-about выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-features выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-rooms выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-amenities выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-booking выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-faq выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-contacts выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-cta выводится с якорем и подписанным заголовком 0ms
+     × pricing скрыт до Q-276: цены «от» в HTML нет 12ms
+     ✓ gallery скрыта: SiteAsset нет, картинок нет вовсе 0ms
+     ✓ accommodations: живая вместимость из publicFacts 0ms
+     ✓ booking: строка заезда и выезда из publicFacts, точка монтирования виджета 0ms
+     ✓ faq ACCORDION на details без скриптов 0ms
+     ✓ contacts: телефон, WhatsApp, почта и ссылка на OpenStreetMap 0ms
+     ✓ features и amenities: значки из словаря WETOP, aria-hidden 0ms
+     ✓ кнопка BOOK ведёт к секции брони этой страницы 0ms
+   ✓ живые данные: неактивная категория и сбой фактов (3)
+     ✓ неактивная или неизвестная категория прячет карточку 1ms
+     ✓ все категории неактивны: секция номеров скрыта целиком 0ms
+     ✓ факты не загрузились: карточки из снимка остаются, живая вместимость и время заезда скрыты 1ms
+   ✓ бронь не работает: формы нет, есть телефон (1)
+     ✓ bookingLive false 1ms
+   ✓ экранирование: текст документа не становится разметкой (3)
+     ✓ кавычки, амперсанд и знак меньше в тексте и атрибутах 1ms
+     ✓ внешний адрес не https в ссылке не выводится 1ms
+     ✓ незнакомый значок: отказ 1ms
+   ✓ страница без hero: H1 из заголовка страницы (1)
+     ✓ privacy 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/sites/src/headers.test.ts > CSP со скриптом цены «от» (Q-276) > свой файл цен с того же хоста ('self') и запрос к API, без unsafe-inline
+AssertionError: expected 'default-src \'none\'; script-src \'se…' not to contain 'unsafe-inline\'; '
+
+Expected: "unsafe-inline'; "
+Received: "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src https://api.example.test; frame-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"
+
+ ❯ apps/sites/src/headers.test.ts:40:21
+     38|     expect(directive(csp, 'script-src')).toBe("script-src 'self'");
+     39|     expect(directive(csp, 'connect-src')).toBe('connect-src https://ap…
+     40|     expect(csp).not.toContain('unsafe-inline\'; ');
+       |                     ^
+     41|     expect(directive(csp, 'script-src')).not.toContain('unsafe');
+     42|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| apps/sites/src/worker.test.ts > страница сайта > скрипты только WETOP: счётчик и виджет с ключом связанного сайта, своих встроенных скриптов нет
+AssertionError: expected '<script defer src="/_wetop/prices-7f8…' to match /^<script …/ld\+json"|async src="https:\
+
+- Expected:
+/^<script (type="application\/ld\+json"|async src="https:\/\/api\.example\.test\/(a\/pms|w\/widget)\.js" data-site="pms_0123456789ab")>$/
+
++ Received:
+"<script defer src=\"/_wetop/prices-7f8aaa13.js\" data-api=\"https://api.example.test\" data-site=\"pms_0123456789ab\" data-locale=\"ru-RU\" data-label=\"от {price} / ночь\">"
+
+ ❯ apps/sites/src/worker.test.ts:45:19
+     43|     const scripts = html.match(/<script[^>]*>/g) ?? [];
+     44|     for (const tag of scripts)
+     45|       expect(tag).toMatch(/^<script (type="application\/ld\+json"|asyn…
+       |                   ^
+     46|     expect(html).toContain('<script async src="https://api.example.tes…
+     47|     expect(html).toContain('<script async src="https://api.example.tes…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| apps/sites/src/render/from-price.test.ts > карточки номеров > showFromPrice=true: скрытое место под цену, без числа в HTML
+AssertionError: expected '<section id="sec-hero" aria-labelledb…' not to match /₸|\d{2} ?000/
+
+- Expected:
+/₸|\d{2} ?000/
+
++ Received:
+"<section id=\"sec-hero\" aria-labelledby=\"sec-hero-title\" class=\"hero\"><div class=\"wrap\"><h1 id=\"sec-hero-title\">Тихие номера у вокзала</h1><p class=\"lead\">Заезд круглосуточно, парковка во дворе, завтрак по желанию.</p><div class=\"actions\"><a class=\"btn\" href=\"#sec-booking\">Выбрать даты</a><a class=\"btn btn--ghost\" href=\"https://wa.me/<телефон>\" rel=\"noopener noreferrer\">Написать в WhatsApp</a></div></div></section><section id=\"sec-about\" aria-labelledby=\"sec-about-title\"><div class=\"wrap\"><h2 id=\"sec-about-title\">О гостинице</h2><p>Двадцать номеров на трёх этажах. Окна во двор, поэтому шума с проспекта не слышно.</p><p>До вокзала пять минут пешком, до центра пятнадцать минут на автобусе.</p></div></section><section id=\"sec-features\" aria-labelledby=\"sec-features-title\"><div class=\"wrap\"><h2 id=\"sec-features-title\">Почему у нас удобно</h2><ul class=\"list grid\"><li class=\"card item\"><svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/></svg><div><h3>Заезд в любое время</h3><p class=\"muted\">Администратор на месте круглые сутки.</p></div></li><li class=\"card item\"><svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M10 17V7h3a3 3 0 0 1 0 6h-3\"/></svg><div><h3>Своя парковка</h3><p class=\"muted\">Бесплатно для гостей, во дворе.</p></div></li><li class=\"card item\"><svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0\"/><circle cx=\"12\" cy=\"19\" r=\"1\"/></svg><div><h3>Быстрый интернет</h3><p class=\"muted\">Wi-Fi во всех номерах.</p></div></li></ul></div></section><section id=\"sec-rooms\" aria-labelledby=\"sec-rooms-title\"><div class=\"wrap\"><h2 id=\"sec-rooms-title\">Номера</h2><ul class=\"list grid\"><li class=\"card\"><h3>Стандарт для двоих</h3><p>Двуспальная кровать, душ, рабочий стол.</p><p class=\"muted\">До 2 гостей</p><p class=\"from-price\" data-from-price=\"standard-double\" hidden></p><ul class=\"chips\"><li>18 м²</li><li>Окна во двор</li></ul><div class=\"actions\"><a class=\"btn\" href=\"#sec-booking\">Забронировать</a></div></li><li class=\"card\"><h3>Место в общем номере</h3><p>Кровать с занавеской, шкафчик с замком, розетка у изголовья.</p><p class=\"muted\">До 1 гостя</p><p class=\"from-price\" data-from-price=\"dorm-bed\" hidden></p><ul class=\"chips\"><li>Женский и общий номер</li></ul><div class=\"actions\"><a class=\"btn\" href=\"#sec-booking\">Забронировать</a></div></li></ul></div></section><section id=\"sec-amenities\" aria-labelledby=\"sec-amenities-title\"><div class=\"wrap\"><h2 id=\"sec-amenities-title\">Удобства и услуги</h2><ul class=\"list list--cols\"><li class=\"item\"><svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M4 10h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6zM17 11h1.5a2.5 2.5 0 0 1 0 5H17M8 3v4M12 3v4\"/></svg><span>Завтрак<br><span class=\"muted\">по желанию, оплачивается отдельно</span></span></li><li class=\"item\"><svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><circle cx=\"12\" cy=\"13\" r=\"4.5\"/><path d=\"M8 6h1\"/></svg><span>Прачечная</span></li><li class=\"item\"><svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><rect x=\"5\" y=\"7\" width=\"14\" height=\"13\" rx=\"2\"/><path d=\"M9 7V4h6v3M9 11v5M15 11v5\"/></svg><span>Камера хранения</span></li></ul></div></section><section id=\"sec-pricing\" aria-labelledby=\"sec-pricing-title\" class=\"pricing\" data-price-section hidden><div class=\"wrap\"><h2 id=\"sec-pricing-title\">Цены</h2><ul class=\"list\"><li class=\"row\" data-price-row hidden><div><h3>Стандарт для двоих</h3><p class=\"from-price\" data-from-price=\"standard-double\" hidden></p></div><div><a class=\"btn\" href=\"#sec-booking\">Забронировать</a></div></li><li class=\"row\" data-price-row hidden><div><h3>Место в общем номере</h3><p class=\"from-price\" data-from-price=\"dorm-bed\" hidden></p></div><div><a class=\"btn\" href=\"#sec-booking\">Забронировать</a></div></li></ul><p class=\"muted\">Точная цена зависит от дат. Выберите даты в форме бронирования.</p></div></section><section id=\"sec-booking\" aria-labelledby=\"sec-booking-title\"><div class=\"wrap\"><h2 id=\"sec-booking-title\">Забронировать</h2><p class=\"muted\">Заезд с 14:00, выезд до 12:00</p><p class=\"booking-note\">Бронь подтверждается сразу. Оплата при заезде.</p><div id=\"pms-booking\"></div></div></section><section id=\"sec-faq\" aria-labelledby=\"sec-faq-title\" class=\"faq\"><div class=\"wrap\"><h2 id=\"sec-faq-title\">Частые вопросы</h2><details><summary>Можно ли заехать ночью?</summary><p>Да, администратор на месте круглые сутки.</p></details><details><summary>Есть ли парковка?</summary><p>Да, бесплатная, во дворе гостиницы.</p></details></div></section><section id=\"sec-contacts\" aria-labelledby=\"sec-contacts-title\"><div class=\"wrap\"><h2 id=\"sec-contacts-title\">Как нас найти</h2><ul class=\"contact-list\"><li>Телефон: <a href=\"tel:<телефон>\"><телефон></a></li><li>WhatsApp: <a href=\"https://wa.me/<телефон>\" rel=\"noopener noreferrer\"><телефон></a></li><li>Почта: <a href=\"mailto:<email>\"><email></a></li><li>Адрес: Астана, ул. Вымышленная, 10</li><li><a href=\"https://www.openstreetmap.org/?mlat=51.1694&amp;mlon=71.4491#map=17/51.1694/71.4491\" rel=\"noopener noreferrer\">Открыть на карте</a></li></ul><p>От вокзала прямо по улице, второй дом после аптеки.</p></div></section><section id=\"sec-cta\" aria-labelledby=\"sec-cta-title\" class=\"cta-band\"><div class=\"wrap\"><h2 id=\"sec-cta-title\">Приезжайте отдохнуть</h2><p>Бронь напрямую дешевле, чем на сайтах-агрегаторах.</p><div class=\"actions\"><a class=\"btn\" href=\"#sec-booking\">Выбрать даты</a></div></div></section>"
+
+ ❯ apps/sites/src/render/from-price.test.ts:47:22
+     45|     const html = renderSections(ctx());
+     46|     expect(html).toContain('<p class="from-price" data-from-price="sta…
+     47|     expect(html).not.toMatch(/₸|\d{2} ?000/);
+       |                      ^
+     48|   });
+     49|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| apps/sites/src/render/from-price.test.ts > карточки номеров > showFromPrice=false: места под цену нет
+AssertionError: expected '<section id="sec-hero" aria-labelledb…' not to contain 'data-from-price="standard-double"'
+
+Expected: "data-from-price="standard-double""
+Received: "<section id="sec-hero" aria-labelledby="sec-hero-title" class="hero"><div class="wrap"><h1 id="sec-hero-title">Тихие номера у вокзала</h1><p class="lead">Заезд круглосуточно, парковка во дворе, завтрак по желанию.</p><div class="actions"><a class="btn" href="#sec-booking">Выбрать даты</a><a class="btn btn--ghost" href="https://wa.me/<телефон>" rel="noopener noreferrer">Написать в WhatsApp</a></div></div></section><section id="sec-about" aria-labelledby="sec-about-title"><div class="wrap"><h2 id="sec-about-title">О гостинице</h2><p>Двадцать номеров на трёх этажах. Окна во двор, поэтому шума с проспекта не слышно.</p><p>До вокзала пять минут пешком, до центра пятнадцать минут на автобусе.</p></div></section><section id="sec-features" aria-labelledby="sec-features-title"><div class="wrap"><h2 id="sec-features-title">Почему у нас удобно</h2><ul class="list grid"><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><h3>Заезд в любое время</h3><p class="muted">Администратор на месте круглые сутки.</p></div></li><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M10 17V7h3a3 3 0 0 1 0 6h-3"/></svg><div><h3>Своя парковка</h3><p class="muted">Бесплатно для гостей, во дворе.</p></div></li><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></svg><div><h3>Быстрый интернет</h3><p class="muted">Wi-Fi во всех номерах.</p></div></li></ul></div></section><section id="sec-rooms" aria-labelledby="sec-rooms-title"><div class="wrap"><h2 id="sec-rooms-title">Номера</h2><ul class="list grid"><li class="card"><h3>Стандарт для двоих</h3><p>Двуспальная кровать, душ, рабочий стол.</p><p class="muted">До 2 гостей</p><ul class="chips"><li>18 м²</li><li>Окна во двор</li></ul><div class="actions"><a class="btn" href="#sec-booking">Забронировать</a></div></li><li class="card"><h3>Место в общем номере</h3><p>Кровать с занавеской, шкафчик с замком, розетка у изголовья.</p><p class="muted">До 1 гостя</p><ul class="chips"><li>Женский и общий номер</li></ul><div class="actions"><a class="btn" href="#sec-booking">Забронировать</a></div></li></ul></div></section><section id="sec-amenities" aria-labelledby="sec-amenities-title"><div class="wrap"><h2 id="sec-amenities-title">Удобства и услуги</h2><ul class="list list--cols"><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 10h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6zM17 11h1.5a2.5 2.5 0 0 1 0 5H17M8 3v4M12 3v4"/></svg><span>Завтрак<br><span class="muted">по желанию, оплачивается отдельно</span></span></li><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4.5"/><path d="M8 6h1"/></svg><span>Прачечная</span></li><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="7" width="14" height="13" rx="2"/><path d="M9 7V4h6v3M9 11v5M15 11v5"/></svg><span>Камера хранения</span></li></ul></div></section><section id="sec-pricing" aria-labelledby="sec-pricing-title" class="pricing" data-price-section hidden><div class="wrap"><h2 id="sec-pricing-title">Цены</h2><ul class="list"><li class="row" data-price-row hidden><div><h3>Стандарт для двоих</h3><p class="from-price" data-from-price="standard-double" hidden></p></div><div><a class="btn" href="#sec-booking">Забронировать</a></div></li><li class="row" data-price-row hidden><div><h3>Место в общем номере</h3><p class="from-price" data-from-price="dorm-bed" hidden></p></div><div><a class="btn" href="#sec-booking">Забронировать</a></div></li></ul><p class="muted">Точная цена зависит от дат. Выберите даты в форме бронирования.</p></div></section><section id="sec-booking" aria-labelledby="sec-booking-title"><div class="wrap"><h2 id="sec-booking-title">Забронировать</h2><p class="muted">Заезд с 14:00, выезд до 12:00</p><p class="booking-note">Бронь подтверждается сразу. Оплата при заезде.</p><div id="pms-booking"></div></div></section><section id="sec-faq" aria-labelledby="sec-faq-title" class="faq"><div class="wrap"><h2 id="sec-faq-title">Частые вопросы</h2><details><summary>Можно ли заехать ночью?</summary><p>Да, администратор на месте круглые сутки.</p></details><details><summary>Есть ли парковка?</summary><p>Да, бесплатная, во дворе гостиницы.</p></details></div></section><section id="sec-contacts" aria-labelledby="sec-contacts-title"><div class="wrap"><h2 id="sec-contacts-title">Как нас найти</h2><ul class="contact-list"><li>Телефон: <a href="tel:<телефон>"><телефон></a></li><li>WhatsApp: <a href="https://wa.me/<телефон>" rel="noopener noreferrer"><телефон></a></li><li>Почта: <a href="mailto:<email>"><email></a></li><li>Адрес: Астана, ул. Вымышленная, 10</li><li><a href="https://www.openstreetmap.org/?mlat=51.1694&amp;mlon=71.4491#map=17/51.1694/71.4491" rel="noopener noreferrer">Открыть на карте</a></li></ul><p>От вокзала прямо по улице, второй дом после аптеки.</p></div></section><section id="sec-cta" aria-labelledby="sec-cta-title" class="cta-band"><div class="wrap"><h2 id="sec-cta-title">Приезжайте отдохнуть</h2><p>Бронь напрямую дешевле, чем на сайтах-агрегаторах.</p><div class="actions"><a class="btn" href="#sec-booking">Выбрать даты</a></div></div></section>"
+
+ ❯ apps/sites/src/render/from-price.test.ts:53:65
+     51|     const spec = exampleSpec();
+     52|     section(spec, 'accommodations')['showFromPrice'] = false;
+     53|     expect(renderSections(ctx({ spec, page: home(spec) }))).not.toCont…
+       |                                                                 ^
+     54|   });
+     55|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| apps/sites/src/render/sections.test.ts > каждая секция примера > pricing скрыт до Q-276: цены «от» в HTML нет
+AssertionError: expected '<section id="sec-hero" aria-labelledb…' not to contain 'sec-pricing'
+
+Expected: "sec-pricing"
+Received: "<section id="sec-hero" aria-labelledby="sec-hero-title" class="hero"><div class="wrap"><h1 id="sec-hero-title">Тихие номера у вокзала</h1><p class="lead">Заезд круглосуточно, парковка во дворе, завтрак по желанию.</p><div class="actions"><a class="btn" href="#sec-booking">Выбрать даты</a><a class="btn btn--ghost" href="https://wa.me/<телефон>" rel="noopener noreferrer">Написать в WhatsApp</a></div></div></section><section id="sec-about" aria-labelledby="sec-about-title"><div class="wrap"><h2 id="sec-about-title">О гостинице</h2><p>Двадцать номеров на трёх этажах. Окна во двор, поэтому шума с проспекта не слышно.</p><p>До вокзала пять минут пешком, до центра пятнадцать минут на автобусе.</p></div></section><section id="sec-features" aria-labelledby="sec-features-title"><div class="wrap"><h2 id="sec-features-title">Почему у нас удобно</h2><ul class="list grid"><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><h3>Заезд в любое время</h3><p class="muted">Администратор на месте круглые сутки.</p></div></li><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M10 17V7h3a3 3 0 0 1 0 6h-3"/></svg><div><h3>Своя парковка</h3><p class="muted">Бесплатно для гостей, во дворе.</p></div></li><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></svg><div><h3>Быстрый интернет</h3><p class="muted">Wi-Fi во всех номерах.</p></div></li></ul></div></section><section id="sec-rooms" aria-labelledby="sec-rooms-title"><div class="wrap"><h2 id="sec-rooms-title">Номера</h2><ul class="list grid"><li class="card"><h3>Стандарт для двоих</h3><p>Двуспальная кровать, душ, рабочий стол.</p><p class="muted">До 2 гостей</p><p class="from-price" data-from-price="standard-double" hidden></p><ul class="chips"><li>18 м²</li><li>Окна во двор</li></ul><div class="actions"><a class="btn" href="#sec-booking">Забронировать</a></div></li><li class="card"><h3>Место в общем номере</h3><p>Кровать с занавеской, шкафчик с замком, розетка у изголовья.</p><p class="muted">До 1 гостя</p><p class="from-price" data-from-price="dorm-bed" hidden></p><ul class="chips"><li>Женский и общий номер</li></ul><div class="actions"><a class="btn" href="#sec-booking">Забронировать</a></div></li></ul></div></section><section id="sec-amenities" aria-labelledby="sec-amenities-title"><div class="wrap"><h2 id="sec-amenities-title">Удобства и услуги</h2><ul class="list list--cols"><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 10h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6zM17 11h1.5a2.5 2.5 0 0 1 0 5H17M8 3v4M12 3v4"/></svg><span>Завтрак<br><span class="muted">по желанию, оплачивается отдельно</span></span></li><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4.5"/><path d="M8 6h1"/></svg><span>Прачечная</span></li><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="7" width="14" height="13" rx="2"/><path d="M9 7V4h6v3M9 11v5M15 11v5"/></svg><span>Камера хранения</span></li></ul></div></section><section id="sec-pricing" aria-labelledby="sec-pricing-title" class="pricing" data-price-section hidden><div class="wrap"><h2 id="sec-pricing-title">Цены</h2><ul class="list"><li class="row" data-price-row hidden><div><h3>Стандарт для двоих</h3><p class="from-price" data-from-price="standard-double" hidden></p></div><div><a class="btn" href="#sec-booking">Забронировать</a></div></li><li class="row" data-price-row hidden><div><h3>Место в общем номере</h3><p class="from-price" data-from-price="dorm-bed" hidden></p></div><div><a class="btn" href="#sec-booking">Забронировать</a></div></li></ul><p class="muted">Точная цена зависит от дат. Выберите даты в форме бронирования.</p></div></section><section id="sec-booking" aria-labelledby="sec-booking-title"><div class="wrap"><h2 id="sec-booking-title">Забронировать</h2><p class="muted">Заезд с 14:00, выезд до 12:00</p><p class="booking-note">Бронь подтверждается сразу. Оплата при заезде.</p><div id="pms-booking"></div></div></section><section id="sec-faq" aria-labelledby="sec-faq-title" class="faq"><div class="wrap"><h2 id="sec-faq-title">Частые вопросы</h2><details><summary>Можно ли заехать ночью?</summary><p>Да, администратор на месте круглые сутки.</p></details><details><summary>Есть ли парковка?</summary><p>Да, бесплатная, во дворе гостиницы.</p></details></div></section><section id="sec-contacts" aria-labelledby="sec-contacts-title"><div class="wrap"><h2 id="sec-contacts-title">Как нас найти</h2><ul class="contact-list"><li>Телефон: <a href="tel:<телефон>"><телефон></a></li><li>WhatsApp: <a href="https://wa.me/<телефон>" rel="noopener noreferrer"><телефон></a></li><li>Почта: <a href="mailto:<email>"><email></a></li><li>Адрес: Астана, ул. Вымышленная, 10</li><li><a href="https://www.openstreetmap.org/?mlat=51.1694&amp;mlon=71.4491#map=17/51.1694/71.4491" rel="noopener noreferrer">Открыть на карте</a></li></ul><p>От вокзала прямо по улице, второй дом после аптеки.</p></div></section><section id="sec-cta" aria-labelledby="sec-cta-title" class="cta-band"><div class="wrap"><h2 id="sec-cta-title">Приезжайте отдохнуть</h2><p>Бронь напрямую дешевле, чем на сайтах-агрегаторах.</p><div class="actions"><a class="btn" href="#sec-booking">Выбрать даты</a></div></div></section>"
+
+ ❯ apps/sites/src/render/sections.test.ts:47:22
+     45|
+     46|   it('pricing скрыт до Q-276: цены «от» в HTML нет', () => {
+     47|     expect(html).not.toContain('sec-pricing');
+       |                      ^
+     48|     expect(html).not.toMatch(/₸|тенге|от \d/);
+     49|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| apps/sites/src/render/variants.test.ts > каждый вариант рисуется > pricing не рисуется до Q-276: рендерер отказывает, а не выдумывает цену
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ apps/sites/src/render/variants.test.ts:34:124
+     32|
+     33|   it('pricing не рисуется до Q-276: рендерер отказывает, а не выдумыва…
+     34|     expect(() => SECTION_RENDERERS['pricing']!['FROM_PRICES']!(section…
+       |                                                                                                                            ^
+     35|   });
+     36|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  5 failed | 3 passed (8)
+      Tests  6 failed | 153 passed (159)
+   Start at  19:47:46
+   Duration  1.57s (transform 76%, import 12%, tests 11%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-47-45Z-unit-fb5b.json
+
+# код выхода 1 · 3 с

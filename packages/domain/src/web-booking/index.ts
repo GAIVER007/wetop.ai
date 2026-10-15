@@ -1,2 +1,3 @@
 /** Бронирование с сайта (срез 9): разбор запросов виджета. Правила брони — в reservations и у сервиса. */
 export * from './request';
+export * from './from-price';

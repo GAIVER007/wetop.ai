@@ -1,0 +1,30 @@
+# Модульные (unit) · 03.10.2026 17:07 Алматы · vm
+# коммит d950eb4 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-07-30Z-unit-639d.json' 'apps/web/src/app/channels/channel-list.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/channels/channel-list.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/channels/channel-list.test.ts [ apps/web/src/app/channels/channel-list.test.ts ]
+Error: Cannot find module './channel-list-format' imported from /home/user/wetop.ai/apps/web/src/app/channels/channel-list.test.ts
+ ❯ apps/web/src/app/channels/channel-list.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { channelStatusView, matchesChannel, outsideLabel } from './cha…
+       | ^
+      3|
+      4| const row = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  12:07:31
+   Duration  173ms (worker 95%, environment 5%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-07-30Z-unit-639d.json
+
+# код выхода 1 · 1 с

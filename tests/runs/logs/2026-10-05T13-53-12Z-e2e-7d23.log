@@ -1,0 +1,86 @@
+# Сквозные (e2e) · 05.10.2026 18:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 07053e5 (codex/release-owner-token), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/today-operations.spec.ts' 'tests/ui/top-menu.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] (node:75294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75326) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75362) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+(node:75366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/today-operations.spec.ts:34:1 › операционные карточки убраны, а риски дня остались (1.4s)
+[WebServer] (node:75393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/today-operations.spec.ts:44:1 › финансовые показатели совпадают с dashboard API и не подменяют расходы нулём (16.7s)
+(node:75420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/today-operations.spec.ts:62:1 › финансы будущего периода не скрывают текущие риски (752ms)
+  ✓  4 tests/ui/today-operations.spec.ts:66:1 › сбой сторожа не скрывает показатели и действия (591ms)
+  ✓  5 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (1.7s)
+[WebServer] (node:75444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75446) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75447) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/ui/top-menu.spec.ts:118:1 › вложенные адреса подсвечивают свою вкладку (3.0s)
+  ✓  7 tests/ui/top-menu.spec.ts:151:3 › шапка ровная, без прокрутки вбок и доступная: light (2.0s)
+  ✓  8 tests/ui/top-menu.spec.ts:151:3 › шапка ровная, без прокрутки вбок и доступная: dark (2.0s)
+
+
+  1) tests/ui/today-operations.spec.ts:44:1 › финансовые показатели совпадают с dashboard API и не подменяют расходы нулём 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('owner-expenses')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('owner-expenses') with timeout 15000ms
+      - waiting for getByTestId('owner-expenses')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      57 |   await expect(page.getByTestId('owner-refunds')).toHaveCount(0);
+      58 |   // учёта расходов в модели нет — плитки с прочерком тоже нет (решение владельца 03.10)
+    > 59 |   await expect(page.getByTestId('owner-expenses')).toHaveCount(0);
+         |                                                    ^
+      60 |   await expect(page.getByTestId('c-debt')).toContainText(tenge(d.debtMinor));
+      61 | });
+      62 | test('финансы будущего периода не скрывают текущие риски', async ({ page }) => {
+        at /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/tests/ui/today-operations.spec.ts:59:52
+
+    Error Context: test-results/today-operations-финансовы-96768--не-подменяют-расходы-нулём/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-operations-финансовы-96768--не-подменяют-расходы-нулём/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-operations-финансовы-96768--не-подменяют-расходы-нулём/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/today-operations.spec.ts:44:1 › финансовые показатели совпадают с dashboard API и не подменяют расходы нулём 
+  7 passed (34.5s)
+
+# код выхода 1 · 36 с

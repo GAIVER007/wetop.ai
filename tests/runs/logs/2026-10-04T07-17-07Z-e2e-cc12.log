@@ -1,0 +1,688 @@
+# Сквозные (e2e) · 04.10.2026 12:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/requests.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/desk-tasks.spec.ts' '--config' 'tests/ui/playwright.nights-alt.config.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 993ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 68 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (4.0s)
+  ✓   2 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (2.4s)
+  ✓   3 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (3.1s)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (3.9s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (13.9s)
+  ✓   6 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (17.0s)
+  ✓   7 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (22.5s)
+  ✓   8 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (36.6s)
+  ✓   9 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (33.7s)
+  ✓  10 tests/ui/desk-tasks.spec.ts:27:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря (8.3s)
+  ✓  11 tests/ui/desk-tasks.spec.ts:61:1 › ошибка словами у формы, введённое не теряется (1.3s)
+  ✓  12 tests/ui/desk-tasks.spec.ts:72:1 › «только чтение»: список виден, создавать и закрывать нельзя (2.5s)
+  ✓  13 tests/ui/desk-tasks.spec.ts:89:3 › снимки и доступность: light (6.7s)
+  ✓  14 tests/ui/desk-tasks.spec.ts:89:3 › снимки и доступность: dark (3.4s)
+  ✓  15 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (8.8s)
+  ✓  16 tests/ui/guests-birthdays.spec.ts:52:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (3.5s)
+  ✓  17 tests/ui/navigation.spec.ts:50:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (2.8s)
+  ✘  18 tests/ui/navigation.spec.ts:91:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (25ms)
+  ✘  19 tests/ui/navigation.spec.ts:118:1 › все пункты меню открывают существующие страницы (46ms)
+  ✘  20 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (21ms)
+  ✘  21 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (23ms)
+  ✓  22 tests/ui/requests.spec.ts:78:3 › экран /today: данные берутся одним запросом на путь (1.6s)
+  ✓  23 tests/ui/requests.spec.ts:78:3 › экран /chessboard: данные берутся одним запросом на путь (1.3s)
+  ✓  24 tests/ui/requests.spec.ts:78:3 › экран /reservations: данные берутся одним запросом на путь (1.4s)
+  ✓  25 tests/ui/requests.spec.ts:78:3 › экран /guests: данные берутся одним запросом на путь (1.4s)
+  ✓  26 tests/ui/requests.spec.ts:78:3 › экран /inventory: данные берутся одним запросом на путь (1.4s)
+  ✓  27 tests/ui/requests.spec.ts:78:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.7s)
+  ✓  28 tests/ui/requests.spec.ts:78:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.4s)
+  ✓  29 tests/ui/requests.spec.ts:78:3 › экран /rates: данные берутся одним запросом на путь (1.3s)
+  ✓  30 tests/ui/requests.spec.ts:78:3 › экран /management/analytics: данные берутся одним запросом на путь (1.9s)
+  ✓  31 tests/ui/requests.spec.ts:78:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (2.8s)
+  ✓  32 tests/ui/requests.spec.ts:78:3 › экран /management/analytics/units: данные берутся одним запросом на путь (1.8s)
+  ✓  33 tests/ui/requests.spec.ts:78:3 › экран /finance: данные берутся одним запросом на путь (1.4s)
+  ✓  34 tests/ui/requests.spec.ts:78:3 › экран /reports: данные берутся одним запросом на путь (1.3s)
+  ✓  35 tests/ui/requests.spec.ts:78:3 › экран /channels: данные берутся одним запросом на путь (1.6s)
+  ✓  36 tests/ui/requests.spec.ts:78:3 › экран /connections/channex: данные берутся одним запросом на путь (1.2s)
+  ✓  37 tests/ui/requests.spec.ts:78:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.3s)
+  ✓  38 tests/ui/requests.spec.ts:78:3 › экран /channels/sync: данные берутся одним запросом на путь (1.3s)
+  ✓  39 tests/ui/requests.spec.ts:78:3 › экран /channels/events: данные берутся одним запросом на путь (1.4s)
+  ✓  40 tests/ui/requests.spec.ts:78:3 › экран /website: данные берутся одним запросом на путь (1.3s)
+  ✓  41 tests/ui/requests.spec.ts:78:3 › экран /website/booking: данные берутся одним запросом на путь (2.3s)
+  ✓  42 tests/ui/requests.spec.ts:78:3 › экран /website/analytics: данные берутся одним запросом на путь (2.3s)
+  ✓  43 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings: данные берутся одним запросом на путь (3.9s)
+  ✓  44 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (3.7s)
+  ✓  45 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (27.6s)
+  ✓  46 tests/ui/requests.spec.ts:78:3 › экран /team: данные берутся одним запросом на путь (17.7s)
+  ✓  47 tests/ui/requests.spec.ts:78:3 › экран /connections: данные берутся одним запросом на путь (9.8s)
+  ✓  48 tests/ui/requests.spec.ts:78:3 › экран /ai-agents: данные берутся одним запросом на путь (45.8s)
+  ✓  49 tests/ui/requests.spec.ts:78:3 › экран /website/settings: данные берутся одним запросом на путь (37.1s)
+  ✓  50 tests/ui/requests.spec.ts:78:3 › экран /incidents: данные берутся одним запросом на путь (39.1s)
+  ✓  51 tests/ui/requests.spec.ts:78:3 › экран /journal: данные берутся одним запросом на путь (11.8s)
+  ✓  52 tests/ui/requests.spec.ts:78:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (31.9s)
+  ✘  53 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (124ms)
+  ✘  54 tests/ui/roles.spec.ts:63:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (518ms)
+  ✘  55 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (88ms)
+  ✘  56 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (129ms)
+  ✘  57 tests/ui/roles.spec.ts:146:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (88ms)
+  ✘  58 tests/ui/roles.spec.ts:208:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (89ms)
+  ✘  59 tests/ui/roles.spec.ts:263:1 › владелец: зовёт управляющего и администратора, меняет роль (117ms)
+  ✘  60 tests/ui/roles.spec.ts:294:1 › администратор: сотрудниками ведают владелец и управляющий (77ms)
+  ✘  61 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 1440px (161ms)
+  ✘  62 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 1440px (116ms)
+  ✘  63 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 390px (112ms)
+  ✘  64 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 390px (115ms)
+  ✘  65 tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (66ms)
+  ✘  66 tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку (138ms)
+  ✘  67 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: light (51ms)
+  ✘  68 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: dark (86ms)
+
+
+  1) tests/ui/navigation.spec.ts:91:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      45 | const fixture = 'http://127.0.0.1:4311';
+      46 | test.beforeEach(async ({ request }) => {
+    > 47 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      48 | });
+      49 |
+      50 | test('меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/navigation.spec.ts:47:17
+
+    Error Context: test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/navigation.spec.ts:118:1 › все пункты меню открывают существующие страницы ───────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      45 | const fixture = 'http://127.0.0.1:4311';
+      46 | test.beforeEach(async ({ request }) => {
+    > 47 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      48 | });
+      49 |
+      50 | test('меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/navigation.spec.ts:47:17
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light ────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      45 | const fixture = 'http://127.0.0.1:4311';
+      46 | test.beforeEach(async ({ request }) => {
+    > 47 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      48 | });
+      49 |
+      50 | test('меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/navigation.spec.ts:47:17
+
+    Error Context: test-results/navigation-меню-телефона-и-планшета-ровное-и-доступное-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-и-планшета-ровное-и-доступное-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-и-планшета-ровное-и-доступное-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark ─────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      45 | const fixture = 'http://127.0.0.1:4311';
+      46 | test.beforeEach(async ({ request }) => {
+    > 47 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      48 | });
+      49 |
+      50 | test('меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/navigation.spec.ts:47:17
+
+    Error Context: test-results/navigation-меню-телефона-и-планшета-ровное-и-доступное-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-и-планшета-ровное-и-доступное-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-и-планшета-ровное-и-доступное-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/roles.spec.ts:63:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-администратор-в-«ИИ--14d51-ел-открывается-сразу-на-них/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-в-«ИИ--14d51-ел-открывается-сразу-на-них/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-в-«ИИ--14d51-ел-открывается-сразу-на-них/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-администратор-приним-a99d8-о-нет-у-управляющего-—-есть/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-приним-a99d8-о-нет-у-управляющего-—-есть/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-приним-a99d8-о-нет-у-управляющего-—-есть/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/roles.spec.ts:146:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-администратор-меняет-4bcf8-риф-со-штрафом-Q-200-Q-201-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-меняет-4bcf8-риф-со-штрафом-Q-200-Q-201-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-меняет-4bcf8-риф-со-штрафом-Q-200-Q-201-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/roles.spec.ts:208:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-управляющий-всё-кром-7423a-торов-и-отключает-только-их/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-управляющий-всё-кром-7423a-торов-и-отключает-только-их/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-управляющий-всё-кром-7423a-торов-и-отключает-только-их/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/roles.spec.ts:263:1 › владелец: зовёт управляющего и администратора, меняет роль ────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-владелец-зовёт-управ-37b66--администратора-меняет-роль/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-владелец-зовёт-управ-37b66--администратора-меняет-роль/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-владелец-зовёт-управ-37b66--администратора-меняет-роль/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/roles.spec.ts:294:1 › администратор: сотрудниками ведают владелец и управляющий ─────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-администратор-сотруд-61df8-дают-владелец-и-управляющий/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-сотруд-61df8-дают-владелец-и-управляющий/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-сотруд-61df8-дают-владелец-и-управляющий/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 1440px ────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-доступность-сотрудники-и-отказ-по-роли-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-доступность-сотрудники-и-отказ-по-роли-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-доступность-сотрудники-и-отказ-по-роли-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 1440px ─────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-доступность-сотрудники-и-отказ-по-роли-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-доступность-сотрудники-и-отказ-по-роли-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-доступность-сотрудники-и-отказ-по-роли-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 390px ─────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-доступность-сотрудники-и-отказ-по-роли-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-доступность-сотрудники-и-отказ-по-роли-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-доступность-сотрудники-и-отказ-по-роли-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 390px ──────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      12 |
+      13 | test.beforeEach(async ({ request }) => {
+    > 14 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      15 | });
+      16 |
+      17 | async function signIn(page: Page) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:14:17
+
+    Error Context: test-results/roles-доступность-сотрудники-и-отказ-по-роли-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-доступность-сотрудники-и-отказ-по-роли-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-доступность-сотрудники-и-отказ-по-роли-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      48 |
+      49 | test.beforeEach(async ({ request }) => {
+    > 50 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      51 | });
+      52 |
+      53 | test('строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры', async ({ page }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/top-menu.spec.ts:50:17
+
+    Error Context: test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку ─────────────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      48 |
+      49 | test.beforeEach(async ({ request }) => {
+    > 50 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      51 | });
+      52 |
+      53 | test('строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры', async ({ page }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/top-menu.spec.ts:50:17
+
+    Error Context: test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: light ────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      48 |
+      49 | test.beforeEach(async ({ request }) => {
+    > 50 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      51 | });
+      52 |
+      53 | test('строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры', async ({ page }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/top-menu.spec.ts:50:17
+
+    Error Context: test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: dark ─────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      48 |
+      49 | test.beforeEach(async ({ request }) => {
+    > 50 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      51 | });
+      52 |
+      53 | test('строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры', async ({ page }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/top-menu.spec.ts:50:17
+
+    Error Context: test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-шапка-ровная-без-прокрутки-вбок-и-доступная-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20 failed
+    tests/ui/navigation.spec.ts:91:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» 
+    tests/ui/navigation.spec.ts:118:1 › все пункты меню открывают существующие страницы ────────────
+    tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light ─────────
+    tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark ──────────
+    tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+    tests/ui/roles.spec.ts:63:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+    tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них 
+    tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть 
+    tests/ui/roles.spec.ts:146:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) 
+    tests/ui/roles.spec.ts:208:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их 
+    tests/ui/roles.spec.ts:263:1 › владелец: зовёт управляющего и администратора, меняет роль ──────
+    tests/ui/roles.spec.ts:294:1 › администратор: сотрудниками ведают владелец и управляющий ───────
+    tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 1440px ──────────
+    tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 1440px ───────────
+    tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 390px ───────────
+    tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 390px ────────────
+    tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры 
+    tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку ───────────────────
+    tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: light ──────────
+    tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: dark ───────────
+  48 passed (7.9m)
+
+# код выхода 1 · 7 мин 58 с

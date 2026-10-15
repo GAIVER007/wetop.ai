@@ -1,0 +1,496 @@
+# Интеграционные (integration) · 06.10.2026 22:19 Алматы · vm
+# коммит 1923efc (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T17-19-45Z-integration-01d1.json' 'tests/integration/marketing-site.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 1502  - 10/06/2026, 5:19:50 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5)
+    at /home/user/wetop.ai/tests/integration/marketing-site.test.ts:143:7 {
+  expected: 284990,
+  length: 284990,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+ ❯ |integration| tests/integration/marketing-site.test.ts (34 tests | 4 failed) 1178ms
+   ❯ MKT3 marketing site core (34)
+     ✓ scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице (9)
+       ✓ указателя нет: 409 «Выберите филиал» 54ms
+       ✓ выбран только бизнес: 409 «Выберите филиал» 35ms
+       ✓ чужой филиал: 403, без отката в организацию 13ms
+       ✓ архивный филиал: 403, без отката в организацию 13ms
+       ✓ архивный бизнес: 403, без отката в организацию 6ms
+       ✓ филиал из другого бизнеса: 403, без отката в организацию 11ms
+       ✓ несуществующий филиал: 403, без отката в организацию 10ms
+       ✓ салон и ресторан: 403 5ms
+       ✓ без права settings (администратор): 403 3ms
+     ✓ создание сайта (6)
+       ✓ сайта нет: пустой ответ, черновика нет 62ms
+       ✓ тело принимает только имя и адрес: филиал, бизнес и организация из тела дают 400 23ms
+       ✓ неверный и зарезервированный адрес: 400 11ms
+       ✓ создаёт сайт филиала из scope в состоянии DRAFT; второй сайт филиала 409 40ms
+       ✓ адрес занят сайтом другого филиала: 409, без молчаливой замены 29ms
+       ✓ чужой филиал той же организации видит только свой сайт 17ms
+     ✓ версии (6)
+       ✓ первая версия: baseRevision 0 → ревизия 1, хэш канонической записи, источник MANUAL 35ms
+       ✓ устаревшая ревизия: 409, новой версии нет 20ms
+       ✓ неверный документ: 400 со списком ошибок, версия не пишется 20ms
+       ✓ следующая версия: ревизия 2 с родителем 1, черновик отдаёт документ 48ms
+       ✓ два одновременных сохранения с одной ревизией: одно проходит, второе 409, новая версия ровно одна 59ms
+       ✓ у сайта без версий годится только baseRevision 0: иначе 409 18ms
+     ✓ база: изоляция, неизменяемость, принадлежность (7)
+       ✓ чужая организация не видит ни сайтов, ни версий; своя видит свои 27ms
+       ✓ API чужой организации не видит сайт и не может писать в него 10ms
+       ✓ роль приложения не меняет и не удаляет версии 8ms
+       ✓ даже владелец таблицы не меняет и не удаляет версию: сторож без исключений 4ms
+       ✓ указатели сайта и родитель версии не ведут на другой сайт 8ms
+       ✓ организация только для чтения не пишет: 403, читать может 23ms
+       ✓ филиал сайта не меняется после создания 2ms
+     ❯ база: инварианты MKT3 без API (поручение владельца по ревью) (6)
+       × tracked_site_id только объекта того же филиала: чужой филиал отклонён, свой проходит, итог NULL 25ms
+       × зарезервированный адрес не проходит и мимо API: admin и www отклонены, обычный адрес проходит 4ms
+       ❯ версия мимо API (3)
+         × schema_version совпадает с schemaVersion документа 5ms
+         × до MKT6 источник только MANUAL: AI и IMPORT отклонены 4ms
+         ✓ страховка базы 384 КБ: JSONB больше неё отклонён, документ поменьше проходит 41ms
+       ✓ API отклоняет документ больше 256 КБ канонической записи, версия не пишется 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: инварианты MKT3 без API (поручение владельца по ревью) > tracked_site_id только объекта того же филиала: чужой филиал отклонён, свой проходит, итог NULL
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/marketing-site.test.ts:502:10
+    500|         await expect(
+    501|           attempt(`UPDATE marketing_sites SET tracked_site_id = $1 WHE…
+    502|         ).rejects.toThrow(/объекту другого филиала/);
+       |          ^
+    503|         await attempt(`UPDATE marketing_sites SET tracked_site_id = $1…
+    504|         await attempt(`UPDATE marketing_sites SET tracked_site_id = NU…
+ ❯ probe tests/integration/marketing-site.test.ts:477:15
+ ❯ tests/integration/marketing-site.test.ts:499:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: инварианты MKT3 без API (поручение владельца по ревью) > зарезервированный адрес не проходит и мимо API: admin и www отклонены, обычный адрес проходит
+AssertionError: promise resolved "Result{ command: 'INSERT', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "INSERT",
++   "fields": [],
++   "oid": 0,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/marketing-site.test.ts:517:72
+    515|             [randomUUID(), archivedLocation, slug],
+    516|           );
+    517|         for (const slug of ['admin', 'www']) await expect(insert(slug)…
+       |                                                                        ^
+    518|         await insert(`raw-${randomUUID().slice(0, 8)}`);
+    519|       });
+ ❯ probe tests/integration/marketing-site.test.ts:477:15
+ ❯ tests/integration/marketing-site.test.ts:511:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: инварианты MKT3 без API (поручение владельца по ревью) > версия мимо API > schema_version совпадает с schemaVersion документа
+AssertionError: promise resolved "Result{ command: 'INSERT', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "INSERT",
++   "fields": [],
++   "oid": 0,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/marketing-site.test.ts:538:127
+    536|         await probe(async (attempt) => {
+    537|           const site = await freshSite();
+    538|           await expect(attempt(insertVersion(site, { ...SPEC, schemaVe…
+       |                                                                                                                               ^
+    539|             .rejects.toThrow(/marketing_site_versions_schema_matches_s…
+    540|           const noVersion: Record<string, unknown> = structuredClone(S…
+ ❯ probe tests/integration/marketing-site.test.ts:477:9
+ ❯ tests/integration/marketing-site.test.ts:536:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: инварианты MKT3 без API (поручение владельца по ревью) > версия мимо API > до MKT6 источник только MANUAL: AI и IMPORT отклонены
+AssertionError: promise resolved "Result{ command: 'INSERT', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "INSERT",
++   "fields": [],
++   "oid": 0,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/marketing-site.test.ts:552:88
+    550|           const site = await freshSite();
+    551|           for (const source of ['AI', 'IMPORT'])
+    552|             await expect(attempt(insertVersion(site, SPEC, 'site-spec/…
+       |                                                                                        ^
+    553|               .rejects.toThrow(/marketing_site_versions_source_manual/…
+    554|           await attempt(insertVersion(site, SPEC, 'site-spec/0', 'MANU…
+ ❯ probe tests/integration/marketing-site.test.ts:477:9
+ ❯ tests/integration/marketing-site.test.ts:549:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 30 passed (34)
+   Start at  17:19:46
+   Duration  4.33s (tests 44%, transform 39%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-10-06T17-19-45Z-integration-01d1.json
+
+# код выхода 1 · 5 с

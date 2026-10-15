@@ -1,14 +1,35 @@
 'use client';
+import design from './calendar-design.module.css';
 import Link from 'next/link';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Button } from '../../components/ui';
-import { Icon } from '../../components/icon';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Alert, Button } from '../../components/ui';
+import { PreviewFinance } from './preview-finance';
+import { useConfirm } from '../../components/use-confirm';
+import { Icon, type IconName } from '../../components/icon';
+import { messengerLinks } from '../../lib/format';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import { stayPreviewAction, type StayPreviewData } from './actions';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { statusLabel } from '../../lib/status/types';
 
 /** Что предпросмотр знает из клетки сетки ещё до ответа сервера */
+/** Двойной щелчок: первый открывает панель над клеткой, второй попадает уже в неё; открываем полную карточку, как у клетки */
+function openCardOnDouble(
+  router: ReturnType<typeof useRouter>,
+  card: string,
+  close: (restoreFocus: boolean) => Promise<boolean>,
+) {
+  return async (event: React.MouseEvent<HTMLElement>) => {
+    if ((event.target as HTMLElement).closest('a, button, input, select, textarea, [role="menu"]'))
+      return;
+    event.preventDefault();
+    if (await close(false)) router.push(card);
+  };
+}
+
 export interface PreviewTarget {
   number: string;
   itemId: string;
@@ -19,18 +40,14 @@ export interface PreviewTarget {
   categoryName: string;
   housekeeping?: string | undefined;
   sourceName: string | null;
+  /** телефон гостя с плашки: кнопки «Позвонить» и «WhatsApp» правой панели */
+  phone?: string | null | undefined;
   arrivalToday: boolean;
   departureToday: boolean;
   anchor: HTMLElement;
 }
-export type PreviewCommand = 'check-in' | 'check-out' | 'extend';
+export type PreviewCommand = 'check-in' | 'check-out' | 'extend' | 'cancel';
 
-const STATUS_WORD: Record<string, string> = {
-  TENTATIVE: 'Не подтверждена',
-  CONFIRMED: 'Подтверждена',
-  CHECKED_IN: 'Заселён',
-  CHECKED_OUT: 'Выселен',
-};
 const EXPECTED = new Set(['TENTATIVE', 'CONFIRMED']);
 const GAP = 6;
 const EDGE = 8;
@@ -45,22 +62,409 @@ const EDGE = 8;
  * fixed` внутри неё считался бы от неё, а не от окна (TESTING.md §4, 21.09). Закрывается Escape
  * (фокус возвращается на плашку), щелчком мимо, прокруткой сетки и сменой размера окна.
  */
-export function StayPreview({
+export function StayPreview(props: {
+  target: PreviewTarget;
+  readOnly: boolean;
+  /** панель справа от сетки вместо окна у плашки (широкий экран) */
+  docked?: boolean;
+  pending: boolean;
+  error: string | null;
+  onClose: (restoreFocus: boolean) => void;
+  onCommand: (command: PreviewCommand, target: PreviewTarget) => void;
+  onEditStateChange?: (dirty: boolean, pending: boolean) => void;
+}) {
+  return props.docked ? <StayPanel {...props} /> : <StayWindow {...props} />;
+}
+
+const PANEL_STATUS_ICON: Record<string, IconName> = {
+  CONFIRMED: 'booking',
+  CHECKED_IN: 'guests',
+  CHECKED_OUT: 'departure',
+  TENTATIVE: 'help',
+};
+
+/**
+ * Правая панель брони (образец владельца 09.10.2026): статус, гость, номер брони, кнопки связи, факты с
+ * значками (заезд, выезд, номер, гости, оплачено, источник, заметки) и действия по статусу. Стоит рядом
+ * с сеткой и не закрывается щелчком мимо: её закрывают крестик, Escape или выбор другой брони. Команды
+ * те же, что в окне у плашки и в карточке брони; своих правил нет.
+ */
+function StayPanel({
   target,
   readOnly,
+  pending,
+  error,
   onClose,
   onCommand,
+  onEditStateChange,
 }: {
   target: PreviewTarget;
   readOnly: boolean;
+  pending: boolean;
+  error: string | null;
   onClose: (restoreFocus: boolean) => void;
   onCommand: (command: PreviewCommand, target: PreviewTarget) => void;
+  onEditStateChange?: (dirty: boolean, pending: boolean) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [data, setData] = useState<StayPreviewData | null | undefined>(undefined);
+  const [financeOpen, setFinanceOpen] = useState(false);
+  const [financeDirty, setFinanceDirty] = useState(false);
+  const [financePending, setFinancePending] = useState(false);
+  const { ask, dialog } = useConfirm();
+  const requestClose = useCallback(
+    async (restoreFocus: boolean) => {
+      if (pending || financePending) return false;
+      if (
+        financeDirty &&
+        !(await ask({
+          title: 'Закрыть без проведения?',
+          body: 'Введённые данные будут отменены. Оплата или возврат не проведены.',
+          confirmLabel: 'Закрыть без проведения',
+          cancelLabel: 'Продолжить ввод',
+        }))
+      )
+        return false;
+      onClose(restoreFocus);
+      return true;
+    },
+    [pending, financePending, financeDirty, ask, onClose],
+  );
+
+  useEffect(() => {
+    onEditStateChange?.(financeDirty, financePending);
+    return () => onEditStateChange?.(false, false);
+  }, [financeDirty, financePending, onEditStateChange]);
+  useEffect(() => {
+    let alive = true;
+    setData(undefined);
+    void stayPreviewAction(target.number, target.itemId).then((d) => {
+      if (alive) setData(d);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [target.number, target.itemId]);
+  useEffect(() => {
+    ref.current?.focus({ preventScroll: true });
+  }, []);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      // Escape, который уже закрыл меню «…», панель не закрывает
+      if (
+        event.key === 'Escape' &&
+        !event.defaultPrevented &&
+        !document.querySelector('dialog[open]')
+      ) {
+        event.preventDefault();
+        void requestClose(true);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [requestClose]);
+  // Щелчок мимо закрывает панель, как закрывало прежнее окно: она показывает одну бронь, а не висит всегда.
+  // Плашка переключает панель сама, окна и меню поверх страницы щелчком мимо не считаются.
+  useEffect(() => {
+    const onDown = (event: PointerEvent) => {
+      const hit = event.target instanceof Element ? event.target : null;
+      if (!hit || hit === document.documentElement || ref.current?.contains(hit)) return;
+      if (
+        hit.closest(
+          'a[href], [data-testid="stay-cell"], dialog, [role="dialog"], [role="alertdialog"], [role="menu"], [popover]',
+        )
+      )
+        return;
+      void requestClose(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    return () => document.removeEventListener('pointerdown', onDown);
+  }, [requestClose]);
+
+  const card = `/reservations/${encodeURIComponent(target.number)}`;
+  const router = useRouter();
+  useEffect(() => {
+    const navigate = (event: MouseEvent) => {
+      const link =
+        event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
+      if (
+        !link ||
+        link.closest('[data-testid="stay-cell"], [data-testid="free-cell"]') ||
+        link.target === '_blank' ||
+        !(financeDirty || financePending || pending)
+      )
+        return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (document.querySelector('dialog[open]')) return;
+      void requestClose(false).then((closed) => {
+        if (closed) router.push(link.href);
+      });
+    };
+    document.addEventListener('click', navigate, true);
+    return () => document.removeEventListener('click', navigate, true);
+  }, [financeDirty, financePending, pending, requestClose, router]);
+  const expected = EXPECTED.has(target.status);
+  const live = expected || target.status === 'CHECKED_IN';
+  const balance = data?.money ? BigInt(data.money.balanceMinor) : 0n;
+  const money = (minor: string) => formatMoney(minor, data?.currency);
+  const unready =
+    expected && target.housekeeping !== undefined && target.housekeeping !== 'INSPECTED';
+  const today = target.arrivalToday
+    ? 'заезд сегодня'
+    : target.departureToday
+      ? 'выезд сегодня'
+      : '';
+  const places = target.unitKind === 'BED' ? 'Койка' : 'Номер';
+  // Даты, гости и счёт показываются в предпросмотре выбранной брони.
+  const nights = data ? nightsBetween(data.arrivalDate, data.departureDate) : 0;
+  const messenger = messengerLinks(target.phone);
+  const guests = data
+    ? [
+        data.adults > 0 ? pluralRu(data.adults, ['взрослый', 'взрослых', 'взрослых']) : '',
+        data.children > 0 ? pluralRu(data.children, ['ребёнок', 'ребёнка', 'детей']) : '',
+      ]
+        .filter(Boolean)
+        .join(', ')
+    : '';
+  const row = (icon: IconName, label: string, children: React.ReactNode, testId?: string) => (
+    <dl className="stay-panel__row" data-testid={testId}>
+      <dt>
+        <span className="stay-panel__icon" aria-hidden="true">
+          <Icon name={icon} />
+        </span>
+        {label}
+      </dt>
+      <dd>{children}</dd>
+    </dl>
+  );
+  return (
+    <div
+      ref={ref}
+      role="dialog"
+      aria-label={`Бронь: ${target.guest}`}
+      tabIndex={-1}
+      className={`stay-panel ${design.preview}`}
+      data-testid="stay-preview"
+      onDoubleClick={openCardOnDouble(router, card, requestClose)}
+    >
+      <div className="stay-panel__top">
+        <span
+          className="stay-panel__status"
+          data-testid="preview-status"
+          role="status"
+          data-status={target.status}
+        >
+          <Icon name={PANEL_STATUS_ICON[target.status] ?? 'booking'} width={14} height={14} />
+          {statusLabel(hospitalityStatus, target.status)}
+          {today && `, ${today}`}
+        </span>
+        <button
+          type="button"
+          className="icon-button stay-panel__close"
+          aria-label="Закрыть предпросмотр"
+          onClick={() => void requestClose(true)}
+        >
+          <Icon name="close" />
+        </button>
+      </div>
+      <h2 className="stay-panel__guest" data-testid="preview-guest">
+        {target.guest}
+      </h2>
+      <p className="stay-panel__number">Бронь №{target.number}</p>
+      <div className="stay-panel__contacts">
+        {target.phone && (
+          <a
+            className="stay-panel__round"
+            href={`tel:${target.phone.replace(/[^\d+]/g, '')}`}
+            aria-label="Позвонить гостю"
+            title="Позвонить гостю"
+          >
+            <Icon name="phone" />
+          </a>
+        )}
+        {messenger && (
+          <a
+            className="stay-panel__round"
+            href={messenger.whatsapp}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Написать гостю в WhatsApp"
+            title="Написать гостю в WhatsApp"
+          >
+            <Icon name="chat" />
+          </a>
+        )}
+      </div>
+      <div className="stay-panel__facts">
+        <div data-testid="preview-dates" className="stay-panel__group">
+          {row(
+            'arrival',
+            'Заезд',
+            data === undefined
+              ? 'Загружаю…'
+              : data
+                ? displayDate(data.arrivalDate, 'numeric')
+                : 'в карточке брони',
+          )}
+          {row(
+            'departure',
+            'Выезд',
+            data === undefined ? (
+              'Загружаю…'
+            ) : data ? (
+              <>
+                {displayDate(data.departureDate, 'numeric')}
+                <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>
+              </>
+            ) : (
+              'в карточке брони'
+            ),
+          )}
+        </div>
+        {row('bed', places, `${target.unitCode} (${target.categoryName})`, 'preview-place')}
+        {data && guests && row('guests', 'Гости', guests)}
+        <div data-testid="preview-sums" aria-live="polite" className="stay-panel__group">
+          {data === undefined
+            ? row('money', 'Оплачено', 'Загружаю…')
+            : data?.money
+              ? row(
+                  'money',
+                  'Оплачено',
+                  <>
+                    {money(data.money.paidMinor)}
+                    <span className="stay-panel__pill" data-tone={balance > 0n ? 'due' : 'paid'}>
+                      {balance > 0n
+                        ? `Долг ${money(balance.toString())}`
+                        : balance < 0n
+                          ? `К возврату ${money((-balance).toString())}`
+                          : 'Оплачен'}
+                    </span>
+                    <small>Итого {money(data.money.chargedMinor)}</small>
+                  </>,
+                )
+              : row('money', 'Суммы', 'не загрузились, откройте бронь')}
+        </div>
+        {target.sourceName && row('channels', 'Источник', target.sourceName)}
+        {data?.notes && row('journal', 'Заметки', data.notes)}
+      </div>
+      {unready && (
+        <p className="stay-panel__warn" data-testid="preview-unready">
+          {places} не проверен после уборки
+        </p>
+      )}
+      {error && <Alert data-testid="preview-error">{error}</Alert>}
+      {dialog}
+      {financeOpen ? (
+        <>
+          <PreviewFinance
+            readOnly={readOnly}
+            number={target.number}
+            itemId={target.itemId}
+            onDraftChange={setFinanceDirty}
+            onPendingChange={setFinancePending}
+            onComplete={() => {
+              void stayPreviewAction(target.number, target.itemId).then(setData);
+            }}
+          />
+          <Button
+            type="button"
+            tone="secondary"
+            disabled={financeDirty || financePending}
+            onClick={() => setFinanceOpen(false)}
+          >
+            Назад к брони
+          </Button>
+        </>
+      ) : (
+        <div className="stay-panel__actions" aria-busy={pending}>
+          {!readOnly && expected && (
+            <Button type="button" disabled={pending} onClick={() => onCommand('check-in', target)}>
+              {pending ? 'Выполняется…' : 'Заселить'}
+            </Button>
+          )}
+          {!readOnly && target.status === 'CHECKED_IN' && (
+            <Button type="button" disabled={pending} onClick={() => onCommand('check-out', target)}>
+              {pending ? 'Выполняется…' : 'Выселить'}
+            </Button>
+          )}
+          {!readOnly && live && (
+            <>
+              <Button
+                type="button"
+                tone="secondary"
+                disabled={pending}
+                onClick={() => setFinanceOpen(true)}
+              >
+                Оплата / возврат
+              </Button>
+            </>
+          )}
+          {target.status === 'CHECKED_OUT' && (
+            <Button type="button" tone="secondary" onClick={() => setFinanceOpen(true)}>
+              Оплата / возврат
+            </Button>
+          )}
+          <Link
+            className="btn btn--secondary"
+            href={!readOnly && live ? `${card}#booking-actions` : card}
+          >
+            {!readOnly && live ? 'Редактировать бронь' : 'Открыть бронь'}
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StayWindow({
+  target,
+  readOnly,
+  pending,
+  error,
+  onClose,
+  onCommand,
+  onEditStateChange,
+}: {
+  target: PreviewTarget;
+  readOnly: boolean;
+  pending: boolean;
+  error: string | null;
+  onClose: (restoreFocus: boolean) => void;
+  onCommand: (command: PreviewCommand, target: PreviewTarget) => void;
+  onEditStateChange?: (dirty: boolean, pending: boolean) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   // где стояла плашка, когда окно встало на место: закрываемся по её сдвигу, а не по факту scroll
   const placed = useRef<{ top: number; left: number } | null>(null);
   const [data, setData] = useState<StayPreviewData | null | undefined>(undefined);
+  const [financeOpen, setFinanceOpen] = useState(false);
+  const [financeDirty, setFinanceDirty] = useState(false);
+  const [financePending, setFinancePending] = useState(false);
+  const { ask, dialog } = useConfirm();
+  const requestClose = useCallback(
+    async (restoreFocus: boolean) => {
+      if (pending || financePending) return false;
+      if (
+        financeDirty &&
+        !(await ask({
+          title: 'Закрыть без проведения?',
+          body: 'Введённые данные будут отменены. Оплата или возврат не проведены.',
+          confirmLabel: 'Закрыть без проведения',
+          cancelLabel: 'Продолжить ввод',
+        }))
+      )
+        return false;
+      onClose(restoreFocus);
+      return true;
+    },
+    [pending, financePending, financeDirty, ask, onClose],
+  );
 
+  useEffect(() => {
+    onEditStateChange?.(financeDirty, financePending);
+    return () => onEditStateChange?.(false, false);
+  }, [financeDirty, financePending, onEditStateChange]);
   useEffect(() => {
     let alive = true;
     setData(undefined);
@@ -80,52 +484,109 @@ export function StayPreview({
       el.showPopover();
       el.focus({ preventScroll: true });
     }
-    const box = target.anchor.getBoundingClientRect();
-    placed.current = { top: box.top, left: box.left };
-    const left = Math.min(Math.max(box.left, EDGE), window.innerWidth - el.offsetWidth - EDGE);
-    const below = box.bottom + GAP;
-    const top =
-      below + el.offsetHeight <= window.innerHeight - EDGE
-        ? below
-        : Math.max(EDGE, box.top - GAP - el.offsetHeight);
-    el.style.left = `${Math.max(EDGE, left)}px`;
-    el.style.top = `${top}px`;
+    const place = () => {
+      const box = target.anchor.getBoundingClientRect();
+      placed.current = { top: box.top, left: box.left };
+      const left = Math.min(Math.max(box.left, EDGE), window.innerWidth - el.offsetWidth - EDGE);
+      const below = box.bottom + GAP;
+      const top =
+        below + el.offsetHeight <= window.innerHeight - EDGE
+          ? below
+          : Math.max(EDGE, box.top - GAP - el.offsetHeight);
+      el.style.left = `${Math.max(EDGE, left)}px`;
+      el.style.top = `${top}px`;
+    };
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [target, data]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || document.querySelector('dialog[open]')) return;
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose(true);
+        void requestClose(true);
       }
     };
     const onPointer = (event: PointerEvent) => {
+      if (pending || financePending || (event.target as Element).closest?.('dialog[open]')) return;
       const node = event.target as Node;
-      if (ref.current?.contains(node) || target.anchor.contains(node)) return;
-      onClose(false);
+      if (
+        ref.current?.contains(node) ||
+        target.anchor.contains(node) ||
+        (event.target instanceof Element && event.target.closest('a[href]'))
+      )
+        return;
+      if (financeDirty) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      void requestClose(false);
     };
     // Событие scroll приходит кадром позже: прокрутка к плашке перед щелчком закрыла бы только что
     // открытое окно. Закрываемся, только если плашка правда уехала (TESTING.md §4, поле даты 21.09)
     const onMove = () => {
       const box = target.anchor.getBoundingClientRect();
       const was = placed.current;
-      if (!was || Math.abs(box.top - was.top) > 2 || Math.abs(box.left - was.left) > 2)
-        onClose(false);
+      if (
+        !financeDirty &&
+        !financePending &&
+        (!was || Math.abs(box.top - was.top) > 2 || Math.abs(box.left - was.left) > 2)
+      )
+        void requestClose(false);
+    };
+    const onClick = (event: MouseEvent) => {
+      if (
+        !financeDirty ||
+        (event.target as Element).closest?.('dialog[open]') ||
+        ref.current?.contains(event.target as Node) ||
+        (event.target instanceof Element && event.target.closest('a[href]'))
+      )
+        return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (!document.querySelector('dialog[open]')) void requestClose(false);
     };
     const wrap = target.anchor.closest('.board-wrap');
     document.addEventListener('keydown', onKey);
     document.addEventListener('pointerdown', onPointer, true);
+    document.addEventListener('click', onClick, true);
     wrap?.addEventListener('scroll', onMove, { passive: true });
     window.addEventListener('resize', onMove);
     return () => {
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('pointerdown', onPointer, true);
+      document.removeEventListener('click', onClick, true);
       wrap?.removeEventListener('scroll', onMove);
       window.removeEventListener('resize', onMove);
     };
-  }, [target, onClose]);
+  }, [target, requestClose, pending, financePending, financeDirty]);
 
   const card = `/reservations/${encodeURIComponent(target.number)}`;
+  const router = useRouter();
+  useEffect(() => {
+    const navigate = (event: MouseEvent) => {
+      const link =
+        event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
+      if (
+        !link ||
+        link.closest('[data-testid="stay-cell"], [data-testid="free-cell"]') ||
+        link.target === '_blank' ||
+        !(financeDirty || financePending || pending)
+      )
+        return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (document.querySelector('dialog[open]')) return;
+      void requestClose(false).then((closed) => {
+        if (closed) router.push(link.href);
+      });
+    };
+    document.addEventListener('click', navigate, true);
+    return () => document.removeEventListener('click', navigate, true);
+  }, [financeDirty, financePending, pending, requestClose, router]);
   const expected = EXPECTED.has(target.status);
   const live = expected || target.status === 'CHECKED_IN';
   const balance = data?.money ? BigInt(data.money.balanceMinor) : 0n;
@@ -148,6 +609,7 @@ export function StayPreview({
       tabIndex={-1}
       className="stay-preview"
       data-testid="stay-preview"
+      onDoubleClick={openCardOnDouble(router, card, requestClose)}
     >
       <div className="stay-preview__head">
         <h2 className="stay-preview__guest" data-testid="preview-guest">
@@ -157,13 +619,19 @@ export function StayPreview({
           type="button"
           className="icon-button stay-preview__close"
           aria-label="Закрыть предпросмотр"
-          onClick={() => onClose(true)}
+          disabled={pending || financePending}
+          onClick={() => void requestClose(true)}
         >
           <Icon name="close" />
         </button>
       </div>
-      <p className="stay-preview__status">
-        {STATUS_WORD[target.status] ?? target.status}
+      <p
+        className="stay-preview__status"
+        data-testid="preview-status"
+        data-status={target.status}
+        role="status"
+      >
+        {statusLabel(hospitalityStatus, target.status)}
         {today && `, ${today}`}
       </p>
       <dl className="stay-preview__facts">
@@ -227,7 +695,7 @@ export function StayPreview({
         ) : (
           <div>
             <dt>Суммы</dt>
-            <dd>не загрузились — откройте бронь</dd>
+            <dd>не загрузились, откройте бронь</dd>
           </div>
         )}
       </dl>
@@ -236,39 +704,66 @@ export function StayPreview({
           {target.unitKind === 'BED' ? 'Койка' : 'Номер'} не проверен после уборки
         </p>
       )}
-      <div className="stay-preview__actions">
-        {!readOnly && expected && (
-          <Button type="button" onClick={() => onCommand('check-in', target)}>
-            Заселить
+      {error && <Alert data-testid="preview-error">{error}</Alert>}
+      {dialog}
+      {financeOpen ? (
+        <>
+          <PreviewFinance
+            readOnly={readOnly}
+            number={target.number}
+            itemId={target.itemId}
+            onDraftChange={setFinanceDirty}
+            onPendingChange={setFinancePending}
+            onComplete={() => {
+              void stayPreviewAction(target.number, target.itemId).then(setData);
+            }}
+          />
+          <Button
+            type="button"
+            tone="secondary"
+            disabled={financeDirty || financePending}
+            onClick={() => setFinanceOpen(false)}
+          >
+            Назад к брони
           </Button>
-        )}
-        {!readOnly && target.status === 'CHECKED_IN' && (
-          <Button type="button" onClick={() => onCommand('check-out', target)}>
-            Выселить
-          </Button>
-        )}
-        {!readOnly && live && (
-          <>
-            <Link className="btn btn--secondary" href={`${card}#booking-finance`}>
-              Принять оплату
-            </Link>
-            <Button type="button" tone="info" onClick={() => onCommand('extend', target)}>
-              Продлить
+        </>
+      ) : (
+        <div className="stay-preview__actions" aria-busy={pending}>
+          {!readOnly && expected && (
+            <Button type="button" disabled={pending} onClick={() => onCommand('check-in', target)}>
+              {pending ? 'Выполняется…' : 'Заселить'}
             </Button>
-            <Link className="btn btn--secondary" href={`${card}#booking-actions`}>
-              Переселить
-            </Link>
-          </>
-        )}
-        {target.status === 'CHECKED_OUT' && (
-          <Link className="btn btn--secondary" href={`${card}#booking-finance`}>
-            Счёт
+          )}
+          {!readOnly && target.status === 'CHECKED_IN' && (
+            <Button type="button" disabled={pending} onClick={() => onCommand('check-out', target)}>
+              {pending ? 'Выполняется…' : 'Выселить'}
+            </Button>
+          )}
+          {!readOnly && live && (
+            <>
+              <Button
+                type="button"
+                tone="secondary"
+                disabled={pending}
+                onClick={() => setFinanceOpen(true)}
+              >
+                Оплата / возврат
+              </Button>
+            </>
+          )}
+          {target.status === 'CHECKED_OUT' && (
+            <Button type="button" tone="secondary" onClick={() => setFinanceOpen(true)}>
+              Оплата / возврат
+            </Button>
+          )}
+          <Link
+            className="btn btn--secondary"
+            href={!readOnly && live ? `${card}#booking-actions` : card}
+          >
+            {!readOnly && live ? 'Редактировать бронь' : 'Открыть бронь'}
           </Link>
-        )}
-        <Link className="btn btn--ghost" href={card}>
-          Открыть бронь
-        </Link>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

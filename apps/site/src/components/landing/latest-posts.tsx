@@ -1,8 +1,16 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import styles from './latest-posts.module.css';
 import { getDictionary } from '../../i18n';
 import { getPublishedPosts } from '../../lib/posts';
 import { Icon } from '../icon';
 import { PostCard } from '../post-card';
+
+const COVERS: Partial<Record<string, string>> = {
+  'kak-vybrat-pms-dlya-khostela': '/photos/hotel.jpg',
+  'kak-vesti-zapisi-v-salone-krasoty': '/photos/salon.jpg',
+  'kak-prinimat-broni-stolov-v-restorane': '/photos/restaurant.jpg',
+};
 
 /** Три последние опубликованные статьи; нет статей — нет раздела. */
 export function LatestPosts() {
@@ -11,7 +19,7 @@ export function LatestPosts() {
 
   const t = getDictionary();
   return (
-    <section id="blog" className="section" aria-labelledby="blog-title">
+    <section id="blog" className={`section ${styles.section}`} aria-labelledby="blog-title">
       <div className="container">
         <div className="section-heading section-heading--row">
           <div>
@@ -25,9 +33,21 @@ export function LatestPosts() {
             <Icon name="arrowRight" size={18} />
           </Link>
         </div>
-        <div className="post-grid">
+        <div className={`post-grid ${styles.grid}`}>
           {posts.map((post) => (
-            <PostCard key={post.slug} post={post} />
+            <div className={styles.story} key={post.slug}>
+              {COVERS[post.slug] ? (
+                <Image
+                  className={styles.cover}
+                  src={COVERS[post.slug]!}
+                  alt=""
+                  width={1184}
+                  height={864}
+                  loading="lazy"
+                />
+              ) : null}
+              <PostCard post={post} />
+            </div>
           ))}
         </div>
       </div>

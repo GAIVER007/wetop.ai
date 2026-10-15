@@ -27,6 +27,31 @@ export function categoryInput(body: Record<string, unknown>) {
     );
   return { name, kind: kind as 'PRIVATE_ROOM' | 'DORM_BED' | 'APARTMENT', capacityAdults };
 }
+/**
+ * Цена категории в тенге строкой для `RatesService.bulk` (план categories-price-2026-10-06): одна цена на все дни
+ * и все вместимости. Пусто — цену не менять. Пробелы-разделители тысяч («7 000») допускаются.
+ */
+export function categoryPrice(body: Record<string, unknown>): string | undefined {
+  const raw = body.price;
+  if (raw === undefined || raw === null || raw === '') return undefined;
+  const text = String(raw).replace(/\s/g, '').replace(',', '.');
+  const m = /^(\d{1,8})(?:\.(\d{1,2}))?$/.exec(text);
+  if (!m || Number(text) <= 0 || Number(m[1]) >= 100_000_000)
+    throw new BadRequestException('Цена: число больше нуля, до двух знаков после запятой');
+  return m[2] ? `${Number(m[1])}.${m[2]}` : String(Number(m[1]));
+}
+
+/** Что делает «Удалить» с категорией (решение владельца 06.10.2026): пустая — насовсем, с историей — архив */
+export function categoryRemoval(usage: {
+  units: number;
+  reservations: number;
+  upcomingReservations: number;
+  channexMapped: boolean;
+}): 'delete' | 'archive' | 'blocked' {
+  if (usage.upcomingReservations > 0) return 'blocked';
+  if (usage.units || usage.reservations || usage.channexMapped) return 'archive';
+  return 'delete';
+}
 export function roomInput(body: Record<string, unknown>) {
   if (!Array.isArray(body.codes) || !body.codes.length || body.codes.length > 100)
     throw new BadRequestException('Добавьте от 1 до 100 обозначений мест');

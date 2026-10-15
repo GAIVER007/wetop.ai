@@ -1,0 +1,102 @@
+# Сквозные (e2e) · 03.10.2026 20:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит 986670a (claude/ui-stale-specs-2026-10-03)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'integrations-channex' 'ai-agents-create.spec.ts:33'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1818ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/dreamy-lederberg-a39394/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (46.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1150316694'
+[WebServer] }
+  ✘  2 tests/ui/integrations-channex.spec.ts:29:1 › из «Подключений»: соединение, webhook и вкладки настройки, без ключа (47.7s)
+  ✓  3 tests/ui/integrations-channex.spec.ts:62:1 › ключ не задан: причина словами (23.0s)
+  ✓  4 tests/ui/integrations-channex.spec.ts:76:3 › /connections: пока соединение проверяется, заголовок тот же, что у страницы (38.0s)
+  ✓  5 tests/ui/integrations-channex.spec.ts:76:3 › /connections/channex: пока соединение проверяется, заголовок тот же, что у страницы (14.9s)
+  ✓  6 tests/ui/integrations-channex.spec.ts:85:1 › телефон: страница без прокрутки вбок (13.6s)
+
+
+  1) tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/ai-agents\/[0-9a-f-]{36}$/
+    Received string:  "http://127.0.0.1:3108/ai-agents/new"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        16 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3108/ai-agents/new"
+      - Test timeout of 45000ms exceeded.
+
+
+      61 |   await page.getByTestId('agent-create-submit').click();
+      62 |
+    > 63 |   await expect(page).toHaveURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+         |                      ^
+      64 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('AI-продавец Luxx 2');
+      65 |   await expect(page.getByText('Сеть Тест · Астана')).toBeVisible();
+      66 |   await expect(page.getByTestId('agent-lifecycle')).toHaveText('Черновик');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/dreamy-lederberg-a39394/tests/ui/ai-agents-create.spec.ts:63:22
+
+    Error Context: test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/integrations-channex.spec.ts:29:1 › из «Подключений»: соединение, webhook и вкладки настройки, без ключа 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/connections\/channex$/
+    Received string:  "http://127.0.0.1:3108/connections"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        30 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3108/connections"
+
+
+      36 |     .getByRole('link', { name: 'Настройки' })
+      37 |     .click();
+    > 38 |   await expect(page).toHaveURL(/\/connections\/channex$/);
+         |                      ^
+      39 |   const main = page.getByRole('main');
+      40 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключение каналов');
+      41 |   await expect(main.getByRole('link', { name: 'Подключения', exact: true })).toHaveAttribute(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/dreamy-lederberg-a39394/tests/ui/integrations-channex.spec.ts:38:22
+
+    Error Context: test-results/integrations-channex-из-«П-5b90b-вкладки-настройки-без-ключа/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-из-«П-5b90b-вкладки-настройки-без-ключа/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-из-«П-5b90b-вкладки-настройки-без-ключа/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние 
+    tests/ui/integrations-channex.spec.ts:29:1 › из «Подключений»: соединение, webhook и вкладки настройки, без ключа 
+  4 passed (4.7m)
+
+# код выхода 1 · 5 мин 3 с

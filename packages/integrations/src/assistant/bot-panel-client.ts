@@ -14,6 +14,11 @@ import { createHmac } from 'node:crypto';
 const TIMEOUT_MS = 15_000;
 /** Ход в песочнице — каскад моделей, до минуты (ТЗ §3 бота); ждём с запасом */
 const SANDBOX_TIMEOUT_MS = 90_000;
+/**
+ * Генерация сайта (MKT6): до трёх ступеней по 70 с у бота. Меньше аренды воркера (5 минут): ответ, не дождавшийся
+ * этого срока, считается потерянным, и платформа ставит неизвестный расход, а не повтор.
+ */
+export const SITE_GENERATION_TIMEOUT_MS = 250_000;
 
 /** Как бот называется в словах ошибок: «ИИ-продавец не ответил», «нет связи с ИИ-помощником» */
 export interface BotNames {
@@ -104,6 +109,8 @@ export interface ConversationListQuery {
   queue?: 'new' | 'waiting';
   nonempty?: boolean;
   closed?: boolean;
+  /** Без диалогов вкладки «Проверка» (канал `sandbox`): они не обращения партнёров */
+  excludeSandbox?: boolean;
 }
 
 /**
@@ -146,6 +153,14 @@ function rejectionOf(
 
 /** Песочница у бота — в корне экземпляра (`/internal/sandbox`), а не под путём панели: путь зафиксирован его планом */
 const SANDBOX_PATH = '/internal/sandbox';
+/** Генерация сайта (MKT6) тоже в корне экземпляра, только по служебному ключу */
+const SITE_GENERATION_PATH = '/internal/site-generation';
+/** ИИ-правка готового сайта (MKT9, контракт `site-edit/0`): тот же вход по служебному ключу, свой путь */
+const SITE_EDIT_PATH = '/internal/site-edit';
+/** MKT9.2: разговор с ИИ сайта (Чат, План, Оформление), версий не создаёт */
+const SITE_ASSISTANT_PATH = '/internal/site-assistant';
+/** ADR-157: скан накладной бара (контракт `bar-receipt-scan/0`), вход без состояния, ключ только платформы */
+const BAR_RECEIPT_SCAN_PATH = '/internal/bar-receipt-scan';
 
 export class BotPanelClient {
   private readonly base: string;
@@ -172,7 +187,10 @@ export class BotPanelClient {
     this.fetchFn = config.fetch ?? fetch;
   }
 
-  /** Отбор: режим; очередь техподдержки (`new` — за сутки, `waiting` — ждёт ответа), без пустых, открытые или закрытые */
+  /**
+   * Отбор: режим; очередь техподдержки (`new`: за сутки, `waiting`: ждёт ответа), без пустых,
+   * открытые или закрытые, без песочницы. Старый образ бота лишние параметры запроса игнорирует.
+   */
   listConversations(query: ConversationListQuery = {}): Promise<Json> {
     const params = new URLSearchParams();
     if (query.mode) params.set('mode', query.mode);
@@ -180,6 +198,7 @@ export class BotPanelClient {
     if (query.queue) params.set('queue', query.queue);
     if (query.nonempty) params.set('nonempty', 'true');
     if (query.closed !== undefined) params.set('closed', String(query.closed));
+    if (query.excludeSandbox) params.set('exclude_sandbox', 'true');
     const qs = params.toString();
     return this.json('GET', `/conversations${qs ? `?${qs}` : ''}`);
   }
@@ -245,6 +264,16 @@ export class BotPanelClient {
     return this.json('POST', `/conversations/${encodeURIComponent(id)}/release`);
   }
 
+  /** Ответственный и следующий шаг (S2.6): поля, которых нет в теле, бот не трогает */
+  handling(id: string, body: Json): Promise<Json> {
+    return this.json('PATCH', `/conversations/${encodeURIComponent(id)}/handling`, body);
+  }
+
+  /** Внутренняя заметка к диалогу (S2.6) */
+  addNote(id: string, body: Json): Promise<Json> {
+    return this.json('POST', `/conversations/${encodeURIComponent(id)}/notes`, body);
+  }
+
   reply(id: string, text: string): Promise<Json> {
     return this.json('POST', `/conversations/${encodeURIComponent(id)}/reply`, { text });
   }
@@ -260,8 +289,9 @@ export class BotPanelClient {
     return this.request('POST', '/knowledge', form, TIMEOUT_MS);
   }
 
-  summary(): Promise<Json> {
-    return this.json('GET', '/summary');
+  /** `excludeSandbox` убирает из чисел диалоги вкладки «Проверка», как и в очереди */
+  summary(excludeSandbox = false): Promise<Json> {
+    return this.json('GET', `/summary${excludeSandbox ? '?exclude_sandbox=true' : ''}`);
   }
 
   sandbox(input: { externalId: string; text: string }): Promise<Json> {
@@ -277,6 +307,40 @@ export class BotPanelClient {
       SANDBOX_TIMEOUT_MS,
       this.origin,
     );
+  }
+
+  /**
+   * Генерация первой версии сайта (MKT6, контракт `site-generation/0`). Клиент для неё создаётся без организации и
+   * агента: ключ модели только платформы, и бот организацию на этом входе не принимает. Исходы модели бот отдаёт
+   * ответом 200; нет связи, таймаут и 5xx здесь `BotUnavailableError`, их расход неизвестен.
+   */
+  siteGeneration(body: Json): Promise<Json> {
+    return this.request('POST', SITE_GENERATION_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
+  }
+
+  /**
+   * ИИ-правка версии сайта (MKT9, `site-edit/0`): PATCH всего документа или SECTION одной секции. Как и генерация,
+   * без организации и агента: ключ модели только платформы
+   */
+  siteEdit(body: Json): Promise<Json> {
+    return this.request('POST', SITE_EDIT_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
+  }
+
+  /**
+   * Разговор с ИИ сайта (MKT9.2, `site-assistant/0`): ответ словами, план сборки или три направления оформления. Как
+   * генерация, без организации и агента: ключ модели только платформы
+   */
+  siteAssistant(body: Json): Promise<Json> {
+    return this.request('POST', SITE_ASSISTANT_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
+  }
+
+  /**
+   * Скан накладной бара (ADR-157, `bar-receipt-scan/0`): фото документа и справочники объекта внутрь,
+   * строгий JSON строк наружу. Как генерация сайта: без организации и агента, ключ модели только платформы.
+   * Внутри один вызов каскада с картинкой, поэтому таймаут генерации сайта.
+   */
+  barReceiptScan(body: Json): Promise<Json> {
+    return this.request('POST', BAR_RECEIPT_SCAN_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
   }
 
   /** Завести или поправить гостиницу у продавца (Э4): имя, действует ли, домены, публичный ключ виджета */
@@ -338,6 +402,13 @@ export class BotPanelClient {
   }
 
   /** Подключение WhatsApp (С3): токен и секрет Meta бот хранит шифрованными и назад не отдаёт */
+  telegram(orgId: string, action: 'status' | 'check' | 'connect' | 'disconnect', body?: unknown): Promise<Json> {
+    const path = `/seller/organizations/${encodeURIComponent(orgId)}/telegram`;
+    if (action === 'status') return this.json('GET', path);
+    if (action === 'connect') return this.json('PUT', path, body);
+    return this.json('POST', `${path}/${action}`, body);
+  }
+
   whatsappStatus(orgId: string): Promise<Json> {
     return this.json('GET', `/seller/organizations/${encodeURIComponent(orgId)}/whatsapp`);
   }

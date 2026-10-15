@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { createHash } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -12,6 +13,7 @@ import {
   RATE_PLAN_CHANGE_MESSAGE,
   RATE_PLAN_SOFT_MESSAGE,
   RESERVATION_SOURCES,
+  RESTRICTED_GUESTS_MESSAGE,
   ReservationRuleError,
   RestrictionViolationError,
   assertCanAssign,
@@ -34,11 +36,15 @@ import {
   assertDerivedRuleAllows,
   assertPromoAllows,
   normalizePromoCode,
+  parseMoney,
+  FinanceRuleError,
+  ADJUSTMENT_DOWN_MESSAGE,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
 import { deskGuestForStorage, freeTextForStorage } from '@pms/shared';
-import { actorMay } from '../auth/request-context';
+import { actorIsRestricted, actorMay } from '../auth/request-context';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
+import { cardStays, stayDelta } from '../channels/ari-ranges';
 import type { ReservationCard } from './reservation-card';
 import {
   AllocationOverlapError,
@@ -51,7 +57,18 @@ import {
   type UnitRef,
 } from './reservations.repository';
 
+export interface ReservationQuote {
+  arrivalDate: string;
+  departureDate: string;
+  totalMinor: string;
+  currency: string;
+  /** Цена каждой ночи по всей брони (все места вместе): «Детализация цены по дням» в форме */
+  nights: Array<{ date: string; priceMinor: string }>;
+}
+
 export interface CreateReservationDto {
+  creationKey?: string;
+  expectedTotalMinor?: string;
   /** Промокод (DATA_MODEL §20): один на бронь, скидка действует на все проживания */
   promoCode?: string | null | undefined;
   source?: string;
@@ -150,9 +167,30 @@ function channelBooking(
   return out;
 }
 /** Гостей на проживании (Q-102). Цена не пересчитывается: перецена — через «Изменить даты». */
+/** Цена проживания из запроса: строка денег больше нуля, иначе 400 словами (деньги целыми тиынами, ADR-008) */
+function parsePrice(value: unknown): bigint {
+  if (typeof value !== 'string' && typeof value !== 'number')
+    throw new BadRequestException('price — сумма, например 25000 или 25000.50');
+  let minor: bigint;
+  try {
+    minor = parseMoney(String(value));
+  } catch (e) {
+    if (e instanceof FinanceRuleError) throw new BadRequestException(e.message);
+    throw e;
+  }
+  if (minor <= 0n) throw new BadRequestException('price — цена проживания больше нуля');
+  return minor;
+}
+
 export interface UpdateItemDto {
   adults?: number;
   children?: number;
+  /**
+   * Цена проживания целиком, строка денег («25000», «25000.50»; план finance-payments-direct 07.10.2026, У6):
+   * пишется в `ReservationItem.price`, начисление за проживание переписывает система. Вниз — только с правом
+   * `refunds` (ADR-107). При смене дат или категории цена снова считается по тарифу.
+   */
+  price?: string | number;
 }
 export interface ChangeDatesDto {
   arrivalDate?: string;
@@ -229,7 +267,11 @@ const nightsBetween = (from: string, to: string) =>
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const isIso = (s: unknown): s is string =>
-  typeof s === 'string' && ISO.test(s) && !Number.isNaN(Date.parse(s));
+  typeof s === 'string' &&
+  ISO.test(s) &&
+  !s.startsWith('0000-') &&
+  Number.isFinite(Date.parse(s)) &&
+  new Date(`${s}T00:00:00Z`).toISOString().slice(0, 10) === s;
 
 /** Нарушение правила брони (домен) → 422; пересечение ячеек (база) → 409. */
 /** Дата + n суток, YYYY-MM-DD в часах объекта (даты проживания — DATE, без времени). */
@@ -283,7 +325,7 @@ function requireStayDates(
 ): { arrivalDate: string; departureDate: string } {
   if (!isIso(arrival) || !isIso(departure) || departure <= arrival)
     throw new BadRequestException(
-      'arrivalDate/departureDate — даты YYYY-MM-DD, departureDate > arrivalDate',
+      'Введите корректные даты: дата выезда должна быть позже даты заезда',
     );
   return { arrivalDate: arrival, departureDate: departure };
 }
@@ -309,9 +351,34 @@ function existingGuest(
     throw new BadRequestException(
       'Укажите либо guestId существующего гостя, либо поля guest нового — не оба сразу',
     );
+  // гости организационные (O3=A): ограниченный сотрудник не прикрепляет к брони гостя по идентификатору, то есть не читает
+  // гостей других филиалов через свою бронь; нового гостя он заводит как раньше
+  if (actorIsRestricted()) throw new ForbiddenException(RESTRICTED_GUESTS_MESSAGE);
   const id = dto.guestId.trim();
   if (!UUID.test(id)) throw new NotFoundException(GUEST_NOT_FOUND);
   return id;
+}
+
+/** Ключ создания брони: UUID v4 (повтор ручной брони, MKT1B BOOK-2) */
+const CREATION_KEY_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const CREATION_KEY_CONFLICT = 'Этот запрос уже создал бронь с другими данными. Откройте новую форму.';
+
+/** Отпечаток запроса создания: sha256 канонической записи (ключи по порядку, без undefined), ключ в нижнем регистре */
+function creationFingerprint(dto: CreateReservationDto, key: string): string {
+  const canonical = (value: unknown): unknown =>
+    Array.isArray(value)
+      ? value.map(canonical)
+      : value && typeof value === 'object'
+        ? Object.fromEntries(
+            Object.entries(value)
+              .filter(([, v]) => v !== undefined)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([k, v]) => [k, canonical(v)]),
+          )
+        : value;
+  return createHash('sha256')
+    .update(JSON.stringify(canonical({ ...dto, creationKey: key.toLowerCase() })))
+    .digest('hex');
 }
 
 @Injectable()
@@ -321,18 +388,17 @@ export class ReservationsService {
     @Inject(ARI_PUBLISHER) private readonly publisher: AriPublisher,
   ) {}
 
-  /** После коммита: дельта доступности в каналы по категориям и ночам карточки (и прежним, если были). */
-  private async publish(cards: Array<ReservationCard | null>): Promise<void> {
-    const items = cards.flatMap((c) => c?.items ?? []);
-    if (items.length === 0) return;
-    await publishAfterCommit(this.publisher, {
-      categoryCodes: [...new Set(items.map((i) => i.accommodationTypeCode))],
-      from: items.reduce((m, i) => (i.arrivalDate < m ? i.arrivalDate : m), items[0]!.arrivalDate),
-      toExclusive: items.reduce(
-        (m, i) => (i.departureDate > m ? i.departureDate : m),
-        items[0]!.departureDate,
-      ),
-    });
+  /**
+   * После коммита: дельта доступности в каналы — только ночи, где у брони поменялось число занятых мест
+   * категории (карточка до → после). Ночи, остаток которых команда не меняла, не уходят: Channex требует слать
+   * только изменения (сертификация §13), а перенос на неделю иначе уносит в канал всю неделю между датами.
+   */
+  private async publish(
+    before: ReservationCard | null,
+    after: ReservationCard | null,
+  ): Promise<void> {
+    const delta = stayDelta(cardStays(before), cardStays(after));
+    if (delta) await publishAfterCommit(this.publisher, delta);
   }
 
   /**
@@ -364,27 +430,61 @@ export class ReservationsService {
    * гость записывается псевдонимом, и имя не обязательно. `guestPrepared` — гость уже приведён к хранению
    * вызывающим (бронь с сайта: `guestForStorage`), берётся как есть.
    */
+  /**
+   * Ранний повтор (MKT1B BOOK-2): бронь, уже созданная этим ключом в объекте текущего контекста, если её отпечаток
+   * совпадает с отпечатком ЭТОГО запроса, тем же алгоритмом, что у `create`. Ключ без совпадения отпечатка данных
+   * брони не открывает: другой запрос с тем же ключом: 409. Брони с этим ключом нет: `null`. Ничего не пишет.
+   */
+  async replayOf(dto: CreateReservationDto): Promise<ReservationCard | null> {
+    const key = dto.creationKey;
+    if (typeof key !== 'string' || !CREATION_KEY_RE.test(key))
+      throw new BadRequestException('Обновите форму: некорректный ключ создания');
+    const fingerprint = creationFingerprint(dto, key);
+    return this.uow.read(async (repo) => {
+      const previous = await repo.reservationByCreationKey(key.toLowerCase());
+      if (!previous) return null;
+      if (previous.fingerprint !== fingerprint) throw new ConflictException(CREATION_KEY_CONFLICT);
+      return (await repo.card(previous.confirmationNumber)) ?? null;
+    });
+  }
+
+  create(dto: CreateReservationDto, opts: { preview: true }): Promise<ReservationQuote>;
+  create(
+    dto: CreateReservationDto,
+    opts?: { guestPrepared?: boolean; onReplay?: () => void },
+  ): Promise<ReservationCard>;
   async create(
     dto: CreateReservationDto,
-    opts: { guestPrepared?: boolean } = {},
-  ): Promise<ReservationCard> {
+    opts: { guestPrepared?: boolean; preview?: boolean; onReplay?: () => void } = {},
+  ): Promise<ReservationCard | ReservationQuote> {
+    const key = dto.creationKey;
+    if (key !== undefined && (typeof key !== 'string' || !CREATION_KEY_RE.test(key)))
+      throw new BadRequestException('Обновите форму: некорректный ключ создания');
+    if (
+      dto.expectedTotalMinor !== undefined &&
+      (typeof dto.expectedTotalMinor !== 'string' || !/^\d+$/.test(dto.expectedTotalMinor))
+    )
+      throw new BadRequestException('Обновите расчёт стоимости');
+    const fingerprint = key ? creationFingerprint(dto, key) : null;
+    let replay = false;
     if (!dto.source || !(RESERVATION_SOURCES as readonly string[]).includes(dto.source))
       throw new BadRequestException(`source обязателен: один из ${RESERVATION_SOURCES.join(', ')}`);
     const source = dto.source as ReservationSource;
     const booking = channelBooking(source, dto, true);
     const dates = requireStayDates(dto.arrivalDate, dto.departureDate);
     const existingGuestId = existingGuest(dto, opts);
-    const guest = existingGuestId
-      ? null
-      : opts.guestPrepared
-        ? {
-            firstName: (dto.guest?.firstName ?? '').trim(),
-            lastName: (dto.guest?.lastName ?? '').trim(),
-            middleName: dto.guest?.middleName ?? null,
-            phone: dto.guest?.phone ?? null,
-            email: dto.guest?.email ?? null,
-          }
-        : deskGuestForStorage(dto.guest ?? {});
+    const guest =
+      existingGuestId || opts.preview
+        ? null
+        : opts.guestPrepared
+          ? {
+              firstName: (dto.guest?.firstName ?? '').trim(),
+              lastName: (dto.guest?.lastName ?? '').trim(),
+              middleName: dto.guest?.middleName ?? null,
+              phone: dto.guest?.phone ?? null,
+              email: dto.guest?.email ?? null,
+            }
+          : deskGuestForStorage(dto.guest ?? {});
     if (guest && (!guest.firstName || !guest.lastName))
       throw new BadRequestException('guest.firstName и guest.lastName обязательны');
     if (!Array.isArray(dto.items) || dto.items.length === 0)
@@ -407,6 +507,17 @@ export class ReservationsService {
 
     const created = await this.uow.run((repo) =>
       guarded(async () => {
+        if (key && !opts.preview) {
+          const property = await repo.property();
+          await repo.lockReservation(`create:${property.id}:${key.toLowerCase()}`);
+          const previous = await repo.reservationByCreationKey(key.toLowerCase());
+          if (previous) {
+            if (previous.fingerprint !== fingerprint)
+              throw new ConflictException(CREATION_KEY_CONFLICT);
+            replay = true;
+            return (await repo.card(previous.confirmationNumber))!;
+          }
+        }
         let currency: string | null = null;
         // Промокод (DATA_MODEL §20): один на бронь; блокировка держит предел использований при одновременных бронях
         const promoRaw = dto.promoCode == null ? '' : String(dto.promoCode).trim();
@@ -422,7 +533,8 @@ export class ReservationsService {
         }
         const todayIso = await repo.today();
         const nightsCount = Math.round(
-          (Date.parse(`${dates.departureDate}T00:00:00Z`) - Date.parse(`${dates.arrivalDate}T00:00:00Z`)) /
+          (Date.parse(`${dates.departureDate}T00:00:00Z`) -
+            Date.parse(`${dates.arrivalDate}T00:00:00Z`)) /
             86_400_000,
         );
         const prepared: Array<{
@@ -442,6 +554,7 @@ export class ReservationsService {
         // места этого запроса ещё не записаны: считаем их сами, иначе каждое проходит проверку по отдельности
         const requestedByType = new Map<string, number>();
         const pickedUnits = new Set<string>();
+        const nightTotals = new Map<string, bigint>();
         for (const it of dto.items!) {
           const type = await repo.categoryByCode(it.accommodationTypeCode!);
           if (!type || !type.active)
@@ -481,6 +594,11 @@ export class ReservationsService {
           );
           const price = priceStay({ ...dates, occupancy: adults, rates });
           const quantity = it.quantity ?? 1;
+          for (const night of price.nights)
+            nightTotals.set(
+              night.date,
+              (nightTotals.get(night.date) ?? 0n) + night.priceMinor * BigInt(quantity),
+            );
           // Q-107: продать можно не больше, чем видит канал — брони без ячейки уже проданы.
           // Б2: вместе с местами этой же брони, которые ещё не записаны
           const requested = (requestedByType.get(type.id) ?? 0) + quantity;
@@ -520,6 +638,8 @@ export class ReservationsService {
               );
             if (await repo.hasBlockOverlap(unit.id, dates.arrivalDate, dates.departureDate))
               throw new ConflictException(`Ячейка ${it.unitCode} заблокирована на эти даты`);
+            if (await repo.hasAllocationOverlap(unit.id, dates.arrivalDate, dates.departureDate))
+              throw new ConflictException(`Ячейка ${it.unitCode} занята на выбранные даты`);
             if (pickedUnits.has(unit.id))
               throw new ConflictException(`Ячейка ${it.unitCode} указана в брони дважды`);
             pickedUnits.add(unit.id);
@@ -541,6 +661,18 @@ export class ReservationsService {
             unitId,
           });
         }
+        const totalMinor = prepared.reduce((sum, item) => sum + item.totalMinor, 0n).toString();
+        if (opts.preview)
+          return {
+            ...dates,
+            currency: currency!,
+            totalMinor,
+            nights: [...nightTotals].map(([date, sum]) => ({ date, priceMinor: sum.toString() })),
+          };
+        if (dto.expectedTotalMinor !== undefined && dto.expectedTotalMinor !== totalMinor)
+          throw new ConflictException(
+            'Стоимость изменилась. Проверьте обновлённый расчёт и подтвердите создание ещё раз.',
+          );
         const guestId = guest
           ? await repo.createGuest(guest)
           : await repo.guestForBooking(existingGuestId!);
@@ -550,6 +682,8 @@ export class ReservationsService {
         const number = confirmationNumber(new Date());
         const created = await repo.createReservation({
           confirmationNumber: number,
+          creationKey: key?.toLowerCase() ?? null,
+          creationFingerprint: fingerprint,
           source,
           ...booking,
           status,
@@ -588,7 +722,8 @@ export class ReservationsService {
         return card;
       }),
     );
-    await this.publish([created]);
+    if (!replay && 'confirmationNumber' in created) await this.publish(null, created);
+    if (replay) opts.onReplay?.();
     return created;
   }
 
@@ -607,9 +742,7 @@ export class ReservationsService {
           (i) => i.status !== 'CANCELLED' && i.ratePlanId,
         )?.ratePlanId;
         if (!dto.ratePlanCode && !ownPlanId)
-          throw new BadRequestException(
-            'ratePlanCode обязателен: тариф на проживании неизвестен',
-          );
+          throw new BadRequestException('ratePlanCode обязателен: тариф на проживании неизвестен');
         const plan = dto.ratePlanCode
           ? await repo.ratePlanByCode(dto.ratePlanCode)
           : await repo.ratePlanById(ownPlanId!);
@@ -682,7 +815,7 @@ export class ReservationsService {
         return { before, after };
       }),
     );
-    await this.publish([changed.before, changed.after]);
+    await this.publish(changed.before, changed.after);
     return changed.after;
   }
 
@@ -714,10 +847,10 @@ export class ReservationsService {
           before,
           after,
         });
-        return { after, released };
+        return { before, after, released };
       }),
     );
-    await this.publish([cancelled.after]);
+    await this.publish(cancelled.before, cancelled.after);
     await this.publishReleased(cancelled.released);
     return cancelled.after;
   }
@@ -846,7 +979,7 @@ export class ReservationsService {
     const nights = dto.nights === undefined ? 1 : Number(dto.nights);
     if (!Number.isInteger(nights) || nights < 1 || nights > 30)
       throw new BadRequestException('nights — целое от 1 до 30');
-    const card = await this.uow.run((repo) =>
+    const extended = await this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
         const item = state.items.find((i) => i.id === itemId);
@@ -911,11 +1044,11 @@ export class ReservationsService {
           before,
           after,
         });
-        return after;
+        return { before, after };
       }),
     );
-    await this.publish([card]);
-    return card;
+    await this.publish(extended.before, extended.after);
+    return extended.after;
   }
 
   /**
@@ -929,8 +1062,7 @@ export class ReservationsService {
     if (!dto.unitCode) throw new BadRequestException('unitCode обязателен');
     if (dto.fromDate !== undefined && !isIso(dto.fromDate))
       throw new BadRequestException('fromDate — дата YYYY-MM-DD');
-    let movedFromCategory: string | null = null;
-    const card = await this.uow.run((repo) =>
+    const moved = await this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
         const item = state.items.find((i) => i.id === itemId);
@@ -941,9 +1073,6 @@ export class ReservationsService {
         if (!unit || !unit.active)
           throw new UnprocessableEntityException(`Ячейка ${dto.unitCode} не найдена или неактивна`);
         const changesCategory = unit.accommodationTypeId !== item.accommodationTypeId;
-        if (changesCategory)
-          movedFromCategory =
-            before?.items.find((i) => i.id === item.id)?.accommodationTypeCode ?? null;
         const fromDate = dto.fromDate ?? item.arrivalDate;
         if (fromDate < item.arrivalDate || fromDate >= item.departureDate)
           throw new UnprocessableEntityException(
@@ -985,11 +1114,12 @@ export class ReservationsService {
           before,
           after,
         });
-        return after;
+        return { before, after };
       }),
     );
-    await this.publishMove(card, movedFromCategory);
-    return card;
+    // Ячейка в той же категории остаток не меняет — дельты нет; в другой — освободилась старая, занялась новая
+    await this.publish(moved.before, moved.after);
+    return moved.after;
   }
 
   /**
@@ -1124,8 +1254,9 @@ export class ReservationsService {
       throw new BadRequestException('adults — целое ≥ 1');
     if (dto.children !== undefined && (!Number.isInteger(dto.children) || dto.children < 0))
       throw new BadRequestException('children — целое ≥ 0');
-    if (dto.adults === undefined && dto.children === undefined)
-      throw new BadRequestException('Нечего менять: укажите adults и/или children');
+    const priceMinor = dto.price === undefined ? null : parsePrice(dto.price);
+    if (dto.adults === undefined && dto.children === undefined && priceMinor === null)
+      throw new BadRequestException('Нечего менять: укажите adults, children или price');
     return this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
@@ -1133,44 +1264,51 @@ export class ReservationsService {
         if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
         if (item.status === 'CANCELLED' || item.status === 'NO_SHOW')
           throw new UnprocessableEntityException(
-            `Проживание в статусе ${item.status}: гостей не изменить`,
+            `Проживание в статусе ${item.status}: ${priceMinor === null ? 'гостей' : 'цену'} не изменить`,
           );
+        if (priceMinor !== null && item.status === 'CHECKED_OUT')
+          throw new UnprocessableEntityException(
+            'Гость выехал: цену проживания не изменить, при необходимости начислите корректировку',
+          );
+        // уменьшить цену — то же, что уменьшить счёт: владелец и управляющий (ADR-107, Q-024)
+        if (priceMinor !== null && priceMinor < item.priceMinor && !actorMay('refunds'))
+          throw new ForbiddenException(ADJUSTMENT_DOWN_MESSAGE);
         const type = await repo.categoryById(item.accommodationTypeId);
         if (!type) throw new UnprocessableEntityException('Категория проживания не найдена');
         const adults = dto.adults ?? item.adults;
         const children = dto.children ?? item.children;
         assertFits(type, adults, children);
         const before = await repo.card(number);
-        await repo.updateItem(item.id, { adults, children });
-        // Шапка брони производна от проживаний: гостей — сумма по неотменённым
+        await repo.updateItem(item.id, {
+          adults,
+          children,
+          ...(priceMinor !== null ? { priceMinor } : {}),
+        });
+        // Шапка брони производна от проживаний: гостей и сумма — по неотменённым
         const active = state.items.filter((i) => i.status !== 'CANCELLED');
         await repo.updateReservation(state.id, {
           adults: active.reduce((s, i) => s + (i.id === item.id ? adults : i.adults), 0),
           children: active.reduce((s, i) => s + (i.id === item.id ? children : i.children), 0),
+          ...(priceMinor !== null
+            ? {
+                totalAmountMinor: active.reduce(
+                  (s, i) => s + (i.id === item.id ? priceMinor : i.priceMinor),
+                  0n,
+                ),
+              }
+            : {}),
         });
         const after = (await repo.card(number))!;
         await repo.audit({
           entityType: 'Reservation',
           entityId: state.id,
-          action: 'reservation.updateItem',
+          action: priceMinor !== null ? 'reservation.item.price' : 'reservation.updateItem',
           before,
           after,
         });
         return after;
       }),
     );
-  }
-
-  /** Дельта в каналы после переселения между категориями: освободилась старая, занялась новая. */
-  private async publishMove(card: ReservationCard, fromCategory: string | null): Promise<void> {
-    if (!fromCategory) return;
-    await publishAfterCommit(this.publisher, {
-      categoryCodes: [
-        ...new Set([fromCategory, ...card.items.map((i) => i.accommodationTypeCode)]),
-      ],
-      from: card.arrivalDate,
-      toExclusive: card.departureDate,
-    });
   }
 
   /**
@@ -1245,16 +1383,12 @@ export class ReservationsService {
   ): Promise<string> {
     if (!ratePlanCode) {
       if (!item.ratePlanId)
-        throw new BadRequestException(
-          'ratePlanCode обязателен: тариф на проживании неизвестен',
-        );
+        throw new BadRequestException('ratePlanCode обязателен: тариф на проживании неизвестен');
       return item.ratePlanId;
     }
     const plan = await repo.ratePlanByCode(ratePlanCode);
     if (!plan)
-      throw new BadRequestException(
-        'ratePlanCode обязателен: тариф на проживании неизвестен',
-      );
+      throw new BadRequestException('ratePlanCode обязателен: тариф на проживании неизвестен');
     this.assertPlanKept(item, plan);
     return plan.id;
   }
@@ -1527,7 +1661,9 @@ export class ReservationsService {
             `На счёте долг ${formatMinorRu(debtMinor)}. Примите оплату или подтвердите выселение с долгом`,
           );
         const today = await repo.today();
-        const early = today < item.departureDate && today > item.arrivalDate;
+        const early = today < item.departureDate && today >= item.arrivalDate;
+        // Same-day checkout releases capacity without creating a zero-night billing period.
+        const departureDate = early && today > item.arrivalDate ? today : item.departureDate;
         if (early) {
           for (const a of item.allocations) {
             if (a.endDate <= today) continue;
@@ -1537,7 +1673,7 @@ export class ReservationsService {
         }
         await repo.updateItem(item.id, {
           status: 'CHECKED_OUT',
-          ...(early ? { departureDate: today } : {}),
+          ...(early ? { departureDate } : {}),
         });
         // Q-155, решение владельца 22.09 (ADR-068): выезд сам переводит ячейку в «требует уборки» — с него
         // начинается цикл уборки; уже грязную не трогаем, запись журнала называет причину
@@ -1554,9 +1690,9 @@ export class ReservationsService {
           });
         }
         const others = state.items.filter((i) => i.id !== item.id && i.status !== 'CANCELLED');
-        const departure = [item.departureDate, ...others.map((i) => i.departureDate)].reduce(
+        const departure = [departureDate, ...others.map((i) => i.departureDate)].reduce(
           (m, d) => (d > m ? d : m),
-          early ? today : item.departureDate,
+          departureDate,
         );
         await repo.updateReservation(state.id, {
           status: deriveReservationStatus(
@@ -1578,7 +1714,7 @@ export class ReservationsService {
         return { before, after, early };
       }),
     );
-    if (result.early) await this.publish([result.before, result.after]);
+    if (result.early) await this.publish(result.before, result.after);
     return result.after;
   }
 
@@ -1612,7 +1748,7 @@ export class ReservationsService {
         return { before, after, released };
       }),
     );
-    await this.publish([result.before, result.after]);
+    await this.publish(result.before, result.after);
     await this.publishReleased(result.released);
     return result.after;
   }

@@ -1,0 +1,96 @@
+# Сквозные (e2e) · 03.10.2026 18:44 Алматы · vm
+# коммит b31830a (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/beauty-schedule.spec.ts' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/requests.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 76 tests using 1 worker
+
+  ✓   1 tests/ui/beauty-branch.spec.ts:43:1 › салон заводится той же формой и открывается своим рабочим местом (3.9s)
+  ✓   2 tests/ui/beauty-branch.spec.ts:58:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (3.5s)
+  ✓   3 tests/ui/beauty-branch.spec.ts:74:1 › карточка объекта показывает имя салона, а не «объект не загружен» (3.3s)
+  ✓   4 tests/ui/beauty-branch.spec.ts:85:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (4.0s)
+  ✓   5 tests/ui/beauty-branch.spec.ts:99:3 › салон доступен и в светлой теме (4.6s)
+  ✓   6 tests/ui/beauty-branch.spec.ts:99:3 › салон доступен и в тёмной теме (4.7s)
+  ✓   7 tests/ui/beauty-catalog.spec.ts:47:1 › услуга каталога добавляется и видна в списке (5.1s)
+  ✓   8 tests/ui/beauty-catalog.spec.ts:60:1 › филиал включает услугу и ставит свою цену (6.1s)
+  ✓   9 tests/ui/beauty-catalog.spec.ts:79:1 › ошибки услуги словами, введённое не стирается (3.9s)
+  ✓  10 tests/ui/beauty-catalog.spec.ts:94:1 › мастер добавляется, умения ставятся и снимаются (9.1s)
+  ✓  11 tests/ui/beauty-catalog.spec.ts:124:1 › каталог салона на телефоне: без прокрутки вбок (5.5s)
+  ✓  12 tests/ui/beauty-catalog.spec.ts:142:3 › каталог салона доступен в светлой теме (6.4s)
+  ✓  13 tests/ui/beauty-catalog.spec.ts:142:3 › каталог салона доступен в тёмной теме (6.5s)
+  ✓  14 tests/ui/beauty-schedule.spec.ts:76:1 › неделя мастера ставится и читается словами (6.9s)
+  ✓  15 tests/ui/beauty-schedule.spec.ts:95:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (6.0s)
+  ✓  16 tests/ui/beauty-schedule.spec.ts:122:1 › два интервала через перерыв сохраняются (6.4s)
+  ✓  17 tests/ui/beauty-schedule.spec.ts:138:1 › отсутствие предупреждает о записях, снимается с вопросом (6.4s)
+  ✓  18 tests/ui/beauty-schedule.spec.ts:173:1 › отсутствие с концом раньше начала не уходит на сервер (5.4s)
+  ✓  19 tests/ui/beauty-schedule.spec.ts:185:1 › мастер переставляется между филиалами, снятый филиал забирает свой график (10.0s)
+  ✓  20 tests/ui/beauty-schedule.spec.ts:221:1 › график на телефоне: без прокрутки вбок (5.2s)
+  ✓  21 tests/ui/beauty-schedule.spec.ts:237:3 › график доступен в светлой теме (6.5s)
+  ✓  22 tests/ui/beauty-schedule.spec.ts:237:3 › график доступен в тёмной теме (6.7s)
+  ✓  23 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (3.0s)
+  ✓  24 tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (4.5s)
+  ✓  25 tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (8.2s)
+  ✓  26 tests/ui/navigation.spec.ts:50:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (3.0s)
+  ✓  27 tests/ui/navigation.spec.ts:91:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (2.2s)
+  ✓  28 tests/ui/navigation.spec.ts:118:1 › все пункты меню открывают существующие страницы (9.9s)
+  ✓  29 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (3.4s)
+  ✓  30 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (3.3s)
+  ✓  31 tests/ui/requests.spec.ts:75:3 › экран /today: данные берутся одним запросом на путь (1.5s)
+  ✓  32 tests/ui/requests.spec.ts:75:3 › экран /chessboard: данные берутся одним запросом на путь (1.7s)
+  ✓  33 tests/ui/requests.spec.ts:75:3 › экран /reservations: данные берутся одним запросом на путь (1.6s)
+  ✓  34 tests/ui/requests.spec.ts:75:3 › экран /guests: данные берутся одним запросом на путь (1.5s)
+  ✓  35 tests/ui/requests.spec.ts:75:3 › экран /inventory: данные берутся одним запросом на путь (1.6s)
+  ✓  36 tests/ui/requests.spec.ts:75:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.8s)
+  ✓  37 tests/ui/requests.spec.ts:75:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.5s)
+  ✓  38 tests/ui/requests.spec.ts:75:3 › экран /rates: данные берутся одним запросом на путь (1.5s)
+  ✓  39 tests/ui/requests.spec.ts:75:3 › экран /management/analytics: данные берутся одним запросом на путь (1.4s)
+  ✓  40 tests/ui/requests.spec.ts:75:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.5s)
+  ✓  41 tests/ui/requests.spec.ts:75:3 › экран /finance: данные берутся одним запросом на путь (1.6s)
+  ✓  42 tests/ui/requests.spec.ts:75:3 › экран /reports: данные берутся одним запросом на путь (1.4s)
+  ✓  43 tests/ui/requests.spec.ts:75:3 › экран /channels: данные берутся одним запросом на путь (1.6s)
+  ✓  44 tests/ui/requests.spec.ts:75:3 › экран /connections/channex: данные берутся одним запросом на путь (1.4s)
+  ✓  45 tests/ui/requests.spec.ts:75:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.4s)
+  ✓  46 tests/ui/requests.spec.ts:75:3 › экран /channels/sync: данные берутся одним запросом на путь (1.5s)
+  ✓  47 tests/ui/requests.spec.ts:75:3 › экран /channels/events: данные берутся одним запросом на путь (1.4s)
+  ✓  48 tests/ui/requests.spec.ts:75:3 › экран /website: данные берутся одним запросом на путь (1.4s)
+  ✓  49 tests/ui/requests.spec.ts:75:3 › экран /website/booking: данные берутся одним запросом на путь (1.4s)
+  ✓  50 tests/ui/requests.spec.ts:75:3 › экран /website/analytics: данные берутся одним запросом на путь (1.5s)
+  ✓  51 tests/ui/requests.spec.ts:75:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.4s)
+  ✓  52 tests/ui/requests.spec.ts:75:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.4s)
+  ✓  53 tests/ui/requests.spec.ts:75:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.4s)
+  ✓  54 tests/ui/requests.spec.ts:75:3 › экран /team: данные берутся одним запросом на путь (1.3s)
+  ✓  55 tests/ui/requests.spec.ts:75:3 › экран /connections: данные берутся одним запросом на путь (1.4s)
+  ✓  56 tests/ui/requests.spec.ts:75:3 › экран /ai-agents: данные берутся одним запросом на путь (1.3s)
+  ✓  57 tests/ui/requests.spec.ts:75:3 › экран /website/settings: данные берутся одним запросом на путь (1.4s)
+  ✓  58 tests/ui/requests.spec.ts:75:3 › экран /incidents: данные берутся одним запросом на путь (1.3s)
+  ✓  59 tests/ui/requests.spec.ts:75:3 › экран /journal: данные берутся одним запросом на путь (1.4s)
+  ✓  60 tests/ui/requests.spec.ts:75:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.5s)
+  ✓  61 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.0s)
+  ✓  62 tests/ui/roles.spec.ts:62:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (6.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  63 tests/ui/roles.spec.ts:100:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (3.1s)
+  ✓  64 tests/ui/roles.spec.ts:117:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (5.4s)
+  ✓  65 tests/ui/roles.spec.ts:145:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (6.1s)
+  ✓  66 tests/ui/roles.spec.ts:207:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (4.2s)
+  ✓  67 tests/ui/roles.spec.ts:262:1 › владелец: зовёт управляющего и администратора, меняет роль (2.6s)
+  ✓  68 tests/ui/roles.spec.ts:293:1 › администратор: сотрудниками ведают владелец и управляющий (2.4s)
+  ✓  69 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.1s)
+  ✓  70 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, dark, 1440px (4.6s)
+  ✓  71 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, light, 390px (4.3s)
+  ✓  72 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, dark, 390px (4.1s)
+  ✓  73 tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (2.0s)
+  ✓  74 tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку (3.5s)
+  ✓  75 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: light (3.0s)
+  ✓  76 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: dark (3.1s)
+
+  76 passed (4.6m)
+
+# код выхода 0 · 4 мин 38 с

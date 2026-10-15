@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { FIXTURE_API } from './fixtures';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const shots = 'reports/categories-v2-c2-2026-09-28';
 const asClient = { headers: { 'x-wetop-test-client': '1' } };
 const hideDevOverlay = (page: Page) =>
@@ -54,17 +55,13 @@ test('categories C2: quick preview from row, menu and card; cards view; light/da
   await expect(bed).toContainText('Койко-место');
   await expect(bed).toContainText('36 коек');
   await expect(bed).toContainText('1 гость на койко-место');
-  await expect(bed).toContainText('Стандартный');
+  await expect(bed).toContainText('6 000 ₸ за койку в ночь');
   await expect(bed).not.toContainText('M01');
   await expect(bed.getByRole('link', { name: 'Открыть весь состав' })).toHaveAttribute(
     'href',
     '/inventory?category=MALE',
   );
-  await expect(bed.getByRole('link', { name: 'Настроить тарифы' })).toHaveAttribute(
-    'href',
-    '/rates?category=MALE',
-  );
-  await expect(bed.getByRole('link', { name: 'Открыть в шахматке' })).toHaveAttribute(
+  await expect(bed.getByRole('link', { name: 'Открыть в календаре' })).toHaveAttribute(
     'href',
     '/chessboard?category=MALE',
   );
@@ -96,7 +93,7 @@ test('categories C2: quick preview from row, menu and card; cards view; light/da
   await page.getByRole('menuitem', { name: 'Открыть', exact: true }).click();
   const bare = page.getByRole('dialog', { name: 'Одноместная комната без окон' });
   await expect(bare).toContainText('Номерной фонд ещё не добавлен');
-  await expect(bare).toContainText('Тариф не настроен');
+  await expect(bare).toContainText('Цена не задана');
   // «Добавить номер» из панели открывает прежнюю форму с этой категорией
   await bare.getByRole('button', { name: 'Добавить номер' }).click();
   const add = page.getByRole('dialog', { name: 'Добавить размещение' });

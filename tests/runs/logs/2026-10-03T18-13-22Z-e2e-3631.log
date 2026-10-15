@@ -1,0 +1,120 @@
+# Сквозные (e2e) · 03.10.2026 23:13 Алматы · vm
+# коммит aab4342 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.booking-widget.config.ts' 'booking-widget-langs'
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/booking-widget-langs.spec.ts:78:1 › по умолчанию русский; выбранный язык отмечен (5.2s)
+  ✘  2 tests/ui/booking-widget-langs.spec.ts:86:1 › data-lang="en": английский с первого показа (5.2s)
+  ✘  3 tests/ui/booking-widget-langs.spec.ts:94:1 › гость переключает язык: даты и гости остаются, бронь уходит с языком, ответ на языке гостя (30.0s)
+  ✘  4 tests/ui/booking-widget-langs.spec.ts:119:1 › казахский: подписи формы и подсказка о письме подтверждения (5.2s)
+
+
+  1) tests/ui/booking-widget-langs.spec.ts:78:1 › по умолчанию русский; выбранный язык отмечен ─────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('[data-pmsw="root"]')
+    Expected: "ru"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('[data-pmsw="root"]') with timeout 5000ms
+      - waiting for locator('[data-pmsw="root"]')
+        14 × locator resolved to <div class="pmsw" data-pmsw="root">…</div>
+           - unexpected value "null"
+
+
+      79 |   await setup(page);
+      80 |   await expect(root(page).locator('h3')).toHaveText('Забронировать');
+    > 81 |   await expect(root(page)).toHaveAttribute('lang', 'ru');
+         |                            ^
+      82 |   await expect(page.locator('[data-pmsw="lang-ru"]')).toHaveAttribute('aria-pressed', 'true');
+      83 |   await expect(page.locator('[data-pmsw="quote"]')).toHaveText('Показать цены');
+      84 | });
+        at /home/user/wetop.ai/tests/ui/booking-widget-langs.spec.ts:81:28
+
+    Error Context: test-results/booking-widget-langs-по-ум-923e6-ский-выбранный-язык-отмечен/error-context.md
+
+  2) tests/ui/booking-widget-langs.spec.ts:86:1 › data-lang="en": английский с первого показа ──────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('[data-pmsw="root"]').locator('h3')
+    Expected: "Book a stay"
+    Received: "Забронировать"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" locator('[data-pmsw="root"]').locator('h3') with timeout 5000ms
+      - waiting for locator('[data-pmsw="root"]').locator('h3')
+        14 × locator resolved to <h3>Забронировать</h3>
+           - unexpected value "Забронировать"
+
+
+      86 | test('data-lang="en": английский с первого показа', async ({ page }) => {
+      87 |   await setup(page, 'en');
+    > 88 |   await expect(root(page).locator('h3')).toHaveText('Book a stay');
+         |                                          ^
+      89 |   await expect(page.locator('[data-pmsw="quote"]')).toHaveText('Show prices');
+      90 |   await page.locator('[data-pmsw="quote"]').click();
+      91 |   await expect(page.locator('[data-pmsw="cat"] .s')).toHaveText('available: 2');
+        at /home/user/wetop.ai/tests/ui/booking-widget-langs.spec.ts:88:42
+
+    Error Context: test-results/booking-widget-langs-data--7063b-английский-с-первого-показа/error-context.md
+
+  3) tests/ui/booking-widget-langs.spec.ts:94:1 › гость переключает язык: даты и гости остаются, бронь уходит с языком, ответ на языке гостя 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('[data-pmsw="lang-zh"]')
+
+
+       99 |   await page.locator('[data-pmsw="departure"]').fill('2026-10-07');
+      100 |   await page.locator('[data-pmsw="adults"]').selectOption('1');
+    > 101 |   await page.locator('[data-pmsw="lang-zh"]').click();
+          |                                               ^
+      102 |   await expect(root(page)).toHaveAttribute('lang', 'zh');
+      103 |   await expect(root(page).locator('h3')).toHaveText('预订');
+      104 |   await expect(page.locator('[data-pmsw="arrival"]')).toHaveValue('2026-10-05');
+        at /home/user/wetop.ai/tests/ui/booking-widget-langs.spec.ts:101:47
+
+    Error Context: test-results/booking-widget-langs-гость-d6b61-языком-ответ-на-языке-гостя/error-context.md
+
+  4) tests/ui/booking-widget-langs.spec.ts:119:1 › казахский: подписи формы и подсказка о письме подтверждения 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('[data-pmsw="root"]')
+    Expected: "kk"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('[data-pmsw="root"]') with timeout 5000ms
+      - waiting for locator('[data-pmsw="root"]')
+        14 × locator resolved to <div class="pmsw" data-pmsw="root">…</div>
+           - unexpected value "null"
+
+
+      119 | test('казахский: подписи формы и подсказка о письме подтверждения', async ({ page }) => {
+      120 |   await setup(page, 'kz');
+    > 121 |   await expect(root(page)).toHaveAttribute('lang', 'kk');
+          |                            ^
+      122 |   await page.locator('[data-pmsw="quote"]').click();
+      123 |   await page.locator('[data-pmsw="choose"]').click();
+      124 |   await expect(page.locator('[data-pmsw="submit"]')).toHaveText('Брондауды растау');
+        at /home/user/wetop.ai/tests/ui/booking-widget-langs.spec.ts:121:28
+
+    Error Context: test-results/booking-widget-langs-казах-184b7-азка-о-письме-подтверждения/error-context.md
+
+  4 failed
+    tests/ui/booking-widget-langs.spec.ts:78:1 › по умолчанию русский; выбранный язык отмечен ──────
+    tests/ui/booking-widget-langs.spec.ts:86:1 › data-lang="en": английский с первого показа ───────
+    tests/ui/booking-widget-langs.spec.ts:94:1 › гость переключает язык: даты и гости остаются, бронь уходит с языком, ответ на языке гостя 
+    tests/ui/booking-widget-langs.spec.ts:119:1 › казахский: подписи формы и подсказка о письме подтверждения 
+
+# код выхода 1 · 51 с

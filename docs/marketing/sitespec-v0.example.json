@@ -1,0 +1,249 @@
+{
+  "schemaVersion": "site-spec/0",
+  "site": {
+    "vertical": "HOSPITALITY",
+    "displayName": { "ru": "Гостиница «Степной ветер»" },
+    "defaultLocale": "ru",
+    "locales": ["ru"],
+    "brand": {
+      "tagline": { "ru": "Тихие номера в пяти минутах от вокзала" },
+      "logo": {
+        "assetId": "6f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+        "alt": { "ru": "Логотип гостиницы «Степной ветер»" }
+      },
+      "faviconAssetId": "7a2d3b01-4c5e-4f60-9b7c-8d9e0f1a2b3c"
+    },
+    "contacts": {
+      "phone": "+77010000000",
+      "whatsapp": "+77010000000",
+      "email": "hello@stepnoy-veter.example",
+      "address": { "ru": "Астана, ул. Вымышленная, 10" },
+      "geo": { "lat": 51.1694, "lng": 71.4491 },
+      "social": [
+        { "network": "INSTAGRAM", "url": "https://www.instagram.com/stepnoy.veter.example" }
+      ]
+    },
+    "legal": {
+      "operatorName": { "ru": "ИП «Степной ветер»" },
+      "privacyPageId": "page-privacy"
+    },
+    "seo": {
+      "robots": "INDEX",
+      "titleTemplate": { "ru": "%s, гостиница «Степной ветер»" },
+      "structuredData": { "type": "HOTEL", "includeAddress": true, "includeGeo": true }
+    }
+  },
+  "theme": {
+    "preset": "CALM",
+    "accent": "TEAL",
+    "typography": "MODERN",
+    "radius": "SOFT",
+    "density": "COMFORTABLE",
+    "colorScheme": "LIGHT"
+  },
+  "navigation": {
+    "header": [
+      { "label": { "ru": "Номера" }, "target": { "kind": "SECTION", "pageId": "page-home", "sectionId": "sec-rooms" } },
+      { "label": { "ru": "Удобства" }, "target": { "kind": "SECTION", "pageId": "page-home", "sectionId": "sec-amenities" } },
+      { "label": { "ru": "Вопросы" }, "target": { "kind": "SECTION", "pageId": "page-home", "sectionId": "sec-faq" } },
+      { "label": { "ru": "Контакты" }, "target": { "kind": "SECTION", "pageId": "page-home", "sectionId": "sec-contacts" } }
+    ],
+    "headerCta": { "label": { "ru": "Забронировать" }, "action": { "kind": "BOOK" } },
+    "footer": [
+      { "label": { "ru": "Главная" }, "target": { "kind": "PAGE", "pageId": "page-home" } },
+      { "label": { "ru": "Политика конфиденциальности" }, "target": { "kind": "PAGE", "pageId": "page-privacy" } }
+    ]
+  },
+  "pages": [
+    {
+      "id": "page-home",
+      "slug": "",
+      "isHome": true,
+      "title": { "ru": "Гостиница «Степной ветер» в Астане" },
+      "seo": {
+        "title": { "ru": "Гостиница у вокзала в Астане" },
+        "description": { "ru": "Номера и койко-места рядом с вокзалом. Онлайн-бронирование без комиссии, заезд с 14:00." },
+        "index": true,
+        "includeInSitemap": true,
+        "canonical": "SELF",
+        "og": {
+          "title": { "ru": "Гостиница «Степной ветер»" },
+          "description": { "ru": "Тихие номера в пяти минутах от вокзала." },
+          "imageAssetId": "8b3e4c12-5d6f-4071-8c8d-9e0f1a2b3c4d"
+        }
+      },
+      "sections": [
+        {
+          "id": "sec-hero",
+          "type": "hero",
+          "variant": "IMAGE_FULL",
+          "heading": { "ru": "Тихие номера у вокзала" },
+          "subheading": { "ru": "Заезд круглосуточно, парковка во дворе, завтрак по желанию." },
+          "image": {
+            "assetId": "8b3e4c12-5d6f-4071-8c8d-9e0f1a2b3c4d",
+            "alt": { "ru": "Фасад гостиницы вечером" }
+          },
+          "primaryAction": { "label": { "ru": "Выбрать даты" }, "action": { "kind": "BOOK" } },
+          "secondaryAction": { "label": { "ru": "Написать в WhatsApp" }, "action": { "kind": "WHATSAPP" } }
+        },
+        {
+          "id": "sec-about",
+          "type": "about",
+          "variant": "TEXT_IMAGE",
+          "heading": { "ru": "О гостинице" },
+          "paragraphs": [
+            { "ru": "Двадцать номеров на трёх этажах. Окна во двор, поэтому шума с проспекта не слышно." },
+            { "ru": "До вокзала пять минут пешком, до центра пятнадцать минут на автобусе." }
+          ],
+          "image": {
+            "assetId": "9c4f5d23-6e70-4182-9d9e-0f1a2b3c4d5e",
+            "alt": { "ru": "Лобби с диваном и стойкой регистрации" }
+          }
+        },
+        {
+          "id": "sec-features",
+          "type": "features",
+          "variant": "GRID",
+          "heading": { "ru": "Почему у нас удобно" },
+          "items": [
+            { "icon": "CLOCK", "title": { "ru": "Заезд в любое время" }, "text": { "ru": "Администратор на месте круглые сутки." } },
+            { "icon": "PARKING", "title": { "ru": "Своя парковка" }, "text": { "ru": "Бесплатно для гостей, во дворе." } },
+            { "icon": "WIFI", "title": { "ru": "Быстрый интернет" }, "text": { "ru": "Wi-Fi во всех номерах." } }
+          ]
+        },
+        {
+          "id": "sec-rooms",
+          "type": "accommodations",
+          "variant": "CARDS",
+          "heading": { "ru": "Номера" },
+          "showLiveCapacity": true,
+          "showFromPrice": true,
+          "items": [
+            {
+              "categoryCode": "standard-double",
+              "title": { "ru": "Стандарт для двоих" },
+              "description": { "ru": "Двуспальная кровать, душ, рабочий стол." },
+              "images": [
+                { "assetId": "a1b2c3d4-0e1f-4a2b-8c3d-4e5f6a7b8c9d", "alt": { "ru": "Номер с двуспальной кроватью" } }
+              ],
+              "highlights": [{ "ru": "18 м²" }, { "ru": "Окна во двор" }]
+            },
+            {
+              "categoryCode": "dorm-bed",
+              "title": { "ru": "Место в общем номере" },
+              "description": { "ru": "Кровать с занавеской, шкафчик с замком, розетка у изголовья." },
+              "images": [
+                { "assetId": "b2c3d4e5-1f20-4b3c-9d4e-5f6a7b8c9d0e", "alt": { "ru": "Общий номер на шесть кроватей" } }
+              ],
+              "highlights": [{ "ru": "Женский и общий номер" }]
+            }
+          ]
+        },
+        {
+          "id": "sec-amenities",
+          "type": "amenities",
+          "variant": "LIST",
+          "heading": { "ru": "Удобства и услуги" },
+          "items": [
+            { "icon": "BREAKFAST", "label": { "ru": "Завтрак" }, "note": { "ru": "по желанию, оплачивается отдельно" } },
+            { "icon": "LAUNDRY", "label": { "ru": "Прачечная" } },
+            { "icon": "LUGGAGE", "label": { "ru": "Камера хранения" } }
+          ]
+        },
+        {
+          "id": "sec-pricing",
+          "type": "pricing",
+          "variant": "FROM_PRICES",
+          "heading": { "ru": "Цены" },
+          "note": { "ru": "Точная цена зависит от дат. Выберите даты в форме бронирования." },
+          "categoryCodes": ["standard-double", "dorm-bed"]
+        },
+        {
+          "id": "sec-gallery",
+          "type": "gallery",
+          "variant": "GRID",
+          "heading": { "ru": "Фотографии" },
+          "images": [
+            { "assetId": "c3d4e5f6-2031-4c4d-8e5f-6a7b8c9d0e1f", "alt": { "ru": "Коридор второго этажа" } },
+            { "assetId": "d4e5f607-3142-4d5e-9f60-7b8c9d0e1f20", "alt": { "ru": "Кухня для гостей" } },
+            { "assetId": "e5f60718-4253-4e6f-8071-8c9d0e1f2031", "alt": { "ru": "Двор с парковкой" } }
+          ]
+        },
+        {
+          "id": "sec-booking",
+          "type": "booking",
+          "variant": "INLINE",
+          "heading": { "ru": "Забронировать" },
+          "note": { "ru": "Бронь подтверждается сразу. Оплата при заезде." },
+          "showCheckInOut": true
+        },
+        {
+          "id": "sec-faq",
+          "type": "faq",
+          "variant": "ACCORDION",
+          "heading": { "ru": "Частые вопросы" },
+          "items": [
+            {
+              "question": { "ru": "Можно ли заехать ночью?" },
+              "answer": { "ru": "Да, администратор на месте круглые сутки." }
+            },
+            {
+              "question": { "ru": "Есть ли парковка?" },
+              "answer": { "ru": "Да, бесплатная, во дворе гостиницы." }
+            }
+          ],
+          "emitStructuredData": true
+        },
+        {
+          "id": "sec-contacts",
+          "type": "contacts",
+          "variant": "WITH_MAP",
+          "heading": { "ru": "Как нас найти" },
+          "showPhone": true,
+          "showWhatsapp": true,
+          "showEmail": true,
+          "showAddress": true,
+          "map": { "provider": "OPENSTREETMAP_LINK" },
+          "directions": { "ru": "От вокзала прямо по улице, второй дом после аптеки." }
+        },
+        {
+          "id": "sec-cta",
+          "type": "cta",
+          "variant": "BANNER",
+          "heading": { "ru": "Приезжайте отдохнуть" },
+          "text": { "ru": "Бронь напрямую дешевле, чем на сайтах-агрегаторах." },
+          "action": { "label": { "ru": "Выбрать даты" }, "action": { "kind": "BOOK" } }
+        }
+      ]
+    },
+    {
+      "id": "page-privacy",
+      "slug": "privacy",
+      "isHome": false,
+      "title": { "ru": "Политика конфиденциальности" },
+      "seo": {
+        "title": { "ru": "Политика конфиденциальности" },
+        "description": { "ru": "Как гостиница «Степной ветер» обрабатывает персональные данные гостей." },
+        "index": false,
+        "includeInSitemap": false,
+        "canonical": "SELF"
+      },
+      "sections": [
+        {
+          "id": "sec-privacy-text",
+          "type": "about",
+          "variant": "TEXT_ONLY",
+          "heading": { "ru": "Политика конфиденциальности" },
+          "paragraphs": [
+            { "ru": "Мы получаем имя, телефон и email гостя только для брони и связи по ней." },
+            { "ru": "Данные не передаются третьим лицам, кроме случаев, предусмотренных законом." }
+          ]
+        }
+      ]
+    }
+  ],
+  "integrations": {
+    "booking": { "mode": "WETOP_WIDGET" },
+    "analytics": { "mode": "WETOP_TRACKER", "consent": "NOT_REQUIRED" }
+  }
+}

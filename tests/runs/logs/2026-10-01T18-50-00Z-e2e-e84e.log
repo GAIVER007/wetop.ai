@@ -1,0 +1,560 @@
+# Сквозные (e2e) · 01.10.2026 23:50 Алматы · vm
+# коммит 2bc2380 (claude/epic-johnson-8yejs9), незакоммиченных файлов набора: 80
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/organization.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/requests.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 54 tests using 1 worker
+
+  ✓   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (6.1s)
+  ✓   2 tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (6.0s)
+  ✓   3 tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (11.1s)
+  ✓   4 tests/ui/navigation.spec.ts:34:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.2s)
+  ✓   5 tests/ui/navigation.spec.ts:48:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (2.7s)
+  ✓   6 tests/ui/navigation.spec.ts:87:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (4.3s)
+  ✓   7 tests/ui/navigation.spec.ts:118:1 › все пункты меню открывают существующие страницы (18.8s)
+  ✓   8 tests/ui/navigation.spec.ts:157:3 › навигация ровная, адаптивная и доступная: light (5.5s)
+  ✓   9 tests/ui/navigation.spec.ts:157:3 › навигация ровная, адаптивная и доступная: dark (5.0s)
+  ✓  10 tests/ui/organization.spec.ts:32:1 › владелец добавляет филиал: ошибки у поля, тёзка, 409 от API (3.9s)
+  ✓  11 tests/ui/organization.spec.ts:64:1 › выбор филиала: «Открыть» ставит куку, объект стойки и текущая строка меняются (3.0s)
+  ✓  12 tests/ui/organization.spec.ts:92:1 › сводка по филиалам: строки по каждому, итог суммой, готовые отрезки (2.6s)
+  ✓  13 tests/ui/organization.spec.ts:111:1 › роли: управляющий видит без кнопки, администратору раздел закрыт, в «только чтении» кнопки нет (3.4s)
+  ✓  14 tests/ui/organization.spec.ts:135:3 › доступность и снимки (light) (3.8s)
+  ✓  15 tests/ui/organization.spec.ts:135:3 › доступность и снимки (dark) (3.4s)
+  ✘  16 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (18.7s)
+  ✓  17 tests/ui/platform-access.spec.ts:77:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (5.9s)
+  ✘  18 tests/ui/platform-access.spec.ts:99:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (17.4s)
+  ✘  19 tests/ui/platform-access.spec.ts:131:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (19.7s)
+  ✘  20 tests/ui/platform-access.spec.ts:158:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (17.4s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     ...
+[WebServer]                       <h2>
+[WebServer]                       <p>
+[WebServer]                       <KnowledgeUploadForm>
+[WebServer]                         <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                           <Field label="Документ: ...">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="file"
+[WebServer]                                   name="file"
+[WebServer]                                   accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                   required={true}
+[WebServer]                                   data-testid="knowledge-file"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  21 tests/ui/platform-access.spec.ts:171:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (4.2s)
+  ✓  22 tests/ui/platform-access.spec.ts:194:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (6.4s)
+  ✘  23 tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, light, 1440px (13.8s)
+  ✘  24 tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, dark, 1440px (14.6s)
+  ✘  25 tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, light, 390px (14.3s)
+  ✘  26 tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, dark, 390px (13.0s)
+  ✓  27 tests/ui/requests.spec.ts:70:3 › экран /today: данные берутся одним запросом на путь (1.9s)
+  ✓  28 tests/ui/requests.spec.ts:70:3 › экран /chessboard: данные берутся одним запросом на путь (2.0s)
+  ✓  29 tests/ui/requests.spec.ts:70:3 › экран /reservations: данные берутся одним запросом на путь (1.8s)
+  ✓  30 tests/ui/requests.spec.ts:70:3 › экран /guests: данные берутся одним запросом на путь (1.8s)
+  ✓  31 tests/ui/requests.spec.ts:70:3 › экран /inventory: данные берутся одним запросом на путь (2.0s)
+  ✓  32 tests/ui/requests.spec.ts:70:3 › экран /rooms/categories: данные берутся одним запросом на путь (3.2s)
+  ✓  33 tests/ui/requests.spec.ts:70:3 › экран /rooms/availability: данные берутся одним запросом на путь (2.1s)
+  ✓  34 tests/ui/requests.spec.ts:70:3 › экран /rates: данные берутся одним запросом на путь (1.8s)
+  ✓  35 tests/ui/requests.spec.ts:70:3 › экран /management/analytics: данные берутся одним запросом на путь (2.6s)
+  ✓  36 tests/ui/requests.spec.ts:70:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (2.3s)
+  ✓  37 tests/ui/requests.spec.ts:70:3 › экран /finance: данные берутся одним запросом на путь (2.2s)
+  ✓  38 tests/ui/requests.spec.ts:70:3 › экран /channels: данные берутся одним запросом на путь (1.9s)
+  ✘  39 tests/ui/requests.spec.ts:70:3 › экран /channels/connections: данные берутся одним запросом на путь (3.1s)
+  ✓  40 tests/ui/requests.spec.ts:70:3 › экран /channels/mapping: данные берутся одним запросом на путь (2.2s)
+  ✓  41 tests/ui/requests.spec.ts:70:3 › экран /channels/sync: данные берутся одним запросом на путь (1.7s)
+  ✓  42 tests/ui/requests.spec.ts:70:3 › экран /channels/events: данные берутся одним запросом на путь (1.7s)
+  ✓  43 tests/ui/requests.spec.ts:70:3 › экран /website: данные берутся одним запросом на путь (1.6s)
+  ✓  44 tests/ui/requests.spec.ts:70:3 › экран /website/booking: данные берутся одним запросом на путь (2.4s)
+  ✓  45 tests/ui/requests.spec.ts:70:3 › экран /website/analytics: данные берутся одним запросом на путь (2.3s)
+  ✓  46 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.7s)
+  ✓  47 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.7s)
+  ✓  48 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.7s)
+  ✓  49 tests/ui/requests.spec.ts:70:3 › экран /connections: данные берутся одним запросом на путь (1.7s)
+  ✓  50 tests/ui/requests.spec.ts:70:3 › экран /ai-agents: данные берутся одним запросом на путь (1.5s)
+  ✓  51 tests/ui/requests.spec.ts:70:3 › экран /website/settings: данные берутся одним запросом на путь (2.0s)
+  ✓  52 tests/ui/requests.spec.ts:70:3 › экран /incidents: данные берутся одним запросом на путь (2.1s)
+  ✓  53 tests/ui/requests.spec.ts:70:3 › экран /journal: данные берутся одним запросом на путь (1.6s)
+  ✘  54 tests/ui/requests.spec.ts:70:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.8s)
+
+
+  1) tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.workspace-sidebar .sidebar-section-toggle')
+    Timeout: 15000ms
+    - Expected  - 2
+    + Received  + 3
+
+      Array [
+    +   "Главная",
+        "Работа с гостями",
+        "Номерной фонд",
+        "Продажи",
+    -   "Финансы и отчёты",
+    +   "Финансы",
+    +   "Аналитика",
+        "Настройки",
+    -   "Контроль",
+        "Платформа",
+      ]
+
+    Call log:
+      - Expect "toHaveText" locator('.workspace-sidebar .sidebar-section-toggle') with timeout 15000ms
+      - waiting for locator('.workspace-sidebar .sidebar-section-toggle')
+        33 × locator resolved to 8 elements
+
+
+      58 |   // расширение выключено, а пункт остаётся (ADR-090): закрытый доступ объясняет сам раздел
+      59 |   expect(await menuLinks(page)).toContain('/ai-agents');
+    > 60 |   await expect(page.locator('.workspace-sidebar .sidebar-section-toggle')).toHaveText([
+         |                                                                            ^
+      61 |     'Работа с гостями',
+      62 |     'Номерной фонд',
+      63 |     'Продажи',
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:60:76
+
+    Error Context: test-results/platform-access-меню-«ИИ-а-964ab-—-у-главного-администратора/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-меню-«ИИ-а-964ab-—-у-главного-администратора/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-меню-«ИИ-а-964ab-—-у-главного-администратора/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/platform-access.spec.ts:99:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: getByRole('main').getByTestId('seller-setup').getByRole('textbox', { name: 'Инструкция продавцу' })
+    Expected: disabled
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('main').getByTestId('seller-setup').getByRole('textbox', { name: 'Инструкция продавцу' }) with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('seller-setup').getByRole('textbox', { name: 'Инструкция продавцу' })
+
+
+      108 |   const setup = main.getByTestId('seller-setup');
+      109 |   await expect(setup.getByTestId('seller-read-only')).toContainText('Срок расширения вышел');
+    > 110 |   await expect(setup.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeDisabled();
+          |                                                                             ^
+      111 |   await expect(main.getByTestId('seller-prompt-save')).toHaveCount(0);
+      112 |   // список «До запуска» — тому, кто может его выполнить: после срока его нет
+      113 |   await expect(main.getByTestId('seller-checklist')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:110:77
+
+    Error Context: test-results/platform-access-срок-вышел-0ceb6-ть-гостю-и-проверять-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-срок-вышел-0ceb6-ть-гостю-и-проверять-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-срок-вышел-0ceb6-ть-гостю-и-проверять-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/platform-access.spec.ts:131:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('invite-not-allowed')
+    Expected: "Приглашать сотрудников могут владелец и управляющий."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('invite-not-allowed') with timeout 15000ms
+      - waiting for getByTestId('invite-not-allowed')
+
+
+      151 |   await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Администратор');
+      152 |   await page.goto('/auth/fallback');
+    > 153 |   await expect(page.getByTestId('invite-not-allowed')).toHaveText(
+          |                                                        ^
+      154 |     'Приглашать сотрудников могут владелец и управляющий.',
+      155 |   );
+      156 | });
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:153:56
+
+    Error Context: test-results/platform-access-администра-2311e-елец-и-управляющий-ADR-107-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-администра-2311e-елец-и-управляющий-ADR-107-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-администра-2311e-елец-и-управляющий-ADR-107-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/platform-access.spec.ts:158:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) 
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator: getByRole('main').getByRole('textbox', { name: 'Инструкция продавцу' })
+    Expected: enabled
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeEnabled" getByRole('main').getByRole('textbox', { name: 'Инструкция продавцу' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('textbox', { name: 'Инструкция продавцу' })
+
+
+      164 |   await page.goto('/ai-seller');
+      165 |   const main = page.getByRole('main');
+    > 166 |   await expect(main.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeEnabled();
+          |                                                                            ^
+      167 |   await expect(main.getByTestId('seller-read-only')).toHaveCount(0);
+      168 |   await expect(page.getByRole('link', { name: 'Все агенты' })).toBeVisible();
+      169 | });
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:166:76
+
+    Error Context: test-results/platform-access-управляющи-4014f-равне-с-владельцем-ADR-107-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-управляющи-4014f-равне-с-владельцем-ADR-107-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-управляющи-4014f-равне-с-владельцем-ADR-107-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, light, 1440px 
+
+    Error: /ai-seller
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "nodes": Array [
+    +       Array [
+    +         "button[aria-current=\"step\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      281 |             route,
+      282 |           )
+    > 283 |           .toEqual([]);
+          |            ^
+      284 |         const overflow = await page.evaluate(
+      285 |           () => document.documentElement.scrollWidth - window.innerWidth,
+      286 |         );
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:283:12
+
+    Error Context: test-results/platform-access-доступност-d66ee-ния-расширения-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-доступност-d66ee-ния-расширения-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-доступност-d66ee-ния-расширения-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, dark, 1440px 
+
+    Error: /ai-seller
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "nodes": Array [
+    +       Array [
+    +         "button[aria-current=\"step\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      281 |             route,
+      282 |           )
+    > 283 |           .toEqual([]);
+          |            ^
+      284 |         const overflow = await page.evaluate(
+      285 |           () => document.documentElement.scrollWidth - window.innerWidth,
+      286 |         );
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:283:12
+
+    Error Context: test-results/platform-access-доступност-5f661-яния-расширения-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-доступност-5f661-яния-расширения-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-доступност-5f661-яния-расширения-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, light, 390px 
+
+    Error: /platform?org=ui-org-2
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "scrollable-region-focusable",
+    +     "nodes": Array [
+    +       Array [
+    +         "section:nth-child(5) > div",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      281 |             route,
+      282 |           )
+    > 283 |           .toEqual([]);
+          |            ^
+      284 |         const overflow = await page.evaluate(
+      285 |           () => document.documentElement.scrollWidth - window.innerWidth,
+      286 |         );
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:283:12
+
+    Error: /ai-seller
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "nodes": Array [
+    +       Array [
+    +         "button[aria-current=\"step\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      281 |             route,
+      282 |           )
+    > 283 |           .toEqual([]);
+          |            ^
+      284 |         const overflow = await page.evaluate(
+      285 |           () => document.documentElement.scrollWidth - window.innerWidth,
+      286 |         );
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:283:12
+
+    Error Context: test-results/platform-access-доступност-7d3f6-яния-расширения-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-доступност-7d3f6-яния-расширения-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-доступност-7d3f6-яния-расширения-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, dark, 390px 
+
+    Error: /platform?org=ui-org-2
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "scrollable-region-focusable",
+    +     "nodes": Array [
+    +       Array [
+    +         "section:nth-child(5) > div",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      281 |             route,
+      282 |           )
+    > 283 |           .toEqual([]);
+          |            ^
+      284 |         const overflow = await page.evaluate(
+      285 |           () => document.documentElement.scrollWidth - window.innerWidth,
+      286 |         );
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:283:12
+
+    Error: /ai-seller
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "nodes": Array [
+    +       Array [
+    +         "button[aria-current=\"step\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      281 |             route,
+      282 |           )
+    > 283 |           .toEqual([]);
+          |            ^
+      284 |         const overflow = await page.evaluate(
+      285 |           () => document.documentElement.scrollWidth - window.innerWidth,
+      286 |         );
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:283:12
+
+    Error Context: test-results/platform-access-доступност-2140d-ояния-расширения-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-доступност-2140d-ояния-расширения-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-доступност-2140d-ояния-расширения-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/requests.spec.ts:70:3 › экран /channels/connections: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /channels/connections: {"GET /auth/me":2,"GET /hotel/settings":2,"GET /system/freshness":4,"GET /channels/channex/connection":1,"GET /channels/channex/webhook/status":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      77 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      78 |     );
+    > 79 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      80 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      81 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      82 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:79:88
+
+    Error Context: test-results/requests-экран-channels-co-7fd3e-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-channels-co-7fd3e-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-channels-co-7fd3e-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/requests.spec.ts:70:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /reservations/new?unit=M03: {"GET /hotel/settings":1,"GET /auth/me":1,"GET /inventory/summary":1,"GET /rate-plans":1,"GET /availability?arrival=2026-10-01&departure=2026-10-02":2,"GET /system/pii-storage":1,"GET /system/freshness":2,"POST /reservations/quote":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /availability?arrival=2026-10-01&departure=2026-10-02",
+    +     2,
+    +   ],
+    + ]
+
+      77 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      78 |     );
+    > 79 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      80 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      81 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      82 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:79:88
+
+    Error Context: test-results/requests-экран-reservation-9e9b1-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-reservation-9e9b1-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-reservation-9e9b1-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора 
+    tests/ui/platform-access.spec.ts:99:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя 
+    tests/ui/platform-access.spec.ts:131:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) 
+    tests/ui/platform-access.spec.ts:158:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) 
+    tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, light, 1440px 
+    tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, dark, 1440px 
+    tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, light, 390px 
+    tests/ui/platform-access.spec.ts:252:5 › доступность: «Организации» и состояния расширения, dark, 390px 
+    tests/ui/requests.spec.ts:70:3 › экран /channels/connections: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:70:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь 
+  44 passed (5.2m)
+
+# код выхода 1 · 5 мин 14 с

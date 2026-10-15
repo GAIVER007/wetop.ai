@@ -58,7 +58,27 @@ BUDGET_REPLY = "Сейчас не могу ответить подробно. О
 def _token_budget_key(org: uuid.UUID | None) -> str:
     """Счётчик токенов модели за сутки (UTC) — на организацию; у помощника организации нет."""
     return f"llm:tokens:{org or '-'}:{utcnow():%Y%m%d}"
-REFUSAL_REPLY = "Я помогаю с вопросами по размещению и бронированию, давайте вернёмся к ним."
+
+
+_LLM_DOWN_REASONS = {
+    "all_models_failed": "все ступени каскада отказали",
+    "llm_not_configured": "каскад не настроен: нет адреса, ключа или списка моделей",
+    "exception": "слой модели поднял исключение",
+}
+
+
+def _llm_down_body(who: str, reason: str, attempts: list) -> str:
+    """Тело алерта llm_down: кто, причина, ступени с исходами. Без текста гостя и без заметок ступеней:
+    в заметку роутер кладёт что угодно, вплоть до куска запроса."""
+    steps = ", ".join(f"{a.model} — {a.outcome}" for a in attempts) or "ступени не вызывались"
+    return (
+        f"Модель не ответила: {who}. Причина: {reason} — {_LLM_DOWN_REASONS.get(reason, 'ответ не разобран')}; "
+        f"ступени: {steps}. Гостю ушло «администратор свяжется», диалог помечен для сотрудника. "
+        "Проверьте роутер моделей и ключ: баланс, доступ, у гостиницы со своим ключом — её ключ."
+    )
+
+
+REFUSAL_REPLY ="Я помогаю с вопросами по размещению и бронированию, давайте вернёмся к ним."
 
 _QUEUE_DRAIN_LIMIT = 20  # предел на вызов: очередь не должна крутить нас вечно
 _ROLE_TO_TURN = {MessageRole.USER: "user", MessageRole.ASSISTANT: "assistant", MessageRole.OPERATOR: "assistant"}
@@ -254,13 +274,15 @@ class Engine:
             t.llm_api_key = await org_llm_api_key(t.session, agent.organization_id, s)
             if not system_prompt.strip():
                 logger.error("системный промпт агента %s недоступен", agent.id)
-                return self._fail(t, "prompt_missing")
+                self._fail(t, "prompt_missing")
+                return await self._alert_prompt_missing(t)
         else:
             try:
                 system_prompt = self._prompt_loader()
             except PromptMissing:
                 logger.error("системный промпт недоступен: %s", s.prompt_path)
-                return self._fail(t, "prompt_missing")
+                self._fail(t, "prompt_missing")
+                return await self._alert_prompt_missing(t)
         try:
             chunks = await retriever.search(t.session, self._embedder, t.verdict.text, top_k=s.kb_top_k,
                                             agent_id=agent.id if agent is not None else None)
@@ -295,9 +317,15 @@ class Engine:
             # Списание при любом исходе: неудачный ответ оплачен так же, как удачный (ревизия 26.09).
             await self._settle_tokens(budget_key, reserved, getattr(t.result, "tokens_used", None))
         if t.result is None or not t.result.ok or t.result.parsed is None:
-            # Алерт владельцу — шаг 8; клиенту нейтральная фраза, не текст ошибки.
-            logger.error("модель не ответила: %s", getattr(t.result, "error", None) or "exception")
+            # Клиенту нейтральная фраза, не текст ошибки; владельцу — алерт llm_down (шаг 8).
+            reason = "exception" if t.result is None else (t.result.error or "no_reply")
+            logger.error("модель не ответила: %s", reason)
             self._fail(t, "llm_failed")
+            # Р1 (решение владельца 02.10): фраза обещает администратора — диалог помечен для сотрудника
+            self._mark_for_staff(t)
+            who_key, who = await self._who(t)
+            t.alerts.append(("llm_down", _llm_down_body(who, reason, getattr(t.result, "attempts", None) or []),
+                             f"llm_down:{who_key}"))
             return
 
     async def _reserve_tokens(self, key: str) -> int | None:
@@ -367,10 +395,33 @@ class Engine:
                           body=budget.alert_body(hotel.name if hotel else None, org, spend),
                           dedup_key=f"{budget.ALERT_EVENT}:{org}:{spend.day}")
         self._fail(t, "daily_budget")
+        self._mark_for_staff(t)
+        return True
+
+    @staticmethod
+    def _mark_for_staff(t: Turn) -> None:
+        """Пометка «нужен человек», не перехват: бот и дальше отвечает; owner_takeover не трогаем."""
         t.outcome.needs_human = True
         if t.conversation.mode == ConversationMode.BOT_ACTIVE:
             t.conversation.mode = ConversationMode.NEEDS_HUMAN
-        return True
+
+    async def _who(self, t: Turn) -> tuple[str, str]:
+        """Чей ход — для ключа и тела алерта: гостиница (название и id) или помощник. Данных гостя нет."""
+        org = t.incoming.org_uuid()
+        if org is None:
+            return "assistant", "помощник (без гостиницы)"
+        hotel = await t.session.get(Organization, org)
+        return str(org), f"гостиница «{hotel.name}» ({org})" if hotel and hotel.name else f"гостиница {org}"
+
+    async def _alert_prompt_missing(self, t: Turn) -> None:
+        """Р2 (решение владельца 02.10): пустой промпт — алерт раз в сутки на гостиницу (окно — src/alerts/dedup.py)."""
+        who_key, who = await self._who(t)
+        fix = ("Проверьте файл промпта помощника: PROMPT_PATH в .env продавца." if who_key == "assistant"
+               else "Заполните промпт агента в панели продавца.")
+        t.alerts.append(("prompt_missing",
+                         f"Нет системного промпта: {who}. Модель не вызывается, гости получают "
+                         f"«администратор свяжется». {fix}",
+                         f"prompt_missing:{who_key}"))
 
     def _unmask(self, t: Turn) -> None:
         t.step("unmask")
@@ -436,6 +487,10 @@ class Engine:
         conv.last_activity_at = utcnow()
         await t.session.commit()
         t.outcome.reply = t.reply
+        # После коммита: у алерта своя сессия, и незакоммиченная запись хода её не держит
+        for event_type, body, dedup_key in t.alerts:
+            await raise_alert(self._sessionmaker, self._redis, self._settings, event_type=event_type,
+                              body=body, dedup_key=dedup_key)
 
     # ─── Вспомогательное ───
 

@@ -26,6 +26,10 @@ const stay = (over: Partial<DeskStay>): DeskStay => ({
 });
 
 const repo: DeskRepository = {
+  /** задачи стойки: открытых со сроком не позже даты (DATA_MODEL §22), в подделке всегда три */
+  async openTasksDue() {
+    return 3;
+  },
   async today() {
     // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
     return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -100,6 +104,7 @@ describe('desk day API', () => {
       toCheckIn: 5,
       toCheckOut: 1,
       overdueArrivals: 1,
+      tasksOpen: 3,
     });
     // просроченный заезд — отдельным списком, с датой, когда должен был заехать
     expect(r.body.overdueArrivals).toMatchObject([
@@ -161,6 +166,7 @@ describe('desk day API', () => {
       toCheckIn: 0,
       toCheckOut: 0,
       overdueArrivals: 0,
+      tasksOpen: 3,
     });
     expect(empty.body.debtMinor).toBe('0');
     await request(app.getHttpServer()).get('/desk/today?date=05.10.2026').expect(400);

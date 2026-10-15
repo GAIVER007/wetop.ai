@@ -1,0 +1,9 @@
+
+ RUN  v5.0.0 /private/tmp/wetop-owner-home-verify-20261005
+
+
+ Test Files  4 passed (4)
+      Tests  21 passed (21)
+   Start at  17:18:23
+   Duration  704ms (transform 49%, import 47%, tests 2%, worker 2%)
+

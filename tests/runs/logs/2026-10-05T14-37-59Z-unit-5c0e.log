@@ -1,0 +1,34 @@
+# Модульные (unit) · 05.10.2026 19:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (codex/staff-owner-journal), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-37-59Z-unit-5c0e.json' 'apps/api/src/audit/owner-access.test.ts' 'apps/api/src/audit/audit.service.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+ ❯ |unit| apps/api/src/audit/audit.service.test.ts (0 test)
+ ❯ |unit| apps/api/src/audit/owner-access.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/audit/audit.service.test.ts [ apps/api/src/audit/audit.service.test.ts ]
+ FAIL  |unit| apps/api/src/audit/owner-access.test.ts [ apps/api/src/audit/owner-access.test.ts ]
+Error: Cannot find module './generated/prisma/client' imported from /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP/packages/database/src/index.ts
+ ❯ packages/database/src/index.ts:8:1
+      6| import { PrismaPg } from '@prisma/adapter-pg';
+      7| import pg from 'pg';
+      8| import { PrismaClient, type Prisma } from './generated/prisma/client';
+       | ^
+      9| import { databasePoolTimeouts } from './pool';
+     10| import { TenantPool, type TenantOf } from './rls';
+ ❯ apps/api/src/audit/audit.module.ts:3:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  07:38:05
+   Duration  2.45s (worker 98%, environment 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-37-59Z-unit-5c0e.json
+
+# код выхода 1 · 8 с

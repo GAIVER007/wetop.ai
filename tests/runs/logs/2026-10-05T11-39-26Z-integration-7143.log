@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 05.10.2026 16:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6293670 (codex/release-finance-disclosure-20261005), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T11-39-26Z-integration-7143.json' 'tests/integration/db-restore-prod.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP
+
+ ↓ |integration| tests/integration/db-restore-prod.test.ts (2 tests | 2 skipped)
+
+ Test Files  1 skipped (1)
+      Tests  2 skipped (2)
+   Start at  04:39:27
+   Duration  420ms (import 71%, transform 19%, worker 10%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T11-39-26Z-integration-7143.json
+
+# код выхода 0 · 1 с

@@ -1,0 +1,407 @@
+# Модульные (unit) · 02.10.2026 18:00 Алматы · vm
+# коммит 2d8112d (master), незакоммиченных файлов набора: 603
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T13-00-19Z-unit-6387.json' 'apps/api/src/channels/ari-ranges.test.ts' 'apps/api/src/channels/outbox.test.ts' 'apps/api/src/channels/inbound.controller.test.ts' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-api
+
+[Nest] 1351  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ❯ |unit| apps/api/src/reservations/reservations.controller.test.ts (52 tests | 5 failed) 737ms
+   ❯ manual reservation API (52)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 57ms
+     ✓ Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала 6ms
+     ✓ Б6: бронь записана, а дельта каналов не встала в очередь — ответ 201 с карточкой, не 500: иначе повтор создаст дубль 5ms
+     ✓ rejects invalid stay 2026-02-31 to 2026-03-03 before writes 5ms
+     ✓ rejects invalid stay 2026-02-28 to 2026-02-31 before writes 3ms
+     ✓ rejects invalid stay 2026-10-02 to 2026-10-01 before writes 3ms
+     ✓ rejects invalid stay 2026-10-01 to 2026-10-01 before writes 3ms
+     ✓ rejects invalid stay  to 2026-10-01 before writes 6ms
+     ✓ rejects invalid stay 2026-10-01 to  before writes 4ms
+     ✓ quotes the selected booking without writing a guest or reservation 18ms
+     ✓ replays one creation key and rejects changed payload without duplicate guests 8ms
+     ✓ rejects an outdated expected total before writes 3ms
+     × POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit 8ms
+     ✓ ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно 6ms
+     ✓ ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны 4ms
+     ✓ G6 (ТЗ «Гости v2» §33): guestId существующего гостя — бронь на него, нового гостя нет 3ms
+     ✓ G6: гость не своей организации или несуществующий — 404, брони нет 4ms
+     ✓ G6: guestId вместе с полями нового гостя — 400, чтобы не гадать, кого имели в виду 2ms
+     ✓ ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем 12ms
+     ✓ ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex 8ms
+     ✓ ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400 9ms
+     ✓ rejects a missing/unknown source with 400 — no default (Q-089) 3ms
+     ✓ 422 when a night has no price, the tariff is inactive or the unit belongs to another category 6ms
+     ✓ 409 when the unit is blocked or already allocated for an overlapping night 8ms
+     ✓ PATCH dates reprices and moves the allocation; cancel frees the unit; both audited 12ms
+     ✓ отмена и незаезд берут замок брони раньше, чем читают её состояние 26ms
+     ✓ предпросмотр действия замок брони не берёт — только читает 7ms
+     ✓ Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102) 9ms
+     ✓ assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item 15ms
+     × T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено 11ms
+     ✓ предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет 18ms
+     × T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя 9ms
+     ✓ Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда 48ms
+     ✓ checkout on 2026-09-15 releases the unit and permits rebooking after inspection 10ms
+     ✓ checkout on 2026-09-16 releases the unit and permits rebooking after inspection 20ms
+     ✓ T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал 16ms
+     ✓ ADR-020: ограничения продаж действуют на стойке — стоп-продажа, закрытый заезд/выезд, срок → 409 с датой и категорией; канал и другая категория не задеты 18ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в заметке брони маскируются — и при создании, и при правке 13ms
+     ✓ Q-169: база в Казахстане (PII_STORAGE=real) — заметка как введена 2ms
+     ✓ правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале 22ms
+     ✓ групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K» 9ms
+     ✓ тариф брони по роли (Q-200, ADR-107) (6)
+       ✓ администратор меняет даты в том же тарифе; другой тариф — отказ словами, бронь не тронута 5ms
+       ✓ управляющий тариф меняет 3ms
+       ✓ продление и переселение в другую категорию — в тарифе брони; с другим тарифом — отказ 4ms
+       ✓ бронь из Legacy без тарифа: администратор назначает тариф со штрафом, без штрафа — отказ; тариф записывается (Q-201) 4ms
+       ✓ продление брони без тарифа записывает выбранный тариф: второе продление — уже в нём (Q-201) 3ms
+       ✓ управляющий назначает брони без тарифа любой тариф, и без штрафа тоже 2ms
+     ✓ GET /rate-plans lists only active tariffs 2ms
+     ✓ check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation 26ms
+     × каждая команда, меняющая остаток категории, ставит дельту доступности: создание, смена дат, отмена, незаезд, ранний выезд 5ms
+     × перенос брони (live-тест Channex 02.10.2026): в канал уходят только освободившаяся и занятая ночь, ночи между ними — нет 4ms
+     ✓ заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением 7ms
+[Nest] 1359  - 10/02/2026, 6:00:24 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 1359  - 10/02/2026, 6:00:24 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 1359  - 10/02/2026, 6:00:24 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 1359  - 10/02/2026, 6:00:24 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 1359  - 10/02/2026, 6:00:24 AM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 1359  - 10/02/2026, 6:00:24 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ❯ |unit| apps/api/src/channels/inbound.controller.test.ts (21 tests | 1 failed) 272ms
+   ❯ inbound bookings from Channex (contract on fakes) (21)
+     ✓ helpers: guarantee (card data) is stripped, decimal amounts become minor units exactly 3ms
+     ✓ pull: new revision → reservation with the first free unit (Q-094), event PROCESSED without card data, ack; same revision again → duplicate skipped but acked; no free unit → without unit and a warning 37ms
+     ✓ modified revision moves dates and re-dates an existing allocation; cancelled frees units and cancels 10ms
+     × дельта доступности: новая, изменённая и отменённая ревизия ставят её после коммита; отмена — ещё и по снятым блокам соседних ночей 7ms
+     ✓ сбой постановки дельты после ACK не рвёт разбор ревизии и оставляет след для сторожа 4ms
+     ✓ перенесённая из Legacy бронь канала опознаётся по номеру брони OTA: модификация не создаёт дубль, отмена освобождает ячейку 7ms
+     ✓ ADR-071: бронь стойки с номером брони в канале при подключении канала СВЯЗЫВАЕТСЯ: гость, статус, ячейка и заметка стойки на месте, дубля нет 3ms
+     ✓ предупреждения разбора не теряются: записываются в журнал события (PROCESSED + текст) — и при webhook, где результат никто не читает 18ms
+     ✓ Q-086: бронь, оплаченную площадкой, счёт принимает предоплатой; оплату на месте — нет 5ms
+     ✓ после шести неудач ревизия ждёт человека, а «Обработать заново» разбирает её 21ms
+     ✓ ADR-018: в журнале события ревизия без заказчика, гостей, заметки и карты — пока база не в РК 3ms
+     ✓ PII_STORAGE=real (база в РК): ревизия хранится целиком, кроме карты 2ms
+     ✓ ADR-018: событие не о брони — в журнале только идентификаторы, текст гостя не хранится 3ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в заметке канала маскируются 2ms
+     ✓ SECURITY.md §7: текст ошибки разбора ревизии пишется в last_error без почты и телефонов 3ms
+     ✓ ADR-018: настоящие имя, телефон и почта гостя канала в базу не попадают 5ms
+     ✓ Q-108: отмена предоплаченной OTA-брони снимает платёж канала — на счёте не остаётся минуса 4ms
+     ✓ одна упавшая ревизия не рвёт ленту: следующая обработана и подтверждена 3ms
+     ✓ Q-086: модификация пересчитывает предоплату канала, а смена payment_collect её снимает 6ms
+     ✓ unmapped room type → event FAILED with a reason, no reservation, no ack 3ms
+     ✓ webhook: wrong secret → 401, missing secret config → 503, booking event → the feed of its property is read, never the revision by ID 10ms
+[Nest] 1368  - 10/02/2026, 6:00:24 AM   ERROR [OutboxWorker] Менеджер каналов отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ❯ |unit| apps/api/src/channels/outbox.test.ts (11 tests | 2 failed) 31ms
+   ❯ OutboxAriPublisher (6)
+     ✓ reservationChanged: availability = units − sold items (unassigned too), only for mapped categories, compressed ranges 4ms
+     × reservationChanged с отрезками (live-тест Channex 02.10): одно сообщение, только ночи отрезков — ночи между ними не уходят и через разрыв не склеиваются 9ms
+     × reservationChanged с пустыми отрезками — остаток не менялся, очередь не трогается 4ms
+     ✓ ratesChanged: maps (category, tariff) to the Channex rate plan, rate as minor-unit integer, unmapped tariff skipped 1ms
+     ✓ ratesChanged: a price set for fewer guests than the category holds is not sent as the room rate (the nightly full sync sends the capacity price) 1ms
+     ✓ ratesChanged: min stay "no restriction" goes to Channex as 1, never 0 (Channex: must be greater than or equal to 1) 0ms
+   ✓ OutboxWorker (4)
+     ✓ batches all pending rows of a kind into ONE Channex call (FIFO), records the task id 1ms
+     ✓ throttles to one call per kind per 6 s (10/min limit) unless forced 1ms
+     ✓ on 429/5xx: exponential backoff, rows stay PENDING; FAILED after 6 attempts 4ms
+     ✓ Channex warnings inside a 200 response (rejected values) are kept on the sent rows and reported, not swallowed 4ms
+   ✓ OutboxWorker при остановленном ARI (CHANNEX_ARI=off, план отката) (1)
+     ✓ даже принудительная отправка (кнопка, сторож) ничего не шлёт и не тратит попытки; изменения ждут в очереди и уходят после включения 1ms
+ ❯ |unit| apps/api/src/channels/ari-ranges.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/ari-ranges.test.ts [ apps/api/src/channels/ari-ranges.test.ts ]
+Error: Cannot find module './ari-ranges' imported from /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-api/apps/api/src/channels/ari-ranges.test.ts
+ ❯ apps/api/src/channels/ari-ranges.test.ts:9:1
+      7|  */
+      8| import { describe, expect, it } from 'vitest';
+      9| import { changedNightRanges, envelopeOf, type StaySpan } from './ari-r…
+       | ^
+     10|
+     11| const stay = (
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/inbound.controller.test.ts > inbound bookings from Channex (contract on fakes) > дельта доступности: новая, изменённая и отменённая ревизия ставят её после коммита; отмена — ещё и по снятым блокам соседних ночей
+AssertionError: expected [ { …(4) } ] to deeply equal [ { …(5) } ]
+
+- Expected
++ Received
+
+@@ -3,15 +3,8 @@
+      "categoryCodes": [
+        "category-single",
+      ],
+      "from": "2026-11-10",
+      "inTx": false,
+-     "ranges": [
+-       {
+-         "categoryCode": "category-single",
+-         "from": "2026-11-10",
+-         "toExclusive": "2026-11-12",
+-       },
+-     ],
+      "toExclusive": "2026-11-12",
+    },
+  ]
+
+ ❯ apps/api/src/channels/inbound.controller.test.ts:667:23
+    665|     fakes.setFeed([revision()]);
+    666|     await request(app.getHttpServer()).post('/channels/channex/pull').…
+    667|     expect(published).toEqual([
+       |                       ^
+    668|       {
+    669|         categoryCodes: ['category-single'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |unit| apps/api/src/channels/outbox.test.ts > OutboxAriPublisher > reservationChanged с отрезками (live-тест Channex 02.10): одно сообщение, только ночи отрезков — ночи между ними не уходят и через разрыв не склеиваются
+AssertionError: expected [ { property_id: 'P', …(4) }, …(2) ] to deeply equal [ { property_id: 'P', …(4) }, …(2) ]
+
+- Expected
++ Received
+
+@@ -5,19 +5,19 @@
+      "date_to": "2026-11-20",
+      "property_id": "P",
+      "room_type_id": "RT3",
+    },
+    {
+-     "availability": 36,
+-     "date_from": "2026-11-24",
+-     "date_to": "2026-11-24",
++     "availability": 34,
++     "date_from": "2026-11-21",
++     "date_to": "2026-11-21",
+      "property_id": "P",
+      "room_type_id": "RT3",
+    },
+    {
+      "availability": 36,
+-     "date_from": "2026-11-26",
++     "date_from": "2026-11-22",
+      "date_to": "2026-11-26",
+      "property_id": "P",
+      "room_type_id": "RT3",
+    },
+  ]
+
+ ❯ apps/api/src/channels/outbox.test.ts:182:30
+    180|     });
+    181|     expect(rows).toHaveLength(1);
+    182|     expect(rows[0]!.payload).toEqual([
+       |                              ^
+    183|       {
+    184|         property_id: 'P',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |unit| apps/api/src/channels/outbox.test.ts > OutboxAriPublisher > reservationChanged с пустыми отрезками — остаток не менялся, очередь не трогается
+AssertionError: expected [ { id: 'o1', …(6) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ apps/api/src/channels/outbox.test.ts:215:18
+    213|       ranges: [],
+    214|     });
+    215|     expect(rows).toHaveLength(0);
+       |                  ^
+    216|   });
+    217|   it('ratesChanged: maps (category, tariff) to the Channex rate plan, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit
+AssertionError: expected [ { …(3) } ] to deeply equal [ { …(4) } ]
+
+- Expected
++ Received
+
+@@ -2,15 +2,8 @@
+    {
+      "categoryCodes": [
+        "category-single",
+      ],
+      "from": "2026-09-15",
+-     "ranges": [
+-       {
+-         "categoryCode": "category-single",
+-         "from": "2026-09-15",
+-         "toExclusive": "2026-09-17",
+-       },
+-     ],
+      "toExclusive": "2026-09-17",
+    },
+  ]
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:601:23
+    599|     ]);
+    600|     // после коммита в каналы уходит дельта доступности по категории и…
+    601|     expect(published).toEqual([
+       |                       ^
+    602|       {
+    603|         categoryCodes: ['category-single'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено
+AssertionError: expected [ { categoryCodes: [ …(2) ], …(2) } ] to deeply equal [ { categoryCodes: [ …(2) ], …(3) } ]
+
+- Expected
++ Received
+
+@@ -3,20 +3,8 @@
+      "categoryCodes": [
+        "category-single",
+        "category-twin",
+      ],
+      "from": "2026-09-15",
+-     "ranges": [
+-       {
+-         "categoryCode": "category-single",
+-         "from": "2026-09-15",
+-         "toExclusive": "2026-09-17",
+-       },
+-       {
+-         "categoryCode": "category-twin",
+-         "from": "2026-09-15",
+-         "toExclusive": "2026-09-17",
+-       },
+-     ],
+      "toExclusive": "2026-09-17",
+    },
+  ]
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1052:23
+    1050|     expect(moved.body.totalAmountMinor).toBe('3000000');
+    1051|     // канал должен узнать: в одиночной освободилось, в двойной заняло…
+    1052|     expect(published).toEqual([
+       |                       ^
+    1053|       {
+    1054|         categoryCodes: ['category-single', 'category-twin'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя
+AssertionError: expected [ { …(3) } ] to deeply equal [ { …(4) } ]
+
+- Expected
++ Received
+
+  [
+    {
+      "categoryCodes": [
+        "category-single",
+      ],
+-     "from": "2026-09-17",
+-     "ranges": [
+-       {
+-         "categoryCode": "category-single",
+-         "from": "2026-09-17",
+-         "toExclusive": "2026-09-18",
+-       },
+-     ],
++     "from": "2026-09-15",
+      "toExclusive": "2026-09-18",
+    },
+  ]
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1152:23
+    1150|     expect(fake.state.allocations[0]).toMatchObject({ start: '2026-09-…
+    1151|     // в канал — только добавленная ночь: остаток 15 и 16 сентября про…
+    1152|     expect(published).toEqual([
+       |                       ^
+    1153|       {
+    1154|         categoryCodes: ['category-single'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > каждая команда, меняющая остаток категории, ставит дельту доступности: создание, смена дат, отмена, незаезд, ранний выезд
+AssertionError: expected { …(3) } to deeply equal { …(4) }
+
+- Expected
++ Received
+
+  {
+    "categoryCodes": [
+      "category-single",
+    ],
+    "from": "2026-09-15",
+-   "ranges": [
+-     {
+-       "categoryCode": "category-single",
+-       "from": "2026-09-15",
+-       "toExclusive": "2026-09-16",
+-     },
+-     {
+-       "categoryCode": "category-single",
+-       "from": "2026-09-17",
+-       "toExclusive": "2026-09-19",
+-     },
+-   ],
+    "toExclusive": "2026-09-19",
+  }
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1923:25
+    1921|       'patch',
+    1922|     ).expect(200);
+    1923|     expect(lastDelta()).toEqual({
+       |                         ^
+    1924|       categoryCodes: ['category-single'],
+    1925|       from: '2026-09-15',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > перенос брони (live-тест Channex 02.10.2026): в канал уходят только освободившаяся и занятая ночь, ночи между ними — нет
+AssertionError: expected [ { …(3) } ] to deeply equal [ { …(4) } ]
+
+- Expected
++ Received
+
+@@ -2,20 +2,8 @@
+    {
+      "categoryCodes": [
+        "category-single",
+      ],
+      "from": "2026-09-15",
+-     "ranges": [
+-       {
+-         "categoryCode": "category-single",
+-         "from": "2026-09-15",
+-         "toExclusive": "2026-09-16",
+-       },
+-       {
+-         "categoryCode": "category-single",
+-         "from": "2026-09-18",
+-         "toExclusive": "2026-09-19",
+-       },
+-     ],
+      "toExclusive": "2026-09-19",
+    },
+  ]
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1978:23
+    1976|     // Сертификация Channex §13: «only send changes». 16-я и 17-я оста…
+    1977|     // с переносом — live-тест 02.10 (задача 5577ce76: 15.12 → 7, 16–2…
+    1978|     expect(published).toEqual([
+       |                       ^
+    1979|       {
+    1980|         categoryCodes: ['category-single'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  8 failed | 76 passed (84)
+   Start at  06:00:20
+   Duration  4.67s (transform 38%, import 36%, tests 26%)
+
+JSON report written to /tmp/pms-test-2026-10-02T13-00-19Z-unit-6387.json
+
+# код выхода 1 · 6 с

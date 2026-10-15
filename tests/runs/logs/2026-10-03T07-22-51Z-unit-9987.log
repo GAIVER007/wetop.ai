@@ -1,0 +1,16 @@
+# Модульные (unit) · 03.10.2026 12:22 Алматы · vm
+# коммит d281497 (main), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T07-22-51Z-unit-9987.json' 'tests/unit/site-design.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 21ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  07:22:53
+   Duration  229ms (transform 57%, tests 23%, import 15%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-10-03T07-22-51Z-unit-9987.json
+
+# код выхода 0 · 2 с

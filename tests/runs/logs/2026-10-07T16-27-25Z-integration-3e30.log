@@ -1,0 +1,100 @@
+# Интеграционные (integration) · 07.10.2026 21:27 Алматы · vm
+# коммит ba1d114 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-27-25Z-integration-3e30.json' 'tests/integration/site-publication.test.ts' 'tests/integration/marketing-site.test.ts' 'tests/integration/sites-runtime.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:6787) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-publication.test.ts (15 tests | 1 failed) 3384ms
+   ❯ MKT7 публикация управляемого сайта (15)
+     ✓ §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 816ms
+     ✓ §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает 95ms
+     ✓ MKT7 доводка: хосты сайта счётчика управляемого сайта ровно ACTIVE-домены; чужой хост уходит при синхронизации 71ms
+     ✓ MKT7 доводка: старый /analytics/sites не правит и не удаляет сайт счётчика управляемого сайта; внешний как раньше 192ms
+     ✓ §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается 39ms
+     ✓ §31: канонического нет и других подходящих нет: первая публикация с бронью делает управляемый сайт каноническим 102ms
+     ✓ §31–§32: выбранный канонический сайт (даже на паузе) публикация не подменяет, продавец на другой не переходит 114ms
+     ✓ §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит 97ms
+     ✓ §84: тариф брони только явный, связанный или канонический; первый активный не берётся 307ms
+     ✓ §50, §59: публикация и откат на паузе меняют версию, но сайт не открывается до возобновления 165ms
+     × §44–§47: публикуется только голова черновика, документ перепроверяется: картинки (MKT8) и неактивная категория 97ms
+     ✓ §88: две одновременные публикации одной версии: одна строка журнала, один домен, один сайт счётчика 103ms
+     ✓ §90: превью чужой версии и чужим филиалом: отказ без подробностей; лишнее поле 400 36ms
+     ✓ §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет 63ms
+     ✓ §98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503 117ms
+(node:6803) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[Nest] 6803  - 10/07/2026, 4:27:39 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/home/user/wetop.ai/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5) {
+  expected: 382085,
+  length: 382085,
+  limit: 307200,
+  type: 'entity.too.large'
+}
+[Nest] 6803  - 10/07/2026, 4:27:39 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/home/user/wetop.ai/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5) {
+  expected: 153633,
+  length: 153633,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+ ✓ |integration| tests/integration/marketing-site.test.ts (37 tests) 1828ms
+   ✓ MKT3 marketing site core (37)
+     ✓ создание сайта (6)
+       ✓ создаёт сайт филиала из scope в состоянии DRAFT; второй сайт филиала 409 313ms
+ ✓ |integration| tests/integration/sites-runtime.test.ts (13 tests) 836ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §44–§47: публикуется только голова черновика, документ перепроверяется: картинки (MKT8) и неактивная категория
+AssertionError: нет в библиотеке: expected [ { …(2) } ] to deeply equal [ { …(2) } ]
+
+- Expected
++ Received
+
+  [
+    {
+      "code": "unavailable",
+-     "path": "pages[0].sections[2].images[2].assetId",
++     "path": "pages[0].sections[3].images[2].assetId",
+    },
+  ]
+
+ ❯ tests/integration/site-publication.test.ts:574:37
+    572|       expect(res.status, label).toBe(409);
+    573|       expect(res.body.code, label).toBe('ASSET_UNAVAILABLE');
+    574|       expect(res.body.paths, label).toEqual([{ path: 'pages[0].section…
+       |                                     ^
+    575|       expect(JSON.stringify(res.body), label).not.toContain(L.rates);
+    576|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 64 passed (65)
+   Start at  16:27:26
+   Duration  14.69s (tests 51%, import 25%, transform 23%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-27-25Z-integration-3e30.json
+
+# код выхода 1 · 16 с

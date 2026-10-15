@@ -1,0 +1,16 @@
+# Модульные (unit) · 04.10.2026 12:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит ae4bd2d (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 140
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-31-00Z-unit-d7da.json' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8
+
+ ✓ |unit| tests/unit/ui-fixture-address.test.ts (2 tests) 220ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  00:31:07
+   Duration  519ms (tests 78%, transform 15%, import 4%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-31-00Z-unit-d7da.json
+
+# код выхода 0 · 8 с

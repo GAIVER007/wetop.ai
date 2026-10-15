@@ -962,7 +962,7 @@ async function main() {
   // Замок входа (ADR-053): без сессии стойка уводит на `/login`, и обходить нечего.
   const credentials = deskCredentials(process.env);
   if (credentials) {
-    await page.goto(`${WEB}/login`, { waitUntil: 'load', timeout: NAV_TIMEOUT });
+    await page.goto(`${WEB}/auth/fallback`, { waitUntil: 'load', timeout: NAV_TIMEOUT });
     const form = page.locator('main').first();
     await form.getByLabel('Email', { exact: true }).fill(credentials.email);
     await form.getByLabel('Пароль', { exact: true }).fill(credentials.password);

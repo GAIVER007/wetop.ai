@@ -1,0 +1,631 @@
+# Сквозные (e2e) · 03.10.2026 16:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (main), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'reports-print' 'reports-hub' 'analytics-units' 'ai-seller'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 36 tests using 2 workers
+
+  ✘   1 tests/ui/ai-seller.spec.ts:64:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (32ms)
+  ✘   3 tests/ui/ai-seller.spec.ts:101:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (22ms)
+  ✘   4 tests/ui/ai-seller.spec.ts:132:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (26ms)
+  ✘   5 tests/ui/ai-seller.spec.ts:162:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (49ms)
+  ✘   6 tests/ui/ai-seller.spec.ts:179:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (25ms)
+  ✘   7 tests/ui/ai-seller.spec.ts:216:1 › продавец недоступен — метка, причина и обещание повтора (26ms)
+  ✘   8 tests/ui/ai-seller.spec.ts:227:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (104ms)
+  ✘   9 tests/ui/ai-seller.spec.ts:246:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (68ms)
+  ✘  10 tests/ui/ai-seller.spec.ts:260:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (40ms)
+  ✘  11 tests/ui/ai-seller.spec.ts:298:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (90ms)
+  ✘  12 tests/ui/ai-seller.spec.ts:341:1 › карточка диалога по неизвестному id не падает, а говорит словами (65ms)
+  ✓   2 tests/ui/analytics-units.spec.ts:52:1 › вкладка по умолчанию за месяц: строки до единицы, итог равен сумме строк и ответу API (1.9s)
+  ✘  14 tests/ui/ai-seller.spec.ts:347:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (33ms)
+  ✘  15 tests/ui/ai-seller.spec.ts:375:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (87ms)
+  ✘  16 tests/ui/ai-seller.spec.ts:390:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (46ms)
+  ✘  17 tests/ui/ai-seller.spec.ts:408:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (38ms)
+  ✓  13 tests/ui/analytics-units.spec.ts:95:1 › тип фонда режет строки; период из адреса работает, как у соседних вкладок (2.0s)
+  ✘  18 tests/ui/ai-seller.spec.ts:440:1 › снимки экранов раздела (32ms)
+  ✘  20 tests/ui/ai-seller.spec.ts:468:1 › Все агенты возвращает в единый каталог, а не только к черновикам (39ms)
+  ✘  21 tests/ui/ai-seller.spec.ts:477:1 › закрытое расширение: администратор видит действие для управления доступом (128ms)
+  ✓  19 tests/ui/analytics-units.spec.ts:119:1 › отказ API — словами на своём экране, не падение страницы (1.8s)
+  ✓  23 tests/ui/analytics-units.spec.ts:131:1 › телефон: таблица без горизонтальной прокрутки страницы (2.0s)
+  ✓  22 tests/ui/reports-hub.spec.ts:41:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (2.0s)
+  ✓  25 tests/ui/reports-hub.spec.ts:109:1 › карточки ведут в готовые экраны с тем же периодом (2.4s)
+  ✓  26 tests/ui/reports-hub.spec.ts:152:1 › пресет «Сегодня» и свой период меняют адрес и числа (2.1s)
+  ✓  24 tests/ui/analytics-units.spec.ts:141:3 › доступность и снимки, light (5.5s)
+  ✓  27 tests/ui/reports-hub.spec.ts:171:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (1.6s)
+  ✓  29 tests/ui/reports-hub.spec.ts:186:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (2.3s)
+  ✓  28 tests/ui/analytics-units.spec.ts:141:3 › доступность и снимки, dark (4.7s)
+  ✓  30 tests/ui/reports-hub.spec.ts:206:1 › телефон: карточки без горизонтальной прокрутки (1.7s)
+  ✓  31 tests/ui/reports-print.spec.ts:23:1 › хаб ведёт на лист; «Сводка дня» — числа дня и таблицы, как в /desk/today (3.4s)
+  ✓  32 tests/ui/reports-hub.spec.ts:216:3 › доступность и снимки, light (3.8s)
+  ✓  33 tests/ui/reports-print.spec.ts:43:1 › «Список проживающих»: строка на каждое проживание; телефонов и документов на листе нет (2.5s)
+  ✓  34 tests/ui/reports-hub.spec.ts:216:3 › доступность и снимки, dark (4.0s)
+  ✘  35 tests/ui/reports-print.spec.ts:62:1 › казахская форма и переключение форм без потери даты (2.7s)
+  ✓  36 tests/ui/reports-print.spec.ts:72:3 › снимки листов, light (2.1s)
+
+
+  1) tests/ui/ai-seller.spec.ts:64:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-раздел-в-меню-«П-13f24-я-и-что-осталось-до-запуска/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-раздел-в-меню-«П-13f24-я-и-что-осталось-до-запуска/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-раздел-в-меню-«П-13f24-я-и-что-осталось-до-запуска/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-seller.spec.ts:101:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-одно-окно-«Сохра-646b1-е»-на-«ты»-ТЗ-§4-4-ADR-097-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-одно-окно-«Сохра-646b1-е»-на-«ты»-ТЗ-§4-4-ADR-097-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-одно-окно-«Сохра-646b1-е»-на-«ты»-ТЗ-§4-4-ADR-097-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ai-seller.spec.ts:132:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-черновик-собирае-a409e-дно-окно-ничего-не-теряется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-черновик-собирае-a409e-дно-окно-ничего-не-теряется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-черновик-собирае-a409e-дно-окно-ничего-не-теряется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ai-seller.spec.ts:162:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-скрытая-инструкц-09979-писанное-не-пропало-слой-9-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-скрытая-инструкц-09979-писанное-не-пропало-слой-9-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-скрытая-инструкц-09979-писанное-не-пропало-слой-9-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ai-seller.spec.ts:179:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-продавец-не-подк-809d8-охраняется-заранее-ТЗ-§4-4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-продавец-не-подк-809d8-охраняется-заранее-ТЗ-§4-4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-продавец-не-подк-809d8-охраняется-заранее-ТЗ-§4-4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ai-seller.spec.ts:216:1 › продавец недоступен — метка, причина и обещание повтора ────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-продавец-недосту-02186--причина-и-обещание-повтора/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-продавец-недосту-02186--причина-и-обещание-повтора/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-продавец-недосту-02186--причина-и-обещание-повтора/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/ai-seller.spec.ts:227:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-продавец-отклони-19fde-о-делать-повтора-не-обещаем/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-продавец-отклони-19fde-о-делать-повтора-не-обещаем/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-продавец-отклони-19fde-о-делать-повтора-не-обещаем/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/ai-seller.spec.ts:246:1 › старые адреса вкладок ведут на новые, а не в «не найдено» ──
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-старые-адреса-вк-2dc50-а-новые-а-не-в-«не-найдено»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-старые-адреса-вк-2dc50-а-новые-а-не-в-«не-найдено»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-старые-адреса-вк-2dc50-а-новые-а-не-в-«не-найдено»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/ai-seller.spec.ts:260:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-«Знания»-докумен-30609--просмотр-куда-идти-править/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Знания»-докумен-30609--просмотр-куда-идти-править/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Знания»-докумен-30609--просмотр-куда-идти-править/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/ai-seller.spec.ts:298:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-«Диалоги»-пометк-c9b93-р-карточка-перехват-и-ответ/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Диалоги»-пометк-c9b93-р-карточка-перехват-и-ответ/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Диалоги»-пометк-c9b93-р-карточка-перехват-и-ответ/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/ai-seller.spec.ts:341:1 › карточка диалога по неизвестному id не падает, а говорит словами 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-карточка-диалога-071ac-не-падает-а-говорит-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-карточка-диалога-071ac-не-падает-а-говорит-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-карточка-диалога-071ac-не-падает-а-говорит-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/ai-seller.spec.ts:347:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-«Подключения»-→--62659-ько-последние-4-знака-снять/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Подключения»-→--62659-ько-последние-4-знака-снять/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Подключения»-→--62659-ько-последние-4-знака-снять/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/ai-seller.spec.ts:375:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-ключ-и-инструкци-6c485-ет-остаются-окно-и-проверка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-ключ-и-инструкци-6c485-ет-остаются-окно-и-проверка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-ключ-и-инструкци-6c485-ет-остаются-окно-и-проверка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/ai-seller.spec.ts:390:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/ai-seller.spec.ts:408:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-«Подключения»-→--0acf8--для-консоли-Meta-отключить/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Подключения»-→--0acf8--для-консоли-Meta-отключить/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Подключения»-→--0acf8--для-консоли-Meta-отключить/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/ai-seller.spec.ts:440:1 › снимки экранов раздела ────────────────────────────────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-снимки-экранов-раздела/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-снимки-экранов-раздела/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-снимки-экранов-раздела/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/ai-seller.spec.ts:468:1 › Все агенты возвращает в единый каталог, а не только к черновикам 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-Все-агенты-возвр-87c7b-ог-а-не-только-к-черновикам/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-Все-агенты-возвр-87c7b-ог-а-не-только-к-черновикам/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-Все-агенты-возвр-87c7b-ог-а-не-только-к-черновикам/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/ai-seller.spec.ts:477:1 › закрытое расширение: администратор видит действие для управления доступом 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      13 |
+      14 | test.beforeEach(async ({ request }) => {
+    > 15 |   await request.post(`${API}/__test/reset`);
+         |                 ^
+      16 | });
+      17 |
+      18 | const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:15:17
+
+    Error Context: test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/reports-print.spec.ts:62:1 › казахская форма и переключение форм без потери даты ────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('print-inhouse')
+    Expected: visible
+    Error: strict mode violation: getByTestId('print-inhouse') resolved to 2 elements:
+        1) <main data-testid="print-inhouse">…</main> aka getByRole('main')
+        2) <main data-testid="print-inhouse">…</main> aka getByTestId('print-inhouse').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('print-inhouse') with timeout 15000ms
+      - waiting for getByTestId('print-inhouse')
+        - locator resolved to <main data-testid="print-inhouse">…</main>
+        - unexpected value "hidden"
+
+
+      66 |   );
+      67 |   await page.getByRole('link', { name: 'Список проживающих' }).click();
+    > 68 |   await expect(page.getByTestId('print-inhouse')).toBeVisible();
+         |                                                   ^
+      69 | });
+      70 |
+      71 | for (const theme of ['light'] as const) {
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/reports-print.spec.ts:68:51
+
+    Error Context: test-results/reports-print-казахская-фо-70b38-ючение-форм-без-потери-даты/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-print-казахская-фо-70b38-ючение-форм-без-потери-даты/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-print-казахская-фо-70b38-ючение-форм-без-потери-даты/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19 failed
+    tests/ui/ai-seller.spec.ts:64:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска 
+    tests/ui/ai-seller.spec.ts:101:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) 
+    tests/ui/ai-seller.spec.ts:132:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется 
+    tests/ui/ai-seller.spec.ts:162:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) 
+    tests/ui/ai-seller.spec.ts:179:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) 
+    tests/ui/ai-seller.spec.ts:216:1 › продавец недоступен — метка, причина и обещание повтора ─────
+    tests/ui/ai-seller.spec.ts:227:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем 
+    tests/ui/ai-seller.spec.ts:246:1 › старые адреса вкладок ведут на новые, а не в «не найдено» ───
+    tests/ui/ai-seller.spec.ts:260:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править 
+    tests/ui/ai-seller.spec.ts:298:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ 
+    tests/ui/ai-seller.spec.ts:341:1 › карточка диалога по неизвестному id не падает, а говорит словами 
+    tests/ui/ai-seller.spec.ts:347:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять 
+    tests/ui/ai-seller.spec.ts:375:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка 
+    tests/ui/ai-seller.spec.ts:390:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) 
+    tests/ui/ai-seller.spec.ts:408:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить 
+    tests/ui/ai-seller.spec.ts:440:1 › снимки экранов раздела ──────────────────────────────────────
+    tests/ui/ai-seller.spec.ts:468:1 › Все агенты возвращает в единый каталог, а не только к черновикам 
+    tests/ui/ai-seller.spec.ts:477:1 › закрытое расширение: администратор видит действие для управления доступом 
+    tests/ui/reports-print.spec.ts:62:1 › казахская форма и переключение форм без потери даты ──────
+  17 passed (37.2s)
+
+# код выхода 1 · 39 с

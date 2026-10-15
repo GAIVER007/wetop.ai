@@ -8,7 +8,6 @@
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import {
-  appendFileSync,
   existsSync,
   mkdirSync,
   readFileSync,
@@ -21,14 +20,10 @@ import { parse as parseDotEnv } from 'dotenv';
 import { ROOT, codeFingerprint, currentBranch, dirtyFiles, headCommit } from './git-state';
 import { acquireRunLock, lockNameFor } from './run-lock';
 import {
-  JOURNAL_FILE,
-  JOURNAL_MD,
-  JOURNAL_MD_HEADER,
   LOG_DIR,
   almatyTime,
   capLog,
   durationText,
-  journalRow,
   maskSecrets,
   outcomeText,
   parseEslintOutput,
@@ -43,6 +38,7 @@ import {
   type RunRecord,
   type Runner,
 } from './journal';
+import { writeRunRecord } from './journal-files';
 
 const MAX_LOG_BYTES = 512 * 1024;
 const LOCK_DIR = 'tests/runs/.locks';
@@ -199,16 +195,13 @@ function main(): void {
       machine: hostname().replace(/\.local$/, ''),
       note: note === null ? null : mask(note),
     };
-    appendFileSync(resolve(ROOT, JOURNAL_FILE), `${JSON.stringify(record)}\n`);
-    const md = resolve(ROOT, JOURNAL_MD);
-    if (!existsSync(md)) writeFileSync(md, JOURNAL_MD_HEADER);
-    appendFileSync(md, `${journalRow(record)}\n`);
+    const entry = writeRunRecord(ROOT, record);
     rmSync(reportFile, { force: true });
 
     console.log(`\n■ ${suite.name}: ${outcomeText(record)} · ${durationText(durationMs)}`);
     if (codeChangedDuringRun)
       console.log('  код набора менялся во время прогона — как доказательство не засчитан');
-    console.log(`  лог: ${logPath}\n  журнал: ${JOURNAL_MD} · что доказано: npm run test:status`);
+    console.log(`  лог: ${logPath}\n  запись: ${entry} · что доказано: npm run test:status`);
     process.exit(code ?? 1);
   });
 }

@@ -1,0 +1,16 @@
+# Модульные (unit) · 04.10.2026 14:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2a4336e (HEAD)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T09-14-08Z-unit-fd52.json' 'tests/unit/desk-glass.test.ts' 'tests/unit/design-rules.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/db0f8bca-525a-4dd2-a7aa-626d9b96733e/scratchpad/fix
+
+ ✓ |unit| tests/unit/desk-glass.test.ts (3 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  02:14:10
+   Duration  174ms (transform 47%, import 34%, tests 12%, worker 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T09-14-08Z-unit-fd52.json
+
+# код выхода 0 · 2 с

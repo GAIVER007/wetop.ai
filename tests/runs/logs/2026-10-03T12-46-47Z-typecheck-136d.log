@@ -1,0 +1,685 @@
+# Типы (typecheck) · 03.10.2026 17:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 3
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(74,55): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(126,45): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(256,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(329,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(361,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/ai-seller/business-agents.repository.ts(128,22): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/ai-seller/business-agents.repository.ts(131,35): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/ai-seller/business-agents.repository.ts(154,57): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(255,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(290,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(400,39): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(405,51): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(424,30): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(433,25): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(454,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(472,5): error TS2322: Type 'unknown[]' is not assignable to type 'string[]'.
+  Type 'unknown' is not assignable to type 'string'.
+apps/api/src/ai-seller/seller.repository.ts(472,39): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(487,5): error TS2322: Type 'unknown[]' is not assignable to type 'string[]'.
+  Type 'unknown' is not assignable to type 'string'.
+apps/api/src/ai-seller/seller.repository.ts(487,39): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(537,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/analytics/analytics.repository.ts(11,15): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/analytics/analytics.repository.ts(309,5): error TS2322: Type 'unknown[]' is not assignable to type 'string[]'.
+  Type 'unknown' is not assignable to type 'string'.
+apps/api/src/analytics/analytics.repository.ts(309,39): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/analytics/analytics.repository.ts(463,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/analytics/analytics.repository.ts(516,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/analytics/analytics.repository.ts(519,33): error TS7006: Parameter 'it' implicitly has an 'any' type.
+apps/api/src/analytics/analytics.repository.ts(520,40): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/assistant/diagnostics.repository.ts(67,38): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/assistant/diagnostics.repository.ts(69,47): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/assistant/diagnostics.repository.ts(70,46): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/audit/audit.module.ts(3,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/audit/audit.module.ts(90,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/auth/auth.service.ts(332,58): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(5,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/channels/channels.repository.ts(254,30): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(280,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(280,61): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(288,41): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(289,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(319,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(332,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(367,23): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(382,22): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(402,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(427,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(478,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(535,35): error TS18046: 'rows' is of type 'unknown'.
+apps/api/src/channels/channels.repository.ts(535,45): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(535,72): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(542,47): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(543,12): error TS18046: 'rows' is of type 'unknown'.
+apps/api/src/channels/channels.repository.ts(543,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(565,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(612,39): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(612,67): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(627,35): error TS7006: Parameter 'id' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(652,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(660,40): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(660,66): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(667,50): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(670,23): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(670,26): error TS7006: Parameter 'i' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(753,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/integration-command.ts(42,27): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/integration-command.ts(42,63): error TS7006: Parameter 'id' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(64,14): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(64,17): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(65,13): error TS7006: Parameter 'u' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(95,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(130,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(178,22): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(183,41): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(184,49): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(185,41): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(211,22): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/dashboard/dashboard.repository.ts(158,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/dashboard/dashboard.repository.ts(195,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/dashboard/dashboard.repository.ts(215,22): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/dashboard/dashboard.repository.ts(228,25): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/dashboard/dashboard.repository.ts(228,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/database/prisma.provider.ts(25,18): error TS7031: Binding element 'args' implicitly has an 'any' type.
+apps/api/src/database/prisma.provider.ts(25,24): error TS7031: Binding element 'query' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(93,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(98,37): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(100,24): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(101,21): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(102,37): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(113,32): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(3,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/finance/finance.repository.ts(462,35): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(474,27): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(505,29): error TS7006: Parameter 'i' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(516,22): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(546,22): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(611,38): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(611,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(633,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(701,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(811,23): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(827,29): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(845,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(858,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(886,16): error TS2339: Property 'id' does not exist on type 'void | { id: string; }'.
+  Property 'id' does not exist on type 'void'.
+apps/api/src/finance/finance.repository.ts(939,16): error TS2339: Property 'id' does not exist on type 'void | { id: string; }'.
+  Property 'id' does not exist on type 'void'.
+apps/api/src/finance/finance.repository.ts(954,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(955,35): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(997,16): error TS2339: Property 'id' does not exist on type 'void | { id: string; }'.
+  Property 'id' does not exist on type 'void'.
+apps/api/src/finance/finance.repository.ts(1049,31): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1050,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1051,35): error TS7006: Parameter 'o' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1093,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1107,18): error TS2339: Property 'id' does not exist on type 'void | { id: string; }'.
+  Property 'id' does not exist on type 'void'.
+apps/api/src/finance/finance.repository.ts(1224,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/guard/guard.adapters.ts(159,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/guard/guard.adapters.ts(193,25): error TS7006: Parameter 'u' implicitly has an 'any' type.
+apps/api/src/guard/guard.adapters.ts(196,35): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/guard/guard.adapters.ts(201,57): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/guard/incidents.repository.ts(173,20): error TS18046: 'rows' is of type 'unknown'.
+apps/api/src/guests/guests.repository.ts(3,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/guests/guests.repository.ts(200,22): error TS7006: Parameter 'g' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(211,17): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(310,27): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(343,37): error TS7006: Parameter 'g' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(344,31): error TS7006: Parameter 'id' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(350,23): error TS7006: Parameter 'g' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(358,24): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(418,32): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(426,37): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(430,32): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(431,24): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(433,36): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(433,61): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(434,32): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(434,53): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(497,35): error TS7006: Parameter 'd' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(506,15): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(510,45): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(511,53): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(512,45): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(531,16): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(531,19): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/hotel/branches.ts(85,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/hotel/hotel.module.ts(22,10): error TS2305: Module '"@pms/database"' has no exported member 'ReservationStatus'.
+apps/api/src/hotel/hotel.module.ts(205,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/hotel/hotel.module.ts(249,58): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/hotel/hotel.module.ts(309,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/hotel/onboarding.ts(16,3): error TS2305: Module '"@pms/database"' has no exported member 'AccommodationKind'.
+apps/api/src/hotel/onboarding.ts(17,3): error TS2305: Module '"@pms/database"' has no exported member 'InventoryUnitKind'.
+apps/api/src/hotel/onboarding.ts(170,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(11,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/hotel/reservation-directory.ts(11,18): error TS2305: Module '"@pms/database"' has no exported member 'ReservationSource'.
+apps/api/src/hotel/reservation-directory.ts(11,37): error TS2305: Module '"@pms/database"' has no exported member 'ReservationStatus'.
+apps/api/src/hotel/reservation-directory.ts(214,23): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(215,41): error TS7006: Parameter 'it' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(217,36): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(218,28): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(220,40): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(220,65): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(221,36): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(221,57): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(240,39): error TS7006: Parameter 'it' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(240,66): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(474,27): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(484,26): error TS7006: Parameter 'id' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(485,29): error TS7006: Parameter 'g' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(15,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/inventory/inventory-editor.ts(83,42): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(84,24): error TS7031: Binding element 'id' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(84,28): error TS7031: Binding element 'ratePlanLinks' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(84,43): error TS7031: Binding element '_count' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(87,41): error TS7006: Parameter 'link' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(88,37): error TS2339: Property 'total' does not exist on type '{}'.
+apps/api/src/inventory/inventory-editor.ts(89,45): error TS2339: Property 'upcoming' does not exist on type '{}'.
+apps/api/src/inventory/inventory-editor.ts(120,61): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(152,61): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(182,61): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(205,63): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(274,63): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/inventory/inventory.repository.ts(79,22): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/platform/extensions.repository.ts(75,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/platform/extensions.repository.ts(121,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/promo-codes.ts(52,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/promo-codes.ts(91,62): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/promo-codes.ts(143,62): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(4,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/rates/rate-plans.ts(44,30): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(76,9): error TS7031: Binding element 'id' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(77,9): error TS7031: Binding element 'types' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(78,9): error TS7031: Binding element 'parentRatePlanId' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(79,9): error TS7031: Binding element 'discountPercent' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(80,9): error TS7031: Binding element 'minDaysBeforeArrival' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(81,9): error TS7031: Binding element 'maxDaysBeforeArrival' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(82,9): error TS7031: Binding element 'minNights' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(83,9): error TS7031: Binding element 'parent' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(87,32): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(118,48): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(136,45): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(178,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(204,45): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(249,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(265,45): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(123,36): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(150,14): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(171,24): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(201,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(210,50): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(213,51): error TS2345: Argument of type 'Map<unknown, unknown>' is not assignable to parameter of type 'ReadonlyMap<string, RestrictionFields>'.
+  Types of property 'forEach' are incompatible.
+    Type '(callbackfn: (value: unknown, key: unknown, map: Map<unknown, unknown>) => void, thisArg?: any) => void' is not assignable to type '(callbackfn: (value: RestrictionFields, key: string, map: ReadonlyMap<string, RestrictionFields>) => void, thisArg?: any) => void'.
+      Types of parameters 'callbackfn' and 'callbackfn' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'unknown' is not assignable to type 'RestrictionFields'.
+apps/api/src/reservations/reservation-card.ts(101,25): error TS7006: Parameter 'it' implicitly has an 'any' type.
+apps/api/src/reservations/reservation-card.ts(115,34): error TS7006: Parameter 'sg' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(497,5): error TS2322: Type '{ id: string; currency: string; timezone: string; organizationId: string; } | null' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+  Type 'null' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+apps/api/src/reservations/reservations.repository.ts(605,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(682,16): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(682,19): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(717,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(913,27): error TS7006: Parameter 'it' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(926,42): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1160,38): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1161,34): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1182,78): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1184,24): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1207,43): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1207,46): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1280,35): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1282,18): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1283,15): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1284,35): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1341,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1433,41): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(166,29): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(173,33): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(182,54): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(201,22): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(213,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(236,19): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(271,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/wizard/seller-agents.service.ts(100,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/wizard/seller-agents.service.ts(143,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/wizard/seller-agents.service.ts(181,73): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/wizard/wizard.service.ts(115,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+packages/database/src/folio.ts(5,29): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/index.ts(8,43): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/index.ts(13,15): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/pool-timeouts.test.ts(3,35): error TS2459: Module '"./index"' declares 'PrismaClient' locally, but it is not exported.
+packages/database/src/pool-timeouts.test.ts(69,32): error TS7006: Parameter 't' implicitly has an 'any' type.
+packages/database/src/property-chain.ts(1,29): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+scripts/imports/src/read-inventory-from-db.ts(33,15): error TS7006: Parameter 'b' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(33,35): error TS7006: Parameter 'f' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(34,17): error TS7031: Binding element 'b' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(34,20): error TS7031: Binding element 'f' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(34,49): error TS7006: Parameter 'room' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(35,17): error TS7031: Binding element 'b' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(35,20): error TS7031: Binding element 'f' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(35,23): error TS7031: Binding element 'room' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(36,23): error TS7006: Parameter 'u' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(40,45): error TS7006: Parameter 't' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(61,60): error TS7006: Parameter 't' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-channex-rates.ts(74,32): error TS7006: Parameter 'm' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-channex-rates.ts(89,47): error TS7006: Parameter 'm' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-channex-rates.ts(90,47): error TS7006: Parameter 'm' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-channex-rates.ts(114,23): error TS7006: Parameter 'r' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-channex-rates.ts(123,17): error TS7006: Parameter 'm' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-channex-rates.ts(172,42): error TS2339: Property 'stopSell' does not exist on type '{}'.
+scripts/reconciliation/src/cli-channex-rates.ts(173,30): error TS2339: Property 'minStay' does not exist on type '{}'.
+scripts/reconciliation/src/cli-channex-rates.ts(174,30): error TS2339: Property 'minStay' does not exist on type '{}'.
+scripts/reconciliation/src/cli-channex-rates.ts(175,22): error TS2339: Property 'maxStay' does not exist on type '{}'.
+scripts/reconciliation/src/cli-channex-rates.ts(176,31): error TS2339: Property 'closedToArrival' does not exist on type '{}'.
+scripts/reconciliation/src/cli-channex-rates.ts(177,33): error TS2339: Property 'closedToDeparture' does not exist on type '{}'.
+scripts/reconciliation/src/cli-e2e-cleanup.ts(84,34): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-e2e-cleanup.ts(116,14): error TS7006: Parameter 'r' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-e2e-cleanup.ts(117,11): error TS7006: Parameter 'r' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-e2e-cleanup.ts(121,28): error TS7006: Parameter 'n' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-e2e-cleanup.ts(126,78): error TS7006: Parameter 'b' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-webhook-check.ts(31,17): error TS7006: Parameter 'e' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-webhook-check.ts(58,23): error TS7006: Parameter 'r' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-webhook-check.ts(65,34): error TS7006: Parameter 'i' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-webhook-check.ts(73,36): error TS7006: Parameter 'e' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-webhook-check.ts(84,8): error TS7006: Parameter 'e' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-webhook-check.ts(85,66): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ readonly WEBHOOK: "сама (webhook)"; readonly PULL: "опрос ленты"; readonly MANUAL: "вручную"; }'.
+scripts/reconciliation/src/cli-webhook-check.ts(95,8): error TS7006: Parameter 'r' implicitly has an 'any' type.
+scripts/reconciliation/src/cli-webhook-check.ts(98,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
+tests/integration/access-extensions.test.ts(93,24): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/access-extensions.test.ts(97,28): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/assistant-diagnostics.test.ts(60,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/audit-author.test.ts(89,38): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/audit-guest-identity.test.ts(35,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/booking-existing-guest.test.ts(34,16): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/booking-existing-guest.test.ts(86,54): error TS7006: Parameter 'i' implicitly has an 'any' type.
+tests/integration/business-agents.test.ts(111,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/business-agents.test.ts(124,49): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/business-agents.test.ts(155,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/business-agents.test.ts(169,47): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/cash-operations.test.ts(79,26): error TS7006: Parameter 'o' implicitly has an 'any' type.
+tests/integration/cash-operations.test.ts(88,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/checkout-folio-lock.test.ts(41,43): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/checkout-folio-lock.test.ts(57,41): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/chessboard-cell-facts.test.ts(39,16): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/chessboard-cell-facts.test.ts(56,38): error TS7006: Parameter 'b' implicitly has an 'any' type.
+tests/integration/chessboard-unassigned.test.ts(39,18): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/citizenship-column.test.ts(46,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/citizenship-column.test.ts(60,32): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/citizenship-column.test.ts(72,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/derived-rates-booking.test.ts(35,16): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/derived-rates-booking.test.ts(62,20): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/finance-debts.test.ts(115,44): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/finance-debts.test.ts(116,24): error TS7006: Parameter 'i' implicitly has an 'any' type.
+tests/integration/finance-debts.test.ts(123,12): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/finance-debts.test.ts(133,44): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/finance-operations.test.ts(87,34): error TS7006: Parameter 'f' implicitly has an 'any' type.
+tests/integration/finance-operations.test.ts(93,12): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/finance-operations.test.ts(108,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/folio-system-audit.test.ts(36,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/function-search-path.test.ts(41,18): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/function-search-path.test.ts(42,47): error TS7006: Parameter 'c' implicitly has an 'any' type.
+tests/integration/function-search-path.test.ts(47,15): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/function-search-path.test.ts(53,32): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/guest-directory.test.ts(41,18): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/integration-scope.test.ts(132,43): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/integration-tables-role.test.ts(130,35): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/integrity-guards.test.ts(98,34): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/integrity-guards.test.ts(139,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/manager-role.test.ts(37,32): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/onboarding-without-property.test.ts(70,10): error TS7006: Parameter 'p' implicitly has an 'any' type.
+tests/integration/organization-isolation.test.ts(68,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/organization-isolation.test.ts(202,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/organization-isolation.test.ts(278,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/organization-isolation.test.ts(337,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/organization-isolation.test.ts(428,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/organization-isolation.test.ts(473,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/organization-isolation.test.ts(568,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/outbox-enqueue.test.ts(42,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/outbox-enqueue.test.ts(53,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/overbooking-guard.test.ts(27,16): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/password-login-columns.test.ts(7,22): error TS2344: Type 'unknown' does not satisfy the constraint '(...args: any) => any'.
+tests/integration/password-login-columns.test.ts(39,35): error TS2339: Property 'organization' does not exist on type 'never'.
+tests/integration/password-login-columns.test.ts(42,27): error TS2339: Property 'user' does not exist on type 'never'.
+tests/integration/password-login-columns.test.ts(43,14): error TS2339: Property 'membership' does not exist on type 'never'.
+tests/integration/password-login-columns.test.ts(50,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/password-login-columns.test.ts(63,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/password-login-columns.test.ts(64,51): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+tests/integration/password-login-columns.test.ts(81,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/password-login-columns.test.ts(82,51): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+tests/integration/password-login-columns.test.ts(125,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/password-login-columns.test.ts(126,37): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+tests/integration/password-login-columns.test.ts(134,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/platform-extensions.test.ts(100,24): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/platform-p1-backfill.test.ts(65,42): error TS7006: Parameter 'p' implicitly has an 'any' type.
+tests/integration/platform-p1-backfill.test.ts(76,52): error TS7006: Parameter 'p' implicitly has an 'any' type.
+tests/integration/property-chain.test.ts(53,28): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/rate-plan-penalty.test.ts(99,27): error TS7006: Parameter 'p' implicitly has an 'any' type.
+tests/integration/rate-plan-penalty.test.ts(105,27): error TS7006: Parameter 'p' implicitly has an 'any' type.
+tests/integration/rates-derived-api.test.ts(98,16): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/reservation-create-retry.test.ts(42,28): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/reservation-create-retry.test.ts(99,16): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/reservation-directory-filters.test.ts(56,16): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/reservation-directory-filters.test.ts(77,40): error TS7006: Parameter 'b' implicitly has an 'any' type.
+tests/integration/reservation-directory-filters.test.ts(289,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/reservation-directory-filters.test.ts(380,18): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/reservation-directory-filters.test.ts(381,15): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/reservation-lock.test.ts(30,42): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/reservation-lock.test.ts(37,43): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/rls-isolation.test.ts(220,26): error TS2339: Property 'id' does not exist on type '{}'.
+tests/integration/seller-agent-profiles.test.ts(101,32): error TS7006: Parameter 'e' implicitly has an 'any' type.
+tests/integration/seller-agents-migrated.test.ts(49,23): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/seller-profiles.test.ts(174,21): error TS7006: Parameter 'l' implicitly has an 'any' type.
+tests/integration/seller-scope-precheck.test.ts(59,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/system-incidents.test.ts(58,37): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/user-errors.test.ts(114,24): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/website-reservations.test.ts(35,16): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/website-reservations.test.ts(121,15): error TS7006: Parameter 'e' implicitly has an 'any' type.
+tests/integration/wizard-claim.test.ts(46,26): error TS2339: Property 'id' does not exist on type '{}'.
+tests/integration/wizard-claim.test.ts(46,47): error TS2339: Property 'id' does not exist on type '{}'.
+tests/integration/wizard-claim.test.ts(47,79): error TS2339: Property 'id' does not exist on type '{}'.
+tests/integration/wizard-claim.test.ts(103,36): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/live-system/cleanup.ts(7,12): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/live-system/cleanup.ts(21,38): error TS7006: Parameter 'i' implicitly has an 'any' type.
+tests/live-system/cleanup.ts(22,43): error TS7006: Parameter 'i' implicitly has an 'any' type.
+tests/live-system/cleanup.ts(29,14): error TS7006: Parameter 'p' implicitly has an 'any' type.
+tests/live-system/cleanup.ts(29,61): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/live-system/cleanup.ts(33,42): error TS7006: Parameter 'p' implicitly has an 'any' type.
+tests/live-system/persistence.spec.ts(234,35): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+tests/live-system/persistence.spec.ts(234,40): error TS7006: Parameter 'p' implicitly has an 'any' type.
+tests/live-system/persistence.spec.ts(235,33): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+tests/live-system/persistence.spec.ts(235,38): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/tools/audit-purge.ts(8,88): error TS2339: Property 'where' does not exist on type '{}'.
+tests/tools/audit-purge.ts(11,33): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/tools/seed-local.ts(110,29): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/tools/seed-local.ts(270,12): error TS7006: Parameter 'p' implicitly has an 'any' type.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(74,55): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(126,45): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(256,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(329,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(361,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/ai-seller/business-agents.repository.ts(128,22): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/ai-seller/business-agents.repository.ts(131,35): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/ai-seller/business-agents.repository.ts(154,57): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(255,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(290,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(400,39): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(405,51): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(424,30): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(433,25): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(454,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(472,5): error TS2322: Type 'unknown[]' is not assignable to type 'string[]'.
+  Type 'unknown' is not assignable to type 'string'.
+apps/api/src/ai-seller/seller.repository.ts(472,39): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(487,5): error TS2322: Type 'unknown[]' is not assignable to type 'string[]'.
+  Type 'unknown' is not assignable to type 'string'.
+apps/api/src/ai-seller/seller.repository.ts(487,39): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/ai-seller/seller.repository.ts(537,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/analytics/analytics.repository.ts(11,15): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/analytics/analytics.repository.ts(309,5): error TS2322: Type 'unknown[]' is not assignable to type 'string[]'.
+  Type 'unknown' is not assignable to type 'string'.
+apps/api/src/analytics/analytics.repository.ts(309,39): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/analytics/analytics.repository.ts(463,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/analytics/analytics.repository.ts(516,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/analytics/analytics.repository.ts(519,33): error TS7006: Parameter 'it' implicitly has an 'any' type.
+apps/api/src/analytics/analytics.repository.ts(520,40): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/assistant/diagnostics.repository.ts(67,38): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/assistant/diagnostics.repository.ts(69,47): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/assistant/diagnostics.repository.ts(70,46): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/audit/audit.module.ts(3,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/audit/audit.module.ts(90,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/auth/auth.service.ts(332,58): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(5,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/channels/channels.repository.ts(254,30): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(280,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(280,61): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(288,41): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(289,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(319,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(332,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(367,23): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(382,22): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(402,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(427,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(478,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(535,35): error TS18046: 'rows' is of type 'unknown'.
+apps/api/src/channels/channels.repository.ts(535,45): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(535,72): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(542,47): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(543,12): error TS18046: 'rows' is of type 'unknown'.
+apps/api/src/channels/channels.repository.ts(543,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(565,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(612,39): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(612,67): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(627,35): error TS7006: Parameter 'id' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(652,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(660,40): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(660,66): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(667,50): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(670,23): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(670,26): error TS7006: Parameter 'i' implicitly has an 'any' type.
+apps/api/src/channels/channels.repository.ts(753,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/integration-command.ts(42,27): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/channels/integration-command.ts(42,63): error TS7006: Parameter 'id' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(64,14): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(64,17): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(65,13): error TS7006: Parameter 'u' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(95,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(130,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(178,22): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(183,41): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(184,49): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(185,41): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/chessboard/chessboard.repository.ts(211,22): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/dashboard/dashboard.repository.ts(158,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/dashboard/dashboard.repository.ts(195,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/dashboard/dashboard.repository.ts(215,22): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/dashboard/dashboard.repository.ts(228,25): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/dashboard/dashboard.repository.ts(228,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/database/prisma.provider.ts(25,18): error TS7031: Binding element 'args' implicitly has an 'any' type.
+apps/api/src/database/prisma.provider.ts(25,24): error TS7031: Binding element 'query' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(93,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(98,37): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(100,24): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(101,21): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(102,37): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(113,32): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(3,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/finance/finance.repository.ts(462,35): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(474,27): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(505,29): error TS7006: Parameter 'i' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(516,22): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(546,22): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(611,38): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(611,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(633,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(701,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(811,23): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(827,29): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(845,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(858,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(886,16): error TS2339: Property 'id' does not exist on type 'void | { id: string; }'.
+  Property 'id' does not exist on type 'void'.
+apps/api/src/finance/finance.repository.ts(939,16): error TS2339: Property 'id' does not exist on type 'void | { id: string; }'.
+  Property 'id' does not exist on type 'void'.
+apps/api/src/finance/finance.repository.ts(954,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(955,35): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(997,16): error TS2339: Property 'id' does not exist on type 'void | { id: string; }'.
+  Property 'id' does not exist on type 'void'.
+apps/api/src/finance/finance.repository.ts(1049,31): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1050,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1051,35): error TS7006: Parameter 'o' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1093,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1107,18): error TS2339: Property 'id' does not exist on type 'void | { id: string; }'.
+  Property 'id' does not exist on type 'void'.
+apps/api/src/finance/finance.repository.ts(1224,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/guard/guard.adapters.ts(159,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/guard/guard.adapters.ts(193,25): error TS7006: Parameter 'u' implicitly has an 'any' type.
+apps/api/src/guard/guard.adapters.ts(196,35): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/guard/guard.adapters.ts(201,57): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/guard/incidents.repository.ts(173,20): error TS18046: 'rows' is of type 'unknown'.
+apps/api/src/guests/guests.repository.ts(3,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/guests/guests.repository.ts(200,22): error TS7006: Parameter 'g' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(211,17): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(310,27): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(343,37): error TS7006: Parameter 'g' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(344,31): error TS7006: Parameter 'id' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(350,23): error TS7006: Parameter 'g' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(358,24): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(418,32): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(426,37): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(430,32): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(431,24): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(433,36): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(433,61): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(434,32): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(434,53): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(497,35): error TS7006: Parameter 'd' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(506,15): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(510,45): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(511,53): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(512,45): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(531,16): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/guests/guests.repository.ts(531,19): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/hotel/branches.ts(85,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/hotel/hotel.module.ts(22,10): error TS2305: Module '"@pms/database"' has no exported member 'ReservationStatus'.
+apps/api/src/hotel/hotel.module.ts(205,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/hotel/hotel.module.ts(249,58): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/hotel/hotel.module.ts(309,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/hotel/onboarding.ts(16,3): error TS2305: Module '"@pms/database"' has no exported member 'AccommodationKind'.
+apps/api/src/hotel/onboarding.ts(17,3): error TS2305: Module '"@pms/database"' has no exported member 'InventoryUnitKind'.
+apps/api/src/hotel/onboarding.ts(170,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.test.ts(347,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(11,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/hotel/reservation-directory.ts(11,18): error TS2305: Module '"@pms/database"' has no exported member 'ReservationSource'.
+apps/api/src/hotel/reservation-directory.ts(11,37): error TS2305: Module '"@pms/database"' has no exported member 'ReservationStatus'.
+apps/api/src/hotel/reservation-directory.ts(214,23): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(215,41): error TS7006: Parameter 'it' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(217,36): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(218,28): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(220,40): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(220,65): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(221,36): error TS7006: Parameter 'f' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(221,57): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(240,39): error TS7006: Parameter 'it' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(240,66): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(474,27): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(484,26): error TS7006: Parameter 'id' implicitly has an 'any' type.
+apps/api/src/hotel/reservation-directory.ts(485,29): error TS7006: Parameter 'g' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(15,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/inventory/inventory-editor.ts(83,42): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(84,24): error TS7031: Binding element 'id' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(84,28): error TS7031: Binding element 'ratePlanLinks' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(84,43): error TS7031: Binding element '_count' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(87,41): error TS7006: Parameter 'link' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(88,37): error TS2339: Property 'total' does not exist on type '{}'.
+apps/api/src/inventory/inventory-editor.ts(89,45): error TS2339: Property 'upcoming' does not exist on type '{}'.
+apps/api/src/inventory/inventory-editor.ts(120,61): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(152,61): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(182,61): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(205,63): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/inventory/inventory-editor.ts(274,63): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/inventory/inventory.repository.ts(79,22): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/platform/extensions.repository.ts(75,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/platform/extensions.repository.ts(121,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/promo-codes.ts(52,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/promo-codes.ts(91,62): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/promo-codes.ts(143,62): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(4,10): error TS2459: Module '"@pms/database"' declares 'Prisma' locally, but it is not exported.
+apps/api/src/rates/rate-plans.ts(44,30): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(76,9): error TS7031: Binding element 'id' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(77,9): error TS7031: Binding element 'types' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(78,9): error TS7031: Binding element 'parentRatePlanId' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(79,9): error TS7031: Binding element 'discountPercent' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(80,9): error TS7031: Binding element 'minDaysBeforeArrival' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(81,9): error TS7031: Binding element 'maxDaysBeforeArrival' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(82,9): error TS7031: Binding element 'minNights' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(83,9): error TS7031: Binding element 'parent' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(87,32): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(118,48): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(136,45): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(178,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(204,45): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(249,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/rate-plans.ts(265,45): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(123,36): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(150,14): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(171,24): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(201,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(210,50): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/rates.repository.ts(213,51): error TS2345: Argument of type 'Map<unknown, unknown>' is not assignable to parameter of type 'ReadonlyMap<string, RestrictionFields>'.
+  Types of property 'forEach' are incompatible.
+    Type '(callbackfn: (value: unknown, key: unknown, map: Map<unknown, unknown>) => void, thisArg?: any) => void' is not assignable to type '(callbackfn: (value: RestrictionFields, key: string, map: ReadonlyMap<string, RestrictionFields>) => void, thisArg?: any) => void'.
+      Types of parameters 'callbackfn' and 'callbackfn' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'unknown' is not assignable to type 'RestrictionFields'.
+apps/api/src/reservations/reservation-card.ts(101,25): error TS7006: Parameter 'it' implicitly has an 'any' type.
+apps/api/src/reservations/reservation-card.ts(115,34): error TS7006: Parameter 'sg' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(497,5): error TS2322: Type '{ id: string; currency: string; timezone: string; organizationId: string; } | null' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+  Type 'null' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+apps/api/src/reservations/reservations.repository.ts(605,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(682,16): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(682,19): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(717,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(913,27): error TS7006: Parameter 'it' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(926,42): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1160,38): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1161,34): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1182,78): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1184,24): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1207,43): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1207,46): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1280,35): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1282,18): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1283,15): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1284,35): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1341,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/reservations/reservations.repository.ts(1433,41): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(166,29): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(173,33): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(182,54): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(201,22): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(213,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(236,19): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/units/units.repository.ts(271,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/wizard/seller-agents.service.ts(100,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/wizard/seller-agents.service.ts(143,47): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/wizard/seller-agents.service.ts(181,73): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+apps/api/src/wizard/wizard.service.ts(115,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+packages/database/src/folio.ts(5,29): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/index.ts(8,43): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/index.ts(13,15): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/property-chain.ts(1,29): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+scripts/imports/src/read-inventory-from-db.ts(33,15): error TS7006: Parameter 'b' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(33,35): error TS7006: Parameter 'f' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(34,17): error TS7031: Binding element 'b' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(34,20): error TS7031: Binding element 'f' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(34,49): error TS7006: Parameter 'room' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(35,17): error TS7031: Binding element 'b' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(35,20): error TS7031: Binding element 'f' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(35,23): error TS7031: Binding element 'room' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(36,23): error TS7006: Parameter 'u' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(40,45): error TS7006: Parameter 't' implicitly has an 'any' type.
+scripts/imports/src/read-inventory-from-db.ts(61,60): error TS7006: Parameter 't' implicitly has an 'any' type.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 48 с

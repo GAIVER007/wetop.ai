@@ -1,0 +1,53 @@
+# Модульные (unit) · 04.10.2026 11:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-21-12Z-unit-3aed.json' 'packages/domain/src/tasks'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ❯ |unit| packages/domain/src/tasks/tasks.test.ts (6 tests | 1 failed) 15ms
+   ❯ parseTaskInput (DATA_MODEL §22) (5)
+     ✓ новая задача: название, срок, время в 24 часа, приоритет по умолчанию 3ms
+     ✓ без названия или срока — отказ словами 1ms
+     ✓ пределы длины, время и приоритет 0ms
+     ✓ правка: только присланные поля; пустое время и описание — снять 0ms
+     × связи: исполнитель и гость — UUID, бронь — по номеру 8ms
+   ✓ taskBucket (1)
+     ✓ сделанные, просроченные, сегодня, предстоящие 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/tasks/tasks.test.ts > parseTaskInput (DATA_MODEL §22) > связи: исполнитель и гость — UUID, бронь — по номеру
+AssertionError: expected { ok: false, …(1) } to match object { ok: true, value: { …(2) } }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "ok": true,
+-   "value": {
+-     "assigneeUserId": "4f8e1c1e-3b0a-4d1e-9a51-1f0a2b3c4d5e",
+-     "reservationNumber": "B-1",
+-   },
++   "ok": false,
+  }
+
+ ❯ packages/domain/src/tasks/tasks.test.ts:29:8
+     27|     const id = '4f8e1c1e-3b0a-4d1e-9a51-1f0a2b3c4d5e';
+     28|     expect(parseTaskInput({ title: 'x', dueDate: '2026-10-05', assigne…
+     29|       .toMatchObject({ ok: true, value: { assigneeUserId: id, reservat…
+       |        ^
+     30|     expect(parseTaskInput({ title: 'x', dueDate: '2026-10-05', guestId…
+     31|     expect(parseTaskInput({ title: 'x', dueDate: '2026-10-05', reserva…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  23:21:16
+   Duration  258ms (transform 61%, import 17%, tests 14%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-21-12Z-unit-3aed.json
+
+# код выхода 1 · 4 с

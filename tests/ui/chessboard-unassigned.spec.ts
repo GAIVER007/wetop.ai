@@ -1,5 +1,5 @@
 import type { APIRequestContext, Page } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Шахматка v2» PR 6 — ящик «Брони без размещения» (ТЗ §11–12, пятый сценарий §64): две брони без
@@ -9,7 +9,7 @@ import { expect, test } from './fixtures';
  * существующая команда `assign`; в другую категорию — только после вопроса с разницей стоимости.
  * Гости вымышленные (ADR-010).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 
 const add = (date: string, n: number) => {
@@ -167,7 +167,7 @@ test('«Разрешить» у «Продано сверх мест» и ссы
   await expect(drawerOf(page).getByTestId('unassigned-card')).toContainText('20260913-SHOWUN');
   await page.keyboard.press('Escape');
   await expect(drawerOf(page)).toBeHidden();
-  // ссылка «Назначить» с Главной ведёт на шахматку дня с якорем — ящик открыт сразу
+  // ссылка «Назначить» с Главной ведёт на календарь дня с якорем — ящик открыт сразу
   await page.goto('/chessboard#unassigned-stays');
   await expect(drawerOf(page)).toBeVisible();
 });
@@ -179,7 +179,7 @@ test('«только чтение» (ADR-102): места видны, назна
   const today = hotelToday();
   const number = await unplaced(request, 'ROOM', today, add(today, 1), 'Чтение');
   await request.post(`${fixture}/__test/control`, { data: { orgTrialDays: 'ended' } });
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

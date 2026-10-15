@@ -1,7 +1,14 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
-import { databaseTenant, withServiceDatabase } from '../auth/request-context';
+import {
+  currentIntegrationPropertyId,
+  databaseTenant,
+  withIntegrationPropertyScope,
+  withServiceDatabase,
+} from '../auth/request-context';
 import type { PrismaService } from '../database/prisma.provider';
-import { resolveIntegrationProperty } from './integration-property';
+import { propertyRef } from '../database/property-ref';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { localPropertyForChannex, mappedChannexProperties } from './mapped-properties';
 import { CHANNEL_OPERATOR_FOREIGN_MESSAGE } from './operator-access';
 
 export const FOREIGN_CHANNEX_PROPERTY =
@@ -28,25 +35,28 @@ export async function runIntegrationCommand<T>(
   channexPropertyId: string | undefined,
   run: (channexPropertyId: string | undefined) => Promise<T>,
 ): Promise<T> {
+  if (currentIntegrationPropertyId()) return run(channexPropertyId);
   const tenant = databaseTenant();
-  if (tenant === null) return run(channexPropertyId);
-
-  // Вопрос про всю установку — служебной ролью: под ролью организации чужие объекты и сопоставления не видны (RLS §17)
-  const { property, providerIds } = await withServiceDatabase(async () => {
-    const found = await resolveIntegrationProperty(prisma.db);
-    if (!found) return { property: null, providerIds: [] as string[] };
-    const rows = await prisma.db.channelMapping.findMany({
-      where: { propertyId: found.id, provider: 'channex' },
-      select: { providerPropertyId: true },
-    });
-    const ids = rows.map((r) => r.providerPropertyId).filter((id): id is string => Boolean(id));
-    return { property: found, providerIds: ids };
-  });
-
-  if (!property || property.organizationId !== tenant)
-    throw new ForbiddenException(CHANNEL_OPERATOR_FOREIGN_MESSAGE);
-  if (channexPropertyId !== undefined && !providerIds.includes(channexPropertyId))
-    throw new BadRequestException(FOREIGN_CHANNEX_PROPERTY);
-
-  return withServiceDatabase(() => run(channexPropertyId));
+  if (tenant !== null) {
+    const property = await propertyRef(prisma.db, LUXX_APARTS_PROPERTY.name);
+    if (property.organizationId !== tenant)
+      throw new ForbiddenException(CHANNEL_OPERATOR_FOREIGN_MESSAGE);
+    const mappings = await withServiceDatabase(() => mappedChannexProperties(prisma.db));
+    const selected = mappings.find((row) => row.localPropertyId === property.id);
+    if (!selected) throw new BadRequestException('Для выбранного филиала менеджер каналов не подключён');
+    if (channexPropertyId && channexPropertyId !== selected?.providerPropertyId)
+      throw new BadRequestException(FOREIGN_CHANNEX_PROPERTY);
+    return withServiceDatabase(() =>
+      withIntegrationPropertyScope(property.id, () => run(selected?.providerPropertyId)),
+    );
+  }
+  const mappings = await mappedChannexProperties(prisma.db);
+  const selected = channexPropertyId
+    ? await localPropertyForChannex(prisma.db, channexPropertyId)
+    : mappings.length === 1
+      ? mappings[0]!.localPropertyId
+      : null;
+  if (!selected) throw new BadRequestException('Укажите сопоставленный объект менеджера каналов');
+  const providerId = channexPropertyId ?? mappings[0]!.providerPropertyId;
+  return withIntegrationPropertyScope(selected, () => run(providerId));
 }

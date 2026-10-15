@@ -23,9 +23,9 @@ from src import dependencies
 from src.config import Settings
 from src.agent_scope import AgentScope
 from src.dashboard.auth_router import request_agent
-from src.dashboard.panel_common import iso, log_action, mask_name, sessions
+from src.dashboard.panel_common import SANDBOX_CHANNEL, iso, log_action, mask_name, sessions
 from src.db.base import ConversationMode, MessageRole, utcnow
-from src.db.models import Client, Conversation, Message
+from src.db.models import Client, Conversation, ConversationNote, Message
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +38,29 @@ class ReplyIn(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     text: str
+
+
+NEXT_STEP_MAX = 200
+NAME_MAX = 120
+NOTE_MAX = 2000
+
+
+class HandlingIn(BaseModel):
+    """Ведение диалога: поле, которого в теле нет, не трогаем; пустая строка или null снимает значение."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    next_step: str | None = None
+    assignee_user_id: uuid.UUID | None = None
+    assignee_name: str | None = None
+
+
+class NoteIn(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    body: str
+    author_user_id: uuid.UUID | None = None
+    author_name: str
 
 
 def build_reply_sender(
@@ -91,6 +114,7 @@ async def list_conversations(
     queue: str | None = None,
     nonempty: bool = False,
     closed: bool | None = None,
+    exclude_sandbox: bool = False,
     limit: int = 50,
     scope: AgentScope | None = Depends(request_agent),
 ) -> dict:
@@ -98,8 +122,12 @@ async def list_conversations(
     У продавца — только диалоги АГЕНТА запроса (SA2.5: X-Organization + X-Agent).
 
     Очередь техподдержки (S1): `nonempty` — без диалогов без сообщений, `queue=new` — начатые за сутки,
-    `queue=waiting` — последнее слово за пользователем, `closed` — закрытые (`is_active = false`) или открытые;
-    без параметров ответ прежний — все диалоги."""
+    `queue=waiting`: последнее слово за пользователем, `closed`: закрытые (`is_active = false`) или открытые,
+    `exclude_sandbox`: без диалогов вкладки «Проверка»; без параметров ответ прежний, все диалоги.
+
+    🔴 Песочница заводит клиента канала `sandbox` и ничем не отличается от обращения партнёра:
+    02.10.2026 все четыре строки очереди на рабочей базе были проверками агента, одна с
+    отметкой «срочно · нужен человек». Удаление строк чистит прошлое, отбор чистит будущее."""
     try:
         wanted = ConversationMode(mode) if mode else None
     except ValueError:
@@ -147,6 +175,8 @@ async def list_conversations(
         stmt = stmt.where(counts.c.n > 0)
     if closed is not None:
         stmt = stmt.where(Conversation.is_active.is_(not closed))
+    if exclude_sandbox:
+        stmt = stmt.where(Client.channel != SANDBOX_CHANNEL)
     if queue == "waiting":
         stmt = stmt.where(waiting.c.since.is_not(None))
     elif queue == "new":
@@ -154,7 +184,9 @@ async def list_conversations(
 
     async with sessions()() as session:
         rows = (await session.execute(stmt)).all()
-        last = await _last_messages(session, [conv.id for conv, *_ in rows])
+        ids = [conv.id for conv, *_ in rows]
+        last = await _edge_messages(session, ids)
+        first = await _edge_messages(session, ids, newest=False, only_role=MessageRole.USER)
     return {
         "items": [
             {
@@ -168,6 +200,9 @@ async def list_conversations(
                 "has_contact": bool(client.phone or client.email),
                 "started_at": iso(conv.created_at),
                 "last_message": last.get(conv.id),
+                # Категорию обращения платформа считает по первому сообщению ПОЛЬЗОВАТЕЛЯ: в последнем
+                # обычно стоит ответ помощника, по которому «возврат» от «ошибки» не отличить.
+                "first_message": first.get(conv.id),
                 "waiting_since": iso(_utc(since)),
                 "closed": not conv.is_active,
             }
@@ -176,10 +211,21 @@ async def list_conversations(
     }
 
 
-async def _last_messages(session, conversation_ids: list[uuid.UUID]) -> dict[uuid.UUID, dict]:
-    """Последнее сообщение каждого диалога страницы — одним запросом, не по запросу на строку."""
+async def _edge_messages(
+    session,
+    conversation_ids: list[uuid.UUID],
+    *,
+    newest: bool = True,
+    only_role: MessageRole | None = None,
+) -> dict[uuid.UUID, dict]:
+    """Крайнее сообщение каждого диалога страницы берём одним запросом, не по запросу на строку:
+    `newest`: последнее, иначе первое; `only_role`: только этой роли (первый вопрос пользователя)."""
     if not conversation_ids:
         return {}
+    order = Message.created_at.desc() if newest else Message.created_at.asc()
+    where = [Message.conversation_id.in_(conversation_ids)]
+    if only_role is not None:
+        where.append(Message.role == only_role)
     ranked = (
         sa.select(
             Message.conversation_id,
@@ -187,10 +233,10 @@ async def _last_messages(session, conversation_ids: list[uuid.UUID]) -> dict[uui
             Message.content,
             Message.created_at,
             sa.func.row_number()
-            .over(partition_by=Message.conversation_id, order_by=Message.created_at.desc())
+            .over(partition_by=Message.conversation_id, order_by=order)
             .label("rn"),
         )
-        .where(Message.conversation_id.in_(conversation_ids))
+        .where(*where)
         .subquery()
     )
     result = await session.execute(sa.select(ranked).where(ranked.c.rn == 1))
@@ -220,12 +266,37 @@ async def conversation_card(conv_id: uuid.UUID, scope: AgentScope | None = Depen
         client = await session.get(Client, conv.client_id)
         stmt = sa.select(Message).where(Message.conversation_id == conv_id).order_by(Message.created_at)
         messages = (await session.execute(stmt)).scalars().all()
+        notes = (
+            await session.execute(
+                sa.select(ConversationNote)
+                .where(ConversationNote.conversation_id == conv_id)
+                .order_by(ConversationNote.created_at)
+            )
+        ).scalars().all()
     return {
         "id": str(conv.id),
         "mode": conv.mode.value,
         "stage": conv.funnel_stage.value,
         "closed": not conv.is_active,
         "lead_data": dict(conv.lead_data or {}),
+        "handling": {
+            "assignee": (
+                {"user_id": str(conv.assignee_user_id) if conv.assignee_user_id else None, "name": conv.assignee_name}
+                if conv.assignee_name
+                else None
+            ),
+            "next_step": conv.next_step,
+        },
+        "notes": [
+            {
+                "id": str(n.id),
+                "author": n.author_name,
+                "author_user_id": str(n.author_user_id) if n.author_user_id else None,
+                "text": n.body,
+                "at": iso(n.created_at),
+            }
+            for n in notes
+        ],
         "contact": {
             "name": client.name,
             "phone": client.phone,
@@ -265,6 +336,76 @@ async def takeover(conv_id: uuid.UUID, scope: AgentScope | None = Depends(reques
 async def release(conv_id: uuid.UUID, scope: AgentScope | None = Depends(request_agent)) -> dict:
     """Возврат боту — тоже кнопкой, а не по таймеру."""
     return await _switch_mode(conv_id, ConversationMode.BOT_ACTIVE, "release", scope)
+
+
+def _clean(value: str | None, limit: int, field: str) -> str | None:
+    text = (value or "").strip()
+    if len(text) > limit:
+        raise HTTPException(status_code=400, detail=f"{field}: не больше {limit} знаков")
+    return text or None
+
+
+@router.patch("/conversations/{conv_id}/handling")
+async def handling(
+    conv_id: uuid.UUID, body: HandlingIn, scope: AgentScope | None = Depends(request_agent)
+) -> dict:
+    """Ответственный и следующий шаг. В журнал идёт, что поменялось, а не сам текст шага."""
+    sent = body.model_fields_set
+    async with sessions()() as session:
+        conv = await session.get(Conversation, conv_id)
+        if conv is None or _foreign(conv, scope):
+            raise HTTPException(status_code=404, detail="диалог не найден")
+        changed: list[str] = []
+        if "next_step" in sent:
+            conv.next_step = _clean(body.next_step, NEXT_STEP_MAX, "Следующий шаг")
+            changed.append("next_step")
+        if "assignee_name" in sent or "assignee_user_id" in sent:
+            name = _clean(body.assignee_name, NAME_MAX, "Имя ответственного")
+            conv.assignee_name = name
+            conv.assignee_user_id = body.assignee_user_id if name else None
+            changed.append("assignee")
+        if not changed:
+            raise HTTPException(status_code=400, detail="нечего менять")
+        log_action(session, action="handling", payload={"changed": changed}, conversation_id=conv.id)
+        await session.commit()
+        result = {
+            "assignee": {"user_id": str(conv.assignee_user_id) if conv.assignee_user_id else None, "name": conv.assignee_name}
+            if conv.assignee_name
+            else None,
+            "next_step": conv.next_step,
+        }
+    return result
+
+
+@router.post("/conversations/{conv_id}/notes")
+async def add_note(
+    conv_id: uuid.UUID, body: NoteIn, scope: AgentScope | None = Depends(request_agent)
+) -> dict:
+    """Внутренняя заметка. В журнал идёт длина, не текст: в заметке может быть что угодно о госте."""
+    text = (body.body or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="пустая заметка")
+    if len(text) > NOTE_MAX:
+        raise HTTPException(status_code=400, detail=f"Заметка: не больше {NOTE_MAX} знаков")
+    author = _clean(body.author_name, NAME_MAX, "Имя автора")
+    if author is None:
+        raise HTTPException(status_code=400, detail="не указан автор")
+    async with sessions()() as session:
+        conv = await session.get(Conversation, conv_id)
+        if conv is None or _foreign(conv, scope):
+            raise HTTPException(status_code=404, detail="диалог не найден")
+        note = ConversationNote(
+            conversation_id=conv.id,
+            author_user_id=body.author_user_id,
+            author_name=author,
+            body=text,
+            created_at=utcnow(),
+        )
+        session.add(note)
+        log_action(session, action="note", payload={"length": len(text)}, conversation_id=conv.id)
+        await session.commit()
+        note_id, at = note.id, note.created_at
+    return {"id": str(note_id), "author": author, "text": text, "at": iso(at)}
 
 
 @router.post("/conversations/{conv_id}/close")

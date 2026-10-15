@@ -66,11 +66,11 @@ describe('Channex read-only connection check', () => {
     const r = await c.service.status();
     expect(r.lastPullAt).toBe('2026-09-14T08:05:00.000Z');
   });
-  it('flags a mismatched configured property without making provider calls', async () => {
+  it('legacy configured property does not block another mapped branch', async () => {
     const c = context();
     vi.stubEnv('CHANNEX_PROPERTY_ID', 'different-property');
-    expect((await c.service.status()).state).toBe('MAPPING_MISMATCH');
-    expect(c.reader.getProperty).not.toHaveBeenCalled();
+    expect((await c.service.status()).state).toBe('READY');
+    expect(c.reader.getProperty).toHaveBeenCalledWith('test-property');
   });
   it.each([
     [401, 'DENIED'],
@@ -91,5 +91,27 @@ describe('Channex read-only connection check', () => {
     expect(r.state).toBe(state);
     expect(r.propertyAccessible).toBe(false);
     expect(JSON.stringify(r)).not.toContain('provider error details');
+  });
+});
+
+it.each([0, 1, 2])('отдельно считает %s планов и связки с категориями', async (plans) => {
+  const c = context();
+  const links = Array.from({ length: plans }, (_, p) =>
+    Array.from({ length: 5 }, (_, room) => ({
+      providerPropertyId: 'test-property',
+      providerRoomTypeId: `room-${room}`,
+      providerRatePlanId: `rate-${p}-${room}`,
+      localRatePlanId: `plan-${p}`,
+    })),
+  ).flat();
+  c.repo.mappings.mockResolvedValue(links);
+  expect(await c.service.status()).toMatchObject({
+    mappedLocalRatePlans: plans,
+    mappedRatePlans: plans * 5,
+  });
+  c.repo.mappings.mockResolvedValue(links.filter((_, i) => i % 5 !== 4));
+  expect(await c.service.status()).toMatchObject({
+    mappedLocalRatePlans: plans,
+    mappedRatePlans: plans * 4,
   });
 });

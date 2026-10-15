@@ -22,6 +22,16 @@ import { RoleGuard } from './role.guard';
  * только служебный ключ.
  */
 const EXPECTED: Record<string, RouteAccess | 'public'> = {
+  'GET /onboarding': 'self',
+  'POST /onboarding': 'settings',
+  'GET /branches': 'desk',
+  'POST /branches': 'owner',
+  'GET /branches/locations/archived': 'owner',
+  'POST /branches/locations/:id/archive': 'owner',
+  'POST /branches/locations/:id/restore': 'owner',
+  'POST /branches/businesses/:id/card': 'owner',
+  'GET /branches/overview': 'reports',
+  'GET /branches/summary': 'reports',
   // ── учётная запись, вход, сотрудники ─────────────────────────────────────────────────────
   'GET /auth/options': 'public',
   'POST /auth/login': 'public',
@@ -32,6 +42,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /auth/password-reset/request': 'public',
   'POST /auth/password-reset/confirm': 'public',
   'GET /auth/me': 'self',
+  'GET /auth/registration-context': 'self',
   'POST /auth/password': 'self',
   'GET /auth/sessions': 'self',
   'POST /auth/logout-all': 'self',
@@ -43,6 +54,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /auth/members': 'staff',
   'DELETE /auth/members/:userId': 'staff',
   'PATCH /auth/members/:userId': 'owner',
+  'PATCH /auth/members/:userId/details': 'staff',
+  'GET /auth/access-structure': 'staff',
+  'PUT /auth/members/:userId/scopes': 'staff',
+  'POST /auth/members/:userId/suspend': 'staff',
+  'POST /auth/members/:userId/resume': 'staff',
   'GET /assistant/identity': 'self',
   'GET /assistant/errors': 'service',
   'GET /assistant/organization': 'service',
@@ -59,14 +75,176 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /chessboard': 'desk',
   'GET /availability': 'desk',
   'GET /availability/offers': 'desk',
+  // Бар: смена ведёт приход, продажи, списания и остатки; справочники меняют в настройках
+  'GET /bar/categories': 'desk',
+  'POST /bar/categories': 'settings',
+  'PATCH /bar/categories/:id/active': 'settings',
+  'GET /bar/products': 'desk',
+  'POST /bar/products': 'settings',
+  'PATCH /bar/products/:id/active': 'settings',
+  'PATCH /bar/products/:id/price': 'settings',
+  'PATCH /bar/products/:id': 'settings',
+  'GET /bar/suppliers': 'desk',
+  'POST /bar/suppliers': 'settings',
+  'PATCH /bar/suppliers/:id/active': 'settings',
+  'GET /bar/receipts': 'desk',
+  'GET /bar/stock': 'desk',
+  'GET /bar/sales': 'desk',
+  'GET /bar/folios': 'desk',
+  'GET /bar/movements': 'desk',
+  'GET /bar/report': 'desk',
+  'POST /bar/sales/retail': 'desk',
+  'POST /bar/sales/folio': 'desk',
+  // сторно гасит кассовую операцию и начисление фолио, как аннулирования в /finance (ADR-181)
+  'POST /bar/sales/:id/reverse': 'refunds',
+  'POST /bar/write-offs': 'desk',
+  'POST /bar/inventory-counts': 'desk',
+  'POST /bar/receipts': 'desk',
+  // ИИ-скан накладной (ADR-157): читает документ и ничего не создаёт, право как у самого прихода
+  'POST /bar/receipts/scan': 'desk',
+  'POST /bar/receipts/:id/post': 'desk',
+  'POST /bar/receipts/:id/payments': 'desk',
+  // Каталог салона (срез B3, Q-253): читать может смена, цены меняет `rates`, мастеров `property`
+  // MV6 Food Service: explicit Business and Location on every route.
+  // ── «Маркетинг → Бюджет», учёт расходов (МКТ-В1/В2, ADR-MKT-B1): право раздела, филиал строго из scope ──
+  'GET /marketing/budget': 'settings',
+  'PUT /marketing/budget': 'settings',
+  'POST /marketing/expenses': 'settings',
+  'PATCH /marketing/expenses/:id': 'settings',
+  'DELETE /marketing/expenses/:id': 'settings',
+  // ── «Маркетинг → Сайт и SEO», ядро сайта (MKT3): право сайта, филиал строго из scope ──
+  'GET /marketing/site': 'settings',
+  // MKT9.2: заведение сайта с пустым телом вместо прежнего POST с названием и адресом
+  'POST /marketing/site/bootstrap': 'settings',
+  'GET /marketing/site/context': 'settings',
+  'PATCH /marketing/site/context': 'settings',
+  'GET /marketing/site/conversation': 'settings',
+  'POST /marketing/site/assistant': 'settings',
+  'GET /marketing/site/assistant/:id': 'settings',
+  'POST /marketing/site/assistant/:id/approve': 'settings',
+  'PUT /marketing/site/versions/:id/bookmark': 'settings',
+  'DELETE /marketing/site/versions/:id/bookmark': 'settings',
+  'GET /marketing/site/brief': 'settings',
+  'POST /marketing/site/generations': 'settings',
+  'GET /marketing/site/generations/:id': 'settings',
+  'GET /marketing/site/draft': 'settings',
+  'POST /marketing/site/versions': 'settings',
+  'GET /marketing/site/versions': 'settings',
+  'GET /marketing/site/versions/:id': 'settings',
+  'GET /marketing/site/versions/:id/diff': 'settings',
+  'POST /marketing/site/versions/:id/restore': 'settings',
+  // MKT7: превью, публикация, журнал, откат, пауза, архив и сайт брони филиала (Q-275)
+  'POST /marketing/site/preview': 'settings',
+  'POST /marketing/site/publish': 'settings',
+  'POST /marketing/site/pause': 'settings',
+  'POST /marketing/site/resume': 'settings',
+  'POST /marketing/site/rollback': 'settings',
+  'POST /marketing/site/archive': 'settings',
+  'GET /marketing/site/publications': 'settings',
+  'GET /marketing/site/booking-source': 'settings',
+  'PUT /marketing/site/booking-source': 'settings',
+  'GET /marketing/site/assets': 'settings',
+  'POST /marketing/site/assets': 'settings',
+  'PATCH /marketing/site/assets/:id': 'settings',
+  'DELETE /marketing/site/assets/:id': 'settings',
+  'GET /marketing/site/assets/channex': 'settings',
+  'POST /marketing/site/assets/channex/import': 'settings',
+  'GET /food-service/areas': 'desk',
+  'POST /food-service/areas': 'property',
+  'PATCH /food-service/areas/:id': 'property',
+  'PUT /food-service/areas/:id/layout': 'property',
+  'GET /food-service/booking-rules': 'desk',
+  'PUT /food-service/booking-rules': 'property',
+  'POST /food-service/closed-days': 'property',
+  'DELETE /food-service/closed-days/:id': 'property',
+  'GET /food-service/tables': 'desk',
+  'POST /food-service/tables': 'property',
+  'PATCH /food-service/tables/:id': 'property',
+  'GET /food-service/service-periods': 'desk',
+  'POST /food-service/service-periods': 'property',
+  'PATCH /food-service/service-periods/:id': 'property',
+  'GET /food-service/customers': 'desk',
+  'PATCH /food-service/customers/:id': 'desk',
+  'GET /food-service/reservations': 'desk',
+  'POST /food-service/reservations': 'desk',
+  'PATCH /food-service/reservations/:id': 'desk',
+  'POST /food-service/reservations/:id/status': 'desk',
+  'PUT /food-service/reservations/:id/table': 'desk',
+  'DELETE /food-service/reservations/:id/table': 'desk',
+  // ── ресторан: меню, заказы, кухня, сотрудники, зарплата (§33, ADR-159) ─────────────────
+  'GET /food-service/menu/categories': 'desk',
+  'POST /food-service/menu/categories': 'property',
+  'PATCH /food-service/menu/categories/:id': 'property',
+  'GET /food-service/menu/items': 'desk',
+  'GET /food-service/menu/items/:id': 'desk',
+  'POST /food-service/menu/items': 'property',
+  'PATCH /food-service/menu/items/:id': 'property',
+  'PUT /food-service/menu/items/:id/ingredients': 'property',
+  'POST /food-service/menu/items/:id/photo': 'property',
+  'DELETE /food-service/menu/items/:id/photo': 'property',
+  'GET /food-service/orders': 'desk',
+  'POST /food-service/orders': 'desk',
+  'PATCH /food-service/orders/:id': 'desk',
+  'POST /food-service/orders/:id/status': 'desk',
+  'POST /food-service/orders/:id/payments': 'desk',
+  'POST /food-service/orders/:id/rating': 'desk',
+  'POST /food-service/orders/:id/rating-link': 'desk',
+  'POST /food-service/payments/:id/void': 'refunds',
+  'GET /food-service/cash': 'desk',
+  'POST /food-service/cash/operations': 'desk',
+  'POST /food-service/cash/operations/:id/void': 'refunds',
+  'POST /food-service/cash/reconciliations': 'desk',
+  'POST /food-service/tables/:id/cleaning': 'desk',
+  'GET /food-service/report': 'desk',
+  'GET /food-service/period-report': 'reports',
+  'GET /food-service/employees': 'desk',
+  'POST /food-service/employees': 'staff',
+  'GET /food-service/shifts': 'desk',
+  'PUT /food-service/employees/:id/working-hours': 'staff',
+  'PATCH /food-service/employees/:id': 'staff',
+  'GET /food-service/payroll': 'staff',
+  'PUT /food-service/employees/:id/pay-settings': 'staff',
+  'POST /food-service/employees/:id/pay-adjustments': 'staff',
+  'POST /food-service/employees/:id/payouts': 'staff',
+  // Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS): справочник и сторно под `property`, работа склада под `desk`
+  'GET /food-service/stock/products': 'desk',
+  'POST /food-service/stock/products': 'property',
+  'PATCH /food-service/stock/products/:id': 'property',
+  'GET /food-service/stock/lots': 'desk',
+  'GET /food-service/stock/movements': 'desk',
+  'POST /food-service/stock/receipts': 'desk',
+  'POST /food-service/stock/lots/:id/reverse': 'property',
+  'POST /food-service/stock/write-offs': 'desk',
+  'POST /food-service/stock/inventory': 'desk',
+  'GET /beauty/customers': 'desk',
+  'GET /beauty/services': 'desk',
+  'POST /beauty/services': 'rates',
+  'PATCH /beauty/services/:id': 'rates',
+  'PUT /beauty/services/:id/location': 'rates',
+  'GET /beauty/employees': 'desk',
+  'POST /beauty/employees': 'property',
+  'PATCH /beauty/employees/:id': 'property',
+  'PUT /beauty/employees/:id/services': 'property',
+  'PUT /beauty/employees/:id/locations': 'property',
+  'GET /beauty/schedule': 'desk',
+  'PUT /beauty/employees/:id/working-hours': 'property',
+  'POST /beauty/employees/:id/time-offs': 'property',
+  'DELETE /beauty/employees/:id/time-offs/:timeOffId': 'property',
+  'GET /beauty/appointments': 'desk',
+  'POST /beauty/appointments': 'desk',
+  'PATCH /beauty/appointments/:id': 'desk',
+  'POST /beauty/appointments/:id/status': 'desk',
   'GET /availability/nearest': 'desk',
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',
   'GET /hotel/settings': 'desk',
+  // фото и договор объекта (ADR-158): читают все с доступом к стойке, договор отдаётся только с правом `settings`
+  'GET /hotel/media': 'desk',
   'GET /hotel/first-steps': 'desk',
   'GET /hotel/onboarding': 'desk',
   'GET /rate-plans': 'desk',
   'POST /reservations': 'desk',
+  'POST /reservations/quote': 'desk',
   'PATCH /reservations/:number/dates': 'desk',
   'PATCH /reservations/:number': 'desk',
   'PATCH /reservations/:number/items/:itemId': 'desk',
@@ -83,6 +261,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /guests': 'desk',
   'GET /guests/:id': 'desk',
   // «Гости v2» (G1–G3): каталог и предпросмотр гостя — работа смены
+  'GET /guests/birthdays': 'desk',
+  // Задачи стойки (DATA_MODEL §22): работа смены, все роли объекта
+  'GET /tasks': 'desk',
+  'POST /tasks': 'desk',
+  'PATCH /tasks/:id': 'desk',
   'GET /guests/directory': 'desk',
   'GET /guests/:id/preview': 'desk',
   'PATCH /guests/:id': 'desk',
@@ -94,11 +277,15 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /units/:code/housekeeping': 'desk',
   'GET /inventory/summary': 'desk',
   'GET /inventory/units': 'desk',
+  'GET /inventory/trend': 'desk',
+  'GET /inventory/occupancy': 'desk',
+  'GET /inventory/photos': 'desk',
   'GET /system/freshness': 'desk',
   'GET /system/pii-storage': 'desk',
   // неисправности — работа смены; пробная тревога — настройка оповещений
   'GET /guard/status': 'desk',
   'GET /guard/incidents': 'desk',
+  'GET /guard/reconciliation': 'desk',
   'POST /guard/incidents/:id/acknowledge': 'desk',
   'POST /guard/incidents/:id/resolve': 'desk',
   'POST /guard/tick': 'desk',
@@ -111,12 +298,47 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/folios/:id/stay-extras': 'desk',
   'POST /finance/folios/:id/close': 'desk',
   'POST /finance/payments': 'desk',
+  'POST /finance/payments/:id/receipt': 'desk',
+  // Запросы оплаты (DATA_MODEL §24, ADR-144): администратор выставляет счёт и отмечает оплату
+  'GET /finance/reservations/:number/payment-requests': 'desk',
+  'POST /finance/reservations/:number/payment-requests': 'desk',
+  'POST /finance/payment-requests/:id/paid': 'desk',
+  'POST /finance/payment-requests/:id/cancel': 'desk',
   'POST /finance/charges/:id/void': 'refunds',
   'POST /finance/payments/:id/refunds': 'refunds',
+  'POST /finance/payments/:id/void': 'refunds',
+  'POST /finance/payments/:id/replace': 'refunds',
   'GET /finance/report': 'reports',
+  'GET /finance/services-report': 'reports',
+  'GET /desk/dashboard/units': 'reports',
+  'GET /desk/dashboard/channels': 'reports',
   // «Финансы за период» F1–F2 (ADR-113): то же право, что у отчёта за период
   'GET /finance/debts': 'reports',
   'GET /finance/operations': 'reports',
+  'GET /finance/cashflow': 'reports',
+  // касса (DATA_MODEL §21, Q-238): ведёт смена, как оплаты; аннулирование — как возврат; статьи — настройки
+  'GET /finance/cash': 'desk',
+  'POST /finance/cash/categories': 'settings',
+  'PATCH /finance/cash/categories/:id': 'settings',
+  'POST /finance/cash/operations': 'desk',
+  'POST /finance/cash/transfers': 'desk',
+  'POST /finance/cash/reconciliations': 'desk',
+  'POST /finance/cash/operations/:id/void': 'refunds',
+
+  // загрузка конкурентов (ADR-142): смотрит, кто видит отчёты; ведёт список и вносит данные, кто ставит цены
+  'GET /sales/summary': 'reports',
+  'GET /market/occupancy': 'reports',
+  'GET /market/rates': 'reports',
+  'GET /market/night': 'reports',
+  'POST /market/competitors': 'rates',
+  'PATCH /market/competitors/:id': 'rates',
+  'PUT /market/competitors/:id/occupancy': 'rates',
+  'PUT /market/competitors/:id/rates': 'rates',
+  'GET /market/collector/competitors': 'service',
+  'PUT /market/collector/competitors/:id/occupancy': 'service',
+  // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет
+  'GET /sites-runtime/current': 'service',
+  'GET /sites-runtime/preview': 'service',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',
@@ -124,6 +346,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // «Настроить тариф» категории (ADR-119): как создание категории, которое тоже привязывает тариф
   'POST /inventory/categories/:code/rate-plan': 'property',
   'PATCH /inventory/categories/:code': 'property',
+  'PUT /inventory/categories/:code/photos': 'property',
+  'DELETE /inventory/categories/:code': 'property',
   'POST /inventory/rooms': 'property',
   'PATCH /inventory/rooms/:code': 'property',
   'GET /rates/options': 'rates',
@@ -156,6 +380,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /channels/channex/outbox/messages': 'channels',
   'POST /channels/channex/outbox/flush': 'channels',
   'GET /channels/channex/connection': 'channels',
+  'GET /channels/channex/channels': 'channels',
+  'POST /channels/channex/channels/connect-session': 'owner',
+  'POST /channels/channex/channels/:id/load-future-reservations': 'owner',
   'GET /channels/channex/content': 'channels',
   'GET /channels/channex/content/names': 'channels',
   'GET /hotel/channel-report': 'channels',
@@ -163,6 +390,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── настройки, интеграции, сайт, журнал ─────────────────────────────────────────────────
   'POST /hotel/onboarding': 'settings',
   'PATCH /hotel/settings': 'settings',
+  'POST /hotel/media/photos': 'settings',
+  'DELETE /hotel/media/photos/:id': 'settings',
+  'POST /hotel/media/contract': 'settings',
+  'DELETE /hotel/media/contract': 'settings',
   // каталог услуг «Настроек объекта» (SET3): право `settings` включает «услуги»
   'GET /hotel/services': 'settings',
   'POST /hotel/services': 'settings',
@@ -175,6 +406,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'DELETE /analytics/sites/:id': 'settings',
   'GET /analytics/sites/:id/report': 'settings',
   'GET /audit': 'journal',
+  'GET /audit/actors': 'journal',
 
   // ── ИИ-продавец: диалоги — всем ролям, настройки — владельцу и управляющему ─────────────
   'GET /ai-seller/status': 'dialogs',
@@ -182,12 +414,23 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /ai-seller/agents/options': 'dialogs',
   'POST /ai-seller/agents': 'seller',
   'GET /ai-seller/agents/:id': 'dialogs',
+  'GET /ai-seller/agents/:id/instruction': 'seller',
+  'GET /ai-seller/agents/:id/telegram': 'seller',
+  'PUT /ai-seller/agents/:id/telegram': 'seller',
+  'POST /ai-seller/agents/:id/telegram/check': 'seller',
+  'POST /ai-seller/agents/:id/telegram/disconnect': 'seller',
+  'PUT /ai-seller/agents/:id/instruction': 'seller',
+  'POST /ai-seller/agents/:id/instruction/generate': 'seller',
   'GET /ai-seller/summary': 'dialogs',
   'GET /ai-seller/conversations': 'dialogs',
   'GET /ai-seller/conversations/:id': 'dialogs',
   'POST /ai-seller/conversations/:id/takeover': 'dialogs',
   'POST /ai-seller/conversations/:id/release': 'dialogs',
   'POST /ai-seller/conversations/:id/reply': 'dialogs',
+  'PATCH /ai-seller/conversations/:id/handling': 'dialogs',
+  'GET /ai-seller/prompt/versions': 'seller',
+  'POST /ai-seller/prompt/versions/:id/restore': 'seller',
+  'POST /ai-seller/conversations/:id/notes': 'dialogs',
   'GET /ai-seller/profile': 'seller',
   'PUT /ai-seller/profile': 'seller',
   'GET /ai-seller/prompt': 'seller',
@@ -213,9 +456,20 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
 
   // ── «Платформа» — главный администратор (§16.2) ─────────────────────────────────────────
   'GET /platform/organizations': 'platform',
+  'GET /platform/overview': 'platform',
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор
   'PUT /platform/organizations/:id/status': 'platform',
+  // название, архив и возврат организации (ORG1, ADR-ORG1): только главный администратор
+  'PATCH /platform/organizations/:id': 'platform',
+  'POST /platform/organizations/:id/archive': 'platform',
+  'POST /platform/organizations/:id/restore': 'platform',
+  // создание организации и ссылка «задайте пароль» её владельцу (ORG2, ADR-ORG2)
+  'POST /platform/organizations': 'platform',
+  'POST /platform/organizations/:id/owner-link': 'platform',
+  // MKT9.2: лицензии конструктора сайта по филиалам выдаёт только главный администратор
+  'GET /platform/organizations/:id/site-builder': 'platform',
+  'PUT /platform/organizations/:id/site-builder/:locationId': 'platform',
   'GET /platform/support/status': 'platform',
   'GET /platform/support/conversations': 'platform',
   'GET /platform/support/queue': 'platform',
@@ -248,15 +502,31 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /a/demo': 'public',
   'GET /w/widget.js': 'public',
   'GET /w/config': 'public',
+  // оценка официанта с телефона гостя (§40): только изнутри, страница стойки /rate/<ключ>
+  'GET /public/order-rating/:token': 'public',
+  'POST /public/order-rating/:token': 'public',
   'GET /w/availability': 'public',
+  // Q-276: цена «от» тарифа брони сайта, тот же ключ и домен, что у availability
+  'GET /w/from-prices': 'public',
   'POST /w/book': 'public',
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',
+  // H14 (ADR-144): страница статуса сервиса без входа
+  'GET /status/public': 'public',
   'GET /bot/agent-origins': 'public',
+  // ADR-144, DATA_MODEL §25: бронь из чата — узкий ключ записи продавца сверяет контроллер
+  'POST /bot/booking-intents': 'public',
+  'POST /bot/booking-intents/confirm': 'public',
   'POST /wizard/session': 'public',
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',
+  'POST /wizard/scan': 'public',
+  'POST /wizard/generate': 'public',
+  'POST /wizard/message': 'public',
+  'GET /wizard/scan': 'public',
   'GET /wizard/quota': 'public',
+  'POST /wizard/survey': 'public',
+  'POST /wizard/event': 'public',
 };
 
 type Handler = (...args: unknown[]) => unknown;
@@ -279,7 +549,9 @@ async function routes(): Promise<Record<string, RouteAccess | 'public' | undefin
         const path = Reflect.getMetadata(PATH_METADATA, handler) as string | undefined;
         const method = Reflect.getMetadata(METHOD_METADATA, handler) as RequestMethod | undefined;
         if (path === undefined || method === undefined) continue;
-        const full = `/${[base, path].filter(Boolean).join('/')}`.replace(/\/+/g, '/').replace(/(.)\/$/, '$1');
+        const full = `/${[base, path].filter(Boolean).join('/')}`
+          .replace(/\/+/g, '/')
+          .replace(/(.)\/$/, '$1');
         const key = `${RequestMethod[method]} ${full}`;
         const isPublic =
           Reflect.getMetadata(PUBLIC_ROUTE, handler) ?? Reflect.getMetadata(PUBLIC_ROUTE, cls);
@@ -302,6 +574,34 @@ describe('права маршрутов API (ADR-107)', () => {
       .map(([key]) => key);
     expect(unannotated, 'маршруты без @Access и без @Public').toEqual([]);
     expect(actual).toEqual(EXPECTED);
+  });
+
+  it('MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет', async () => {
+    const actual = await routes();
+    const runtime = Object.keys(actual).filter((key) => /\/sites-runtime(\/|$)/.test(key));
+    expect(runtime.sort()).toEqual(['GET /sites-runtime/current', 'GET /sites-runtime/preview']);
+    // Статус задачи генерации (MKT6) читается по id, но версии и документа не отдаёт (tests/integration/site-generation.test.ts)
+    // MKT8: ассет по id только правится (ALT) и удаляется; чтения ассета по id нет ни у управления, ни у рантайма
+    // MKT9: версия по id читается, сравнивается и восстанавливается только управлением (вошедший, `settings`, строгий
+    // scope филиала); рантайм по-прежнему видит только текущую опубликованную версию и превью по токену
+    const allowed = [
+      'GET /marketing/site/generations/:id',
+      'PATCH /marketing/site/assets/:id',
+      'DELETE /marketing/site/assets/:id',
+      'GET /marketing/site/versions/:id',
+      'GET /marketing/site/versions/:id/diff',
+      'POST /marketing/site/versions/:id/restore',
+      // MKT9.2: разговорная задача читается и план одобряется по id; закладка ставится и снимается у версии этого сайта
+      'GET /marketing/site/assistant/:id',
+      'POST /marketing/site/assistant/:id/approve',
+      'PUT /marketing/site/versions/:id/bookmark',
+      'DELETE /marketing/site/versions/:id/bookmark',
+    ];
+    const byId = Object.keys(actual).filter(
+      (key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key) && !allowed.includes(key),
+    );
+    expect(byId, 'по id только явно перечисленные маршруты управления').toEqual([]);
+    expect(Object.keys(actual).filter((key) => /^GET .*assets\/:id/.test(key))).toEqual([]);
   });
 
   it('замок ролей стоит сразу за замком входа: без сессии роль не узнать', () => {

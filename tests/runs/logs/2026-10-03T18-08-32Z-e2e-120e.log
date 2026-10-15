@@ -1,0 +1,99 @@
+# Сквозные (e2e) · 03.10.2026 23:08 Алматы · vm
+# коммит c25f6d9 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/market.spec.ts' 'tests/ui/reports-hub.spec.ts' 'tests/ui/requests.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 45 tests using 1 worker
+
+  ✘   1 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (20.0s)
+  ✓   2 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (5.0s)
+  ✓   3 tests/ui/market.spec.ts:148:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (2.3s)
+  ✓   4 tests/ui/market.spec.ts:164:3 › снимки и доступность: light (5.9s)
+  ✓   5 tests/ui/market.spec.ts:164:3 › снимки и доступность: dark (5.2s)
+  ✓   6 tests/ui/market.spec.ts:204:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (2.9s)
+  ✓   7 tests/ui/reports-hub.spec.ts:41:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (1.4s)
+  ✓   8 tests/ui/reports-hub.spec.ts:109:1 › карточки ведут в готовые экраны с тем же периодом (1.6s)
+  ✓   9 tests/ui/reports-hub.spec.ts:154:1 › пресет «Сегодня» и свой период меняют адрес и числа (2.1s)
+  ✓  10 tests/ui/reports-hub.spec.ts:173:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (991ms)
+  ✓  11 tests/ui/reports-hub.spec.ts:188:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (2.6s)
+  ✓  12 tests/ui/reports-hub.spec.ts:208:1 › телефон: карточки без горизонтальной прокрутки (1.5s)
+  ✓  13 tests/ui/reports-hub.spec.ts:218:3 › доступность и снимки, light (3.4s)
+  ✓  14 tests/ui/reports-hub.spec.ts:218:3 › доступность и снимки, dark (3.1s)
+  ✓  15 tests/ui/requests.spec.ts:78:3 › экран /today: данные берутся одним запросом на путь (1.6s)
+  ✓  16 tests/ui/requests.spec.ts:78:3 › экран /chessboard: данные берутся одним запросом на путь (2.0s)
+  ✓  17 tests/ui/requests.spec.ts:78:3 › экран /reservations: данные берутся одним запросом на путь (1.6s)
+  ✓  18 tests/ui/requests.spec.ts:78:3 › экран /guests: данные берутся одним запросом на путь (1.5s)
+  ✓  19 tests/ui/requests.spec.ts:78:3 › экран /inventory: данные берутся одним запросом на путь (1.7s)
+  ✓  20 tests/ui/requests.spec.ts:78:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.9s)
+  ✓  21 tests/ui/requests.spec.ts:78:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.6s)
+  ✓  22 tests/ui/requests.spec.ts:78:3 › экран /rates: данные берутся одним запросом на путь (1.6s)
+  ✓  23 tests/ui/requests.spec.ts:78:3 › экран /management/analytics: данные берутся одним запросом на путь (1.6s)
+  ✓  24 tests/ui/requests.spec.ts:78:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.5s)
+  ✓  25 tests/ui/requests.spec.ts:78:3 › экран /management/analytics/units: данные берутся одним запросом на путь (1.9s)
+  ✓  26 tests/ui/requests.spec.ts:78:3 › экран /finance: данные берутся одним запросом на путь (1.6s)
+  ✓  27 tests/ui/requests.spec.ts:78:3 › экран /reports: данные берутся одним запросом на путь (1.5s)
+  ✓  28 tests/ui/requests.spec.ts:78:3 › экран /channels: данные берутся одним запросом на путь (2.3s)
+  ✓  29 tests/ui/requests.spec.ts:78:3 › экран /connections/channex: данные берутся одним запросом на путь (1.4s)
+  ✓  30 tests/ui/requests.spec.ts:78:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.5s)
+  ✓  31 tests/ui/requests.spec.ts:78:3 › экран /channels/sync: данные берутся одним запросом на путь (1.6s)
+  ✓  32 tests/ui/requests.spec.ts:78:3 › экран /channels/events: данные берутся одним запросом на путь (1.6s)
+  ✓  33 tests/ui/requests.spec.ts:78:3 › экран /website: данные берутся одним запросом на путь (1.4s)
+  ✓  34 tests/ui/requests.spec.ts:78:3 › экран /website/booking: данные берутся одним запросом на путь (1.5s)
+  ✓  35 tests/ui/requests.spec.ts:78:3 › экран /website/analytics: данные берутся одним запросом на путь (1.6s)
+  ✓  36 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.0s)
+  ✓  37 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.5s)
+  ✓  38 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.5s)
+  ✓  39 tests/ui/requests.spec.ts:78:3 › экран /team: данные берутся одним запросом на путь (1.4s)
+  ✓  40 tests/ui/requests.spec.ts:78:3 › экран /connections: данные берутся одним запросом на путь (1.5s)
+  ✓  41 tests/ui/requests.spec.ts:78:3 › экран /ai-agents: данные берутся одним запросом на путь (1.4s)
+  ✓  42 tests/ui/requests.spec.ts:78:3 › экран /website/settings: данные берутся одним запросом на путь (1.5s)
+  ✓  43 tests/ui/requests.spec.ts:78:3 › экран /incidents: данные берутся одним запросом на путь (1.5s)
+  ✓  44 tests/ui/requests.spec.ts:78:3 › экран /journal: данные берутся одним запросом на путь (1.5s)
+  ✓  45 tests/ui/requests.spec.ts:78:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.5s)
+
+
+  1) tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('market-occupancy-form').getByRole('alert')
+    Expected substring: "от 0 до 100"
+    Received string:    "Заполните загрузку хотя бы на одну ночь"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('market-occupancy-form').getByRole('alert') with timeout 15000ms
+      - waiting for getByTestId('market-occupancy-form').getByRole('alert')
+        33 × locator resolved to <div role="alert" class="alert alert--boxed">Заполните загрузку хотя бы на одну ночь</div>
+           - unexpected value "Заполните загрузку хотя бы на одну ночь"
+
+
+      91 |   await fields.nth(0).fill('150');
+      92 |   await entry.getByTestId('market-occupancy-save').click();
+    > 93 |   await expect(entry.getByRole('alert')).toContainText('от 0 до 100');
+         |                                          ^
+      94 |   await fields.nth(0).fill('88,5');
+      95 |   await fields.nth(1).fill('40');
+      96 |   await entry.getByTestId('market-occupancy-save').click();
+        at /home/user/wetop.ai/tests/ui/market.spec.ts:93:42
+
+    Error Context: test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку 
+  44 passed (3.4m)
+
+# код выхода 1 · 3 мин 30 с

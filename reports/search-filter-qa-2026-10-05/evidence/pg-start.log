@@ -1,0 +1,4 @@
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma/schema.prisma.
+База поднята. Прогон: DATABASE_URL='postgresql://postgres@127.0.0.1:55943/pmslocal' npm run test:record -- integration

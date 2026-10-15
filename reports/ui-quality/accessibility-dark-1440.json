@@ -1,21 +1,5 @@
 [
   {
-    "route": "/today",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
-    "route": "/management/dashboard",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
     "route": "/chessboard",
     "violations": [],
     "layout": {
@@ -104,14 +88,6 @@
     }
   },
   {
-    "route": "/rates",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
     "route": "/finance",
     "violations": [],
     "layout": {
@@ -168,14 +144,6 @@
     }
   },
   {
-    "route": "/channels/connections",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
     "route": "/channels/mapping",
     "violations": [],
     "layout": {
@@ -201,6 +169,22 @@
   },
   {
     "route": "/connections",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/connections/channex",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/marketing",
     "violations": [],
     "layout": {
       "viewport": 1440,
@@ -248,7 +232,7 @@
     }
   },
   {
-    "route": "/login",
+    "route": "/profile/access",
     "violations": [],
     "layout": {
       "viewport": 1440,
@@ -265,6 +249,14 @@
   },
   {
     "route": "/journal",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/ai-agents",
     "violations": [],
     "layout": {
       "viewport": 1440,

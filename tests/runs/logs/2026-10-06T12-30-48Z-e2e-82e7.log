@@ -1,0 +1,65 @@
+# Сквозные (e2e) · 06.10.2026 17:30 Алматы · vm
+# коммит 0ab33b3 (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-food-ui.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+[WebServer] (node:18592) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   1 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (9.9s)
+  ✓   2 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (4.1s)
+  ✓   3 tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe (38.6s)
+  ✓   4 tests/food-ui/food.spec.ts:221:1 › overlap and archived catalog preserve creation draft and idempotency key (3.2s)
+  ✓   5 tests/food-ui/food.spec.ts:277:1 › stale token refreshes drawer without automatic mutation retry (2.4s)
+  ✓   6 tests/food-ui/food.spec.ts:297:1 › READ_ONLY and STAFF permissions on real API (2.2s)
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+  ✓   7 tests/food-ui/food.spec.ts:324:1 › server branch switch isolates Food businesses and locations and other verticals (13.5s)
+  ✓   8 tests/food-ui/food.spec.ts:370:1 › pagination beyond 100 and previous local day keep table occupied after reload (5.8s)
+  ✓   9 tests/food-ui/food.spec.ts:438:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (11.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  10 tests/food-ui/food.spec.ts:536:1 › API unavailable renders LoadError instead of free tables (1.4s)
+  ✓  11 tests/food-ui/food.spec.ts:544:1 › creation 503 keeps the draft and retry key; invalid period stays inline (2.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  12 tests/food-ui/food.spec.ts:574:1 › Food excludes every registered foreign workspace route before API requests (23.9s)
+  ✓  13 tests/food-ui/food.spec.ts:613:1 › marker guarded cleanup (75ms)
+
+  13 passed (2.1m)
+
+# код выхода 0 · 2 мин 6 с

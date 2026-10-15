@@ -1,0 +1,73 @@
+# Сквозные (e2e) · 06.10.2026 17:42 Алматы · vm
+# коммит 550e572 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.booking-widget.config.ts' '--workers=1' '-g' 'ключ создания'
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/booking-widget-turnstile.spec.ts:229:1 › ключ создания: UUID v4; повтор той же формы после обрыва сети уходит с тем же ключом (908ms)
+  ✓  2 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (568ms)
+  ✘  3 tests/ui/booking-widget-turnstile.spec.ts:266:1 › ключ создания: форму изменили после сбоя — новая попытка с новым ключом (536ms)
+  ✘  4 tests/ui/booking-widget-turnstile.spec.ts:287:1 › ключ создания: после подтверждённой брони следующая бронь — новый ключ (736ms)
+
+
+  1) tests/ui/booking-widget-turnstile.spec.ts:229:1 › ключ создания: UUID v4; повтор той же формы после обрыва сети уходит с тем же ключом 
+
+    TypeError: expect(received).toMatch(expected)
+
+    Matcher error: received value must be a string
+
+    Received has value: undefined
+
+      238 |   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+      239 |   expect(s.booked).toHaveLength(2);
+    > 240 |   expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+          |                               ^
+      241 |   expect(keyOf(s.booked[1]!)).toBe(keyOf(s.booked[0]!));
+      242 | });
+      243 |
+        at /home/user/wetop.ai/tests/ui/booking-widget-turnstile.spec.ts:240:31
+
+    Error Context: test-results/booking-widget-turnstile-к-b3d5d-сети-уходит-с-тем-же-ключом/error-context.md
+
+  2) tests/ui/booking-widget-turnstile.spec.ts:266:1 › ключ создания: форму изменили после сбоя — новая попытка с новым ключом 
+
+    TypeError: expect(received).toMatch(expected)
+
+    Matcher error: received value must be a string
+
+    Received has value: undefined
+
+      280 |   await submit.click();
+      281 |   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+    > 282 |   expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+          |                               ^
+      283 |   expect(keyOf(s.booked[1]!)).toMatch(UUID_V4);
+      284 |   expect(keyOf(s.booked[1]!)).not.toBe(keyOf(s.booked[0]!));
+      285 | });
+        at /home/user/wetop.ai/tests/ui/booking-widget-turnstile.spec.ts:282:31
+
+    Error Context: test-results/booking-widget-turnstile-к-f8f4c-овая-попытка-с-новым-ключом/error-context.md
+
+  3) tests/ui/booking-widget-turnstile.spec.ts:287:1 › ключ создания: после подтверждённой брони следующая бронь — новый ключ 
+
+    Error: expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not undefined
+
+      297 |   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+      298 |   expect(s.booked).toHaveLength(2);
+    > 299 |   expect(keyOf(s.booked[1]!)).not.toBe(keyOf(s.booked[0]!));
+          |                                   ^
+      300 | });
+      301 |
+        at /home/user/wetop.ai/tests/ui/booking-widget-turnstile.spec.ts:299:35
+
+    Error Context: test-results/booking-widget-turnstile-к-47f68-ледующая-бронь-—-новый-ключ/error-context.md
+
+  3 failed
+    tests/ui/booking-widget-turnstile.spec.ts:229:1 › ключ создания: UUID v4; повтор той же формы после обрыва сети уходит с тем же ключом 
+    tests/ui/booking-widget-turnstile.spec.ts:266:1 › ключ создания: форму изменили после сбоя — новая попытка с новым ключом 
+    tests/ui/booking-widget-turnstile.spec.ts:287:1 › ключ создания: после подтверждённой брони следующая бронь — новый ключ 
+  1 passed (9.3s)
+
+# код выхода 1 · 11 с

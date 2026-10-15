@@ -1,5 +1,6 @@
 import { Page } from '../../components/page';
 import { LoadingState, Skeleton } from '../../components/ui';
+import './settings.css';
 
 /** Ожидание настроек объекта (D4): заголовок раздела сразу, под ним строки будущих сведений. */
 export default function Loading() {

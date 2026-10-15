@@ -51,6 +51,8 @@ describe('аналитика: тип категории, без ячейки п�
   afterEach(() => forgetPropertyRef());
 
   it('тип категории — из единиц шахматки; проживание без ячейки считается один раз в своей категории', async () => {
+    // REP3: у номера '1' в каждом куске одна занятая клетка с заездом — ночи и заезды
+    // складываются по кускам, а куски не пересекаются, поэтому ничего не задваивается
     const unit = (code: string, kind: 'ROOM' | 'BED', typeCode: string, typeName: string) => ({
       unit: {
         id: code,
@@ -59,6 +61,7 @@ describe('аналитика: тип категории, без ячейки п�
         accommodationTypeCode: typeCode,
         accommodationTypeName: typeName,
       },
+      cells: code === '1' ? [{ state: 'OCCUPIED', isArrival: true }] : [],
     });
     const board = vi.fn().mockImplementation(async (from: string, to: string) => ({
       dates: from === to ? [from] : [from, to],
@@ -88,6 +91,20 @@ describe('аналитика: тип категории, без ячейки п�
       { code: 'DRM', name: 'Мужская общая', units: 2, kind: 'BED' },
     ]);
     expect(b.unassignedByCategory).toEqual({ DRM: 1, SGL: 1 });
+    // клетки до единицы: по одной занятой на кусок, сумма равна числу кусков
+    expect(b.units.find((u) => u.code === '1')).toEqual({
+      code: '1',
+      categoryCode: 'SGL',
+      categoryName: 'Одноместная',
+      kind: 'ROOM',
+      occupiedNights: board.mock.calls.length,
+      blockedNights: 0,
+      arrivals: board.mock.calls.length,
+    });
+    expect(b.units.find((u) => u.code === '5')).toMatchObject({
+      kind: 'BED',
+      occupiedNights: 0,
+    });
   });
 
   it('групповая бронь на три койки без места — три проживания, даже если период разбит на куски', async () => {
@@ -108,6 +125,7 @@ describe('аналитика: тип категории, без ячейки п�
             accommodationTypeCode: 'DRM',
             accommodationTypeName: 'Мужская общая',
           },
+          cells: [],
         },
       ],
       summary: {},
@@ -202,5 +220,35 @@ describe('аналитика: проживание знает свою брон�
       reservationId: true,
       reservation: { select: { status: true } },
     });
+  });
+});
+
+/** Выручка за ночи (ADR-155, Q-290): проживание, накрывающее весь период, не заезжает и не выезжает в нём, но даёт ночи */
+describe('выборка проживаний для выручки за ночи', () => {
+  afterEach(() => forgetPropertyRef());
+
+  it('запрос берёт и проживания, накрывающие период целиком', async () => {
+    const findMany = vi.fn().mockResolvedValue([]);
+    const prisma = {
+      db: {
+        property: {
+          findFirst: vi
+            .fn()
+            .mockResolvedValue({ id: 'p1', name: 'Luxx Aparts', organizationId: null }),
+        },
+        reservationItem: { findMany },
+      },
+    } as unknown as PrismaService;
+    await new PrismaDashboardRepository(prisma, {} as ChessboardService).stays(
+      '2026-10-05',
+      '2026-10-10',
+    );
+    const where = findMany.mock.calls[0]![0].where as { OR: Array<Record<string, unknown>> };
+    expect(where.OR).toContainEqual({
+      arrivalDate: { lt: new Date('2026-10-05T00:00:00Z') },
+      departureDate: { gt: new Date('2026-10-10T00:00:00Z') },
+    });
+    // прежние условия остаются
+    expect(where.OR).toHaveLength(3);
   });
 });

@@ -2,6 +2,14 @@ import { cookies, headers } from 'next/headers';
 import type { AuthClientInfo } from './api';
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
 import { lockRequired } from './auth-lock';
+import {
+  LAST_BRANCH_COOKIE,
+  SCOPE_COOKIE,
+  lastBranchCookieOptions,
+  pointerLocation,
+  scopeCookieOptions,
+} from './scope-pointer';
+import { publicAuthUrl } from './auth-entry';
 
 // имена сохранены: их зовут действия входа, спеки и посредник
 export { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure };
@@ -18,8 +26,7 @@ export { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure };
  * кроме «0» и «false»; без значения стойка в разработке работает без входа — иначе встали бы сквозные наборы.
  */
 
-export const authRequired = () =>
-  lockRequired(process.env.APP_AUTH_REQUIRED, process.env.NODE_ENV);
+export const authRequired = () => lockRequired(process.env.APP_AUTH_REQUIRED, process.env.NODE_ENV);
 
 /** Адрес посетителя и его браузер — API считает по ним пределы и список «где я вошёл». Вне запроса — пусто. */
 export async function clientInfo(): Promise<AuthClientInfo> {
@@ -60,9 +67,27 @@ export async function setSessionCookie(token: string, expiresAt: string): Promis
 // storeSessionToken снят 20.09.2026 вместе со входом по коду (ADR-053): куку ставит setSessionCookie
 // по сроку, который приходит от API вместе с ключом.
 
+/**
+ * Выход снимает и сессию, и указатель филиала (SCOPE-HARDENING): иначе следующий вход на этом устройстве, другим
+ * человеком или в другую организацию, пересылал бы чужой указатель, а API отвечал бы на него 403.
+ */
 export async function clearSessionCookie(): Promise<void> {
   const jar = await cookies();
   jar.delete(SESSION_COOKIE);
+  jar.delete(SCOPE_COOKIE);
+}
+
+/** Указатель филиала: значение только из ответа сервера (`GET /branches`, `registration-context`). */
+export async function setScopeCookie(pointer: string): Promise<void> {
+  const jar = await cookies();
+  jar.set(SCOPE_COOKIE, pointer, scopeCookieOptions(process.env));
+  // Запомнить выбор на устройстве: следующий вход откроет этот филиал сам (`/scope/resolve`)
+  const location = pointerLocation(pointer);
+  if (location) jar.set(LAST_BRANCH_COOKIE, location, lastBranchCookieOptions(process.env));
+}
+
+export async function clearScopeCookie(): Promise<void> {
+  (await cookies()).delete(SCOPE_COOKIE);
 }
 
 /**
@@ -72,5 +97,12 @@ export async function clearSessionCookie(): Promise<void> {
 export async function redirectToLoginIfRequired(): Promise<void> {
   if (!authRequired()) return;
   const { redirect } = await import('next/navigation');
-  redirect('/login');
+  let next: string | null = null;
+  try {
+    const h = await headers();
+    next = h.get('x-wetop-return') ?? h.get('x-wetop-path');
+  } catch {
+    // Служебный вызов вне запроса: замок остаётся включён, адрес возврата — /today.
+  }
+  redirect(publicAuthUrl('login', next));
 }

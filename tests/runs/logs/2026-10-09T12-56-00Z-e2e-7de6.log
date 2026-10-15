@@ -1,0 +1,198 @@
+# Сквозные (e2e) · 09.10.2026 17:56 Алматы · vm
+# коммит d0eb1e6 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 38
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 32 tests using 2 workers
+
+  ✓   1 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (9.2s)
+  ✓   2 tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (9.2s)
+  ✓   4 tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (6.7s)
+  ✓   3 tests/ui/platform-access.spec.ts:81:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (7.9s)
+  ✓   6 tests/ui/platform-access.spec.ts:103:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (8.9s)
+  ✓   7 tests/ui/platform-access.spec.ts:142:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (9.4s)
+  ✓   8 tests/ui/platform-access.spec.ts:170:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (5.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   9 tests/ui/platform-access.spec.ts:190:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (8.5s)
+  ✓   5 tests/ui/navigation.spec.ts:120:1 › все пункты меню открывают существующие страницы (41.2s)
+  ✓  11 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: light (6.4s)
+  ✓  12 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: dark (5.5s)
+  ✓  13 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (3.5s)
+  ✓  14 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (8.9s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  15 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.8s)
+  ✓  16 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (7.6s)
+  ✘  10 tests/ui/platform-access.spec.ts:213:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (45.6s)
+  ✓  18 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 1440px (20.9s)
+  ✘  17 tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (26.6s)
+  ✓  19 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 1440px (20.3s)
+  ✘  20 tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (26.0s)
+  ✓  21 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 390px (18.7s)
+  ✓  23 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 390px (16.9s)
+  ✓  24 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (6.9s)
+  ✓  25 tests/ui/top-menu.spec.ts:128:1 › вложенные адреса подсвечивают свою вкладку (7.0s)
+  ✓  26 tests/ui/top-menu.spec.ts:164:3 › шапка ровная, без прокрутки вбок и доступная: light (5.6s)
+  ✘  22 tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль (45.2s)
+  ✓  27 tests/ui/top-menu.spec.ts:164:3 › шапка ровная, без прокрутки вбок и доступная: dark (5.8s)
+  ✓  28 tests/ui/roles.spec.ts:304:1 › администратор: сотрудниками ведают владелец и управляющий (3.0s)
+  ✓  29 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 1440px (8.1s)
+  ✓  30 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 1440px (7.6s)
+  ✓  31 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 390px (7.9s)
+  ✓  32 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 390px (7.1s)
+
+
+  1) tests/ui/platform-access.spec.ts:213:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('platform-extension-form').getByLabel('Статус')
+
+
+      253 |   // своя гостиница: выключить — пункт меню остаётся (ADR-090), а раздел закрыт и говорит почему
+      254 |   await page.goto('/platform?org=ui-org');
+    > 255 |   await page.getByTestId('platform-extension-form').getByLabel('Статус').selectOption('OFF');
+          |                                                                          ^
+      256 |   await page
+      257 |     .getByTestId('platform-extension-form')
+      258 |     .getByRole('button', { name: 'Сохранить' })
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:255:74
+
+    Error Context: test-results/platform-access-«Платформа-8e6f1-лючает-продавца-организации/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-«Платформа-8e6f1-лючает-продавца-организации/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-«Платформа-8e6f1-лючает-продавца-организации/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByLabel('Тариф для пересчёта')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByLabel('Тариф для пересчёта') with timeout 15000ms
+      - waiting for getByRole('main').getByLabel('Тариф для пересчёта')
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      201 |   // тариф записан в бронь: выбирать администратору больше нечего, дальше его меняют владелец и управляющий
+      202 |   await expect(main.getByLabel('Тариф для продления')).toHaveCount(0);
+    > 203 |   await expect(main.getByLabel('Тариф для пересчёта')).toHaveCount(0);
+          |                                                        ^
+      204 |   await expect(main.getByTestId('dates-no-plan')).toHaveCount(0);
+      205 |
+      206 |   // у управляющего выбор любого тарифа, и без штрафа тоже
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:203:56
+
+    Error Context: test-results/roles-администратор-меняет-4bcf8-риф-со-штрафом-Q-200-Q-201-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-меняет-4bcf8-риф-со-штрафом-Q-200-Q-201-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-меняет-4bcf8-риф-со-штрафом-Q-200-Q-201-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByTestId('invite-role-fixed')
+    Expected substring: "Управляющий приглашает администраторов"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByTestId('invite-role-fixed') with timeout 15000ms
+      - waiting for getByRole('dialog').getByTestId('invite-role-fixed')
+
+
+      238 |   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+      239 |   const drawer = page.getByRole('dialog');
+    > 240 |   await expect(drawer.getByTestId('invite-role-fixed')).toContainText(
+          |                                                         ^
+      241 |     'Управляющий приглашает администраторов',
+      242 |   );
+      243 |   await expect(drawer.getByLabel('Роль приглашённого', { exact: true })).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:240:57
+
+    Error Context: test-results/roles-управляющий-журнал-и-374ce-торов-и-отключает-только-их/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-управляющий-журнал-и-374ce-торов-и-отключает-только-их/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-управляющий-журнал-и-374ce-торов-и-отключает-только-их/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль ─────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Пригласить сотрудника' })
+
+
+      275 |   await page.goto('/team');
+      276 |   const main = page.getByRole('main');
+    > 277 |   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+          |                                                                     ^
+      278 |   const drawer = page.getByRole('dialog');
+      279 |   const role = drawer.getByLabel('Роль приглашённого', { exact: true });
+      280 |   await expect(role.locator('option')).toHaveText(['Управляющий', 'Администратор']);
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:277:69
+
+    Error Context: test-results/roles-владелец-зовёт-управ-37b66--администратора-меняет-роль/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-владелец-зовёт-управ-37b66--администратора-меняет-роль/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-владелец-зовёт-управ-37b66--администратора-меняет-роль/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/platform-access.spec.ts:213:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации 
+    tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) 
+    tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их 
+    tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль ──────
+  28 passed (4.1m)
+
+# код выхода 1 · 4 мин 7 с

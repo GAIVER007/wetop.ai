@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 09.10.2026 20:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5a8e44a (claude/sales2-impl), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-18-59Z-integration-fe61.json' 'tests/integration/market-occupancy'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/market-occupancy.test.ts (5 tests) 328ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  08:18:59
+   Duration  1.84s (transform 42%, tests 33%, import 25%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-18-59Z-integration-fe61.json
+
+# код выхода 0 · 3 с

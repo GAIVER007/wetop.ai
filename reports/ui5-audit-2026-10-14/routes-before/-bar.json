@@ -1,0 +1,41 @@
+{
+ "/bar": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар",
+   "mainEmpty": false,
+   "smallTargets": [
+    "INPUT:Отметить все товары 16x16",
+    "INPUT:Отметить Coca-Cola 0.5 16x16",
+    "BUTTON:CCoca-Cola 0.5 119x24",
+    "INPUT:Отметить Red Bull 0.25 16x16",
+    "BUTTON:RRed Bull 0.25 111x24",
+    "INPUT:Отметить Вода BonAqua 0.5 16x16",
+    "BUTTON:ВВода BonAqua 0.5 146x24",
+    "INPUT:Отметить Сок Rich 0.2 16x16",
+    "BUTTON:ССок Rich 0.2 108x24",
+    "INPUT:Отметить Чипсы Lay's 90г 16x16",
+    "BUTTON:ЧЧипсы Lay's 90г 135x24",
+    "INPUT:Отметить Шоколад Snickers 16x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

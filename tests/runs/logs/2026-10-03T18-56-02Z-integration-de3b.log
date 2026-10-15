@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 03.10.2026 23:56 Алматы · vm
+# коммит 8ba201d (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-56-02Z-integration-de3b.json' 'tests/integration/seller-booking-intents.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/seller-booking-intents.test.ts (7 tests) 294ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  18:56:03
+   Duration  1.69s (tests 46%, transform 36%, import 17%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-56-02Z-integration-de3b.json
+
+# код выхода 0 · 2 с

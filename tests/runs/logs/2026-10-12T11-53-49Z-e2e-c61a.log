@@ -1,0 +1,125 @@
+# Сквозные (e2e) · 12.10.2026 16:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0cfe70f (claude/restaurant-design-mockup), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' 'tests/food-ui/food.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 2004ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 26 tests using 1 worker
+
+[WebServer] (node:66136) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘   1 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (31.9s)
+  ✓   2 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (17.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+  ✓   3 tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe (1.8m)
+  ✓   4 tests/food-ui/food.spec.ts:223:1 › overlap and archived catalog preserve creation draft and idempotency key (8.4s)
+  ✓   5 tests/food-ui/food.spec.ts:279:1 › stale token refreshes drawer without automatic mutation retry (10.7s)
+  ✓   6 tests/food-ui/food.spec.ts:303:1 › READ_ONLY and STAFF permissions on real API (17.3s)
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+  ✓   7 tests/food-ui/food.spec.ts:330:1 › server branch switch isolates Food businesses and locations and other verticals (38.5s)
+  ✓   8 tests/food-ui/food.spec.ts:381:1 › pagination beyond 100 and previous local day keep table occupied after reload (12.8s)
+  ✓   9 tests/food-ui/food.spec.ts:449:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (10.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+  ✓  10 tests/food-ui/food.spec.ts:551:1 › API unavailable renders LoadError instead of free tables (1.5s)
+  ✓  11 tests/food-ui/food.spec.ts:559:1 › creation 503 keeps the draft and retry key; invalid period stays inline (1.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+  ✓  12 tests/food-ui/food.spec.ts:589:1 › Food excludes every registered foreign workspace route before API requests (21.3s)
+  ✓  13 tests/food-ui/food.spec.ts:630:1 › marker guarded cleanup (127ms)
+  ✓  14 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (3.7s)
+  ✓  15 tests/food-ui/restaurant.spec.ts:148:1 › фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление (2.4s)
+  ✓  16 tests/food-ui/restaurant.spec.ts:187:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (8.1s)
+  ✓  17 tests/food-ui/restaurant.spec.ts:244:1 › кухня: колонки KDS и переходы кнопками (2.3s)
+  ✓  18 tests/food-ui/restaurant.spec.ts:268:1 › главная: плитки, последние заказы и выручка после закрытия (1.3s)
+  ✓  19 tests/food-ui/restaurant.spec.ts:289:1 › бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол (1.5s)
+  ✓  20 tests/food-ui/restaurant.spec.ts:342:1 › план зала: заказ занимает стол, уборка включается и видна легенда (1.8s)
+  ✓  21 tests/food-ui/restaurant.spec.ts:372:1 › сотрудники: список с продажами, добавление и правка (1.7s)
+  ✓  22 tests/food-ui/restaurant.spec.ts:394:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (6.2s)
+  ✓  23 tests/food-ui/restaurant.spec.ts:459:1 › отчёт за период: выручка, средний чек, оплаты по способам, блюда и официанты (399ms)
+  ✓  24 tests/food-ui/restaurant.spec.ts:505:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (7.1s)
+  ✓  25 tests/food-ui/restaurant.spec.ts:564:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (3.5s)
+  ✓  26 tests/food-ui/restaurant.spec.ts:649:1 › навигация ресторана: пункты макета на месте и ведут на экраны (602ms)
+
+
+  1) tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow ──
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByRole('heading', { name: 'Анна Тестовая', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByRole('heading', { name: 'Анна Тестовая', exact: true }) with timeout 5000ms
+      - waiting for getByRole('dialog').getByRole('heading', { name: 'Анна Тестовая', exact: true })
+
+
+      113 |     .getByRole('button', { name: walkIn ? 'Посадить' : 'Создать бронь', exact: true })
+      114 |     .click();
+    > 115 |   await expect(dialog.getByRole('heading', { name: 'Анна Тестовая', exact: true })).toBeVisible();
+          |                                                                                     ^
+      116 |   return dialog;
+      117 | }
+      118 | test('empty restaurant catalog and complete persisted desk flow', async ({ page, request }) => {
+        at create (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/food.spec.ts:115:85)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/food.spec.ts:121:18
+
+    Error Context: test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow ───
+  25 passed (5.9m)
+
+# код выхода 1 · 5 мин 59 с

@@ -1,0 +1,17 @@
+# Модульные (unit) · 05.10.2026 20:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит ad36019 (codex/staff-owner-journal-main), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T15-26-37Z-unit-104c.json' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 2ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 25ms
+
+ Test Files  2 passed (2)
+      Tests  26 passed (26)
+   Start at  08:26:38
+   Duration  211ms (import 43%, transform 29%, tests 25%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T15-26-37Z-unit-104c.json
+
+# код выхода 0 · 1 с

@@ -1,0 +1,22 @@
+# Модульные (unit) · 03.10.2026 14:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит dde556e (main), незакоммиченных файлов набора: 21
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T09-58-53Z-unit-81a9.json' 'apps/api/src/ai-seller/'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/api/src/ai-seller/business-agents.scope.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/ai-seller/agent-instructions.test.ts (5 tests) 5ms
+ ✓ |unit| apps/api/src/ai-seller/agent-telegram.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/ai-seller/seller-orgs.test.ts (8 tests) 8ms
+ ✓ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (19 tests) 9ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.controller.test.ts (32 tests) 208ms
+ ✓ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (68 tests) 414ms
+
+ Test Files  7 passed (7)
+      Tests  140 passed (140)
+   Start at  02:58:54
+   Duration  1.36s (transform 51%, import 37%, tests 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T09-58-53Z-unit-81a9.json
+
+# код выхода 0 · 2 с

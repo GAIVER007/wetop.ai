@@ -7,6 +7,8 @@
  * Ключ приходит через конструктор из окружения и в ошибки/логи не попадает.
  */
 
+import type { ChannexChannelAdapter, ChannexChannelAttributes } from './channel-connections';
+
 export interface ChannexClientOptions {
   apiKey: string;
   /** По умолчанию staging (sandbox); production только после Gate 9 (CUTOVER.md) */
@@ -705,5 +707,66 @@ export class ChannexClient {
       { webhook: input },
     );
     return { status_code: raw.status_code ?? raw.status ?? 0, body: raw.body ?? '' };
+  }
+
+  // ── Channel API (channel-api.md): каталог каналов и подключения объекта; только чтение ──
+  /** `GET /channels/list` — все адаптеры каналов; ответ — массив без пагинации */
+  async listChannelAdapters(): Promise<ChannexChannelAdapter[]> {
+    return (
+      (await this.request<{ data: ChannexChannelAdapter[] }>('GET', '/channels/list')).data ?? []
+    );
+  }
+  /** `GET /channels/codes` — короткие коды каналов (BDC, AGO…), которыми окно Channex фильтрует список */
+  async listChannelCodes(): Promise<Array<{ code: string; name: string }>> {
+    return (
+      (
+        await this.request<{ data: Array<{ code: string; name: string }> }>(
+          'GET',
+          '/channels/codes',
+        )
+      ).data ?? []
+    );
+  }
+  /** `GET /channels?filter[property_id]=…` — подключения объекта к каналам, постранично */
+  listChannels(propertyId: string): Promise<ChannexResource<ChannexChannelAttributes>[]> {
+    return this.listAll<ChannexChannelAttributes>('/channels', {
+      'filter[property_id]': propertyId,
+    });
+  }
+  /**
+   * `POST /channels/{id}/execute/{action}` (channel-api-examples/booking.com.md, «Actions»): действие выполняется
+   * сразу; `load_future_reservations` просит канал выдать будущие брони, они приходят обычной лентой ревизий.
+   */
+  async executeChannelAction(channelId: string, action: string): Promise<void> {
+    await this.request<unknown>(
+      'POST',
+      `/channels/${encodeURIComponent(channelId)}/execute/${encodeURIComponent(action)}`,
+      {},
+    );
+  }
+  /**
+   * `POST /auth/one_time_token` (channel-iframe.md): одноразовый токен окна Channex, живёт 15 минут.
+   * Окно открывается от имени владельца ключа API, поэтому токен выдаёт только сервер и только на объект.
+   */
+  async createOneTimeToken(input: {
+    propertyId: string;
+    username: string;
+    groupId?: string;
+  }): Promise<string> {
+    const res = await this.request<{ data?: { token?: string } }>('POST', '/auth/one_time_token', {
+      one_time_token: {
+        property_id: input.propertyId,
+        ...(input.groupId ? { group_id: input.groupId } : {}),
+        username: input.username,
+      },
+    });
+    const token = res.data?.token;
+    if (!token)
+      throw new ChannexApiError(
+        'Менеджер каналов не выдал токен окна',
+        502,
+        '/auth/one_time_token',
+      );
+    return token;
   }
 }

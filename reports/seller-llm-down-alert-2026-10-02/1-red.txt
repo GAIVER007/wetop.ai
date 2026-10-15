@@ -1,0 +1,171 @@
+F.FFFFFFF....                                                            [100%]
+=================================== FAILURES ===================================
+________________ test_model_failure_raises_one_alert_per_hotel _________________
+
+engine_env = EngineEnv(sessionmaker=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine objec...ket_timeout=5,orig_socket_connect_timeout=5)>)>)>, embedder=<src.knowledge.embedder.Embedder object at 0x7f197f624200>)
+sync_db = sessionmaker(class_='Session', bind=Engine(sqlite:////tmp/pytest-of-root/pytest-24/test_model_failure_raises_one_0/test.sqlite3), autoflush=True, expire_on_commit=False)
+
+    async def test_model_failure_raises_one_alert_per_hotel(engine_env, sync_db) -> None:  # noqa: F811
+        seed_org(sync_db, ORG, prompt="Ты продавец гостиницы «Тест».", name=HOTEL)
+        llm = FailingCascade()
+        sender = MemorySender()
+        engine = engine_env.engine(llm=llm, sender=sender)
+        outcome = await engine.process_message(_seller_incoming("guest-1"))
+    
+        assert outcome.reply == NEUTRAL_REPLY and "llm_failed" in outcome.reasons
+        alerts = _alerts(sync_db, "llm_down:")
+>       assert alerts, "владелец узнаёт, что модель не ответила"
+E       AssertionError: владелец узнаёт, что модель не ответила
+E       assert []
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_llm_down_alert.py:81: AssertionError
+------------------------------ Captured log setup ------------------------------
+ERROR    src.main:main.py:216 Панель не подключена: путь панели не задан: заполните DASHBOARD_PATH_PREFIX
+------------------------------ Captured log call -------------------------------
+ERROR    src.ai.engine:engine.py:299 модель не ответила: all_models_failed
+____________ test_assistant_model_failure_alert_names_the_assistant ____________
+
+engine_env = EngineEnv(sessionmaker=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine objec...ket_timeout=5,orig_socket_connect_timeout=5)>)>)>, embedder=<src.knowledge.embedder.Embedder object at 0x7f197e1abf80>)
+sync_db = sessionmaker(class_='Session', bind=Engine(sqlite:////tmp/pytest-of-root/pytest-24/test_assistant_model_failure_a0/test.sqlite3), autoflush=True, expire_on_commit=False)
+
+    async def test_assistant_model_failure_alert_names_the_assistant(engine_env, sync_db) -> None:  # noqa: F811
+        engine = engine_env.engine(llm=FailingCascade())
+        await engine.process_message(incoming("Как оформить бронь?"))
+        alerts = _alerts(sync_db, "llm_down:")
+>       assert _keys(alerts) == {"llm_down:assistant"}
+E       AssertionError: assert set() == {'llm_down:assistant'}
+E         
+E         Extra items in the right set:
+E         'llm_down:assistant'
+E         Use -v to get more diff
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_llm_down_alert.py:110: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    src.ai.engine:engine.py:299 модель не ответила: all_models_failed
+_____________________ test_model_exception_is_alerted_too ______________________
+
+engine_env = EngineEnv(sessionmaker=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine objec...ket_timeout=5,orig_socket_connect_timeout=5)>)>)>, embedder=<src.knowledge.embedder.Embedder object at 0x7f197fda0bc0>)
+sync_db = sessionmaker(class_='Session', bind=Engine(sqlite:////tmp/pytest-of-root/pytest-24/test_model_exception_is_alerte0/test.sqlite3), autoflush=True, expire_on_commit=False)
+
+    async def test_model_exception_is_alerted_too(engine_env, sync_db) -> None:  # noqa: F811
+        class ExplodingLlm:
+            async def generate(self, messages, **kwargs):
+                raise RuntimeError("взрыв внутри слоя модели")
+    
+        seed_org(sync_db, ORG, prompt="Ты продавец гостиницы «Тест».", name=HOTEL)
+        await engine_env.engine(llm=ExplodingLlm()).process_message(_seller_incoming("guest-4"))
+        alerts = _alerts(sync_db, "llm_down:")
+>       assert alerts, "исключение слоя модели — тоже отказ модели"
+E       AssertionError: исключение слоя модели — тоже отказ модели
+E       assert []
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_llm_down_alert.py:123: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    src.ai.engine:engine.py:293 слой модели поднял исключение
+Traceback (most recent call last):
+  File "/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/src/ai/engine.py", line 291, in _model
+    t.result = await self._llm.generate(t.messages, api_key=t.llm_api_key)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_llm_down_alert.py", line 118, in generate
+    raise RuntimeError("взрыв внутри слоя модели")
+RuntimeError: взрыв внутри слоя модели
+ERROR    src.ai.engine:engine.py:299 модель не ответила: exception
+________________ test_model_failure_marks_the_dialog_for_staff _________________
+
+engine_env = EngineEnv(sessionmaker=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine objec...ket_timeout=5,orig_socket_connect_timeout=5)>)>)>, embedder=<src.knowledge.embedder.Embedder object at 0x7f197e264bf0>)
+sync_db = sessionmaker(class_='Session', bind=Engine(sqlite:////tmp/pytest-of-root/pytest-24/test_model_failure_marks_the_d0/test.sqlite3), autoflush=True, expire_on_commit=False)
+
+    async def test_model_failure_marks_the_dialog_for_staff(engine_env, sync_db) -> None:  # noqa: F811
+        seed_org(sync_db, ORG, prompt="Ты продавец гостиницы «Тест».", name=HOTEL)
+        outcome = await engine_env.engine(llm=FailingCascade()).process_message(_seller_incoming("guest-5"))
+>       assert outcome.needs_human is True, "фраза обещает администратора — его надо позвать"
+E       AssertionError: фраза обещает администратора — его надо позвать
+E       assert False is True
+E        +  where False = TurnOutcome(status='error', reply='Сейчас не могу ответить, администратор свяжется с вами.', conversation_id=UUID('ec3...lm_failed'], trace=['accept', 'dedup', 'lock', 'contact', 'guard_in', 'consent', 'context', 'model', 'send', 'record']).needs_human
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_llm_down_alert.py:133: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    src.ai.engine:engine.py:299 модель не ответила: all_models_failed
+_________________ test_prompt_missing_is_a_declared_alert_kind _________________
+
+    def test_prompt_missing_is_a_declared_alert_kind() -> None:
+>       assert "prompt_missing" in EVENT_TYPES
+E       AssertionError: assert 'prompt_missing' in {'sla': 'срок ответа клиенту истёк', 'hot_lead': 'горячий лид: заявка создана', 'lead_failed': 'заявка не записана во внешнюю систему', 'lead_no_provider': 'приёмник заявок не настроен', ...}
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_llm_down_alert.py:142: AssertionError
+______________ test_empty_hotel_prompt_raises_an_alert_once_a_day ______________
+
+engine_env = EngineEnv(sessionmaker=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine objec...ket_timeout=5,orig_socket_connect_timeout=5)>)>)>, embedder=<src.knowledge.embedder.Embedder object at 0x7f197e171ee0>)
+sync_db = sessionmaker(class_='Session', bind=Engine(sqlite:////tmp/pytest-of-root/pytest-24/test_empty_hotel_prompt_raises0/test.sqlite3), autoflush=True, expire_on_commit=False)
+
+    async def test_empty_hotel_prompt_raises_an_alert_once_a_day(engine_env, sync_db) -> None:  # noqa: F811
+        seed_org(sync_db, ORG, prompt=None, name=HOTEL)
+        llm = ScriptedLlm([reply("Не должно дойти.")])
+        engine = engine_env.engine(llm=llm)
+        outcome = await engine.process_message(_seller_incoming("guest-6"))
+        assert "prompt_missing" in outcome.reasons and llm.calls == 0
+    
+        alerts = _alerts(sync_db, "prompt_missing:")
+>       assert alerts, "владелец узнаёт, что у гостиницы нет промпта"
+E       AssertionError: владелец узнаёт, что у гостиницы нет промпта
+E       assert []
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_llm_down_alert.py:153: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    src.ai.engine:engine.py:256 системный промпт агента cccccccc-3333-4333-8333-cccccccccccc недоступен
+______________ test_assistant_prompt_file_missing_raises_an_alert ______________
+
+engine_env = EngineEnv(sessionmaker=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine objec...ket_timeout=5,orig_socket_connect_timeout=5)>)>)>, embedder=<src.knowledge.embedder.Embedder object at 0x7f197df07ad0>)
+sync_db = sessionmaker(class_='Session', bind=Engine(sqlite:////tmp/pytest-of-root/pytest-24/test_assistant_prompt_file_mis0/test.sqlite3), autoflush=True, expire_on_commit=False)
+
+    async def test_assistant_prompt_file_missing_raises_an_alert(engine_env, sync_db) -> None:  # noqa: F811
+        def broken_loader() -> str:
+            raise PromptMissing("файл системного промпта не найден")
+    
+        await engine_env.engine(llm=ScriptedLlm([reply("-")]), prompt_loader=broken_loader).process_message(
+            incoming("Как оформить бронь?")
+        )
+        alerts = _alerts(sync_db, "prompt_missing:")
+>       assert _keys(alerts) == {"prompt_missing:assistant"}
+E       AssertionError: assert set() == {'prompt_missing:assistant'}
+E         
+E         Extra items in the right set:
+E         'prompt_missing:assistant'
+E         Use -v to get more diff
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_llm_down_alert.py:173: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    src.ai.engine:engine.py:262 системный промпт недоступен: data/system_prompt.md
+_____________________ test_llm_failure_sends_neutral_reply _____________________
+
+engine_env = EngineEnv(sessionmaker=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine objec...ket_timeout=5,orig_socket_connect_timeout=5)>)>)>, embedder=<src.knowledge.embedder.Embedder object at 0x7f197de390d0>)
+caplog = <_pytest.logging.LogCaptureFixture object at 0x7f197de3b5c0>
+
+    async def test_llm_failure_sends_neutral_reply(engine_env, caplog) -> None:
+        caplog.set_level(logging.ERROR)
+        sender = MemorySender()
+        engine = engine_env.engine(sender=sender, llm=ScriptedLlm([RuntimeError("секретная причина")]))
+        outcome = await engine.process_message(incoming("Есть места?"))
+    
+        # Сбой модели — ветка error: регрессия в 'replied' не должна пройти зелёной.
+        assert outcome.status == "error"
+        assert outcome.reply == NEUTRAL_REPLY
+        assert "llm_failed" in outcome.reasons
+        # Р1 (решение владельца 02.10): фраза обещает администратора — диалог помечен для сотрудника
+>       assert outcome.needs_human is True
+E       AssertionError: assert False is True
+E        +  where False = TurnOutcome(status='error', reply='Сейчас не могу ответить, администратор свяжется с вами.', conversation_id=UUID('72d...lm_failed'], trace=['accept', 'dedup', 'lock', 'contact', 'guard_in', 'consent', 'context', 'model', 'send', 'record']).needs_human
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_step5_failures.py:33: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    src.ai.engine:engine.py:299 модель не ответила: all_models_failed
+=========================== short test summary info ============================
+FAILED tests/test_llm_down_alert.py::test_model_failure_raises_one_alert_per_hotel
+FAILED tests/test_llm_down_alert.py::test_assistant_model_failure_alert_names_the_assistant
+FAILED tests/test_llm_down_alert.py::test_model_exception_is_alerted_too - As...
+FAILED tests/test_llm_down_alert.py::test_model_failure_marks_the_dialog_for_staff
+FAILED tests/test_llm_down_alert.py::test_prompt_missing_is_a_declared_alert_kind
+FAILED tests/test_llm_down_alert.py::test_empty_hotel_prompt_raises_an_alert_once_a_day
+FAILED tests/test_llm_down_alert.py::test_assistant_prompt_file_missing_raises_an_alert
+FAILED tests/test_step5_failures.py::test_llm_failure_sends_neutral_reply - A...
+8 failed, 5 passed in 4.23s

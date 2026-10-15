@@ -1,0 +1,413 @@
+
+> pms-lux@0.0.0 test:record
+> tsx tests/tools/cli-record.ts e2e --config tests/ui/playwright.config.ts --workers=1 tests/ui/fund-workspace.spec.ts tests/ui/finance-f2.spec.ts tests/ui/rates-design.spec.ts tests/ui/rates-range.spec.ts tests/ui/reports-print.spec.ts --note Related availability finance rates and printed forms regression
+
+▶ Сквозные (e2e) — нужно: dev-БД, API :3001 и стойка :3000 (Playwright поднимает сам или берёт уже запущенные)
+  npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/fund-workspace.spec.ts' 'tests/ui/finance-f2.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/rates-range.spec.ts' 'tests/ui/reports-print.spec.ts'
+
+[WebServer] (node:94783) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94813) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94814) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94830) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94875) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:94960) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94965) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 31 tests using 1 worker
+
+(node:94978) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (8.5s)
+  ✓   2 tests/ui/finance-f2.spec.ts:67:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (3.8s)
+  ✓   3 tests/ui/finance-f2.spec.ts:86:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (3.4s)
+  ✓   4 tests/ui/finance-f2.spec.ts:106:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (4.3s)
+  ✓   5 tests/ui/finance-f2.spec.ts:133:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (3.9s)
+  ✓   6 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light (6.6s)
+  ✓   7 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, dark (5.2s)
+[WebServer] (node:95152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95153) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95157) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/fund-workspace.spec.ts:4:1 › category creation, rename, room creation and reload (4.5s)
+[WebServer] (node:95167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/ui/fund-workspace.spec.ts:50:1 › availability preserves exact unit and dates; responsive category design (2.3m)
+(node:95183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95212) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/fund-workspace.spec.ts:91:1 › guests filter categories by capacity; toggle shows all; tab renamed (2.3s)
+[WebServer] (node:95221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/fund-workspace.spec.ts:124:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (1.4s)
+[WebServer] (node:95228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/fund-workspace.spec.ts:145:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (5.1s)
+[WebServer] ⨯ ReferenceError: periodHref is not defined
+[WebServer]     at <unknown> (src/app/rooms/availability-finder.tsx:418:29)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at SoldOutCategories (src/app/rooms/availability-finder.tsx:398:15)
+[WebServer]   416 |                     <b>с {displayDate(next.arrivalDate)}</b>
+[WebServer]   417 |                     <Link
+[WebServer] > 418 |                       href={periodHref(next.arrivalDate, next.departureDate, c.code)}
+[WebServer]       |                             ^
+[WebServer]   419 |                       aria-label={`Посмотреть варианты: ${c.name} с ${displayDate(next.arrivalDate)}`}
+[WebServer]   420 |                     >
+[WebServer]   421 |                       Посмотреть варианты {
+[WebServer]   digest: '836662013'
+[WebServer] }
+[WebServer] (node:95239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/ui/fund-workspace.spec.ts:226:1 › AV4: a category without places stays on screen with the nearest availability (14.4m)
+(node:95248) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95266) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95270) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95273) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/fund-workspace.spec.ts:271:1 › dark categories and availability; invalid dates and empty onboarding (5.2s)
+  ✓  15 tests/ui/rates-design.spec.ts:19:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (1.3s)
+  ✘  16 tests/ui/rates-design.spec.ts:65:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (15.2m)
+(node:95289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/ui/rates-design.spec.ts:95:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (2.2s)
+  ✘  18 tests/ui/rates-design.spec.ts:111:1 › фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать» (16.3m)
+(node:95322) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 tests/ui/rates-design.spec.ts:132:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (1.7s)
+  ✓  20 tests/ui/rates-design.spec.ts:163:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь (1.5s)
+  ✘  21 tests/ui/rates-design.spec.ts:193:1 › нет цены в воскресенье: подсказка не расширяет страницу (15.0m)
+(node:95364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/rates-range.spec.ts:36:1 › один день: выбор, панель с фактами, предпросмотр, одна отправка, календарь обновлён и выбор сброшен (2.1s)
+  ✘  23 tests/ui/rates-range.spec.ts:89:1 › отрезок: второе касание задаёт отрезок, третье начинает заново, то же касание снимает выбор (16.7m)
+(node:95407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 tests/ui/rates-range.spec.ts:146:1 › разные исходные цены: «отличаются» с наименьшей и наибольшей, в предпросмотре — только новая цена (2.2s)
+  ✘  25 tests/ui/rates-range.spec.ts:192:1 › щелчок по цене — прежняя правка ячейки, выбор дат он не трогает; смена месяца выбор сбрасывает (17.5m)
+(node:95436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  26 tests/ui/rates-range.spec.ts:211:1 › отказ API: причина в панели, панель, введённая цена и выбор остаются (2.1s)
+[WebServer] (node:95459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  27 tests/ui/rates-range.spec.ts:237:1 › «только чтение»: выбор и предпросмотр доступны, сохранить нельзя — общая фраза, запроса нет (17.1m)
+(node:95467) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 tests/ui/reports-print.spec.ts:23:1 › хаб ведёт на лист; «Сводка дня» — числа дня и таблицы, как в /desk/today (2.3s)
+  ✘  29 tests/ui/reports-print.spec.ts:43:1 › «Список проживающих»: строка на каждое проживание; телефонов и документов на листе нет (5.0m)
+(node:95490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  30 tests/ui/reports-print.spec.ts:62:1 › казахская форма и переключение форм без потери даты (1.5s)
+  ✓  31 tests/ui/reports-print.spec.ts:75:3 › снимки листов, light (1.6s)
+
+
+  1) tests/ui/fund-workspace.spec.ts:50:1 › availability preserves exact unit and dates; responsive category design 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 45000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      78 |       true,
+      79 |     );
+    > 80 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |             ^
+      81 |   }
+      82 |   await page.screenshot({ path: 'reports/fund-workspace-mobile.png', fullPage: true });
+      83 |   await page.setViewportSize({ width: 1440, height: 1000 });
+        at AxeBuilder.analyze (/Users/urijzapojnov/wetop-channex-recovery-20261004/node_modules/@axe-core/playwright/dist/index.mjs:218:13)
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/fund-workspace.spec.ts:80:13
+
+    Error Context: test-results/fund-workspace-availabilit-7f64f--responsive-category-design/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-availabilit-7f64f--responsive-category-design/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-availabilit-7f64f--responsive-category-design/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/fund-workspace.spec.ts:226:1 › AV4: a category without places stays on screen with the nearest availability 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Нет мест на эти даты' }).locator('article').filter({ hasText: 'Двухместный номер' }).getByText('Нет мест на весь период')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Нет мест на эти даты' }).locator('article').filter({ hasText: 'Двухместный номер' }).getByText('Нет мест на весь период') with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Нет мест на эти даты' }).locator('article').filter({ hasText: 'Двухместный номер' }).getByText('Нет мест на весь период')
+
+
+      242 |   const soldOut = page.getByRole('region', { name: 'Нет мест на эти даты' });
+      243 |   const room = soldOut.locator('article').filter({ hasText: 'Двухместный номер' });
+    > 244 |   await expect(room.getByText('Нет мест на весь период')).toBeVisible();
+          |                                                           ^
+      245 |   await expect(room.getByText('Ближайшая доступность')).toBeVisible();
+      246 |   const link = room.getByRole('link', { name: /^Посмотреть варианты: Двухместный номер с / });
+      247 |   const next = new URL((await link.getAttribute('href'))!, 'http://x').searchParams;
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/fund-workspace.spec.ts:244:59
+
+    Error Context: test-results/fund-workspace-AV4-a-categ-8a120-th-the-nearest-availability/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-AV4-a-categ-8a120-th-the-nearest-availability/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-AV4-a-categ-8a120-th-the-nearest-availability/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/rates-design.spec.ts:65:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений 
+
+    Test timeout of 45000ms exceeded while setting up "page".
+
+    Error Context: test-results/rates-design-изменить-цены-f8a3b-ной-строкой-число-изменений/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-design-изменить-цены-f8a3b-ной-строкой-число-изменений/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-design-изменить-цены-f8a3b-ной-строкой-число-изменений/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/rates-design.spec.ts:111:1 › фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('main').getByTestId('rates-filters').getByLabel('Категория', { exact: true })
+    Expected: "MALE"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').getByTestId('rates-filters').getByLabel('Категория', { exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('rates-filters').getByLabel('Категория', { exact: true })
+
+
+      118 |   await filters.getByLabel('Категория', { exact: true }).selectOption('MALE');
+      119 |   await expect(page).toHaveURL(/category=MALE/);
+    > 120 |   await expect(filters.getByLabel('Категория', { exact: true })).toHaveValue('MALE');
+          |                                                                  ^
+      121 |   // категория на одного гостя — в ячейке одна цена, без слова «гость»
+      122 |   await expect(main.getByTestId('price-2026-10-01-1')).toBeVisible();
+      123 |   await expect(main.getByTestId('rate-row-2026-10-01')).not.toContainText('гост');
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/rates-design.spec.ts:120:66
+
+    Error Context: test-results/rates-design-фильтры-катег-e9e29-им-списком-—-без-«Показать»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-design-фильтры-катег-e9e29-им-списком-—-без-«Показать»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-design-фильтры-катег-e9e29-им-списком-—-без-«Показать»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/rates-design.spec.ts:193:1 › нет цены в воскресенье: подсказка не расширяет страницу ─
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 45000ms exceeded.
+
+      196 |   await page.goto('/rates?month=2026-06');
+      197 |   await expect(page.getByRole('main').getByTestId('rate-row-2026-06-21')).toContainText('Нет цены');
+    > 198 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+          |                     ^
+      199 |     true,
+      200 |   );
+      201 | });
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/rates-design.spec.ts:198:21
+
+    Error Context: test-results/rates-design-нет-цены-в-во-4f6c5-казка-не-расширяет-страницу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-design-нет-цены-в-во-4f6c5-казка-не-расширяет-страницу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-design-нет-цены-в-во-4f6c5-казка-не-расширяет-страницу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/rates-range.spec.ts:89:1 › отрезок: второе касание задаёт отрезок, третье начинает заново, то же касание снимает выбор 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: getByRole('main').getByTestId('rate-row-2026-10-19')
+    Expected pattern: /is-selected/
+    Received string:  ""
+
+    Call log:
+      - Expect "toHaveClass" getByRole('main').getByTestId('rate-row-2026-10-19') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('rate-row-2026-10-19')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      100 |   await expect(selection).toContainText('Выбрано 7 дат: 13.10 → 19.10.2026');
+      101 |   for (const d of ['13', '16', '19'])
+    > 102 |     await expect(main.getByTestId(`rate-row-2026-10-${d}`)).toHaveClass(/is-selected/);
+          |                                                             ^
+      103 |   await expect(main.getByTestId('rate-row-2026-10-20')).not.toHaveClass(/is-selected/);
+      104 |   // третье касание — новый выбор; касание того же дня — выбор снят
+      105 |   await pick(page, '2026-10-22');
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/rates-range.spec.ts:102:61
+
+    Error Context: test-results/rates-range-отрезок-второе-8a699-то-же-касание-снимает-выбор/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-range-отрезок-второе-8a699-то-же-касание-снимает-выбор/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-range-отрезок-второе-8a699-то-же-касание-снимает-выбор/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/rates-range.spec.ts:192:1 › щелчок по цене — прежняя правка ячейки, выбор дат он не трогает; смена месяца выбор сбрасывает 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /month=2026-11/
+    Received string:  "http://127.0.0.1:3100/rates?month=2026-10"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        2 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/rates?month=2026-10"
+
+
+      205 |   await expect(selection).toContainText('Выбрана 1 дата');
+      206 |   await main.getByLabel('Следующий месяц', { exact: true }).click();
+    > 207 |   await expect(page).toHaveURL(/month=2026-11/);
+          |                      ^
+      208 |   await expect(selection).toContainText('Выберите дату или отрезок в календаре');
+      209 | });
+      210 |
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/rates-range.spec.ts:207:22
+
+    Error Context: test-results/rates-range-щелчок-по-цене-bd100-ена-месяца-выбор-сбрасывает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-range-щелчок-по-цене-bd100-ена-месяца-выбор-сбрасывает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-range-щелчок-по-цене-bd100-ена-месяца-выбор-сбрасывает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/rates-range.spec.ts:237:1 › «только чтение»: выбор и предпросмотр доступны, сохранить нельзя — общая фраза, запроса нет 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('rate-row-2026-10-13').getByRole('button', { name: /^Выбрать / })
+
+
+      31 |     .getByTestId(`rate-row-${date}`)
+      32 |     .getByRole('button', { name: /^Выбрать / })
+    > 33 |     .click();
+         |      ^
+      34 | }
+      35 |
+      36 | test('один день: выбор, панель с фактами, предпросмотр, одна отправка, календарь обновлён и выбор сброшен', async ({
+        at pick (/Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/rates-range.spec.ts:33:6)
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/rates-range.spec.ts:251:9
+
+    Error Context: test-results/rates-range-«только-чтение-b7a53-я-—-общая-фраза-запроса-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-range-«только-чтение-b7a53-я-—-общая-фраза-запроса-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-range-«только-чтение-b7a53-я-—-общая-фраза-запроса-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/reports-print.spec.ts:43:1 › «Список проживающих»: строка на каждое проживание; телефонов и документов на листе нет 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+      17 | }
+      18 |
+    > 19 | test.beforeEach(async ({ page }) => {
+         |      ^
+      20 |   await page.request.post(`${fixture}/__test/reset`);
+      21 | });
+      22 |
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/reports-print.spec.ts:19:6
+
+    Error Context: test-results/reports-print-«Список-прож-65ae2-в-и-документов-на-листе-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-print-«Список-прож-65ae2-в-и-документов-на-листе-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-print-«Список-прож-65ae2-в-и-документов-на-листе-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    tests/ui/fund-workspace.spec.ts:50:1 › availability preserves exact unit and dates; responsive category design 
+    tests/ui/fund-workspace.spec.ts:226:1 › AV4: a category without places stays on screen with the nearest availability 
+    tests/ui/rates-design.spec.ts:65:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений 
+    tests/ui/rates-design.spec.ts:111:1 › фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать» 
+    tests/ui/rates-design.spec.ts:193:1 › нет цены в воскресенье: подсказка не расширяет страницу ──
+    tests/ui/rates-range.spec.ts:89:1 › отрезок: второе касание задаёт отрезок, третье начинает заново, то же касание снимает выбор 
+    tests/ui/rates-range.spec.ts:192:1 › щелчок по цене — прежняя правка ячейки, выбор дат он не трогает; смена месяца выбор сбрасывает 
+    tests/ui/rates-range.spec.ts:237:1 › «только чтение»: выбор и предпросмотр доступны, сохранить нельзя — общая фраза, запроса нет 
+    tests/ui/reports-print.spec.ts:43:1 › «Список проживающих»: строка на каждое проживание; телефонов и документов на листе нет 
+  22 passed (2.0h)
+
+■ e2e: ❌ упало 9 из 31 · 2 ч 1 мин
+  лог: tests/runs/logs/2026-10-05T15-54-23Z-e2e-eaa6.log
+  журнал: tests/runs/JOURNAL.md · что доказано: npm run test:status

@@ -18,7 +18,7 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 
 /**
- * SA2.5, сужение (миграция 039): профиль принадлежит АГЕНТУ — первичный ключ `agent_id`. У организации по профилю на каждого агента;
+ * SA2.5, сужение (миграция 039): профиль принадлежит АГЕНТУ, первичный ключ `agent_id`. У организации по профилю на каждого агента;
  * настройки, инструкция, метки доставки и журнал одного агента не задевают другого; ключ базы не даёт второй профиль агенту;
  * перенесённый продавец (`agentId = organizationId`) сохраняется так же, а организация без участников профиль не получает.
  */
@@ -52,7 +52,7 @@ describe.skipIf(!url)('SA2.5: профиль по агенту после суж
     const p2 = await createPropertyInChain(db, org, { name: `Объект 2 ${org}`, ...base });
     const loc = async (id: string) => (await db.property.findUniqueOrThrow({ where: { id }, select: { locationId: true } })).locationId!;
     [locA, locB] = [await loc(p1.id), await loc(p2.id)];
-    // рабочий агент (id = организация) без филиала — филиалов два, выбор не угадывается; второй агент — на втором филиале
+    // рабочий агент (id = организация) без филиала, филиалов два, выбор не угадывается; второй агент, на втором филиале
     await db.sellerAgent.create({ data: { id: org, organizationId: org, createdBy: user, name: 'Перенесённый', locationId: locA } });
     await db.sellerAgent.create({ data: { id: second, organizationId: org, createdBy: user, name: 'Второй', locationId: locB } });
   });
@@ -72,7 +72,7 @@ describe.skipIf(!url)('SA2.5: профиль по агенту после суж
 
   const scopeOf = (agentId: string) => ({ agentId, organizationId: org });
 
-  it('у организации два профиля — по агенту; настройки и инструкция одного не задевают другого', async () => {
+  it('у организации два профиля, по агенту; настройки и инструкция одного не задевают другого', async () => {
     await profiles.save(workingSellerScope(org), { ...DEFAULT_SELLER_PROFILE, botName: 'Первая' }, user, now);
     await profiles.save(scopeOf(second), { ...DEFAULT_SELLER_PROFILE, botName: 'Вторая' }, user, now);
     expect((await profiles.get(org))?.botName).toBe('Первая');
@@ -84,7 +84,7 @@ describe.skipIf(!url)('SA2.5: профиль по агенту после суж
     expect(await db.sellerProfile.count({ where: { organizationId: org } })).toBe(2);
   });
 
-  it('метки доставки и ошибка — на профиле агента: доставка первому не гасит отказ второго', async () => {
+  it('метки доставки и ошибка, на профиле агента: доставка первому не гасит отказ второго', async () => {
     await profiles.markError(second, 'Продавец отказал', now);
     await profiles.markProfileApplied(org, now);
     await profiles.markFactsApplied(org, 'a'.repeat(64), now);
@@ -106,7 +106,7 @@ describe.skipIf(!url)('SA2.5: профиль по агенту после суж
     ).rejects.toThrow();
   });
 
-  it('факты каждого агента — объект его филиала', async () => {
+  it('факты каждого агента, объект его филиала', async () => {
     expect((await facts.load(scopeOf(org), now))?.property.name).toContain('Объект 1');
     expect((await facts.load(scopeOf(second), now))?.property.name).toContain('Объект 2');
   });

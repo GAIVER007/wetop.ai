@@ -1,0 +1,56 @@
+# Модульные (unit) · 03.10.2026 20:40 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-40-06Z-unit-6342.json' 'packages/domain/src/dashboard/channels.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/dashboard/channels.test.ts (4 tests | 1 failed) 24ms
+   ❯ эффективность каналов: доход, ночи, средняя стоимость ночи по каналу (брони с заездом в периоде) (4)
+     ✓ строки по каналу: сумма, доля дохода, ночи, доля ночей, средняя стоимость; прямые источники отдельными строками 7ms
+     ✓ каналы без броней — нулевыми строками, только если просили; известные дубликаты не повторяются 2ms
+     × отбор по каналу и порядок: по ночам, по средней стоимости 13ms
+     ✓ средняя стоимость — целые тиыны, как ADR «Обзора» (остаток отбрасывается); пустой период — без деления 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/channels.test.ts > эффективность каналов: доход, ночи, средняя стоимость ночи по каналу (брони с заездом в периоде) > отбор по каналу и порядок: по ночам, по средней стоимости
+AssertionError: expected undefined to deeply equal [ Array(3) ]
+
+- Expected:
+[
+  {
+    "label": "Booking.com",
+    "source": "OTA",
+  },
+  {
+    "label": "Trip.com",
+    "source": "OTA",
+  },
+  {
+    "label": "DESK",
+    "source": "DESK",
+  },
+]
+
++ Received:
+undefined
+
+ ❯ packages/domain/src/dashboard/channels.test.ts:58:27
+     56|     expect(trip.rows[0]!.revenueShare).toBe(14.1);
+     57|     // список «Канал» на экране — все каналы периода, и при отборе
+     58|     expect(trip.channels).toEqual([
+       |                           ^
+     59|       { label: 'Booking.com', source: 'OTA' },
+     60|       { label: 'Trip.com', source: 'OTA' },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  15:40:07
+   Duration  254ms (transform 63%, tests 22%, import 12%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-40-06Z-unit-6342.json
+
+# код выхода 1 · 1 с

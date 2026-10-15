@@ -1,0 +1,20 @@
+# Модульные (unit) · 01.10.2026 14:11 Алматы · MacBook-Air-Urij.local
+# коммит 7cf8e5e (codex/unified-workspace-20260929), незакоммиченных файлов набора: 125
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T09-11-28Z-unit-1386.json' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/ai-seller/agent-telegram.test.ts' 'apps/web/src/lib/auth-entry.test.ts' 'apps/web/src/lib/auth-fallback.test.ts' 'apps/web/src/lib/unified-auth-entry.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 13ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 265ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 126ms
+ ✓ |unit| apps/api/src/ai-seller/agent-telegram.test.ts (4 tests) 32ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 169ms
+
+ Test Files  5 passed (5)
+      Tests  26 passed (26)
+   Start at  13:11:34
+   Duration  13.82s (transform 67%, import 29%, tests 3%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T09-11-28Z-unit-1386.json
+
+# код выхода 0 · 20 с

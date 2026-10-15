@@ -88,6 +88,7 @@ class ScriptedRouter:
     script: имя модели -> очередь ответов. Элемент очереди:
     - dict — ответ 200 с этим JSON;
     - int — HTTP-ошибка с этим кодом и телом {'error': {'message': 'x'}};
+    - (int, dict): HTTP-ошибка с этим кодом и этим телом;
     - Exception (httpx.ReadTimeout, httpx.ConnectError) — поднимается из транспорта.
     Пустая очередь — 500: модель без сценария считается упавшей.
     calls хранит тело каждого запроса как dict — по нему проверяется,
@@ -113,6 +114,10 @@ class ScriptedRouter:
             raise item
         if isinstance(item, int):
             return httpx.Response(item, json={"error": {"message": "x"}}, request=request)
+        if isinstance(item, tuple):
+            # (код, тело): ошибка поставщика со своим телом, например с usage (MKT6, Q-279)
+            status, payload = item
+            return httpx.Response(status, json=payload, request=request)
         return httpx.Response(200, json=item, request=request)
 
     def transport(self) -> httpx.MockTransport:

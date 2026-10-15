@@ -7,7 +7,7 @@
  * падение без отката и повторную тревогу раз в две минуты.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, statSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -35,8 +35,8 @@ function commit(file: string, text: string, message: string, force = false) {
   return git(dev, 'rev-parse', 'HEAD');
 }
 
-function run(env: Record<string, string> = {}, args: string[] = []) {
-  const r = spawnSync('bash', [SCRIPT, ...args], {
+function run(env: Record<string, string> = {}, args: string[] = [], restrictiveMask = false) {
+  const r = spawnSync('bash', restrictiveMask ? ['-c', 'umask 077; exec bash "$@"', 'test', SCRIPT, ...args] : [SCRIPT, ...args], {
     encoding: 'utf8',
     env: {
       ...process.env,
@@ -45,6 +45,7 @@ function run(env: Record<string, string> = {}, args: string[] = []) {
       DEPLOY_STATE_DIR: state,
       DEPLOY_HEALTH_WAIT: '2',
       DEPLOY_HEALTH_STEP: '1',
+      BASH_ENV: join(bin, 'clock.sh'),
       FAKE_CALLS: calls,
       TELEGRAM_BOT_TOKEN: TOKEN,
       TELEGRAM_CHAT_ID: '-100',
@@ -78,6 +79,14 @@ beforeEach(() => {
     join(bin, 'docker'),
     `#!/usr/bin/env bash
 echo "docker $*" >> "$FAKE_CALLS"
+# Контейнер CI-раннера есть всегда; задачу он выполняет, когда задан FAKE_CI_BUSY (процесс Runner.Worker)
+if [ "$1" = ps ]; then echo ci1; exit 0; fi
+if [ "$1" = top ]; then
+  echo "UID PID CMD"
+  echo "runner 10 /home/runner/actions-runner/bin/Runner.Listener run"
+  [ -n "\${FAKE_CI_BUSY:-}" ] && echo "runner 11 /home/runner/actions-runner/bin/Runner.Worker spawnclient 1 2"
+  exit 0
+fi
 if [ "$1" = compose ] && [[ " $* " == *" exec "* ]]; then
   [ -n "\${FAKE_BAD_SHA:-}" ] && [ "$(git -C "$DEPLOY_REPO" rev-parse HEAD)" = "$FAKE_BAD_SHA" ] && exit 1
   [[ " $* " == *" api "* ]] && echo '{"status":"ok","database":"up"}'
@@ -95,6 +104,18 @@ exit 0
   // auto-deploy runs on Linux, where util-linux provides flock. The test suite also runs on macOS,
   // so keep the server dependency inside the fake PATH instead of silently skipping every scenario.
   writeFileSync(join(bin, 'flock'), '#!/usr/bin/env bash\nexit 0\n');
+  // Keep retry/deadline logic real, but advance a synthetic shell clock instead of waiting.
+  // Unsetting SECONDS removes Bash's wall-clock behavior; sleep advances this fixture's clock.
+  writeFileSync(
+    join(bin, 'clock.sh'),
+    `unset SECONDS
+SECONDS=0
+sleep() {
+  printf 'sleep %s\\n' "$1" >> "$FAKE_CALLS.clock"
+  SECONDS=$((SECONDS + $1))
+}
+`,
+  );
   chmodSync(join(bin, 'docker'), 0o755);
   chmodSync(join(bin, 'curl'), 0o755);
   chmodSync(join(bin, 'flock'), 0o755);
@@ -103,6 +124,13 @@ exit 0
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
 describe('scripts/ops/auto-deploy.sh', () => {
+  it('checked-out source stays readable by the container user under a private caller umask', () => {
+    commit('apps/api/src/new-module.ts', 'export const ready = true;\n', 'new module');
+    const result = run({DEPLOY_NOTIFY: 'off'}, [], true);
+    expect(result.code).toBe(0);
+    expect(statSync(join(server, 'apps/api/src/new-module.ts')).mode & 0o444).toBe(0o444);
+    expect(statSync(join(server, 'apps/api/src')).mode & 0o111).toBe(0o111);
+  });
   it('ветка не ушла вперёд — ничего не делает и молчит', () => {
     const r = run();
     expect(r.code).toBe(0);
@@ -193,7 +221,8 @@ describe('scripts/ops/auto-deploy.sh', () => {
   it('--migrations-applied с номером вершины выкладывает ровно её, другую — нет', () => {
     const target = commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
     expect(run().code).toBe(1);
-    expect(run({}, ['--migrations-applied', 'deadbeef']).code).not.toBe(0);
+    const rejected = run({}, ['--migrations-applied', 'deadbeef']);
+    expect(rejected.code, rejected.out).not.toBe(0);
     const r = run({}, ['--migrations-applied', target.slice(0, 8)]);
     expect(r.code, r.out).toBe(0);
     expect(head()).toBe(target);
@@ -260,7 +289,43 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(head()).toBe(before);
     expect(dockerCalls()).toContain(`docker image tag pms-lux:rollback-${before.slice(0, 8)} pms-lux:latest`);
     expect(r.out).toContain(`возвращён ${before.slice(0, 8)}`);
+    expect(readFileSync(`${calls}.clock`, 'utf8').trim().split('\n')).toEqual(['sleep 1', 'sleep 1']);
+    expect(dockerCalls().split('\n').filter((line) => line.includes('http://127.0.0.1:3001/health'))).toHaveLength(3);
     // сломанный коммит не пробует снова каждые две минуты
     expect(run({ FAKE_BAD_SHA: target }).out).toBe('');
+  });
+
+  // Сбой 03.10.2026 (plans/deploy-build-outage-2026-10-03.md): сборка образа совпала с проверками CI на том же
+  // сервере, памяти не хватило обоим, туннель 4–7 минут отвечал 530
+  it('CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает', () => {
+    const before = head();
+    const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+    const busy = run({ FAKE_CI_BUSY: '1' });
+    expect(busy.code, busy.out).toBe(0);
+    expect(busy.out).toContain('раннер CI выполняет задачу');
+    expect(dockerCalls()).not.toContain('up -d --build');
+    expect(head()).toBe(before);
+    expect(existsSync(join(state, 'refused'))).toBe(false);
+    // повторные запуски, пока раннер занят, молчат: строка в журнале одна на вершину
+    expect(run({ FAKE_CI_BUSY: '1' }).out).toBe('');
+    const free = run();
+    expect(free.code, free.out).toBe(0);
+    expect(head()).toBe(target);
+    expect(dockerCalls()).toMatch(/up -d --build api web/);
+  });
+
+  it('раннер занят дольше предела — выкладывает всё равно и говорит об этом', () => {
+    const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+    const r = run({ FAKE_CI_BUSY: '1', DEPLOY_CI_MAX_WAIT: '0' });
+    expect(r.code, r.out).toBe(0);
+    expect(head()).toBe(target);
+    expect(r.out).toContain('раннер CI занят дольше 0 мин');
+  });
+
+  it('миграции проверяются раньше раннера: занятый раннер не прячет отказ', () => {
+    commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
+    const r = run({ FAKE_CI_BUSY: '1' });
+    expect(r.code).toBe(1);
+    expect(r.out).toContain('применяет владелец');
   });
 });

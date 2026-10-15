@@ -1,0 +1,16 @@
+# Модульные (unit) · 03.10.2026 17:51 Алматы · vm
+# коммит 8700292 (ci-release-gate), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-51-09Z-unit-b95c.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/main-snap
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (19 tests) 189ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  05:51:10
+   Duration  527ms (tests 61%, transform 27%, import 11%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-51-09Z-unit-b95c.json
+
+# код выхода 0 · 2 с

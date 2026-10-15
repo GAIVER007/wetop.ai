@@ -1,0 +1,32 @@
+# Интеграционные (integration) · 06.10.2026 22:20 Алматы · vm
+# коммит 1923efc (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T17-20-11Z-integration-1dde.json' 'tests/integration/marketing-site.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 1904  - 10/06/2026, 5:20:16 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5)
+    at /home/user/wetop.ai/tests/integration/marketing-site.test.ts:143:7 {
+  expected: 284990,
+  length: 284990,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+ ✓ |integration| tests/integration/marketing-site.test.ts (34 tests) 1247ms
+
+ Test Files  1 passed (1)
+      Tests  34 passed (34)
+   Start at  17:20:12
+   Duration  4.46s (tests 43%, transform 41%, import 16%)
+
+JSON report written to /tmp/pms-test-2026-10-06T17-20-11Z-integration-1dde.json
+
+# код выхода 0 · 5 с

@@ -1,0 +1,181 @@
+# Сквозные (e2e) · 05.10.2026 20:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6d9b470 (codex/calendar-mobile-statistics), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-statistics.spec.ts' '--workers=1'
+[WebServer] (node:93536) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93581) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93615) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 419ms. If /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:93640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (18.7s)
+(node:93810) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (26.1s)
+(node:94199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (17.1s)
+(node:94332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/ui/chessboard-statistics.spec.ts:41:1 › today statistics stay available when the calendar shows another month (18.1s)
+
+
+  1) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' }).getByRole('heading', { name: 'Загрузка на сегодня' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('group', { name: 'Сегодня на объекте' }).getByRole('heading', { name: 'Загрузка на сегодня' }) with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByRole('heading', { name: 'Загрузка на сегодня' })
+
+
+      11 |     await page.goto('/chessboard');
+      12 |     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+    > 13 |     await expect(panel.getByRole('heading', { name: 'Загрузка на сегодня' })).toBeVisible();
+         |                                                                               ^
+      14 |     await expect(panel.getByRole('heading', { name: 'Гости сегодня' })).toBeVisible();
+      15 |     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
+      16 |     await expect(panel.getByText('Задачи', { exact: true })).toHaveCount(0);
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:13:79
+
+    Error Context: test-results/chessboard-statistics-stat-1853e-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' }).getByRole('heading', { name: 'Загрузка на сегодня' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('group', { name: 'Сегодня на объекте' }).getByRole('heading', { name: 'Загрузка на сегодня' }) with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByRole('heading', { name: 'Загрузка на сегодня' })
+
+
+      11 |     await page.goto('/chessboard');
+      12 |     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+    > 13 |     await expect(panel.getByRole('heading', { name: 'Загрузка на сегодня' })).toBeVisible();
+         |                                                                               ^
+      14 |     await expect(panel.getByRole('heading', { name: 'Гости сегодня' })).toBeVisible();
+      15 |     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
+      16 |     await expect(panel.getByText('Задачи', { exact: true })).toHaveCount(0);
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:13:79
+
+    Error Context: test-results/chessboard-statistics-stat-d9659-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-d9659-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-d9659-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' }).getByRole('heading', { name: 'Загрузка на сегодня' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('group', { name: 'Сегодня на объекте' }).getByRole('heading', { name: 'Загрузка на сегодня' }) with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByRole('heading', { name: 'Загрузка на сегодня' })
+
+
+      11 |     await page.goto('/chessboard');
+      12 |     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+    > 13 |     await expect(panel.getByRole('heading', { name: 'Загрузка на сегодня' })).toBeVisible();
+         |                                                                               ^
+      14 |     await expect(panel.getByRole('heading', { name: 'Гости сегодня' })).toBeVisible();
+      15 |     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
+      16 |     await expect(panel.getByText('Задачи', { exact: true })).toHaveCount(0);
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:13:79
+
+    Error Context: test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-statistics.spec.ts:41:1 › today statistics stay available when the calendar shows another month 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-occupancy')
+    Expected: "8%"
+    Received: "—"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-occupancy') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-occupancy')
+        32 × locator resolved to <b data-testid="day-occupancy">—</b>
+           - unexpected value "—"
+
+
+      46 |   const free = await panel.getByTestId('day-free').innerText();
+      47 |   await page.goto('/chessboard?from=2025-01-01&to=2025-01-30');
+    > 48 |   await expect(panel.getByTestId('day-occupancy')).toHaveText(occupancy);
+         |                                                    ^
+      49 |   await expect(panel.getByTestId('day-free')).toHaveText(free);
+      50 |   await page.screenshot({path:'reports/calendar-mobile-statistics-2026-10-05/top-390.png'});
+      51 | });
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:48:52
+
+    Error Context: test-results/chessboard-statistics-toda-bcc3e-alendar-shows-another-month/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-toda-bcc3e-alendar-shows-another-month/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-toda-bcc3e-alendar-shows-another-month/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:41:1 › today statistics stay available when the calendar shows another month 
+
+# код выхода 1 · 1 мин 46 с

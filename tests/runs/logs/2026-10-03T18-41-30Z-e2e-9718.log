@@ -1,0 +1,79 @@
+# Сквозные (e2e) · 03.10.2026 23:41 Алматы · vm
+# коммит 495c002 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/payment-requests.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/payment-requests.spec.ts:21:1 › Kaspi: запрос с остатком по умолчанию, текст гостю, «Оплачено» даёт платёж на счёт (4.3s)
+  ✓  2 tests/ui/payment-requests.spec.ts:45:1 › ссылка банка не https — отказ словами, ссылка и сумма остаются в форме (2.1s)
+  ✓  3 tests/ui/payment-requests.spec.ts:58:1 › отмена ожидающего запроса с подтверждением; ссылка банка попадает в текст (2.7s)
+  ✓  4 tests/ui/payment-requests.spec.ts:76:5 › доступность блока: light, 1440 px (2.9s)
+  ✘  5 tests/ui/payment-requests.spec.ts:76:5 › доступность блока: light, 390 px (2.8s)
+  ✓  6 tests/ui/payment-requests.spec.ts:76:5 › доступность блока: dark, 1440 px (2.8s)
+  ✘  7 tests/ui/payment-requests.spec.ts:76:5 › доступность блока: dark, 390 px (2.9s)
+
+
+  1) tests/ui/payment-requests.spec.ts:76:5 › доступность блока: light, 390 px ─────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      89 |         () => document.documentElement.scrollWidth > window.innerWidth,
+      90 |       );
+    > 91 |       expect(overflow).toBe(false);
+         |                        ^
+      92 |       if (width === 390)
+      93 |         await panel.screenshot({ path: `reports/payment-requests-2026-10-03/panel-${theme}-390.png` });
+      94 |       else
+        at /home/user/wetop.ai/tests/ui/payment-requests.spec.ts:91:24
+
+    Error Context: test-results/payment-requests-доступность-блока-light-390-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/payment-requests-доступность-блока-light-390-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/payment-requests-доступность-блока-light-390-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/payment-requests.spec.ts:76:5 › доступность блока: dark, 390 px ──────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      89 |         () => document.documentElement.scrollWidth > window.innerWidth,
+      90 |       );
+    > 91 |       expect(overflow).toBe(false);
+         |                        ^
+      92 |       if (width === 390)
+      93 |         await panel.screenshot({ path: `reports/payment-requests-2026-10-03/panel-${theme}-390.png` });
+      94 |       else
+        at /home/user/wetop.ai/tests/ui/payment-requests.spec.ts:91:24
+
+    Error Context: test-results/payment-requests-доступность-блока-dark-390-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/payment-requests-доступность-блока-dark-390-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/payment-requests-доступность-блока-dark-390-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/payment-requests.spec.ts:76:5 › доступность блока: light, 390 px ──────────────────────
+    tests/ui/payment-requests.spec.ts:76:5 › доступность блока: dark, 390 px ───────────────────────
+  5 passed (29.6s)
+
+# код выхода 1 · 31 с

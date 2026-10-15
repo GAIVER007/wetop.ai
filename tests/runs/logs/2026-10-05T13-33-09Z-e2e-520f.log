@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 05.10.2026 18:33 Алматы · MacBook-Air-Urij.local
+# коммит c519f0a (codex/owner-home-compact), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' '--grep' 'forecast details' '--workers=1'
+[WebServer] (node:98699) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98886) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99631) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99647) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:775) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1269) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/owner-dashboard-interactions.spec.ts:7:1 › forecast details expose availability and open the selected calendar day (3.1s)
+
+
+  1) tests/ui/owner-dashboard-interactions.spec.ts:7:1 › forecast details expose availability and open the selected calendar day 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 64
+    Received:    60.5
+
+      16 |   const days = dialog.getByRole('link');
+      17 |   await expect(days).toHaveCount(7);
+    > 18 |   expect((await days.first().boundingBox())!.height).toBeGreaterThanOrEqual(64);
+         |                                                      ^
+      19 |   await expect(days.first()).toContainText('Свободно');
+      20 |   const href = await days.nth(1).getAttribute('href');
+      21 |   expect(href).toMatch(/^\/chessboard\?from=(\d{4}-\d{2}-\d{2})&to=\1$/);
+        at /private/tmp/wetop-owner-home-verify-20261005/tests/ui/owner-dashboard-interactions.spec.ts:18:54
+
+    Error Context: test-results/owner-dashboard-interactio-ee241-n-the-selected-calendar-day/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-ee241-n-the-selected-calendar-day/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-ee241-n-the-selected-calendar-day/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/owner-dashboard-interactions.spec.ts:7:1 › forecast details expose availability and open the selected calendar day 
+
+# код выхода 1 · 13 с

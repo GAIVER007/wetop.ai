@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * «Аналитика сайта» и «Статистика» без каши (21.09.2026, продолжение правки).
@@ -10,7 +11,7 @@ import { expect, test } from '@playwright/test';
  * стояли в четыре колонки по ~270 px и обрезались («Сессий за пер»); пустые состояния говорили смене
  * кодом — `pms('event', 'search', …)`.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

@@ -1,0 +1,16 @@
+# Модульные (unit) · 03.10.2026 20:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит 74f3bc8 (claude/birthdays), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T15-09-31Z-unit-3a2e.json' 'packages/domain/src/tasks'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ✓ |unit| packages/domain/src/tasks/tasks.test.ts (6 tests) 127ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  08:09:57
+   Duration  10.16s (transform 76%, import 13%, tests 10%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T15-09-31Z-unit-3a2e.json
+
+# код выхода 0 · 39 с

@@ -1,0 +1,18 @@
+# Модульные (unit) · 02.10.2026 16:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит bdc8110 (main), незакоммиченных файлов набора: 27
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-56-27Z-unit-1707.json' 'apps/web/src/app/finance/debts-csv.test.ts' 'apps/web/src/app/finance/operations-csv.test.ts' 'apps/web/src/lib/navigation-roles.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/web/src/app/finance/operations-csv.test.ts (5 tests) 4ms
+ ✓ |unit| apps/web/src/app/finance/debts-csv.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (16 tests) 7ms
+
+ Test Files  3 passed (3)
+      Tests  24 passed (24)
+   Start at  04:56:28
+   Duration  421ms (transform 82%, import 16%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-56-27Z-unit-1707.json
+
+# код выхода 0 · 2 с

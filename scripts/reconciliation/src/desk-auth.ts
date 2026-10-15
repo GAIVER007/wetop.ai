@@ -21,7 +21,16 @@ export function deskCredentials(env: Record<string, string | undefined>): DeskCr
 
 /** Замок ли это: стойка уводит на `/login` любой экран, пока сессии нет. */
 export function locked(url: string): boolean {
-  return /\/login(\?|#|$)/.test(url);
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.pathname === '/login' ||
+      parsed.pathname === '/auth/fallback' ||
+      (parsed.pathname === '/' && parsed.hash === '#login')
+    );
+  } catch {
+    return false;
+  }
 }
 
 /** Одна строка в отчёт вместо потока FAIL: замок — это не поломка экрана. */

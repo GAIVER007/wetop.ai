@@ -1,11 +1,20 @@
 import 'reflect-metadata';
-import { Controller, Get, Inject, Injectable, Module, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Inject,
+  Injectable,
+  Module,
+  Query,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef } from '../database/property-ref';
 import { Access } from '../auth/access.decorator';
+import { auditFilters, safeSnapshot, type AuditQuery } from './audit-query';
 
 export interface AuditRow {
   id: string;
@@ -22,6 +31,10 @@ export interface AuditRow {
    * сторож или служебный скрипт. Почта сотрудника сюда не идёт — на экране довольно имени.
    */
   author: string | null;
+  authorId: string | null;
+  cursor: string;
+  before: Record<string, unknown>;
+  after: Record<string, unknown>;
 }
 
 /** Служебные строки: служебная проверка системы пишет одну каждые 5 минут и вытесняет из журнала действия людей */
@@ -42,18 +55,11 @@ const SUBJECT_SQL = Prisma.sql`COALESCE(
 @Injectable()
 export class AuditService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-  async list(q: {
-    limit?: number | undefined;
-    entityType?: string | undefined;
-    action?: string | undefined;
-    /** Номер брони или код ячейки: ищется в снимках всей истории, не в последних строках */
-    q?: string | undefined;
-    /** Показывать служебные строки (служебная проверка системы) */
-    system?: boolean | undefined;
-  }): Promise<AuditRow[]> {
+  async list(q: AuditQuery): Promise<AuditRow[]> {
+    const filters = auditFilters(q);
     const text = q.q?.trim();
     const take = Math.min(Math.max(q.limit ?? 100, 1), 500);
-    const where: Prisma.Sql[] = [Prisma.sql`TRUE`];
+    const where: Prisma.Sql[] = [Prisma.sql`TRUE`, ...filters];
     if (q.entityType) where.push(Prisma.sql`a."entity_type" = ${q.entityType}`);
     if (q.action) where.push(Prisma.sql`a."action" LIKE ${`${q.action}%`}`);
     if (!q.system && !q.action)
@@ -74,18 +80,24 @@ export class AuditService {
         subject: string | null;
         target_available: boolean | null;
         author: string | null;
+        user_id: string | null;
+        cursor_at: string;
+        before_safe: Record<string, unknown>;
+        after_safe: Record<string, unknown>;
       }>
     >`
       SELECT a."id", a."created_at", a."entity_type", a."entity_id", a."action", ${SUBJECT_SQL} AS "subject",
              CASE WHEN a."entity_type" = 'Reservation' THEN reservation_target."id" IS NOT NULL ELSE NULL END
                AS "target_available",
-             u."name" AS "author"
+             u."name" AS "author", a."user_id",
+             to_char(a."created_at" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "cursor_at",
+             ${safeSnapshot('before')} AS "before_safe", ${safeSnapshot('after')} AS "after_safe"
       FROM "audit_logs" a
       LEFT JOIN "users" u ON u."id" = a."user_id"
       LEFT JOIN "reservations" reservation_target
         ON a."entity_type" = 'Reservation' AND reservation_target."id"::text = a."entity_id"
       WHERE ${Prisma.join(where, ' AND ')}
-      ORDER BY a."created_at" DESC
+      ORDER BY a."created_at" DESC, a."id" DESC
       LIMIT ${take}`;
     return rows.map((r) => ({
       id: r.id,
@@ -96,7 +108,19 @@ export class AuditService {
       subject: r.subject,
       targetAvailable: r.target_available,
       author: r.author ?? null,
+      authorId: r.user_id ?? null,
+      cursor: `${r.cursor_at ?? r.created_at.toISOString()}|${r.id}`,
+      before: r.before_safe ?? {},
+      after: r.after_safe ?? {},
     }));
+  }
+  async actors(): Promise<Array<{ id: string; name: string | null }>> {
+    const scope = hasSignedInActor() ? await ownAuditRows(this.prisma.db) : Prisma.sql`TRUE`;
+    return this.prisma.db.$queryRaw<Array<{ id: string; name: string | null }>>`
+      SELECT DISTINCT a."user_id" AS "id", u."name"
+      FROM "audit_logs" a LEFT JOIN "users" u ON u."id" = a."user_id"
+      WHERE a."user_id" IS NOT NULL AND ${scope}
+      ORDER BY u."name" NULLS LAST, a."user_id"`;
   }
 }
 
@@ -108,8 +132,16 @@ export class AuditService {
  * показывается — лучше не показать своё, чем показать чужое.
  */
 async function ownAuditRows(db: PrismaService['db']): Promise<Prisma.Sql> {
-  const propertyId = await propertyIdRef(db, LUXX_APARTS_PROPERTY.name);
   const organizationId = currentOrganizationId();
+  let propertyId: string;
+  try {
+    propertyId = await propertyIdRef(db, LUXX_APARTS_PROPERTY.name);
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) throw error;
+    // Сотрудники существуют до гостиницы и в других направлениях бизнеса.
+    return Prisma.sql`(a."organization_id" = ${organizationId}::uuid OR
+      (a."organization_id" IS NULL AND a."entity_type" = 'organization' AND a."entity_id" = ${organizationId}::text))`;
+  }
   const p = Prisma.sql`${propertyId}::uuid`;
   return Prisma.sql`(
     (a."organization_id" IS NOT NULL AND a."organization_id" = ${organizationId}::uuid)
@@ -151,6 +183,11 @@ async function ownAuditRows(db: PrismaService['db']): Promise<Prisma.Sql> {
 @Controller('audit')
 export class AuditController {
   constructor(@Inject(AuditService) private readonly service: AuditService) {}
+  @Get('actors')
+  actors() {
+    return this.service.actors();
+  }
+
   @Get()
   list(
     @Query('limit') limit?: string,
@@ -158,6 +195,12 @@ export class AuditController {
     @Query('action') action?: string,
     @Query('q') q?: string,
     @Query('system') system?: string,
+    @Query('actor') actor?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('timezone') timezone?: string,
+    @Query('group') group?: string,
+    @Query('cursor') cursor?: string,
   ) {
     return this.service.list({
       limit: limit ? Number(limit) : undefined,
@@ -165,6 +208,12 @@ export class AuditController {
       action: action || undefined,
       q: q || undefined,
       system: system === '1',
+      actor,
+      from,
+      to,
+      timezone,
+      group,
+      cursor,
     });
   }
 }

@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 04.10.2026 18:48 Алматы · MacBook-Air-Urij.local
+# коммит a4fac4b (codex/mv3-onboarding-20261004), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding/playwright.config.ts'
+[WebServer] (node:26590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:26615) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:26616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] /Users/urijzapojnov/wetop-mv1-20261004/apps/api/src/hotel/hotel.module.ts:486
+[WebServer]     OnboardingController,
+[WebServer]     ^
+[WebServer] 
+[WebServer] ReferenceError: Cannot access 'OnboardingController' before initialization
+[WebServer]     at <anonymous> (/Users/urijzapojnov/wetop-mv1-20261004/apps/api/src/hotel/hotel.module.ts:486:5)
+[WebServer]     at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async node:internal/modules/esm/loader:650:26
+[WebServer]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[WebServer] 
+[WebServer] Node.js v26.9.0
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 2 с

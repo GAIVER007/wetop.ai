@@ -1,0 +1,45 @@
+# Модульные (unit) · 06.10.2026 15:53 Алматы · vm
+# коммит 84670ec (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 21
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T10-53-22Z-unit-ea45.json' 'apps/web/src/lib/scope-resolve.test.ts' 'apps/web/src/app/scope/resolve/route.test.ts' 'apps/web/src/lib/site-auth-flow.test.ts' 'apps/web/src/lib/auth-fallback.test.ts' 'apps/web/src/app/login/actions.test.ts' 'apps/web/src/lib/session.test.ts' 'apps/web/src/app/branches/switch.test.ts' 'apps/web/src/lib/scope-pointer.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (7 tests) 13ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 11ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 64ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 67ms
+ ❯ |unit| apps/web/src/lib/site-auth-flow.test.ts (6 tests | 1 failed) 66ms
+   × успешный вход ведёт через выбор филиала и снимает указатель прошлого входа 53ms
+   ✓ браузер может подтвердить сохранение сессии без получения ключа 5ms
+   ✓ отозванная сессия не подтверждает вход 2ms
+   ✓ сбой API не выдаётся за отсутствующую сессию 1ms
+   ✓ вход пилота Food не уводит на гостиничную страницу: выбор филиала решает сервер 2ms
+   ✓ tampered registration vertical is rejected before forwarding 1ms
+ ✓ |unit| apps/web/src/app/scope/resolve/route.test.ts (4 tests) 64ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (9 tests) 50ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/site-auth-flow.test.ts > успешный вход ведёт через выбор филиала и снимает указатель прошлого входа
+TypeError: Cannot read properties of undefined (reading 'action')
+ ❯ Module.handle apps/web/src/app/api/site-auth/[action]/route.ts:100:40
+     98|
+     99| async function handle(request: Request, { params }: Context): Promise<…
+    100|   const entry = ACTIONS[(await params).action];
+       |                                        ^
+    101|   if (!entry) return Response.json({ message: 'Не найдено' }, { status…
+    102|   if (request.method !== 'OPTIONS' && request.method !== entry.method)…
+ ❯ apps/web/src/lib/site-auth-flow.test.ts:21:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 7 passed (8)
+      Tests  1 failed | 42 passed (43)
+   Start at  10:53:23
+   Duration  2.38s (transform 80%, import 13%, tests 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-06T10-53-22Z-unit-ea45.json
+
+# код выхода 1 · 3 с

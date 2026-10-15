@@ -1,0 +1,119 @@
+# Интеграционные (integration) · 03.10.2026 16:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/team-phone-position), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-41-53Z-integration-cc0e.json' 'tests/integration/manager-role.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate
+
+ ❯ |integration| tests/integration/manager-role.test.ts (8 tests | 7 failed) 570ms
+   ❯ роли управляющего и администратора (integration, DATABASE_URL required) (8)
+     ✓ в типе роли три значения — владелец, управляющий, администратор 329ms
+     × приглашение хранит роль, по умолчанию — администратор; владельца база не примет 163ms
+     × сессия знает, заблокирован ли человек и есть ли ещё членство (С-4, С-10) 3ms
+     × хранилище: приглашение с ролью, отзыв по роли, вступление с ролью из приглашения 5ms
+     × сотрудники по порядку ролей; отключение и смена роли — вместе с записью в журнале организации 2ms
+     × телефон и должность (v2.10, Q-244): запись под замком роли, в журнале нет номера 2ms
+     × база не примет телефон не в виде +цифры и пустую должность 1ms
+     × агенты продавца: управляющему — можно, администратору — нет (ADR-107) 2ms
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 1 passed (8)
+   Start at  04:42:00
+   Duration  9.79s (import 61%, transform 30%, tests 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-41-53Z-integration-cc0e.json
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/manager-role.test.ts > роли управляющего и администратора (integration, DATABASE_URL required) > приглашение хранит роль, по умолчанию — администратор; владельца база не примет
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ rolledBack tests/integration/manager-role.test.ts:41:8
+     39|           throw new Rollback();
+     40|         }),
+     41|       ).rejects.toBeInstanceOf(Rollback);
+       |        ^
+     42|     }
+     43|
+ ❯ tests/integration/manager-role.test.ts:80:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |integration| tests/integration/manager-role.test.ts > роли управляющего и администратора (integration, DATABASE_URL required) > сессия знает, заблокирован ли человек и есть ли ещё членство (С-4, С-10)
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ rolledBack tests/integration/manager-role.test.ts:41:8
+     39|           throw new Rollback();
+     40|         }),
+     41|       ).rejects.toBeInstanceOf(Rollback);
+       |        ^
+     42|     }
+     43|
+ ❯ tests/integration/manager-role.test.ts:113:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |integration| tests/integration/manager-role.test.ts > роли управляющего и администратора (integration, DATABASE_URL required) > хранилище: приглашение с ролью, отзыв по роли, вступление с ролью из приглашения
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ rolledBack tests/integration/manager-role.test.ts:41:8
+     39|           throw new Rollback();
+     40|         }),
+     41|       ).rejects.toBeInstanceOf(Rollback);
+       |        ^
+     42|     }
+     43|
+ ❯ tests/integration/manager-role.test.ts:143:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |integration| tests/integration/manager-role.test.ts > роли управляющего и администратора (integration, DATABASE_URL required) > сотрудники по порядку ролей; отключение и смена роли — вместе с записью в журнале организации
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ rolledBack tests/integration/manager-role.test.ts:41:8
+     39|           throw new Rollback();
+     40|         }),
+     41|       ).rejects.toBeInstanceOf(Rollback);
+       |        ^
+     42|     }
+     43|
+ ❯ tests/integration/manager-role.test.ts:176:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |integration| tests/integration/manager-role.test.ts > роли управляющего и администратора (integration, DATABASE_URL required) > телефон и должность (v2.10, Q-244): запись под замком роли, в журнале нет номера
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ rolledBack tests/integration/manager-role.test.ts:41:8
+     39|           throw new Rollback();
+     40|         }),
+     41|       ).rejects.toBeInstanceOf(Rollback);
+       |        ^
+     42|     }
+     43|
+ ❯ tests/integration/manager-role.test.ts:279:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |integration| tests/integration/manager-role.test.ts > роли управляющего и администратора (integration, DATABASE_URL required) > база не примет телефон не в виде +цифры и пустую должность
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ rolledBack tests/integration/manager-role.test.ts:41:8
+     39|           throw new Rollback();
+     40|         }),
+     41|       ).rejects.toBeInstanceOf(Rollback);
+       |        ^
+     42|     }
+     43|
+ ❯ tests/integration/manager-role.test.ts:337:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |integration| tests/integration/manager-role.test.ts > роли управляющего и администратора (integration, DATABASE_URL required) > агенты продавца: управляющему — можно, администратору — нет (ADR-107)
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ rolledBack tests/integration/manager-role.test.ts:41:8
+     39|           throw new Rollback();
+     40|         }),
+     41|       ).rejects.toBeInstanceOf(Rollback);
+       |        ^
+     42|     }
+     43|
+ ❯ tests/integration/manager-role.test.ts:353:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+# код выхода 1 · 17 с

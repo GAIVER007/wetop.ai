@@ -1,0 +1,77 @@
+# Модульные (unit) · 03.10.2026 20:36 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-36-03Z-unit-90f9.json' 'apps/api/src/dashboard/dashboard.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/dashboard/dashboard.controller.test.ts (6 tests | 1 failed) 200ms
+   ❯ desk dashboard API (6)
+     ✓ период и предыдущий отрезок той же длины; загрузка из шахматки, деньги из счетов 27ms
+     ✓ тип фонда: по умолчанию весь фонд, койки — отдельно; оба периода считаются одним типом 8ms
+     ✓ REP3 «По номерам»: клетки до единицы, итог сходится со сводкой, тип фонда режет; неверный период — 400 25ms
+     ✓ неизвестный тип фонда — 400, а не молча весь фонд 3ms
+     ✓ без дат — 400; to раньше from — 400; больше 366 дней — 400 8ms
+     × эффективность каналов: строка канала, каналы без броней по запросу, сравнение и отборы проверяются 3ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 59ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 56ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(235) } to deeply equal { 'GET /branches': 'desk', …(236) }
+
+- Expected
++ Received
+
+@@ -56,11 +56,10 @@
+    "GET /channels/channex/outbox/messages": "channels",
+    "GET /channels/channex/outbox/rows": "channels",
+    "GET /channels/channex/webhook/status": "channels",
+    "GET /chessboard": "desk",
+    "GET /desk/dashboard": "desk",
+-   "GET /desk/dashboard/channels": "reports",
+    "GET /desk/dashboard/units": "reports",
+    "GET /desk/today": "desk",
+    "GET /finance/cash": "desk",
+    "GET /finance/debts": "reports",
+    "GET /finance/operations": "reports",
+
+ ❯ apps/api/src/auth/route-access.test.ts:330:20
+    328|       .map(([key]) => key);
+    329|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    330|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    331|   });
+    332|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/dashboard/dashboard.controller.test.ts > desk dashboard API > эффективность каналов: строка канала, каналы без броней по запросу, сравнение и отборы проверяются
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/dashboard/dashboard.controller.test.ts:247:8
+    245|     const r = await request(app.getHttpServer())
+    246|       .get('/desk/dashboard/channels?from=2026-10-01&to=2026-10-31&com…
+    247|       .expect(200);
+       |        ^
+    248|     expect(r.body.current.rows).toEqual([
+    249|       expect.objectContaining({ label: 'Booking.com', revenueMinor: '3…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 6 passed (8)
+   Start at  15:36:03
+   Duration  3.37s (transform 66%, import 28%, tests 5%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-36-03Z-unit-90f9.json
+
+# код выхода 1 · 4 с

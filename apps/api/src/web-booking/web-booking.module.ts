@@ -14,6 +14,9 @@ import { ANALYTICS_REPOSITORY, type AnalyticsRepository } from '../analytics/ana
 import { PrismaService } from '../database/prisma.provider';
 import { INCIDENTS_REPOSITORY, PrismaIncidentsRepository } from '../guard/incidents.repository';
 import { ReservationsModule } from '../reservations/reservations.module';
+import { BOOKING_MAILER, bookingMailerFromEnv } from './booking-mailer';
+import { BotBookingController } from './bot-booking.controller';
+import { BookingIntentsService } from './booking-intents.service';
 import { BotQuoteController } from './bot-quote.controller';
 import { TurnstileService } from './turnstile';
 import { WebBookingController } from './web-booking.controller';
@@ -63,7 +66,10 @@ export class WidgetCorsMiddleware implements NestMiddleware {
   private async hosts(): Promise<string[]> {
     const now = Date.now();
     if (this.cache && now - this.cache.at < HOSTS_CACHE_MS) return this.cache.hosts;
-    const sites = await this.sites.sites().catch(() => []);
+    // MKT1B BOOK-1: сайты ВСЕХ организаций. Публичный путь не знает вошедшего, и `sites()` (объект вошедшего или объект
+    // установки) отдавал браузеру второй гостиницы ответ без Access-Control-Allow-Origin. Это только допуск браузера:
+    // ключ сайта и точный домен по-прежнему проверяет `bookingSite`.
+    const sites = await this.sites.allSites().catch(() => []);
     const hosts = sites
       .filter((s) => s.status === 'ACTIVE' && s.bookingEnabled)
       .flatMap((s) => s.hosts);
@@ -75,12 +81,16 @@ export class WidgetCorsMiddleware implements NestMiddleware {
 /** Бронирование с сайта (срез 9): тот же «сайт», что у счётчика, брони — через ReservationsService. */
 @Module({
   imports: [AnalyticsModule, ReservationsModule],
-  controllers: [WebBookingController, BotQuoteController],
+  controllers: [WebBookingController, BotQuoteController, BotBookingController],
   providers: [
     PrismaService,
     WebBookingService,
+    // ADR-144, DATA_MODEL §25: бронь из чата ИИ-продавца
+    BookingIntentsService,
     TurnstileService,
     WidgetCorsMiddleware,
+    // ADR-144: письмо гостю с подтверждением; без настроенной почты — null, бронь идёт без письма
+    { provide: BOOKING_MAILER, useFactory: () => bookingMailerFromEnv() },
     // журнал неисправностей для алерта С-7 (booking.flood): своя привязка порта, без всего GuardModule
     { provide: INCIDENTS_REPOSITORY, useClass: PrismaIncidentsRepository },
   ],

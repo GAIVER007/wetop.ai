@@ -1,0 +1,31 @@
+# Модульные (unit) · 06.10.2026 20:46 Алматы · vm
+# коммит c6044ba (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T15-46-54Z-unit-3d22.json' 'apps/web/src/app/today/vertical-load.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/today/vertical-load.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-load.test.ts [ apps/web/src/app/today/vertical-load.test.ts ]
+Error: Cannot find module '/apps/web/src/app/today/vertical-load' imported from /home/user/wetop.ai/apps/web/src/app/today/vertical-load.test.ts
+ ❯ apps/web/src/app/today/vertical-load.test.ts:46:44
+     44| }));
+     45|
+     46| const { loadBeautyToday, loadFoodToday } = await import('./vertical-lo…
+       |                                            ^
+     47|
+     48| const reservation = (id: string, startsAt: string, endsAt: string, sta…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  15:46:55
+   Duration  227ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-06T15-46-54Z-unit-3d22.json
+
+# код выхода 1 · 1 с

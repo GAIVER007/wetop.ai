@@ -1,0 +1,16 @@
+# Модульные (unit) · 03.10.2026 20:52 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 20
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-52-53Z-unit-b91f.json' 'apps/web/src/app/guests/filters.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/guests/filters.test.ts (5 tests) 8ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  15:52:54
+   Duration  237ms (transform 76%, import 12%, tests 8%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-52-53Z-unit-b91f.json
+
+# код выхода 0 · 1 с

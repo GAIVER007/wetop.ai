@@ -1,0 +1,29 @@
+# Сквозные (e2e) · 04.10.2026 14:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит ac3da76 (claude/mobile-rest-screens), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/desktop-compact.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 572ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (48.5s)
+  ✓   2 tests/ui/desktop-compact.spec.ts:53:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (17.9s)
+  ✓   3 tests/ui/desktop-compact.spec.ts:70:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (39.2s)
+  ✓   4 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (1.1m)
+  ✓   5 tests/ui/mobile-adaptation.spec.ts:61:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (8.1s)
+  ✓   6 tests/ui/mobile-adaptation.spec.ts:70:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (22.0s)
+  ✓   7 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана (5.5s)
+  ✓   8 tests/ui/mobile-adaptation.spec.ts:99:1 › узкий телефон: плитки финансов встают в одну колонку (6.0s)
+  ✓   9 tests/ui/mobile-adaptation.spec.ts:108:1 › телефон: месяц цен не растягивается на четыре экрана (6.1s)
+  ✓  10 tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (1.2m)
+  ✓  11 tests/ui/mobile-adaptation.spec.ts:156:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (26.4s)
+
+  11 passed (5.6m)
+
+# код выхода 0 · 5 мин 41 с

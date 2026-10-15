@@ -1,0 +1,101 @@
+# Мобильный календарь, 05.10.2026
+
+Реализовано в отдельном дереве /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP по утверждённому плану. Решение: ADR-148.
+
+## Изменения
+
+- На ширинах до 600 px дни имеют ширину 104 px, колонка номеров 112 px. Горизонтально прокручивается сетка; номера и шапка дат остаются закреплёнными.
+- Строки высотой 52 px, плашки брони 44 px. Касание свободной клетки открывает нижнюю панель.
+- Выбор периода в панели включает только последовательные свободные ночи от выбранного дня в открытом диапазоне. Даты и номер передаются в существующую форму создания брони.
+- Предпросмотр существующей брони тоже становится нижней панелью с крупными действиями и собственной прокруткой.
+- На телефоне скрыты ручки переноса и продления; dragstart не запускает перенос. Те же действия доступны в карточке.
+- Десктопный вид сохранён. Модель, API, финансовые правила и схема не изменялись.
+
+## Доказательства
+
+Все тесты запускались через test:record, UI в один worker, с подставным API на отдельных портах 4339/3139 без базы.
+
+- RED: три ширины телефона показали отсутствие горизонтальной прокрутки (2026-10-05T07-25-23Z-e2e-38ca.log). Отдельно отсутствие выбора периода в панели (2026-10-05T07-26-02Z-e2e-bbdb.log).
+- GREEN: все семь мобильных сценариев, включая реальный браузерный touch-свайп, закреплённую колонку, выбор трёх ночей, границу перед занятой ночью, карточку брони, фильтры, светлую и тёмную темы, 14 дней, последнюю строку и форму брони (2026-10-05T07-33-43Z-e2e-4c73.log).
+- 27 существующих сценариев карточки, диапазона, недели, дизайна и компактного десктопа прошли в прогоне 2026-10-05T07-28-31Z-e2e-5f1c.log. В том же прогоне два новых сценария имели неверный селектор закрытия; после исправления оба прошли в финальном мобильном прогоне. Проверки axe в обеих темах прошли.
+- Typecheck корня, API и web прошёл после локальной генерации Prisma-клиента из неизменённой схемы (2026-10-05T07-37-18Z-typecheck-2a34.log). Предыдущие неудачные попытки сохранены в журнале.
+- Lint без ошибок (2026-10-05T07-35-51Z-lint-753f.log).
+- Модульные правила диапазона и фильтров: 20 из 20, прогон 2026-10-05T07-37-42Z-unit-fd7a.log.
+
+Снимки в reports/calendar-mobile-2026-10-05/: светлая и тёмная сетка, карточки брони, панель создания на 360/390/430 px. Ввод проверен в браузере, включая уменьшение высоты окна до 480 px. Физический телефон и настоящая экранная клавиатура не проверялись.
+
+## Проверка после переноса на актуальный main
+
+Основа: 2b271167. На телефоне показаны все восемь показателей перед сеткой. Проживания берутся из сводки дня, дни рождения из существующего API; при недоступности последнего отображается н/д.
+
+- RED статистики: 2026-10-05T07-52-55Z-e2e-7915.log, панель скрыта.
+- GREEN: 16 из 16 мобильных и календарных проверок, 2026-10-05T09-04-17Z-e2e-aceb.log. Ширины 360/390/430, touch-свайп, создание периода, карточка, форма и восемь показателей.
+- Десктоп, недели и axe: 20 соответствующих проверок прошли в 2026-10-05T07-58-26Z-e2e-b2dc.log; общий прогон не зелёный из-за выхода координат жеста за экран и приостановки сети. Исправление теста жеста проверено свежим зелёным прогоном выше.
+- Typecheck корня, API и web: 2026-10-05T09-05-35Z-typecheck-ad68.log.
+- Lint: 2026-10-05T09-06-09Z-lint-5f6e.log.
+- 20 модульных проверок: 2026-10-05T09-06-21Z-unit-07f7.log.
+
+## Main и выкладка
+
+Изменения подготовлены для прямого fast-forward push в main по поручению владельца. Разрешение на выкладку этой адаптации получено. Production пока не обновлён.
+
+Read-only проверка сервера: deployed SHA 2d9adf662d2133bcffbd15b5dd582407c8f980e2, API/web healthy. В production истории Prisma отсутствуют четыре миграции актуального main:
+
+- 20261004000051_bar_inventory
+- 20261004000052_onboarding_progress
+- 20261005000053_bar_function_search_path
+- 20261005000054_bar_force_rls
+
+По AGENTS.md §15 применение production migrations выполняет владелец. Порядок: свежая копия и rollback по docs/ops/backups.md, применение и validation по docs/deploy.md, зелёный release-checks на точном SHA, перемотка release на него, подтверждение миграций через wetop-auto-deploy --migrations-applied с точным SHA, затем проверка deployed SHA, health и публичного UI. Агент миграции не применял.
+
+Проверки fixture UI не доказывают работу с реальной базой. Физический телефон не проверялся. Graphify-индекса в дереве нет; новый индекс и внешние сервисы не создавались.
+
+После обновления main (8df2bc24 и 6c317078) повторены все 10 мобильных сценариев: зелёный прогон 2026-10-05T09-08-48Z-e2e-7b26.log. Календарный код перенесён без конфликтов; оба независимых решения DECISIONS.md сохранены.
+
+## Доработка после поручения «давай делай»
+
+- В свободном участке можно изменить заезд, затем выбрать срок. Панель явно показывает выезд и число ночей, без дублирования дат в мобильном виде.
+- Возврат с полной карточки восстанавливает обе координаты сетки и положение страницы для того же URL. «Сегодня» показывает текущий день. Сохраняются только координаты, без гостей и поиска; закрытое хранилище не блокирует работу.
+- Прямые ссылки «Изменить даты» и «Открыть гостя» ведут в существующие карточки и действия.
+- При фокусе в форме её нижние действия не перекрывают поля. Длинные имена переносятся внутри мобильной карточки.
+
+Проверки:
+
+- RED: нет выбора заезда, scrollLeft после возврата равен нулю, 2026-10-05T10-07-56Z-e2e-ede5.log.
+- 25 из 25 карточка/период/мобильный UI: 2026-10-05T10-14-38Z-e2e-bfd6.log.
+- 19 из 19 мобильный UI и дизайн/axe обеих тем: 2026-10-05T10-18-11Z-e2e-99c7.log.
+- Финальные 15 из 15 мобильных сценариев, включая 360/390/430 px, выбор заезда, возврат, уменьшенную высоту формы, длинное имя и 28 ночей в обеих темах: 2026-10-05T10-21-05Z-e2e-ad22.log.
+- Финальные lint и typecheck корня/API/web: 2026-10-05T10-21-37Z-lint-44c5.log, 2026-10-05T10-21-49Z-typecheck-7a22.log.
+- 20 модульных правил: 2026-10-05T10-20-09Z-unit-c52d.log.
+
+Промежуточные неудачные прогоны сохранены: неточное accessible name выбора заезда, сдвиг Сегодня на 9px, неверная категория новой фикстуры, дробный пиксель viewport ratio. Финальные проверки зелёные. Снимки обновлены. Настоящая клавиатура физического телефона не проверена.
+
+Актуальная read-only проверка production: deployed SHA a5c5050c8c835ae4e2d43e73092355176f5a53f2, API/web healthy. Onboarding миграция 20261004000052 отмечена applied. Три BAR миграции 20261004000051, 20261005000053, 20261005000054 по-прежнему отсутствуют в истории Prisma. Они остаются owner-controlled. Release не перематывался и миграции не применялись. Предыдущий CI #66 завершился ошибкой; новая доработка требует свежего release-checks на точном SHA.
+
+## Возврат поиска и фильтров
+
+По новому поручению владельца отбор восстанавливается вместе с прокруткой для того же URL в пределах вкладки. Сброс очищает сохранённый отбор. Предыдущая запись о хранении только координат относится к первой версии этой доработки.
+
+RED: после карточки поле поиска было пустым вместо R02, 2026-10-05T10-41-41Z-e2e-fdc2.log. GREEN: все 16 мобильных сценариев, включая возврат поиска, типа места и повторный возврат после сброса, 2026-10-05T10-43-37Z-e2e-282d.log. Прерванный ошибочный тест 10-40-17 не считается RED.
+
+Lint: 2026-10-05T10-46-08Z-lint-18bb.log. Типы корня/API/web: 2026-10-05T10-46-52Z-typecheck-5b41.log. Модульные правила периода и фильтров: 20/20, 2026-10-05T10-47-59Z-unit-0f74.log.
+
+## Linux CI: проверка жеста
+
+release-checks #71, SHA fddf28a984bda27f886b4b8c30475543eee92af7: бот, lint/types/unit/site, база и UI 2/3–3/3 зелёные. UI 1/3: 316 passed, три телефона 360/390/430 failed, synthesizeScrollGesture оставил scrollLeft=0 вместо >100. Источник RED: https://github.com/GAIVER007/wetop.ai/actions/runs/37299378449/job/111729823114. Production не изменялся.
+
+Те же сценарии на локальном Chromium: 3/3, 2026-10-05T11-31-13Z-e2e-aa75.log. Проверка теперь ожидает загрузки шрифтов, видимость строки и корректный hit point; затем посылает touchStart/touchMove/touchEnd. Требования к прокрутке, sticky номеру и отсутствию случайного открытия клетки сохранены. Локальный финальный Chromium: 16/16, 2026-10-05T11-39-45Z-e2e-1433.log. Linux GREEN ещё требует нового полного release-checks.
+
+Финальные типы и lint: 2026-10-05T11-41-06Z-typecheck-b705.log, 2026-10-05T11-41-38Z-lint-c88c.log.
+
+## Production preparation, 2026-10-05 12:25 UTC
+
+CI #80 c98d516: GREEN, UI 319+310+314; unit 3365 passed (7 skipped), database 715 passed (12 skipped). Fresh backup wetop-20261005T122354Z.dump: 75 tables, 388K, validated. All six approved migrations 51, 53-57 applied. Prisma status up to date. Read-only validation: ten BAR tables RLS/FORCE; six functions search_path=public,pg_temp; 22 enabled triggers. Counts unchanged: reservations11, reservation_items23, guests11, inventory_units88, cash_operations0. Food58 excluded.
+
+Release fast-forward stopped: production-only a5c5050c and d3766c44 were not ancestors. Preserved both in 7e273890d55b10ef08c9276d74b137632b8f61fb. Full CI #87: https://github.com/GAIVER007/wetop.ai/actions/runs/37310109839. Local 29/29, typecheck and lint: 2026-10-05T12-28-50Z-e2e-9ac1.log, 2026-10-05T12-31-45Z-typecheck-d3f7.log, 2026-10-05T12-31-59Z-lint-d193.log. App remains a5c5050c until new exact SHA gate passes.
+
+## Production verified, 2026-10-05 13:09 UTC
+
+release-checks #87 exact 7e273890d55b10ef08c9276d74b137632b8f61fb: all seven jobs GREEN, UI319+310+314=943 passed, database716 passed/12 skipped plus browser onboarding4 and e2e25 passed. Release fast-forward a5c5050c to 7e273890 successful. Official auto-deploy completed 13:04:50 UTC in172s. Server HEAD and deployed file both 7e273890. API/web image sha256:fe21ae9aa5a5efcb0e8eefc342a66ea1d510a2bcd51f52781f404a024c39abbe, both healthy. Next BUILD_ID 8kozzWMcG4EZWDN-dbNyE. Internal health status=ok,database=up. Public auth/fallback,today,chessboard,reservations HTTP200. Previous rollback SHA a5c5050c preserved.
+
+Authenticated live public mobile: 360/390/430px all document overflow0; local grid widths342/372/412px, content840px; sticky unit112px; touch-action pan-x pan-y. Top panel has all eight counters in this deployed candidate. A free unit opened its bottom panel. Selecting three nights produced /reservations/new?arrival=2026-10-05&departure=2026-10-08&unit=1. Panel closed, desktop1710px restored. No reservation/guest/block writes, no real guest data in screenshots. Physical phone keyboard not verified. Images: production-390-stats.jpg, release-checks-87-green.jpg. Parallel later main changes, including Food58/59 and simplified six-counter summary, are preserved in source but excluded from this bounded deployment.

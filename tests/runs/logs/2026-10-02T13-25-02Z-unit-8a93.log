@@ -1,0 +1,52 @@
+# Модульные (unit) · 02.10.2026 18:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 27e8ad9 (main), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T13-25-02Z-unit-8a93.json' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/finance/finance.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (27 tests) 429ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 30ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 29ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(222) } to deeply equal { …(222) }
+
+- Expected
++ Received
+
+@@ -59,10 +59,11 @@
+    "GET /finance/debts": "reports",
+    "GET /finance/operations": "reports",
+    "GET /finance/report": "reports",
+    "GET /finance/reservations/:number": "desk",
+    "GET /finance/services": "desk",
++   "GET /finance/services-report": "reports",
+    "GET /guard/incidents": "desk",
+    "GET /guard/status": "desk",
+    "GET /guests": "desk",
+    "GET /guests/:id": "desk",
+    "GET /guests/:id/preview": "desk",
+
+ ❯ apps/api/src/auth/route-access.test.ts:315:20
+    313|       .map(([key]) => key);
+    314|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    315|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    316|   });
+    317|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 28 passed (29)
+   Start at  06:25:04
+   Duration  2.47s (import 48%, transform 40%, tests 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T13-25-02Z-unit-8a93.json
+
+# код выхода 1 · 4 с

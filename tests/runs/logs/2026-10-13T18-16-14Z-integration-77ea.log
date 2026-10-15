@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 13.10.2026 23:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 764affa (codex/organizations-card-editor), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T18-16-14Z-integration-77ea.json' 'tests/integration/platform-p1-backfill.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 634ms
+   ✓ Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) (3)
+     ✓ каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business 477ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  11:16:28
+   Duration  22.96s (transform 74%, import 19%, tests 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T18-16-14Z-integration-77ea.json
+
+# код выхода 0 · 37 с

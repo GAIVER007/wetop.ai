@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 02.10.2026 17:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 201d35e (main), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/finance-f1.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (1.5s)
+  ✓  2 tests/ui/finance-f1.spec.ts:105:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (1.1s)
+  ✓  3 tests/ui/finance-f1.spec.ts:155:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (819ms)
+  ✓  4 tests/ui/finance-f1.spec.ts:186:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (1.7s)
+  ✓  5 tests/ui/finance-f1.spec.ts:228:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (1.4s)
+  ✓  6 tests/ui/finance-f1.spec.ts:244:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (1.1s)
+  ✓  7 tests/ui/finance-f1.spec.ts:264:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (816ms)
+  ✓  8 tests/ui/finance-f1.spec.ts:284:3 › F1, стоп-гейт: снимки для владельца, light (1.2s)
+  ✓  9 tests/ui/finance-f1.spec.ts:284:3 › F1, стоп-гейт: снимки для владельца, dark (1.0s)
+
+  9 passed (15.2s)
+
+# код выхода 0 · 16 с

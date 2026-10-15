@@ -1,0 +1,76 @@
+# Модульные (unit) · 01.10.2026 11:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 27
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-53-30Z-unit-1e10.json' 'apps/web/src/lib/onboarding-later.test.ts' 'tests/unit/desk-auth.test.ts' 'apps/web/src/lib/auth-fallback.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| tests/unit/desk-auth.test.ts (5 tests | 1 failed) 4ms
+   ✓ deskCredentials (2)
+     ✓ обе переменные — это учётные данные 1ms
+     ✓ половина или пусто — данных нет 0ms
+   ❯ locked (3)
+     × распознаёт новый вход на главной и техническую форму 2ms
+     ✓ стойка увела на экран входа 0ms
+     ✓ обычный экран замком не считается 0ms
+ ❯ |unit| apps/web/src/lib/onboarding-later.test.ts (8 tests | 1 failed) 5ms
+   ❯ needsOnboardingRedirect (6)
+     × управление своими сессиями доступно до создания объекта 3ms
+     ✓ объект без номеров — на онбординг 0ms
+     ✓ отложил настройку — остаётся на рабочем экране 0ms
+     ✓ номера есть — гейт молчит 0ms
+     ✓ вход, регистрация, приглашение, сброс пароля, онбординг и печать — без гейта, иначе цикл 0ms
+     ✓ отметка — своя кука, не кука сессии 0ms
+   ✓ гейт: у организации нет объекта (2)
+     ✓ ведёт на онбординг, даже если онбординг отложен 0ms
+     ✓ на онбординге, входе и печати — не ведёт: иначе цикл 0ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/desk-auth.test.ts > locked > распознаёт новый вход на главной и техническую форму
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/desk-auth.test.ts:25:61
+     23| describe('locked', () => {
+     24|   it('распознаёт новый вход на главной и техническую форму', () => {
+     25|     expect(locked('https://wetop.ai/?next=%2Ftoday#login')).toBe(true);
+       |                                                             ^
+     26|     expect(locked('http://127.0.0.1:3002/#login')).toBe(true);
+     27|     expect(locked('http://127.0.0.1:3000/auth/fallback')).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/onboarding-later.test.ts > needsOnboardingRedirect > управление своими сессиями доступно до создания объекта
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ apps/web/src/lib/onboarding-later.test.ts:12:98
+     10|
+     11|   it('управление своими сессиями доступно до создания объекта', () => {
+     12|     expect(needsOnboardingRedirect({ ...base, path: '/profile/access',…
+       |                                                                                                  ^
+     13|   });
+     14|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  2 failed | 15 passed (17)
+   Start at  23:53:31
+   Duration  243ms (transform 71%, import 17%, tests 10%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-53-30Z-unit-1e10.json
+
+# код выхода 1 · 1 с

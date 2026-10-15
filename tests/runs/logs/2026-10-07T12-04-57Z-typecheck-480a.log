@@ -1,0 +1,5 @@
+# Типы (typecheck) · 07.10.2026 17:04 Алматы · vm
+# коммит fe3b723 (claude/sharp-dirac-6s46fw)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+# код выхода 0 · 1 мин 1 с

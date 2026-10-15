@@ -1,0 +1,25 @@
+# Интеграционные (integration) · 06.10.2026 17:34 Алматы · vm
+# коммит 117bce9 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-34-52Z-integration-1e63.json' 'tests/integration/web-booking-exact-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:4351) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stderr | tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration)
+[mkt1b] уборка не закончена: 
+Invalid `prisma.reservationItem.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `stay_guests_reservation_item_id_fkey`
+
+ ✓ |integration| tests/integration/web-booking-exact-property.test.ts (4 tests) 770ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  12:34:53
+   Duration  5.38s (transform 55%, import 23%, tests 22%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-34-52Z-integration-1e63.json
+
+# код выхода 0 · 6 с

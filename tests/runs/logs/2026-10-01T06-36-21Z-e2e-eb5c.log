@@ -1,0 +1,49 @@
+# Сквозные (e2e) · 01.10.2026 11:36 Алматы · MacBook-Air-Urij.local
+# коммит 57ef7a3 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 83
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/finance-f2.spec.ts' '--workers=1'
+[WebServer] (node:88020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88057) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88059) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 17 tests using 1 worker
+
+(node:88131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (5.1s)
+  ✓   2 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (4.4s)
+  ✓   3 tests/ui/finance-f1.spec.ts:105:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (3.6s)
+  ✓   4 tests/ui/finance-f1.spec.ts:155:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (2.5s)
+[WebServer] (node:88231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/finance-f1.spec.ts:186:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (4.7s)
+  ✓   6 tests/ui/finance-f1.spec.ts:228:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (4.9s)
+  ✓   7 tests/ui/finance-f1.spec.ts:244:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (3.8s)
+  ✓   8 tests/ui/finance-f1.spec.ts:264:1 › F1: телефон — без прокрутки страницы вбок, итоги в две колонки, таблица долгов листается внутри (2.7s)
+  ✓   9 tests/ui/finance-f1.spec.ts:283:3 › F1, стоп-гейт: снимки для владельца, light (4.0s)
+  ✓  10 tests/ui/finance-f1.spec.ts:283:3 › F1, стоп-гейт: снимки для владельца, dark (8.0s)
+  ✓  11 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (8.4s)
+  ✓  12 tests/ui/finance-f2.spec.ts:69:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (6.0s)
+  ✓  13 tests/ui/finance-f2.spec.ts:88:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (6.2s)
+  ✓  14 tests/ui/finance-f2.spec.ts:108:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (3.7s)
+  ✓  15 tests/ui/finance-f2.spec.ts:135:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (3.7s)
+  ✓  16 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light (5.5s)
+  ✓  17 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, dark (5.2s)
+
+  17 passed (1.6m)
+
+# код выхода 0 · 1 мин 38 с

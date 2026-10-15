@@ -1,0 +1,228 @@
+# Сквозные (e2e) · 04.10.2026 12:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6fa4ffe (claude/mobile-rest-screens), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/desktop-compact.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/reservations-v2.spec.ts' 'tests/ui/guests-design.spec.ts' 'tests/ui/inventory-catalog.spec.ts' 'tests/ui/fund-workspace.spec.ts' 'tests/ui/analytics-v2.spec.ts' 'tests/ui/reports-hub.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 103 tests using 1 worker
+
+  ✓    1 tests/ui/analytics-v2.spec.ts:59:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (7.8s)
+  ✓    2 tests/ui/analytics-v2.spec.ts:78:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории (3.5s)
+  ✓    3 tests/ui/analytics-v2.spec.ts:114:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (8.8s)
+  ✓    4 tests/ui/analytics-v2.spec.ts:139:1 › рост отмен — красный, падение — зелёный; сравнение выключается (40.6s)
+  ✓    5 tests/ui/analytics-v2.spec.ts:152:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (23.0s)
+  ✓    6 tests/ui/analytics-v2.spec.ts:175:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (29.0s)
+  ✓    7 tests/ui/analytics-v2.spec.ts:192:1 › телефон: без прокрутки вбок, плитки в две колонки (11.1s)
+  ✓    8 tests/ui/analytics-v2.spec.ts:203:1 › снимки для визуального гейта AN1 (1.1m)
+  ✓    9 tests/ui/channels-compact.spec.ts:7:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (28.6s)
+  ✓   10 tests/ui/channels-compact.spec.ts:28:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (9.6s)
+  ✓   11 tests/ui/channels-compact.spec.ts:49:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (11.0s)
+  ✓   12 tests/ui/channels-compact.spec.ts:57:1 › sync never calls an empty disconnected queue successful (9.2s)
+  ✓   13 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (7.9s)
+  ✓   14 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (4.7s)
+  ✓   15 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (14.6s)
+  ✓   16 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (17.6s)
+  ✓   17 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (8.3s)
+  ✓   18 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (12.5s)
+  ✓   19 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (26.4s)
+  ✓   20 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (1.4m)
+  ✓   21 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (1.4m)
+  ✓   22 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (13.2s)
+  ✓   23 tests/ui/chessboard-week.spec.ts:26:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (27.4s)
+  ✓   24 tests/ui/chessboard-week.spec.ts:72:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (19.0s)
+  ✓   25 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (38.0s)
+  ✓   26 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (29.1s)
+  ✓   27 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (30.6s)
+  ✘   28 tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье (38.7s)
+  ✓   29 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: light, обе панели и телефон (1.4m)
+  ✓   30 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: dark, обе панели и телефон (16.7s)
+  ✓   31 tests/ui/chessboard-week.spec.ts:199:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (1.9s)
+  ✓   32 tests/ui/dashboard-design.spec.ts:28:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (1.5s)
+  ✓   33 tests/ui/dashboard-design.spec.ts:68:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (910ms)
+  ✓   34 tests/ui/dashboard-design.spec.ts:107:1 › главная: «Требуют внимания» разбито по важности, сумма равна счётчику; быстрых действий нет (1.3s)
+  ✓   35 tests/ui/desktop-compact.spec.ts:25:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (10.9s)
+  ✓   36 tests/ui/desktop-compact.spec.ts:52:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (2.3s)
+  ✓   37 tests/ui/desktop-compact.spec.ts:69:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (3.7s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="finance/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/finance" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="finance/pa...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <FinanceReportPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <section className="finance-co..." aria-label="Период">
+[WebServer]                         <form method="get" className="finance-to..." data-testid="period-form">
+[WebServer]                           <Field>
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-01" aria-label="Период: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     aria-label="Период: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field>
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-31" aria-label="Период: по">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-31"
+[WebServer]                                     aria-label="Период: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓   38 tests/ui/finance-compact.spec.ts:9:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (8.2s)
+  ✓   39 tests/ui/finance-f1.spec.ts:53:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (2.6s)
+  ✓   40 tests/ui/finance-f1.spec.ts:106:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (5.1s)
+  ✓   41 tests/ui/finance-f1.spec.ts:156:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (4.6s)
+  ✓   42 tests/ui/finance-f1.spec.ts:187:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (4.9s)
+  ✓   43 tests/ui/finance-f1.spec.ts:229:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (12.5s)
+  ✓   44 tests/ui/finance-f1.spec.ts:245:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (8.6s)
+  ✓   45 tests/ui/finance-f1.spec.ts:265:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (5.0s)
+  ✓   46 tests/ui/finance-f1.spec.ts:285:3 › F1, стоп-гейт: снимки для владельца, light (5.3s)
+  ✓   47 tests/ui/finance-f1.spec.ts:285:3 › F1, стоп-гейт: снимки для владельца, dark (5.8s)
+  ✓   48 tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload (9.6s)
+  ✓   49 tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design (24.0s)
+  ✓   50 tests/ui/fund-workspace.spec.ts:90:1 › guests filter categories by capacity; toggle shows all; tab renamed (2.5s)
+  ✓   51 tests/ui/fund-workspace.spec.ts:123:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (2.0s)
+  ✓   52 tests/ui/fund-workspace.spec.ts:144:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (7.1s)
+  ✓   53 tests/ui/fund-workspace.spec.ts:225:1 › AV4: a category without places stays on screen with the nearest availability (3.6s)
+  ✓   54 tests/ui/fund-workspace.spec.ts:271:1 › dark categories and availability; invalid dates and empty onboarding (13.6s)
+  ✓   55 tests/ui/guests-design.spec.ts:23:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (5.9s)
+  ✓   56 tests/ui/guests-design.spec.ts:68:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (3.4s)
+  ✓   57 tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (13.4s)
+  ✓   58 tests/ui/guests-design.spec.ts:167:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (6.0s)
+  ✓   59 tests/ui/guests-design.spec.ts:239:1 › гости: документы и финансовый свод гостя (G5) (5.6s)
+  ✓   60 tests/ui/guests-design.spec.ts:291:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (8.0s)
+  ✓   61 tests/ui/guests-design.spec.ts:337:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (15.4s)
+[WebServer] [browser] Uncaught TypeError: Failed to execute 'measure' on 'Performance': '​GuestsPage' cannot have a negative time stamp.
+  ✓   62 tests/ui/guests-design.spec.ts:418:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (9.5s)
+  ✓   63 tests/ui/guests-design.spec.ts:492:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) (1.9s)
+  ✓   64 tests/ui/inventory-catalog.spec.ts:11:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (1.9s)
+  ✓   65 tests/ui/inventory-catalog.spec.ts:33:1 › прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается (2.8s)
+  ✓   66 tests/ui/inventory-catalog.spec.ts:54:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (1.9s)
+  ✓   67 tests/ui/inventory-catalog.spec.ts:97:1 › пустой поиск объясняется, сброс возвращает фонд (898ms)
+  ✓   68 tests/ui/inventory-catalog.spec.ts:108:3 › каталог адаптивен и доступен: light (7.1s)
+  ✓   69 tests/ui/inventory-catalog.spec.ts:108:3 › каталог адаптивен и доступен: dark (6.5s)
+  ✓   70 tests/ui/inventory-catalog.spec.ts:141:1 › пустой фонд отличается от пустого поиска (597ms)
+  ✓   71 tests/ui/inventory-catalog.spec.ts:149:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (1.1s)
+  ✓   72 tests/ui/inventory-catalog.spec.ts:171:1 › панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами (3.9s)
+  ✓   73 tests/ui/inventory-catalog.spec.ts:219:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат (2.8s)
+  ✓   74 tests/ui/inventory-catalog.spec.ts:244:3 › панель места доступна: light (3.4s)
+  ✓   75 tests/ui/inventory-catalog.spec.ts:244:3 › панель места доступна: dark (3.2s)
+  ✓   76 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (8.8s)
+  ✓   77 tests/ui/mobile-adaptation.spec.ts:61:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (3.6s)
+  ✓   78 tests/ui/mobile-adaptation.spec.ts:70:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (1.7s)
+  ✓   79 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана (1.3s)
+  ✓   80 tests/ui/mobile-adaptation.spec.ts:99:1 › узкий телефон: плитки финансов встают в одну колонку (1.1s)
+  ✓   81 tests/ui/mobile-adaptation.spec.ts:108:1 › телефон: месяц цен не растягивается на четыре экрана (1.1s)
+  ✓   82 tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (9.5s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✓   83 tests/ui/mobile-adaptation.spec.ts:156:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (17.3s)
+  ✓   84 tests/ui/rates-design.spec.ts:20:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (4.5s)
+  ✓   85 tests/ui/rates-design.spec.ts:66:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (3.0s)
+  ✓   86 tests/ui/rates-design.spec.ts:96:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (2.2s)
+  ✓   87 tests/ui/rates-design.spec.ts:112:1 › фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать» (3.1s)
+  ✓   88 tests/ui/rates-design.spec.ts:133:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (1.6s)
+  ✓   89 tests/ui/rates-design.spec.ts:164:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь (2.2s)
+  ✓   90 tests/ui/rates-design.spec.ts:194:1 › нет цены в воскресенье: подсказка не расширяет страницу (1.6s)
+  ✓   91 tests/ui/reports-hub.spec.ts:41:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (1.5s)
+  ✓   92 tests/ui/reports-hub.spec.ts:107:1 › карточки ведут в готовые экраны с тем же периодом (1.4s)
+  ✓   93 tests/ui/reports-hub.spec.ts:152:1 › пресет «Сегодня» и свой период меняют адрес и числа (1.6s)
+  ✓   94 tests/ui/reports-hub.spec.ts:171:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (671ms)
+  ✓   95 tests/ui/reports-hub.spec.ts:186:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (934ms)
+  ✓   96 tests/ui/reports-hub.spec.ts:206:1 › телефон: карточки без горизонтальной прокрутки (853ms)
+  ✓   97 tests/ui/reports-hub.spec.ts:216:3 › доступность и снимки, light (1.7s)
+  ✓   98 tests/ui/reports-hub.spec.ts:216:3 › доступность и снимки, dark (1.8s)
+  ✓   99 tests/ui/reservations-v2.spec.ts:72:1 › R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони (1.3s)
+  ✓  100 tests/ui/reservations-v2.spec.ts:131:1 › R1: плотность строк переключается и переживает перезагрузку (1.8s)
+[WebServer] [browser] Uncaught TypeError: Failed to execute 'measure' on 'Performance': '​ReservationsPage' cannot have a negative time stamp.
+  ✓  101 tests/ui/reservations-v2.spec.ts:156:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте (2.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3373987623'
+[WebServer] }
+  ✓  102 tests/ui/reservations-v2.spec.ts:185:3 › R1, стоп-гейт: снимки для владельца, light (2.6s)
+  ✓  103 tests/ui/reservations-v2.spec.ts:185:3 › R1, стоп-гейт: снимки для владельца, dark (2.6s)
+
+
+  1) tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 })
+    Expected substring: "20260913-TESTAA"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 })
+
+
+      129 |   await stay.dblclick();
+      130 |   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
+    > 131 |   await expect(drawer.getByRole('heading', { level: 1 })).toContainText(number!);
+          |                                                           ^
+      132 |   await page.keyboard.press('Escape');
+      133 |   await expect(drawer).toBeHidden();
+      134 |   await page.getByLabel('Категория в календаре').selectOption('ROOM');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/chessboard-week.spec.ts:131:59
+
+    Error Context: test-results/chessboard-week-в-неделе-р-f03b2-и-и-создание-на-воскресенье/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-в-неделе-р-f03b2-и-и-создание-на-воскресенье/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-в-неделе-р-f03b2-и-и-создание-на-воскресенье/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье 
+  102 passed (19.7m)
+
+# код выхода 1 · 19 мин 43 с

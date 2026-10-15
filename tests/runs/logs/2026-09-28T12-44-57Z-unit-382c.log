@@ -1,0 +1,31 @@
+# Модульные (unit) · 28.09.2026 17:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2cc9831 (codex/site-hospitality-positioning), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-28T12-44-57Z-unit-382c.json' 'apps/api/src/hotel/branches.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/api/src/hotel/branches.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/branches.test.ts [ apps/api/src/hotel/branches.test.ts ]
+Error: Cannot find module './branches' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/apps/api/src/hotel/branches.test.ts
+ ❯ apps/api/src/hotel/branches.test.ts:4:1
+      2| import { withSignedInUser } from '../auth/request-context';
+      3| import { forgetPropertyRef, propertyIdRef } from '../database/property…
+      4| import { BranchService } from './branches';
+       | ^
+      5|
+      6| const org = '10000000-0000-4000-8000-000000000001';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  05:44:58
+   Duration  474ms (worker 98%, environment 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-28T12-44-57Z-unit-382c.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,100 @@
+# Модульные (unit) · 07.10.2026 14:28 Алматы · vm
+# коммит 69af865 (claude/e2e-auth-default), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T09-28-02Z-unit-96ee.json' 'tests/unit/e2e-auth-config.test.ts' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (21 tests | 1 failed) 300ms
+   ❯ свой раннер CI (12)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 4ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 1ms
+     ✓ ни одна проверка не идёт на боевой сервер и ни одна не запускается на каждый пуш (ADR-139) 1ms
+     ✓ перед выкладкой: lint, typecheck, unit, главная, бот, база и весь UI; по кнопке или пушем в release-candidate 4ms
+     ✓ база и UI ждут быстрые проверки: при красном lint или unit минуты на них не тратятся 1ms
+     × сквозные в гейте идут вошедшим пользователем: E2E_AUTH=1 задан явно (решение владельца 07.10.2026) 14ms
+     ✓ тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота 1ms
+     ✓ образ раннера без sudo: под no-new-privileges он не работает 1ms
+     ✓ образ раннера ставит всё, что Playwright просит для Chromium на Ubuntu 24.04 37ms
+     ✓ проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория 1ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 1ms
+     ✓ эталоны -linux снимает раннер GitHub по кнопке и кладёт отдельной веткой, не в main и не в release 11ms
+   ✓ свой раннер не выполняет код из чужого форка (ADR-137) (5)
+     ✓ образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh 2ms
+     ✓ запрос на слияние из форка: отказ, задача краснеет, а не пропускается 26ms
+     ✓ форк уже удалён (head.repo пуст): чей код, не проверить, тоже отказ 31ms
+     ✓ ветка самого репозитория и пуш в main выполняются 42ms
+     ✓ нет файла события или он битый: отказ, а не молчаливый пропуск проверки 21ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ образец «…» вместо токена: отказ словами до регистрации, config.sh не зовётся 13ms
+     ✓ токен с пробелом или в кавычках и адрес не GitHub: тоже отказ 46ms
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 24ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 11ms
+ ❯ |unit| tests/unit/e2e-auth-config.test.ts (4 tests | 1 failed) 834ms
+   ❯ конфиг e2e и замок API (4)
+     ✓ изолированный API проверяет сессии без рабочего SESSION_SECRET 810ms
+     × без переменной замок включён: изолированные сквозные идут вошедшим пользователем 13ms
+     ✓ E2E_AUTH=0, явный отказ: замка нет, шага входа нет 5ms
+     ✓ E2E_AUTH=1 включает замок на стенде, вход перед спеками и служебный ключ 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > сквозные в гейте идут вошедшим пользователем: E2E_AUTH=1 задан явно (решение владельца 07.10.2026)
+AssertionError: expected 'name: Сквозные тесты\n        env:\n …' to match /E2E_AUTH: '1'/
+
+- Expected:
+/E2E_AUTH: '1'/
+
++ Received:
+"name: Сквозные тесты
+        env:
+          DATABASE_URL: postgresql://pms:***@127.0.0.1:5432/pms_dev
+        run: npx playwright test --workers=2
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-results
+          path: test-results
+          if-no-files-found: ignore
+"
+
+ ❯ tests/unit/ci-runner.test.ts:105:18
+    103|     const db = withoutComments(job('db'));
+    104|     const step = db.slice(db.indexOf('name: Сквозные тесты'));
+    105|     expect(step).toMatch(/E2E_AUTH: '1'/);
+       |                  ^
+    106|     expect(step.indexOf("E2E_AUTH: '1'")).toBeLessThan(step.indexOf('n…
+    107|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/e2e-auth-config.test.ts > конфиг e2e и замок API > без переменной замок включён: изолированные сквозные идут вошедшим пользователем
+AssertionError: expected [ 'schema-guard', 'isolated' ] to deeply equal [ 'schema-guard', 'auth', 'isolated' ]
+
+- Expected
++ Received
+
+  [
+    "schema-guard",
+-   "auth",
+    "isolated",
+  ]
+
+ ❯ tests/unit/e2e-auth-config.test.ts:47:44
+     45|   it('без переменной замок включён: изолированные сквозные идут вошедш…
+     46|     const c = await config(undefined);
+     47|     expect(c.projects?.map((p) => p.name)).toEqual(['schema-guard', 'a…
+       |                                            ^
+     48|     expect(api(c)?.env?.['AUTH_REQUIRED']).toBe('1');
+     49|     expect(web(c)?.env?.['APP_AUTH_REQUIRED']).toBe('1');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 23 passed (25)
+   Start at  09:28:04
+   Duration  1.25s (tests 74%, transform 21%, import 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T09-28-02Z-unit-96ee.json
+
+# код выхода 1 · 3 с

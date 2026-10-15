@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 09.10.2026 14:34 Алматы · vm
+# коммит 7fe00b8 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/beauty-branch.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/beauty-branch.spec.ts:46:1 › салон заводится той же формой и открывается своим рабочим местом (7.7s)
+  ✓  2 tests/ui/beauty-branch.spec.ts:59:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (4.9s)
+  ✓  3 tests/ui/beauty-branch.spec.ts:89:1 › карточка объекта показывает имя салона, а не «объект не загружен» (4.5s)
+  ✓  4 tests/ui/beauty-branch.spec.ts:101:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (5.1s)
+  ✓  5 tests/ui/beauty-branch.spec.ts:115:3 › салон доступен и в светлой теме (6.2s)
+  ✓  6 tests/ui/beauty-branch.spec.ts:115:3 › салон доступен и в тёмной теме (6.3s)
+
+  6 passed (45.7s)
+
+# код выхода 0 · 48 с

@@ -1,13 +1,13 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { devNoise, expect, test, type APIRequestContext, type Page } from './fixtures';
+import { FIXTURE_API, devNoise, expect, test, type APIRequestContext, type Page, menuLinks } from './fixtures';
 
 /**
  * «Продажи → Сайт и онлайн-бронирование» (ADR-117, срез WEB1): сайт объекта — одно место вместо трёх («Аналитика
  * сайта», «Настройки сайта», панель в «Интеграциях»). Браузер → `next dev` → подставной API; учебный сайт фикстуры —
  * на домене-заглушке `example.invalid`, как боевой «Сайт Luxx Aparts» на `luxx-aparts.example`.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 // запись в подставной API — только от прогона тестов
 const TEST_CLIENT = { 'x-wetop-test-client': '1' };
 const SHOTS = 'reports/website-web2-2026-09-28';
@@ -39,11 +39,15 @@ test('старые адреса ведут во вкладки модуля и �
 
 test('одна точка входа в меню и четыре вкладки со своим адресом', async ({ page }) => {
   await page.goto('/website');
-  const sidebar = page.locator('.workspace-sidebar');
-  const hrefs = await sidebar
-    .locator('.workspace-links a')
-    .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
-  expect(hrefs.filter((href) => href?.startsWith('/website'))).toEqual(['/website']);
+  const hrefs = await menuLinks(page);
+  // MKT2: вход в сайт один, пункт «Маркетинг → Сайт и SEO» ведёт в хаб; у страниц /website/* пункта меню нет
+  expect(hrefs.filter((href) => href?.startsWith('/website'))).toEqual([]);
+  // МКТ-В1/В2: в группе «Маркетинг» сайт и SEO, бюджет и аналитика маркетинга; адресов сайта `/website` в меню нет
+  expect(hrefs.filter((href) => href?.startsWith('/marketing'))).toEqual([
+    '/marketing',
+    '/marketing/budget',
+    '/marketing/analytics',
+  ]);
   expect(hrefs.filter((href) => href?.startsWith('/analytics'))).toEqual([]);
   const tabs = page.getByRole('navigation', { name: TITLE, exact: true });
   await expect(tabs.getByRole('link')).toHaveText([
@@ -64,7 +68,7 @@ test('одна точка входа в меню и четыре вкладки 
       'aria-current',
       'page',
     );
-    await expect(sidebar.locator('[aria-current="page"]')).toHaveText(TITLE);
+    await expect(page.locator('.sidenav__items [aria-current="page"]')).toHaveText('Сайт и SEO');
   }
 });
 
@@ -125,7 +129,7 @@ test('обзор подключённого сайта: домен, счётчи
 test('«Интеграции» больше не показывают сайт', async ({ page }) => {
   await page.goto('/connections');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
   await expect(main).not.toContainText('Сайт и бронирования');
   await expect(main.locator('a[href^="/website"], a[href^="/analytics"]')).toHaveCount(0);
 });
@@ -141,6 +145,29 @@ test('настройки: пауза и удаление — в «Опасной
   await expect(dialog).toContainText('счётчик не записывает посещения');
   await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
   await expect(page.getByTestId('site-toggle')).toHaveText('Приостановить сайт');
+});
+
+test('MKT7: сайт WETOP в «Настройках» и «Бронировании» без формы правки, со ссылкой на публикацию; API отвечает 409', async ({
+  page,
+  request,
+}) => {
+  await realDomain(request);
+  await request.post(`${API}/__test/control`, { data: { siteManaged: true } });
+  for (const path of ['/website/settings', '/website/booking']) {
+    await page.goto(path);
+    const main = page.getByRole('main');
+    const notice = main.getByTestId('website-managed-site');
+    await expect(notice).toContainText('сайт WETOP');
+    await expect(notice.getByRole('link')).toHaveAttribute('href', '/marketing/site');
+    await expect(main.getByTestId('site-card')).toHaveCount(0);
+    await expect(main.getByTestId('site-danger')).toHaveCount(0);
+  }
+  const r = await request.patch(`${API}/analytics/sites/ui-site`, {
+    headers: TEST_CLIENT,
+    data: { hosts: ['rogue.example.com'] },
+  });
+  expect(r.status()).toBe(409);
+  expect((await r.json()).code).toBe('MANAGED_SITE_READ_ONLY');
 });
 
 test('четыре вкладки: доступность в двух темах, телефон без прокрутки вбок', async ({
@@ -325,7 +352,7 @@ test('снимки WEB2', async ({ page, request }) => {
 });
 
 /** Настоящий адрес демо, как у API на сервере (`${PUBLIC_API_URL}/w/demo?k=…`); у фикстуры по умолчанию — относительный */
-const DEMO_URL = 'http://127.0.0.1:4311/w/demo?k=public-ui-fixture';
+const DEMO_URL = `${FIXTURE_API}/w/demo?k=public-ui-fixture`;
 
 test('WEB3 · бронирование: состояние, демо только у работающего, что увидит гость', async ({
   page,
@@ -343,6 +370,9 @@ test('WEB3 · бронирование: состояние, демо тольк�
   await expect(main.getByTestId('booking-guest-plan')).toContainText('«Стандартный»');
   await expect(main.getByTestId('booking-guest-plan')).toContainText('KZT');
   await expect(main.getByTestId('booking-guest-limits')).toContainText('предоплату');
+  // ADR-144: языки формы и письмо-подтверждение гостю
+  await expect(main.getByTestId('booking-guest-limits')).toContainText('казахский, английский, китайский');
+  await expect(main.getByTestId('booking-guest-letter')).toContainText('письмо с подтверждением');
   // выключили — строка говорит правду: форма на сайте останется, но цен не покажет; демо и кода нет
   await main.getByTestId('booking-enabled').uncheck();
   await main.getByTestId('booking-save').click();

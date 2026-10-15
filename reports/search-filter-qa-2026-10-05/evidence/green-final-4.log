@@ -1,0 +1,176 @@
+
+> pms-lux@0.0.0 test:record
+> tsx tests/tools/cli-record.ts e2e --config tests/ui/playwright.config.ts --workers=1 tests/ui/search-filter-recovery.spec.ts --note GREEN hydration-safe drafts and history restoration
+
+▶ Сквозные (e2e) — нужно: dev-БД, API :3001 и стойка :3000 (Playwright поднимает сам или берёт уже запущенные)
+  npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/search-filter-recovery.spec.ts'
+
+[WebServer] (node:93504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93529) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93530) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:93592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93593) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 1 worker
+
+(node:93596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (2.5s)
+[WebServer] (node:93625) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93633) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (1.2s)
+[WebServer] (node:93638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 1440 › availability: manual dates and guests do not apply before Find (1.2s)
+[WebServer] (node:93645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93646) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link (973ms)
+(node:93653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/search-filter-recovery.spec.ts:90:5 › search/filter recovery 1440 › availability: category action transfers category into search (1.3s)
+[WebServer] (node:93680) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93682) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/search-filter-recovery.spec.ts:102:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (1.9s)
+[WebServer] (node:93688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/search-filter-recovery.spec.ts:129:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (1.2s)
+  ✓   8 tests/ui/search-filter-recovery.spec.ts:144:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (2.7s)
+  ✓   9 tests/ui/search-filter-recovery.spec.ts:170:5 › search/filter recovery 1440 › rates: empty row is rejected, zero nights and false restrictions remain changes (1.3s)
+  ✓  10 tests/ui/search-filter-recovery.spec.ts:190:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (2.4s)
+[WebServer] (node:93720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (1.2s)
+[WebServer] (node:93732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (1.1s)
+[WebServer] (node:93739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93743) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 390 › availability: manual dates and guests do not apply before Find (1.1s)
+[WebServer] (node:93747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93758) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link (978ms)
+(node:93759) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93777) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93778) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/ui/search-filter-recovery.spec.ts:90:5 › search/filter recovery 390 › availability: category action transfers category into search (1.3s)
+[WebServer] (node:93782) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93783) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/ui/search-filter-recovery.spec.ts:102:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (1.9s)
+[WebServer] (node:93798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/ui/search-filter-recovery.spec.ts:129:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (1.3s)
+  ✓  18 tests/ui/search-filter-recovery.spec.ts:144:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (2.8s)
+  ✓  19 tests/ui/search-filter-recovery.spec.ts:170:5 › search/filter recovery 390 › rates: empty row is rejected, zero nights and false restrictions remain changes (1.4s)
+  ✓  20 tests/ui/search-filter-recovery.spec.ts:190:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (2.1s)
+
+
+  1) tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "3"
+    Received: "2"
+
+      68 |       await page.getByLabel('Гостей', { exact: true }).fill('3');
+      69 |       await page.getByRole('link', { name: 'Выходные', exact: true }).click();
+    > 70 |       expect(new URL(page.url()).searchParams.get('guests')).toBe('3');
+         |                                                              ^
+      71 |       expect(new URL(page.url()).searchParams.get('category')).toBe('MALE');
+      72 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+      73 |         'MALE',
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:70:62
+
+    Error Context: test-results/search-filter-recovery-sea-1a7c9-ick-period-and-booking-link/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-1a7c9-ick-period-and-booking-link/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-1a7c9-ick-period-and-booking-link/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "3"
+    Received: "2"
+
+      68 |       await page.getByLabel('Гостей', { exact: true }).fill('3');
+      69 |       await page.getByRole('link', { name: 'Выходные', exact: true }).click();
+    > 70 |       expect(new URL(page.url()).searchParams.get('guests')).toBe('3');
+         |                                                              ^
+      71 |       expect(new URL(page.url()).searchParams.get('category')).toBe('MALE');
+      72 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+      73 |         'MALE',
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:70:62
+
+    Error Context: test-results/search-filter-recovery-sea-88f5e-ick-period-and-booking-link/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-88f5e-ick-period-and-booking-link/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-88f5e-ick-period-and-booking-link/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link 
+    tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link 
+  18 passed (41.5s)
+
+■ e2e: ❌ упало 2 из 20 · 43 с
+  лог: tests/runs/logs/2026-10-05T15-51-36Z-e2e-47f1.log
+  журнал: tests/runs/JOURNAL.md · что доказано: npm run test:status

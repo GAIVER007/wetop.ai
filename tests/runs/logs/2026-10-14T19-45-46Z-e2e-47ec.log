@@ -1,0 +1,332 @@
+# Сквозные (e2e) · 15.10.2026 00:45 Алматы · vm
+# коммит 6a9aa68 (claude/ds2-f1-hospitality-route-guards-20261014), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 28 tests using 1 worker
+
+  ✓   1 tests/beauty-ui/beauty.spec.ts:111:1 › empty setup through real UI, persisted appointment, move, confirm, complete (19.9s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:192:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (8.7s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:229:1 › existing customer can be selected for another appointment without duplication (3.2s)
+  ✓   4 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (13.3s)
+  ✘   5 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (15.0s)
+  ✘   6 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 390 light, keyboard, axe, no overflow (282ms)
+  ✘   7 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (197ms)
+  ✘   8 tests/beauty-ui/beauty.spec.ts:338:1 › archived service and employee preserve historical calendar appointments (301ms)
+  ✘   9 tests/beauty-ui/beauty.spec.ts:372:1 › TimeOff from employee drawer, server denial and timezone persisted (226ms)
+  ✘  10 tests/beauty-ui/beauty.spec.ts:424:1 › DS1c: day navigation keeps the previous addresses (212ms)
+  ✘  11 tests/beauty-ui/beauty.spec.ts:439:1 › Beauty onboarding completion opens Today and resumes there (231ms)
+  -  12 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -  13 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -  14 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -  15 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+  -  16 tests/beauty-ui/ref-capture.spec.ts:14:1 › салон: календарь на ширинах и темах
+  -  17 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /today
+  -  18 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /beauty/schedule
+  -  19 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /appointments
+  -  20 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /services
+  -  21 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees
+  -  22 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts
+  -  23 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /customers
+  -  24 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /finance
+  -  25 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /team
+  -  26 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /help
+  -  27 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /branches
+  -  28 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports
+
+
+  1) tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow 
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/home/user/wetop.ai/test-results/.playwright-artifacts-0/traces/a0a1ea9cc583022f9dfe-4bdfc0c8c2a83765e40b-recording12.network'
+
+    Error Context: test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 390 light, keyboard, axe, no overflow 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      27 | async function reset(page: Page, request: APIRequestContext) {
+      28 |   const response = await request.post(`${api}/__test/reset`);
+    > 29 |   expect(response.ok()).toBe(true);
+         |                         ^
+      30 |   const f: Fixture = await response.json();
+      31 |   await scope(page, f.business, f.locations[0]!);
+      32 |   return f;
+        at reset (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:29:25)
+        at seed (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:53:13)
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:261:23
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 | }
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:108:62
+
+    Error Context: test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 390 dark, keyboard, axe, no overflow 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      27 | async function reset(page: Page, request: APIRequestContext) {
+      28 |   const response = await request.post(`${api}/__test/reset`);
+    > 29 |   expect(response.ok()).toBe(true);
+         |                         ^
+      30 |   const f: Fixture = await response.json();
+      31 |   await scope(page, f.business, f.locations[0]!);
+      32 |   return f;
+        at reset (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:29:25)
+        at seed (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:53:13)
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:261:23
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 | }
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:108:62
+
+    Error Context: test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/beauty-ui/beauty.spec.ts:338:1 › archived service and employee preserve historical calendar appointments 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      27 | async function reset(page: Page, request: APIRequestContext) {
+      28 |   const response = await request.post(`${api}/__test/reset`);
+    > 29 |   expect(response.ok()).toBe(true);
+         |                         ^
+      30 |   const f: Fixture = await response.json();
+      31 |   await scope(page, f.business, f.locations[0]!);
+      32 |   return f;
+        at reset (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:29:25)
+        at seed (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:53:13)
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:342:13
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 | }
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:108:62
+
+    Error Context: test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/error-context.md
+
+    Error Context: test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/beauty-ui/beauty.spec.ts:372:1 › TimeOff from employee drawer, server denial and timezone persisted 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      27 | async function reset(page: Page, request: APIRequestContext) {
+      28 |   const response = await request.post(`${api}/__test/reset`);
+    > 29 |   expect(response.ok()).toBe(true);
+         |                         ^
+      30 |   const f: Fixture = await response.json();
+      31 |   await scope(page, f.business, f.locations[0]!);
+      32 |   return f;
+        at reset (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:29:25)
+        at seed (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:53:13)
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:376:13
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 | }
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:108:62
+
+    Error Context: test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/error-context.md
+
+    Error Context: test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/beauty-ui/beauty.spec.ts:424:1 › DS1c: day navigation keeps the previous addresses ──────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      27 | async function reset(page: Page, request: APIRequestContext) {
+      28 |   const response = await request.post(`${api}/__test/reset`);
+    > 29 |   expect(response.ok()).toBe(true);
+         |                         ^
+      30 |   const f: Fixture = await response.json();
+      31 |   await scope(page, f.business, f.locations[0]!);
+      32 |   return f;
+        at reset (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:29:25)
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:425:3
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 | }
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:108:62
+
+    Error Context: test-results/beauty-DS1c-day-navigation-keeps-the-previous-addresses/error-context.md
+
+    Error Context: test-results/beauty-DS1c-day-navigation-keeps-the-previous-addresses/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-DS1c-day-navigation-keeps-the-previous-addresses/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-DS1c-day-navigation-keeps-the-previous-addresses/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/beauty-ui/beauty.spec.ts:439:1 › Beauty onboarding completion opens Today and resumes there 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      27 | async function reset(page: Page, request: APIRequestContext) {
+      28 |   const response = await request.post(`${api}/__test/reset`);
+    > 29 |   expect(response.ok()).toBe(true);
+         |                         ^
+      30 |   const f: Fixture = await response.json();
+      31 |   await scope(page, f.business, f.locations[0]!);
+      32 |   return f;
+        at reset (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:29:25)
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:440:3
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 | }
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:108:62
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/error-context.md
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 390 light, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 390 dark, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:338:1 › archived service and employee preserve historical calendar appointments 
+    tests/beauty-ui/beauty.spec.ts:372:1 › TimeOff from employee drawer, server denial and timezone persisted 
+    tests/beauty-ui/beauty.spec.ts:424:1 › DS1c: day navigation keeps the previous addresses ───────
+    tests/beauty-ui/beauty.spec.ts:439:1 › Beauty onboarding completion opens Today and resumes there 
+  17 skipped
+  4 passed (1.3m)
+
+# код выхода 1 · 1 мин 21 с

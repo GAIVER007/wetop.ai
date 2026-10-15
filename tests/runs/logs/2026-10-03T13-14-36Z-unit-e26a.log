@@ -1,0 +1,16 @@
+# Модульные (unit) · 03.10.2026 18:14 Алматы · vm
+# коммит b31830a (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T13-14-36Z-unit-e26a.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 44ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  13:14:37
+   Duration  3.71s (transform 71%, import 28%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T13-14-36Z-unit-e26a.json
+
+# код выхода 0 · 5 с

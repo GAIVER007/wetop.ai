@@ -28,7 +28,8 @@ export interface SupportPort {
   reply(id: string, text: string): Promise<unknown>;
   knowledge(): Promise<unknown>;
   uploadKnowledge(file: { name: string; type: string; data: Uint8Array }): Promise<unknown>;
-  summary(): Promise<unknown>;
+  /** `excludeSandbox`: без диалогов вкладки «Проверка», как и в очереди */
+  summary(excludeSandbox?: boolean): Promise<unknown>;
   prompt(): Promise<unknown>;
   putPrompt(text: string): Promise<unknown>;
   settings(): Promise<unknown>;

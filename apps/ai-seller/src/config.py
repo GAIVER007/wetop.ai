@@ -62,6 +62,8 @@ class Settings(BaseSettings):
     whatsapp_graph_base_url: str = "https://graph.facebook.com/v20.0"
     # Предел тела вебхука WhatsApp; проверяется по Content-Length ДО чтения и подписи.
     whatsapp_max_body_bytes: int = 256 * 1024
+    telegram_seller_enabled: bool = False
+    telegram_webhook_base_url: str = ""
     llm_model: str = ""
     llm_model_fallback: str = ""
     llm_model_emergency: str = ""
@@ -79,6 +81,12 @@ class Settings(BaseSettings):
     llm_timeout_seconds: int = 30
     llm_max_tokens: int = 1024
     llm_temperature: float = 0.2
+    # Генерация сайта (MKT6, POST /internal/site-generation): документ SiteSpec длиннее реплики продавца.
+    # Таймаут ОДНОГО вызова; таймаут останавливает каскад (расход неизвестен), поэтому весь запрос укладывается в
+    # три ступени по 70 с меньше ожидания платформы (250 с) и аренды воркера (5 минут). Ключ модели только платформы.
+    wizard_daily_tokens: int = 0
+    site_generation_max_tokens: int = 8000
+    site_generation_timeout_seconds: int = 70
     # Сколько последних реплик истории уходит модели: чистый текст, не объекты.
     llm_history_turns: int = 20
     # Общий предел истории в знаках поверх числа ходов (аудит 30.09.2026): 20 реплик по 4 000 знаков — всё ещё
@@ -231,6 +239,8 @@ class Settings(BaseSettings):
     integration_api_key: str = ""
     # S6: ключ действий помощника (ASSISTANT_ACT_KEY платформы); пусто — действия не выполняются
     integration_act_key: str = ""
+    # ADR-144: ключ записи продавца (SELLER_BOOK_KEY платформы); пусто — бронь из чата не оформляется
+    integration_book_key: str = ""
     integration_timeout_seconds: int = 10
 
     # ─── Правка настроек на лету ───

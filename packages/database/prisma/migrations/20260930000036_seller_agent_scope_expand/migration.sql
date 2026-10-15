@@ -1,23 +1,23 @@
 -- DATA_MODEL v2.8 §20 (ADR-127), срез SA2.5, шаг A «расширить»: предпроверка однозначности и backfill перед переводом
--- рантайма на agent_id. План — plans/business-ai-seller-sa25-2026-09-30.md §10 (решения владельца 30.09).
+-- рантайма на agent_id. План, plans/business-ai-seller-sa25-2026-09-30.md §10 (решения владельца 30.09).
 --
 -- Что делает (старый код продолжает работать: ни один ключ и ни одно ограничение не снимается):
---   1. seller_scope_precheck(org) — таблица проверок цепочки
+--   1. seller_scope_precheck(org), таблица проверок цепочки
 --        seller_profile → Organization → legacy Seller Agent (id = organization_id) → Business → Location,
---      seller_scope_assert(org) — та же проверка, останавливающая работу с перечнем нарушений;
+--      seller_scope_assert(org), та же проверка, останавливающая работу с перечнем нарушений;
 --   2. seller_agent_ensure: филиал агента выбирается только при ОДНОЗНАЧНОСТИ (ровно один действующий филиал у
---      организации). Прежнее «самый ранний объект» (034) — догадка по created_at и отменена: при нескольких филиалах агент
+--      организации). Прежнее «самый ранний объект» (034), догадка по created_at и отменена: при нескольких филиалах агент
 --      заводится без филиала, а не с угаданным;
 --   3. seller_agents_backfill: заполняет филиал legacy-агента, только если он единственно возможный, и связывает профили
 --      с агентами (seller_profiles.agent_id);
---   3а. seller_agent_bind_location(agent) — тот же однозначный выбор филиала по одной организации, для API;
---   4. миграция вызывает assert по всей базе ДО backfill: любая неоднозначность — отказ без изменений, вручную решает
+--   3а. seller_agent_bind_location(agent), тот же однозначный выбор филиала по одной организации, для API;
+--   4. миграция вызывает assert по всей базе ДО backfill: любая неоднозначность, отказ без изменений, вручную решает
 --      владелец (Location по created_at, названию или догадке не выбирается).
 --
--- NOT NULL и смена первичного ключа seller_profiles — шаг E «сузить» (миграция 036, отдельный релиз после доказанного
+-- NOT NULL и смена первичного ключа seller_profiles, шаг E «сузить» (миграция 036, отдельный релиз после доказанного
 -- рантайма). Идёт и в public, и в pms_test (ADR-042): имена без схемы, поиск идёт по search_path.
 
--- 1. Предпроверка: одна строка на проверку — total (сколько проверено) и bad (сколько нарушений)
+-- 1. Предпроверка: одна строка на проверку, total (сколько проверено) и bad (сколько нарушений)
 CREATE FUNCTION seller_scope_precheck(p_org uuid DEFAULT NULL)
 RETURNS TABLE (check_name text, total bigint, bad bigint)
 LANGUAGE sql STABLE AS $$
@@ -95,7 +95,7 @@ LANGUAGE sql STABLE AS $$
          (SELECT count(*) FROM scoped s WHERE NOT EXISTS (SELECT 1 FROM memberships m WHERE m.organization_id = s.id))
 $$;
 
--- Останавливает работу, если хоть одна проверка красная; в сообщении — каждая красная проверка и число нарушений
+-- Останавливает работу, если хоть одна проверка красная; в сообщении, каждая красная проверка и число нарушений
 CREATE FUNCTION seller_scope_assert(p_org uuid DEFAULT NULL) RETURNS boolean
 LANGUAGE plpgsql STABLE AS $$
 DECLARE
@@ -104,7 +104,7 @@ BEGIN
   SELECT string_agg(check_name || '=' || bad, ', ' ORDER BY check_name) INTO v_report
   FROM seller_scope_precheck(p_org) WHERE bad > 0;
   IF v_report IS NOT NULL THEN
-    RAISE EXCEPTION 'SA2.5 остановлена: цепочка seller_profile → Organization → legacy Agent → Business → Location неоднозначна (%). Филиал по created_at не выбирается — разобрать вручную', v_report
+    RAISE EXCEPTION 'SA2.5 остановлена: цепочка seller_profile → Organization → legacy Agent → Business → Location неоднозначна (%). Филиал по created_at не выбирается, разобрать вручную', v_report
       USING ERRCODE = '23514';
   END IF;
   RETURN true;
@@ -126,16 +126,16 @@ BEGIN
     RETURN false;
   END IF;
 
-  -- автор — самый ранний владелец, иначе самый ранний участник
+  -- автор, самый ранний владелец, иначе самый ранний участник
   SELECT m.user_id INTO v_author FROM memberships m WHERE m.organization_id = p_org
   ORDER BY (m.role = 'OWNER') DESC, m.created_at ASC, m.user_id LIMIT 1;
   IF v_author IS NULL THEN
     -- Автора нет: агента не заводим. Организации с продавцом, но без участников, останавливает предпроверка
-    -- (seller_scope_assert); профиль без агента после сужения (036) не вставляется, до него — сохранялся без связи
+    -- (seller_scope_assert); профиль без агента после сужения (036) не вставляется, до него, сохранялся без связи
     RETURN false;
   END IF;
 
-  -- филиал — только единственный возможный: действующие филиалы объектов организации (Property–Location 1:1)
+  -- филиал, только единственный возможный: действующие филиалы объектов организации (Property–Location 1:1)
   SELECT count(*), (array_agg(c.location_id))[1] INTO v_candidates, v_location
   FROM (
     SELECT DISTINCT p.location_id
@@ -205,7 +205,7 @@ BEGIN
       SELECT 1 FROM seller_agents x
       WHERE x.location_id = one.location_id AND x.scenario = 'sales' AND x.lifecycle <> 'archived' AND x.id <> a.id);
 
-  -- рабочий агент с филиалом и принятым профилем — active (в 034 агент, заведённый триггером при вставке принятого профиля,
+  -- рабочий агент с филиалом и принятым профилем, active (в 034 агент, заведённый триггером при вставке принятого профиля,
   -- оставался черновиком: значения из ещё не вставленной строки терялись)
   UPDATE seller_agents a
   SET lifecycle = 'active', updated_at = now()
@@ -254,7 +254,7 @@ BEGIN
   RETURN v_location;
 END $$;
 
--- 4. Предпроверка по всей базе, затем backfill. Красная проверка — отказ миграции без изменений данных
+-- 4. Предпроверка по всей базе, затем backfill. Красная проверка, отказ миграции без изменений данных
 SELECT seller_scope_assert();
 SELECT seller_agents_backfill();
 SELECT seller_scope_assert();

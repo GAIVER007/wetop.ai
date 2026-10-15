@@ -1,0 +1,18 @@
+# Модульные (unit) · 11.10.2026 10:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 907a513 (claude/kitchen-fs2-stock)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T05-56-16Z-unit-60f6.json' 'packages/domain/src/food/stock.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2
+
+ ✓ |unit| packages/domain/src/food/stock.test.ts (10 tests) 22ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 5ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 157ms
+
+ Test Files  3 passed (3)
+      Tests  17 passed (17)
+   Start at  22:56:20
+   Duration  11.67s (transform 69%, import 29%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T05-56-16Z-unit-60f6.json
+
+# код выхода 0 · 16 с

@@ -1,0 +1,17 @@
+# Модульные (unit) · 09.10.2026 20:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит fbd0aa0 (claude/sales2-impl), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-22-02Z-unit-12c9.json' 'apps/web/src/app/market'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl
+
+ ✓ |unit| apps/web/src/app/market/competitor-status.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/app/market/chart-data.test.ts (6 tests) 2ms
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  08:22:03
+   Duration  91ms (transform 64%, import 20%, tests 8%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-22-02Z-unit-12c9.json
+
+# код выхода 0 · 1 с

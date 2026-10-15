@@ -1,0 +1,17 @@
+# Модульные (unit) · 09.10.2026 20:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 26973cb (claude/market-ai-collector), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-18-32Z-unit-6ecc.json' 'scripts/market'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ✓ |unit| scripts/market/pages.test.ts (2 tests) 6ms
+ ✓ |unit| scripts/market/collect.test.ts (8 tests) 23ms
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  08:18:33
+   Duration  446ms (transform 79%, import 16%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-18-32Z-unit-6ecc.json
+
+# код выхода 0 · 1 с

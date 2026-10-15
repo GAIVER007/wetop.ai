@@ -1,0 +1,129 @@
+# Сквозные (e2e) · 05.10.2026 18:23 Алматы · MacBook-Air-Urij.local
+# коммит c519f0a (codex/owner-home-compact), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' '--workers=1'
+[WebServer] (node:70407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:70498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:70518) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/owner-dashboard-interactions.spec.ts:7:1 › forecast details expose availability and open the selected calendar day (45.2s)
+(node:70850) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/owner-dashboard-interactions.spec.ts:28:1 › finance can recover in place after a temporary API failure (45.1s)
+(node:74165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/owner-dashboard-interactions.spec.ts:39:1 › unavailable inventory stays explicit and can be retried (45.1s)
+
+
+  1) tests/ui/owner-dashboard-interactions.spec.ts:7:1 › forecast details expose availability and open the selected calendar day 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Загрузка по дням', exact: true })
+
+
+       9 |   await page.goto('/today');
+      10 |   const trigger = page.getByRole('button', { name: 'Загрузка по дням', exact: true });
+    > 11 |   await trigger.click();
+         |                 ^
+      12 |   const dialog = page.getByRole('dialog', { name: 'Ближайшие 7 дней', exact: true });
+      13 |   await expect(dialog).toBeVisible();
+      14 |   const days = dialog.getByRole('link');
+        at /private/tmp/wetop-owner-home-verify-20261005/tests/ui/owner-dashboard-interactions.spec.ts:11:17
+
+    Error Context: test-results/owner-dashboard-interactio-ee241-n-the-selected-calendar-day/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-ee241-n-the-selected-calendar-day/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-ee241-n-the-selected-calendar-day/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/owner-dashboard-interactions.spec.ts:28:1 › finance can recover in place after a temporary API failure 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('region', { name: 'Финансы за выбранный период' }).getByRole('button', { name: 'Повторить', exact: true })
+
+
+      32 |   await expect(finance.getByText('Финансовая аналитика не загрузилась.', { exact: false })).toBeVisible();
+      33 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '' } });
+    > 34 |   await finance.getByRole('button', { name: 'Повторить', exact: true }).click();
+         |                                                                         ^
+      35 |   await expect(finance.getByTestId('owner-paid')).toBeVisible();
+      36 |   await expect(finance.getByRole('button', { name: 'Повторить', exact: true })).toHaveCount(0);
+      37 | });
+        at /private/tmp/wetop-owner-home-verify-20261005/tests/ui/owner-dashboard-interactions.spec.ts:34:73
+
+    Error Context: test-results/owner-dashboard-interactio-b422a-ter-a-temporary-API-failure/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-b422a-ter-a-temporary-API-failure/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-b422a-ter-a-temporary-API-failure/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/owner-dashboard-interactions.spec.ts:39:1 › unavailable inventory stays explicit and can be retried 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('region', { name: 'Загрузка сегодня', exact: true }).getByRole('button', { name: 'Повторить', exact: true })
+
+
+      43 |   await expect(load.getByTestId('c-occupancy')).toHaveText('Нет данных');
+      44 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '' } });
+    > 45 |   await load.getByRole('button', { name: 'Повторить', exact: true }).click();
+         |                                                                      ^
+      46 |   await expect(load.getByTestId('c-occupancy')).not.toHaveText('Нет данных');
+      47 | });
+      48 |
+        at /private/tmp/wetop-owner-home-verify-20261005/tests/ui/owner-dashboard-interactions.spec.ts:45:70
+
+    Error Context: test-results/owner-dashboard-interactio-692cb-explicit-and-can-be-retried/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-692cb-explicit-and-can-be-retried/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-692cb-explicit-and-can-be-retried/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/owner-dashboard-interactions.spec.ts:7:1 › forecast details expose availability and open the selected calendar day 
+    tests/ui/owner-dashboard-interactions.spec.ts:28:1 › finance can recover in place after a temporary API failure 
+    tests/ui/owner-dashboard-interactions.spec.ts:39:1 › unavailable inventory stays explicit and can be retried 
+
+# код выхода 1 · 2 мин 33 с

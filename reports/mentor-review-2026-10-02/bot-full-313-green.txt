@@ -1,0 +1,258 @@
+2026-10-02T20:30:31Z
+........................................................................ [  4%]
+........................................................................ [  8%]
+........................................................................ [ 12%]
+........................................................................ [ 16%]
+........................................................................ [ 21%]
+........................................................................ [ 25%]
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+........................................................................ [ 38%]
+........................................................................ [ 42%]
+........................................................................ [ 46%]
+........................................................................ [ 50%]
+........................................................................ [ 54%]
+........................................................................ [ 59%]
+........................................................................ [ 63%]
+........................................................................ [ 67%]
+........................................................................ [ 71%]
+........................................................................ [ 76%]
+........................................................................ [ 80%]
+........................................................................ [ 84%]
+........................................................................ [ 88%]
+........................................................................ [ 92%]
+........................................................................ [ 97%]
+.................................................                        [100%]
+=============================== warnings summary ===============================
+tests/test_agent_scope.py: 27 warnings
+tests/test_agent_scope_contract.py: 3 warnings
+tests/test_budget_daily_cap.py: 8 warnings
+tests/test_business_agents.py: 6 warnings
+tests/test_end_to_end.py: 3 warnings
+tests/test_kb_calibrate_script.py: 1 warning
+tests/test_llm_down_alert.py: 7 warnings
+tests/test_llm_keys.py: 8 warnings
+tests/test_orgs_isolation.py: 19 warnings
+tests/test_panel_extract.py: 14 warnings
+tests/test_security_2026_09_26.py: 8 warnings
+tests/test_seller_facts.py: 9 warnings
+tests/test_seller_profile.py: 12 warnings
+tests/test_seller_prompt_text.py: 5 warnings
+tests/test_service_key.py: 19 warnings
+tests/test_step1_external_id.py: 1 warning
+tests/test_step1_foreign_keys.py: 1 warning
+tests/test_step1_health.py: 1 warning
+tests/test_step1_migrations.py: 2 warnings
+tests/test_step1_timestamps.py: 1 warning
+tests/test_step2_ingestor.py: 8 warnings
+tests/test_step2_retriever.py: 5 warnings
+tests/test_step3_consent.py: 4 warnings
+tests/test_step3_document.py: 2 warnings
+tests/test_step5_consent.py: 3 warnings
+tests/test_step5_dedup.py: 3 warnings
+tests/test_step5_failures.py: 5 warnings
+tests/test_step5_lead.py: 5 warnings
+tests/test_step5_needs_human.py: 3 warnings
+tests/test_step5_order.py: 4 warnings
+tests/test_step5_queue.py: 7 warnings
+tests/test_step5_refuse.py: 3 warnings
+tests/test_step5_sandbox.py: 6 warnings
+tests/test_step5_send_failed.py: 3 warnings
+tests/test_step5_unmask.py: 2 warnings
+tests/test_step6_engine_with_outbox.py: 3 warnings
+tests/test_step6_monitoring.py: 1 warning
+tests/test_step6_outbox_sender.py: 8 warnings
+tests/test_step6_redeliver.py: 14 warnings
+tests/test_step7_engine_integration.py: 9 warnings
+tests/test_step7_expected_failure_logging.py: 2 warnings
+tests/test_step7_lead_writer_failure.py: 6 warnings
+tests/test_step7_lead_writer_idempotent.py: 8 warnings
+tests/test_step7_stop3.py: 6 warnings
+tests/test_step8a_dedup.py: 5 warnings
+tests/test_step8a_flood.py: 5 warnings
+tests/test_step8a_heartbeat.py: 7 warnings
+tests/test_step8a_no_pii.py: 3 warnings
+tests/test_step8a_owner_choices.py: 2 warnings
+tests/test_step8a_transports.py: 3 warnings
+tests/test_step8a_two_rows.py: 5 warnings
+tests/test_step8a_watchdog.py: 14 warnings
+tests/test_step8b_block_survives_cache.py: 4 warnings
+tests/test_step8b_conversations.py: 11 warnings
+tests/test_step8b_login.py: 19 warnings
+tests/test_step8b_model.py: 8 warnings
+tests/test_step8b_path.py: 4 warnings
+tests/test_step8b_prompt_knowledge.py: 13 warnings
+tests/test_step8b_session.py: 5 warnings
+tests/test_step8b_twofa.py: 12 warnings
+tests/test_support_actions.py: 28 warnings
+tests/test_support_actions_panel.py: 2 warnings
+tests/test_support_kb.py: 17 warnings
+tests/test_support_kb_panel.py: 9 warnings
+tests/test_support_loader.py: 8 warnings
+tests/test_support_queue.py: 9 warnings
+tests/test_support_visitor_context.py: 4 warnings
+tests/test_telegram_channel.py: 6 warnings
+tests/test_telegram_storage.py: 1 warning
+tests/test_telegram_worker.py: 3 warnings
+tests/test_usage_breakdown.py: 2 warnings
+tests/test_usage_report.py: 5 warnings
+tests/test_watchdog_health.py: 7 warnings
+tests/test_whatsapp.py: 8 warnings
+tests/test_whatsapp_operator_reply.py: 6 warnings
+tests/test_whatsapp_security.py: 11 warnings
+tests/test_widget_attachment.py: 7 warnings
+tests/test_widget_consent.py: 8 warnings
+tests/test_widget_cors.py: 7 warnings
+tests/test_widget_identity.py: 6 warnings
+tests/test_widget_identity_not_in_url.py: 1 warning
+tests/test_widget_js.py: 3 warnings
+tests/test_widget_limits.py: 7 warnings
+tests/test_widget_message.py: 12 warnings
+tests/test_widget_operator_reply.py: 4 warnings
+tests/test_widget_poll.py: 10 warnings
+tests/test_widget_session.py: 8 warnings
+  /usr/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'organization_id' as primary_key=True, not matching locally specified columns 'agent_id'; setting the current primary key columns to 'agent_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+tests/test_agent_scope.py: 27 warnings
+tests/test_agent_scope_contract.py: 3 warnings
+tests/test_budget_daily_cap.py: 8 warnings
+tests/test_business_agents.py: 6 warnings
+tests/test_end_to_end.py: 3 warnings
+tests/test_kb_calibrate_script.py: 1 warning
+tests/test_llm_down_alert.py: 7 warnings
+tests/test_llm_keys.py: 8 warnings
+tests/test_orgs_isolation.py: 19 warnings
+tests/test_panel_extract.py: 14 warnings
+tests/test_security_2026_09_26.py: 8 warnings
+tests/test_seller_facts.py: 9 warnings
+tests/test_seller_profile.py: 12 warnings
+tests/test_seller_prompt_text.py: 5 warnings
+tests/test_service_key.py: 19 warnings
+tests/test_step1_external_id.py: 1 warning
+tests/test_step1_foreign_keys.py: 1 warning
+tests/test_step1_health.py: 1 warning
+tests/test_step1_migrations.py: 2 warnings
+tests/test_step1_timestamps.py: 1 warning
+tests/test_step2_ingestor.py: 8 warnings
+tests/test_step2_retriever.py: 5 warnings
+tests/test_step3_consent.py: 4 warnings
+tests/test_step3_document.py: 2 warnings
+tests/test_step5_consent.py: 3 warnings
+tests/test_step5_dedup.py: 3 warnings
+tests/test_step5_failures.py: 5 warnings
+tests/test_step5_lead.py: 5 warnings
+tests/test_step5_needs_human.py: 3 warnings
+tests/test_step5_order.py: 4 warnings
+tests/test_step5_queue.py: 7 warnings
+tests/test_step5_refuse.py: 3 warnings
+tests/test_step5_sandbox.py: 6 warnings
+tests/test_step5_send_failed.py: 3 warnings
+tests/test_step5_unmask.py: 2 warnings
+tests/test_step6_engine_with_outbox.py: 3 warnings
+tests/test_step6_monitoring.py: 1 warning
+tests/test_step6_outbox_sender.py: 8 warnings
+tests/test_step6_redeliver.py: 14 warnings
+tests/test_step7_engine_integration.py: 9 warnings
+tests/test_step7_expected_failure_logging.py: 2 warnings
+tests/test_step7_lead_writer_failure.py: 6 warnings
+tests/test_step7_lead_writer_idempotent.py: 8 warnings
+tests/test_step7_stop3.py: 6 warnings
+tests/test_step8a_dedup.py: 5 warnings
+tests/test_step8a_flood.py: 5 warnings
+tests/test_step8a_heartbeat.py: 7 warnings
+tests/test_step8a_no_pii.py: 3 warnings
+tests/test_step8a_owner_choices.py: 2 warnings
+tests/test_step8a_transports.py: 3 warnings
+tests/test_step8a_two_rows.py: 5 warnings
+tests/test_step8a_watchdog.py: 14 warnings
+tests/test_step8b_block_survives_cache.py: 4 warnings
+tests/test_step8b_conversations.py: 11 warnings
+tests/test_step8b_login.py: 19 warnings
+tests/test_step8b_model.py: 8 warnings
+tests/test_step8b_path.py: 4 warnings
+tests/test_step8b_prompt_knowledge.py: 13 warnings
+tests/test_step8b_session.py: 5 warnings
+tests/test_step8b_twofa.py: 12 warnings
+tests/test_support_actions.py: 28 warnings
+tests/test_support_actions_panel.py: 2 warnings
+tests/test_support_kb.py: 17 warnings
+tests/test_support_kb_panel.py: 9 warnings
+tests/test_support_loader.py: 8 warnings
+tests/test_support_queue.py: 9 warnings
+tests/test_support_visitor_context.py: 4 warnings
+tests/test_telegram_channel.py: 6 warnings
+tests/test_telegram_storage.py: 1 warning
+tests/test_telegram_worker.py: 3 warnings
+tests/test_usage_breakdown.py: 2 warnings
+tests/test_usage_report.py: 5 warnings
+tests/test_watchdog_health.py: 7 warnings
+tests/test_whatsapp.py: 8 warnings
+tests/test_whatsapp_operator_reply.py: 6 warnings
+tests/test_whatsapp_security.py: 11 warnings
+tests/test_widget_attachment.py: 7 warnings
+tests/test_widget_consent.py: 8 warnings
+tests/test_widget_cors.py: 7 warnings
+tests/test_widget_identity.py: 6 warnings
+tests/test_widget_identity_not_in_url.py: 1 warning
+tests/test_widget_js.py: 3 warnings
+tests/test_widget_limits.py: 7 warnings
+tests/test_widget_message.py: 12 warnings
+tests/test_widget_operator_reply.py: 4 warnings
+tests/test_widget_poll.py: 10 warnings
+tests/test_widget_session.py: 8 warnings
+  /usr/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'organization_id', 'agent_id' as primary_key=True, not matching locally specified columns 'agent_id'; setting the current primary key columns to 'agent_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+tests/test_agent_scope_contract.py::test_0010_downgrade_restores_the_keys_when_the_data_allows
+tests/test_step1_migrations.py::test_downgrade_base_removes_all_core_tables
+tests/test_usage_breakdown.py::test_the_migration_adds_and_removes_the_columns
+  /usr/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'agent_id' as primary_key=True, not matching locally specified columns 'organization_id'; setting the current primary key columns to 'organization_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+tests/test_agent_scope_contract.py::test_0010_downgrade_restores_the_keys_when_the_data_allows
+tests/test_step1_migrations.py::test_downgrade_base_removes_all_core_tables
+tests/test_usage_breakdown.py::test_the_migration_adds_and_removes_the_columns
+  /usr/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'organization_id', 'agent_id' as primary_key=True, not matching locally specified columns 'organization_id'; setting the current primary key columns to 'organization_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+tests/test_step8a_runtime_settings.py::test_bool_is_cast[yes-True]
+  /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/botvenv313/lib/python3.13/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-577 (_connection_worker_thread)
+  
+  Traceback (most recent call last):
+    File "/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/botvenv313/lib/python3.13/site-packages/aiosqlite/core.py", line 66, in _connection_worker_thread
+      future.get_loop().call_soon_threadsafe(set_result, future, result)
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/usr/lib/python3.13/asyncio/base_events.py", line 878, in call_soon_threadsafe
+      self._check_closed()
+      ~~~~~~~~~~~~~~~~~~^^
+    File "/usr/lib/python3.13/asyncio/base_events.py", line 556, in _check_closed
+      raise RuntimeError('Event loop is closed')
+  RuntimeError: Event loop is closed
+  
+  During handling of the above exception, another exception occurred:
+  
+  Traceback (most recent call last):
+    File "/usr/lib/python3.13/threading.py", line 1044, in _bootstrap_inner
+      self.run()
+      ~~~~~~~~^^
+    File "/usr/lib/python3.13/threading.py", line 995, in run
+      self._target(*self._args, **self._kwargs)
+      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/botvenv313/lib/python3.13/site-packages/aiosqlite/core.py", line 75, in _connection_worker_thread
+      future.get_loop().call_soon_threadsafe(set_exception, future, e)
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/usr/lib/python3.13/asyncio/base_events.py", line 878, in call_soon_threadsafe
+      self._check_closed()
+      ~~~~~~~~~~~~~~~~~~^^
+    File "/usr/lib/python3.13/asyncio/base_events.py", line 556, in _check_closed
+      raise RuntimeError('Event loop is closed')
+  RuntimeError: Event loop is closed
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1705 passed, 1195 warnings in 204.06s (0:03:24)
+EXIT 0

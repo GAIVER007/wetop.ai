@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 03.10.2026 14:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит dde556e (main), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'analytics-units'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/analytics-units.spec.ts:50:1 › вкладка по умолчанию за месяц: строки до единицы, итог равен сумме строк и ответу API (754ms)
+  ✘  2 tests/ui/analytics-units.spec.ts:93:1 › тип фонда режет строки; период из адреса работает, как у соседних вкладок (458ms)
+  ✘  3 tests/ui/analytics-units.spec.ts:117:1 › отказ API — словами на своём экране, не падение страницы (19.9s)
+  ✘  4 tests/ui/analytics-units.spec.ts:129:1 › телефон: таблица без горизонтальной прокрутки страницы (16.2s)
+  ✘  5 tests/ui/analytics-units.spec.ts:139:3 › доступность и снимки, light (16.4s)
+
+# код выхода —, сигнал SIGTERM · 1 мин 18 с

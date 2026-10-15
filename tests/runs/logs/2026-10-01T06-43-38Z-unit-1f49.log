@@ -1,0 +1,44 @@
+# Модульные (unit) · 01.10.2026 11:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 21
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-43-38Z-unit-1f49.json' 'apps/web/src/app/login/actions.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/web/src/app/login/actions.test.ts (4 tests | 1 failed) 13ms
+   × резервная форма возвращает на исходную страницу после входа 12ms
+   ✓ выход возвращает к единой форме на главной 1ms
+   ✓ непонятная роль — отказ, приглашение не уходит 0ms
+   ✓ роль из формы уходит в API как есть 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/login/actions.test.ts > резервная форма возвращает на исходную страницу после входа
+AssertionError: expected last "vi.fn()" call to have been called with [ '/journal?page=2' ]
+
+- Expected
++ Received
+
+  [
+-   "/journal?page=2",
++   "/today",
+  ]
+
+ ❯ apps/web/src/app/login/actions.test.ts:24:20
+     22|   form.set('next', '/journal?page=2');
+     23|   await signIn({ error: null }, form);
+     24|   expect(redirect).toHaveBeenLastCalledWith('/journal?page=2');
+       |                    ^
+     25| });
+     26|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  23:43:39
+   Duration  269ms (transform 75%, import 17%, tests 7%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-43-38Z-unit-1f49.json
+
+# код выхода 1 · 1 с

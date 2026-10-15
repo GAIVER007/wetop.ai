@@ -1,0 +1,12 @@
+{
+ "/finance?tab=cash": {
+  "open": "Расход",
+  "controls": 4,
+  "unlabeled": [],
+  "placeholderOnly": [],
+  "controlHeights": {
+   "41px": 2,
+   "38px": 2
+  }
+ }
+}

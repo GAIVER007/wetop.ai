@@ -1,0 +1,37 @@
+# Сквозные (e2e) · 28.09.2026 17:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2cc9831 (codex/site-hospitality-positioning), незакоммиченных файлов набора: 36
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.auth.config.ts' '--workers=1'
+[WebServer] (node:64921) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64954) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65011) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+(node:65057) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/branches-auth.spec.ts:13:1 › владелец создаёт филиал, попадает в его настройку и возвращается в основной объект (12.6s)
+  ✓  2 tests/ui/branches-auth.spec.ts:41:1 › форма филиала доступна с клавиатуры и без горизонтальной прокрутки на телефоне (3.3s)
+  ✓  3 tests/ui/login-lock.spec.ts:22:3 › без входа /today уводит на экран входа (2.4s)
+  ✓  4 tests/ui/login-lock.spec.ts:22:3 › без входа /chessboard уводит на экран входа (7.5s)
+  ✓  5 tests/ui/login-lock.spec.ts:22:3 › без входа /reservations уводит на экран входа (11.3s)
+  ✓  6 tests/ui/login-lock.spec.ts:32:1 › после входа рабочее место открывается, «Выйти» закрывает двери снова (14.8s)
+  ✓  7 tests/ui/login-lock.spec.ts:47:1 › ссылка из письма подтверждает почту при включённом замке (16.6s)
+
+  7 passed (1.3m)
+
+# код выхода 0 · 1 мин 21 с

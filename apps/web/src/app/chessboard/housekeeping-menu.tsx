@@ -3,9 +3,9 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { HOUSEKEEPING_RU, housekeepingTargets } from '@pms/domain';
 import { ActionMenu } from '../../components/action-menu';
-import type { IconName } from '../../components/icon';
 import { useToast } from '../../components/toast';
 import { housekeepingAction } from '../units/[code]/actions';
+import { housekeepingStatus } from '../../lib/status/housekeeping';
 
 /**
  * Уборка в строке ячейки шахматки.
@@ -23,19 +23,15 @@ import { housekeepingAction } from '../units/[code]/actions';
  * `revalidatePath` обновляет шахматку, фонд, доступность, статистику и главную.
  */
 type Status = 'DIRTY' | 'CLEAN' | 'INSPECTED';
-/** Пункт меню назван результатом: нажал «Убрано» — ячейка убрана (DESIGN.md §14) */
-const ITEM_RU: Record<Status, string> = {
-  DIRTY: 'Требует уборки',
-  CLEAN: 'Убрано',
-  INSPECTED: 'Проверено',
-};
-/** Итог действия словом: «R01 убрана, ждёт проверки» — уведомление называет ячейку и что с ней стало */
+/**
+ * status-hint: итог действия для уведомления, а не статус: «R01 убрана, ждёт проверки», уведомление
+ * называет ячейку и что с ней стало
+ */
 const DONE_RU: Record<Status, string> = {
   DIRTY: 'требует уборки',
   CLEAN: 'убрана, ждёт проверки',
   INSPECTED: 'проверена, доступна',
 };
-const ICON: Record<Exclude<Status, 'INSPECTED'>, IconName> = { DIRTY: 'dirty', CLEAN: 'clean' };
 
 export function HousekeepingMenu({
   code,
@@ -65,12 +61,12 @@ export function HousekeepingMenu({
     >
       <ActionMenu
         size="sm"
-        icon={ICON[status]}
+        icon={housekeepingStatus[status].icon}
         className="board-hk__menu"
         label={`Уборка ячейки ${code}: ${HOUSEKEEPING_RU[status]}`}
         items={[
           ...housekeepingTargets(status).map((next) => ({
-            label: ITEM_RU[next],
+            label: housekeepingStatus[next].label,
             onSelect: () => set(next),
             disabled: pending,
           })),

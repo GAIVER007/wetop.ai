@@ -1,0 +1,77 @@
+# Модульные (unit) · 13.10.2026 16:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3bd01f4 (codex/organizations-card-editor), незакоммиченных файлов набора: 25
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T11-45-38Z-unit-157d.json' 'apps/web/src/app/branches/business-groups.test.ts' 'apps/api/src/hotel/business-cards.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |unit| apps/web/src/app/branches/business-groups.test.ts (3 tests | 1 failed) 5ms
+   ❯ business cards in one organization (3)
+     ✓ groups the branches of a business without merging other businesses of the same vertical 1ms
+     × keeps a business without objects visible 3ms
+     ✓ does not fabricate businesses in an empty organization 0ms
+ ❯ |unit| apps/api/src/hotel/business-cards.test.ts (8 tests | 1 failed) 7ms
+   ❯ business card persistence (8)
+     × lists an owner business even when it has no objects 4ms
+     ✓ does not expose empty businesses to scoped staff 0ms
+     ✓ rejects managers before accessing the database 1ms
+     ✓ rejects a foreign or invisible business without writes 0ms
+     ✓ saves metadata and its audit atomically without requiring storage 0ms
+     ✓ rejects concurrent stale edits 0ms
+     ✓ rejects injected tenant and storage fields 0ms
+     ✓ rejects oversized photos before image decode and storage 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/business-cards.test.ts > business card persistence > lists an owner business even when it has no objects
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ apps/api/src/hotel/business-cards.test.ts:44:19
+     42|     const { service, db } = setup();
+     43|     const cards = await actor('OWNER', () => service.list([]));
+     44|     expect(cards).toHaveLength(1);
+       |                   ^
+     45|     expect(db.$queryRaw).toHaveBeenCalledTimes(1);
+     46|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/branches/business-groups.test.ts > business cards in one organization > keeps a business without objects visible
+AssertionError: expected [] to deeply equal [ { id: 'empty', …(2) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "branches": [],
+-     "id": "empty",
+-     "vertical": "BEAUTY",
+-   },
+- ]
++ []
+
+ ❯ apps/web/src/app/branches/business-groups.test.ts:34:78
+     32|   });
+     33|   it('keeps a business without objects visible', () => {
+     34|     expect(groupBusinessBranches([], [{ id: 'empty', vertical: 'BEAUTY…
+       |                                                                              ^
+     35|   });
+     36|   it('does not fabricate businesses in an empty organization', () =>
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 9 passed (11)
+   Start at  04:45:39
+   Duration  1.09s (import 59%, transform 39%, tests 1%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T11-45-38Z-unit-157d.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 04.10.2026 12:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит 354b82d (claude/owner-home-20261003), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/workspace.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '-g' 'обзор: очередь'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1436ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/224c2f74-eb93-4118-97ea-d4be74862d1c/scratchpad/home-wt/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/workspace.spec.ts:636:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (37.1s)
+
+  1 passed (1.3m)
+
+# код выхода 0 · 1 мин 27 с

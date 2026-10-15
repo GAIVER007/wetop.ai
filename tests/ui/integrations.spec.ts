@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * «Интеграции» v2, срез INT1 (ADR-116, план `plans/integrations-int1-2026-09-27.md`): внешние подключения объекта,
@@ -7,8 +7,8 @@ import { expect, test, type Page } from './fixtures';
  * «Проверить соединение». Последний тест снимает стоп-гейт для владельца: обе темы, телефон, «работает», «требует
  * внимания», «не подключено», «только чтение».
  */
-const fixture = 'http://127.0.0.1:4311';
-const report = 'reports/integrations-int1-2026-09-27';
+const fixture = FIXTURE_API;
+const report = 'reports/unified-sections-2026-10-01/integrations-int1-2026-09-27';
 
 type Mode = 'ok' | 'attention' | 'foreign' | 'no-key';
 const control = (page: Page, data: Record<string, unknown>) =>
@@ -23,32 +23,49 @@ test.afterEach(async ({ request }) => {
 
 /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 
-test('работает: одна карточка Channex, без базы, сайта и списка зелёных плашек', async ({ page }) => {
+test('работает: одна карточка Channex, без базы, сайта и списка зелёных плашек', async ({
+  page,
+}) => {
   await control(page, { channex: 'ok' satisfies Mode });
   await signIn(page);
   await page.goto('/connections');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+  // раздел называется «Подключения» с 01.10.2026 (навигация по задачам), адрес прежний
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
   await expect(main).toContainText('Подключения внешних сервисов для Luxx Aparts.');
   const card = main.getByTestId('integration-channex');
   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
   await expect(card.getByTestId('integration-issues')).toHaveCount(0);
   await expect(card.getByTestId('integration-last-exchange')).toHaveText(/^[12] мин назад$/);
-  await expect(card).toContainText('3 категории, 3 тарифа');
-  await expect(card.getByRole('link', { name: 'Каналы продаж' })).toHaveAttribute('href', '/channels');
-  await expect(card.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', '/connections/channex');
+  await expect(card).toContainText('3 категории, 1 тарифный план, 3 сопоставления');
+  await expect(card.getByRole('link', { name: 'Каналы продаж' })).toHaveAttribute(
+    'href',
+    '/channels',
+  );
+  await expect(card.getByRole('link', { name: 'Настройки' })).toHaveAttribute(
+    'href',
+    '/connections/channex',
+  );
   // внутреннее и чужие модули сюда не попадают (§2, §13, §26 ТЗ)
-  for (const text of ['Данные проекта', 'Supabase', 'База проекта', 'Сайт и бронирования', 'Бронирования'])
+  for (const text of [
+    'Данные проекта',
+    'Supabase',
+    'База проекта',
+    'Сайт и бронирования',
+    'Бронирования',
+  ])
     await expect(main).not.toContainText(text);
   // проверка — у карточки, а не в шапке страницы (§9)
-  await expect(page.locator('.page__head').getByRole('button', { name: 'Проверить соединение' })).toHaveCount(0);
+  await expect(
+    page.locator('.page__head').getByRole('button', { name: 'Проверить соединение' }),
+  ).toHaveCount(0);
   await expect(card.getByRole('button', { name: 'Проверить соединение' })).toBeVisible();
   // «Среда: Тестовая» и ID объекта — не основной текст карточки, а спрятанные технические детали
   const tech = card.getByTestId('integration-tech');
@@ -83,20 +100,27 @@ test('интеграция у другой организации: «Подкл�
   await control(page, { channex: 'foreign' satisfies Mode });
   await page.goto('/connections');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('integrations-empty')).toContainText('Интеграции ещё не подключены');
+  await expect(main.getByTestId('integrations-empty')).toContainText(
+    'Интеграции ещё не подключены',
+  );
   await main.getByRole('link', { name: 'Посмотреть доступные' }).click();
   await expect(page).toHaveURL(/\/connections\?tab=available$/);
   const card = main.getByTestId('integration-channex');
   await expect(card.getByTestId('integration-health')).toHaveText('Не подключено');
   await expect(card.getByTestId('integration-connect')).toContainText('Подключает поддержка WETOP');
   await expect(card.getByRole('button')).toHaveCount(0);
-  await expect(main.getByRole('link', { name: /Доступные/ })).toHaveAttribute('aria-current', 'page');
+  await expect(main.getByRole('link', { name: /Доступные/ })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
 });
 
 test('ключ Channex не задан — не подключено, а не «работает»', async ({ page }) => {
   await control(page, { channex: 'no-key' satisfies Mode });
   await page.goto('/connections?tab=available');
-  await expect(page.getByRole('main').getByTestId('integration-health')).toHaveText('Не подключено');
+  await expect(page.getByRole('main').getByTestId('integration-health')).toHaveText(
+    'Не подключено',
+  );
 });
 
 test('только чтение: список и состояние видны, подключение — после оплаты', async ({ page }) => {
@@ -148,7 +172,9 @@ for (const theme of ['light', 'dark'] as const) {
     const shot = async (name: string, mode: Mode, path = '/connections', extra = {}) => {
       await control(page, { channex: mode, ...extra });
       await page.goto(path);
-      await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+      await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
+        'Подключения',
+      );
       await page.mouse.move(0, 0);
       await page.screenshot({ path: `${report}/${theme}-${name}.png`, caret: 'initial' });
     };
@@ -157,9 +183,28 @@ for (const theme of ['light', 'dark'] as const) {
     await shot('attention-1440', 'attention');
     await shot('not-connected-1440', 'foreign');
     await shot('available-1440', 'foreign', '/connections?tab=available');
-    await shot('read-only-1440', 'foreign', '/connections?tab=available', { orgTrialDays: 'ended' });
+    await shot('read-only-1440', 'foreign', '/connections?tab=available', {
+      orgTrialDays: 'ended',
+    });
     await page.setViewportSize({ width: 390, height: 1000 });
     await shot('ok-390', 'ok');
     await shot('attention-390', 'attention');
   });
 }
+
+test('подключения различают два тарифных плана и десять сопоставлений', async ({ page }) => {
+  await control(page, {
+    channex: 'ok',
+    channelsOverrides: {
+      connection: { mappedCategories: 5, mappedLocalRatePlans: 2, mappedRatePlans: 10 },
+    },
+  });
+  await signIn(page);
+  await page.goto('/connections');
+  const card = page.getByRole('main').getByTestId('integration-channex');
+  await expect(card).toContainText('5 категорий, 2 тарифных плана, 10 сопоставлений');
+  await expect(card).not.toContainText('10 тарифов');
+  await expect(card).toContainText('Тестовый');
+  await page.reload();
+  await expect(card).toContainText('5 категорий, 2 тарифных плана, 10 сопоставлений');
+});

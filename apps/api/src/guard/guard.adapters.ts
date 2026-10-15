@@ -210,9 +210,17 @@ export class NestGuardProbes implements GuardProbes {
     );
   }
 
+  /** Архив `journal.jsonl` и записи `entries/*.json` (TESTING.md); нет ни того, ни другого, сигнала нет */
   failingSuites(): FailingSuite[] | null {
     const file = resolve(ROOT, 'tests/runs/journal.jsonl');
-    return existsSync(file) ? failingSuites(readFileSync(file, 'utf8')) : null;
+    const dir = resolve(ROOT, 'tests/runs/entries');
+    if (!existsSync(file) && !existsSync(dir)) return null;
+    const entries = existsSync(dir)
+      ? readdirSync(dir)
+          .filter((f) => f.endsWith('.json'))
+          .map((f) => readFileSync(resolve(dir, f), 'utf8'))
+      : [];
+    return failingSuites([existsSync(file) ? readFileSync(file, 'utf8') : '', ...entries].join('\n'));
   }
 
   /** В контейнере путь задаёт deploy/compose.yml; на Mac и в тестах его нет — копий там не снимают */
@@ -252,6 +260,12 @@ export class NestGuardProbes implements GuardProbes {
       this.channels.soldItems(from, toExclusive),
       reader.getAvailability.call(this.gateway, mapped[0]!.providerPropertyId, from, to),
     ]);
+    // Отметка в журнале: по ней сторож после перезапуска API знает, что сегодня Channex уже читали (раз в сутки)
+    await this.channels
+      .audit('channex.availabilityRead', { from, to })
+      .catch((e: unknown) =>
+        console.warn(`отметка чтения остатков не записана: ${(e as Error).message}`),
+      );
     const pms = categoryAvailability({ from, to, units, blocks, items });
     const channel = new Map<string, Map<string, number>>();
     for (const m of mapped) {
@@ -259,6 +273,10 @@ export class NestGuardProbes implements GuardProbes {
       if (perDate) channel.set(m.localAccommodationTypeCode!, new Map(Object.entries(perDate)));
     }
     return { pms, channel };
+  }
+
+  lastAvailabilityReadAt(): Promise<Date | null> {
+    return this.channels.lastAuditAt('channex.availabilityRead');
   }
 }
 

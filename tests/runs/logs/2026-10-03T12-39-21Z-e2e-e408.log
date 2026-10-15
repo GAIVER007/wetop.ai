@@ -1,0 +1,303 @@
+# Сквозные (e2e) · 03.10.2026 17:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит ca50029 (claude/mobile-rest-screens)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/guests-design.spec.ts' 'tests/ui/inventory-catalog.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 76 tests using 1 worker
+
+  ✓   1 tests/ui/channels-compact.spec.ts:7:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (4.4s)
+  ✓   2 tests/ui/channels-compact.spec.ts:28:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (2.3s)
+  ✓   3 tests/ui/channels-compact.spec.ts:49:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (3.5s)
+  ✓   4 tests/ui/channels-compact.spec.ts:57:1 › sync never calls an empty disconnected queue successful (10.3s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (17.4s)
+  ✓   6 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (8.4s)
+  ✓   7 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (8.0s)
+  ✓   8 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (9.3s)
+  ✓   9 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (9.9s)
+  ✓  10 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (14.1s)
+  ✓  11 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (31.8s)
+  ✓  12 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (1.4m)
+  ✘  13 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (2.2m)
+  ✓  14 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (24.1s)
+  ✓  15 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (13.1s)
+  ✓  16 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (6.0s)
+  ✓  17 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (5.6s)
+  ✓  18 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (7.1s)
+  ✓  19 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (9.4s)
+  ✓  20 tests/ui/chessboard-week.spec.ts:26:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (12.5s)
+  ✓  21 tests/ui/chessboard-week.spec.ts:72:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (5.7s)
+  ✓  22 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (9.2s)
+  ✓  23 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (14.3s)
+  ✓  24 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (10.2s)
+  ✓  25 tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье (15.3s)
+  ✓  26 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: light, обе панели и телефон (19.0s)
+  ✓  27 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: dark, обе панели и телефон (17.5s)
+  ✓  28 tests/ui/chessboard-week.spec.ts:199:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (2.5s)
+  ✘  29 tests/ui/dashboard-design.spec.ts:21:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (16.9s)
+  ✘  30 tests/ui/dashboard-design.spec.ts:58:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (16.9s)
+  ✓  31 tests/ui/dashboard-design.spec.ts:96:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам (4.3s)
+  ✘  32 tests/ui/finance-compact.spec.ts:8:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (2.3s)
+  ✓  33 tests/ui/finance-f1.spec.ts:53:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (16.2s)
+  ✓  34 tests/ui/finance-f1.spec.ts:106:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (5.0s)
+  ✓  35 tests/ui/finance-f1.spec.ts:156:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (2.8s)
+  ✓  36 tests/ui/finance-f1.spec.ts:187:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (5.0s)
+  ✓  37 tests/ui/finance-f1.spec.ts:229:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (7.0s)
+  ✓  38 tests/ui/finance-f1.spec.ts:245:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (4.7s)
+  ✓  39 tests/ui/finance-f1.spec.ts:265:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (1.0s)
+  ✓  40 tests/ui/finance-f1.spec.ts:285:3 › F1, стоп-гейт: снимки для владельца, light (1.3s)
+  ✓  41 tests/ui/finance-f1.spec.ts:285:3 › F1, стоп-гейт: снимки для владельца, dark (3.2s)
+  ✓  42 tests/ui/guests-design.spec.ts:23:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (6.1s)
+  ✓  43 tests/ui/guests-design.spec.ts:68:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (5.7s)
+  ✘  44 tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (22.8s)
+  ✓  45 tests/ui/guests-design.spec.ts:167:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (22.9s)
+  ✓  46 tests/ui/guests-design.spec.ts:239:1 › гости: документы и финансовый свод гостя (G5) (8.8s)
+  ✓  47 tests/ui/guests-design.spec.ts:291:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (8.0s)
+  ✓  48 tests/ui/guests-design.spec.ts:337:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (26.8s)
+  ✓  49 tests/ui/guests-design.spec.ts:417:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (33.6s)
+  ✓  50 tests/ui/guests-design.spec.ts:491:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) (6.4s)
+  ✓  51 tests/ui/inventory-catalog.spec.ts:11:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (36.6s)
+  ✓  52 tests/ui/inventory-catalog.spec.ts:33:1 › прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается (5.0s)
+  ✓  53 tests/ui/inventory-catalog.spec.ts:54:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (4.4s)
+  ✓  54 tests/ui/inventory-catalog.spec.ts:97:1 › пустой поиск объясняется, сброс возвращает фонд (2.0s)
+  ✓  55 tests/ui/inventory-catalog.spec.ts:108:3 › каталог адаптивен и доступен: light (14.6s)
+  ✓  56 tests/ui/inventory-catalog.spec.ts:108:3 › каталог адаптивен и доступен: dark (6.7s)
+  ✓  57 tests/ui/inventory-catalog.spec.ts:141:1 › пустой фонд отличается от пустого поиска (859ms)
+  ✓  58 tests/ui/inventory-catalog.spec.ts:149:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (1.6s)
+  ✓  59 tests/ui/inventory-catalog.spec.ts:171:1 › панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами (6.4s)
+  ✓  60 tests/ui/inventory-catalog.spec.ts:219:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат (20.1s)
+  ✘  61 tests/ui/inventory-catalog.spec.ts:244:3 › панель места доступна: light (49.5s)
+  ✓  62 tests/ui/inventory-catalog.spec.ts:244:3 › панель места доступна: dark (29.7s)
+  ✓  63 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (29.4s)
+  ✓  64 tests/ui/mobile-adaptation.spec.ts:61:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (5.9s)
+  ✓  65 tests/ui/mobile-adaptation.spec.ts:70:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (11.6s)
+  ✓  66 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана (8.3s)
+  ✓  67 tests/ui/mobile-adaptation.spec.ts:95:1 › узкий телефон: плитки финансов встают в одну колонку (16.4s)
+  ✓  68 tests/ui/mobile-adaptation.spec.ts:104:1 › телефон: месяц цен не растягивается на четыре экрана (5.8s)
+  ✓  69 tests/ui/mobile-adaptation.spec.ts:117:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (1.3m)
+  ✓  70 tests/ui/rates-design.spec.ts:19:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (5.5s)
+  ✓  71 tests/ui/rates-design.spec.ts:65:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (4.1s)
+  ✓  72 tests/ui/rates-design.spec.ts:95:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (3.8s)
+  ✓  73 tests/ui/rates-design.spec.ts:111:1 › фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать» (4.8s)
+  ✓  74 tests/ui/rates-design.spec.ts:132:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (2.8s)
+  ✘  75 tests/ui/rates-design.spec.ts:163:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь (3.6s)
+  ✓  76 tests/ui/rates-design.spec.ts:193:1 › нет цены в воскресенье: подсказка не расширяет страницу (3.5s)
+
+
+  1) tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка 
+
+    Test timeout of 120000ms exceeded.
+
+    Error Context: test-results/chessboard-design-дизайн-ш-681d4-правление-и-доступная-сетка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-design-дизайн-ш-681d4-правление-и-доступная-сетка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-design-дизайн-ш-681d4-правление-и-доступная-сетка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/dashboard-design.spec.ts:21:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('pa-categories').getByRole('columnheader', { name: 'Продано ночей' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('pa-categories').getByRole('columnheader', { name: 'Продано ночей' }) with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-categories').getByRole('columnheader', { name: 'Продано ночей' })
+
+
+      40 |   const table = main.getByTestId('pa-categories');
+      41 |   await expect(table.getByRole('columnheader', { name: 'Загрузка' })).toHaveCount(0);
+    > 42 |   await expect(table.getByRole('columnheader', { name: 'Продано ночей' })).toBeVisible();
+         |                                                                            ^
+      43 |
+      44 |   // подписи плиток и полос — словами через запятую, не « · »
+      45 |   for (const hint of await main.locator('.kpi__hint').allTextContents())
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/dashboard-design.spec.ts:42:76
+
+    Error Context: test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/dashboard-design.spec.ts:58:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('main').getByTestId('pa-categories')
+    Expected: visible
+    Received: hidden
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('pa-categories') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-categories')
+        33 × locator resolved to <table data-testid="pa-categories" class="tbl tbl--nowrap dash-table dash-table--categories pa-categories">…</table>
+           - unexpected value "hidden"
+
+
+      63 |   await page.goto(`${OVERVIEW}?period=week`);
+      64 |   const table = main.getByTestId('pa-categories');
+    > 65 |   await expect(table).toBeVisible();
+         |                       ^
+      66 |   const clipped = await table.evaluate((el) => {
+      67 |     const scroller = el.closest('.table-scroll') ?? el.parentElement!;
+      68 |     return scroller.scrollWidth - scroller.clientWidth;
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/dashboard-design.spec.ts:65:23
+
+    Error Context: test-results/dashboard-design-показател-e34d1--а-не-обрезается-прокруткой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-design-показател-e34d1--а-не-обрезается-прокруткой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-design-показател-e34d1--а-не-обрезается-прокруткой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/finance-compact.spec.ts:8:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      18 |     animations: 'disabled',
+      19 |   });
+    > 20 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
+         |                                                                                               ^
+      21 |     true,
+      22 |   );
+      23 |   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/finance-compact.spec.ts:20:95
+
+    Error Context: test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Гость', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Гость', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Гость', exact: true })
+
+
+      107 |   await main.getByRole('link', { name: /Задолжавший/ }).click();
+      108 |   const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
+    > 109 |   await expect(drawer).toBeVisible();
+          |                        ^
+      110 |   await expect(drawer.locator('.guest-preview__name')).toContainText('живёт');
+      111 |   await expect(drawer.getByTestId('guest-preview-now')).toContainText('R11');
+      112 |   await expect(drawer.getByTestId('guest-preview-now')).toContainText('до');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/guests-design.spec.ts:109:24
+
+    Error Context: test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/inventory-catalog.spec.ts:244:3 › панель места доступна: light ───────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('dialog', { name: 'Номер R09' })
+    Expected: visible
+    Received: undefined
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Номер R09' }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Номер R09' })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      252 |         .getByRole('link', { name: 'Открыть номер R09', exact: true })
+      253 |         .click();
+    > 254 |       await expect(page.getByRole('dialog', { name: 'Номер R09' })).toBeVisible();
+          |                                                                     ^
+      255 |       const audit = await new AxeBuilder({ page })
+      256 |         .include('dialog[open]')
+      257 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/inventory-catalog.spec.ts:254:69
+
+    Error Context: test-results/inventory-catalog-панель-места-доступна-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-catalog-панель-места-доступна-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-catalog-панель-места-доступна-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/rates-design.spec.ts:163:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 768
+    Received:    774.5
+
+      173 |   await page.screenshot({ path: 'reports/rates-compact-2026-09-30/desktop.png', fullPage: true });
+      174 |   const before = await cal.boundingBox();
+    > 175 |   expect(before!.y + before!.height).toBeLessThanOrEqual(768);
+          |                                      ^
+      176 |   await main
+      177 |     .getByTestId('rate-row-2026-08-01')
+      178 |     .getByRole('button', { name: /^Выбрать/ })
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/rates-design.spec.ts:175:38
+
+    Error Context: test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка 
+    tests/ui/dashboard-design.spec.ts:21:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек 
+    tests/ui/dashboard-design.spec.ts:58:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой 
+    tests/ui/finance-compact.spec.ts:8:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям 
+    tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) 
+    tests/ui/inventory-catalog.spec.ts:244:3 › панель места доступна: light ────────────────────────
+    tests/ui/rates-design.spec.ts:163:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь 
+  69 passed (19.4m)
+
+# код выхода 1 · 19 мин 25 с

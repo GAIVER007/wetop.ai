@@ -1,0 +1,102 @@
+# Модульные (unit) · 06.10.2026 23:59 Алматы · vm
+# коммит 6ee3ce8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-59-36Z-unit-a073.json' 'apps/web/src/app/today/vertical-load.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests | 2 failed) 34ms
+   ❯ загрузка «Сегодня» салона (2)
+     ✓ один запрос дня журнала; мастера из столбцов, без справочника мастеров и клиентов 15ms
+     × день ответа не совпал с сутками филиала (полночь между запросом и счётом): ошибка, а не числа 10ms
+   ❯ загрузка «Сегодня» ресторана (4)
+     ✓ день и вчерашний день по поясу филиала; только залы, столы и брони 2ms
+     × больше 100 броней: дочитывает все страницы, ничего не теряет 3ms
+     ✓ бронь вчерашнего дня через полночь сидит сейчас, но в запланированные дня не входит 2ms
+     ✓ филиал не выбран или недоступен: ошибка, а не чужие числа 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-load.test.ts > загрузка «Сегодня» салона > день ответа не совпал с сутками филиала (полночь между запросом и счётом): ошибка, а не числа
+AssertionError: promise resolved "{ …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "currentMinute": 270,
++   "day": {
++     "appointments": [],
++     "bounds": {
++       "fromMinutes": 540,
++       "toMinutes": 1260,
++     },
++     "columns": [
++       {
++         "id": "m",
++         "intervals": [],
++         "name": "Анна",
++         "serviceIds": [],
++         "timeOff": false,
++         "timeOffReason": null,
++       },
++     ],
++     "date": "2026-10-07",
++     "location": {
++       "currency": "KZT",
++       "id": "l",
++       "name": "Салон",
++       "timezone": "Asia/Almaty",
++     },
++     "services": [],
++   },
++   "metrics": {
++     "awaitingConfirmation": 0,
++     "confirmed": 0,
++     "done": 0,
++     "masters": 1,
++     "noShow": 0,
++     "planned": 0,
++     "upcoming": [],
++   },
+  }
+
+ ❯ apps/web/src/app/today/vertical-load.test.ts:99:62
+     97|   it('день ответа не совпал с сутками филиала (полночь между запросом …
+     98|     state.day = { ...(state.day as object), date: '2026-10-07' };
+     99|     await expect(loadBeautyToday('2026-10-07T23:30:00.000Z')).rejects.…
+       |                                                              ^
+    100|       'Сутки филиала сменились',
+    101|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-load.test.ts > загрузка «Сегодня» ресторана > больше 100 броней: дочитывает все страницы, ничего не теряет
+AssertionError: expected +0 to be 150 // Object.is equality
+
+- Expected
++ Received
+
+- 150
++ 0
+
+ ❯ apps/web/src/app/today/vertical-load.test.ts:135:36
+    133|     ];
+    134|     const loaded = await loadFoodToday('2026-10-08T05:00:00.000Z');
+    135|     expect(loaded.metrics.planned).toBe(150);
+       |                                    ^
+    136|     expect(calls).toContain('food.reservations:2026-10-08@1');
+    137|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  18:59:37
+   Duration  338ms (transform 71%, tests 17%, import 11%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-59-36Z-unit-a073.json
+
+# код выхода 1 · 1 с

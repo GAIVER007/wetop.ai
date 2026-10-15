@@ -12,7 +12,7 @@ import { BusinessAgentsService } from './business-agents.service';
 export class BusinessAgentsController {
   constructor(@Inject(BusinessAgentsService) private readonly agents: BusinessAgentsService) {}
 
-  /** Куда можно создать: Business → филиалы со словом «занят». Читают все роли с диалогами, кнопка — по `canCreate` */
+  /** Куда можно создать: Business → филиалы со словом «занят». Читают все роли с диалогами, кнопка, по `canCreate` */
   @Access('dialogs')
   @Get('options')
   @Header('Cache-Control', 'no-store')

@@ -1,27 +1,33 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * ADR-072: пока база не в Казахстане, WETOP не хранит имя, контакты, заметки и документы гостя. Формы стойки их
  * не спрашивают — режим читается у API заранее (`/system/pii-storage`), а не узнаётся отказом после ввода.
  * Фикстура по умолчанию отдаёт `real` (как в базе в РК), здесь переключается на `pseudonymized`.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
+// чистый стенд: бронь соседнего спека на M03 заняла бы те же даты, и форма не дала бы создать эту
+test.beforeEach(async ({ request }) => {
+  await request.post(`${fixture}/__test/reset`);
+});
 test.afterEach(async ({ request }) => {
   await request.post(`${fixture}/__test/control`, { data: {} });
 });
 
-test('новая бронь без имени и контактов: объяснение на месте, бронь создаётся', async ({
+test('новая бронь без имени и контактов: компактная форма, бронь создаётся', async ({
   page,
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { piiStorage: 'pseudonymized' } });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
-  await expect(form.getByTestId('guest-pseudonymized')).toContainText('не в Казахстане');
+  await expect(form.getByTestId('guest-pseudonymized')).toHaveCount(0);
   for (const name of ['firstName', 'lastName', 'middleName', 'email', 'phone'])
     await expect(form.locator(`[name="${name}"]`)).toHaveCount(0);
-  await expect(form.getByTestId('booking-summary')).toContainText('без имени');
+  await expect(form.getByTestId('booking-summary')).toContainText('Автоматическая карточка');
+  await form.getByText('Дополнительно', { exact: true }).click();
+  await form.locator('details.booking-create__extras').evaluate((d) => { (d as HTMLDetailsElement).open = true; });
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
@@ -43,6 +49,8 @@ test('бронь существующему гостю (G6) — без имён:
   const form = page.getByTestId('new-reservation-form');
   await expect(form.getByTestId('booking-guest')).toContainText('Гость Тестовый');
   await expect(form.getByTestId('guest-pseudonymized')).toHaveCount(0);
+  await form.getByText('Дополнительно', { exact: true }).click();
+  await form.locator('details.booking-create__extras').evaluate((d) => { (d as HTMLDetailsElement).open = true; });
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);

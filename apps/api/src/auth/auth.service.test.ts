@@ -276,6 +276,27 @@ describe('AuthService.whoami', () => {
     await expect(auth.whoami(token, NOW)).resolves.toBeNull();
   });
 
+  it('сессия приостановленного члена не годится, а после возобновления снова действует (DATA_MODEL §31.2)', async () => {
+    const { auth, memberships } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    memberships[0]!.status = 'SUSPENDED';
+    await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+    memberships[0]!.status = 'ACTIVE';
+    await expect(auth.whoami(token, NOW)).resolves.not.toBeNull();
+  });
+
+  it('вход приостановленного закрыт с причиной словами, а не общим «неверный пароль»', async () => {
+    const { auth, memberships } = service();
+    memberships[0]!.status = 'SUSPENDED';
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow('Доступ приостановлен');
+    memberships[0]!.status = 'ACTIVE';
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).resolves.toHaveProperty('token');
+  });
+
   it('сессия приостановленной организации не годится (ADR-046, аудит 26.09, С-4)', async () => {
     const { auth, organizations } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
@@ -503,6 +524,24 @@ describe('AuthService.register', () => {
     await expect(auth.register({ ...NEW, phoneCountry: 'XX' }, NOW)).rejects.toThrow(/Проверьте телефон/);
     expect(users).toHaveLength(before.users);
     expect(organizations).toHaveLength(before.orgs);
+  });
+
+  // Q-REG-1 (решение владельца 10.10.2026): страна организации и язык интерфейса человека сохраняются
+  it('сохраняет страну организации из выбранной страны и язык интерфейса человека', async () => {
+    const { auth, users, organizations } = service();
+    await auth.register({ ...NEW, phoneCountry: 'UZ', phone: '90 123 45 67', locale: 'kk' }, NOW);
+    expect(users.find((u) => u.email === NEW.email)!.locale).toBe('kk');
+    expect(organizations.find((o) => o.name === 'Хостел на Абая')!.countryCode).toBe('UZ');
+  });
+
+  it('без языка в форме человек получает русский; чужой код языка — отказ без записи', async () => {
+    const { auth, users, organizations } = service();
+    const before = { users: users.length, orgs: organizations.length };
+    await expect(auth.register({ ...NEW, locale: 'xx' }, NOW)).rejects.toThrow(/язык/i);
+    expect(users).toHaveLength(before.users);
+    expect(organizations).toHaveLength(before.orgs);
+    await auth.register(NEW, NOW);
+    expect(users.find((u) => u.email === NEW.email)!.locale).toBe('ru');
   });
 
   it('до подтверждения почты вход закрыт — и говорит, что делать', async () => {
@@ -748,5 +787,59 @@ describe('AuthService: учётные данные читаются служеб
       ),
     );
     expect(audit.at(-1)!).toMatchObject({ action: 'user.password.changed', userId: 'u-1' });
+  });
+});
+
+describe('MV2 registration vertical validation', () => {
+  const input = {
+    email: 'mv2@example.invalid',
+    name: 'Мария Тестова',
+    hotelName: 'Тестовый бизнес',
+    password: PASSWORD,
+    phoneCountry: 'KZ',
+    phone: '8 701 555 44 33',
+    privacyAccepted: true,
+  };
+  afterEach(() => vi.unstubAllEnvs());
+  it.each(['UNKNOWN', '', null, 42])(
+    'rejects explicit invalid vertical %s before writes',
+    async (vertical) => {
+      const { auth, organizations } = service();
+      const before = organizations.length;
+      await expect(auth.register({ ...input, vertical } as never, NOW)).rejects.toThrow(
+        /направление бизнеса/,
+      );
+      expect(organizations).toHaveLength(before);
+    },
+  );
+  it.each(['BEAUTY', 'FOOD_SERVICE'])(
+    'registers %s without any allowlist (Q-UI-TRIAL, ADR-172)',
+    async (vertical) => {
+      const { auth, businesses } = service();
+      await auth.register({ ...input, vertical } as never, NOW);
+      expect(businesses.at(-1)).toMatchObject({ vertical });
+    },
+  );
+});
+
+describe('MV2 first chain for every vertical', () => {
+  const input = {
+    email: 'pilot@example.invalid',
+    name: 'Мария Тестова',
+    businessName: 'Пилот Тест',
+    password: PASSWORD,
+    phoneCountry: 'KZ',
+    phone: '8 701 555 44 33',
+    privacyAccepted: true,
+  };
+  afterEach(() => vi.unstubAllEnvs());
+  it.each(['BEAUTY', 'FOOD_SERVICE'])('persists %s without creating a hotel', async (vertical) => {
+    const { auth, businesses, locations, properties } = service();
+    await auth.register({ ...input, vertical } as never, NOW);
+    expect(businesses).toHaveLength(1);
+    expect(businesses[0]).toMatchObject({ vertical, name: input.businessName });
+    expect(locations).toHaveLength(1);
+    expect(locations[0]!.businessId).toBe(businesses[0]!.id);
+    expect(properties).toHaveLength(0);
   });
 });

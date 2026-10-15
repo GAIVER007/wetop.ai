@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 11.10.2026 17:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит b811e67 (claude/restaurant-payments-plan), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T12-22-57Z-integration-f181.json' 'tests/integration/restaurant-cash-database.test.ts' 'tests/integration/mv6-food-database.test.ts' 'tests/integration/mv6-food.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+(node:94286) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv6-food.test.ts (19 tests) 1043ms
+ ✓ |integration| tests/integration/mv6-food-database.test.ts (4 tests) 108ms
+ ✓ |integration| tests/integration/restaurant-cash-database.test.ts (2 tests) 50ms
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  05:22:57
+   Duration  2.66s (tests 59%, import 23%, transform 18%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T12-22-57Z-integration-f181.json
+
+# код выхода 0 · 3 с

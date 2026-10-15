@@ -1,0 +1,17 @@
+# Типы (typecheck) · 08.10.2026 04:37 Алматы · vm
+# коммит fd51888 (claude/mv8-5-ds0b-css-foundation), незакоммиченных файлов набора: 144
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 0 · 1 мин 17 с

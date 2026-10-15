@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 03.10.2026 18:18 Алматы · vm
+# коммит b31830a (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T13-18-10Z-integration-eb33.json' 'tests/integration/beauty-schedule.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 425ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  13:18:10
+   Duration  2.28s (transform 47%, tests 33%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-03T13-18-10Z-integration-eb33.json
+
+# код выхода 0 · 3 с

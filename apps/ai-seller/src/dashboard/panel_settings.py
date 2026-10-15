@@ -24,6 +24,7 @@ from src.agent_scope import AgentScope
 from src.config import Settings
 from src.dashboard.auth_router import request_agent, require_owner
 from src.dashboard.panel_common import (
+    SANDBOX_CHANNEL,
     allowed_models,
     is_secret_name,
     iso,
@@ -31,7 +32,7 @@ from src.dashboard.panel_common import (
     redis,
     sessions,
 )
-from src.db.base import utcnow
+from src.db.base import ConversationMode, MessageRole, utcnow
 from src.db.models import Client, Conversation, Document, Message
 from src.knowledge.ingestor import (
     DocumentTooComplex,
@@ -218,10 +219,19 @@ async def change_model(request: Request, body: ModelIn) -> dict:
 
 
 @router.get("/summary")
-async def summary(request: Request, scope: AgentScope | None = Depends(request_agent)) -> dict:
-    """Сводка за сутки. Считает база: выбрать всё и посчитать в Python —
+async def summary(
+    request: Request,
+    exclude_sandbox: bool = False,
+    scope: AgentScope | None = Depends(request_agent),
+) -> dict:
+    """Сводка за сутки. Считает база: выбрать всё и посчитать в Python,
     тот отказ, который на боевых объёмах находят последним.
-    У продавца числа считаются по АГЕНТУ запроса (SA2.5)."""
+    У продавца числа считаются по АГЕНТУ запроса (SA2.5).
+
+    `exclude_sandbox` убирает из чисел диалоги вкладки «Проверка» (канал `sandbox`), как и
+    в очереди: сводка над пустой очередью показывала «Диалогов за сутки 6». Без параметра
+    ответ прежний. Опоздавшие ответы (`find_stale`) не фильтруются: в песочнице каждый ход
+    получает ответ в том же запросе, просрочки там не бывает."""
     from src.sla_alerts import find_stale
 
     settings: Settings = request.app.state.settings
@@ -250,9 +260,38 @@ async def summary(request: Request, scope: AgentScope | None = Depends(request_a
                 Conversation, Conversation.id == Message.conversation_id
             ).where(Conversation.agent_id == scope.agent_id)
             leads_stmt = leads_stmt.where(Client.agent_id == scope.agent_id)
+        if exclude_sandbox:
+            sandbox = sa.select(Client.id).where(Client.channel == SANDBOX_CHANNEL).scalar_subquery()
+            dialogs_stmt = dialogs_stmt.where(Conversation.client_id.not_in(sandbox))
+            replies_stmt = replies_stmt.where(
+                Message.conversation_id.in_(
+                    sa.select(Conversation.id).where(Conversation.client_id.not_in(sandbox))
+                )
+            )
+            leads_stmt = leads_stmt.where(Client.channel != SANDBOX_CHANNEL)
         dialogs = await session.scalar(dialogs_stmt)
         replies = await session.scalar(replies_stmt)
         leads = await session.scalar(leads_stmt)
+        # S2.9: доля без человека и время первого ответа считаются по тем же диалогам, что и «dialogs»
+        ids_stmt = sa.select(Conversation.id, Conversation.mode).where(Conversation.last_activity_at >= since)
+        if scope is not None:
+            ids_stmt = ids_stmt.where(Conversation.agent_id == scope.agent_id)
+        if exclude_sandbox:
+            ids_stmt = ids_stmt.where(Conversation.client_id.not_in(sandbox))
+        window = (await session.execute(ids_stmt)).all()
+        firsts: dict = {}
+        if window:
+            # ponytail: строки диалогов суток приходят в Python (сотни, не миллионы); перейти на SQL, если дневной объём вырастет
+            rows = await session.execute(
+                sa.select(Message.conversation_id, Message.role, sa.func.min(Message.created_at))
+                .where(
+                    Message.conversation_id.in_([row.id for row in window]),
+                    Message.role.in_([MessageRole.USER, MessageRole.ASSISTANT, MessageRole.OPERATOR]),
+                )
+                .group_by(Message.conversation_id, Message.role)
+            )
+            for conv_id, role, at in rows:
+                firsts.setdefault(conv_id, {})[role] = at
         stale = await find_stale(
             session, sla_seconds=settings.sla_seconds, now=now, lookback_hours=SUMMARY_HOURS,
             agent_id=scope.agent_id if scope else None,
@@ -263,4 +302,28 @@ async def summary(request: Request, scope: AgentScope | None = Depends(request_a
         "replies": int(replies or 0),
         "leads": int(leads or 0),
         "sla_breaches": len(stale),
+        **_handling_metrics(window, firsts),
+    }
+
+
+def _handling_metrics(window: list, firsts: dict) -> dict:
+    """Метрики S2.9 (определения владельцем приняты умолчанием, видны в интерфейсе).
+
+    Передача человеку: в диалоге есть реплика оператора или он сейчас ждёт человека / ведётся человеком. Доля без
+    человека: остальные диалоги суток, в десятых долях процента. Время первого ответа: от первого сообщения гостя до
+    первого ответа продавца, среднее по диалогам, где ответ был после вопроса. Нет диалогов или ответов: null, а не 0."""
+    handoffs = 0
+    waits: list[float] = []
+    for row in window:
+        seen = firsts.get(row.id, {})
+        if MessageRole.OPERATOR in seen or row.mode in (ConversationMode.NEEDS_HUMAN, ConversationMode.OWNER_TAKEOVER):
+            handoffs += 1
+        asked, answered = seen.get(MessageRole.USER), seen.get(MessageRole.ASSISTANT)
+        if asked is not None and answered is not None and answered >= asked:
+            waits.append((answered - asked).total_seconds())
+    total = len(window)
+    return {
+        "handoffs": handoffs,
+        "automated_permille": round((total - handoffs) * 1000 / total) if total else None,
+        "avg_first_reply_seconds": round(sum(waits) / len(waits)) if waits else None,
     }

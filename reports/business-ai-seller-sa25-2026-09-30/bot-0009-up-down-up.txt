@@ -1,4 +1,4 @@
---- бот 0009 на настоящей PostgreSQL 16 (pgvector подменён: колонка vector → float8[], hnsw пропущен; остальное — как на рабочей базе)
+--- бот 0009 на настоящей PostgreSQL 16 (pgvector подменён: колонка vector → float8[], hnsw пропущен; остальное, как на рабочей базе)
 ok up 0008
 --- до 0009: агентов | клиентов организации без agent_id
      1 |     1
@@ -15,7 +15,7 @@ ok up 0009
  uq_documents_org_hash
  uq_whatsapp_connections_agent
 
---- ограничения подключения WhatsApp: первичный ключ — прежний (по организации)
+--- ограничения подключения WhatsApp: первичный ключ, прежний (по организации)
  fk_whatsapp_connections_agent            | f
  fk_whatsapp_connections_organization     | f
  whatsapp_connections_phone_number_id_key | u

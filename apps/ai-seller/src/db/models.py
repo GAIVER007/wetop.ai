@@ -170,6 +170,8 @@ class WhatsAppConnection(Base):
 class Client(Base):
     __tablename__ = "clients"
     __table_args__ = (
+        # Строка организации имеет агента (миграция сужения 0010): забытый писателем агент — не молчаливый NULL
+        sa.CheckConstraint("organization_id IS NULL OR agent_id IS NOT NULL", name="ck_clients_org_has_agent"),
         # Агент — граница диалога (DATA_MODEL §20.5, SA2.5): один гость у двух агентов, даже одной организации, — два
         # клиента. Прежняя уникальность по организации (`uq_clients_org_channel_external`) из модели снята: на рабочей
         # базе её убирает миграция сужения 0010 после доказанного рантайма, пока агент в организации один — они совпадают
@@ -269,6 +271,7 @@ class DashboardUser(Base):
 class Conversation(Base):
     __tablename__ = "conversations"
     __table_args__ = (
+        sa.CheckConstraint("organization_id IS NULL OR agent_id IS NOT NULL", name="ck_conversations_org_has_agent"),
         sa.Index(
             "idx_conv_mode",
             "mode",
@@ -299,6 +302,11 @@ class Conversation(Base):
     is_active: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
     last_activity_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+    # Ведение диалога человеком (S2.6, 0012): кто отвечает за него и что дальше. Сотрудник живёт в базе платформы,
+    # здесь только его идентификатор и имя на момент назначения: бот пользователей платформы не знает.
+    assignee_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID)
+    assignee_name: Mapped[str | None] = mapped_column(sa.String(120))
+    next_step: Mapped[str | None] = mapped_column(sa.String(200))
 
     client: Mapped["Client"] = relationship(back_populates="conversations")
     messages: Mapped[list["Message"]] = relationship(
@@ -306,6 +314,22 @@ class Conversation(Base):
         cascade="all, delete-orphan",
         order_by="Message.created_at",
     )
+
+
+class ConversationNote(Base):
+    """Внутренняя заметка сотрудника к диалогу (S2.6, 0012). Гость её не видит и модель не получает."""
+
+    __tablename__ = "conversation_notes"
+    __table_args__ = (sa.Index("idx_conv_note", "conversation_id", "created_at"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    conversation_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False
+    )
+    author_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID)
+    author_name: Mapped[str] = mapped_column(sa.String(120), nullable=False)
+    body: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TZ, nullable=False, default=utcnow)
 
 
 # Индекс с DESC объявлен здесь: в __table_args__ строкой направление не задать.
@@ -360,6 +384,7 @@ class OwnerAction(Base):
 class Document(Base):
     __tablename__ = "documents"
     __table_args__ = (
+        sa.CheckConstraint("organization_id IS NULL OR agent_id IS NOT NULL", name="ck_documents_org_has_agent"),
         # Дедуп по хешу — в пределах АГЕНТА (SA2.5): один и тот же прайс у двух агентов, даже одной организации, —
         # две записи, а не молчаливый пропуск второй (Э4). Прежняя уникальность по организации
         # (`uq_documents_org_hash`) из модели снята: на рабочей базе её убирает миграция сужения 0010
@@ -596,3 +621,39 @@ def _mirror_agent(_mapper: Any, connection: sa.Connection, org: Organization) ->
 
 sa.event.listen(Organization, "after_insert", _mirror_agent)
 sa.event.listen(Organization, "after_update", _mirror_agent)
+
+
+class TelegramConnection(Base):
+    """One test Telegram bot per agent. Credentials never appear in read DTOs."""
+    __tablename__ = 'telegram_connections'
+    __table_args__ = (sa.CheckConstraint("connection_state IN ('CONFIGURED','CONNECTING','CONNECTED','ERROR')", name='ck_telegram_connection_state'),)
+    agent_id: Mapped[uuid.UUID] = mapped_column(UUID, sa.ForeignKey('agents.id'), primary_key=True)
+    bot_id: Mapped[str] = mapped_column(sa.Text, unique=True, nullable=False)
+    bot_username: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    token_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)
+    webhook_secret_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)
+    allowed_user_ids: Mapped[list] = mapped_column(JSONType, nullable=False)
+    enabled: Mapped[bool] = mapped_column(sa.Boolean, nullable=False)
+    connection_state: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    last_error_code: Mapped[str | None] = mapped_column(sa.Text)
+    last_received_at: Mapped[datetime | None] = mapped_column(TZ)
+    last_sent_at: Mapped[datetime | None] = mapped_column(TZ)
+    updated_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+class TelegramInboundEvent(Base):
+    __tablename__ = 'telegram_inbound_events'
+    __table_args__ = (
+        sa.UniqueConstraint('agent_id', 'update_id', name='uq_telegram_agent_update'),
+        sa.CheckConstraint("state IN ('RECEIVED','PROCESSING','DONE','FAILED')", name='ck_telegram_event_state'),
+        sa.Index('idx_telegram_event_retry', 'state', 'next_retry_at'),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    agent_id: Mapped[uuid.UUID] = mapped_column(UUID, sa.ForeignKey('agents.id'), nullable=False)
+    update_id: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    received_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+    state: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    attempts: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    next_retry_at: Mapped[datetime | None] = mapped_column(TZ)
+    error_code: Mapped[str | None] = mapped_column(sa.Text)
+    payload_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)

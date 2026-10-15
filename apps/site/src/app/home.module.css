@@ -1,0 +1,130 @@
+/*
+ * Композиция главной (ADR-132): сплошные панели вместо стекла, чередование полос, ритм блоков. Прочие страницы
+ * (блог, /for/…/, калькулятор, политика) остаются стеклянными и этот файл не читают.
+ *
+ * Правила те же, что у globals.css (DESIGN.md §19): отступы из лестницы §19.3, радиус токеном, цвет только var(--…),
+ * текст не мельче 12 px. Сторож tests/unit/site-design.test.ts читает и этот файл.
+ */
+.home {
+  background: var(--surface-solid);
+  overflow: clip;
+}
+
+/* Стекло на главной становится сплошной панелью: тёмный текст на светлой основе, кромка и тихая тень */
+.home :global(.glass) {
+  background: var(--surface-solid);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+  backdrop-filter: none;
+}
+.home :global(.glass::before) {
+  display: none;
+}
+.home :global(.glass--quiet) {
+  box-shadow: none;
+}
+.home :global(.icon-tile) {
+  box-shadow: none;
+}
+
+/*
+ * Вторая кнопка на главной: у стеклянной кромка белая, на стекле это блик, а на сплошной панели она
+ * исчезает и кнопка читается обычным текстом (поймано на приглашении салонам 03.10.2026).
+ */
+.home :global(.btn--secondary) {
+  border-color: var(--border);
+  background: var(--surface-solid);
+  box-shadow: none;
+}
+
+/* Полоса: каждый второй блок на фоне страницы, чтобы границы блоков читались */
+.home :global(.section--band) {
+  background: var(--bg);
+  border-block: 1px solid var(--border-soft);
+}
+.home :global(.section--band + .section--band) {
+  border-top: 0;
+}
+
+/* Первый экран: панель с мягким переходом к фону, акцент заголовка фирменным цветом */
+.home :global(.hero__panel) {
+  border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+  background:
+    radial-gradient(circle at 84% 12%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 34%),
+    linear-gradient(155deg, var(--surface-solid) 42%, var(--bg));
+  box-shadow: 0 28px 90px color-mix(in srgb, var(--primary) 12%, transparent);
+}
+.home :global(.hero__status) {
+  background: var(--surface-solid);
+  border-color: var(--border);
+  box-shadow: none;
+}
+.home :global(.hero__accent) {
+  color: var(--primary);
+  -webkit-text-fill-color: var(--primary);
+  background: none;
+  filter: none;
+}
+
+.home :global(.hero__title) {
+  max-width: 12ch;
+  font-size: clamp(2.8rem, 6vw, 5.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.home :global(.hero__lead) {
+  max-width: 62ch;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+}
+
+.home :global(.hero__visual) {
+  transform: perspective(1200px) rotateY(-2deg) rotateX(1deg);
+  transform-origin: center;
+}
+
+@media (max-width: 47.99rem) {
+  .home :global(.hero__panel) {
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  }
+  .home :global(.hero__title) {
+    max-width: 11ch;
+    font-size: clamp(2.45rem, 12vw, 3.45rem);
+  }
+  .home :global(.hero__visual) {
+    transform: none;
+  }
+  .home :global(.card-grid),
+  .home :global(.steps) {
+    gap: 12px;
+  }
+}
+
+/* Шаги «Как начать»: четыре в ряд на широком экране, по два на планшете */
+@media (min-width: 40rem) {
+  .home :global(.steps) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 64rem) {
+  .home :global(.steps) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  /* Шаги в правой колонке «Команда + Запуск» остаются 2×2: четыре узкие колонки ломали текст (10.10.2026) */
+  .home :global(.steps--row) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.home :global(.step__number) {
+  background: var(--primary-soft);
+  color: var(--primary);
+  box-shadow: none;
+}
+
+/* Плита призыва: на фоне страницы, без отсвета за стеклом */
+.home :global(.cta) {
+  background: var(--bg);
+}
+.home :global(.cta::after) {
+  display: none;
+}

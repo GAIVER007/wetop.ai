@@ -1,0 +1,64 @@
+# Сквозные (e2e) · 03.10.2026 19:53 Алматы · vm
+# коммит 7a9cd49 (claude/funny-dijkstra-q5tfse)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/reservation-promo-field.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/reservation-promo-field.spec.ts:32:1 › промокод из формы уходит в запрос брони (3.8s)
+  ✘  2 tests/ui/reservation-promo-field.spec.ts:37:1 › пустой промокод в запрос не попадает (45.3s)
+
+
+  1) tests/ui/reservation-promo-field.spec.ts:37:1 › пустой промокод в запрос не попадает ──────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('new-reservation-form').getByRole('button', { name: 'Создать бронь' })
+        - locator resolved to <button disabled class="btn" type="submit">Создать бронь</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        85 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      24 |   await form.getByLabel('Имя *', { exact: true }).fill('Промо');
+      25 |   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+    > 26 |   await form.getByRole('button', { name: 'Создать бронь' }).click();
+         |                                                             ^
+      27 |   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
+      28 |   const commands = (await (await request.get(`${fixture}/__test/commands`)).json()) as Command[];
+      29 |   return commands.filter((c) => c.path === '/reservations').at(-1)?.body;
+        at createBooking (/home/user/wetop.ai/tests/ui/reservation-promo-field.spec.ts:26:61)
+        at /home/user/wetop.ai/tests/ui/reservation-promo-field.spec.ts:38:16
+
+    Error Context: test-results/reservation-promo-field-пустой-промокод-в-запрос-не-попадает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservation-promo-field-пустой-промокод-в-запрос-не-попадает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservation-promo-field-пустой-промокод-в-запрос-не-попадает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/reservation-promo-field.spec.ts:37:1 › пустой промокод в запрос не попадает ───────────
+  1 passed (59.3s)
+
+# код выхода 1 · 1 мин 1 с

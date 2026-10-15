@@ -1,0 +1,87 @@
+# Сквозные (e2e) · 03.10.2026 18:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит 378962f (claude/booking-price-nights), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.nights-alt.config.ts' '--workers=1' 'booking-price-nights.spec.ts' 'chessboard-calendar.spec.ts' 'chessboard-design.spec.ts' 'chessboard-week.spec.ts' 'chessboard-dnd.spec.ts' 'chessboard-gate-pr4.spec.ts' 'chessboard-gate-pr5.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 30 tests using 1 worker
+
+  ✓   1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (2.1s)
+  ✓   2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты (1.8s)
+  ✓   3 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (995ms)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (828ms)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (1.2s)
+  ✓   6 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (1.1s)
+  ✓   7 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (1.2s)
+  ✓   8 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (2.7s)
+  ✓   9 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (9.6s)
+  ✓  10 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (18.2s)
+  ✓  11 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (15.0s)
+  ✓  12 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (4.1s)
+  ✓  13 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (3.2s)
+  ✓  14 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (2.8s)
+  ✓  15 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (4.6s)
+  ✓  16 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (8.1s)
+  ✓  17 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: light (21.1s)
+  ✓  18 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: dark (19.3s)
+  ✓  19 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light (19.2s)
+  ✓  20 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: dark (10.7s)
+  ✓  21 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (3.4s)
+  ✓  22 tests/ui/chessboard-week.spec.ts:26:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (9.5s)
+  ✓  23 tests/ui/chessboard-week.spec.ts:72:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (3.9s)
+  ✓  24 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (13.5s)
+  ✓  25 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (10.9s)
+  ✓  26 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (12.1s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✘  27 tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье (34.7s)
+  ✓  28 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: light, обе панели и телефон (19.8s)
+  ✓  29 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: dark, обе панели и телефон (23.5s)
+  ✓  30 tests/ui/chessboard-week.spec.ts:199:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (4.0s)
+
+
+  1) tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 })
+    Expected substring: "20260913-TESTAA"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 })
+
+
+      129 |   await stay.dblclick();
+      130 |   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
+    > 131 |   await expect(drawer.getByRole('heading', { level: 1 })).toContainText(number!);
+          |                                                           ^
+      132 |   await page.keyboard.press('Escape');
+      133 |   await expect(drawer).toBeHidden();
+      134 |   await page.getByLabel('Категория в календаре').selectOption('ROOM');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/chessboard-week.spec.ts:131:59
+
+    Error Context: test-results/chessboard-week-в-неделе-р-f03b2-и-и-создание-на-воскресенье/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-в-неделе-р-f03b2-и-и-создание-на-воскресенье/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-в-неделе-р-f03b2-и-и-создание-на-воскресенье/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье 
+  29 passed (5.0m)
+
+# код выхода 1 · 4 мин 59 с

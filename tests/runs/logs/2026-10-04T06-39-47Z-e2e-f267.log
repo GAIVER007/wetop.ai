@@ -1,0 +1,196 @@
+# Сквозные (e2e) · 04.10.2026 11:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/desk-tasks.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' '--config' 'tests/ui/playwright.nights-alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (20.5s)
+  ✓   2 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (13.8s)
+  ✓   3 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (19.3s)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (9.1s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (7.6s)
+  ✘   6 tests/ui/desk-tasks.spec.ts:27:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря (47.2s)
+  ✘   7 tests/ui/desk-tasks.spec.ts:61:1 › ошибка словами у формы, введённое не теряется (35.1s)
+  ✘   8 tests/ui/desk-tasks.spec.ts:72:1 › «только чтение»: список виден, создавать и закрывать нельзя (33.2s)
+  ✓   9 tests/ui/desk-tasks.spec.ts:83:3 › снимки и доступность: light (1.7m)
+  ✓  10 tests/ui/desk-tasks.spec.ts:83:3 › снимки и доступность: dark (1.1m)
+  ✘  11 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (1.2m)
+  ✘  12 tests/ui/guests-birthdays.spec.ts:52:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (1.4m)
+
+
+  1) tests/ui/desk-tasks.spec.ts:27:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.check: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('checkbox', { name: 'Сделано: Позвонить гостю' })
+        - locator resolved to <input type="checkbox" aria-label="Сделано: Позвонить гостю"/>
+
+
+      45 |
+      46 |   await page.goto('/tasks');
+    > 47 |   await page.getByRole('checkbox', { name: 'Сделано: Позвонить гостю' }).check();
+         |                                                                          ^
+      48 |   await expect(page.getByTestId('tasks-done').getByTestId('task-row')).toContainText('Позвонить гостю');
+      49 |   await expect(page.getByTestId('tasks-today')).toContainText('На сегодня задач нет');
+      50 |   await page.getByRole('checkbox', { name: 'Сделано: Позвонить гостю' }).uncheck();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/desk-tasks.spec.ts:47:74
+
+    Error Context: test-results/desk-tasks-создать-задачу--4cb8c--счётчик-в-панели-календаря/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-создать-задачу--4cb8c--счётчик-в-панели-календаря/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-создать-задачу--4cb8c--счётчик-в-панели-календаря/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/desk-tasks.spec.ts:61:1 › ошибка словами у формы, введённое не теряется ──────────────
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByTestId('task-form').getByTestId('task-title')
+    Expected: "Проверить кондиционеры"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByTestId('task-form').getByTestId('task-title') with timeout 15000ms
+      - waiting for getByTestId('task-form').getByTestId('task-title')
+        30 × locator resolved to <input class="inp" required="" name="title" maxlength="200" data-testid="task-title"/>
+           - unexpected value ""
+
+
+      67 |   await form.getByTestId('task-save').click();
+      68 |   await expect(form.getByText('Время — в виде 14:00 или пусто («весь день»)')).toBeVisible();
+    > 69 |   await expect(form.getByTestId('task-title')).toHaveValue('Проверить кондиционеры');
+         |                                                ^
+      70 | });
+      71 |
+      72 | test('«только чтение»: список виден, создавать и закрывать нельзя', async ({ page, request }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/desk-tasks.spec.ts:69:48
+
+    Error Context: test-results/desk-tasks-ошибка-словами-у-формы-введённое-не-теряется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-ошибка-словами-у-формы-введённое-не-теряется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-ошибка-словами-у-формы-введённое-не-теряется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/desk-tasks.spec.ts:72:1 › «только чтение»: список виден, создавать и закрывать нельзя 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('task-new')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('task-new') with timeout 15000ms
+      - waiting for getByTestId('task-new')
+        32 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      76 |   await page.goto('/tasks');
+      77 |   await expect(page.getByTestId('task-row')).toContainText('Вымышленная задача');
+    > 78 |   await expect(page.getByTestId('task-new')).toHaveCount(0);
+         |                                              ^
+      79 |   await expect(page.getByRole('checkbox', { name: /Сделано/ })).toBeDisabled();
+      80 | });
+      81 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/desk-tasks.spec.ts:78:46
+
+    Error Context: test-results/desk-tasks-«только-чтение»-28166-оздавать-и-закрывать-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-«только-чтение»-28166-оздавать-и-закрывать-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-«только-чтение»-28166-оздавать-и-закрывать-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3141/chessboard", waiting until "load"
+
+
+       at fixtures.ts:72
+
+      70 |     const goto = page.goto.bind(page);
+      71 |     page.goto = async (url, options) => {
+    > 72 |       const response = await goto(url, options);
+         |                              ^
+      73 |       await settleStreaming(page);
+      74 |       return response;
+      75 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/fixtures.ts:72:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/guests-birthdays.spec.ts:29:14
+
+    Error Context: test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/guests-birthdays.spec.ts:52:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3141/chessboard", waiting until "load"
+
+
+       at fixtures.ts:72
+
+      70 |     const goto = page.goto.bind(page);
+      71 |     page.goto = async (url, options) => {
+    > 72 |       const response = await goto(url, options);
+         |                              ^
+      73 |       await settleStreaming(page);
+      74 |       return response;
+      75 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/fixtures.ts:72:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/guests-birthdays.spec.ts:53:14
+
+    Error Context: test-results/guests-birthdays-нет-дат-р-5da6e--говорит-что-в-неделю-пусто/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-birthdays-нет-дат-р-5da6e--говорит-что-в-неделю-пусто/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-birthdays-нет-дат-р-5da6e--говорит-что-в-неделю-пусто/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/desk-tasks.spec.ts:27:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря 
+    tests/ui/desk-tasks.spec.ts:61:1 › ошибка словами у формы, введённое не теряется ───────────────
+    tests/ui/desk-tasks.spec.ts:72:1 › «только чтение»: список виден, создавать и закрывать нельзя ─
+    tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» 
+    tests/ui/guests-birthdays.spec.ts:52:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто 
+  7 passed (14.3m)
+
+# код выхода 1 · 14 мин 31 с

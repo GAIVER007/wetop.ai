@@ -1,0 +1,18 @@
+# Модульные (unit) · 02.10.2026 23:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1d88b19 (main), незакоммиченных файлов набора: 26
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T18-28-52Z-unit-294c.json' 'apps/api/src/platform/support.controller.test.ts' 'apps/api/src/platform/support.queue.test.ts' 'apps/web/src/lib/support-queue.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 3ms
+ ✓ |unit| apps/api/src/platform/support.queue.test.ts (20 tests) 5ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 181ms
+
+ Test Files  3 passed (3)
+      Tests  49 passed (49)
+   Start at  11:28:58
+   Duration  5.86s (transform 57%, import 41%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T18-28-52Z-unit-294c.json
+
+# код выхода 0 · 12 с

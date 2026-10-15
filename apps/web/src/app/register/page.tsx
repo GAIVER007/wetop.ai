@@ -1,15 +1,15 @@
-import { LoginForm } from '../login/login-form';
-import { registrationAvailable, signedInUser } from '../login/signed-in';
+import { redirect } from 'next/navigation';
+import { parseBusinessVertical } from '@pms/domain';
+import { publicAuthUrl } from '../../lib/auth-entry';
 
-/** Сюда ведёт «Попробовать бесплатно» с wetop.ai (срез 13, ADR-046). Та же форма, открытая на регистрации. */
-export default async function RegisterPage() {
-  const [user, registrationEnabled] = await Promise.all([signedInUser(), registrationAvailable()]);
-  return (
-    <LoginForm
-      demo={false}
-      user={user}
-      mode="register"
-      registrationEnabled={registrationEnabled}
-    />
-  );
+export default async function RegisterPage({
+  searchParams = Promise.resolve({}),
+}: {
+  searchParams?: Promise<{ vertical?: string }>;
+} = {}) {
+  const params = await searchParams;
+  const url = new URL(publicAuthUrl('register'));
+  const vertical = parseBusinessVertical(params.vertical);
+  if (vertical) url.searchParams.set('vertical', vertical);
+  redirect(url.toString());
 }

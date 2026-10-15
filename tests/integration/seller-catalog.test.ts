@@ -12,8 +12,8 @@ const url = process.env.DATABASE_URL;
 
 /**
  * Каталог AI-агентов (SA1, plans/business-ai-seller-v2-2026-09-29.md §8): проверяются сами запросы Prisma, которые
- * подставное хранилище не ловит. Расположение — Business и Location самого раннего объекта организации (то же правило,
- * что у фактов продавца); черновики — только своей организации. Всё вымышленное (ADR-010), тест убирает за собой.
+ * подставное хранилище не ловит. Расположение, Business и Location самого раннего объекта организации (то же правило,
+ * что у фактов продавца); черновики, только своей организации. Всё вымышленное (ADR-010), тест убирает за собой.
  */
 describe.skipIf(!url)('каталог AI-агентов (integration, DATABASE_URL required)', () => {
   let db: Db;
@@ -76,7 +76,7 @@ describe.skipIf(!url)('каталог AI-агентов (integration, DATABASE_U
     expect(location.businessId).toBe(place!.business.id);
   });
 
-  it('placement: чужой объект не попадает, у организации без объекта — null', async () => {
+  it('placement: чужой объект не попадает, у организации без объекта, null', async () => {
     const place = await repo.placement(orgB);
     expect(place?.location.name).toBe(`Филиал Б ${mark}`);
     expect(place?.business.name).toBe(`Каталог-сеть Б ${mark}`);
@@ -98,7 +98,7 @@ describe.skipIf(!url)('каталог AI-агентов (integration, DATABASE_U
     beforeAll(async () => {
       secondLocation = (await db.property.findUniqueOrThrow({ where: { id: secondProperty }, select: { locationId: true } }))
         .locationId;
-      // перенесённый продавец организации А: id = organization_id, филиал — второй, а не самый ранний объект
+      // перенесённый продавец организации А: id = organization_id, филиал, второй, а не самый ранний объект
       await db.sellerAgent.create({
         data: {
           id: orgA,
@@ -117,7 +117,7 @@ describe.skipIf(!url)('каталог AI-агентов (integration, DATABASE_U
       expect(place?.location.name).toBe(`Второй филиал ${mark}`);
     });
 
-    it('placement: у агента без филиала — прежнее правило, самый ранний объект', async () => {
+    it('placement: у агента без филиала, прежнее правило, самый ранний объект', async () => {
       await db.$executeRawUnsafe(`UPDATE seller_agents SET lifecycle = 'draft', location_id = NULL WHERE id = $1::uuid`, orgA);
       try {
         expect((await repo.placement(orgA))?.location.name).toBe(`Первый филиал ${mark}`);
@@ -126,7 +126,7 @@ describe.skipIf(!url)('каталог AI-агентов (integration, DATABASE_U
       }
     });
 
-    it('drafts: перенесённый продавец не дублируется черновиком — он рабочий, а не черновик мастера', async () => {
+    it('drafts: перенесённый продавец не дублируется черновиком, он рабочий, а не черновик мастера', async () => {
       const own = await repo.drafts(orgA, 50);
       expect(own.map((d) => d.name).sort()).toEqual([`Черновик А1 ${mark}`, `Черновик А2 ${mark}`]);
     });

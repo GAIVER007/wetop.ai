@@ -1,17 +1,17 @@
 """Домены, с которых открывается виджет агента: вычисляются платформой во время запроса (SA2.5, Q-SA-17).
 
-Allowlist — не копия в агенте, а функция от агента: `Agent → Location → сайты филиала → домены`. Считает платформа
+Allowlist, не копия в агенте, а функция от агента: `Agent → Location → сайты филиала → домены`. Считает платформа
 (`GET /bot/agent-origins?agent=`), бот только спрашивает и кэширует ответ на минуты: правка сайтов на платформе доходит до
 виджета быстро, а каждый запрос браузера не превращается в вызов платформы.
 
 🔴 Что решает ответ:
-  · платформа ответила списком — он и есть allowlist; пустой список — виджет на внешнем сайте не открывается
+  · платформа ответила списком, он и есть allowlist; пустой список, виджет на внешнем сайте не открывается
     (у филиала нет разрешённого домена; черновик агента при этом создаётся);
-  · платформа ответила 404 — агент ей неизвестен: закрыто;
-  · платформа недоступна, кэша нет — прежние `agents.hosts` (то, что платформа уже присылала раньше: не хуже, чем было до
-    SA2.5); у новых агентов там пусто — закрыто. Уже полученный ответ переживает сбой платформы сутки (устаревший кэш);
-  · платформа не подключена (нет адреса или ключа: разработка, тесты) — те же `agents.hosts`.
-Идентификатор агента в запросе — недоверенный селектор для платформы: она сама выводит организацию и филиал из строки агента.
+  · платформа ответила 404, агент ей неизвестен: закрыто;
+  · платформа недоступна, кэша нет, прежние `agents.hosts` (то, что платформа уже присылала раньше: не хуже, чем было до
+    SA2.5); у новых агентов там пусто, закрыто. Уже полученный ответ переживает сбой платформы сутки (устаревший кэш);
+  · платформа не подключена (нет адреса или ключа: разработка, тесты), те же `agents.hosts`.
+Идентификатор агента в запросе, недоверенный селектор для платформы: она сама выводит организацию и филиал из строки агента.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def _mirror(agent: Agent) -> list[str]:
 
 
 async def origins_for_agent(settings: Settings, agent: Agent) -> list[str]:
-    """Разрешённые домены виджета агента (список может быть пустым — тогда дверь закрыта)."""
+    """Разрешённые домены виджета агента (список может быть пустым, тогда дверь закрыта)."""
     base = settings.integration_base_url.rstrip("/")
     key = settings.integration_api_key
     if not base or not key:
@@ -57,7 +57,7 @@ async def origins_for_agent(settings: Settings, agent: Agent) -> list[str]:
     redis = dependencies.get_redis()
     try:
         cached = await redis.get(_fresh(agent.id))
-    except Exception:  # noqa: BLE001 — сбой кэша не должен закрывать виджет
+    except Exception:  # noqa: BLE001, сбой кэша не должен закрывать виджет
         cached = None
     if cached is not None:
         return list(json.loads(cached))
@@ -69,7 +69,7 @@ async def origins_for_agent(settings: Settings, agent: Agent) -> list[str]:
             headers={KEY_HEADER: key},
             timeout=settings.integration_timeout_seconds,
         )
-    except Exception as exc:  # noqa: BLE001 — текст исключения несёт адрес
+    except Exception as exc:  # noqa: BLE001, текст исключения несёт адрес
         logger.warning("agent-origins: платформа недоступна (%s)", type(exc).__name__)
         return await _when_unreachable(agent)
 
@@ -80,12 +80,12 @@ async def origins_for_agent(settings: Settings, agent: Agent) -> list[str]:
         logger.warning("agent-origins: платформа ответила %s", response.status_code)
         return await _when_unreachable(agent)
     if response.status_code >= 400:
-        # ключ, запрос: расхождение настроек, а не «домены пусты» — закрыто и слышно в журнале
+        # ключ, запрос: расхождение настроек, а не «домены пусты», закрыто и слышно в журнале
         logger.error("agent-origins: платформа отказала %s (ключ или запрос)", response.status_code)
         return []
     try:
         hosts = [str(h) for h in (response.json().get("hosts") or []) if str(h).strip()]
-    except Exception:  # noqa: BLE001 — форма ответа не наша
+    except Exception:  # noqa: BLE001, форма ответа не наша
         logger.warning("agent-origins: тело ответа не разобрано")
         return await _when_unreachable(agent)
     await _remember(agent.id, hosts, FRESH_SECONDS, keep_stale=True)
@@ -101,7 +101,7 @@ async def _remember(agent_id: uuid.UUID, hosts: list[str], seconds: int, *, keep
             await redis.set(_stale(agent_id), blob, ex=STALE_SECONDS)
         else:
             await redis.delete(_stale(agent_id))
-    except Exception:  # noqa: BLE001 — кэш вторичен
+    except Exception:  # noqa: BLE001, кэш вторичен
         logger.warning("agent-origins: кэш недоступен", exc_info=True)
 
 

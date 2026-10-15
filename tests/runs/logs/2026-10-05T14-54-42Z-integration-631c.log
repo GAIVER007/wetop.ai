@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 05.10.2026 19:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (codex/staff-owner-journal), незакоммиченных файлов набора: 17
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-54-42Z-integration-631c.json' 'tests/integration/owner-journal.test.ts' 'tests/integration/audit-list.test.ts' 'tests/integration/invites.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 210ms
+ ✓ |integration| tests/integration/owner-journal.test.ts (4 tests) 197ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 113ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  07:54:43
+   Duration  1.77s (tests 42%, import 33%, transform 25%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-54-42Z-integration-631c.json
+
+# код выхода 0 · 3 с

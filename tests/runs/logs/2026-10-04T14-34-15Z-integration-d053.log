@@ -1,0 +1,175 @@
+# Интеграционные (integration) · 04.10.2026 19:34 Алматы · MacBook-Air-Urij.local
+# коммит bc9b179 (codex/mv4-beauty-hardening-20261004), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-34-15Z-integration-d053.json' 'tests/integration/mv4-beauty.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |integration| tests/integration/mv4-beauty.test.ts (5 tests | 5 failed) 390ms
+   ❯ MV4 Beauty acceptance on PostgreSQL (5)
+     × empty employee skills do not authorize every service 73ms
+     × READ_ONLY blocks all mutation families even on direct service calls 12ms
+     × concurrent overlap in same location gives one success and one domain conflict 19ms
+     × concurrent overlap in different location gives one success and one domain conflict 12ms
+     × concurrent terminal transitions cannot overwrite one another 17ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/mv4-beauty.test.ts > MV4 Beauty acceptance on PostgreSQL > empty employee skills do not authorize every service
+AssertionError: promise resolved "{ location: { …(4) }, …(5) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "appointments": [
++     {
++       "currency": "KZT",
++       "customer": {
++         "id": "629c5c4b-b94e-403b-8499-6a547bca3a97",
++         "name": "Synthetic client",
++         "phone": null,
++       },
++       "employeeId": "6154eafa-47ed-466b-87aa-430e5355b5dd",
++       "endMinutes": 660,
++       "endsAt": "2026-10-12T06:00:00.000Z",
++       "id": "aefc7e05-5ec4-4341-8cdd-30d078064143",
++       "next": [
++         "CONFIRMED",
++         "DONE",
++         "NO_SHOW",
++         "CANCELLED",
++       ],
++       "notes": null,
++       "priceMinor": "12345",
++       "serviceId": "ada249ad-be8c-47e0-a861-12d605fb2cde",
++       "serviceName": "Synthetic service",
++       "startMinutes": 600,
++       "startsAt": "2026-10-12T05:00:00.000Z",
++       "status": "BOOKED",
++     },
++   ],
++   "bounds": {
++     "fromMinutes": 0,
++     "toMinutes": 1439,
++   },
++   "columns": [
++     {
++       "id": "6154eafa-47ed-466b-87aa-430e5355b5dd",
++       "intervals": [
++         {
++           "timeFrom": "00:00",
++           "timeTo": "23:59",
++         },
++       ],
++       "name": "Synthetic employee",
++       "serviceIds": [],
++       "timeOff": false,
++       "timeOffReason": null,
++     },
++   ],
++   "date": "2026-10-12",
++   "location": {
++     "currency": "KZT",
++     "id": "dff4ef7a-00cf-4959-88df-bd4fb40a6a45",
++     "name": "MV4 branch",
++     "timezone": "Asia/Almaty",
++   },
++   "services": [
++     {
++       "category": null,
++       "currency": "KZT",
++       "durationMinutes": 60,
++       "id": "ada249ad-be8c-47e0-a861-12d605fb2cde",
++       "name": "Synthetic service",
++       "priceMinor": "12345",
++       "sellable": true,
++     },
++   ],
+  }
+
+ ❯ tests/integration/mv4-beauty.test.ts:82:58
+     80|   it('empty employee skills do not authorize every service', async () …
+     81|     await db.employeeService.deleteMany({ where: { employeeId: employe…
+     82|     await expect(run(() => appointments.create(input()))).rejects.toTh…
+       |                                                          ^
+     83|     expect(await db.appointment.count({ where: { employeeId: employee …
+     84|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |integration| tests/integration/mv4-beauty.test.ts > MV4 Beauty acceptance on PostgreSQL > READ_ONLY blocks all mutation families even on direct service calls
+AssertionError: promise resolved "{ …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "active": true,
++   "category": null,
++   "currency": "KZT",
++   "durationMinutes": 60,
++   "effective": {
++     "reason": "NOT_ENABLED",
++     "sellable": false,
++   },
++   "id": "9fa23cd3-d7e1-45fe-b6cd-fa279f0b061e",
++   "location": null,
++   "name": "Synthetic service",
++   "priceMinor": "12345",
+  }
+
+ ❯ tests/integration/mv4-beauty.test.ts:90:30
+     88|       for (const fn of [() => catalog.createService(svc), () => catalo…
+     89|         () => schedule.setWorkingHours(employee, { intervals: [] }), (…
+     90|         await expect(run(fn)).rejects.toThrow();
+       |                              ^
+     91|       expect((await run(() => catalog.services())).items).toHaveLength…
+     92|     } finally { await db.organization.update({ where: { id: org }, dat…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |integration| tests/integration/mv4-beauty.test.ts > MV4 Beauty acceptance on PostgreSQL > concurrent overlap in same location gives one success and one domain conflict
+ FAIL  |integration| tests/integration/mv4-beauty.test.ts > MV4 Beauty acceptance on PostgreSQL > concurrent overlap in different location gives one success and one domain conflict
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of ConflictException
+ ❯ tests/integration/mv4-beauty.test.ts:102:29
+    100|       expect(results.filter(r => r.status === 'fulfilled')).toHaveLeng…
+    101|       const denied = results.find(r => r.status === 'rejected') as Pro…
+    102|       expect(denied.reason).toBeInstanceOf(ConflictException);
+       |                             ^
+    103|       expect(await db.appointment.count({ where: { employeeId: employe…
+    104|       expect(await db.customerBusiness.count({ where: { customerId: cu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |integration| tests/integration/mv4-beauty.test.ts > MV4 Beauty acceptance on PostgreSQL > concurrent terminal transitions cannot overwrite one another
+AssertionError: expected [ { status: 'fulfilled', …(1) }, …(1) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/integration/mv4-beauty.test.ts:111:59
+    109|     const id = day.appointments[0]!.id;
+    110|     const results = await Promise.allSettled(['DONE', 'CANCELLED'].map…
+    111|     expect(results.filter(r => r.status === 'fulfilled')).toHaveLength…
+       |                                                           ^
+    112|     expect(results.filter(r => r.status === 'rejected')).toHaveLength(…
+    113|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  18:34:16
+   Duration  1.34s (tests 44%, transform 31%, import 24%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-34-15Z-integration-d053.json
+
+# код выхода 1 · 2 с

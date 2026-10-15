@@ -1,8 +1,9 @@
 import type { ChessboardCell, ChessboardRow } from '../../lib/api';
 import { CHANNELS, SOURCES } from '../reservations/sources';
+import { hospitalityStatus } from '../../lib/status/hospitality';
 
 /**
- * Отбор на шахматке (ТЗ «Шахматка v2» §8–10, §41; решения — `plans/chessboard-v2-2026-09-27.md`,
+ * Отбор в календаре (ТЗ «Шахматка v2» §8–10, §41; решения — `plans/chessboard-v2-2026-09-27.md`,
  * PR 7). Работает по уже загруженной сетке, запросов не делает. Места отбираются категорией, типом и
  * состоянием на первую дату окна; брони — «Заезд/Выезд сегодня», «Проживают», «С долгом», источником и
  * статусом: внутри группы «или», между группами «и». Строка места видна, если на ней есть хоть одно
@@ -37,12 +38,9 @@ export const STAY_FLAGS: ReadonlyArray<readonly [StayFlag, string]> = [
 ];
 
 /** Статусы, которые бывают на сетке: отменённых и незаездов там нет (решение владельца не принято) */
-const STATUS_ORDER: ReadonlyArray<readonly [string, string]> = [
-  ['TENTATIVE', 'Не подтверждена'],
-  ['CONFIRMED', 'Подтверждена'],
-  ['CHECKED_IN', 'Заселён'],
-  ['CHECKED_OUT', 'Выселен'],
-];
+const STATUS_ORDER: ReadonlyArray<readonly [string, string]> = (
+  ['TENTATIVE', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT'] as const
+).map((k) => [k, hospitalityStatus[k].label] as const);
 
 /**
  * Уборка: значок стоит в строке, пока с ячейкой надо что-то делать — «требует уборки» или «убрано,

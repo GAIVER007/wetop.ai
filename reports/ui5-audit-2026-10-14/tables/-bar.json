@@ -1,0 +1,30 @@
+{
+ "/bar": {
+  "390": [
+   {
+    "cols": 13,
+    "noHead": false,
+    "rows": 6,
+    "rowHeights": [
+     60,
+     61
+    ],
+    "widerThanViewport": true,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 13,
+    "noHead": false,
+    "rows": 6,
+    "rowHeights": [
+     46,
+     47
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

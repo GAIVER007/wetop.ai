@@ -1,0 +1,267 @@
+# Модульные (unit) · 03.10.2026 01:57 Алматы · vm
+# коммит 5182f5a (master), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T20-57-05Z-unit-497d.json' 'tests/unit/db-backup-offsite.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ❯ |unit| tests/unit/db-backup-offsite.test.ts (12 tests | 12 failed) 140ms
+   ❯ вторая копия вне сервера: наружу только шифротекст (ADR-137) (3)
+     × последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан 24ms
+     × шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение 12ms
+     × закрытый ключ age в настройке: отказ до шифрования, закрытому ключу не место на сервере 7ms
+   ❯ вторая копия вне сервера: ключи R2 не светятся (ADR-137) (3)
+     × ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет 8ms
+     × настройки читаются из .env клона, как у db-backup.sh 11ms
+     × Telegram: токен в адресе через stdin, а не аргументом 8ms
+   ❯ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     × не настроено: перечислены недостающие переменные, код 2 9ms
+     × ночная копия старше 26 часов: наружу не несём, сообщаем 8ms
+     × R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 15ms
+     × размер в R2 не совпал: сбой, статус не тронут 10ms
+     × rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401) 6ms
+   ❯ вторая копия вне сервера: настоящий age, круг до расшифровки (1)
+     × копия из R2 расшифровывается закрытым ключом и совпадает с ночной 16ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: наружу только шифротекст (ADR-137) > последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан
+AssertionError: bash: /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/ops/db-backup-offsite.sh: No such file or directory
+: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:134:27
+    132|     s.dump('wetop-20261002T233000Z.dump', 1);
+    133|     const r = s.run(s.env0);
+    134|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    135|     const object = s.stored('wetop-20261002T233000Z.dump');
+    136|     expect(existsSync(object)).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: наружу только шифротекст (ADR-137) > шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение
+AssertionError: expected 127 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:154:20
+    152|     s.dump('wetop-20261002T233000Z.dump');
+    153|     const r = s.run({ ...s.env0, AGE_BROKEN: '1' });
+    154|     expect(r.code).toBe(1);
+       |                    ^
+    155|     expect(r.out).toContain('нет заголовка age');
+    156|     expect(s.read('calls')).not.toContain('rclone copyto');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: наружу только шифротекст (ADR-137) > закрытый ключ age в настройке: отказ до шифрования, закрытому ключу не место на сервере
+AssertionError: expected 127 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:164:20
+    162|     s.dump('wetop-20261002T233000Z.dump');
+    163|     const r = s.run({ ...s.env0, OFFSITE_AGE_RECIPIENT: 'AGE-SECRET-KE…
+    164|     expect(r.code).toBe(2);
+       |                    ^
+    165|     expect(r.out).toContain('закрытый ключ age');
+    166|     expect(r.out).not.toContain('AGE-SECRET-KEY-1QQQQ');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: ключи R2 не светятся (ADR-137) > ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет
+AssertionError: bash: /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/ops/db-backup-offsite.sh: No such file or directory
+: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:176:27
+    174|     s.dump('wetop-20261002T233000Z.dump');
+    175|     const r = s.run(s.env0);
+    176|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    177|     expect(s.read('calls')).not.toContain(SECRET);
+    178|     expect(s.read('calls')).not.toContain('r2-key-id');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: ключи R2 не светятся (ADR-137) > настройки читаются из .env клона, как у db-backup.sh
+AssertionError: bash: /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/ops/db-backup-offsite.sh: No such file or directory
+: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:199:27
+    197|       .join('\n');
+    198|     const r = s.run({}, `${envFile}\n`);
+    199|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    200|     expect(existsSync(s.stored('wetop-20261002T233000Z.dump'))).toBe(t…
+    201|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: ключи R2 не светятся (ADR-137) > Telegram: токен в адресе через stdin, а не аргументом
+AssertionError: expected 127 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:206:20
+    204|     const s = sandbox();
+    205|     const r = s.run(s.env0); // копий нет: сбой и сообщение
+    206|     expect(r.code).toBe(1);
+       |                    ^
+    207|     expect(s.read('calls')).not.toContain('bot-token');
+    208|     expect(s.read('curl-stdin')).toContain('botbot-token/sendMessage');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: сбой виден (ADR-137) > не настроено: перечислены недостающие переменные, код 2
+AssertionError: expected 127 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:216:20
+    214|     const s = sandbox();
+    215|     const r = s.run({ OFFSITE_R2_BUCKET: 'b' });
+    216|     expect(r.code).toBe(2);
+       |                    ^
+    217|     for (const name of [
+    218|       'OFFSITE_AGE_RECIPIENT',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: сбой виден (ADR-137) > ночная копия старше 26 часов: наружу не несём, сообщаем
+AssertionError: expected 127 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:230:20
+    228|     s.dump('wetop-20260930T233000Z.dump', 30);
+    229|     const r = s.run(s.env0);
+    230|     expect(r.code).toBe(1);
+       |                    ^
+    231|     expect(r.out).toContain('старше 26 ч');
+    232|     expect(s.read('calls')).not.toContain('rclone copyto');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: сбой виден (ADR-137) > R2 отказал: код 1, текст ошибки в сообщении, статус не тронут
+AssertionError: expected 127 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:239:20
+    237|     s.dump('wetop-20261002T233000Z.dump');
+    238|     const r = s.run({ ...s.env0, RCLONE_FAIL: '1' });
+    239|     expect(r.code).toBe(1);
+       |                    ^
+    240|     expect(r.out).toContain('AccessDenied');
+    241|     expect(existsSync(join(s.backups, 'status', 'offsite.json'))).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: сбой виден (ADR-137) > размер в R2 не совпал: сбой, статус не тронут
+AssertionError: expected 127 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:248:20
+    246|     s.dump('wetop-20261002T233000Z.dump');
+    247|     const r = s.run({ ...s.env0, RCLONE_LSF_SIZE: '7' });
+    248|     expect(r.code).toBe(1);
+       |                    ^
+    249|     expect(r.out).toContain('размер «7»');
+    250|     expect(existsSync(join(s.backups, 'status', 'offsite.json'))).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: сбой виден (ADR-137) > rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401)
+AssertionError: expected 127 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:257:20
+    255|     s.dump('wetop-20261002T233000Z.dump');
+    256|     const r = s.run({ ...s.env0, RCLONE_STUB_VERSION: '1.53.3' });
+    257|     expect(r.code).toBe(2);
+       |                    ^
+    258|     expect(r.out).toContain('rclone 1.53 старше 1.59');
+    259|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: настоящий age, круг до расшифровки > копия из R2 расшифровывается закрытым ключом и совпадает с ночной
+AssertionError: bash: /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/ops/db-backup-offsite.sh: No such file or directory
+: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/db-backup-offsite.test.ts:273:27
+    271|     const original = s.dump('wetop-20261002T233000Z.dump');
+    272|     const r = s.run({ ...s.env0, OFFSITE_AGE_RECIPIENT: recipient! });
+    273|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    274|     const restored = join(s.dir, 'restored.dump');
+    275|     const dec = spawnSync(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed (12)
+   Start at  13:57:07
+   Duration  653ms (tests 44%, transform 39%, import 15%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-02T20-57-05Z-unit-497d.json
+
+# код выхода 1 · 2 с

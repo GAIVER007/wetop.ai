@@ -1,0 +1,221 @@
+# Модульные (unit) · 03.10.2026 23:08 Алматы · vm
+# коммит aab4342 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-08-56Z-unit-ffc4.json' 'packages/domain/src/web-booking' 'packages/integrations/src/mail/booking-letter.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/integrations/src/mail/booking-letter.test.ts (0 test)
+ ❯ |unit| packages/domain/src/web-booking/request.test.ts (31 tests | 7 failed) 25ms
+   ✓ запрос цен с сайта (quote) (10)
+     ✓ принимает даты в окне и гостей 2ms
+     ✓ отклоняет: заезд вчера 0ms
+     ✓ отклоняет: выезд не позже заезда 0ms
+     ✓ отклоняет: дальше окна 0ms
+     ✓ отклоняет: слишком долго 0ms
+     ✓ отклоняет: кривая дата 0ms
+     ✓ отклоняет: гостей 0 0ms
+     ✓ отклоняет: гостей 9 0ms
+     ✓ отклоняет: ключ не по форме 0ms
+     ✓ заезд сегодня допустим; окно — 365 дней и 30 ночей 0ms
+   ✓ запрос брони с сайта (book) (11)
+     ✓ нормализует гостя: обрезает пробелы, телефон в +7…, почту в нижний регистр 1ms
+     ✓ телефон 8 701… становится +7 701…; почта необязательна; комментарий обрезается до 500 1ms
+     ✓ отклоняет: honeypot заполнен (бот) 0ms
+     ✓ отклоняет: нет имени 0ms
+     ✓ отклоняет: нет фамилии 0ms
+     ✓ отклоняет: телефон короткий 0ms
+     ✓ отклоняет: телефон с буквами 0ms
+     ✓ отклоняет: почта кривая 0ms
+     ✓ отклоняет: нет категории 0ms
+     ✓ отклоняет: имя длиннее 80 0ms
+     ✓ ключи счётчика необязательны и должны быть по форме 0ms
+   ✓ промокод в запросе виджета (DATA_MODEL §20) (3)
+     ✓ приводит к верхнему регистру и обрезает пробелы 0ms
+     ✓ пустой и отсутствующий — без промокода 0ms
+     ✓ введённый неверно — отказ словами, а не «без скидки» 0ms
+   ❯ язык гостя в запросе брони (ADR-141, срез «подтверждение брони») (7)
+     × без языка — русский 7ms
+     × принимает ru 1ms
+     × принимает kk 1ms
+     × принимает en 1ms
+     × принимает zh 1ms
+     × регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, kz → kk 5ms
+     × незнакомый язык — русский, а не отказ: бронь важнее языка письма 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/mail/booking-letter.test.ts [ packages/integrations/src/mail/booking-letter.test.ts ]
+Error: Cannot find module './booking-letter' imported from /home/user/wetop.ai/packages/integrations/src/mail/booking-letter.test.ts
+ ❯ packages/integrations/src/mail/booking-letter.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { bookingConfirmationLetter, type BookingLetterInput } from './…
+       | ^
+      3|
+      4| const base: BookingLetterInput = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > язык гостя в запросе брони (ADR-141, срез «подтверждение брони») > без языка — русский
+AssertionError: expected undefined to be 'ru' // Object.is equality
+
+- Expected:
+"ru"
+
++ Received:
+undefined
+
+ ❯ packages/domain/src/web-booking/request.test.ts:148:34
+    146|   it('без языка — русский', () => {
+    147|     const r = parseBookingRequest(good, today);
+    148|     expect(r.ok && r.value.lang).toBe('ru');
+       |                                  ^
+    149|   });
+    150|   it.each(['ru', 'kk', 'en', 'zh'] as const)('принимает %s', (lang) =>…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > язык гостя в запросе брони (ADR-141, срез «подтверждение брони») > принимает ru
+AssertionError: expected undefined to be 'ru' // Object.is equality
+
+- Expected:
+"ru"
+
++ Received:
+undefined
+
+ ❯ packages/domain/src/web-booking/request.test.ts:152:34
+    150|   it.each(['ru', 'kk', 'en', 'zh'] as const)('принимает %s', (lang) =>…
+    151|     const r = parseBookingRequest({ ...good, lang }, today);
+    152|     expect(r.ok && r.value.lang).toBe(lang);
+       |                                  ^
+    153|   });
+    154|   it('регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > язык гостя в запросе брони (ADR-141, срез «подтверждение брони») > принимает kk
+AssertionError: expected undefined to be 'kk' // Object.is equality
+
+- Expected:
+"kk"
+
++ Received:
+undefined
+
+ ❯ packages/domain/src/web-booking/request.test.ts:152:34
+    150|   it.each(['ru', 'kk', 'en', 'zh'] as const)('принимает %s', (lang) =>…
+    151|     const r = parseBookingRequest({ ...good, lang }, today);
+    152|     expect(r.ok && r.value.lang).toBe(lang);
+       |                                  ^
+    153|   });
+    154|   it('регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > язык гостя в запросе брони (ADR-141, срез «подтверждение брони») > принимает en
+AssertionError: expected undefined to be 'en' // Object.is equality
+
+- Expected:
+"en"
+
++ Received:
+undefined
+
+ ❯ packages/domain/src/web-booking/request.test.ts:152:34
+    150|   it.each(['ru', 'kk', 'en', 'zh'] as const)('принимает %s', (lang) =>…
+    151|     const r = parseBookingRequest({ ...good, lang }, today);
+    152|     expect(r.ok && r.value.lang).toBe(lang);
+       |                                  ^
+    153|   });
+    154|   it('регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > язык гостя в запросе брони (ADR-141, срез «подтверждение брони») > принимает zh
+AssertionError: expected undefined to be 'zh' // Object.is equality
+
+- Expected:
+"zh"
+
++ Received:
+undefined
+
+ ❯ packages/domain/src/web-booking/request.test.ts:152:34
+    150|   it.each(['ru', 'kk', 'en', 'zh'] as const)('принимает %s', (lang) =>…
+    151|     const r = parseBookingRequest({ ...good, lang }, today);
+    152|     expect(r.ok && r.value.lang).toBe(lang);
+       |                                  ^
+    153|   });
+    154|   it('регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > язык гостя в запросе брони (ADR-141, срез «подтверждение брони») > регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, kz → kk
+AssertionError: expected { ok: true, value: { …(10) } } to match object { value: { lang: 'en' } }
+(15 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "value": {
+-     "lang": "en",
++     "adults": 1,
++     "arrivalDate": "2026-09-13",
++     "categoryCode": "category-single",
++     "comment": "Приеду поздно",
++     "departureDate": "2026-09-15",
++     "guest": {
++       "email": "<email>",
++       "firstName": "Айгерим",
++       "lastName": "Тестова",
++       "phone": "<телефон>",
++     },
++     "promoCode": null,
++     "sessionKey": "session-0001",
++     "siteKey": "pms_5f3c9a1b2d4e",
++     "visitorKey": "visitor-0001",
+    },
+  }
+
+ ❯ packages/domain/src/web-booking/request.test.ts:155:68
+    153|   });
+    154|   it('регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, …
+    155|     expect(parseBookingRequest({ ...good, lang: 'EN-us' }, today)).toM…
+       |                                                                    ^
+    156|       value: { lang: 'en' },
+    157|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > язык гостя в запросе брони (ADR-141, срез «подтверждение брони») > незнакомый язык — русский, а не отказ: бронь важнее языка письма
+AssertionError: expected undefined to be 'ru' // Object.is equality
+
+- Expected:
+"ru"
+
++ Received:
+undefined
+
+ ❯ packages/domain/src/web-booking/request.test.ts:167:34
+    165|   it('незнакомый язык — русский, а не отказ: бронь важнее языка письма…
+    166|     const r = parseBookingRequest({ ...good, lang: 'fr' }, today);
+    167|     expect(r.ok && r.value.lang).toBe('ru');
+       |                                  ^
+    168|   });
+    169| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  7 failed | 24 passed (31)
+   Start at  18:08:57
+   Duration  397ms (transform 75%, tests 12%, import 9%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-08-56Z-unit-ffc4.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 03.10.2026 17:53 Алматы · vm
+# коммит 000418f (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/requests.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 52 tests using 1 worker
+
+  ✓   1 tests/ui/beauty-branch.spec.ts:43:1 › салон заводится той же формой и открывается своим рабочим местом (3.9s)
+  ✓   2 tests/ui/beauty-branch.spec.ts:58:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (3.4s)
+  ✓   3 tests/ui/beauty-branch.spec.ts:74:1 › карточка объекта показывает имя салона, а не «объект не загружен» (3.4s)
+  ✓   4 tests/ui/beauty-branch.spec.ts:85:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (4.0s)
+  ✓   5 tests/ui/beauty-branch.spec.ts:99:3 › салон доступен и в светлой теме (4.7s)
+  ✓   6 tests/ui/beauty-branch.spec.ts:99:3 › салон доступен и в тёмной теме (4.4s)
+  ✓   7 tests/ui/beauty-catalog.spec.ts:47:1 › услуга каталога добавляется и видна в списке (4.9s)
+  ✓   8 tests/ui/beauty-catalog.spec.ts:60:1 › филиал включает услугу и ставит свою цену (5.9s)
+  ✓   9 tests/ui/beauty-catalog.spec.ts:79:1 › ошибки услуги словами, введённое не стирается (4.0s)
+  ✓  10 tests/ui/beauty-catalog.spec.ts:94:1 › мастер добавляется, умения ставятся и снимаются (8.9s)
+  ✓  11 tests/ui/beauty-catalog.spec.ts:124:1 › каталог салона на телефоне: без прокрутки вбок (5.4s)
+  ✓  12 tests/ui/beauty-catalog.spec.ts:142:3 › каталог салона доступен в светлой теме (6.7s)
+  ✓  13 tests/ui/beauty-catalog.spec.ts:142:3 › каталог салона доступен в тёмной теме (6.3s)
+  ✓  14 tests/ui/navigation.spec.ts:50:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (2.9s)
+  ✓  15 tests/ui/navigation.spec.ts:91:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (2.2s)
+  ✓  16 tests/ui/navigation.spec.ts:118:1 › все пункты меню открывают существующие страницы (10.0s)
+  ✓  17 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (3.4s)
+  ✓  18 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (3.4s)
+  ✓  19 tests/ui/requests.spec.ts:75:3 › экран /today: данные берутся одним запросом на путь (1.5s)
+  ✓  20 tests/ui/requests.spec.ts:75:3 › экран /chessboard: данные берутся одним запросом на путь (1.8s)
+  ✓  21 tests/ui/requests.spec.ts:75:3 › экран /reservations: данные берутся одним запросом на путь (1.5s)
+  ✓  22 tests/ui/requests.spec.ts:75:3 › экран /guests: данные берутся одним запросом на путь (1.4s)
+  ✓  23 tests/ui/requests.spec.ts:75:3 › экран /inventory: данные берутся одним запросом на путь (1.6s)
+  ✓  24 tests/ui/requests.spec.ts:75:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.8s)
+  ✓  25 tests/ui/requests.spec.ts:75:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.5s)
+  ✓  26 tests/ui/requests.spec.ts:75:3 › экран /rates: данные берутся одним запросом на путь (1.4s)
+  ✓  27 tests/ui/requests.spec.ts:75:3 › экран /management/analytics: данные берутся одним запросом на путь (1.5s)
+  ✓  28 tests/ui/requests.spec.ts:75:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.5s)
+  ✓  29 tests/ui/requests.spec.ts:75:3 › экран /finance: данные берутся одним запросом на путь (1.6s)
+  ✓  30 tests/ui/requests.spec.ts:75:3 › экран /reports: данные берутся одним запросом на путь (1.4s)
+  ✓  31 tests/ui/requests.spec.ts:75:3 › экран /channels: данные берутся одним запросом на путь (1.6s)
+  ✓  32 tests/ui/requests.spec.ts:75:3 › экран /connections/channex: данные берутся одним запросом на путь (1.4s)
+  ✓  33 tests/ui/requests.spec.ts:75:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.5s)
+  ✓  34 tests/ui/requests.spec.ts:75:3 › экран /channels/sync: данные берутся одним запросом на путь (1.5s)
+  ✓  35 tests/ui/requests.spec.ts:75:3 › экран /channels/events: данные берутся одним запросом на путь (1.4s)
+  ✓  36 tests/ui/requests.spec.ts:75:3 › экран /website: данные берутся одним запросом на путь (1.3s)
+  ✓  37 tests/ui/requests.spec.ts:75:3 › экран /website/booking: данные берутся одним запросом на путь (1.4s)
+  ✓  38 tests/ui/requests.spec.ts:75:3 › экран /website/analytics: данные берутся одним запросом на путь (1.6s)
+  ✓  39 tests/ui/requests.spec.ts:75:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.4s)
+  ✓  40 tests/ui/requests.spec.ts:75:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.4s)
+  ✓  41 tests/ui/requests.spec.ts:75:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.4s)
+  ✓  42 tests/ui/requests.spec.ts:75:3 › экран /team: данные берутся одним запросом на путь (1.3s)
+  ✓  43 tests/ui/requests.spec.ts:75:3 › экран /connections: данные берутся одним запросом на путь (1.3s)
+  ✓  44 tests/ui/requests.spec.ts:75:3 › экран /ai-agents: данные берутся одним запросом на путь (1.3s)
+  ✓  45 tests/ui/requests.spec.ts:75:3 › экран /website/settings: данные берутся одним запросом на путь (1.4s)
+  ✓  46 tests/ui/requests.spec.ts:75:3 › экран /incidents: данные берутся одним запросом на путь (1.4s)
+  ✓  47 tests/ui/requests.spec.ts:75:3 › экран /journal: данные берутся одним запросом на путь (1.4s)
+  ✓  48 tests/ui/requests.spec.ts:75:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.9s)
+  ✓  49 tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (2.1s)
+  ✓  50 tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку (3.9s)
+  ✓  51 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: light (3.1s)
+  ✓  52 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: dark (3.1s)
+
+  52 passed (2.5m)
+
+# код выхода 0 · 2 мин 33 с

@@ -1,0 +1,16 @@
+# Сквозные (e2e) · 03.10.2026 15:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит dde556e (main), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' './playwright.ui-support.local.config.ts' '--workers=1' '--grep' 'Диалоги'
+[WebServer] ⨯ Another next dev server is already running.
+[WebServer] 
+[WebServer] - Local:        http://127.0.0.1:3108
+[WebServer] - PID:          58661
+[WebServer] - Dir:          /Users/vyacheslav/Desktop/Проекты/WETOP/apps/web
+[WebServer] - Log:          .next-ui/dev/logs/next-development.log
+[WebServer] 
+[WebServer] You can access the existing server at http://127.0.0.1:3108,
+[WebServer] or run kill 58661 to stop it and start a new one.
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 17 с

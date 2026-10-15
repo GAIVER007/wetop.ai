@@ -1,0 +1,16 @@
+# Модульные (unit) · 08.10.2026 00:15 Алматы · vm
+# коммит 9346cc7 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T19-15-46Z-unit-b1d5.json' 'tests/unit/design-slop.test.ts' 'tests/unit/build-tokens.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-slop.test.ts (17 tests) 16ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  19:15:50
+   Duration  835ms (import 62%, transform 34%, tests 3%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-07T19-15-46Z-unit-b1d5.json
+
+# код выхода 0 · 4 с

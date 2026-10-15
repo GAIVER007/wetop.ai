@@ -1,0 +1,22 @@
+# Интеграционные (integration) · 06.10.2026 15:48 Алматы · vm
+# коммит 03496b2 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T10-48-01Z-integration-3bd2.json' 'tests/integration/scope-hardening.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:2081) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/scope-hardening.test.ts (2 tests) 1250ms
+   ✓ SCOPE-HARDENING: Hospitality property follows the selected branch (1)
+     ✓ two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only 609ms
+   ✓ SCOPE-HARDENING: /branches/overview is a Hospitality-only summary (1)
+     ✓ mixed Organization: 200, rows and totals only for Hospitality branches 589ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  10:48:02
+   Duration  6.92s (transform 51%, tests 35%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-06T10-48-01Z-integration-3bd2.json
+
+# код выхода 0 · 8 с

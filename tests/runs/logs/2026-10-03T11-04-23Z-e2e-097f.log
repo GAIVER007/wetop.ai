@@ -1,0 +1,81 @@
+# Сквозные (e2e) · 03.10.2026 16:04 Алматы · vm
+# коммит dfe0be6 (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json
+[pms_test] миграций применено 0 из 46; данные от 2026-10-03T11:04:20.187Z (сид)
+
+Running 25 tests using 2 workers
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (46ms)
+[WebServer] (node:12140) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   3 [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (7.7s)
+  ✓   2 [isolated] › tests/e2e/check-in-out.spec.ts:21:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (12.8s)
+  ✓   4 [isolated] › tests/e2e/chessboard-drag.spec.ts:26:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (6.1s)
+  ✓   6 [isolated] › tests/e2e/chessboard.spec.ts:13:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными (2.3s)
+  ✓   7 [isolated] › tests/e2e/chessboard.spec.ts:36:1 › щелчок по занятой клетке — предпросмотр, двойной — карточка брони с проживаниями (3.3s)
+  ✓   5 [isolated] › tests/e2e/chessboard-unassigned.spec.ts:29:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (8.5s)
+  ✓   8 [isolated] › tests/e2e/desk-day.spec.ts:16:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (7.1s)
+  ✓   9 [isolated] › tests/e2e/desk-edit.spec.ts:28:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта (7.7s)
+  ✓  11 [isolated] › tests/e2e/finance.spec.ts:30:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (3.9s)
+  ✓  12 [isolated] › tests/e2e/full-day.spec.ts:26:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (5.3s)
+  ✓  13 [isolated] › tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную (961ms)
+  ✓  14 [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (1.1s)
+  ✓  15 [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (840ms)
+  ✓  16 [isolated] › tests/e2e/manual-reservation.spec.ts:13:1 › создать бронь с ячейкой → видна в календаре → отменить → ячейка свободна (3.8s)
+  ✓  17 [isolated] › tests/e2e/print-and-journal.spec.ts:5:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия (1.8s)
+  ✓  18 [isolated] › tests/e2e/print-forms.spec.ts:29:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки (4.2s)
+  ✓  19 [isolated] › tests/e2e/stay-extras.spec.ts:25:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (4.5s)
+  ✓  20 [isolated] › tests/e2e/unit-blocks.spec.ts:28:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (4.2s)
+  ✘  10 [isolated] › tests/e2e/desk-tasks.spec.ts:28:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (33.2s)
+  ✓  21 [isolated] › tests/e2e/web-analytics.spec.ts:72:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте (2.7s)
+  ✓  22 [isolated] › tests/e2e/web-booking.spec.ts:48:1 › виджет: цены на завтра, бронь одноместной, номер, карточка в PMS с источником «сайт» (2.4s)
+  ✓  23 [isolated] › tests/e2e/web-analytics.spec.ts:184:1 › настройки сайта: код с ключом, «Проверить счётчик» видит события (1.5s)
+  ✓  24 [isolated] › tests/e2e/web-booking.spec.ts:103:1 › аналитика: бронь связана с сессией счётчика — «брони с сайта» 1 (845ms)
+  ✓  25 [isolated] › tests/e2e/web-analytics.spec.ts:199:1 › демо-страница на адресе API: просмотры и клики доходят и видны в отчёте (2.0s)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 5)
+  свежих, моложе 15 мин, оставлено: 5 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) [isolated] › tests/e2e/desk-tasks.spec.ts:28:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('new-reservation-form').locator('button[type="submit"]:enabled').or(getByRole('main').getByTestId('new-reservation-form').getByRole('alert').filter({ hasText: /недоступн/i })).first()
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('new-reservation-form').locator('button[type="submit"]:enabled').or(getByRole('main').getByTestId('new-reservation-form').getByRole('alert').filter({ hasText: /недоступн/i })).first() with timeout 30000ms
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('button[type="submit"]:enabled').or(getByRole('main').getByTestId('new-reservation-form').getByRole('alert').filter({ hasText: /недоступн/i })).first()
+
+
+      60 |     // ждём, пока форма решит: кнопка доступна (отправляем, отказ даст сервер) или ячейка помечена занятой
+      61 |     const blocked = f.getByRole('alert').filter({ hasText: /недоступн/i });
+    > 62 |     await expect(f.locator('button[type="submit"]:enabled').or(blocked).first()).toBeVisible();
+         |                                                                                  ^
+      63 |     if (await submit.isEnabled()) await submit.click();
+      64 |   };
+      65 |
+        at fill (/home/user/wetop.ai/tests/e2e/desk-tasks.spec.ts:62:82)
+        at /home/user/wetop.ai/tests/e2e/desk-tasks.spec.ts:81:3
+
+    Error Context: test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [isolated] › tests/e2e/desk-tasks.spec.ts:28:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом 
+  24 passed (1.2m)
+
+# код выхода 1 · 1 мин 15 с

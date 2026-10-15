@@ -1,0 +1,114 @@
+# Модульные (unit) · 09.10.2026 12:27 Алматы · vm
+# коммит 9b24111 (claude/mv8-5-ds1c-followup), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T07-27-55Z-unit-0fe9.json' 'apps/web/src/components/primitives-ds1c.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/components/primitives-ds1c.test.ts (35 tests | 2 failed) 140ms
+   ✓ Stat (5)
+     ✓ изменение словами со знаком и стрелкой-глифом, без цвета направления 10ms
+     ✓ нет базы для сравнения: текст без стрелки 3ms
+     ✓ тон и размер по общей шкале 4ms
+     ✓ прежние alarm, warn, big, compact остаются и выглядят как раньше 1ms
+     ✓ с href вся плитка одна ссылка, внутри других ссылок и кнопок нет 4ms
+   ✓ ShareBar (4)
+     ✓ родной progress с именем, значением и пределом, число рядом 2ms
+     ✓ 0 и 100 без выхода за предел, без строки style 3ms
+     ✓ середина: 50 из 100 и число словами 1ms
+     ✓ тон классом по общей шкале, нейтральный без класса 3ms
+   ✓ FormGrid (3)
+     ✓ колонки одним классом, без ширин в пикселях 2ms
+     ✓ плотность: compact классом, normal по умолчанию без класса 1ms
+     ✓ на телефоне одна колонка, дети сжимаются 2ms
+   ✓ DateBar (3)
+     ✓ кнопки с именами, поле «Дата» с видимой подписью и значением 11ms
+     ✓ без onToday кнопки «Сегодня» нет 5ms
+     ✓ значок назад из набора, без поворота стилем 3ms
+   ✓ PeriodPicker (4)
+     ✓ поля «С» и «По» с именами формы и отрезок готовыми ссылками 26ms
+     ✓ ошибка словами у отрезка, без кнопки применения: применяет экран 4ms
+     ✓ ошибки по полям: у поля «С» и у поля «По» своё слово и aria-invalid 4ms
+     ✓ управляемый ввод: onFromChange и onToChange получают дату, применяет экран 1ms
+   ❯ Overlay и RouteDrawer (4)
+     ✓ без size класс прежний, sm и lg добавляют свой 8ms
+     ✓ заголовок подписывает окно 1ms
+     × размер md окна и панели берётся из токенов, а не литералом 15ms
+     ✓ исходник RouteDrawer передаёт size и не держит ширину своим селектором 1ms
+   ✓ Field required (3)
+     ✓ true: родное required у поля и знак после подписи, не только цветом 1ms
+     ✓ false: слово «необязательно», без required 1ms
+     ✓ не задан: разметка прежняя (подпись текстом прямо в label, без меток и required) 1ms
+   ✓ Table (4)
+     ✓ новое использование: плотность, липкость и подпись таблицы 1ms
+     ✓ с aria-label область прокрутки берёт то же имя 1ms
+     ✓ прежняя таблица без имени держит общее имя области 1ms
+     ✓ тип: новое использование без имени не собирается 0ms
+   ✓ ErrorState поверх EmptyState (3)
+     ✓ та же обёртка, что у EmptyState, с role=alert 3ms
+     ✓ отклонённый запрос: совет про адрес, без «Подключения API» 2ms
+     ✓ исходник ErrorState не держит своей разметки empty-state 1ms
+   ❯ тема «Контраст» в DS1c не меняется (1)
+     × наведение главной кнопки в «Контрасте» прежнее blue.600, светлая blue.800, тёмная blue.300 7ms
+   ✓ главная кнопка (1)
+     ✓ наведение красит --primary-hover, фильтра и градиента нет 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/components/primitives-ds1c.test.ts > Overlay и RouteDrawer > размер md окна и панели берётся из токенов, а не литералом
+AssertionError: expected '\n    margin: auto;\n    width: min(5…' to match /width:\s*min\(var\(--overlay-w-md\),/
+
+- Expected:
+/width:\s*min\(var\(--overlay-w-md\),/
+
++ Received:
+"
+    margin: auto;
+    width: min(560px, calc(100vw - 32px));
+    max-height: calc(100dvh - 48px);
+    padding: 0;
+    color: var(--text);
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-floating);
+    backdrop-filter: blur(16px);
+  "
+
+ ❯ apps/web/src/components/primitives-ds1c.test.ts:257:33
+    255|     const rule = (selector: string) =>
+    256|       css.match(new RegExp(`\\n\\s*${selector.replace('.', '\\.')}\\s*…
+    257|     expect(rule('.ui-overlay')).toMatch(/width:\s*min\(var\(--overlay-…
+       |                                 ^
+    258|     expect(rule('.ui-drawer')).toMatch(/width:\s*min\(var\(--drawer-w-…
+    259|     expect(rule('.ui-overlay')).not.toMatch(/width:\s*min\(\d+px/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/components/primitives-ds1c.test.ts > тема «Контраст» в DS1c не меняется > наведение главной кнопки в «Контрасте» прежнее blue.600, светлая blue.800, тёмная blue.300
+AssertionError: expected undefined to be '{color.primitive.blue.600}' // Object.is equality
+
+- Expected:
+"{color.primitive.blue.600}"
+
++ Received:
+undefined
+
+ ❯ apps/web/src/components/primitives-ds1c.test.ts:383:32
+    381|     const themes = (hover['$extensions'] as Record<string, Record<stri…
+    382|     expect(themes['dark']).toBe('{color.primitive.blue.300}');
+    383|     expect(themes['contrast']).toBe('{color.primitive.blue.600}');
+       |                                ^
+    384|     const css = readFileSync(resolve(import.meta.dirname, '../app/toke…
+    385|     const block = css.slice(css.indexOf("[data-theme='contrast']"));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 33 passed (35)
+   Start at  07:28:08
+   Duration  5.43s (import 57%, transform 40%, tests 3%)
+
+JSON report written to /tmp/pms-test-2026-10-09T07-27-55Z-unit-0fe9.json
+
+# код выхода 1 · 19 с

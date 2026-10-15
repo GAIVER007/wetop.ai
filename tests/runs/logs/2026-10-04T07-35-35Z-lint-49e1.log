@@ -1,0 +1,11 @@
+# Линтер (lint) · 04.10.2026 12:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит ae4bd2d (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 173
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/dashboard-desk.spec.ts
+  1:56  error  'Page' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 1 мин 56 с

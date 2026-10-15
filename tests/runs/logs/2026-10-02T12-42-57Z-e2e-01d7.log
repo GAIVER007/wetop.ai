@@ -1,0 +1,155 @@
+# Сквозные (e2e) · 02.10.2026 17:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 201d35e (main), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/finance-cash.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✘  1 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (1.9s)
+  ✓  2 tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (2.1s)
+  ✘  3 tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (1.6s)
+  ✓  4 tests/ui/finance-cash.spec.ts:112:1 › статьи: стартовый набор, добавление и выключение; выключенная уходит из формы расхода (1.7s)
+  ✓  5 tests/ui/finance-cash.spec.ts:133:1 › «только чтение»: кнопок кассы нет, остатки видны (1.4s)
+  ✓  6 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, light (1.4s)
+  ✓  7 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, dark (1.2s)
+
+
+  1) tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 70
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+    +     "help": "Links must be distinguishable without relying on color",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/link-in-text-block?application=playwright",
+    +     "id": "link-in-text-block",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.13,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#085fba",
+    +               "parentColor": "#596a80",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.13:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #596a80)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<p class=\"finance-note\">Остатки — за всё время: оплаты гостей по способу, минус возвраты, плюс операции кассы.<!-- --> <a data-testid=\"cash-ops-link\" href=\"/finance?from=2026-09-27&amp;to=2026-10-02&amp;src=cash#operations\">Движения кассы за период — во вкладке «Операции»</a>.</p>",
+    +                 "target": Array [
+    +                   ".cash > .finance-note",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<p class=\"finance-note\">Остатки — за всё время: оплаты гостей по способу, минус возвраты, плюс операции кассы.<!-- --> <a data-testid=\"cash-ops-link\" href=\"/finance?from=2026-09-27&amp;to=2026-10-02&amp;src=cash#operations\">Движения кассы за период — во вкладке «Операции»</a>.</p>",
+    +                 "target": Array [
+    +                   ".cash > .finance-note",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.13:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #596a80)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a data-testid=\"cash-ops-link\" href=\"/finance?from=2026-09-27&amp;to=2026-10-02&amp;src=cash#operations\">Движения кассы за период — во вкладке «Операции»</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[data-testid=\"cash-ops-link\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2a",
+    +       "wcag141",
+    +       "TTv5",
+    +       "TT13.a",
+    +       "EN-301-549",
+    +       "EN-9.1.4.1",
+    +       "RGAAv4",
+    +       "RGAA-10.6.1",
+    +     ],
+    +   },
+    + ]
+
+      42 |   await expect(cash.getByTestId('cash-ops-link')).toBeVisible();
+      43 |   const axe = await new AxeBuilder({ page }).include('[data-testid="finance-cash"]').analyze();
+    > 44 |   expect(axe.violations).toEqual([]);
+         |                          ^
+      45 | });
+      46 |
+      47 | test('поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется', async ({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/finance-cash.spec.ts:44:26
+
+    Error Context: test-results/finance-cash-касса-плитки--3707b-без-ручного-ввода-axe-чисто/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-касса-плитки--3707b-без-ручного-ввода-axe-чисто/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-касса-плитки--3707b-без-ручного-ввода-axe-чисто/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба 
+
+    Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Аннулировать', exact: true }) resolved to 3 elements:
+        1) <button type="button" class="btn btn--danger">Аннулировать</button> aka getByRole('dialog').getByRole('button', { name: 'Аннулировать' })
+        2) <button type="button" aria-busy="false" class="btn btn--ghost" data-testid="cash-void">Аннулировать</button> aka getByRole('row', { name: 'окт., 17:43 Перевод — — Наличные → Kaspi 1 000' }).getByTestId('cash-void')
+        3) <button type="button" aria-busy="false" class="btn btn--ghost" data-testid="cash-void">Аннулировать</button> aka getByRole('row', { name: 'окт., 17:43 Расход — Комиссия банка Комиссия за операцию Наличные −10' }).getByTestId('cash-void')
+
+    Call log:
+      - waiting for getByRole('button', { name: 'Аннулировать', exact: true })
+
+
+      104 |   // аннулирование основной операции снимает и комиссию (вопрос подтверждения — словами)
+      105 |   await transfer.getByTestId('cash-void').click();
+    > 106 |   await page.getByRole('button', { name: 'Аннулировать', exact: true }).click();
+          |                                                                         ^
+      107 |   await expect(page.getByTestId('op-row').filter({ hasText: 'аннулирован' })).toHaveCount(2);
+      108 |   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
+      109 |   expect(await tenge(page, 'cash-CASH')).toBe(cashWas);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/finance-cash.spec.ts:106:73
+
+    Error Context: test-results/finance-cash-перевод-с-ком-3b5d1-»-аннулирование-снимает-оба/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-перевод-с-ком-3b5d1-»-аннулирование-снимает-оба/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-перевод-с-ком-3b5d1-»-аннулирование-снимает-оба/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто 
+    tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба 
+  5 passed (19.4s)
+
+# код выхода 1 · 20 с

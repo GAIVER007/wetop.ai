@@ -1,13 +1,13 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, openProfileMenu } from './fixtures';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
 /** «Платформа» открыта только вошедшему главному администратору (ADR-083) */
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -23,13 +23,14 @@ test('источник и агрегаты проекта видны главн�
   request,
 }) => {
   await page.goto('/connections');
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Подключения');
   await expect(page.getByTestId('data-connection')).toHaveCount(0);
   await expect(page.getByRole('main')).not.toContainText('Supabase');
   await expect(page.getByRole('main')).not.toContainText('Данные проекта');
   await request.post(`${fixture}/__test/control`, { data: { platformAdmin: true } });
   await signIn(page);
   await page.goto('/platform');
+  await page.locator('summary').filter({ hasText: 'Состояние системы' }).click();
   const panel = page.getByTestId('data-connection');
   await expect(panel).toContainText('Данные проекта');
   await expect(panel).toContainText('Тестовые данные');
@@ -46,6 +47,7 @@ test('ошибка базы не превращается в нулевые по
   });
   await signIn(page);
   await page.goto('/platform');
+  await page.locator('summary').filter({ hasText: 'Состояние системы' }).click();
   const panel = page.getByTestId('data-connection');
   await expect(panel).toContainText('База данных недоступна');
   await expect(panel.getByTestId('database-units')).toHaveCount(0);
@@ -58,13 +60,11 @@ test('ошибка базы не превращается в нулевые по
 
 test('название гостиницы в каркасе и обзоре поступает из backend', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { propertyName: 'Проверочный хостел' } });
-  await page.goto('/today');
-  await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+  await page.goto('/finance');
+  await expect(page.locator('.workspace-header .workspace-property')).toContainText(
     'Проверочный хостел',
   );
-  await expect(page.locator('.profile-caption')).toContainText('Проверочный хостел');
-  await expect(page.locator('main')).toContainText('Проверочный хостел');
-  await expect(page.locator('.workspace-sidebar')).not.toContainText('Luxx Aparts');
+  await expect(page.locator('.workspace-header')).not.toContainText('Luxx Aparts');
 });
 
 test('недоступный API не скрывается за демо или выдуманным объектом', async ({ page, request }) => {
@@ -72,9 +72,11 @@ test('недоступный API не скрывается за демо или 
   await page.goto('/connections');
   // нет связи — состояние Channex «неизвестно», а не зелёное и не «не подключено»
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
-  await expect(page.getByTestId('integration-issues')).toContainText('Не удалось проверить менеджер каналов');
-  await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
-    'Объект не загружен',
+  await expect(page.getByTestId('integration-issues')).toContainText(
+    'Не удалось проверить менеджер каналов',
+  );
+  await expect(page.locator('.workspace-header .workspace-property')).toContainText(
+    'Филиал недоступен',
   );
   await expect(page.getByTestId('database-units')).toHaveCount(0);
 });
@@ -88,22 +90,19 @@ test('поздняя загрузка гостиницы сохраняет вв
   });
   try {
     await page.goto('/reservations/new', { waitUntil: 'commit' });
-    await page.getByLabel('Имя *', { exact: true }).fill('Тестовый ввод');
-    const menu = page.getByRole('button', { name: 'Меню администратора' });
-    // страница ещё стримится (гостиница задержана): клик до гидратации кнопки теряется — на медленном
-    // раннере CI так и было (20.09, 184/185); повторяем клик, пока меню не раскроется
-    await expect(async () => {
-      await menu.click();
-      await expect(menu).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
-    }).toPass({ timeout: 15_000 });
-    await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+    const firstName = page.getByRole('main').getByRole('textbox', { name: 'Имя *', exact: true });
+    await firstName.fill('Тестовый ввод');
+    // страница ещё стримится (гостиница задержана): меню открывается, когда React оживил кнопку. Клик до
+    // оживления терялся на медленном раннере CI (20.09, 184/185)
+    const menu = await openProfileMenu(page);
+    await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Объект не загружен',
     );
     await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });
-    await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+    await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Поздний ответ гостиницы',
     );
-    await expect(page.getByLabel('Имя *', { exact: true })).toHaveValue('Тестовый ввод');
+    await expect(firstName).toHaveValue('Тестовый ввод');
     await expect(menu).toHaveAttribute('aria-expanded', 'true');
   } finally {
     await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });

@@ -1,4 +1,4 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 import type { APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
@@ -8,8 +8,8 @@ import { mkdirSync } from 'node:fs';
  * заезда и выезда — всегда 24 часа, ошибка у поля; каталог услуг — отбор по группе и статусу, новая услуга и правка
  * панелью, архив вместо удаления, код услуги не виден. Стенд — подставной API с тем же разбором, что у API.
  */
-const API = 'http://127.0.0.1:4311';
-const SHOTS = 'reports/property-settings-set2-set3-2026-09-28';
+const API = FIXTURE_API;
+const SHOTS = 'reports/unified-sections-2026-10-01/property-settings-set2-set3-2026-09-28';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
 
@@ -21,7 +21,7 @@ test.afterEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -152,7 +152,7 @@ test('«только чтение»: каталог виден, добавить
   await expect(main.getByRole('button', { name: 'Добавить услугу' })).toHaveCount(0);
   await expect(main.getByTestId('services-table').getByRole('button')).toHaveCount(0);
   await page.goto('/hotel-settings/stay');
-  await expect(main.locator('input')).toHaveCount(0);
+  await expect(main.locator('input:enabled:not([readonly]):not([type=hidden])')).toHaveCount(0);
 });
 
 for (const theme of ['light', 'dark'] as const) {

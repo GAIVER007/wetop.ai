@@ -1,0 +1,18 @@
+# Модульные (unit) · 04.10.2026 14:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7400821 (claude/team-phone-position)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T09-58-01Z-unit-9c9c.json' 'packages/domain/src/accounts/members.test.ts' 'apps/api/src/accounts/members.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate
+
+ ✓ |unit| packages/domain/src/accounts/members.test.ts (5 tests) 2ms
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (28 tests) 377ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 18ms
+
+ Test Files  3 passed (3)
+      Tests  35 passed (35)
+   Start at  02:58:02
+   Duration  1.96s (transform 48%, import 39%, tests 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T09-58-01Z-unit-9c9c.json
+
+# код выхода 0 · 3 с

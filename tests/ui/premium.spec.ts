@@ -1,6 +1,14 @@
-import { expect, test, devNoise } from './fixtures';
+import {
+  FIXTURE_API,
+  boardFilter,
+  expect,
+  openFullCard,
+  openProfileMenu,
+  test,
+  devNoise,
+} from './fixtures';
 import { mkdirSync } from 'node:fs';
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const screenshotDir = 'reports/premium-ui';
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -8,14 +16,15 @@ test.beforeEach(async ({ request }) => {
 });
 test('темы: system, мгновенное переключение, сохранение после перезагрузки', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-light.png` });
   await page.getByRole('button', { name: 'Переключить тему', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(page.locator('.desk-stat__value').first()).toBeVisible();
+  // Единые «Финансы» показывают деньги сводкой кассы (plans/finance-home-merge-2026-10-09.md).
+  await expect(page.getByTestId('cash-summary')).toBeVisible();
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-dark.png` });
   await page.goto('/profile');
   await page.getByRole('button', { name: 'Как на устройстве' }).click();
@@ -24,17 +33,18 @@ test('темы: system, мгновенное переключение, сохр�
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 test('shell: панель, меню профиля, поиск', async ({ page }) => {
-  await page.goto('/today');
-  await page.getByRole('button', { name: 'Свернуть панель' }).click();
-  await expect(page.locator('.workspace')).toHaveClass(/is-collapsed/);
-  await page.reload();
-  await expect(page.locator('.workspace')).toHaveClass(/is-collapsed/);
-  await page.getByRole('button', { name: 'Развернуть панель' }).click();
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
-  await expect(page.getByRole('link', { name: 'Профиль и предпочтения' })).toBeVisible();
+  await page.goto('/finance');
+  // левое меню (ADR-161): текущий раздел на кнопке, все разделы в панели
+  await expect(page.locator('.sidenav__current')).toHaveText('Финансы');
+  // меню профиля упрощено 01.10 («Simplify account menu»): обучение и вход/выход, ссылки «Профиль и
+  // предпочтения» больше нет
+  await openProfileMenu(page);
+  await expect(page.getByTestId('tour-restart')).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('link', { name: 'Профиль и предпочтения' })).toBeHidden();
-  await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
+  await expect(page.getByTestId('tour-restart')).toBeHidden();
+  // поиск в шапке доступен и на стартовых «Финансах»: правило «скрыт на Главной» ушло вместе с ней
+  await expect(page.getByRole('button', { name: 'Найти гостя или бронь' })).toBeVisible();
+  await page.keyboard.press('Control+k');
   const search = page.getByRole('dialog', { name: 'Быстрый поиск' });
   await expect(search).toBeVisible();
   await search.getByLabel('Запрос').fill('Тест');
@@ -46,7 +56,7 @@ test('drawer: бронь открывается поверх доски, вкл�
 }) => {
   await page.goto('/chessboard');
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/chessboard-light.png` });
-  await page.getByTestId('stay-cell').first().dblclick();
+  await openFullCard(page.getByTestId('stay-cell').first());
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole('heading', { level: 1 })).toContainText('Бронь');
@@ -66,7 +76,11 @@ test('drawer: бронь открывается поверх доски, вкл�
   );
   await drawer
     .getByTestId('payment-form')
-    .getByRole('button', { name: 'Принять оплату', exact: true })
+    .getByRole('button', { name: 'Проверить оплату', exact: true })
+    .click();
+  await drawer
+    .getByTestId('payment-form')
+    .getByRole('button', { name: 'Подтвердить оплату' })
     .click();
   await expect(drawer.getByTestId('folio-balance')).toHaveText('0 ₸ · оплачено');
   await page.keyboard.press('Escape');
@@ -86,7 +100,7 @@ test('новые фильтры шахматки, список броней и �
   await page.goto(`/chessboard?from=${today}&to=${last}`);
   // тип места — в окошке «Фильтры» (PR 7 «Шахматки v2»), состояние мест — полем в строке
   const main = page.getByRole('main');
-  const filters = page.getByRole('dialog', { name: 'Фильтры шахматки' });
+  const filters = page.getByRole('dialog', { name: 'Фильтры календаря' });
   const kind = async (name: string) => {
     await main.getByRole('button', { name: /^Фильтры( \d+)?$/ }).click();
     await filters.getByRole('button', { name, exact: true }).click();
@@ -96,7 +110,7 @@ test('новые фильтры шахматки, список броней и �
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   await kind('Койки');
   await expect(page.getByTestId('unit-row')).toHaveCount(72);
-  await main.getByLabel('Места на шахматке').selectOption('FREE');
+  await boardFilter(page, { state: 'FREE' });
   const count = await page.getByTestId('unit-row').count();
   expect(count).toBeGreaterThan(0);
   expect(count).toBeLessThan(72);
@@ -105,11 +119,9 @@ test('новые фильтры шахматки, список броней и �
   await page.goto('/reservations');
   // девять броней фикстуры: восемь прежних и «не заехал вовремя» (20260913-TEST8)
   await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(9);
-  // в названии чипа теперь и число броней этого статуса: «Отменены 0»
-  await page
-    .locator('.directory-filters')
-    .getByRole('link', { name: /^Отменены/ })
-    .click();
+  // статус — больше не чипы, а поле «Статус брони» с кнопкой «Показать» (упрощение списка 01.10, 3a916ca)
+  await page.getByLabel('Статус брони', { exact: true }).selectOption('CANCELLED');
+  await page.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page.getByText('Бронирований не найдено')).toBeVisible();
   // Карточки номеров с PR #66 живут в /inventory (/rooms — переход туда); фильтры, поиск и вид
   // каталога проверяет inventory-catalog.spec
@@ -128,20 +140,20 @@ test('новые страницы и обе темы: адаптивность �
     if (message.type() === 'error') errors.push(message.text());
   });
   const routes = [
-    '/today',
     '/chessboard',
     '/reservations',
     '/guests',
     '/inventory',
     '/finance',
     '/profile',
-    '/login',
+    '/profile',
     '/connections',
     '/hotel-settings',
     '/channels',
     '/channels/sync',
     '/journal',
     '/incidents',
+    '/marketing',
     '/website',
     '/website/analytics',
     '/management/analytics',
@@ -153,7 +165,7 @@ test('новые страницы и обе темы: адаптивность �
     for (const route of routes) {
       await page.goto(route);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-      if (width === 390 && route === '/today')
+      if (width === 390 && route === '/finance')
         await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-mobile.png` });
       const overflow = await page.evaluate(() => {
         const browser = globalThis as unknown as {
@@ -166,7 +178,7 @@ test('новые страницы и обе темы: адаптивность �
     }
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/today');
+  await page.goto('/finance');
   await page.getByRole('button', { name: 'Переключить тему', exact: true }).click();
   for (const route of routes) {
     await page.goto(route);
@@ -177,14 +189,14 @@ test('новые страницы и обе темы: адаптивность �
 });
 // вход настоящий (ADR-047): чужая почта с чужим паролем не пускает, и текст один для обоих случаев
 test('вход не пускает с чужой почтой и чужим паролем', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('demo@example.invalid');
   await page.getByLabel('Пароль', { exact: true }).fill('demo-password');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
     'Неверная почта или пароль',
   );
-  await expect(page).toHaveURL(/login/);
+  await expect(page).toHaveURL(/\/auth\/fallback/);
 });
 
 /**
@@ -206,16 +218,17 @@ test('список броней: выборка названа, пустой р�
   // ручной период — за кнопкой «Даты» (ADR-106, §62 ТЗ); в раскрытом виде подписи видны, не только aria-label
   await main.getByRole('button', { name: 'Даты', exact: true }).click();
   await expect(main.locator('.reservations-toolbar').getByText('С', { exact: true })).toBeVisible();
-  await expect(main.locator('.reservations-toolbar').getByText('По', { exact: true })).toBeVisible();
+  await expect(
+    main.locator('.reservations-toolbar').getByText('По', { exact: true }),
+  ).toBeVisible();
   // одна страница — счётчик страниц не рисуется
   await expect(main.getByText(/Страница \d+ из/)).toHaveCount(0);
 
-  // пустой результат: названы статус и запрос, шапки пустой таблицы нет, поправка точечная
+  // пустой результат: шапки пустой таблицы нет, поправка точечная — кнопки ровно по применённым
+  // отборам (словами отбор больше не называется: упрощение списка 01.10, 3a916ca)
   await page.goto('/reservations?status=CANCELLED&q=Иванов');
   const empty = main.locator('.empty-state');
   await expect(empty).toContainText('Бронирований не найдено');
-  await expect(empty).toContainText('Отменены');
-  await expect(empty).toContainText('Иванов');
   await expect(main.getByTestId('reservations-table')).toHaveCount(0);
   await empty.getByRole('link', { name: 'Убрать поиск', exact: true }).click();
   await expect(main.getByLabel('Поиск броней')).toHaveValue('');
@@ -236,8 +249,8 @@ test('список броней: выборка названа, пустой р�
   expect(overflow).toBeLessThanOrEqual(1);
   const row = table.locator('tbody tr').first();
   await expect(row).toContainText(/\d{1,2} [а-яё]+\.?/);
-  // слово о брони в единственном числе (ADR-106, Q-135); «Подтверждены» осталось именем фильтра
-  await expect(row).toContainText('подтверждена');
+  // слово статуса из реестра (DS1a); группа «Подтверждённые» осталась именем отбора
+  await expect(row).toContainText('Подтверждена');
   await expect(row).toContainText('к оплате');
   await expect(row.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();
   const chip = await main.getByLabel('Статус брони', { exact: true }).boundingBox();

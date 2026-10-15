@@ -1,7 +1,10 @@
 import Link from 'next/link';
+import { deskShell } from '../lib/desk-shell';
+import { mayAccess } from '../lib/navigation';
 import { Icon } from './icon';
 
-export function ControlNavigation({ current }: { current: 'incidents' | 'journal' }) {
+export async function ControlNavigation({ current }: { current: 'incidents' | 'journal' }) {
+  const desk = await deskShell();
   return (
     <nav className="control-tabs" aria-label="Контроль">
       <Link
@@ -11,13 +14,15 @@ export function ControlNavigation({ current }: { current: 'incidents' | 'journal
       >
         <Icon name="incidents" /> Неисправности
       </Link>
-      <Link
-        href="/journal"
-        prefetch={false}
-        aria-current={current === 'journal' ? 'page' : undefined}
-      >
-        <Icon name="journal" /> Журнал действий
-      </Link>
+      {mayAccess(desk.access, 'journal') && (
+        <Link
+          href="/journal"
+          prefetch={false}
+          aria-current={current === 'journal' ? 'page' : undefined}
+        >
+          <Icon name="journal" /> Журнал операций
+        </Link>
+      )}
     </nav>
   );
 }

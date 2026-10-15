@@ -1,0 +1,16 @@
+# Модульные (unit) · 06.10.2026 16:04 Алматы · vm
+# коммит 519c8b8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T11-04-17Z-unit-a588.json' 'apps/web/src/app/login/verify-registration.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/login/verify-registration.test.ts (3 tests) 6ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  11:04:18
+   Duration  1.67s (transform 91%, import 8%)
+
+JSON report written to /tmp/pms-test-2026-10-06T11-04-17Z-unit-a588.json
+
+# код выхода 0 · 3 с

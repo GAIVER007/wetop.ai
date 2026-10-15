@@ -1,0 +1,241 @@
+# Сквозные (e2e) · 09.10.2026 17:58 Алматы · vm
+# коммит ce21ea3 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 66
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/finance-home-merge.spec.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' 'tests/ui/today-operations.spec.ts' 'tests/ui/today-attention.spec.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' 'tests/ui/design-refresh.spec.ts' 'tests/ui/loading-performance.spec.ts' 'tests/ui/finance-cash-first.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/empty-base.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/navigation.spec.ts' '--config' 'tests/ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 97 tests using 2 workers
+
+  ✓   1 tests/ui/dashboard-desk.spec.ts:19:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез (3.8s)
+  ✓   2 tests/ui/dashboard-design.spec.ts:28:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (5.5s)
+  ✓   3 tests/ui/dashboard-desk.spec.ts:29:1 › 5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди (2.2s)
+  ✓   4 tests/ui/dashboard-design.spec.ts:68:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (1.5s)
+  ✓   5 tests/ui/dashboard-desk.spec.ts:37:1 › 6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка (1.9s)
+  ✓   6 tests/ui/dashboard-design.spec.ts:107:1 › финансы: «Требуют внимания» разбито по важности, сумма равна счётчику; быстрых действий нет (2.0s)
+  ✓   7 tests/ui/dashboard-desk.spec.ts:46:1 › 7. краткие подписи без декоративных разделителей (1.4s)
+  ✓   8 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (1.2s)
+  ✓   9 tests/ui/dashboard-desk.spec.ts:50:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (1.7s)
+  ✓  10 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (1.1s)
+  ✓  12 tests/ui/dashboard-resilience.spec.ts:37:1 › «Финансы» открываются и с упавшими показателями периода: риски остаются доступны (1.6s)
+  ✓  13 tests/ui/design-refresh.spec.ts:9:1 › финансы: деньги на первом экране, кнопки брони нет (5.3s)
+  ✓  11 tests/ui/dashboard-desk.spec.ts:84:1 › 9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки (9.3s)
+  ✓  14 tests/ui/design-refresh.spec.ts:28:1 › период «Финансов» и «Аналитики» на телефоне: подписанные поля и цели не меньше 44 px (3.7s)
+  ✘  16 tests/ui/design-refresh.spec.ts:72:1 › финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике» (1.8s)
+  ✓  15 tests/ui/dashboard-desk.spec.ts:126:1 › 10. заголовок страницы и панели брони — по шкале §6 (8.4s)
+  ✓  18 tests/ui/empty-base.spec.ts:39:3 › пустая база: /chessboard открывается и объясняет пустоту (2.8s)
+  ✓  19 tests/ui/empty-base.spec.ts:39:3 › пустая база: /reservations открывается и объясняет пустоту (1.7s)
+  ✓  20 tests/ui/empty-base.spec.ts:39:3 › пустая база: /guests открывается и объясняет пустоту (1.4s)
+  ✓  21 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms открывается и объясняет пустоту (2.3s)
+  ✓  22 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/categories открывается и объясняет пустоту (1.3s)
+  ✓  23 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/availability открывается и объясняет пустоту (1.4s)
+  ✓  24 tests/ui/empty-base.spec.ts:39:3 › пустая база: /finance открывается и объясняет пустоту (1.4s)
+  ✓  25 tests/ui/empty-base.spec.ts:39:3 › пустая база: /management/analytics открывается и объясняет пустоту (1.1s)
+  ✓  26 tests/ui/empty-base.spec.ts:39:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту (1.0s)
+  ✓  17 tests/ui/design-refresh.spec.ts:99:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (19.2s)
+  ✓  27 tests/ui/empty-base.spec.ts:39:3 › пустая база: /journal открывается и объясняет пустоту (1.4s)
+  ✓  29 tests/ui/empty-base.spec.ts:39:3 › пустая база: /incidents открывается и объясняет пустоту (1.6s)
+  ✓  30 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels открывается и объясняет пустоту (2.1s)
+  ✓  31 tests/ui/empty-base.spec.ts:39:3 › пустая база: /connections открывается и объясняет пустоту (1.3s)
+  ✓  32 tests/ui/empty-base.spec.ts:39:3 › пустая база: /website открывается и объясняет пустоту (1.3s)
+  ✓  33 tests/ui/empty-base.spec.ts:39:3 › пустая база: /website/analytics открывается и объясняет пустоту (1.6s)
+  ✓  34 tests/ui/empty-base.spec.ts:39:3 › пустая база: /hotel-settings открывается и объясняет пустоту (2.5s)
+  ✓  35 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels/mapping открывается и объясняет пустоту (1.2s)
+  ✓  36 tests/ui/empty-base.spec.ts:49:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.8s)
+  ✓  37 tests/ui/empty-base.spec.ts:60:1 › пустая база: финансы говорят про ноль словами, а не пустыми плитками (1.6s)
+  ✓  28 tests/ui/design-refresh.spec.ts:99:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (18.8s)
+  ✓  38 tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (4.6s)
+  ✓  40 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 1440 (2.9s)
+  ✓  41 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 390 (2.7s)
+  ✓  42 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 (2.8s)
+  ✓  43 tests/ui/finance-cash-first.spec.ts:91:1 › касса: первый экран без лишних кнопок, действия внутри управления (2.2s)
+  ✓  44 tests/ui/finance-cash-first.spec.ts:111:1 › касса: визуальная иерархия итогов и спокойный сброс (1.7s)
+  ✓  39 tests/ui/design-refresh.spec.ts:99:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (15.5s)
+  ✓  45 tests/ui/finance-cash-first.spec.ts:129:1 › касса: тёмное оформление читается на телефоне (2.9s)
+  ✓  47 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (2.0s)
+  ✓  48 tests/ui/finance-f1.spec.ts:99:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (3.1s)
+  ✓  49 tests/ui/finance-f1.spec.ts:149:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (1.9s)
+  ✓  50 tests/ui/finance-f1.spec.ts:180:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (2.7s)
+  ✘  51 tests/ui/finance-f1.spec.ts:222:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (5.1s)
+  ✓  46 tests/ui/design-refresh.spec.ts:99:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (18.6s)
+  ✓  52 tests/ui/finance-f1.spec.ts:238:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (3.3s)
+  ✓  53 tests/ui/finance-home-merge.spec.ts:17:1 › финансы: один раздел с блоками Главной и деньгами кассы (2.4s)
+  ✓  54 tests/ui/finance-f1.spec.ts:259:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (1.9s)
+  ✓  55 tests/ui/finance-home-merge.spec.ts:61:1 › /today гостиницы перенаправляет в финансы (1.9s)
+  ✓  57 tests/ui/finance-home-merge.spec.ts:67:1 › меню: «Финансы» первой вкладкой, «Главной» нет (1.9s)
+  ✓  56 tests/ui/finance-f1.spec.ts:279:3 › F1, стоп-гейт: снимки для владельца, light (3.4s)
+  ✓  58 tests/ui/finance-home-merge.spec.ts:75:1 › телефон: сводка первым экраном, фильтры достижимы (1.7s)
+  ✓  59 tests/ui/finance-f1.spec.ts:279:3 › F1, стоп-гейт: снимки для владельца, dark (2.8s)
+  ✓  60 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (2.1s)
+  ✓  62 tests/ui/loading-performance.spec.ts:27:1 › «Финансы» показывают блоки, пока настройки гостиницы ещё загружаются (2.8s)
+  ✓  61 tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (4.0s)
+  ✓  64 tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (3.0s)
+  ✓  63 tests/ui/loading-performance.spec.ts:47:1 › стойка и её шахматка запрашиваются параллельно (7.2s)
+  ✓  66 tests/ui/loading-performance.spec.ts:72:1 › мобильное меню использует уже загруженную свежесть без второго опроса (2.0s)
+TODAY_LOADING_MS [{"heading":2514,"money":2521,"risks":2541},{"heading":2324,"money":2332,"risks":2332},{"money":2132,"risks":2136,"heading":2236}]
+  ✓  67 tests/ui/loading-performance.spec.ts:96:1 › замер: блоки «Финансов» при задержке настроек 2000 мс (8.8s)
+  ✓  68 tests/ui/loading-performance.spec.ts:126:1 › фоновый опрос не перекрывается и восстанавливается после отказа (2.8s)
+  ✓  65 tests/ui/navigation.spec.ts:120:1 › все пункты меню открывают существующие страницы (18.5s)
+  ✓  69 tests/ui/owner-dashboard-interactions.spec.ts:12:1 › forecast details expose availability and open the selected calendar day (3.3s)
+  ✓  71 tests/ui/owner-dashboard-interactions.spec.ts:39:1 › forecast can recover in place after a temporary API failure (2.2s)
+  ✓  70 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: light (5.0s)
+  ✓  72 tests/ui/owner-dashboard-interactions.spec.ts:52:1 › unavailable inventory stays explicit and can be retried (3.1s)
+  ✓  73 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: dark (5.4s)
+  ✘  74 tests/ui/owner-dashboard-interactions.spec.ts:62:1 › slow inventory keeps daily events usable and shows a stable loading card (3.9s)
+  ✓  75 tests/ui/owner-dashboard.spec.ts:11:1 › owner blocks: compact metrics and operational widgets on finance (2.0s)
+  ✓  77 tests/ui/owner-dashboard.spec.ts:37:1 › period changes through cash presets and mobile retains content (2.5s)
+  ✓  76 tests/ui/owner-dashboard-interactions.spec.ts:87:3 › forecast drawer stays accessible at 320 px in light theme (4.0s)
+  ✓  78 tests/ui/owner-dashboard.spec.ts:48:1 › attention and cash stay available when dashboard API fails (1.5s)
+  ✓  79 tests/ui/owner-dashboard-interactions.spec.ts:87:3 › forecast drawer stays accessible at 320 px in dark theme (3.6s)
+  ✓  80 tests/ui/owner-dashboard.spec.ts:58:1 › owner blocks dark desktop and mobile remain usable (5.1s)
+  ✓  81 tests/ui/owner-dashboard-interactions.spec.ts:111:1 › weekly outlook opens a calendar day directly (3.2s)
+  ✓  82 tests/ui/owner-dashboard.spec.ts:89:1 › owner mobile summary fits the first screen and omits removed metrics (1.8s)
+  ✓  83 tests/ui/owner-dashboard-interactions.spec.ts:124:1 › compact owner summary fits a 360 by 800 phone first screen (2.1s)
+  ✓  84 tests/ui/owner-dashboard.spec.ts:105:1 › owner summary stays usable at narrow widths and custom dates remain accessible (2.7s)
+  ✓  85 tests/ui/today-attention.spec.ts:77:1 › очередь: каждое событие дня с числом, важностью и одним действием; порядок Critical → Warning → Info (2.7s)
+  ✓  86 tests/ui/owner-dashboard.spec.ts:124:1 › approved owner concept groups forecast with occupancy and matches attention count (1.8s)
+  ✓  88 tests/ui/today-operations.spec.ts:24:1 › операционные карточки убраны, а риски дня остались (1.8s)
+  ✓  87 tests/ui/today-attention.spec.ts:118:1 › незаезд ведёт в бронь, долг — в счёт; брони строками с именем и номером (2.2s)
+  ✓  90 tests/ui/today-attention.spec.ts:137:1 › сторож не ответил — строк инцидентов нет, остальная очередь на месте (2.0s)
+  ✓  91 tests/ui/today-attention.spec.ts:151:1 › финансовый период в будущем не скрывает текущие задачи гостиницы (1.4s)
+  ✓  92 tests/ui/today-attention.spec.ts:164:1 › снимки панелей единых «Финансов» (9.1s)
+  ✓  93 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (2.7s)
+  ✘  89 tests/ui/today-operations.spec.ts:33:1 › события дня совпадают с /desk/today и не зависят от периода кассы (16.9s)
+  ✓  95 tests/ui/today-operations.spec.ts:50:1 › сбой сторожа не скрывает показатели и действия (1.9s)
+  ✓  94 tests/ui/top-menu.spec.ts:121:1 › вложенные адреса подсвечивают свою вкладку (5.8s)
+  ✓  96 tests/ui/top-menu.spec.ts:157:3 › шапка ровная, без прокрутки вбок и доступная: light (3.6s)
+  ✓  97 tests/ui/top-menu.spec.ts:157:3 › шапка ровная, без прокрутки вбок и доступная: dark (3.6s)
+
+
+  1) tests/ui/design-refresh.spec.ts:72:1 › финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике» 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('navigation', { name: 'Готовые периоды' }).getByRole('link', { name: 'Месяц' })
+    Expected: "page"
+    Error: strict mode violation: getByRole('navigation', { name: 'Готовые периоды' }).getByRole('link', { name: 'Месяц' }) resolved to 2 elements:
+        1) <a class="is-active" aria-current="page" href="/finance?from=2026-10-01&to=2026-10-31">Месяц</a> aka getByRole('link', { name: 'Месяц', exact: true })
+        2) <a class="" href="/finance?from=2026-09-01&to=2026-09-30">Прошлый месяц</a> aka getByRole('link', { name: 'Прошлый месяц' })
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('navigation', { name: 'Готовые периоды' }).getByRole('link', { name: 'Месяц' }) with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'Готовые периоды' }).getByRole('link', { name: 'Месяц' })
+
+
+      77 |   await expect(
+      78 |     page.getByRole('navigation', { name: 'Готовые периоды' }).getByRole('link', { name: 'Месяц' }),
+    > 79 |   ).toHaveAttribute('aria-current', 'page');
+         |     ^
+      80 |   await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible();
+      81 |   await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
+      82 |   await expect(page.getByTestId('period-caption')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/design-refresh.spec.ts:79:5
+
+    Error Context: test-results/design-refresh-финансы-за--16d0d-месяц-целиком-в-«Аналитике»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-refresh-финансы-за--16d0d-месяц-целиком-в-«Аналитике»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-refresh-финансы-за--16d0d-месяц-целиком-в-«Аналитике»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-f1.spec.ts:222:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:3100/finance?from=2026-10-04&to=2026-10-09#charges
+    Call log:
+      - navigating to "http://127.0.0.1:3100/finance?from=2026-10-04&to=2026-10-09#charges", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:111:30)
+        at /home/user/wetop.ai/tests/ui/finance-f1.spec.ts:228:14
+
+    Error Context: test-results/finance-f1-F1-«только-чтен-3477b--виден-«Принять-оплату»-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-«только-чтен-3477b--виден-«Принять-оплату»-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-«только-чтен-3477b--виден-«Принять-оплату»-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/owner-dashboard-interactions.spec.ts:62:1 › slow inventory keeps daily events usable and shows a stable loading card 
+
+    TypeError: Cannot read properties of null (reading 'height')
+
+      76 |   await expect(loading).toBeVisible({ timeout: 2000 });
+      77 |   const box = await loading.locator('..').boundingBox();
+    > 78 |   expect(Math.abs(box!.height - ready!.height)).toBeLessThan(24);
+         |                        ^
+      79 |   await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible({
+      80 |     timeout: 2000,
+      81 |   });
+        at /home/user/wetop.ai/tests/ui/owner-dashboard-interactions.spec.ts:78:24
+
+    Error Context: test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/today-operations.spec.ts:33:1 › события дня совпадают с /desk/today и не зависят от периода кассы 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'Сегодня', exact: true }).getByRole('link', { name: /Выезды/ })
+    Expected substring: "2"
+    Received string:    "Выезды1"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('region', { name: 'Сегодня', exact: true }).getByRole('link', { name: /Выезды/ }) with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Сегодня', exact: true }).getByRole('link', { name: /Выезды/ })
+        33 × locator resolved to <a href="/reservations?departure=2026-10-09">…</a>
+           - unexpected value "Выезды1"
+
+
+      38 |     String(d.arrivals.length),
+      39 |   );
+    > 40 |   await expect(today.getByRole('link', { name: /Выезды/ })).toContainText(
+         |                                                             ^
+      41 |     String(d.departures.length),
+      42 |   );
+      43 |   await expect(page.getByTestId('c-debt')).toContainText(tenge(d.debtMinor));
+        at /home/user/wetop.ai/tests/ui/today-operations.spec.ts:40:61
+
+    Error Context: test-results/today-operations-события-д-ba591-не-зависят-от-периода-кассы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-operations-события-д-ba591-не-зависят-от-периода-кассы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-operations-события-д-ba591-не-зависят-от-периода-кассы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/design-refresh.spec.ts:72:1 › финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике» 
+    tests/ui/finance-f1.spec.ts:222:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет 
+    tests/ui/owner-dashboard-interactions.spec.ts:62:1 › slow inventory keeps daily events usable and shows a stable loading card 
+    tests/ui/today-operations.spec.ts:33:1 › события дня совпадают с /desk/today и не зависят от периода кассы 
+  93 passed (3.3m)
+
+# код выхода 1 · 3 мин 20 с

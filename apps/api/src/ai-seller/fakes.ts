@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { assistant } from '@pms/integrations';
 import { DEFAULT_SELLER_PROFILE } from '@pms/domain';
 import type { ExtensionAccess, SellerFactsSource, SellerProfileInput } from '@pms/domain';
@@ -25,6 +26,7 @@ import {
 
 /** Подставной продавец для тестов раздела: запоминает вызовы, отвечает заданным или падает заданной ошибкой */
 export class FakeSeller implements SellerPort {
+  telegram(orgId: string, action: string, body?: unknown) { return this.call('telegram', orgId, action, body); }
   calls: Array<{ op: string; args: unknown[] }> = [];
   failWith: Error | null = null;
   /** Отказ одного вызова (`putProfile`, `putFacts`…) — остальные отвечают как обычно */
@@ -53,6 +55,12 @@ export class FakeSeller implements SellerPort {
   close(id: string) {
     return this.call('close', id);
   }
+  handling(id: string, body: Record<string, unknown>) {
+    return this.call('handling', id, body);
+  }
+  addNote(id: string, body: Record<string, unknown>) {
+    return this.call('addNote', id, body);
+  }
   reply(id: string, text: string) {
     return this.call('reply', id, text);
   }
@@ -62,8 +70,8 @@ export class FakeSeller implements SellerPort {
   uploadKnowledge(file: { name: string; type: string; data: Uint8Array }) {
     return this.call('uploadKnowledge', file);
   }
-  summary() {
-    return this.call('summary');
+  summary(excludeSandbox?: boolean) {
+    return this.call('summary', excludeSandbox);
   }
   sandbox(input: { externalId: string; text: string }) {
     return this.call('sandbox', input);
@@ -196,9 +204,25 @@ export class FakeOrgs implements SellerOrgsRepository {
   async hostsForAgent(scope: SellerAgentScope): Promise<string[]> {
     return this.agentHosts.get(scope.agentId) ?? [];
   }
+  userLabels = new Map<string, string>();
+  async userLabel(userId: string): Promise<string | null> {
+    return this.userLabels.get(userId) ?? null;
+  }
 }
 
 export class FakeProfiles implements SellerProfilesRepository {
+  versions: Array<{ id: string; agentId: string; text: string; createdAt: Date; author: string | null }> = [];
+  async promptVersions(agentId: string, limit: number) {
+    return this.versions
+      .filter((v) => v.agentId === agentId)
+      .slice()
+      .reverse()
+      .slice(0, limit)
+      .map((v) => ({ id: v.id, length: v.text.length, preview: v.text.slice(0, 120), createdAt: v.createdAt, author: v.author }));
+  }
+  async promptVersionText(agentId: string, versionId: string) {
+    return this.versions.find((v) => v.agentId === agentId && v.id === versionId)?.text ?? null;
+  }
   /** Ключ — идентификатор АГЕНТА (SA2.5); у перенесённого продавца он равен организации */
   rows = new Map<string, SellerProfileRow>();
   audits: Array<{ organizationId: string; agentId: string; before: unknown; after: unknown }> = [];
@@ -240,6 +264,8 @@ export class FakeProfiles implements SellerProfilesRepository {
   ): Promise<SellerProfileRow> {
     const { agentId, organizationId } = scope;
     const before = this.rows.get(agentId) ?? null;
+    if (before?.promptText !== text)
+      this.versions.push({ id: randomUUID(), agentId, text, createdAt: now, author: userId ? 'Автор' : null });
     const row: SellerProfileRow = {
       ...(before ?? {
         ...DEFAULT_SELLER_PROFILE,

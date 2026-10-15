@@ -1,0 +1,43 @@
+# Модульные (unit) · 03.10.2026 18:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 481b537 (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T13-16-48Z-unit-1f0c.json' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8
+
+ ❯ |unit| tests/unit/ui-fixture-address.test.ts (2 tests | 1 failed) 49ms
+   ❯ адрес подставного API в наборе UI (2)
+     × ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API 47ms
+     ✓ FIXTURE_API берёт адрес из UI_FIXTURE_API, а 4311 оставляет умолчанием 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ui-fixture-address.test.ts > адрес подставного API в наборе UI > ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API
+AssertionError: expected [ 'rates-range.spec.ts' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "rates-range.spec.ts",
++ ]
+
+ ❯ tests/unit/ui-fixture-address.test.ts:30:41
+     28| describe('адрес подставного API в наборе UI', () => {
+     29|   it('ни один спек не зашивает адрес стенда: он приходит из FIXTURE_AP…
+     30|     expect(specsWithHardcodedAddress()).toEqual([]);
+       |                                         ^
+     31|   });
+     32|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  06:16:51
+   Duration  142ms (tests 69%, transform 19%, import 9%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T13-16-48Z-unit-1f0c.json
+
+# код выхода 1 · 3 с

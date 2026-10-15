@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, FIXTURE_API, test, type Page, sideNav } from './fixtures';
 
 /**
  * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; приёмка §4.4; макет владельца 26.09.2026 — ADR-097), браузер →
@@ -6,7 +6,8 @@ import { expect, test, type Page } from './fixtures';
  * серверных действий стойки, а не правил API — те закрыты тестами контроллера (`apps/api/src/ai-seller`) и бота
  * (`apps/ai-seller/tests/test_seller_prompt_text.py`). Гости и переписка — вымышленные (ADR-010).
  */
-const API = 'http://127.0.0.1:4311';
+// адрес своего стенда: при занятом 4311 его даёт `UI_FIXTURE_API` (иначе запросы спека уедут в чужой прогон)
+const API = FIXTURE_API;
 // адреса продавца синтетический API отдаёт только прогону тестов
 const TEST_CLIENT = { 'x-wetop-test-client': '1' };
 const DIALOG = '3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c';
@@ -16,6 +17,26 @@ test.beforeEach(async ({ request }) => {
 });
 
 const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инструкция продавцу' });
+/** Степпер «Настройки» продавца: панели шагов скрыты, перед работой с панелью открываем её шаг */
+const openStep = async (
+  page: Page,
+  name: 'Объект' | 'Инструкция' | 'Подключения' | 'Проверка' | 'Готовность',
+) => {
+  const setup = page.locator('.seller-setup-disclosure');
+  if ((await setup.count()) && (await setup.getAttribute('open')) === null) await setup.locator(':scope > summary').click();
+  const button = page
+    .getByRole('main')
+    .locator('.seller-wizard__steps')
+    .getByRole('button', { name });
+  // /ai-seller стримится: клик до гидрации теряется — повторяем, пока шаг не станет текущим
+  await expect(async () => {
+    if ((await button.getAttribute('aria-current')) !== 'step') await button.click();
+    expect(await button.getAttribute('aria-current')).toBe('step');
+  }).toPass({ timeout: 15_000 });
+};
+/** Раскрывашка «Подключений» (1. Модель ИИ … 4. Чат на сайте): открыть группу по названию */
+const openConnection = (page: Page, name: string) =>
+  page.locator('.seller-connection-steps > details > summary').filter({ hasText: name }).click();
 /**
  * Набирать в окно инструкции — только после того, как React его оживил (гидратация). Раньше `fill` гонится с ней:
  * React 19, оживляя `<textarea>`, заново ставит ей текст по умолчанию (`initTextarea` в react-dom) — выделение слетает в
@@ -25,42 +46,59 @@ const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инст�
  * на коде до правок ролей (`24a66cbf`).
  */
 const fillInstruction = async (page: Page, text: string) => {
+  await openStep(page, 'Инструкция');
   const hydrated = () =>
-    instruction(page).evaluate((node) => Object.keys(node).some((key) => key.startsWith('__reactProps$')));
+    instruction(page).evaluate((node) =>
+      Object.keys(node).some((key) => key.startsWith('__reactProps$')),
+    );
   await expect.poll(hydrated).toBe(true);
   await instruction(page).fill(text);
 };
 const saveInstruction = (page: Page) => page.getByTestId('seller-prompt-save').click();
 const ask = async (page: Page, text: string) => {
+  await openStep(page, 'Проверка');
   await page.getByTestId('sandbox-text').fill(text);
   await page.getByTestId('sandbox-send').click();
 };
 
-test('раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска', async ({ page }) => {
+test('раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска', async ({
+  page,
+}) => {
   // пункт меню — у вошедшего, чья организация с расширением (ADR-083; без входа — tests/ui/platform-access.spec.ts)
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
   await page.goto('/ai-seller');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
-  // меню раскрывает группу текущего раздела и подсвечивает его (DESIGN.md §8, боковое меню)
-  const sidebar = page.locator('.workspace-sidebar');
-  await expect(sidebar.getByRole('button', { name: 'Продажи', exact: true })).toHaveAttribute(
-    'aria-expanded',
-    'true',
+  // текущий раздел на кнопке левого меню, пункт помечен текущим (ADR-161)
+  await expect(sideNav(page).locator('.sidenav__current')).toHaveText('Продажи');
+  await expect(sideNav(page).locator('.sidenav__items [aria-current="page"]')).toHaveText(
+    'ИИ-продавцы',
   );
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('ИИ-агенты');
   const tabs = page.getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link');
-  await expect(tabs).toHaveText(['Настройка', 'Диалоги', 'Знания', 'Подключения']);
+  await expect(tabs).toHaveText([
+    'Обзор',
+    'Настройка',
+    'Диалоги',
+    'Знания',
+    'Подключения',
+    'Сценарии',
+    'Аналитика',
+  ]);
   await expect(page.getByTestId('seller-state')).toContainText('Продавец ещё не настроен');
   // вместо семи бейджей «не заполнено» — только то, что осталось, и куда идти (макет владельца 26.09.2026)
   await expect(page.getByTestId('seller-checklist')).toContainText('До запуска — 2 шага');
   await expect(page.getByTestId('seller-checklist-connect')).toHaveCount(0);
+  // список «До запуска» стоит на шаге «Готовность» степпера
+  await openStep(page, 'Готовность');
   const model = page.getByTestId('seller-checklist-model');
   await expect(model).toHaveAttribute('data-state', 'todo');
-  await expect(model.getByRole('link', { name: 'Вставить ключ' })).toHaveAttribute('href', '/ai-seller/connections');
+  await expect(model.getByRole('link', { name: 'Вставить ключ' })).toHaveAttribute(
+    'href',
+    '/ai-seller/connections',
+  );
   await expect(page.getByTestId('seller-checklist-prompt')).toHaveAttribute('data-state', 'todo');
   // языка, имени и приветствия отдельными полями нет: всё — в одном окне инструкции (решение владельца)
   await expect(page.getByLabel('Имя бота')).toHaveCount(0);
@@ -75,6 +113,7 @@ test('одно окно: «Сохранить и применить» — сле
   await expect(page.getByTestId('sandbox-history')).toContainText('Чем могу вам помочь?');
 
   // пустое окно — не пустое: черновик общего тона и цели, владелец правит его своими словами
+  await openStep(page, 'Инструкция');
   await expect(instruction(page)).toHaveValue(/Разговор по шагам/);
   await fillInstruction(
     page,
@@ -86,7 +125,10 @@ test('одно окно: «Сохранить и применить» — сле
   );
   await expect(instruction(page)).toHaveValue(/Парковки нет, рядом городская\./);
   await expect(page.getByTestId('seller-prompt-state')).toContainText('Применено');
-  await expect(page.getByTestId('seller-state')).toContainText('Продавец работает с текущими настройками');
+  // слова метки обновлены доводкой настройки (260ba7b): «настройки применены»
+  await expect(page.getByTestId('seller-state')).toContainText(
+    'Инструкция и данные переданы продавцу',
+  );
   await expect(page.getByTestId('seller-checklist-prompt')).toHaveAttribute('data-state', 'done');
   await expect(page.getByTestId('seller-checklist')).toContainText('До запуска — 1 шаг');
 
@@ -98,7 +140,9 @@ test('черновик собирает ответы, сохранённые п�
   page,
   request,
 }) => {
-  const saved = (await (await request.get(`${API}/ai-seller/profile`, { headers: TEST_CLIENT })).json()) as {
+  const saved = (await (
+    await request.get(`${API}/ai-seller/profile`, { headers: TEST_CLIENT })
+  ).json()) as {
     profile: object;
   };
   const put = await request.put(`${API}/ai-seller/profile`, {
@@ -112,9 +156,12 @@ test('черновик собирает ответы, сохранённые п�
   });
   expect(put.ok()).toBe(true);
   await page.goto('/ai-seller');
+  await openStep(page, 'Инструкция');
   await expect(instruction(page)).toHaveValue(/Тебя зовут Айгерим\./);
   await expect(instruction(page)).toHaveValue(/Тишина после 23:00/);
-  await expect(instruction(page)).toHaveValue(/Есть ли парковка\? → Парковки нет, рядом городская\./);
+  await expect(instruction(page)).toHaveValue(
+    /Есть ли парковка\? → Парковки нет, рядом городская\./,
+  );
   // сохранено полями, но инструкцией не применено — шаг не сделан
   await expect(page.getByTestId('seller-checklist-prompt')).toHaveAttribute('data-state', 'todo');
 });
@@ -131,7 +178,9 @@ test('скрытая инструкция в тексте: продавец не
   );
   await expect(instruction(page)).toHaveValue(text);
   await expect(page.getByTestId('seller-state')).toContainText('Продавец отклонил правки');
-  await expect(page.getByTestId('seller-state-reason')).toContainText('нажмите «Сохранить и применить»');
+  await expect(page.getByTestId('seller-state-reason')).toContainText(
+    'нажмите «Сохранить и применить»',
+  );
 });
 
 test('продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4)', async ({
@@ -142,23 +191,32 @@ test('продавец не подключён — чек-лист зовёт п
   await page.goto('/ai-seller');
   await expect(page.getByTestId('seller-state')).toContainText('не подключён');
   await expect(page.getByTestId('seller-checklist-connect')).toHaveAttribute('data-state', 'todo');
-  await expect(page.getByTestId('seller-check')).toContainText('Проверка заработает, когда продавец будет подключён');
+  await expect(page.getByTestId('seller-check')).toContainText(
+    'Проверка заработает, когда продавец будет подключён',
+  );
   await fillInstruction(page, 'Отвечай на «вы», коротко.');
   await saveInstruction(page);
   await expect(page.getByTestId('seller-prompt-warning')).toHaveText(
     'Инструкция сохранена. Продавец ещё не подключён — он получит её при подключении.',
   );
   await expect(instruction(page)).toHaveValue('Отвечай на «вы», коротко.');
-  await expect(page.getByTestId('seller-prompt-state')).toHaveText('Сохранено, но ещё не у продавца');
+  await expect(page.getByTestId('seller-prompt-state')).toHaveText(
+    'Сохранено, но ещё не у продавца',
+  );
 
   await page.goto('/ai-seller/knowledge');
-  await expect(page.getByTestId('seller-not-ready')).toContainText('Документы появятся, когда продавец будет подключён');
+  await expect(page.getByTestId('seller-not-ready')).toContainText(
+    'Документы появятся, когда продавец будет подключён',
+  );
   // данные объекта продавец получит при подключении — их видно и сейчас
   await expect(page.getByTestId('seller-facts')).toContainText('Алматы, ул. Тестовая, 1');
   await page.goto('/ai-seller/dialogs');
-  await expect(page.getByTestId('seller-not-ready')).toContainText('Диалоги появятся, когда продавец будет подключён');
+  await expect(page.getByTestId('seller-not-ready')).toContainText(
+    'Диалоги появятся, когда продавец будет подключён',
+  );
   await page.goto('/ai-seller/connections');
   await expect(page.getByTestId('seller-llm-key-offline')).toBeVisible();
+  await openConnection(page, 'WhatsApp');
   await expect(page.getByTestId('seller-whatsapp-offline')).toBeVisible();
 });
 
@@ -173,10 +231,14 @@ test('продавец недоступен — метка, причина и о
   await expect(reason).toContainText('Повторяем отправку автоматически раз в минуту');
 });
 
-test('продавец отклонил правки — его причина и что делать; повтора не обещаем', async ({ page, request }) => {
+test('продавец отклонил правки — его причина и что делать; повтора не обещаем', async ({
+  page,
+  request,
+}) => {
   await request.post(`${API}/__test/control`, {
     data: {
-      sellerLastError: 'ИИ-продавец отклонил: В тексте найдены инструкции для модели — «Инструкция»',
+      sellerLastError:
+        'ИИ-продавец отклонил: В тексте найдены инструкции для модели — «Инструкция»',
       sellerRetrying: false,
     },
   });
@@ -202,7 +264,9 @@ test('старые адреса вкладок ведут на новые, а н
   }
 });
 
-test('«Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править', async ({ page }) => {
+test('«Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править', async ({
+  page,
+}) => {
   await page.goto('/ai-seller/knowledge');
   await expect(page.getByTestId('seller-knowledge')).toContainText('правила.md');
   // документ, который бот собирает из «Данных объекта», — словами, а не именем файла
@@ -222,7 +286,9 @@ test('«Знания»: документы, загрузка и данные о�
   await expect(facts).toContainText('14:00');
   const table = page.getByRole('region', { name: 'Категории и цены продавца' });
   // одна цена весь срок — её продавец и называет; меняется — «уточнит администратор» (ADR-081, Q-179)
-  await expect(table.getByRole('row', { name: /Двухместный номер/ })).toContainText('15 000 ₸ за ночь за 2 гостей');
+  await expect(table.getByRole('row', { name: /Двухместный номер/ })).toContainText(
+    '15 000 ₸ за ночь за 2 гостей',
+  );
   await expect(table.getByRole('row', { name: /Мужской общий номер/ })).toContainText(
     'уточнит администратор — цена меняется по датам: от 4 500 ₸ до 5 200 ₸',
   );
@@ -230,7 +296,9 @@ test('«Знания»: документы, загрузка и данные о�
     'href',
     '/hotel-settings',
   );
-  await expect(page.getByRole('link', { name: 'Изменить цены в «Тарифах»' })).toHaveAttribute('href', '/rates');
+  await expect(
+    page.getByRole('link', { name: 'Изменить цены в «Категориях номеров»' }),
+  ).toHaveAttribute('href', '/rooms/categories');
 });
 
 test('«Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ', async ({ page }) => {
@@ -239,9 +307,14 @@ test('«Диалоги»: пометка «нужен человек», отбо
   await expect(list.getByRole('row')).toHaveCount(3);
   await expect(list).toContainText('нужен человек');
 
-  await page.getByRole('navigation', { name: 'Отбор диалогов' }).getByRole('link', { name: 'Нужен человек' }).click();
+  await page
+    .getByRole('navigation', { name: 'Отбор диалогов' })
+    .getByRole('link', { name: 'Нужен человек' })
+    .click();
   await expect(page).toHaveURL(/mode=needs_human/);
-  await expect(page.getByRole('region', { name: 'Диалоги продавца' }).getByRole('row')).toHaveCount(2);
+  await expect(page.getByRole('region', { name: 'Диалоги продавца' }).getByRole('row')).toHaveCount(
+    2,
+  );
 
   await page.getByRole('link', { name: 'А***' }).click();
   const card = page.getByTestId('seller-dialog-card');
@@ -261,10 +334,14 @@ test('«Диалоги»: пометка «нужен человек», отбо
   await expect(page.getByTestId('dialog-mode-result')).toContainText('Диалог ваш');
   await expect(page.getByTestId('seller-dialog-mode')).toHaveText('ведёт человек');
 
-  await page.getByTestId('dialog-reply-text').fill('Здравствуйте! Двухместный на эти даты свободен.');
+  await page
+    .getByTestId('dialog-reply-text')
+    .fill('Здравствуйте! Двухместный на эти даты свободен.');
   await page.getByTestId('dialog-reply').click();
   await expect(page.getByTestId('dialog-reply-result')).toHaveText('Ответ отправлен.');
-  await expect(page.getByTestId('seller-dialog-card')).toContainText('Двухместный на эти даты свободен');
+  await expect(page.getByTestId('seller-dialog-card')).toContainText(
+    'Двухместный на эти даты свободен',
+  );
 });
 
 test('карточка диалога по неизвестному id не падает, а говорит словами', async ({ page }) => {
@@ -312,6 +389,7 @@ test('ключ и инструкция у продавца — чек-листа
   await expect(page.getByTestId('seller-prompt-result')).toBeVisible();
   await expect(page.getByTestId('seller-checklist')).toHaveCount(0);
   await expect(page.getByTestId('seller-setup')).toBeVisible();
+  await openStep(page, 'Проверка');
   await expect(page.getByTestId('seller-check')).toBeVisible();
 });
 
@@ -320,6 +398,7 @@ test('«Подключения» → «Код для сайта»: тег с к�
   request,
 }) => {
   await page.goto('/ai-seller/connections');
+  await openConnection(page, 'Чат на сайте');
   await expect(page.getByTestId('seller-embed-snippet')).toHaveText(
     `<script async src="https://seller.example.invalid/widget/widget.js" data-key="sk_${'a1'.repeat(12)}"></script>`,
   );
@@ -336,11 +415,14 @@ test('«Подключения» → «WhatsApp» (С3): проверить, п�
   page,
 }) => {
   await page.goto('/ai-seller/connections');
+  await openConnection(page, 'WhatsApp');
   await expect(page.getByTestId('seller-whatsapp-state')).toContainText('не подключён');
   await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
   await page.getByTestId('seller-whatsapp-token').fill('EAAG-bad-token-16chars');
   await page.getByTestId('seller-whatsapp-check').click();
-  await expect(page.getByTestId('seller-whatsapp-error')).toContainText('Meta не приняла номер или токен');
+  await expect(page.getByTestId('seller-whatsapp-error')).toContainText(
+    'Meta не приняла номер или токен',
+  );
   // после действия форма сбрасывается — заполняем оба поля заново
   await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
   await page.getByTestId('seller-whatsapp-token').fill('EAAG-valid-token-16chars');
@@ -367,6 +449,7 @@ test('снимки экранов раздела', async ({ page }) => {
   // высокое окно вместо склейки страницы: закреплённые меню и шапка на склейке «плывут» посреди снимка
   await page.setViewportSize({ width: 1440, height: 1100 });
   await page.goto('/ai-seller');
+  await openStep(page, 'Готовность');
   await expect(page.getByTestId('seller-checklist')).toBeVisible();
   await page.screenshot({ path: `${dir}/setup-1440.png`, fullPage: false });
   await ask(page, 'Здравствуйте, есть места на выходные?');
@@ -374,6 +457,7 @@ test('снимки экранов раздела', async ({ page }) => {
   await page.screenshot({ path: `${dir}/setup-check-1440.png`, fullPage: false });
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
   await page.goto('/ai-seller');
+  await openStep(page, 'Готовность');
   await expect(page.getByTestId('seller-checklist')).toBeVisible();
   await page.screenshot({ path: `${dir}/setup-1440-dark.png`, fullPage: false });
   await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
@@ -382,6 +466,7 @@ test('снимки экранов раздела', async ({ page }) => {
   await page.screenshot({ path: `${dir}/connections-1440.png`, fullPage: false });
   await page.setViewportSize({ width: 390, height: 1800 });
   await page.goto('/ai-seller');
+  await openStep(page, 'Готовность');
   await expect(page.getByTestId('seller-checklist')).toBeVisible();
   await page.screenshot({ path: `${dir}/setup-390.png`, fullPage: false });
 });
@@ -391,7 +476,7 @@ test('Все агенты возвращает в единый каталог, �
   const back = page.getByRole('link', { name: 'Все агенты', exact: true });
   await expect(back).toHaveAttribute('href', '/ai-agents');
   await back.click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
   await expect(page.getByTestId('agent-seller')).toBeVisible();
 });
 
@@ -402,7 +487,7 @@ test('закрытое расширение: администратор види
   await request.post(`${API}/__test/control`, {
     data: { platformAdmin: true, sellerExtension: 'off' },
   });
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

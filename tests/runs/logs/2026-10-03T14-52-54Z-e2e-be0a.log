@@ -1,0 +1,286 @@
+# Сквозные (e2e) · 03.10.2026 19:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит 34f83c8 (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/booking-dates.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/categories-screens.spec.ts' 'tests/ui/channel-booking-number.spec.ts' 'tests/ui/channex-screens.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/chessboard-gate-pr4.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 29 tests using 1 worker
+
+  ✓   1 tests/ui/booking-dates.spec.ts:9:1 › invalid departure preserves input, marks field and clears price (4.8s)
+  ✓   2 tests/ui/booking-dates.spec.ts:35:1 › equal, empty, later arrival and recovery work on mobile (3.7s)
+  ✓   3 tests/ui/booking-dates.spec.ts:59:1 › pending quote blocks submit and old responses cannot restore old period (7.5s)
+  ✓   4 tests/ui/booking-dates.spec.ts:83:1 › failed quote and availability can be retried without reopening (4.3s)
+  ✘   5 tests/ui/booking-dates.spec.ts:112:1 › calendar and keyboard produce the same period (17.4s)
+  ✓   6 tests/ui/booking-dates.spec.ts:127:1 › occupied selection stays visible and cannot silently become unassigned (2.9s)
+  ✓   7 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (9.4s)
+  ✓   8 tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (16.5s)
+  ✘   9 tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (49.6s)
+  ✓  10 tests/ui/categories-screens.spec.ts:10:1 › categories C1: five Luxx-shaped rows, filters, row menu, long name — light/dark/mobile (10.6s)
+  ✘  11 tests/ui/channel-booking-number.spec.ts:9:1 › новая бронь OTA: канал и номер брони в канале обязательны и уходят в API (45.1s)
+  ✓  12 tests/ui/channex-screens.spec.ts:34:1 › обзор каналов: отчёт по источникам без дубля числа источников и без монограмм (1.9s)
+  ✘  13 tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой (15.8s)
+  ✘  14 tests/ui/channex-screens.spec.ts:108:1 › подключения каналов: настройка подключения только владельцу (16.2s)
+  ✓  15 tests/ui/channex-screens.spec.ts:145:1 › сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N» (7.4s)
+  ✓  16 tests/ui/channex-screens.spec.ts:215:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (5.1s)
+  ✓  17 tests/ui/channex-screens.spec.ts:275:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (5.3s)
+  ✓  18 tests/ui/channex-screens.spec.ts:294:1 › синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями» (3.9s)
+  ✓  19 tests/ui/channex-screens.spec.ts:323:1 › события: фильтры, поиск и постраничность на своей вкладке (13.6s)
+  ✓  20 tests/ui/channex-screens.spec.ts:357:1 › старые адреса /channels с параметрами пульта открывают нужную вкладку (7.9s)
+  ✓  21 tests/ui/channex-screens.spec.ts:366:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (6.6s)
+  ✓  22 tests/ui/channex-screens.spec.ts:415:1 › приём брони: ревизия с двоеточиями в номере открывается (2.4s)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:156:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:58:12)
+[WebServer]   154 |         /* тело не JSON */
+[WebServer]   155 |       }
+[WebServer] > 156 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   157 |   }
+[WebServer]   158 |   return (await res.json()) as T;
+[WebServer]   159 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  23 tests/ui/channex-screens.spec.ts:429:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (3.2s)
+  ✓  24 tests/ui/channex-screens.spec.ts:449:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (17.6s)
+  ✓  25 tests/ui/channex-screens.spec.ts:517:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (20.8s)
+  ✓  26 tests/ui/channex-screens.spec.ts:609:1 › отчёт по источникам и интеграции: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (23.4s)
+  ✘  27 tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview (6.2s)
+  ✓  28 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: light (25.0s)
+  ✓  29 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: dark (24.1s)
+
+
+  1) tests/ui/booking-dates.spec.ts:112:1 › calendar and keyboard produce the same period ──────────
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByTestId('new-reservation-form').getByRole('button', { name: 'Создать бронь', exact: true })
+    Expected: enabled
+    Received: disabled
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeEnabled" getByTestId('new-reservation-form').getByRole('button', { name: 'Создать бронь', exact: true }) with timeout 15000ms
+      - waiting for getByTestId('new-reservation-form').getByRole('button', { name: 'Создать бронь', exact: true })
+        34 × locator resolved to <button disabled class="btn" type="submit">Создать бронь</button>
+           - unexpected value "disabled"
+
+
+      121 |   await form.getByLabel('Выезд', { exact: true }).fill('2026-10-02');
+      122 |   await form.getByLabel('Выезд', { exact: true }).fill('2026-10-04');
+    > 123 |   await expect(form.getByRole('button', { name: 'Создать бронь', exact: true })).toBeEnabled();
+          |                                                                                  ^
+      124 |   await expect(form.locator('.booking-create__price strong')).toHaveText(price);
+      125 | });
+      126 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/booking-dates.spec.ts:123:82
+
+    Error Context: test-results/booking-dates-calendar-and-keyboard-produce-the-same-period/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-dates-calendar-and-keyboard-produce-the-same-period/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-dates-calendar-and-keyboard-produce-the-same-period/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.workspace-header').getByRole('region', { name: 'Выбор филиала' }).getByRole('button', { name: /Филиал Север/ })
+    Expected: "true"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.workspace-header').getByRole('region', { name: 'Выбор филиала' }).getByRole('button', { name: /Филиал Север/ }) with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('region', { name: 'Выбор филиала' }).getByRole('button', { name: /Филиал Север/ })
+
+
+      118 |   await expect(trigger).toContainText('Филиал Север');
+      119 |   await trigger.click();
+    > 120 |   await expect(choices.getByRole('button', { name: /Филиал Север/ })).toHaveAttribute(
+          |                                                                       ^
+      121 |     'aria-pressed',
+      122 |     'true',
+      123 |   );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/branches.spec.ts:120:71
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/channel-booking-number.spec.ts:9:1 › новая бронь OTA: канал и номер брони в канале обязательны и уходят в API 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('new-reservation-form').locator('[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        84 × waiting for element to be visible and enabled
+           - element is not visible
+         - retrying select option action
+           - waiting 500ms
+
+
+      14 |   await page.goto('/reservations/new?unit=M03');
+      15 |   const form = page.getByTestId('new-reservation-form');
+    > 16 |   await form.locator('[name="source"]').selectOption('PHONE');
+         |                                         ^
+      17 |   await expect(form.locator('[name="externalId"]')).toHaveCount(0);
+      18 |   await form.locator('[name="source"]').selectOption('OTA');
+      19 |   await expect(form.getByTestId('channel-number-hint')).toContainText('из экстранета');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/channel-booking-number.spec.ts:16:41
+
+    Error Context: test-results/channel-booking-number-нов-4d484--обязательны-и-уходят-в-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channel-booking-number-нов-4d484--обязательны-и-уходят-в-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channel-booking-number-нов-4d484--обязательны-и-уходят-в-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('navigation', { name: 'Каналы продаж' }).getByRole('link')
+    Timeout: 15000ms
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+        "Обзор",
+    -   "Подключения",
+    +   "Настройка подключения",
+        "Сопоставление",
+        "Синхронизация",
+        "События",
+      ]
+
+    Call log:
+      - Expect "toHaveText" getByRole('navigation', { name: 'Каналы продаж' }).getByRole('link') with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'Каналы продаж' }).getByRole('link')
+        34 × locator resolved to 5 elements
+
+
+      72 |   // вкладки модуля — как у «Настроек гостиницы»
+      73 |   const nav = page.getByRole('navigation', { name: 'Каналы продаж' });
+    > 74 |   await expect(nav.getByRole('link')).toHaveText([
+         |                                       ^
+      75 |     'Обзор',
+      76 |     'Подключения',
+      77 |     'Сопоставление',
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/channex-screens.spec.ts:74:39
+
+    Error Context: test-results/channex-screens-обзор-кана-45d79-ические-детали-раскрывашкой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-обзор-кана-45d79-ические-детали-раскрывашкой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-обзор-кана-45d79-ические-детали-раскрывашкой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/channex-screens.spec.ts:108:1 › подключения каналов: настройка подключения только владельцу 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Подключения"
+    Received: "Подключение каналов"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        - locator resolved to <h1 class="page__title">Каналы продаж</h1>
+        - unexpected value "Каналы продаж"
+        - waiting for "http://127.0.0.1:3100/connections/channex" navigation to finish...
+        - navigated to "http://127.0.0.1:3100/connections/channex"
+        31 × locator resolved to <h1 class="page__title">Подключение каналов</h1>
+           - unexpected value "Подключение каналов"
+
+
+      110 |   await signIn(page);
+      111 |   await page.goto('/channels/connections');
+    > 112 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
+          |                                                         ^
+      113 |   await expect(main).toContainText('Тестовая');
+      114 |   await expect(main.getByTestId('webhook-state')).toContainText('нет PUBLIC_API_URL');
+      115 |   // владелец видит группу «Настройка подключения» с прежними командами в прежнем порядке
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/channex-screens.spec.ts:112:57
+
+    Error Context: test-results/channex-screens-подключени-18423-одключения-только-владельцу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-подключени-18423-одключения-только-владельцу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-подключени-18423-одключения-только-владельцу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 400
+    Received:   327
+
+      11 |   const board = page.getByRole('region', { name: 'Календарь по дням' });
+      12 |   const box = await board.boundingBox();
+    > 13 |   expect(box!.height).toBeGreaterThan(400);
+         |                       ^
+      14 |   expect(await page.evaluate('document.documentElement.scrollHeight <= innerHeight + 1')).toBe(
+      15 |     true,
+      16 |   );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/chessboard-compact-screen.spec.ts:13:23
+
+    Error Context: test-results/chessboard-compact-screen--60848-emembered-category-overview/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-compact-screen--60848-emembered-category-overview/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-compact-screen--60848-emembered-category-overview/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/booking-dates.spec.ts:112:1 › calendar and keyboard produce the same period ───────────
+    tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+    tests/ui/channel-booking-number.spec.ts:9:1 › новая бронь OTA: канал и номер брони в канале обязательны и уходят в API 
+    tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой 
+    tests/ui/channex-screens.spec.ts:108:1 › подключения каналов: настройка подключения только владельцу 
+    tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview 
+  23 passed (6.9m)
+
+# код выхода 1 · 7 мин 1 с

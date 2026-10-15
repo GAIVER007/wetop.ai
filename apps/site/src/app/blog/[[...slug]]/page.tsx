@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Icon } from '../../../components/icon';
+import { JsonLd, breadcrumbLd } from '../../../components/json-ld';
 import { PostCard } from '../../../components/post-card';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
@@ -9,6 +10,7 @@ import { formatPostDate } from '../../../lib/format';
 import { renderMarkdown } from '../../../lib/markdown';
 import { articleOpenGraph, pageMetadata } from '../../../lib/metadata';
 import { getPublishedPost, getPublishedPosts, type Post } from '../../../lib/posts';
+import { absoluteUrl } from '../../../lib/site';
 
 /*
  * Один маршрут на список статей (/blog/) и статью (/blog/<slug>/). При `output: 'export'` Next останавливает сборку,
@@ -93,6 +95,29 @@ function BlogArticle({ post }: { post: Post }) {
   const t = getDictionary();
   return (
     <article className="page article">
+      <JsonLd
+        data={{
+          '@graph': [
+            {
+              '@type': 'BlogPosting',
+              headline: post.title,
+              description: post.description,
+              datePublished: post.date,
+              dateModified: post.date,
+              inLanguage: 'ru',
+              image: absoluteUrl('/og.png'),
+              mainEntityOfPage: absoluteUrl(`/blog/${post.slug}/`),
+              author: { '@id': absoluteUrl('/#organization') },
+              publisher: { '@id': absoluteUrl('/#organization') },
+            },
+            breadcrumbLd([
+              { name: t.meta.siteName, path: '/' },
+              { name: t.blog.title, path: '/blog/' },
+              { name: post.title, path: `/blog/${post.slug}/` },
+            ]),
+          ],
+        }}
+      />
       <div className="container container--narrow">
         <Link className="link-back" href="/blog/">
           <Icon name="arrowLeft" size={18} />

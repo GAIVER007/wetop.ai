@@ -1,0 +1,18 @@
+# Типы (typecheck) · 06.10.2026 15:53 Алматы · vm
+# коммит 84670ec (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 22
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/scope-hardening.test.ts(18,33): error TS2459: Module '"../../apps/api/src/auth/request-context"' declares 'RequestActor' locally, but it is not exported.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 52 с

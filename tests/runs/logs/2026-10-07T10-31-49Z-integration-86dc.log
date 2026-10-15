@@ -1,0 +1,184 @@
+# Интеграционные (integration) · 07.10.2026 15:31 Алматы · vm
+# коммит be399dd (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-31-49Z-integration-86dc.json' 'tests/integration/generation-runs-db.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/generation-runs-db.test.ts (9 tests | 9 failed) 274ms
+   ❯ MKT6 generation_runs: инварианты базы (9)
+     × источник версии: MANUAL без задачи, AI только с задачей, IMPORT закрыт 10ms
+     × AI-версия только от задачи своего сайта; одна задача, одна версия 3ms
+     × новая задача только в QUEUED; запрос повторяется ключом, а не второй строкой 8ms
+     × форма состояния: конечное время, версия и ошибка там, где положено 2ms
+     × переходы: из конечного состояния назад нельзя, мимо RUNNING к успеху нельзя 2ms
+     × версия-результат и базовая версия только своего сайта и своей задачи 2ms
+     × токены: целые, не меньше нуля, кэш внутри входа, сумма только растёт; попыток не больше трёх 2ms
+     × у задачи не меняются сайт, ключ, бриф и автор 2ms
+     × RLS и права: wetop_app видит и ставит задачи только своих сайтов, менять и удалять не может 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/generation-runs-db.test.ts > MKT6 generation_runs: инварианты базы > источник версии: MANUAL без задачи, AI только с задачей, IMPORT закрыт
+error: relation "generation_runs" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/generation-runs-db.test.ts:36:21
+     34|         await sql.query('SAVEPOINT probe');
+     35|         try {
+     36|           const r = await sql.query(q, params);
+       |                     ^
+     37|           await sql.query('RELEASE SAVEPOINT probe');
+     38|           return r;
+ ❯ running tests/integration/generation-runs-db.test.ts:78:16
+ ❯ tests/integration/generation-runs-db.test.ts:117:19
+ ❯ probe tests/integration/generation-runs-db.test.ts:33:7
+ ❯ tests/integration/generation-runs-db.test.ts:116:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |integration| tests/integration/generation-runs-db.test.ts > MKT6 generation_runs: инварианты базы > AI-версия только от задачи своего сайта; одна задача, одна версия
+error: relation "generation_runs" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/generation-runs-db.test.ts:36:21
+     34|         await sql.query('SAVEPOINT probe');
+     35|         try {
+     36|           const r = await sql.query(q, params);
+       |                     ^
+     37|           await sql.query('RELEASE SAVEPOINT probe');
+     38|           return r;
+ ❯ running tests/integration/generation-runs-db.test.ts:78:16
+ ❯ tests/integration/generation-runs-db.test.ts:131:23
+ ❯ probe tests/integration/generation-runs-db.test.ts:33:7
+ ❯ tests/integration/generation-runs-db.test.ts:130:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |integration| tests/integration/generation-runs-db.test.ts > MKT6 generation_runs: инварианты базы > новая задача только в QUEUED; запрос повторяется ключом, а не второй строкой
+AssertionError: expected [Function] to throw error matching /QUEUED/ but got 'relation "generation_runs" does not e…'
+
+- Expected:
+/QUEUED/
+
++ Received:
+"relation \"generation_runs\" does not exist"
+
+ ❯ tests/integration/generation-runs-db.test.ts:145:107
+    143|   it('новая задача только в QUEUED; запрос повторяется ключом, а не вт…
+    144|     await probe(async (attempt) => {
+    145|       await expect(insertRun(attempt, siteA1, { status: 'RUNNING', sta…
+       |                                                                                                           ^
+    146|       const key = randomUUID();
+    147|       await insertRun(attempt, siteA1, { request_key: key });
+ ❯ probe tests/integration/generation-runs-db.test.ts:33:13
+ ❯ tests/integration/generation-runs-db.test.ts:144:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |integration| tests/integration/generation-runs-db.test.ts > MKT6 generation_runs: инварианты базы > форма состояния: конечное время, версия и ошибка там, где положено
+error: relation "generation_runs" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/generation-runs-db.test.ts:36:21
+     34|         await sql.query('SAVEPOINT probe');
+     35|         try {
+     36|           const r = await sql.query(q, params);
+       |                     ^
+     37|           await sql.query('RELEASE SAVEPOINT probe');
+     38|           return r;
+ ❯ running tests/integration/generation-runs-db.test.ts:78:16
+ ❯ tests/integration/generation-runs-db.test.ts:155:19
+ ❯ probe tests/integration/generation-runs-db.test.ts:33:7
+ ❯ tests/integration/generation-runs-db.test.ts:154:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |integration| tests/integration/generation-runs-db.test.ts > MKT6 generation_runs: инварианты базы > переходы: из конечного состояния назад нельзя, мимо RUNNING к успеху нельзя
+error: relation "generation_runs" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/generation-runs-db.test.ts:36:21
+     34|         await sql.query('SAVEPOINT probe');
+     35|         try {
+     36|           const r = await sql.query(q, params);
+       |                     ^
+     37|           await sql.query('RELEASE SAVEPOINT probe');
+     38|           return r;
+ ❯ tests/integration/generation-runs-db.test.ts:173:22
+ ❯ probe tests/integration/generation-runs-db.test.ts:33:7
+ ❯ tests/integration/generation-runs-db.test.ts:172:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |integration| tests/integration/generation-runs-db.test.ts > MKT6 generation_runs: инварианты базы > версия-результат и базовая версия только своего сайта и своей задачи
+error: relation "generation_runs" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/generation-runs-db.test.ts:36:21
+     34|         await sql.query('SAVEPOINT probe');
+     35|         try {
+     36|           const r = await sql.query(q, params);
+       |                     ^
+     37|           await sql.query('RELEASE SAVEPOINT probe');
+     38|           return r;
+ ❯ running tests/integration/generation-runs-db.test.ts:78:16
+ ❯ tests/integration/generation-runs-db.test.ts:193:20
+ ❯ probe tests/integration/generation-runs-db.test.ts:33:7
+ ❯ tests/integration/generation-runs-db.test.ts:192:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |integration| tests/integration/generation-runs-db.test.ts > MKT6 generation_runs: инварианты базы > токены: целые, не меньше нуля, кэш внутри входа, сумма только растёт; попыток не больше трёх
+error: relation "generation_runs" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/generation-runs-db.test.ts:36:21
+     34|         await sql.query('SAVEPOINT probe');
+     35|         try {
+     36|           const r = await sql.query(q, params);
+       |                     ^
+     37|           await sql.query('RELEASE SAVEPOINT probe');
+     38|           return r;
+ ❯ running tests/integration/generation-runs-db.test.ts:78:16
+ ❯ tests/integration/generation-runs-db.test.ts:212:19
+ ❯ probe tests/integration/generation-runs-db.test.ts:33:7
+ ❯ tests/integration/generation-runs-db.test.ts:211:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |integration| tests/integration/generation-runs-db.test.ts > MKT6 generation_runs: инварианты базы > у задачи не меняются сайт, ключ, бриф и автор
+error: relation "generation_runs" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/generation-runs-db.test.ts:36:21
+     34|         await sql.query('SAVEPOINT probe');
+     35|         try {
+     36|           const r = await sql.query(q, params);
+       |                     ^
+     37|           await sql.query('RELEASE SAVEPOINT probe');
+     38|           return r;
+ ❯ running tests/integration/generation-runs-db.test.ts:78:16
+ ❯ tests/integration/generation-runs-db.test.ts:226:19
+ ❯ probe tests/integration/generation-runs-db.test.ts:33:7
+ ❯ tests/integration/generation-runs-db.test.ts:225:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |integration| tests/integration/generation-runs-db.test.ts > MKT6 generation_runs: инварианты базы > RLS и права: wetop_app видит и ставит задачи только своих сайтов, менять и удалять не может
+error: relation "generation_runs" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/generation-runs-db.test.ts:36:21
+     34|         await sql.query('SAVEPOINT probe');
+     35|         try {
+     36|           const r = await sql.query(q, params);
+       |                     ^
+     37|           await sql.query('RELEASE SAVEPOINT probe');
+     38|           return r;
+ ❯ tests/integration/generation-runs-db.test.ts:239:20
+ ❯ probe tests/integration/generation-runs-db.test.ts:33:7
+ ❯ tests/integration/generation-runs-db.test.ts:238:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed (9)
+   Start at  10:31:50
+   Duration  6.55s (transform 70%, import 20%, tests 10%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-31-49Z-integration-86dc.json
+
+# код выхода 1 · 8 с

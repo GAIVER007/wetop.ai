@@ -1,0 +1,46 @@
+# Интеграционные (integration) · 03.10.2026 16:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/team-phone-position), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-44-20Z-integration-1fb8.json' 'tests/integration/manager-role.test.ts' 'tests/integration/rls-credential-grants.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/manager-role.test.ts (8 tests) 450ms
+ ❯ |integration| tests/integration/rls-credential-grants.test.ts (9 tests | 1 failed) 774ms
+   ❯ RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) (9)
+     ✓ password_resets: wetop_app не может ни читать, ни писать 216ms
+     ✓ email_verifications: wetop_app не может ни читать, ни писать 8ms
+     ✓ wizard_sessions: wetop_app не может ни читать, ни писать 411ms
+     ✓ wizard_events: wetop_app не может ни читать, ни писать 79ms
+     ✓ wizard_surveys: wetop_app не может ни читать, ни писать 3ms
+     × memberships: телефон и должность сотрудника (v2.10) wetop_app читает и пишет 5ms
+     ✓ users: только id, email, name, status, email_verified_at, last_login_at и только чтение 23ms
+     ✓ platform_admins: читаются только user_id и revoked_at; писать нельзя — выдать себе права главного администратора нечем 6ms
+     ✓ внешний ключ audit_logs.user_id проверяется и без прав на users: запись журнала под организацией проходит 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > memberships: телефон и должность сотрудника (v2.10) wetop_app читает и пишет
+error: column "phone" of relation "memberships" does not exist
+ ❯ ../../../../../../../Users/vyacheslav/Desktop/Проекты/WETOP/node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/rls-credential-grants.test.ts:90:30
+     88|         for (const column of ['phone', 'position'])
+     89|           for (const privilege of ['SELECT', 'UPDATE']) {
+     90|             const { rows } = await client.query<{ ok: boolean }>(
+       |                              ^
+     91|               `SELECT has_column_privilege('wetop_app', 'memberships',…
+     92|               [column, privilege],
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:87:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 16 passed (17)
+   Start at  04:44:24
+   Duration  3.61s (tests 48%, transform 43%, import 9%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-44-20Z-integration-1fb8.json
+
+# код выхода 1 · 7 с

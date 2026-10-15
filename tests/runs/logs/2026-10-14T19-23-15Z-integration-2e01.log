@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 15.10.2026 00:23 Алматы · MacBook-Air-Urij.local
+# коммит b46db14 (claude/core-01-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-23-15Z-integration-2e01.json' 'tests/integration/core-01-repro.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/core-01
+
+ ✓ |integration| tests/integration/core-01-repro.test.ts (1 test) 399ms
+
+ Test Files  1 passed (1)
+      Tests  1 expected fail (1)
+   Start at  23:23:18
+   Duration  3.02s (transform 52%, import 25%, tests 22%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-23-15Z-integration-2e01.json
+
+# код выхода 0 · 7 с

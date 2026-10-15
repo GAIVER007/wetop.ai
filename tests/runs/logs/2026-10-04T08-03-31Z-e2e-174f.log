@@ -1,0 +1,43 @@
+# Сквозные (e2e) · 04.10.2026 13:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 046a3ed (claude/infallible-blackwell-89a732), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/today-operations.spec.ts' 'tests/ui/today-attention.spec.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/loading-performance.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 26 tests using 1 worker
+
+  ✓   1 tests/ui/dashboard-desk.spec.ts:18:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез (5.6s)
+  ✓   2 tests/ui/dashboard-desk.spec.ts:28:1 › 5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди (4.7s)
+  ✓   3 tests/ui/dashboard-desk.spec.ts:36:1 › 6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка (1.9s)
+  ✓   4 tests/ui/dashboard-desk.spec.ts:45:1 › 7. краткие подписи без декоративных разделителей (1.6s)
+  ✓   5 tests/ui/dashboard-desk.spec.ts:49:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (3.6s)
+  ✓   6 tests/ui/dashboard-desk.spec.ts:83:1 › 9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px (13.0s)
+  ✓   7 tests/ui/dashboard-desk.spec.ts:126:1 › 10. заголовок страницы и панели брони — по шкале §6 (21.8s)
+  ✓   8 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (24.9s)
+  ✓   9 tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (11.9s)
+  ✓  10 tests/ui/loading-performance.spec.ts:48:1 › стойка и её шахматка запрашиваются параллельно (22.1s)
+  ✓  11 tests/ui/loading-performance.spec.ts:73:1 › мобильное меню использует уже загруженную свежесть без второго опроса (14.4s)
+TODAY_LOADING_MS [{"heading":2498,"strip":2498,"desk":2506},{"heading":4486,"strip":4486,"desk":4496},{"heading":3061,"strip":3062,"desk":3063}]
+  ✓  12 tests/ui/loading-performance.spec.ts:97:1 › замер: блоки Главной при задержке настроек 2000 мс (21.3s)
+  ✓  13 tests/ui/loading-performance.spec.ts:127:1 › фоновый опрос не перекрывается и восстанавливается после отказа (3.8s)
+  ✓  14 tests/ui/owner-dashboard.spec.ts:13:1 › owner dashboard: today widgets and money, no desk buttons, no expenses tile (1.7s)
+  ✓  15 tests/ui/owner-dashboard.spec.ts:34:1 › dashboard period changes and mobile retains content (2.6s)
+  ✓  16 tests/ui/owner-dashboard.spec.ts:45:1 › owner dashboard keeps operations visible when finance fails (1.6s)
+  ✓  17 tests/ui/owner-dashboard.spec.ts:57:1 › owner dashboard dark desktop and mobile remain usable (3.9s)
+  ✓  18 tests/ui/today-attention.spec.ts:76:1 › очередь: каждое событие дня с числом, важностью и одним действием; порядок Critical → Warning → Info (3.5s)
+  ✓  19 tests/ui/today-attention.spec.ts:117:1 › незаезд ведёт в бронь, долг — в счёт; брони строками с именем и номером (5.7s)
+  ✓  20 tests/ui/today-attention.spec.ts:136:1 › сторож не ответил — строк инцидентов нет, остальная очередь на месте (3.4s)
+  ✓  21 tests/ui/today-attention.spec.ts:150:1 › финансовый период в будущем не скрывает текущие задачи гостиницы (2.7s)
+  ✓  22 tests/ui/today-attention.spec.ts:163:1 › снимки панелей Главной после редизайна (15.9s)
+  ✓  23 tests/ui/today-operations.spec.ts:52:1 › виджеты дня: загрузка, гости и состояние номеров — числа шахматки и стойки дня (6.2s)
+  ✓  24 tests/ui/today-operations.spec.ts:81:1 › финансовые показатели совпадают с dashboard API и не подменяют расходы нулём (18.6s)
+  ✓  25 tests/ui/today-operations.spec.ts:101:1 › финансы будущего периода не меняют текущую уборку (7.6s)
+  ✓  26 tests/ui/today-operations.spec.ts:107:1 › сбой сторожа не скрывает показатели и действия (12.8s)
+
+  26 passed (4.4m)
+
+# код выхода 0 · 4 мин 30 с

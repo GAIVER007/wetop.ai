@@ -20,7 +20,8 @@ from src.config import get_settings, normalize_bot_role
 
 # С5 (Q-187) добавил четвёртый инструмент — подписку организации
 SUPPORT_TOOLS = ["find_error", "my_recent_errors", "my_subscription", "search_knowledge", "get_requester_context", "get_account_status", "get_permissions", "platform_status", "get_integration_health", "get_reservation_status", "get_workspace_health", "list_capabilities", "propose_action", "confirm_action", "cancel_action", "request_human"]
-SELLER_TOOLS = ["check_availability", "get_price"]
+# ADR-144: у продавца ещё бронь из чата (предложение и оформление после явного «да» гостя)
+SELLER_TOOLS = ["check_availability", "get_price", "book_quote", "book_confirm"]
 
 
 def _engine_of(runner):

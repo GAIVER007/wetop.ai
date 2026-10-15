@@ -11,11 +11,12 @@ const describe = (e: unknown) =>
 
 export async function channelAction(
   kind: 'setup' | 'sync' | 'pull' | 'flush' | 'webhook-register' | 'webhook-test',
+  ratePlanCode?: string,
 ): Promise<ChannelActionResult> {
   try {
     let message: string;
     if (kind === 'setup') {
-      const r = (await channelsApi.setup()) as {
+      const r = (await channelsApi.setup(ratePlanCode)) as {
         created: { property: boolean; roomTypes: number; ratePlans: number };
       };
       message = `Объект ${r.created.property ? 'создан' : 'уже был'}, категорий создано ${r.created.roomTypes}, тарифов ${r.created.ratePlans}`;
@@ -86,7 +87,6 @@ export async function retryEventAction(revisionId: string): Promise<ChannelActio
 function refreshChannelViews() {
   for (const path of [
     '/chessboard',
-    '/today',
     '/management/analytics',
     '/management/analytics/occupancy',
     '/rooms/availability',

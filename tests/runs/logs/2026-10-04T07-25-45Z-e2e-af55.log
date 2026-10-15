@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 04.10.2026 12:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/requests.spec.ts' '--workers=1'
+[WebServer] [Nest] 60696  - 10/04/2026, 12:25:48 AM   ERROR [ExceptionHandler] Error: DATABASE_URL is not set
+[WebServer]     at createPrismaClient (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/packages/database/src/index.ts:38:11)
+[WebServer]     at new PrismaService (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/apps/api/src/database/prisma.provider.ts:42:11)
+[WebServer]     at Injector.instantiateClass (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/node_modules/@nestjs/core/injector/injector.js:439:19)
+[WebServer]     at callback (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/node_modules/@nestjs/core/injector/injector.js:69:45)
+[WebServer]     at async Injector.resolveConstructorParams (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/node_modules/@nestjs/core/injector/injector.js:182:24)
+[WebServer]     at async Injector.loadInstance (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/node_modules/@nestjs/core/injector/injector.js:75:13)
+[WebServer]     at async Injector.loadProvider (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/node_modules/@nestjs/core/injector/injector.js:109:9)
+[WebServer]     at async file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/node_modules/@nestjs/core/injector/instance-loader.js:57:13
+[WebServer]     at async Promise.all (index 5)
+[WebServer]     at async InstanceLoader.createInstancesOfProviders (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/node_modules/@nestjs/core/injector/instance-loader.js:56:9)
+[WebServer] npm error Lifecycle script `start` failed with error:
+[WebServer] npm error code 1
+[WebServer] npm error path /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/***/scratchpad/wt-nights/apps/api
+[WebServer] npm error workspace @pms/api@0.0.0
+[WebServer] npm error location /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/***/scratchpad/wt-nights/apps/api
+[WebServer] npm error command failed
+[WebServer] npm error command sh -c tsx src/main.ts
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 3 с

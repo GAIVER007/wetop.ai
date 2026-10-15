@@ -1,0 +1,88 @@
+# Модульные (unit) · 04.10.2026 00:41 Алматы · vm
+# коммит ba73071 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-41-33Z-unit-5c84.json' 'apps/api/src/finance/finance.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/finance/finance.controller.test.ts (29 tests | 2 failed) 524ms
+   ❯ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (16)
+     × id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026) 55ms
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 12ms
+     ✓ REP2: отчёт по услугам — свод по услуге, «вручную» одной строкой, крупные первыми, итог равен строке SERVICE сводки; неверный период → 400 15ms
+     ✓ T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400 13ms
+     ✓ ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, просроченные отдельно (Q-207); неверный период → 400 15ms
+     ✓ ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400 21ms
+     × DATA_MODEL §25: чек по запросу — номер у платежа в счёте, пустой номер 400, чужой платёж 404, повтор 409 6ms
+     ✓ charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 33ms
+     ✓ payment: 9 methods, allocations must sum to the amount, folios must exist and share the currency 16ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются 6ms
+     ✓ refund: only from a payment that was allocated to this folio, not more than allocated − refunded 11ms
+     ✓ ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей 17ms
+     ✓ ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать 10ms
+     ✓ ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Legacy; занятая койка — отказ без начисления 8ms
+     ✓ void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand 9ms
+     ✓ Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся 4ms
+   ✓ роли в деньгах: возврат, сторно и уменьшение счёта — владелец и управляющий (ADR-107) (3)
+     ✓ администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт 15ms
+     ✓ управляющий и владелец возвращают, сторнируют и уменьшают счёт 18ms
+     ✓ отчёт за период администратор смотрит 2ms
+   ✓ касса: остатки, операции, переводы, статьи (DATA_MODEL §21) (7)
+     ✓ остатки по способам: оплаты гостей − возвраты + касса; плитки по умолчанию видны при нуле 11ms
+     ✓ проверки операции: вид, сумма, способ не из кассы, статья другого вида, перевод не этим маршрутом 10ms
+     ✓ перевод: из способа в способ, комиссия процентом — связанный расход со статьёй «Комиссия банка» 7ms
+     ✓ статья «Комиссия банка» выключена и статья комиссии не указана — 400 словами 2ms
+     ✓ аннулирование: комиссия снимается с основной; повтор — 409; комиссию отдельно — 409 10ms
+     ✓ статьи: стартовый набор в ответе кассы, добавление, дубль — 400, выключение, неизвестная — 404 11ms
+     ✓ лента операций: source — только RESERVATIONS или CASH, новые типы в type 5ms
+   ✓ сверка наличных (§21.4, K4) (3)
+     ✓ недостача с поправкой: запись сверки, расход «Недостача кассы», остаток равен пересчитанному 5ms
+     ✓ излишек без галочки — остаток не меняется; совпало — поправки нет; GET /finance/cash отдаёт сверку 7ms
+     ✓ проверки: отрицательная сумма, не-кассовый способ, не число — 400; способ по умолчанию — наличные 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026)
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:602:70
+    600|       await http().post(`/finance/charges/${bad}/void`).expect(400);
+    601|       await http().post(`/finance/payments/${bad}/refunds`).send({}).e…
+    602|       await http().post(`/finance/payments/${bad}/receipt`).send({}).e…
+       |                                                                      ^
+    603|     }
+    604|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > DATA_MODEL §25: чек по запросу — номер у платежа в счёте, пустой номер 400, чужой платёж 404, повтор 409
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:859:88
+    857|     expect(pay.ok).toBe(true);
+    858|     const paymentId = (await fakes.repo.foliosByReservation('B-1'))![0…
+    859|     await http().post(`/finance/payments/${paymentId}/receipt`).send({…
+       |                                                                                        ^
+    860|     await http()
+    861|       .post('/finance/payments/00000000-0000-4000-8b00-999999999999/re…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 27 passed (29)
+   Start at  19:41:34
+   Duration  2.81s (transform 60%, import 20%, tests 20%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-41-33Z-unit-5c84.json
+
+# код выхода 1 · 4 с

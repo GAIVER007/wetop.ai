@@ -1,0 +1,112 @@
+# Типы (typecheck) · 04.10.2026 13:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5b4c4de (claude/ui-stale-specs-2026-10-03)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/.next-ui/dev/types/routes.d.ts(88,23): error TS1002: Unterminated string literal.
+apps/web/.next-ui/dev/types/routes.d.ts(89,15): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(90,21): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(91,19): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(92,28): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(92,40): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(93,16): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(94,19): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(95,12): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(96,20): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(97,21): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(98,21): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(99,14): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(100,21): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(101,29): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(101,43): error TS1109: Expression expected.
+apps/web/.next-ui/dev/types/routes.d.ts(101,52): error TS1011: An element access expression should take an argument.
+apps/web/.next-ui/dev/types/routes.d.ts(102,34): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(102,50): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(103,16): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(104,17): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(105,25): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(106,12): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(107,19): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(108,13): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(109,20): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(110,26): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(111,29): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(112,12): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(113,17): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(113,25): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(114,25): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(114,33): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(115,22): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(116,35): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(116,49): error TS1109: Expression expected.
+apps/web/.next-ui/dev/types/routes.d.ts(116,58): error TS1011: An element access expression should take an argument.
+apps/web/.next-ui/dev/types/routes.d.ts(117,15): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(118,15): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(119,20): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(119,31): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(120,13): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(121,11): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(122,23): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(123,17): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(124,24): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(125,18): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(126,31): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(126,45): error TS1109: Expression expected.
+apps/web/.next-ui/dev/types/routes.d.ts(126,54): error TS1011: An element access expression should take an argument.
+apps/web/.next-ui/dev/types/routes.d.ts(127,26): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(128,35): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(129,42): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(130,36): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(131,32): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(132,12): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(133,16): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(134,14): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(135,37): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(135,51): error TS1109: Expression expected.
+apps/web/.next-ui/dev/types/routes.d.ts(135,60): error TS1011: An element access expression should take an argument.
+apps/web/.next-ui/dev/types/routes.d.ts(136,13): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(137,20): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(138,11): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(139,17): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(140,17): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(141,14): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(142,13): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(143,22): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(144,19): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(145,18): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(146,27): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(146,39): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(147,33): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(147,45): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(148,42): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(148,54): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(149,41): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(149,53): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(150,25): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(151,22): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(152,26): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(152,40): error TS1109: Expression expected.
+apps/web/.next-ui/dev/types/routes.d.ts(152,49): error TS1011: An element access expression should take an argument.
+apps/web/.next-ui/dev/types/routes.d.ts(153,11): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(154,12): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(155,10): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(156,11): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(157,18): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(157,28): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(158,13): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(159,23): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(160,21): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(161,22): error TS1005: ';' expected.
+apps/web/.next-ui/dev/types/routes.d.ts(162,1): error TS1128: Declaration or statement expected.
+
+# код выхода 1 · 17 с

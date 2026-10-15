@@ -1,0 +1,55 @@
+# Модульные (unit) · 03.10.2026 18:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит cebc3d2 (claude/birthdays), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T13-49-53Z-unit-31da.json' 'apps/api/src/guests/guests.controller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ❯ |unit| apps/api/src/guests/guests.controller.test.ts (16 tests | 1 failed) 461ms
+   ❯ guests API (16)
+     × дни рождения: гости с днём рождения в окне, по порядку дат, с возрастом (Q-249 T0) 55ms
+     ✓ id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026) 28ms
+     ✓ search by last name or phone digits; too short query → 400 3ms
+     ✓ directory: одна строка — один гость, состояние вычислено, счётчики разделов и раздел-фильтр 52ms
+     ✓ preview (G3): контакты, состояние, ночи, номер брони и долг; без документов и журнала; 404 чужому 2ms
+     ✓ directory: границы параметров — 400 словами 3ms
+     ✓ directory G7: отборы визита, числа визитов, порядок и раздел NONE доходят до выборки 5ms
+     ✓ update validates citizenship as alpha-3, audits field names only 2ms
+     ✓ citizenship is trimmed: spaces around the code are dropped, blank-only is null on save and on read 2ms
+     ✓ text fields: blank-only is null for optional ones and 400 for required names — never an empty string 2ms
+     ✓ documents: stored encrypted, shown masked; 503 without the encryption key; delete 13ms
+     ✓ SECURITY.md §1: каждый просмотр карточки с документом пишется в журнал; без документов — нет 2ms
+     ✓ пока база не в Казахстане (PII_STORAGE не real, ADR-072) (4)
+       ✓ новое имя, телефон, почта, дата рождения и заметки — 422 с объяснением; ничего не записано 4ms
+       ✓ гражданство и пол меняются; тот же профиль целиком и стирание контакта — тоже 2ms
+       ✓ документ не принимается — 422, номер никуда не записан; удалить старый можно 2ms
+       ✓ GET /system/pii-storage говорит стойке режим заранее 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/guests/guests.controller.test.ts > guests API > дни рождения: гости с днём рождения в окне, по порядку дат, с возрастом (Q-249 T0)
+Error: expected 200 "OK", got 400 "Bad Request"
+ ❯ apps/api/src/guests/guests.controller.test.ts:235:8
+    233|     const res = await request(app.getHttpServer())
+    234|       .get('/guests/birthdays?from=2026-10-03&days=7')
+    235|       .expect(200);
+       |        ^
+    236|     expect(res.body).toEqual([
+    237|       { id: b!.id, firstName: b!.firstName, lastName: b!.lastName, dat…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  06:50:02
+   Duration  4.79s (import 71%, transform 18%, tests 10%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T13-49-53Z-unit-31da.json
+
+# код выхода 1 · 15 с

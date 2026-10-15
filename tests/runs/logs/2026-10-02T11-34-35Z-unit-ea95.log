@@ -1,0 +1,17 @@
+# Модульные (unit) · 02.10.2026 16:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 042c413 (main), незакоммиченных файлов набора: 21
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-34-35Z-unit-ea95.json' 'apps/api/src/finance/finance.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (24 tests) 167ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 16ms
+
+ Test Files  2 passed (2)
+      Tests  26 passed (26)
+   Start at  04:34:36
+   Duration  1.11s (transform 49%, import 41%, tests 9%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-34-35Z-unit-ea95.json
+
+# код выхода 0 · 2 с

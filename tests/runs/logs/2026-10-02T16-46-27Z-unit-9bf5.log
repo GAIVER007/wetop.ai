@@ -1,0 +1,303 @@
+# Модульные (unit) · 02.10.2026 21:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит f6c18e5 (main), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T16-46-27Z-unit-9bf5.json' 'apps/api/src/platform/support.queue.test.ts' 'apps/api/src/platform/support.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/api/src/platform/support.queue.test.ts (19 tests | 19 failed) 7ms
+   ❯ категория обращения (15)
+     × «Хочу вернуть деньги за подписку» → payment 2ms
+     × «Списали дважды за тариф» → payment 0ms
+     × «Ошибка при оплате картой» → payment 0ms
+     × «Не могу войти в кабинет» → access 0ms
+     × «Сотруднику не выдаются права на финансы» → access 0ms
+     × «Не сохраняется бронь, пишет ошибку» → error 0ms
+     × «Шахматка не открывается, всё зависает» → error 0ms
+     × «500 на странице тарифов» → error 0ms
+     × «Как завести койко-место?» → platform 0ms
+     × «Где посмотреть долги по броням» → platform 0ms
+     × «Подскажите про выгрузку в каналы» → platform 0ms
+     × «Спасибо» → other 0ms
+     × «» → other 0ms
+     × категорий ровно пять и «другое» — последняя 1ms
+     × без сообщений пользователя — «другое», а не догадка по ответу помощника 0ms
+   ❯ строка очереди (2)
+     × категория берётся из первого сообщения пользователя, а не из последнего 1ms
+     × старый бот поля не отдаёт — строка встаёт в «другое», а не роняет очередь 0ms
+   ❯ числа и отбор по категории (2)
+     × числа считаются по строкам выбранного статуса — столько же, сколько покажет отбор 0ms
+     × отбор «все» строк не трогает, чужая категория — пусто 0ms
+ ❯ |unit| apps/api/src/platform/support.controller.test.ts (20 tests | 3 failed) 801ms
+   ✓ только главный администратор (2)
+     ✓ владелец организации получает 403 на всё, помощника не спрашиваем 169ms
+     ✓ служебный ключ раздел не открывает: он не человек и не главный администратор 2ms
+   ✓ помощник не подключён (2)
+     ✓ состояние так и говорит; остальное — 503 словами, без вызова помощника 7ms
+     ✓ подключён — «ready», и ни адреса, ни ключа помощника в ответе 2ms
+   ✓ диалоги (4)
+     ✓ список: отбор уходит помощнику, ответ — в словах стойки 8ms
+     ✓ карточка: кто пишет — почта, организация названием и роль из подписи стойки 4ms
+     ✓ карточка анонимного посетителя wetop.ai — «кто пишет» пусто, организацию не ищем 5ms
+     ✓ перехват, ответ, возврат — помощнику и в журнал; текста ответа в журнале нет 10ms
+   ✓ знания, сводка и отказы помощника (3)
+     ✓ знания: список и загрузка файлом; не тот формат — 415 без вызова; загрузка — в журнал 12ms
+     ✓ сводка за сутки 2ms
+     ✓ отказ помощника — его словами и с его именем; недоступен — 503; не нашёл — 404 11ms
+   ✓ настройка помощника (ADR-084) (4)
+     ✓ правила: читать и сохранять; пусто или слишком длинно — 400 без вызова; в журнал — длина, не текст 83ms
+     ✓ модель: список и текущая — без прочих настроек бота; смена — в журнал с прежней 7ms
+     ✓ модели не из списка бот отказывает — его словами с именем 3ms
+     ✓ «Проверка»: у главного администратора свой разговор в песочнице помощника 4ms
+   ❯ очередь техподдержки (S1) (4)
+     × открытые: без пустых, срочные первыми, дольше ждущие раньше; числа очереди из той же выборки 8ms
+     × отбор очереди — у помощника в SQL, числа — из выборки открытых; чужой отбор — 400 без вызова 29ms
+     × категория отбирает строки внутри статуса; числа — по строкам статуса; чужая — 400 3ms
+     ✓ закрыть обращение — помощнику и в журнал; карточка говорит, закрыт ли диалог 15ms
+   ✓ предел песочницы помощника (аудит 30.09.2026) (1)
+     ✓ не больше SUPPORT_SANDBOX_PER_HOUR в час на администратора, сверх — 429 без хода к помощнику 342ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 22 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > очередь техподдержки (S1) > открытые: без пустых, срочные первыми, дольше ждущие раньше; числа очереди из той же выборки
+AssertionError: expected [ { op: 'listConversations', …(1) } ] to deeply equal [ { op: 'listConversations', …(1) } ]
+
+- Expected
++ Received
+
+@@ -1,11 +1,10 @@
+  [
+    {
+      "args": [
+        {
+          "closed": false,
+-         "excludeSandbox": true,
+          "limit": 200,
+          "nonempty": true,
+        },
+      ],
+      "op": "listConversations",
+
+ ❯ apps/api/src/platform/support.controller.test.ts:581:34
+    579|     };
+    580|     const res = await api().get('/platform/support/queue').set(as('ses…
+    581|     expect(connection.bot.calls).toEqual([
+       |                                  ^
+    582|       { op: 'listConversations', args: [{ nonempty: true, closed: fals…
+    583|     ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/22]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > очередь техподдержки (S1) > отбор очереди — у помощника в SQL, числа — из выборки открытых; чужой отбор — 400 без вызова
+AssertionError: expected [ { nonempty: true, …(2) }, …(5) ] to deeply equal [ { nonempty: true, …(3) }, …(5) ]
+
+- Expected
++ Received
+
+  [
+    {
+      "closed": false,
+-     "excludeSandbox": true,
+      "limit": 200,
+      "nonempty": true,
+    },
+    {
+      "closed": false,
+-     "excludeSandbox": true,
+      "limit": 100,
+      "nonempty": true,
+      "queue": "waiting",
+    },
+    {
+      "closed": false,
+-     "excludeSandbox": true,
+      "limit": 200,
+      "nonempty": true,
+    },
+    {
+      "closed": false,
+-     "excludeSandbox": true,
+      "limit": 100,
+      "mode": "needs_human",
+      "nonempty": true,
+    },
+    {
+      "closed": false,
+-     "excludeSandbox": true,
+      "limit": 200,
+      "nonempty": true,
+    },
+    {
+      "closed": true,
+-     "excludeSandbox": true,
+      "limit": 100,
+      "nonempty": true,
+    },
+  ]
+
+ ❯ apps/api/src/platform/support.controller.test.ts:614:56
+    612|     await api().get('/platform/support/queue?queue=needs_human').set(a…
+    613|     await api().get('/platform/support/queue?queue=closed').set(admin)…
+    614|     expect(connection.bot.calls.map((c) => c.args[0])).toEqual([
+       |                                                        ^
+    615|       { nonempty: true, closed: false, limit: 200, excludeSandbox: tru…
+    616|       { nonempty: true, closed: false, limit: 100, excludeSandbox: tru…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/22]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > очередь техподдержки (S1) > категория отбирает строки внутри статуса; числа — по строкам статуса; чужая — 400
+AssertionError: expected [ undefined, undefined, undefined ] to deeply equal [ 'error', 'other', 'payment' ]
+
+- Expected
++ Received
+
+  [
+-   "error",
+-   "other",
+-   "payment",
++   undefined,
++   undefined,
++   undefined,
+  ]
+
+ ❯ apps/api/src/platform/support.controller.test.ts:638:80
+    636|     const admin = as('session-admin');
+    637|     const all = await api().get('/platform/support/queue').set(admin).…
+    638|     expect(all.body.items.map((i: { category: string }) => i.category)…
+       |                                                                                ^
+    639|       'error',
+    640|       'other',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/22]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Хочу вернуть деньги за подписку» → payment
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Списали дважды за тариф» → payment
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Ошибка при оплате картой» → payment
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Не могу войти в кабинет» → access
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Сотруднику не выдаются права на финансы» → access
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Не сохраняется бронь, пишет ошибку» → error
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Шахматка не открывается, всё зависает» → error
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «500 на странице тарифов» → error
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Как завести койко-место?» → platform
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Где посмотреть долги по броням» → platform
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Подскажите про выгрузку в каналы» → platform
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «Спасибо» → other
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > «» → other
+TypeError: supportCategory is not a function
+ ❯ apps/api/src/platform/support.queue.test.ts:34:12
+     32|
+     33|   it.each(cases)('«%s» → %s', (text, expected) => {
+     34|     expect(supportCategory(text)).toBe(expected);
+       |            ^
+     35|   });
+     36|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/22]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > категорий ровно пять и «другое» — последняя
+AssertionError: expected undefined to deeply equal [ Array(5) ]
+
+- Expected:
+[
+  "platform",
+  "error",
+  "payment",
+  "access",
+  "other",
+]
+
++ Received:
+undefined
+
+ ❯ apps/api/src/platform/support.queue.test.ts:38:32
+     36|
+     37|   it('категорий ровно пять и «другое» — последняя', () => {
+     38|     expect(SUPPORT_CATEGORIES).toEqual(['platform', 'error', 'payment'…
+       |                                ^
+     39|   });
+     40|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/22]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > категория обращения > без сообщений пользователя — «другое», а не догадка по ответу помощника
+TypeError: supportCategoryOf is not a function
+ ❯ apps/api/src/platform/support.queue.test.ts:42:12
+     40|
+     41|   it('без сообщений пользователя — «другое», а не догадка по ответу по…
+     42|     expect(supportCategoryOf(null)).toBe('other');
+       |            ^
+     43|     expect(supportCategoryOf({ role: 'assistant', text: 'Ошибка на ваш…
+     44|       'other',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/22]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > строка очереди > категория берётся из первого сообщения пользователя, а не из последнего
+AssertionError: expected undefined to be 'payment' // Object.is equality
+
+- Expected:
+"payment"
+
++ Received:
+undefined
+
+ ❯ apps/api/src/platform/support.queue.test.ts:69:27
+     67|       items: [row({ role: 'user', text: 'Верните деньги за подписку', …
+     68|     });
+     69|     expect(item.category).toBe('payment');
+       |                           ^
+     70|     expect(item.firstMessage).toEqual({
+     71|       role: 'user',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/22]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > строка очереди > старый бот поля не отдаёт — строка встаёт в «другое», а не роняет очередь
+AssertionError: expected undefined to be null
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ apps/api/src/platform/support.queue.test.ts:79:31
+     77|   it('старый бот поля не отдаёт — строка встаёт в «другое», а не роняе…
+     78|     const [item] = queueItems({ items: [row(undefined)] });
+     79|     expect(item.firstMessage).toBeNull();
+       |                               ^
+     80|     expect(item.category).toBe('other');
+     81|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/22]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > числа и отбор по категории > числа считаются по строкам выбранного статуса — столько же, сколько покажет отбор
+TypeError: categoryCounts is not a function
+ ❯ apps/api/src/platform/support.queue.test.ts:93:12
+     91|
+     92|   it('числа считаются по строкам выбранного статуса — столько же, скол…
+     93|     expect(categoryCounts(items)).toEqual({
+       |            ^
+     94|       all: 4,
+     95|       platform: 0,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/22]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.queue.test.ts > числа и отбор по категории > отбор «все» строк не трогает, чужая категория — пусто
+TypeError: filterByCategory is not a function
+ ❯ apps/api/src/platform/support.queue.test.ts:104:12
+    102|
+    103|   it('отбор «все» строк не трогает, чужая категория — пусто', () => {
+    104|     expect(filterByCategory(items, 'all')).toHaveLength(4);
+       |            ^
+    105|     expect(filterByCategory(items, 'payment')).toHaveLength(2);
+    106|     expect(filterByCategory(items, 'access')).toHaveLength(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/22]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  22 failed | 17 passed (39)
+   Start at  09:46:29
+   Duration  2.86s (transform 37%, import 37%, tests 25%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T16-46-27Z-unit-9bf5.json
+
+# код выхода 1 · 5 с

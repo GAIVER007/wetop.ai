@@ -1,0 +1,22 @@
+# Модульные (unit) · 06.10.2026 16:19 Алматы · vm
+# коммит 1065a26 (claude/upbeat-ptolemy-w3y1bd)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T11-19-50Z-unit-fe08.json' 'apps/api/src/auth/auth.service.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (59 tests) 8109ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 465ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 451ms
+     ✓ пачка ошибок на истёкшем замке запирает снова, а не сбрасывает счёт каждой попыткой 427ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 348ms
+
+ Test Files  1 passed (1)
+      Tests  59 passed (59)
+   Start at  11:19:51
+   Duration  11.05s (tests 75%, transform 20%, import 5%)
+
+JSON report written to /tmp/pms-test-2026-10-06T11-19-50Z-unit-fe08.json
+
+# код выхода 0 · 13 с

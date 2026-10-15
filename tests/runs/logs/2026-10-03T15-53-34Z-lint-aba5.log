@@ -1,0 +1,11 @@
+# Линтер (lint) · 03.10.2026 20:53 Алматы · vm
+# коммит 6af7487 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 29
+# npx eslint .
+
+/home/user/wetop.ai/apps/web/src/app/market/page.tsx
+  142:11  error  'board' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 21 с

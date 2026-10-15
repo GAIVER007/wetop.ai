@@ -1,0 +1,105 @@
+# Сквозные (e2e) · 01.10.2026 11:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 23
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+[WebServer] (node:71884) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71884) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71931) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71933) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71927) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71930) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71929) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 39 tests using 2 workers
+
+(node:71947) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:71948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (1.1s)
+  ✓   2 tests/site/auth-dialog.spec.ts:57:1 › несохранённая сессия не запускает круг переходов (1.2s)
+  ✓   3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (806ms)
+  ✓   5 tests/site/landing.spec.ts:11:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (389ms)
+  ✓   4 tests/site/auth-dialog.spec.ts:72:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (1.4s)
+  ✓   7 tests/site/auth-dialog.spec.ts:102:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (677ms)
+  ✓   8 tests/site/auth-dialog.spec.ts:117:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (1.1s)
+  ✓   6 tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране (2.1s)
+  ✓  10 tests/site/landing.spec.ts:32:3 › / — на телефоне нет горизонтальной прокрутки (434ms)
+  ✓  11 tests/site/landing.spec.ts:17:3 › /blog/ — открывается, доступна и без «TODO» на экране (747ms)
+  ✓   9 tests/site/auth-dialog.spec.ts:135:1 › «Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма (1.5s)
+  ✓  12 tests/site/landing.spec.ts:32:3 › /blog/ — на телефоне нет горизонтальной прокрутки (323ms)
+  ✓  13 tests/site/auth-dialog.spec.ts:195:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (493ms)
+  ✓  15 tests/site/auth-dialog.spec.ts:208:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (429ms)
+  ✓  14 tests/site/landing.spec.ts:17:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (986ms)
+  ✓  17 tests/site/landing.spec.ts:32:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (269ms)
+  ✓  16 tests/site/auth-dialog.spec.ts:220:1 › на телефоне окно открывается из меню и не шире экрана (803ms)
+  ✓  18 tests/site/landing.spec.ts:17:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (576ms)
+  ✓  20 tests/site/landing.spec.ts:32:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (331ms)
+  ✓  21 tests/site/landing.spec.ts:17:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (644ms)
+  ✓  22 tests/site/landing.spec.ts:32:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (245ms)
+  ✓  23 tests/site/landing.spec.ts:17:3 › /calculator/ — открывается, доступна и без «TODO» на экране (587ms)
+  ✓  24 tests/site/landing.spec.ts:32:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (252ms)
+  ✓  19 tests/site/auth-dialog.spec.ts:237:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (2.9s)
+  ✓  25 tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (669ms)
+  ✓  27 tests/site/landing.spec.ts:63:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (20ms)
+  ✓  26 tests/site/product-story.spec.ts:4:1 › product tour changes real content and supports keyboard (596ms)
+  ✓  29 tests/site/product-story.spec.ts:18:1 › FAQ and explicit theme choice work (401ms)
+  ✓  30 tests/site/product-story.spec.ts:30:3 › complete landing fits 390px (240ms)
+  ✓  31 tests/site/product-story.spec.ts:30:3 › complete landing fits 768px (239ms)
+  ✓  32 tests/site/product-story.spec.ts:30:3 › complete landing fits 1440px (244ms)
+  ✓  33 tests/site/product-story.spec.ts:42:1 › every product panel remains accessible in dark theme (1.6s)
+  ✓  34 tests/site/product-story.spec.ts:64:1 › homepage explains the full product and keeps WETOP positioning (249ms)
+  ✓  35 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (256ms)
+  ✓  36 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (327ms)
+  ✓  37 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (247ms)
+  ✓  38 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (263ms)
+  ✘  28 tests/site/landing.spec.ts:84:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 14 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » (10.4s)
+(node:72136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  39 tests/site/landing.spec.ts:147:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее (421ms)
+
+
+  1) tests/site/landing.spec.ts:84:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 14 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('.site-header').getByRole('link', { name: 'Войти', exact: true })
+    Expected: "https://app.wetop.ai/login"
+    Received: "https://wetop.ai/#login"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.site-header').getByRole('link', { name: 'Войти', exact: true }) with timeout 10000ms
+      - waiting for locator('.site-header').getByRole('link', { name: 'Войти', exact: true })
+        24 × locator resolved to <a data-auth="login" href="https://wetop.ai/#login" class="btn btn--ghost btn--sm site-header__login">Войти</a>
+           - unexpected value "https://wetop.ai/#login"
+
+
+      102 |   // с JavaScript обе открывают окно поверх главной (tests/site/auth-dialog.spec.ts)
+      103 |   const header = page.locator('.site-header');
+    > 104 |   await expect(header.getByRole('link', { name: 'Войти', exact: true })).toHaveAttribute(
+          |                                                                          ^
+      105 |     'href',
+      106 |     'https://app.wetop.ai/login',
+      107 |   );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:104:74
+
+    Error Context: test-results/landing-главная-«Войти»-и--d9a70-а-внутри-карточки-без-«-·-»/error-context.md
+
+  1 failed
+    tests/site/landing.spec.ts:84:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 14 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » 
+  38 passed (29.3s)
+
+# код выхода 1 · 30 с

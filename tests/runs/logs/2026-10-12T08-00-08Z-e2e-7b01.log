@@ -1,0 +1,90 @@
+# Сквозные (e2e) · 12.10.2026 13:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит cfcb170 (claude/ui-master-final-20261011), незакоммиченных файлов набора: 24
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/owner-journal.spec.ts' 'tests/ui/roles.spec.ts:60' 'tests/ui/platform-access.spec.ts:134' 'tests/ui/system-screens.spec.ts'
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/ui/owner-journal.spec.ts:14:1 › владелец: вкладка, суммы, было/стало, фильтры и вся история (22.7s)
+  ✓   2 tests/ui/owner-journal.spec.ts:60:3 › MANAGER: журнал скрыт и прямой адрес закрыт (8.9s)
+  ✓   3 tests/ui/owner-journal.spec.ts:60:3 › STAFF: журнал скрыт и прямой адрес закрыт (8.0s)
+  ✓   4 tests/ui/platform-access.spec.ts:134:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (32.2s)
+  ✘   5 tests/ui/roles.spec.ts:60:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (51.6s)
+  ✓   6 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (28.6s)
+  ✓   7 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (41.8s)
+  ✘   8 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (45.4s)
+  ✓   9 tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (34.7s)
+  ✓  10 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (16.9s)
+
+
+  1) tests/ui/roles.spec.ts:60:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3151/hotel-settings", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/roles.spec.ts:81:16
+
+    Error Context: test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('an-summary')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('an-summary') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('an-summary')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      236 |   await page.goto('/website/analytics', { waitUntil: 'commit' });
+      237 |   await expect(main.getByTestId('an-loading')).toContainText('Считаем отчёт по сайту');
+    > 238 |   await expect(main.getByTestId('an-summary')).toBeVisible({ timeout: 15_000 });
+          |                                                ^
+      239 |   await request.post(`${fixture}/__test/control`, {
+      240 |     data: { delayPath: '/desk/dashboard', delayMs: 2500 },
+      241 |   });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/system-screens.spec.ts:238:48
+
+    Error Context: test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/roles.spec.ts:60:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+    tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+  8 passed (5.4m)
+
+# код выхода 1 · 5 мин 29 с

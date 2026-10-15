@@ -1,0 +1,99 @@
+# Модульные (unit) · 04.10.2026 15:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2142b73 (claude/team-phone-position), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T10-03-13Z-unit-7764.json' 'tests/unit/migrations-rollback.test.ts' 'tests/unit/migrations-hold.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate
+
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 4ms
+ ❯ |unit| tests/unit/migrations-rollback.test.ts (58 tests | 1 failed) 12ms
+   ❯ миграции: у каждой есть откат (AGENTS.md §14) (56)
+     ✓ папка миграций не пуста 1ms
+     ✓ 20260907000001_init_inventory — есть migration.sql и down.sql 0ms
+     ✓ 20260908000002_reservations_guests — есть migration.sql и down.sql 0ms
+     ✓ 20260909000003_rates_and_overbooking_guard — есть migration.sql и down.sql 0ms
+     ✓ 20260909000004_channel_mapping_external_events — есть migration.sql и down.sql 0ms
+     ✓ 20260909000005_channel_outbox — есть migration.sql и down.sql 0ms
+     ✓ 20260909000006_folio_payments — есть migration.sql и down.sql 0ms
+     ✓ 20260910000007_stay_rate_plan_and_penalty — есть migration.sql и down.sql 0ms
+     ✓ 20260910000008_external_event_received_via — есть migration.sql и down.sql 0ms
+     ✓ 20260912000009_web_analytics — есть migration.sql и down.sql 0ms
+     ✓ 20260912000010_web_booking — есть migration.sql и down.sql 0ms
+     ✓ 20260913000011_citizenship_alpha3 — есть migration.sql и down.sql 0ms
+     ✓ 20260913000012_system_incidents — есть migration.sql и down.sql 0ms
+     ✓ 20260915000013_accounts — есть migration.sql и down.sql 0ms
+     ✓ 20260915000014_password_login — есть migration.sql и down.sql 0ms
+     ✓ 20260916000014_session_token_hash — есть migration.sql и down.sql 0ms
+     ✓ 20260920000015_email_verification — есть migration.sql и down.sql 0ms
+     ✓ 20260920000016_property_organization — есть migration.sql и down.sql 0ms
+     ✓ 20260920000017_drop_login_codes — есть migration.sql и down.sql 0ms
+     ✓ 20260924000018_user_errors — есть migration.sql и down.sql 0ms
+     ✓ 20260924000019_seller_profiles — есть migration.sql и down.sql 0ms
+     ✓ 20260925000020_access_extensions — есть migration.sql и down.sql 0ms
+     ✓ 20260925000021_v17_document_dates_property_contacts — есть migration.sql и down.sql 0ms
+     ✓ 20260925000022_integrity_guards — есть migration.sql и down.sql 0ms
+     ✓ 20260926000023_seller_wizard — есть migration.sql и down.sql 0ms
+     ✓ 20260926000024_seller_prompt_text — есть migration.sql и down.sql 0ms
+     ✓ 20260926000025_unit_code_per_property — есть migration.sql и down.sql 0ms
+     ✓ 20260927000026_phase1_tenant_scope — есть migration.sql и down.sql 0ms
+     ✓ 20260927000026_rls_roles — есть migration.sql и down.sql 2ms
+     ✓ 20260927000027_tenant_columns — есть migration.sql и down.sql 0ms
+     ✓ 20260927000028_rls_policies — есть migration.sql и down.sql 0ms
+     ✓ 20260927000029_manager_role — есть migration.sql и down.sql 0ms
+     ✓ 20260927000030_platform_p1_business_location — есть migration.sql и down.sql 0ms
+     ✓ 20260928000031_remove_legacy_pms_fields — есть migration.sql и down.sql 0ms
+     ✓ 20260928000032_platform_p1_location_not_null — есть migration.sql и down.sql 0ms
+     ✓ 20260929000033_rls_credential_grants — есть migration.sql и down.sql 0ms
+     ✓ 20260930000034_revoke_supabase_api_roles — есть migration.sql и down.sql 0ms
+     ✓ 20260930000035_business_agent_identity — есть migration.sql и down.sql 0ms
+     ✓ 20260930000036_seller_agent_scope_expand — есть migration.sql и down.sql 0ms
+     ✓ 20260930000037_direct_sales_discounts — есть migration.sql и down.sql 0ms
+     ✓ 20260930000038_rls_integration_grants — есть migration.sql и down.sql 0ms
+     ✓ 20260930000039_seller_profile_agent_key — есть migration.sql и down.sql 0ms
+     ✓ 20261001000040_reservation_creation_key — есть migration.sql и down.sql 0ms
+     ✓ 20261002000040_cashbox — есть migration.sql и down.sql 0ms
+     ✓ 20261002000041_cash_reconciliations — есть migration.sql и down.sql 0ms
+     ✓ 20261002000042_users_last_login_grant — есть migration.sql и down.sql 0ms
+     ✓ 20261003000043_function_search_path — есть migration.sql и down.sql 0ms
+     ✓ 20261003000044_beauty_domain — есть migration.sql и down.sql 0ms
+     ✓ 20261003000044_competitor_occupancy — есть migration.sql и down.sql 0ms
+     × 20261003000044_membership_contacts — есть migration.sql и down.sql 5ms
+     ✓ 20261003000045_beauty_function_search_path — есть migration.sql и down.sql 0ms
+     ✓ 20261003000046_payment_requests — есть migration.sql и down.sql 0ms
+     ✓ 20261003000047_seller_booking_intents — есть migration.sql и down.sql 0ms
+     ✓ 20261003000048_fiscal_receipts — есть migration.sql и down.sql 0ms
+     ✓ 20261003000049_desk_tasks — есть migration.sql и down.sql 0ms
+     ✓ 20261003000050_membership_contacts — есть migration.sql и down.sql 0ms
+   ✓ ворота миграций работают и на bash 3.2 (2)
+     ✓ без mapfile и readarray (их нет в bash 3.2) 0ms
+     ✓ пустой список миграций — отказ, а не RESULT: OK 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/migrations-rollback.test.ts > миграции: у каждой есть откат (AGENTS.md §14) > 20261003000044_membership_contacts — есть migration.sql и down.sql
+AssertionError: migration.sql: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/migrations-rollback.test.ts:24:85
+     22|
+     23|   it.each(dirs)('%s — есть migration.sql и down.sql', (name) => {
+     24|     expect(existsSync(resolve(MIGRATIONS, name, 'migration.sql')), 'mi…
+       |                                                                                     ^
+     25|     expect(existsSync(resolve(MIGRATIONS, name, 'down.sql')), 'down.sq…
+     26|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 61 passed (62)
+   Start at  03:03:13
+   Duration  140ms (transform 65%, tests 16%, import 15%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T10-03-13Z-unit-7764.json
+
+# код выхода 1 · 1 с

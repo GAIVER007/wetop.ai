@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 09.10.2026 13:22 Алматы · vm
+# коммит b795d88 (claude/mv8-5-ds1c-acceptance-followup), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/owner-dashboard-interactions.spec.ts:8:1 › forecast details expose availability and open the selected calendar day (4.2s)
+  ✓  2 tests/ui/owner-dashboard-interactions.spec.ts:35:1 › finance can recover in place after a temporary API failure (2.4s)
+  ✓  3 tests/ui/owner-dashboard-interactions.spec.ts:48:1 › unavailable inventory stays explicit and can be retried (2.0s)
+  ✓  4 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.0s)
+  ✓  5 tests/ui/owner-dashboard-interactions.spec.ts:83:3 › forecast drawer stays accessible at 320 px in light theme (4.0s)
+  ✓  6 tests/ui/owner-dashboard-interactions.spec.ts:83:3 › forecast drawer stays accessible at 320 px in dark theme (3.7s)
+  ✓  7 tests/ui/owner-dashboard-interactions.spec.ts:107:1 › weekly dashboard opens a calendar day directly (2.1s)
+  ✓  8 tests/ui/owner-dashboard-interactions.spec.ts:120:1 › compact owner overview fits a 360 by 800 phone (1.8s)
+
+  8 passed (41.3s)
+
+# код выхода 0 · 43 с

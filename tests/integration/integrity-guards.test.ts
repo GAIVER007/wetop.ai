@@ -134,14 +134,19 @@ describe.skipIf(!url)('предохранители базы: UNIQUE external_id
     const other = createPrismaClient(url);
     let release!: () => void;
     const held = new Promise<void>((r) => (release = r));
+    let lockTaken!: () => void;
+    const taken = new Promise<void>((r) => (lockTaken = r));
     let lockTakenAt = 0;
     // «бронь» держит категорию: тот же ключ, что lockCategories в reservations.repository
     const holder = other.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.category:${unit.accommodationTypeId}`}, 0))`;
       lockTakenAt = Date.now();
+      lockTaken();
       await held;
     });
-    await new Promise((r) => setTimeout(r, 50));
+    // ждём, пока замок действительно взят: свежее соединение второго клиента в CI открывалось дольше прежних
+    // 50 мс, блокировка успевала пройти до замка, и тест падал не по делу (прогон main 03.10.2026)
+    await taken;
     const repo = new PrismaUnitsRepository({ db } as PrismaService);
     const block = repo
       .createBlock(

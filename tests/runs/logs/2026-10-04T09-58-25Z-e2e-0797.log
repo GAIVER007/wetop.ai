@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 04.10.2026 14:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит c19dd4b (claude/desk-tasks)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/desk-tasks.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:38920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38958) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:39044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:39047) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (2.4s)
+  ✓   2 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (2.9s)
+  ✓   3 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (2.1s)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (2.2s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (1.5s)
+  ✓   6 tests/ui/desk-tasks.spec.ts:27:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря (5.4s)
+  ✓   7 tests/ui/desk-tasks.spec.ts:61:1 › ошибка словами у формы, введённое не теряется (3.0s)
+[WebServer] (node:39255) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/desk-tasks.spec.ts:72:1 › «только чтение»: список виден, создавать и закрывать нельзя (2.9s)
+  ✓   9 tests/ui/desk-tasks.spec.ts:89:3 › снимки и доступность: light (2.4s)
+  ✓  10 tests/ui/desk-tasks.spec.ts:89:3 › снимки и доступность: dark (2.1s)
+  ✓  11 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (3.5s)
+  ✓  12 tests/ui/guests-birthdays.spec.ts:52:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (5.3s)
+
+  12 passed (44.5s)
+
+# код выхода 0 · 45 с

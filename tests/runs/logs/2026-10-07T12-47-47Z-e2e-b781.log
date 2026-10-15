@@ -1,0 +1,249 @@
+# Сквозные (e2e) · 07.10.2026 17:47 Алматы · MacBook-Air-Urij.local
+# коммит 867a391 (codex/public-2-visual-slice-1), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.auth.config.ts'
+[WebServer] (node:89640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89665) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89682) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89710) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:89738) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 7 tests using 1 worker
+
+(node:89762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async Object.me (src/lib/api.ts:518:20)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+  ✘  1 tests/ui/unified-auth.spec.ts:17:3 › защищённая /today: главная → реальная cookie → исходный экран (19.6s)
+(node:89938) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async Object.me (src/lib/api.ts:518:20)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+  ✘  2 tests/ui/unified-auth.spec.ts:17:3 › защищённая /chessboard: главная → реальная cookie → исходный экран (17.9s)
+(node:90280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async Object.me (src/lib/api.ts:518:20)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+  ✘  3 tests/ui/unified-auth.spec.ts:17:3 › защищённая /reservations: главная → реальная cookie → исходный экран (17.4s)
+(node:90486) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/unified-auth.spec.ts:32:1 › старые адреса открывают только формы на главной (3.8s)
+[WebServer] (node:90523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async Object.me (src/lib/api.ts:518:20)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+[WebServer] (node:90532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 tests/ui/unified-auth.spec.ts:43:1 › сессия работает в новой вкладке; выход возвращает на главную и закрывает доступ (21.9s)
+(node:90825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90882) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/ui/unified-auth.spec.ts:62:1 › регистрация на главной → письмо → подтверждение → рабочее место (6.9s)
+[WebServer] (node:90893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 tests/ui/unified-auth.spec.ts:83:1 › резервный вход без JavaScript сохраняет сессию и возвращает на исходный экран (1.9s)
+
+
+  1) tests/ui/unified-auth.spec.ts:17:3 › защищённая /today: главная → реальная cookie → исходный экран 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3002/?next=%2Ftoday#login"
+    Received: "http://127.0.0.1:3102/today"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3102/today"
+
+
+      20 |   }) => {
+      21 |     await page.goto(path);
+    > 22 |     await expect(page).toHaveURL(`${SITE}/?next=${encodeURIComponent(path)}#login`);
+         |                        ^
+      23 |     await login(page);
+      24 |     await expect(page).toHaveURL(`${APP}${path}`);
+      25 |     const cookie = (await context.cookies(APP)).find((c) => c.name === 'wetop_session');
+        at /private/tmp/wetop-public1-20261007/tests/ui/unified-auth.spec.ts:22:24
+
+    Error Context: test-results/unified-auth-защищённая-to-f6a40-ная-cookie-→-исходный-экран/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-auth-защищённая-to-f6a40-ная-cookie-→-исходный-экран/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-auth-защищённая-to-f6a40-ная-cookie-→-исходный-экран/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/unified-auth.spec.ts:17:3 › защищённая /chessboard: главная → реальная cookie → исходный экран 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3002/?next=%2Fchessboard#login"
+    Received: "http://127.0.0.1:3102/chessboard"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3102/chessboard"
+
+
+      20 |   }) => {
+      21 |     await page.goto(path);
+    > 22 |     await expect(page).toHaveURL(`${SITE}/?next=${encodeURIComponent(path)}#login`);
+         |                        ^
+      23 |     await login(page);
+      24 |     await expect(page).toHaveURL(`${APP}${path}`);
+      25 |     const cookie = (await context.cookies(APP)).find((c) => c.name === 'wetop_session');
+        at /private/tmp/wetop-public1-20261007/tests/ui/unified-auth.spec.ts:22:24
+
+    Error Context: test-results/unified-auth-защищённая-ch-97cf9-ная-cookie-→-исходный-экран/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-auth-защищённая-ch-97cf9-ная-cookie-→-исходный-экран/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-auth-защищённая-ch-97cf9-ная-cookie-→-исходный-экран/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/unified-auth.spec.ts:17:3 › защищённая /reservations: главная → реальная cookie → исходный экран 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3002/?next=%2Freservations#login"
+    Received: "http://127.0.0.1:3102/reservations"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3102/reservations"
+
+
+      20 |   }) => {
+      21 |     await page.goto(path);
+    > 22 |     await expect(page).toHaveURL(`${SITE}/?next=${encodeURIComponent(path)}#login`);
+         |                        ^
+      23 |     await login(page);
+      24 |     await expect(page).toHaveURL(`${APP}${path}`);
+      25 |     const cookie = (await context.cookies(APP)).find((c) => c.name === 'wetop_session');
+        at /private/tmp/wetop-public1-20261007/tests/ui/unified-auth.spec.ts:22:24
+
+    Error Context: test-results/unified-auth-защищённая-re-2b0b6-ная-cookie-→-исходный-экран/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-auth-защищённая-re-2b0b6-ная-cookie-→-исходный-экран/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-auth-защищённая-re-2b0b6-ная-cookie-→-исходный-экран/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/unified-auth.spec.ts:43:1 › сессия работает в новой вкладке; выход возвращает на главную и закрывает доступ 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3002/?next=%2Ftoday#login"
+    Received: "http://127.0.0.1:3102/today"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3102/today"
+
+
+      57 |   await expect(tab).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
+      58 |   await page.goto('/today');
+    > 59 |   await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
+         |                      ^
+      60 |   await tab.close();
+      61 | });
+      62 | test('регистрация на главной → письмо → подтверждение → рабочее место', async ({
+        at /private/tmp/wetop-public1-20261007/tests/ui/unified-auth.spec.ts:59:22
+
+    Error Context: test-results/unified-auth-сессия-работа-38563--главную-и-закрывает-доступ/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-auth-сессия-работа-38563--главную-и-закрывает-доступ/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-auth-сессия-работа-38563--главную-и-закрывает-доступ/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/unified-auth.spec.ts:17:3 › защищённая /today: главная → реальная cookie → исходный экран 
+    tests/ui/unified-auth.spec.ts:17:3 › защищённая /chessboard: главная → реальная cookie → исходный экран 
+    tests/ui/unified-auth.spec.ts:17:3 › защищённая /reservations: главная → реальная cookie → исходный экран 
+    tests/ui/unified-auth.spec.ts:43:1 › сессия работает в новой вкладке; выход возвращает на главную и закрывает доступ 
+  3 passed (1.9m)
+
+# код выхода 1 · 1 мин 57 с

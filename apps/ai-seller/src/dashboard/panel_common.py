@@ -36,6 +36,12 @@ def iso(value) -> str | None:
     return value.isoformat() if value is not None else None
 
 
+#: Канал клиента, которого завела вкладка «Проверка» (`POST /internal/sandbox`). 🔴 Живёт здесь, а не
+#: у самой песочницы: отбор очереди техподдержки стоит в panel_conversations, а `dashboard_router`
+#: импортирует этот пакет, и обратный импорт закольцевался бы.
+SANDBOX_CHANNEL = "sandbox"
+
+
 def allowed_models(settings: Settings) -> list[str]:
     """LLM_ALLOWED_MODELS через запятую. Пусто — экран выбора не показывается."""
     return [m.strip() for m in settings.llm_allowed_models.split(",") if m.strip()]

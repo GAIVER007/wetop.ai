@@ -1,0 +1,83 @@
+# Модульные (unit) · 04.10.2026 00:21 Алматы · vm
+# коммит a59d8d9 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-21-49Z-unit-d266.json' 'apps/api/src/health'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/health/health.test.ts (8 tests | 3 failed) 240ms
+   ✓ GET /health (5)
+     ✓ живая база — 200 и status ok 29ms
+     ✓ база не отвечает — 503 и status degraded, без подробностей драйвера 6ms
+     ✓ строка подключения из ошибки драйвера наружу не выходит 6ms
+     ✓ не висит на мёртвом пуле, а отвечает 503 по своему сроку 55ms
+     ✓ замок входа проверку живости не трогает: у Docker и туннеля сессии нет 5ms
+   ❯ GET /status/public (H14, ADR-141) (3)
+     × без входа: всё работает — четыре части словами 10ms
+     × открытая неисправность каналов — «с перебоями», а её текст и вид наружу не выходят 6ms
+     × база не отвечает — «недоступно», без подробностей драйвера 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/health/health.test.ts > GET /status/public (H14, ADR-141) > без входа: всё работает — четыре части словами
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/health/health.test.ts:106:72
+    104|
+    105|   it('без входа: всё работает — четыре части словами', async () => {
+    106|     const r = await request(app.getHttpServer()).get('/status/public')…
+       |                                                                        ^
+    107|     expect(r.body.overall).toBe('ok');
+    108|     expect(r.body.components.map((c: { key: string }) => c.key)).toEqu…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/health/health.test.ts > GET /status/public (H14, ADR-141) > открытая неисправность каналов — «с перебоями», а её текст и вид наружу не выходят
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/health/health.test.ts:127:72
+    125|       },
+    126|     ]);
+    127|     const r = await request(app.getHttpServer()).get('/status/public')…
+       |                                                                        ^
+    128|     expect(r.body.overall).toBe('degraded');
+    129|     expect(r.text).not.toMatch(/outbox|Channex|секретный/);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/health/health.test.ts > GET /status/public (H14, ADR-141) > база не отвечает — «недоступно», без подробностей драйвера
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/health/health.test.ts:134:72
+    132|   it('база не отвечает — «недоступно», без подробностей драйвера', asy…
+    133|     queryRaw.mockRejectedValue(new Error('connect ECONNREFUSED 10.0.0.…
+    134|     const r = await request(app.getHttpServer()).get('/status/public')…
+       |                                                                        ^
+    135|     expect(r.body.overall).toBe('down');
+    136|     expect(r.text).not.toMatch(/ECONNREFUSED|5432/);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 5 passed (8)
+   Start at  19:21:50
+   Duration  3.45s (transform 69%, import 24%, tests 7%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-21-49Z-unit-d266.json
+
+# код выхода 1 · 4 с

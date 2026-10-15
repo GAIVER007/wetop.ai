@@ -1,0 +1,43 @@
+# Интеграционные (integration) · 02.10.2026 16:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит 042c413 (main), незакоммиченных файлов набора: 20
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-50-29Z-integration-e579.json' 'tests/integration/cash-operations.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |integration| tests/integration/cash-operations.test.ts (3 tests | 1 failed) 282ms
+   ❯ касса: операции, статьи, лента (integration, DATA_MODEL §21) (3)
+     ✓ пустой справочник статей заполняется стартовым набором (Q-236), повторное чтение набор не множит 21ms
+     ✓ операция с комиссией — две строки одной транзакцией; аннулирование снимает обе; повтор — ошибка 157ms
+     × статья чужого объекта отвергается базой (триггер), перевод попадает в ленту с отбором по источнику 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/cash-operations.test.ts > касса: операции, статьи, лента (integration, DATA_MODEL §21) > статья чужого объекта отвергается базой (триггер), перевод попадает в ленту с отбором по источнику
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRaw()` invocation:
+
+
+Raw query failed. Code: `42703`. Message: `column "updated_at" of relation "organizations" does not exist`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/cash-operations.test.ts:87:5
+     85|     const { randomUUID } = await import('node:crypto');
+     86|     const orgId = randomUUID();
+     87|     await db.$executeRaw`INSERT INTO organizations (id, name, updated_…
+       |     ^
+     88|     const bizId = randomUUID();
+     89|     await db.$executeRaw`INSERT INTO businesses (id, organization_id, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  04:50:29
+   Duration  1.03s (tests 44%, import 29%, transform 27%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-50-29Z-integration-e579.json
+
+# код выхода 1 · 2 с

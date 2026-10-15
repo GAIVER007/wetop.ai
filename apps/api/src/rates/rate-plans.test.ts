@@ -41,6 +41,8 @@ const flex: Plan = {
 function setup(plans: Plan[] = [base, flex], upcoming: Record<string, number> = {}) {
   const store = plans.map((p) => ({ ...p }));
   const db = {
+    accommodationType: { findMany: vi.fn().mockResolvedValue([{ id: 'category-a' }]) },
+    $executeRaw: vi.fn().mockResolvedValue(1),
     property: {
       findFirst: vi.fn().mockResolvedValue({
         id: 'prop-a',
@@ -84,6 +86,55 @@ const asManager = <T>(fn: () => Promise<T>) =>
 
 describe('«Тарифные планы»: правило отмены', () => {
   beforeEach(() => forgetPropertyRef());
+
+  it('не отключает производный тариф с будущими бронями', async () => {
+    const plan = {
+      ...base,
+      parentRatePlanId: 'parent',
+      discountPercent: 10,
+      minDaysBeforeArrival: null,
+      maxDaysBeforeArrival: null,
+      minNights: null,
+    };
+    const { service, db } = setup([plan]);
+    Object.assign(db, {
+      reservationItem: { count: vi.fn().mockResolvedValue(2) },
+      channelMapping: { count: vi.fn().mockResolvedValue(0) },
+    });
+    await expect(
+      asManager(() => service.updateDerived(plan.code, { active: false })),
+    ).rejects.toThrow('Нельзя отключить');
+    expect(db.ratePlan.update).not.toHaveBeenCalled();
+    expect(db.$executeRaw).toHaveBeenCalled();
+  });
+
+  it('не отключает сопоставленный тариф; свободный тариф можно выключить и восстановить с журналом', async () => {
+    const plan = {
+      ...base,
+      parentRatePlanId: 'parent',
+      discountPercent: 10,
+      minDaysBeforeArrival: null,
+      maxDaysBeforeArrival: null,
+      minNights: null,
+    };
+    const { service, db } = setup([plan]);
+    const mapped = vi.fn().mockResolvedValue(1);
+    Object.assign(db, {
+      reservationItem: { count: vi.fn().mockResolvedValue(0) },
+      channelMapping: { count: mapped },
+    });
+    await expect(
+      asManager(() => service.updateDerived(plan.code, { active: false })),
+    ).rejects.toThrow('сопоставлений каналов 1');
+    mapped.mockResolvedValue(0);
+    expect(
+      await asManager(() => service.updateDerived(plan.code, { active: false })),
+    ).toMatchObject({ active: false });
+    expect(await asManager(() => service.updateDerived(plan.code, { active: true }))).toMatchObject(
+      { active: true },
+    );
+    expect(db.auditLog.create).toHaveBeenCalledTimes(2);
+  });
 
   it('список: правило, категории по названию и брони, которые правка заденет', async () => {
     const { service } = setup([base, flex], { 'plan-base': 3 });

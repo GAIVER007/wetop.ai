@@ -1,0 +1,25 @@
+# Модульные (unit) · 01.10.2026 12:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 32
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T07-12-21Z-unit-8524.json' 'apps/web/src/lib/auth-entry.test.ts' 'apps/web/src/lib/auth-aliases.test.ts' 'apps/web/src/lib/auth-fallback.test.ts' 'apps/web/src/lib/site-auth-flow.test.ts' 'apps/web/src/lib/unified-auth-entry.test.ts' 'apps/web/src/lib/onboarding-later.test.ts' 'apps/web/src/lib/api.test.ts' 'apps/web/src/app/login/actions.test.ts' 'apps/site/src/lib/site.test.ts' 'tests/unit/desk-auth.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 3ms
+ ✓ |unit| apps/site/src/lib/site.test.ts (15 tests) 3ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 17ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (4 tests) 25ms
+ ✓ |unit| tests/unit/desk-auth.test.ts (5 tests) 2ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (15 tests) 75ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (8 tests) 2ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 10ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 13ms
+
+ Test Files  10 passed (10)
+      Tests  74 passed (74)
+   Start at  00:12:22
+   Duration  373ms (transform 67%, import 17%, tests 14%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T07-12-21Z-unit-8524.json
+
+# код выхода 0 · 1 с

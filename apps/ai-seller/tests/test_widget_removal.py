@@ -1,9 +1,16 @@
-"""Канал Telegram для клиентов удалён — и не должен вернуться.
+"""Прежний общий канал Telegram для клиентов удалён и не должен вернуться.
 
-🔴 Этот файл сторожит поворот продукта: единственный канал клиентов —
-виджет на сайте платформы. Вернувшийся модуль, забытая настройка или
-транспорт очереди с прежним именем означают вторую дверь в бота, о которой
-никто не помнит.
+🔴 Этот файл сторожит поворот продукта: основной канал клиентов теперь
+виджет на сайте платформы. Вернувшаяся настройка прежнего канала, его скрипт
+вебхука или транспорт очереди с прежним именем означают вторую дверь в бота,
+о которой никто не помнит.
+
+Исключение по решению владельца (DECISIONS.md, «01.10.2026, Telegram seller
+pilot per agent»; 02.10.2026 пилот оставлен): подключение Telegram к одному
+агенту, выключенное по умолчанию (`telegram_seller_enabled`), со своим
+вебхуком `/channels/telegram/webhook/{agent_id}` и своими тестами
+(test_telegram_*.py). Его модули src/channels/telegram*.py разрешены, имена
+прежнего канала запрещены по-прежнему.
 
 🔴 Обратная сторона: алерты владельцу в мессенджер — ДРУГОЙ бот и другая
 задача. Правило кита требует двух каналов алертов (почта основная,
@@ -22,12 +29,13 @@ from src.jobs.outbox_redeliver import build_transports
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Имена, по которым канал опознаётся в коде: модуль, переменные окружения,
-# поля настроек. Слово «telegram» само по себе не запрещено — оно осталось
-# в алертах (alert_telegram_*), и это правильно.
-FORBIDDEN = ("channels.telegram", "CHANNEL_TELEGRAM", "channel_telegram")
+# Имена, по которым опознаётся прежний общий канал: переменные окружения и поля
+# настроек. Модуля `channels.telegram` здесь больше нет: под этим именем живёт
+# пилот по агенту (решение 01.10.2026). Слово «telegram» само по себе не запрещено:
+# оно есть в алертах (alert_telegram_*) и в пилоте (telegram_seller_*).
+FORBIDDEN = ("CHANNEL_TELEGRAM", "channel_telegram")
 
-GONE = ("src/channels/telegram.py", "scripts/telegram_webhook.py")
+GONE = ("scripts/telegram_webhook.py",)
 
 # Что смотрим: исходники и скрипты, без кэшей интерпретатора.
 SUFFIXES = (".py", ".js", ".sh", ".html", ".css", ".txt", ".md")
@@ -58,10 +66,27 @@ def test_channel_file_is_deleted(relative: str) -> None:
 
 
 def test_widget_took_the_place_of_the_channel() -> None:
-    """Дверь одна, и она новая: канал клиентов — виджет."""
+    """Основная дверь новая: канал клиентов по умолчанию это виджет."""
     assert (ROOT / "src" / "channels" / "widget.py").exists()
     assert (ROOT / "src" / "channels" / "widget_identity.py").exists()
     assert (ROOT / "src" / "site" / "widget.js").exists()
+
+
+def test_telegram_pilot_is_off_by_default() -> None:
+    """Пилот Telegram включают явно: по умолчанию выключен, и его вебхук
+    отвечает 503, не читая ни базу, ни тело запроса."""
+    import uuid
+
+    from fastapi.testclient import TestClient
+
+    import src.main as main
+    from src.config import Settings
+
+    assert Settings.model_fields["telegram_seller_enabled"].default is False
+    settings = get_settings().model_copy(update={"telegram_seller_enabled": False})
+    client = TestClient(main.create_app(settings))
+    response = client.post(f"/channels/telegram/webhook/{uuid.uuid4()}", json={})
+    assert response.status_code == 503, response.text
 
 
 def test_redelivery_has_no_client_channel_transport() -> None:

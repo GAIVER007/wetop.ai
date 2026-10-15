@@ -1,0 +1,45 @@
+# Модульные (unit) · 03.10.2026 01:48 Алматы · vm
+# коммит 5182f5a (master), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T20-48-07Z-unit-c618.json' 'tests/unit/migrations-hold.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ❯ |unit| tests/unit/migrations-hold.test.ts (4 tests | 1 failed) 23ms
+   ❯ миграции отдельного релиза ждут вне общей цепочки (ADR-137) (4)
+     × в migrations/ метка «ОТДЕЛЬНЫЙ РЕЛИЗ» только у выпущенных: новая такая миграция лежит в migrations-hold/ 18ms
+     ✓ список выпущенных не врёт: каждая из них есть в migrations/ и несёт метку 1ms
+     ✓ у ждущей миграции есть migration.sql с меткой и down.sql (AGENTS.md §14), и её нет в общей цепочке 1ms
+     ✓ Prisma берёт миграции только из prisma/migrations: ждущие не применяются 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/migrations-hold.test.ts > миграции отдельного релиза ждут вне общей цепочки (ADR-137) > в migrations/ метка «ОТДЕЛЬНЫЙ РЕЛИЗ» только у выпущенных: новая такая миграция лежит в migrations-hold/
+AssertionError: перенести в packages/database/prisma/migrations-hold/ до релиза: expected [ '20261003000043_probe_contract' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "20261003000043_probe_contract",
++ ]
+
+ ❯ tests/unit/migrations-hold.test.ts:44:91
+     42|       (name) => marked(MIGRATIONS, name) && !RELEASED_SEPARATELY.has(n…
+     43|     );
+     44|     expect(unreleased, 'перенести в packages/database/prisma/migration…
+       |                                                                                           ^
+     45|   });
+     46|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  13:48:09
+   Duration  365ms (transform 43%, tests 30%, import 20%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-10-02T20-48-07Z-unit-c618.json
+
+# код выхода 1 · 2 с

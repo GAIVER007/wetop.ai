@@ -12,11 +12,13 @@ import pg from 'pg';
 /** Таблицы под RLS — политика `rls_tenant` на каждой (миграция `20260927000028_rls_policies`) */
 export const RLS_TENANT_TABLES: readonly string[] = [
   'organizations',
+  'onboarding_progress',
   'memberships',
   'sessions',
   'invites',
   'user_errors',
   'seller_profiles',
+  'seller_prompt_versions',
   'organization_extensions',
   'seller_agents',
   'wizard_drafts',
@@ -57,6 +59,95 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // Политики — в миграции 20260927000030_platform_p1_business_location
   'businesses',
   'locations',
+  // Касса (DATA_MODEL §21): политики — в миграциях 20261002000040_cashbox и …041
+  'cash_categories',
+  'cash_operations',
+  'cash_reconciliations',
+  // Задачи стойки (DATA_MODEL §22): политика — в миграции 20261003000049_desk_tasks
+  'desk_tasks',
+  // Запросы оплаты (DATA_MODEL §24, ADR-144): политика — в миграции 20261003000046_payment_requests
+  'payment_requests',
+  // Фискальные чеки по запросу (DATA_MODEL §26): политика — в миграции 20261003000048_fiscal_receipts
+  'fiscal_receipts',
+  // Намерения брони ИИ-продавца (DATA_MODEL §25): политика — в миграции 20261003000047_seller_booking_intents
+  'seller_booking_intents',
+  // Beauty-домен (DATA_MODEL §19.1): клиент несёт организацию в строке, остальное через родителя
+  // (бизнес, филиал, мастер), как у locations. Политики, в миграции 20261003000044_beauty_domain
+  'customers',
+  'customer_businesses',
+  'employees',
+  'employee_locations',
+  'beauty_services',
+  'location_services',
+  'employee_services',
+  'working_hours',
+  'time_offs',
+  'appointments',
+  // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
+  'competitors',
+  'competitor_occupancy',
+  'competitor_rates',
+  // Food Service v1, migration 55.
+  'dining_areas',
+  'dining_tables',
+  'service_periods',
+  'restaurant_reservations',
+  'table_assignments',
+  // Ресторан v2 (DATA_MODEL §33, ADR-159, миграция 20261010000081_restaurant_module)
+  'menu_categories',
+  'menu_items',
+  'menu_item_ingredients',
+  'menu_item_photos',
+  'restaurant_orders',
+  'restaurant_order_items',
+  'employee_pay_settings',
+  'employee_pay_adjustments',
+  // Склад кухни FS2 (DATA_MODEL §34, миграция 20261012000089_kitchen_stock)
+  'kitchen_products',
+  'kitchen_stock_lots',
+  'kitchen_stock_movements',
+  // Касса ресторана (DATA_MODEL §35, ADR-165, миграция 20261011000086_restaurant_cash)
+  'restaurant_payments',
+  'restaurant_cash_operations',
+  'restaurant_cash_reconciliations',
+  'restaurant_order_ratings',
+  // Правила брони столов и закрытые дни (DATA_MODEL §43, миграция 20261013000101_food_booking_rules)
+  'food_booking_rules',
+  'food_closed_days',
+  // MKT3: управляемый сайт филиала и его версии (DATA_MODEL §29, через Location → Business)
+  'marketing_sites',
+  'marketing_site_versions',
+  // MKT6: задачи генерации ИИ, через свой сайт (DATA_MODEL §29.7, миграция 20261007000062_generation_run_core)
+  'generation_runs',
+  // MKT7: журнал публикаций и домены сайта, через свой сайт (DATA_MODEL §29.4, §29.6, миграция …064)
+  'marketing_site_publications',
+  'site_domains',
+  // MKT8: библиотека изображений сайта, через Location → Business (DATA_MODEL §29.5, миграция …066)
+  'site_assets',
+  // Фото категорий размещения, через категорию (DATA_MODEL §30, ADR-153, миграция …070)
+  'accommodation_type_photos',
+  // Область доступа сотрудника, через членство (DATA_MODEL §31.1, ADR-156, миграция …072_membership_scopes)
+  'membership_scopes',
+  // Фото и договор объекта (DATA_MODEL §32.3, ADR-158, миграция …076_property_media)
+  'property_media',
+  // MKT9.2: лицензия конструктора (через Location → Business), разговор ИИ и закладки (через свой сайт), миграция …068
+  'site_builder_entitlements',
+  'site_ai_runs',
+  'marketing_site_version_bookmarks',
+  // МКТ-В1/В2: учёт бюджета и расходов маркетинга, через Location → Business (DATA_MODEL §41, миграция …097)
+  'marketing_expenses',
+  'marketing_budgets',
+  // Existing policies from 20261004000051_bar_inventory.
+  'bar_categories',
+  'bar_products',
+  'bar_receipt_lines',
+  'bar_receipts',
+  'bar_sale_lines',
+  'bar_sales',
+  'bar_stock_lots',
+  'bar_stock_movements',
+  'bar_supplier_payments',
+  'bar_suppliers',
 ];
 
 /**
@@ -88,7 +179,10 @@ type TaggedClient = pg.PoolClient & { wetopOrg?: string };
  * (`set_config(..., false)`): пулер Supabase в режиме сессий держит соединение за этим клиентом, и она живёт до
  * следующей выдачи. Пустая строка — ни одной строки у `wetop_app`.
  */
-export async function applyTenant(client: TaggedClient, organizationId: string | null): Promise<void> {
+export async function applyTenant(
+  client: TaggedClient,
+  organizationId: string | null,
+): Promise<void> {
   const value = organizationId && UUID.test(organizationId) ? organizationId : '';
   if (client.wetopOrg === value) return;
   await client.query(`SELECT set_config('app.org_id', $1, false)`, [value]);
@@ -113,7 +207,9 @@ export class TenantPool extends pg.Pool {
   /** Какой пул и какая организация у текущего запроса */
   private route(): { pool: pg.Pool; organizationId: string | null } {
     const organizationId = this.tenantOf();
-    return organizationId ? { pool: this.app, organizationId } : { pool: this.service, organizationId: null };
+    return organizationId
+      ? { pool: this.app, organizationId }
+      : { pool: this.service, organizationId: null };
   }
 
   private async checkout(): Promise<pg.PoolClient> {
@@ -133,15 +229,24 @@ export class TenantPool extends pg.Pool {
   // Перегрузки pg.Pool: адаптер Prisma пользуется только формой с промисом
   override connect(): Promise<pg.PoolClient>;
   override connect(
-    callback: (err: Error | undefined, client: pg.PoolClient | undefined, done: (release?: unknown) => void) => void,
+    callback: (
+      err: Error | undefined,
+      client: pg.PoolClient | undefined,
+      done: (release?: unknown) => void,
+    ) => void,
   ): void;
   override connect(
-    callback?: (err: Error | undefined, client: pg.PoolClient | undefined, done: (release?: unknown) => void) => void,
+    callback?: (
+      err: Error | undefined,
+      client: pg.PoolClient | undefined,
+      done: (release?: unknown) => void,
+    ) => void,
   ): Promise<pg.PoolClient> | void {
     const promise = this.checkout();
     if (!callback) return promise;
     promise.then(
-      (client) => callback(undefined, client, (release?: unknown) => client.release(release as Error)),
+      (client) =>
+        callback(undefined, client, (release?: unknown) => client.release(release as Error)),
       (err: Error) => callback(err, undefined, () => undefined),
     );
   }

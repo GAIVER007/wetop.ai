@@ -22,13 +22,13 @@ from src import dependencies
 from src.channels.widget_store import new_flag_key
 from src.db.base import ConversationMode, MessageRole
 from src.db.models import Client, Conversation, Message
-from tests.dashboard_fakes import (  # noqa: F401 — фикстуры берутся из пространства имён
+from tests.dashboard_fakes import (  # noqa: F401, фикстуры берутся из пространства имён
     PANEL,
     _all,
     seed_conversation,
     sync_db,
 )
-from tests.test_whatsapp import (  # noqa: F401 — фикстуры и общие значения канала
+from tests.test_whatsapp import (  # noqa: F401, фикстуры и общие значения канала
     GUEST,
     ORG,
     ORG_B,

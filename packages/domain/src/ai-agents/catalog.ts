@@ -6,7 +6,7 @@ import type { ExtensionAccess } from '../accounts/extensions';
  * показывается только то, что видно в данных сегодня.
  */
 
-/** `DRAFT` — запись гостевого мастера (`seller_agents`), продавец по ней не запущен */
+/** `DRAFT`, запись гостевого мастера (`seller_agents`), продавец по ней не запущен */
 export type AgentStatus =
   | 'WORKING'
   | 'NOT_CONFIGURED'
@@ -23,12 +23,12 @@ export const AGENT_STATUS_WORDS: Record<AgentStatus, string> = {
 };
 
 /**
- * Статус рабочего продавца организации. `null` — расширение не подключено: карточки нет, вместо неё объяснение.
+ * Статус рабочего продавца организации. `null`, расширение не подключено: карточки нет, вместо неё объяснение.
  * «Работает» значит «расширение действует и продавец принял профиль»; готовность каналов в него не входит.
  */
 export function agentStatus(input: {
   extension: ExtensionAccess;
-  /** `not-configured` — у платформы нет адреса и ключа бота (`SellerStatus.connection`) */
+  /** `not-configured`, у платформы нет адреса и ключа бота (`SellerStatus.connection`) */
   connection: 'ready' | 'not-configured';
   /** Продавец принял текущую версию профиля */
   profileApplied: boolean;
@@ -39,7 +39,7 @@ export function agentStatus(input: {
   return input.profileApplied ? 'WORKING' : 'NOT_CONFIGURED';
 }
 
-/** `UNKNOWN` — данных нет: бот не ответил вовремя. Состояний `VERIFYING`/`ERROR` у канала пока нет (SA6) */
+/** `UNKNOWN`, данных нет: бот не ответил вовремя. Состояний `VERIFYING`/`ERROR` у канала пока нет (SA6) */
 export type ChannelState = 'ON' | 'OFF' | 'UNKNOWN';
 export type AgentChannel = 'site' | 'whatsapp';
 

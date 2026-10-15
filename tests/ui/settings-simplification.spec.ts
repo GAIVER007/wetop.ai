@@ -1,8 +1,8 @@
-import { expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, openSection } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
 });
@@ -11,20 +11,25 @@ test('короткое меню настроек ведёт в единый об
   page,
 }) => {
   await page.goto('/hotel-settings');
-  const sidebar = page.locator('.workspace-sidebar');
-  const group = sidebar
-    .locator('.sidebar-section')
-    .filter({ has: page.getByRole('button', { name: 'Настройки', exact: true }) });
-  // Сайт объекта — в «Продажах → Сайт и онлайн-бронирование» (ADR-117), в «Настройках» его больше нет
-  await expect(group.locator('a')).toHaveText(['Объект', 'Интеграции']);
-  await expect(page.getByTestId('stored-property')).toContainText('Luxx Aparts');
+  const sidebar = page.locator('.sidenav');
+  const group = await openSection(page, 'Настройки');
+  // Сайт объекта в «Маркетинг → Сайт и SEO» (MKT2; до 06.10 в «Продажах», ADR-117), в «Настройках» его больше нет
+  await expect(group.locator('a')).toHaveText([
+    'Объект',
+    'Сотрудники и доступ',
+    'Подключения',
+    'Журнал операций',
+    'Неисправности',
+  ]);
+  await sidebar.getByRole('button', {name: 'Закрыть меню', exact: true}).click();
+  await expect(page.getByTestId('stored-property').getByLabel('Название объекта', {exact: true})).toHaveValue('Luxx Aparts');
   const tabs = page.getByRole('navigation', { name: 'Настройки объекта', exact: true });
   await tabs.getByRole('link', { name: 'Услуги', exact: true }).click();
   await expect(page.getByTestId('services-table')).toBeVisible();
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Объект');
+  await expect(sidebar.locator('.sidenav__items [aria-current="page"]')).toHaveText('Объект');
   // часы заезда и выезда — своей вкладкой (ADR-115), правила отмены — у тарифов
   await tabs.getByRole('link', { name: 'Проживание', exact: true }).click();
-  await expect(page.getByTestId('stay-settings')).toContainText('14:00');
+  await expect(page.getByTestId('stay-settings').getByLabel('Заезд с')).toHaveValue('14:00');
   await page.reload();
   await expect(tabs.getByRole('link', { name: 'Проживание' })).toHaveAttribute(
     'aria-current',
@@ -53,10 +58,7 @@ test('старые страницы контента ведут в интегр�
   expect(hits.byPath['/channels/channex/content'] ?? 0).toBe(0);
 });
 
-test('поиск услуг работает без повторной загрузки каталога', async ({
-  page,
-  request,
-}) => {
+test('поиск услуг работает без повторной загрузки каталога', async ({ page, request }) => {
   await page.goto('/hotel-settings/services');
   const table = page.getByTestId('services-table');
   await expect(table).toBeVisible();

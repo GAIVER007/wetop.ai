@@ -24,7 +24,7 @@ describe('стенд стойки перед e2e', () => {
     expect(
       staleBuild([
         { path: '/today', status: 200, body: '<h1>Главная</h1>' },
-        { path: '/chessboard', status: 200, body: '<h1>Шахматка</h1>' },
+        { path: '/chessboard', status: 200, body: '<h1>Календарь</h1>' },
       ]),
     ).toBeUndefined();
   });

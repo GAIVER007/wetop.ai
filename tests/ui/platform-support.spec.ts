@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, menuLinks } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -7,7 +7,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
  * его знания и сводка — только главному администратору. Стенд (`scripts/preview/fixture-api.ts`) отвечает так же, как
  * API: панель помощника за ним, кто пишет — из подписи стойки. Все, кто пишет, вымышленные (ADR-010).
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SIGNED = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
 const ANONYMOUS = '7b2c3d4e-5f6a-4b7c-9d8e-0f1a2b3c4d5e';
 
@@ -16,7 +16,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -25,11 +25,6 @@ async function signIn(page: Page) {
 
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
-
-const menuLinks = (page: Page) =>
-  page
-    .locator('.workspace-sidebar .workspace-links a')
-    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 /** Снимок для отчёта: без фокуса и с начала страницы — иначе закреплённые шапка и меню снимаются со сдвигом */
 async function shot(page: Page, name: string) {
@@ -57,13 +52,10 @@ test('не главный администратор: пункта нет, а с
   await expect(page.getByTestId('support-dialogs')).toHaveCount(0);
 });
 
-test('главный администратор: сводка, очередь, карточка — кто пишет', async ({
-  page,
-  request,
-}) => {
+test('главный администратор: сводка, очередь, карточка — кто пишет', async ({ page, request }) => {
   await signIn(page);
   await control(request, { platformAdmin: true });
-  await page.goto('/today');
+  await page.goto('/finance');
   expect(await menuLinks(page)).not.toContain('/platform/support');
   // Своего пункта меню у техподдержки больше нет — до неё главный администратор доходит переключателем
   // агентов на «ИИ-продавце» (перенос раздела под общую навигацию ботов)

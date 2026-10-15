@@ -1,0 +1,26 @@
+......................................                                   [100%]
+=============================== warnings summary ===============================
+tests/test_agent_scope_contract.py: 3 warnings
+tests/test_agent_scope.py: 27 warnings
+  /usr/local/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'organization_id' as primary_key=True, not matching locally specified columns 'agent_id'; setting the current primary key columns to 'agent_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+tests/test_agent_scope_contract.py: 3 warnings
+tests/test_agent_scope.py: 27 warnings
+  /usr/local/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'organization_id', 'agent_id' as primary_key=True, not matching locally specified columns 'agent_id'; setting the current primary key columns to 'agent_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+tests/test_agent_scope_contract.py::test_0010_downgrade_restores_the_keys_when_the_data_allows
+  /usr/local/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'agent_id' as primary_key=True, not matching locally specified columns 'organization_id'; setting the current primary key columns to 'organization_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+tests/test_agent_scope_contract.py::test_0010_downgrade_restores_the_keys_when_the_data_allows
+  /usr/local/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'organization_id', 'agent_id' as primary_key=True, not matching locally specified columns 'organization_id'; setting the current primary key columns to 'organization_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+tests/test_agent_scope.py::test_a_webhook_signed_with_another_agents_secret_is_refused
+  /qa/src/knowledge/embedder.py:50: FutureWarning: The `get_sentence_embedding_dimension` method has been renamed to `get_embedding_dimension`.
+    self.dim = self._model.get_sentence_embedding_dimension()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+38 passed, 63 warnings in 28.67s

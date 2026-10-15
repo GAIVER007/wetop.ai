@@ -6,8 +6,8 @@
 --
 -- Что делает:
 --   1. предпроверка: `seller_scope_assert()` (та же цепочка, что в 035) и «ни у одного профиля нет пустого agent_id»; любое
---      нарушение — отказ без изменений;
---   2. первичный ключ — `agent_id` (NOT NULL); уникальный индекс `seller_profiles_agent_id_key` уходит — его заменяет ключ;
+--      нарушение, отказ без изменений;
+--   2. первичный ключ, `agent_id` (NOT NULL); уникальный индекс `seller_profiles_agent_id_key` уходит, его заменяет ключ;
 --   3. `organization_id` остаётся обычной колонкой с внешним ключом (политика RLS §17.3 читает её) и получает индекс:
 --      у организации теперь может быть по профилю на каждого агента.
 -- Триггер `seller_profiles_link` остаётся: он сверяет, что агент профиля принадлежит организации профиля.
@@ -20,7 +20,7 @@ DECLARE orphan integer;
 BEGIN
   SELECT count(*) INTO orphan FROM seller_profiles WHERE agent_id IS NULL;
   IF orphan > 0 THEN
-    RAISE EXCEPTION 'SA2.5 (сужение) остановлена: % профилей без agent_id — сначала выкатить 035 и дождаться backfill', orphan;
+    RAISE EXCEPTION 'SA2.5 (сужение) остановлена: % профилей без agent_id, сначала выкатить 035 и дождаться backfill', orphan;
   END IF;
 END $$;
 

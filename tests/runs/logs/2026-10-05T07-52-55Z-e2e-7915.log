@@ -1,0 +1,140 @@
+# Сквозные (e2e) · 05.10.2026 12:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2278432 (codex/calendar-mobile), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-mobile.spec.ts' '--grep' 'статистика' '--workers=1'
+[WebServer] (node:83780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83814) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83852) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:83868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 360: восемь показателей перед календарём и вертикальная прокрутка (17.1s)
+(node:84066) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 390: восемь показателей перед календарём и вертикальная прокрутка (18.1s)
+(node:84112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 430: восемь показателей перед календарём и вертикальная прокрутка (16.4s)
+
+
+  1) tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 360: восемь показателей перед календарём и вертикальная прокрутка 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('group', { name: 'Сегодня на объекте' }) with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' })
+
+
+      172 |     await page.goto('/chessboard');
+      173 |     const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
+    > 174 |     await expect(stats).toBeVisible();
+          |                         ^
+      175 |     for (const id of ['arrivals', 'departures', 'inhouse', 'birthdays', 'tasks', 'free', 'units', 'occupied', 'occupancy']) {
+      176 |       await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
+      177 |     }
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:174:25
+
+    Error Context: test-results/chessboard-mobile-статисти-aa62d-ём-и-вертикальная-прокрутка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-статисти-aa62d-ём-и-вертикальная-прокрутка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-статисти-aa62d-ём-и-вертикальная-прокрутка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 390: восемь показателей перед календарём и вертикальная прокрутка 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('group', { name: 'Сегодня на объекте' }) with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' })
+
+
+      172 |     await page.goto('/chessboard');
+      173 |     const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
+    > 174 |     await expect(stats).toBeVisible();
+          |                         ^
+      175 |     for (const id of ['arrivals', 'departures', 'inhouse', 'birthdays', 'tasks', 'free', 'units', 'occupied', 'occupancy']) {
+      176 |       await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
+      177 |     }
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:174:25
+
+    Error Context: test-results/chessboard-mobile-статисти-449f2-ём-и-вертикальная-прокрутка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-статисти-449f2-ём-и-вертикальная-прокрутка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-статисти-449f2-ём-и-вертикальная-прокрутка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 430: восемь показателей перед календарём и вертикальная прокрутка 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('group', { name: 'Сегодня на объекте' }) with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' })
+
+
+      172 |     await page.goto('/chessboard');
+      173 |     const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
+    > 174 |     await expect(stats).toBeVisible();
+          |                         ^
+      175 |     for (const id of ['arrivals', 'departures', 'inhouse', 'birthdays', 'tasks', 'free', 'units', 'occupied', 'occupancy']) {
+      176 |       await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
+      177 |     }
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:174:25
+
+    Error Context: test-results/chessboard-mobile-статисти-8c5d0-ём-и-вертикальная-прокрутка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-статисти-8c5d0-ём-и-вертикальная-прокрутка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-статисти-8c5d0-ём-и-вертикальная-прокрутка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 360: восемь показателей перед календарём и вертикальная прокрутка 
+    tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 390: восемь показателей перед календарём и вертикальная прокрутка 
+    tests/ui/chessboard-mobile.spec.ts:170:3 › статистика 430: восемь показателей перед календарём и вертикальная прокрутка 
+
+# код выхода 1 · 1 мин 2 с

@@ -104,7 +104,7 @@ export function InstructionEditor({id, initial, readOnly = false}: {id: string; 
           </Panel>}
           <Panel title="Инструкция вашего продавца">
             <Field label="Как агент должен отвечать"><Textarea rows={16} maxLength={20000} value={text} disabled={pending || readOnly} onChange={e => {setText(e.target.value); setNotice('');}} placeholder="Введите свою инструкцию или вернитесь к рассказу и сгенерируйте её." /></Field>
-            <Row className="agent-wizard__save"><span className="muted">{text.length} / 20 000 · {dirty ? 'Не сохранено' : saved ? 'Сохранено' : 'Пустая инструкция'}</span><Button type="button" onClick={save} disabled={pending || readOnly || !text.trim() || !dirty}>{pending ? 'Сохраняю…' : 'Сохранить инструкцию'}</Button></Row>
+            <Row className="agent-wizard__save"><span className="muted">{text.length} / 20 000</span><span className="muted">{dirty ? 'Не сохранено' : saved ? 'Сохранено' : 'Пустая инструкция'}</span><Button type="button" onClick={save} disabled={pending || readOnly || !text.trim() || !dirty}>{pending ? 'Сохраняю…' : 'Сохранить инструкцию'}</Button></Row>
           </Panel>
         </>}
       </Stack>

@@ -1,0 +1,376 @@
+# Сквозные (e2e) · 06.10.2026 19:25 Алматы · vm
+# коммит 9f02863 (claude/quirky-franklin-mo3gcn), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/chessboard-gate-pr4.spec.ts' 'tests/ui/chessboard-gate-pr5.spec.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/chessboard-unassigned.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/desktop-compact.spec.ts' 'tests/ui/requests.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 112 tests using 1 worker
+
+  ✓    1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (3.1s)
+  ✓    2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: полоса дня одной строкой, управление сразу под ней (4.2s)
+  ✓    3 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (4.0s)
+  ✓    4 tests/ui/chessboard-calendar.spec.ts:49:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (1.8s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_38uatpe..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-06" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓    5 tests/ui/chessboard-calendar.spec.ts:62:3 › гейт «Календарь»: light (3.7s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_38uatpe..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-06" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓    6 tests/ui/chessboard-calendar.spec.ts:62:3 › гейт «Календарь»: dark (3.6s)
+  ✓    7 tests/ui/chessboard-calendar.spec.ts:75:1 › пустая клетка не дублирует дату из шапки календаря (2.9s)
+  ✓    8 tests/ui/chessboard-calendar.spec.ts:83:1 › даты в шапке не повторяют свободные и занятые места (2.8s)
+  ✓    9 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (3.0s)
+  ✓   10 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (8.4s)
+  ✓   11 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (23.9s)
+  ✓   12 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (24.3s)
+  ✓   13 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (7.0s)
+  ✓   14 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (4.8s)
+  ✓   15 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (4.6s)
+  ✓   16 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (6.5s)
+  ✓   17 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (4.6s)
+  ✓   18 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (7.7s)
+  ✓   19 tests/ui/chessboard-filters.spec.ts:142:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (4.1s)
+  ✓   20 tests/ui/chessboard-filters.spec.ts:173:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (9.3s)
+  ✓   21 tests/ui/chessboard-filters.spec.ts:238:1 › §37: ничего не найдено — «Сбросить фильтры» (3.0s)
+  ✓   22 tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (5.9s)
+  ✓   23 tests/ui/chessboard-filters.spec.ts:273:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (3.6s)
+  ✓   24 tests/ui/chessboard-filters.spec.ts:291:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (4.0s)
+  ✓   25 tests/ui/chessboard-filters.spec.ts:318:1 › доступность: окошко «Фильтры» открыто (4.3s)
+  ✓   26 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: light (17.4s)
+  ✓   27 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: dark (17.7s)
+  ✓   28 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light (12.7s)
+  ✓   29 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: dark (11.6s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '1052313065'
+[WebServer] }
+  ✓   30 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (4.8s)
+  ✓   31 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (5.3s)
+  ✓   32 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (5.1s)
+  ✓   33 tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (2.5s)
+  ✓   34 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (6.7s)
+  ✓   35 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (5.2s)
+  ✓   36 tests/ui/chessboard-mobile.spec.ts:160:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (2.3s)
+  ✓   37 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 360: виджеты дня перед календарём и вертикальная прокрутка (3.9s)
+  ✓   38 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 390: виджеты дня перед календарём и вертикальная прокрутка (3.9s)
+  ✓   39 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 430: виджеты дня перед календарём и вертикальная прокрутка (3.8s)
+  ✓   40 tests/ui/chessboard-mobile.spec.ts:233:1 › мобильная панель меняет заезд без закрытия и показывает выезд (3.0s)
+  ✓   41 tests/ui/chessboard-mobile.spec.ts:253:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (7.0s)
+  ✓   42 tests/ui/chessboard-mobile.spec.ts:282:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (1.8s)
+  ✓   43 tests/ui/chessboard-mobile.spec.ts:305:3 › телефон light: длинное имя и бронь на 28 ночей (4.2s)
+  ✓   44 tests/ui/chessboard-mobile.spec.ts:305:3 › телефон dark: длинное имя и бронь на 28 ночей (4.3s)
+  ✓   45 tests/ui/chessboard-mobile.spec.ts:338:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (6.9s)
+  ✓   46 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (3.8s)
+  ✓   47 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (3.5s)
+  ✓   48 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (3.9s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url={"/chessbo..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_38uatpe..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2025-01-01" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2025-01-01"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2025-01-30" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2025-01-30"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2025...", ...}} today="2026-10-06" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓   49 tests/ui/chessboard-statistics.spec.ts:84:1 › today statistics stay available when the calendar shows another month (7.5s)
+  ✓   50 tests/ui/chessboard-statistics.spec.ts:98:1 › empty booking base shows zero occupancy and no urgent bookings (2.0s)
+  ✓   51 tests/ui/chessboard-statistics.spec.ts:113:3 › daily widgets light: accessible labels and contrasts (4.4s)
+  ✓   52 tests/ui/chessboard-statistics.spec.ts:113:3 › daily widgets dark: accessible labels and contrasts (4.6s)
+  ✓   53 tests/ui/chessboard-statistics.spec.ts:129:1 › marked no-show increments no-show count and leaves hot bookings (1.7s)
+  ✓   54 tests/ui/chessboard-statistics.spec.ts:150:3 › desktop daily widgets light: accessible pointer targets (3.7s)
+  ✓   55 tests/ui/chessboard-statistics.spec.ts:150:3 › desktop daily widgets dark: accessible pointer targets (4.0s)
+  ✓   56 tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) (5.7s)
+  ✓   57 tests/ui/chessboard-unassigned.spec.ts:116:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом (6.1s)
+  ✓   58 tests/ui/chessboard-unassigned.spec.ts:157:1 › «Разрешить» у «Продано сверх мест» и ссылка с Главной открывают ящик; тон critical (3.7s)
+  ✓   59 tests/ui/chessboard-unassigned.spec.ts:175:1 › «только чтение» (ADR-102): места видны, назначить нельзя, бронь открывается (4.4s)
+  ✓   60 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (3.0s)
+  ✓   61 tests/ui/chessboard-week.spec.ts:28:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (10.1s)
+  ✓   62 tests/ui/chessboard-week.spec.ts:74:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (3.6s)
+  ✓   63 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (6.4s)
+  ✓   64 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (6.0s)
+  ✓   65 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (5.9s)
+  ✓   66 tests/ui/chessboard-week.spec.ts:126:1 › в неделе работают бронь, категории и создание на воскресенье (6.1s)
+  ✓   67 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: light, обе панели и телефон (22.9s)
+  ✓   68 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: dark, обе панели и телефон (23.5s)
+  ✓   69 tests/ui/chessboard-week.spec.ts:205:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (2.9s)
+  ✓   70 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (15.3s)
+  ✓   71 tests/ui/desktop-compact.spec.ts:53:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (2.1s)
+  ✓   72 tests/ui/desktop-compact.spec.ts:70:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (5.0s)
+  ✓   73 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (15.8s)
+  ✓   74 tests/ui/mobile-adaptation.spec.ts:61:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (1.7s)
+  ✓   75 tests/ui/mobile-adaptation.spec.ts:70:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (3.0s)
+  ✓   76 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: сводка и управление оставляют сетку на первом экране (3.2s)
+  ✓   77 tests/ui/mobile-adaptation.spec.ts:100:1 › узкий телефон: плитки финансов встают в одну колонку (2.2s)
+  ✓   78 tests/ui/mobile-adaptation.spec.ts:111:1 › телефон: месяц цен не растягивается на четыре экрана (1.3s)
+  ✓   79 tests/ui/mobile-adaptation.spec.ts:124:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (13.0s)
+  ✓   80 tests/ui/mobile-adaptation.spec.ts:159:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (15.7s)
+  ✓   81 tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь (2.1s)
+  ✓   82 tests/ui/requests.spec.ts:80:3 › экран /chessboard: данные берутся одним запросом на путь (2.5s)
+  ✓   83 tests/ui/requests.spec.ts:80:3 › экран /reservations: данные берутся одним запросом на путь (2.2s)
+  ✓   84 tests/ui/requests.spec.ts:80:3 › экран /guests: данные берутся одним запросом на путь (1.9s)
+  ✓   85 tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь (2.1s)
+  ✓   86 tests/ui/requests.spec.ts:80:3 › экран /rooms/categories: данные берутся одним запросом на путь (2.1s)
+  ✓   87 tests/ui/requests.spec.ts:80:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.9s)
+  ✓   88 tests/ui/requests.spec.ts:80:3 › экран /rates: данные берутся одним запросом на путь (1.8s)
+  ✓   89 tests/ui/requests.spec.ts:80:3 › экран /management/analytics: данные берутся одним запросом на путь (1.9s)
+  ✓   90 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (3.5s)
+  ✓   91 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/units: данные берутся одним запросом на путь (3.5s)
+  ✓   92 tests/ui/requests.spec.ts:80:3 › экран /finance: данные берутся одним запросом на путь (2.4s)
+  ✓   93 tests/ui/requests.spec.ts:80:3 › экран /reports: данные берутся одним запросом на путь (2.1s)
+  ✓   94 tests/ui/requests.spec.ts:80:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (2.1s)
+  ✓   95 tests/ui/requests.spec.ts:80:3 › экран /channels: данные берутся одним запросом на путь (2.1s)
+  ✓   96 tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь (2.7s)
+  ✓   97 tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.9s)
+  ✓   98 tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь (2.0s)
+  ✓   99 tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь (1.9s)
+  ✓  100 tests/ui/requests.spec.ts:80:3 › экран /website: данные берутся одним запросом на путь (2.3s)
+  ✓  101 tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь (2.2s)
+  ✓  102 tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь (2.6s)
+  ✓  103 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.9s)
+  ✓  104 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.9s)
+  ✓  105 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.9s)
+  ✓  106 tests/ui/requests.spec.ts:80:3 › экран /team: данные берутся одним запросом на путь (1.6s)
+  ✓  107 tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь (2.3s)
+  ✓  108 tests/ui/requests.spec.ts:80:3 › экран /ai-agents: данные берутся одним запросом на путь (1.7s)
+  ✓  109 tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь (2.2s)
+  ✓  110 tests/ui/requests.spec.ts:80:3 › экран /incidents: данные берутся одним запросом на путь (1.6s)
+  ✓  111 tests/ui/requests.spec.ts:80:3 › экран /journal: данные берутся одним запросом на путь (2.5s)
+  ✓  112 tests/ui/requests.spec.ts:80:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.9s)
+
+  112 passed (9.9m)
+
+# код выхода 0 · 9 мин 57 с

@@ -72,6 +72,52 @@ describe('экран стойки под замком', () => {
     expect(v.detail).toMatch(/знаков/);
   });
 
+  /**
+   * Разбор 26.09.2026 (reports/channex-cert-review-2026-09-24.md): у стойки общий `app/loading.tsx`, страница идёт
+   * потоком, и переход на вход Next 16 отдаёт не перебросом, а меткой в странице с кодом 200. Без неё скрипт цикла
+   * ставил шахматке «искомого нет», а карточке брони — ложное «ок»: номер брони стоит в адресе, и Next кладёт
+   * параметры адреса в страницу, даже когда сама карточка не отрисовалась.
+   */
+  const toLogin =
+    '<meta id="__next-page-redirect" http-equiv="refresh" content="1;url=/login?next=%2Fchessboard"/>';
+
+  it('переход на вход потоком (метка Next) — «пропущено (замок)», а не «искомого нет»', () => {
+    const v = judgeDeskPage(
+      {
+        status: 200,
+        url: 'http://web:3000/chessboard',
+        html: `<html><head>${toLogin}</head><body><main></main></body></html>`,
+      },
+      (h) => h.includes('BDC-1'),
+    );
+    expect(v.verdict).toBe('locked');
+    expect(v.detail).toMatch(/переход на вход/);
+  });
+
+  it('метка перехода на вход проверяется раньше искомого: номер брони из адреса не даёт ложного «ок»', () => {
+    const v = judgeDeskPage(
+      {
+        status: 200,
+        url: 'http://web:3000/reservations/BDC-1',
+        html: `<html><head>${toLogin}</head><body><script>self.__next_f.push([1,"{\\"number\\":\\"BDC-1\\"}"])</script></body></html>`,
+      },
+      (h) => h.includes('BDC-1'),
+    );
+    expect(v.verdict).toBe('locked');
+  });
+
+  it('метка перехода не на вход — не замок: страница судится как обычно', () => {
+    const v = judgeDeskPage(
+      {
+        status: 200,
+        url: 'http://web:3000/today',
+        html: '<meta id="__next-page-redirect" http-equiv="refresh" content="1;url=/chessboard"/><h1>BDC-1</h1>',
+      },
+      (h) => h.includes('BDC-1'),
+    );
+    expect(v.verdict).toBe('ok');
+  });
+
   it('сессия для стойки берётся из WEB_SESSION_COOKIE и только оттуда', () => {
     expect(deskHeaders({})).toEqual({});
     expect(deskHeaders({ WEB_SESSION_COOKIE: 'pms_session=abc' })).toEqual({

@@ -15,7 +15,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
-from src import dashboard_router
+from src import dashboard_router, site_generation_router
+from src.channels import telegram as telegram_channel
 from src.channels import whatsapp as whatsapp_channel
 from src.channels import widget as widget_channel
 from src.config import Settings, get_settings
@@ -85,12 +86,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         # недосмотр настройки, и искать его потом негде.
         if not app_settings.widget_site_hosts_list:
             logger.warning("Виджет: домены сайта не заданы, проверка Origin выключена")
+        telegram_worker = None
+        if app_settings.telegram_seller_enabled:
+            from src.channels.telegram_worker import run_worker
+            telegram_worker = asyncio.create_task(run_worker(app_settings))
         try:
             yield
         finally:
             # 🔴 Сначала задачи канала, потом ресурсы: браузеру уже ответили
             # 'accepted', второй раз он сообщение не пришлёт. Закрыть движок
             # БД и http-клиент под живым ходом — оставить клиента без ответа.
+            if telegram_worker:
+                telegram_worker.cancel()
+                await asyncio.gather(telegram_worker, return_exceptions=True)
             await _drain_channel_runner(app)
             await close_resources()
 
@@ -183,10 +191,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Песочница живёт в корне (/internal/sandbox) и от пути панели не зависит:
     # её адрес прописан в сборочном плане, менять его нельзя.
     app.include_router(dashboard_router.router)
+    # Генерация сайта (MKT6): тоже в корне, по служебному ключу платформы
+    app.include_router(site_generation_router.router)
+    from src import wizard_scan_router
+    app.include_router(wizard_scan_router.router)
+    from src import wizard_generate_router
+    app.include_router(wizard_generate_router.router)
+    from src import wizard_chat_router
+    app.include_router(wizard_chat_router.router)
     # Виджет на сайте: префикс /widget уже под IpBlockMiddleware.
     app.include_router(widget_channel.router)
     # WhatsApp Cloud API: вебхук под организацией (С3); подпись проверяет дверь
     app.include_router(whatsapp_channel.router)
+    app.include_router(telegram_channel.router)
     _mount_dashboard(app, app_settings)
 
     return app

@@ -26,6 +26,48 @@ export interface SupportQueueCounts {
 
 export type SupportPriority = 'urgent' | 'waiting' | 'normal';
 
+/**
+ * Категория обращения (план `plans/support-queue-hygiene-2026-10-02.md` §3). Считает API по первому
+ * сообщению пользователя; здесь только подписи и разбор адреса.
+ */
+export const SUPPORT_CATEGORIES = ['platform', 'error', 'payment', 'access', 'other'] as const;
+export type SupportCategory = (typeof SUPPORT_CATEGORIES)[number];
+export const SUPPORT_CATEGORY_FILTERS = ['all', ...SUPPORT_CATEGORIES] as const;
+export type SupportCategoryFilter = (typeof SUPPORT_CATEGORY_FILTERS)[number];
+
+export interface SupportCategoryCounts extends Record<SupportCategory, number> {
+  all: number;
+}
+
+export const CATEGORY_CHIPS: ReadonlyArray<{
+  category: SupportCategoryFilter;
+  label: string;
+}> = [
+  { category: 'all', label: 'Все' },
+  { category: 'platform', label: 'Вопрос по платформе' },
+  { category: 'error', label: 'Ошибка' },
+  { category: 'payment', label: 'Возврат и оплата' },
+  { category: 'access', label: 'Доступ и права' },
+  { category: 'other', label: 'Другое' },
+];
+
+export const categoryOf = (raw: string | undefined): SupportCategoryFilter =>
+  (SUPPORT_CATEGORY_FILTERS as readonly string[]).includes(raw ?? '')
+    ? (raw as SupportCategoryFilter)
+    : 'all';
+
+/** Число в чипе категории: ноль показываем, иначе непонятно, куда делись обращения */
+export const categoryChipCount = (
+  category: SupportCategoryFilter,
+  counts: SupportCategoryCounts,
+): string => String(counts[category] ?? 0);
+
+/** Чем пуста выбранная категория: статус уже отобрал строки, значит дело в категории */
+export const emptyCategoryText = (category: SupportCategoryFilter): string | null =>
+  category === 'all'
+    ? null
+    : `В этой категории обращений нет. Категорию помощник не спрашивает: её определяет первое сообщение.`;
+
 export interface SupportLastMessage {
   role: string;
   text: string;

@@ -1,0 +1,16 @@
+# Модульные (unit) · 03.10.2026 14:22 Алматы · vm
+# коммит 4cdd4fc (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T09-22-12Z-unit-9b99.json' 'tests/unit/site-design.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 16ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  09:22:12
+   Duration  206ms (transform 60%, tests 19%, import 16%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-03T09-22-12Z-unit-9b99.json
+
+# код выхода 0 · 1 с

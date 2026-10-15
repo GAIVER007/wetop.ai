@@ -1,0 +1,81 @@
+# Интеграционные (integration) · 07.10.2026 13:17 Алматы · vm
+# коммит 012c06d (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-17-40Z-integration-3769.json' 'tests/integration/site-brief.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/site-brief.test.ts (11 tests | 2 failed) 1498ms
+   ❯ MKT5 site brief (11)
+     ✓ строгий scope: без филиала и с одним бизнесом 409, чужой, архивный, салон и ресторан 403, филиал гостиницы 200 177ms
+     ✓ право settings: администратор без него получает 403 9ms
+     × точный филиал: объект, категории, продавец и Channex только филиала А 56ms
+     ✓ второй филиал той же организации видит только своё 35ms
+     ✓ сторожевые строки ПД, инструкций продавца, мастера и id провайдера в бриф не попадают 28ms
+     ✓ старый продавец организации без филиала и чужой агент не подставляются; у филиала без агента продавца нет 22ms
+     × агент есть, профиля нет: 200, продавец MISSING NO_PROFILE; объект без сопоставления: NO_MAPPING 30ms
+     ✓ ключа Channex нет: 200, NO_KEY, данные платформы на месте 28ms
+     ✓ отказы Channex: 200, источник недоступен, факты платформы остаются, текст ошибки провайдера не уходит 113ms
+     ✓ кэш Channex 10 минут; refresh=1 читает заново; хэш не зависит от времени сбора 62ms
+     ✓ только чтение: таблицы организации не меняются; строки MarketingSite нет и не появляется 124ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-brief.test.ts > MKT5 site brief > точный филиал: объект, категории, продавец и Channex только филиала А
+AssertionError: expected { …(15) } to match object { locationName: 'Филиал А', …(5) }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "address": "ул. А 1",
+-   "displayNameCandidate": "Title A",
++   "displayNameCandidate": "Title B",
+    "locationName": "Филиал А",
+    "phone": "<телефон>",
+    "phoneSource": "PLATFORM",
+    "propertyName": "Объект А",
+  }
+
+ ❯ tests/integration/site-brief.test.ts:419:33
+    417|     const { body, text } = await briefOf(a1, '?refresh=1');
+    418|     expect(body.schemaVersion).toBe('site-brief/0');
+    419|     expect(body.input.identity).toMatchObject({
+       |                                 ^
+    420|       locationName: 'Филиал А',
+    421|       propertyName: 'Объект А',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/site-brief.test.ts > MKT5 site brief > агент есть, профиля нет: 200, продавец MISSING NO_PROFILE; объект без сопоставления: NO_MAPPING
+AssertionError: expected { state: 'READY', …(1) } to deeply equal { Object (state, checkedAt) }
+
+- Expected
++ Received
+
+  {
+-   "checkedAt": null,
+-   "state": "NO_MAPPING",
++   "checkedAt": "2026-10-07T08:17:49.131Z",
++   "state": "READY",
+  }
+
+ ❯ tests/integration/site-brief.test.ts:481:36
+    479|     const r = await briefOf(a4);
+    480|     expect(r.body.sources.seller).toEqual({ state: 'MISSING', reason: …
+    481|     expect(r.body.sources.channex).toEqual({ state: 'NO_MAPPING', chec…
+       |                                    ^
+    482|   });
+    483|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 passed (11)
+   Start at  08:17:42
+   Duration  7.48s (transform 47%, tests 32%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-17-40Z-integration-3769.json
+
+# код выхода 1 · 9 с

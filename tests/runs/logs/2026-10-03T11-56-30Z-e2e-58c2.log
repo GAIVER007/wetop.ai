@@ -1,0 +1,27 @@
+# Сквозные (e2e) · 03.10.2026 16:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/team-phone-position), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/team.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (4.9s)
+  ✓   2 tests/ui/team.spec.ts:54:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (3.2s)
+  ✓   3 tests/ui/team.spec.ts:71:1 › ошибка приглашения — словами в панели, ввод не стирается (10.8s)
+  ✓   4 tests/ui/team.spec.ts:83:1 › «Отключить» — только после подтверждения с последствием (22.9s)
+  ✓   5 tests/ui/team.spec.ts:95:1 › телефон и должность (TEAM2, Q-244): «Изменить» — панель, после сохранения видны в строке (39.3s)
+  ✓   6 tests/ui/team.spec.ts:116:1 › неверный телефон — словами в панели, введённое не стирается (5.5s)
+  ✓   7 tests/ui/team.spec.ts:130:1 › управляющий: роль не меняет, приглашает только администраторов (3.4s)
+  ✓   8 tests/ui/team.spec.ts:143:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (1.8s)
+  ✓   9 tests/ui/team.spec.ts:154:1 › администратору раздел закрыт: гейт и меню без пункта (2.2s)
+  ✓  10 tests/ui/team.spec.ts:163:3 › снимки TEAM1 и доступность: light (9.5s)
+  ✓  11 tests/ui/team.spec.ts:163:3 › снимки TEAM1 и доступность: dark (7.8s)
+
+  11 passed (2.0m)
+
+# код выхода 0 · 2 мин 4 с

@@ -1,0 +1,81 @@
+# Модульные (unit) · 04.10.2026 00:14 Алматы · vm
+# коммит a59d8d9 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-14-12Z-unit-161e.json' 'apps/api/src/channels/connection.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/channels/connection.test.ts (12 tests | 2 failed) 19ms
+   ✓ Channex read-only connection check (10)
+     ✓ does not claim a connection without credentials 3ms
+     ✓ requires a mapped property and never creates one during a read 1ms
+     ✓ checks the mapped property and returns only operational fields 2ms
+     ✓ «Последний импорт» — последнее событие, пришедшее опросом ленты (CHANNEX_PULL в журнале никто не пишет) 1ms
+     ✓ flags a mismatched configured property without making provider calls 1ms
+     ✓ provider HTTP 401 is DENIED, never connected 1ms
+     ✓ provider HTTP 403 is DENIED, never connected 0ms
+     ✓ provider HTTP 404 is NOT_FOUND, never connected 0ms
+     ✓ provider HTTP 429 is RATE_LIMITED, never connected 1ms
+     ✓ provider HTTP 503 is UNREACHABLE, never connected 1ms
+   ❯ сверка остатков с каналом видна владельцу (X3, ADR-141) (2)
+     × сверки ещё не было: время null, расхождения нет 5ms
+     × последняя сверка — по журналу чтения остатков; открытое «канал видит больше мест» — с числом ночей 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/connection.test.ts > сверка остатков с каналом видна владельцу (X3, ADR-141) > сверки ещё не было: время null, расхождения нет
+AssertionError: expected undefined to deeply equal { lastCheckedAt: null, mismatch: null }
+
+- Expected:
+{
+  "lastCheckedAt": null,
+  "mismatch": null,
+}
+
++ Received:
+undefined
+
+ ❯ apps/api/src/channels/connection.test.ts:101:30
+     99|     const c = context();
+    100|     const r = await c.service.status();
+    101|     expect(r.reconciliation).toEqual({ lastCheckedAt: null, mismatch: …
+       |                              ^
+    102|   });
+    103|   it('последняя сверка — по журналу чтения остатков; открытое «канал в…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/channels/connection.test.ts > сверка остатков с каналом видна владельцу (X3, ADR-141) > последняя сверка — по журналу чтения остатков; открытое «канал видит больше мест» — с числом ночей
+AssertionError: expected undefined to deeply equal { …(2) }
+
+- Expected:
+{
+  "lastCheckedAt": "2026-10-03T03:00:00.000Z",
+  "mismatch": {
+    "nights": 2,
+    "since": "2026-10-03T03:00:05.000Z",
+    "title": "Канал видит больше мест, чем есть: ночей 2",
+  },
+}
+
++ Received:
+undefined
+
+ ❯ apps/api/src/channels/connection.test.ts:119:30
+    117|     );
+    118|     const r = await c.service.status();
+    119|     expect(r.reconciliation).toEqual({
+       |                              ^
+    120|       lastCheckedAt: '2026-10-03T03:00:00.000Z',
+    121|       mismatch: {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  19:14:13
+   Duration  1.63s (transform 74%, import 25%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-14-12Z-unit-161e.json
+
+# код выхода 1 · 3 с

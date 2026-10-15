@@ -1,6 +1,6 @@
 -- Откат 20260930000036_seller_agent_scope_expand (SA2.5, шаг A): снимает функции предпроверки и возвращает прежние тела
 -- seller_agent_ensure / seller_agents_backfill из 034 дословно (выбор самого раннего объекта). Данные не откатываются:
--- филиалы агентов и agent_id профилей, заполненные backfill, остаются — они однозначны и прежним кодом не читаются.
+-- филиалы агентов и agent_id профилей, заполненные backfill, остаются, они однозначны и прежним кодом не читаются.
 DROP FUNCTION IF EXISTS seller_agent_bind_location(uuid);
 DROP FUNCTION IF EXISTS seller_scope_assert(uuid);
 DROP FUNCTION IF EXISTS seller_scope_precheck(uuid);
@@ -17,7 +17,7 @@ BEGIN
     RETURN false;
   END IF;
 
-  -- автор — самый ранний владелец, иначе самый ранний участник
+  -- автор, самый ранний владелец, иначе самый ранний участник
   SELECT m.user_id INTO v_author FROM memberships m WHERE m.organization_id = p_org
   ORDER BY (m.role = 'OWNER') DESC, m.created_at ASC, m.user_id LIMIT 1;
   IF v_author IS NULL THEN
@@ -26,7 +26,7 @@ BEGIN
     RETURN false;
   END IF;
 
-  -- филиал самого раннего объекта организации — то же правило, что у фактов и котировки продавца
+  -- филиал самого раннего объекта организации, то же правило, что у фактов и котировки продавца
   SELECT p.location_id INTO v_location FROM properties p WHERE p.organization_id = p_org
   ORDER BY p.created_at ASC, p.id LIMIT 1;
 

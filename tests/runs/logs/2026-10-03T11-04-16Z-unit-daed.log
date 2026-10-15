@@ -1,0 +1,162 @@
+# Модульные (unit) · 03.10.2026 16:04 Алматы · vm
+# коммит 83f1db7 (ds), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T11-04-16Z-unit-daed.json' 'apps/api/src/channels/webhook-health.test.ts' 'apps/api/src/channels/webhook-register.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/main-snap
+
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 760  - 10/03/2026, 4:04:19 AM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 760  - 10/03/2026, 4:04:19 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 760  - 10/03/2026, 4:04:19 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] в менеджере каналов зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 760  - 10/03/2026, 4:04:19 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 760  - 10/03/2026, 4:04:19 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 760  - 10/03/2026, 4:04:19 AM     LOG [WebhookHealthService] адрес webhook https://api.wetop.test/channels/channex/webhook: отвечает
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 760  - 10/03/2026, 4:04:19 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ❯ |unit| apps/api/src/channels/webhook-health.test.ts (12 tests | 2 failed) 38ms
+   ✓ WebhookHealthService (3)
+     ✓ спокойствие: бронь опросом не приходила — ленту сверх расписания не дёргаем 4ms
+     ✓ бронь пришла опросом, webhook молчал — подозрение, опрос ленты сразу и на каждом тике 2ms
+     ✓ webhook доставил событие после начала подозрения — подозрение снято, частый опрос прекращён 1ms
+   ✓ WebhookHealthService — проба зарегистрированного адреса (7)
+     ✓ адрес не отвечает — подозрение и опрос ленты, хотя броней опросом не было 3ms
+     ✓ единичный пропуск пробы — не неисправность: повторная проба ответила, подозрения нет 7ms
+     ✓ Д4: в Channex стоит не постоянный адрес PMS — подозрение, даже если тот адрес отвечает 1ms
+     ✓ адрес отвечает — тишина 1ms
+     ✓ адрес дёргается не чаще раза в интервал 1ms
+     ✓ webhook не зарегистрирован — пробовать нечего, подозрения нет 1ms
+     ✓ Channex не ответил на запрос статуса — сторож не падает и подозрения не выдумывает 1ms
+   ❯ WebhookHealthService: Channex о webhook спрашивается раз в сутки (2)
+     × сутки тиков раз в минуту: один запрос списка webhook, проба своего адреса каждые 5 минут 12ms
+     × Channex не ответил: повтор не на каждом тике, а со следующей пробой через 5 минут 2ms
+ ❯ |unit| apps/api/src/channels/webhook-register.test.ts (7 tests | 3 failed) 15ms
+   ✓ registerWebhook: успех считается по ответу Channex, а не по отправленному адресу (2)
+     ✓ падает, когда Channex вернул прежний адрес: кнопка не должна рапортовать о перерегистрации 3ms
+     ✓ возвращает адрес из ответа Channex, когда тот его принял 1ms
+   ✓ testWebhook: при заданном PUBLIC_API_URL секрет уходит только на постоянный адрес (2)
+     ✓ чужой адрес — 409, Channex не вызывается 1ms
+     ✓ постоянный адрес — явно или по умолчанию — проверяется 1ms
+   ❯ webhookStatus: память вместо постоянного опроса Channex (3)
+     × с maxAgeMs второй вопрос в пределах срока отвечается из памяти, без запроса к Channex 6ms
+     × без maxAgeMs (страница каналов) Channex спрашивается всегда, и ответ освежает память 1ms
+     × регистрация кладёт в память новый адрес: сторож узнаёт его без запроса списка 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/webhook-health.test.ts > WebhookHealthService: Channex о webhook спрашивается раз в сутки > сутки тиков раз в минуту: один запрос списка webhook, проба своего адреса каждые 5 минут
+AssertionError: expected 288 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 288
+
+ ❯ apps/api/src/channels/webhook-health.test.ts:294:21
+    292|     const t0 = Date.parse('2026-10-03T10:00:00Z');
+    293|     for (let m = 0; m < 24 * 60; m += 1) await svc.tick(new Date(t0 + …
+    294|     expect(lists()).toBe(1);
+       |                     ^
+    295|     expect(probed).toHaveLength((24 * 60 * 60_000) / PROBE_EVERY_MS);
+    296|     expect(new Set(probed)).toEqual(new Set([`${PERMANENT}${WEBHOOK_PA…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/api/src/channels/webhook-health.test.ts > WebhookHealthService: Channex о webhook спрашивается раз в сутки > Channex не ответил: повтор не на каждом тике, а со следующей пробой через 5 минут
+AssertionError: expected 10 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 10
+
+ ❯ apps/api/src/channels/webhook-health.test.ts:305:21
+    303|     const t0 = Date.parse('2026-10-03T10:00:00Z');
+    304|     for (let m = 0; m < 10; m += 1) await svc.tick(new Date(t0 + m * 6…
+    305|     expect(lists()).toBe(2);
+       |                     ^
+    306|     expect(probed).toEqual([]);
+    307|     expect(svc.snapshot().callbackReachable).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/api/src/channels/webhook-register.test.ts > webhookStatus: память вместо постоянного опроса Channex > с maxAgeMs второй вопрос в пределах срока отвечается из памяти, без запроса к Channex
+AssertionError: expected 2 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ apps/api/src/channels/webhook-register.test.ts:160:23
+    158|     const first = await sync.webhookStatus({ maxAgeMs: day, now: t0 });
+    159|     const again = await sync.webhookStatus({ maxAgeMs: day, now: new D…
+    160|     expect(c.lists()).toBe(1);
+       |                       ^
+    161|     expect(again).toEqual(first);
+    162|     await sync.webhookStatus({ maxAgeMs: day, now: new Date(t0.getTime…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/api/src/channels/webhook-register.test.ts > webhookStatus: память вместо постоянного опроса Channex > без maxAgeMs (страница каналов) Channex спрашивается всегда, и ответ освежает память
+AssertionError: expected 3 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ apps/api/src/channels/webhook-register.test.ts:173:23
+    171|     expect(c.lists()).toBe(2);
+    172|     await sync.webhookStatus({ maxAgeMs: 60_000 });
+    173|     expect(c.lists()).toBe(2);
+       |                       ^
+    174|   });
+    175|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/api/src/channels/webhook-register.test.ts > webhookStatus: память вместо постоянного опроса Channex > регистрация кладёт в память новый адрес: сторож узнаёт его без запроса списка
+AssertionError: expected 2 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ apps/api/src/channels/webhook-register.test.ts:182:23
+    180|     const listsAfterRegister = c.lists();
+    181|     const status = await sync.webhookStatus({ maxAgeMs: 24 * 60 * 60_0…
+    182|     expect(c.lists()).toBe(listsAfterRegister);
+       |                       ^
+    183|     expect(status).toMatchObject({
+    184|       registered: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 14 passed (19)
+   Start at  04:04:17
+   Duration  2.86s (transform 65%, import 33%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-03T11-04-16Z-unit-daed.json
+
+# код выхода 1 · 4 с

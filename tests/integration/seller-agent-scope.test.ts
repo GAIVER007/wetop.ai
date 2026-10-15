@@ -19,10 +19,10 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 
 /**
- * SA2.5: область агента на настоящей базе. Факты, домены виджета и котировка берутся ТОЛЬКО из строки агента — его филиал,
+ * SA2.5: область агента на настоящей базе. Факты, домены виджета и котировка берутся ТОЛЬКО из строки агента, его филиал,
  * объект филиала, сайты объекта; «самый ранний объект организации» больше не читается (plans/…sa25 §3, §10).
- *   организация с двумя филиалами: агент А1 (филиал 1), агент А2 (филиал 2) — каждый видит свой объект;
- *   чужая организация с тем же идентификатором агента в запросе — пусто; архивный агент областью не является.
+ *   организация с двумя филиалами: агент А1 (филиал 1), агент А2 (филиал 2), каждый видит свой объект;
+ *   чужая организация с тем же идентификатором агента в запросе, пусто; архивный агент областью не является.
  */
 describe.skipIf(!url)('SA2.5: область агента в базе (integration, DATABASE_URL required)', () => {
   let db: Db;
@@ -150,7 +150,7 @@ describe.skipIf(!url)('SA2.5: область агента в базе (integrati
     expect(await analytics.hostsForAgent(randomUUID())).toBeNull();
   });
 
-  it('область агента для котировки: организация, филиал и объект — из строки; архивный — null; счёт агентов организации', async () => {
+  it('область агента для котировки: организация, филиал и объект, из строки; архивный, null; счёт агентов организации', async () => {
     expect(await analytics.agentScope(agentA1)).toMatchObject({ organizationId: orgA, locationId: locA1, propertyId: propA1 });
     expect(await analytics.agentScope(agentA2)).toMatchObject({ organizationId: orgA, locationId: locA2, propertyId: propA2 });
     expect(await analytics.salesAgentCount(orgA)).toBe(2);
@@ -165,7 +165,7 @@ describe.skipIf(!url)('SA2.5: область агента в базе (integrati
     }
   });
 
-  it('профиль: ключ — агент; перенесённый продавец (agentId = организация) сохраняется и читается как прежде', async () => {
+  it('профиль: ключ, агент; перенесённый продавец (agentId = организация) сохраняется и читается как прежде', async () => {
     const scope = workingSellerScope(orgB);
     expect(await profiles.get(scope.agentId)).toBeNull();
     await profiles.save(scope, { ...DEFAULT_SELLER_PROFILE, botName: 'Айгерим' }, null, now);

@@ -1,8 +1,17 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import {
+  FIXTURE_API,
+  boardFilter,
+  expect,
+  openBoardFilters,
+  test,
+  devNoise,
+  type Page,
+  goViaMenu,
+} from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const booking = '20260913-TESTAA';
 const screenshots = resolve('reports/hostel-frontend/screenshots');
 test.beforeEach(async ({ request }) => {
@@ -36,22 +45,22 @@ test('все разделы, карточки и печать открывают
   });
   const routes: Array<[string, string]> = [
     ['/today', 'Главная'],
-    ['/chessboard', 'Шахматка'],
+    ['/chessboard', 'Календарь'],
     ['/guests?q=Тест', 'Гости'],
     ['/guests/ui-guest', 'Гость'],
     [`/reservations/${booking}`, `Бронь ${booking}`],
     ['/reservations/new?unit=M03', 'Новая бронь'],
-    ['/finance', 'Финансы за период'],
-    ['/rates', 'Тарифы и цены'],
+    ['/finance', 'Финансы'],
     ['/inventory', 'Номерной фонд'],
     ['/units/R01', 'R01'],
     ['/channels', 'Каналы продаж'],
-    ['/channels/connections', 'Подключения'],
+    ['/channels/connections', 'Подключение каналов'],
     ['/channels/mapping', 'Сопоставление'],
     ['/channels/sync', 'Синхронизация'],
     ['/channels/events', 'События'],
-    ['/journal', 'Журнал действий'],
+    ['/journal', 'Журнал операций'],
     ['/incidents', 'Неисправности'],
+    ['/marketing', 'Маркетинг'],
     ['/website', 'Сайт и онлайн-бронирование'],
     ['/website/booking', 'Сайт и онлайн-бронирование'],
     ['/website/analytics', 'Сайт и онлайн-бронирование'],
@@ -62,25 +71,26 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings', 'Настройки объекта'],
     ['/hotel-settings/check-in', 'Настройки объекта'],
     ['/hotel-settings/stay', 'Настройки объекта'],
-    ['/hotel-settings/penalties', 'Тарифы и цены'],
+    ['/hotel-settings/penalties', 'Настройки объекта'],
     ['/hotel-settings/services', 'Настройки объекта'],
     ['/hotel-settings/description', 'Настройки объекта'],
-    ['/hotel-settings/photos', 'Интеграции'],
-    ['/hotel-settings/amenities', 'Интеграции'],
+    ['/hotel-settings/photos', 'Подключения'],
+    ['/hotel-settings/amenities', 'Подключения'],
     ['/management/analytics', 'Аналитика'],
     ['/management/analytics/occupancy', 'Аналитика'],
     // временные «Показатели за период» (A1) с AN2 ведут на «Обзор» (ADR-114)
     ['/management/dashboard', 'Аналитика'],
     ['/channel-manager', 'Каналы продаж'],
-    ['/connections', 'Интеграции'],
+    ['/connections', 'Подключения'],
   ];
   // Старые адреса — redirect(): у экрана загрузки «Настроек объекта» тот же заголовок, что у цели (ADR-115), поэтому
   // сначала ждём конечный адрес, иначе замер ширины попадает на переход и падает с «Execution context was destroyed»
   const redirects: Record<string, RegExp> = {
     '/hotel-settings/check-in': /\/hotel-settings\/stay$/,
-    '/hotel-settings/penalties': /\/rates\/plans$/,
+    '/hotel-settings/penalties': /\/hotel-settings$/,
     '/management/dashboard': /\/management\/analytics$/,
     '/hotel-settings/description': /\/hotel-settings$/,
+    '/channels/connections': /\/connections\/channex$/,
     '/hotel-settings/photos': /\/connections#channex-connection$/,
     '/hotel-settings/amenities': /\/connections#channex-connection$/,
   };
@@ -101,45 +111,40 @@ test('все разделы, карточки и печать открывают
     }
     await page.setViewportSize({ width: 390, height: 844 });
     await noPageOverflow(page);
-    if (route === '/today')
+    if (route === '/finance')
       await page.screenshot({
         caret: 'initial',
-        path: `${screenshots}/today-mobile.png`,
+        path: `${screenshots}/finance-mobile.png`,
       });
   }
   await page.goto(`/reservations/${booking}/print?lang=ru`);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Регистрационная карта');
-  await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
+  await expect(page.locator('.workspace-header')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
-  await page.goto('/today');
-  const sidebar = page.locator('.workspace-sidebar');
-  const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
-  await expect(sales).toHaveAttribute('aria-expanded', 'false');
-  // страница ещё стримится, и клик до гидратации кнопки теряется — повторяем, как в real-data.spec
-  await expect(async () => {
-    await sales.click();
-    await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
-  }).toPass({ timeout: 15_000 });
-  await sidebar.getByRole('link', { name: 'Тарифы', exact: true }).click();
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы');
-  await sales.click();
-  await expect(sidebar.getByRole('link', { name: 'Тарифы', exact: true })).not.toBeVisible();
+  await page.goto('/finance');
+  // Скрытое меню: прямой раздел находится в первом столбце, подраздел во втором.
+  const menuPanel = page.locator('.sidenav__panel');
+  await goViaMenu(page, 'Продажи', 'Анализ конкурентов');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
+  // переход закрывает панель; кнопка показывает раздел текущего экрана
+  await expect(page.locator('.sidenav__panel')).toBeHidden();
+  await expect(page.locator('.sidenav__current')).toHaveText('Продажи');
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
-  // вкладка модуля сайта подсвечивает один пункт «Продаж» (ADR-117)
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
+  // вкладка модуля сайта подсвечивает один пункт «Сайт и SEO» группы «Маркетинг» (MKT2)
   await page.goto('/website/settings');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и онлайн-бронирование');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
   await page.goto('/connections');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Интеграции');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Подключения');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });
@@ -170,11 +175,10 @@ test('доступность переносит даты и свободное �
   await page.locator('.fund-availability summary').first().click();
   await page.locator('.fund-book-unit').first().click();
   await expect(page).toHaveURL(new RegExp(`arrival=${arrival}&departure=${departure}&unit=R01`));
-  await expect(
-    page
-      .getByRole('dialog', { name: 'Новая бронь', exact: true })
-      .getByRole('heading', { level: 1 }),
-  ).toHaveText('Новая бронь');
+  // заголовок страницы в компактной панели скрыт (booking-compact): проверяем саму панель и форму
+  const bookingDrawer = page.getByRole('dialog', { name: 'Новая бронь', exact: true });
+  await expect(bookingDrawer).toBeVisible();
+  await expect(bookingDrawer.getByTestId('new-reservation-form')).toBeVisible();
   await page.goto(`/rooms/availability?arrival=${departure}&departure=${arrival}`);
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
     'Выезд должен быть позже заезда',
@@ -217,7 +221,9 @@ test('подключения показывают частичный сбой, �
   await page.goto('/connections');
   // частичный сбой: webhook не проверен — «неизвестно» и причина словами; сайт — модуль WETOP, не интеграция (INT1)
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
-  await expect(page.getByTestId('integration-issues')).toContainText('Не удалось проверить webhook');
+  await expect(page.getByTestId('integration-issues')).toContainText(
+    'Не удалось проверить webhook',
+  );
   await expect(page.getByRole('main')).not.toContainText('Сайтов в системе');
   // Контент каналов не дублируется: старые ссылки ведут к подключению Channex.
   for (const section of ['photos', 'amenities']) {
@@ -261,14 +267,16 @@ test('показатели за период: готовые отрезки и �
   await expect(page.getByTestId('pa-period')).toContainText('3 дня');
   // неверный отрезок — ошибка на экране, показан сегодняшний день
   await page.goto('/management/dashboard?period=custom&from=2026-09-10&to=2026-09-01');
-  await expect(page).toHaveURL(/\/management\/analytics\?period=custom&from=2026-09-10&to=2026-09-01$/);
+  await expect(page).toHaveURL(
+    /\/management\/analytics\?period=custom&from=2026-09-10&to=2026-09-01$/,
+  );
   await expect(page.getByRole('main').getByRole('alert')).toContainText('раньше начала');
   await expect(page.getByRole('main').getByTestId('pa-chart-categories')).toBeVisible();
   await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
   await page.getByLabel('Запрос', { exact: true }).fill('Тест');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
   await expect(page).toHaveURL(/\/guests\?q=/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Гости');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
   await page.setViewportSize({ width: 390, height: 844 });
   const openMenu = page.getByRole('button', { name: 'Открыть меню' });
   await openMenu.click();
@@ -278,7 +286,7 @@ test('показатели за период: готовые отрезки и �
   await openMenu.click();
   await page
     .getByRole('dialog', { name: 'Навигация' })
-    .getByRole('link', { name: 'Шахматка', exact: true })
+    .getByRole('link', { name: 'Календарь', exact: true })
     .click();
   await expect(page).toHaveURL(/\/chessboard/);
   await expect(page.getByRole('dialog', { name: 'Навигация' })).not.toBeVisible();
@@ -295,46 +303,48 @@ test('шахматка: фильтры, продолжение брони, вы�
   await page.goto(`/chessboard?from=${today}&to=${last}`);
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
+  // бронь, начавшаяся до окна, помечена значком «назад» и признаком data-continues
+  await expect(page.locator('.board-stay-caption[data-continues]').first()).toBeVisible();
   // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
   const board = page.getByRole('main');
-  await board.getByLabel('Категория на шахматке').selectOption('MALE');
+  await boardFilter(page, { category: 'MALE' });
   await expect(page.getByTestId('unit-row')).toHaveCount(36);
-  await board.getByLabel('Поиск на шахматке').fill('M03');
+  await board.getByLabel('Поиск в календаре').fill('M03');
   await expect(page.getByTestId('unit-row')).toHaveCount(1);
   await page.getByTestId('free-cell').first().click();
   // PR 5 (ТЗ v2 §32): щелчок открывает окошко свободной клетки, форма — по «Новая бронь»
-  await page.getByTestId('free-menu').getByRole('link', { name: 'Новая бронь', exact: true }).click();
+  await page
+    .getByTestId('free-menu')
+    .getByRole('link', { name: 'Новая бронь', exact: true })
+    .click();
   await expect(page).toHaveURL(/unit=M03/);
   await expect(page.locator('select[name="accommodationTypeCode"]')).toHaveValue('MALE');
   await expect(page.locator('select[name="unitCode"]')).toHaveValue('M03');
 });
 
 /**
- * Подсказка над шахматкой выводится поверх планки, поэтому открытой она накрывает строку фильтров:
- * до 17.09.2026 по кнопке «Сбросить» под ней нельзя было попасть мышью (найдено обходом стойки).
+ * Подсказка «Как работать с календарём» с 09.10.2026 лежит внизу окошка «Фильтры» (значка «?» в полосе
+ * нет): открывается по слову, закрытое окошко Escape не держит кнопки под собой, «Сбросить» достаётся.
  */
-test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({
+test('шахматка: подсказка внутри окошка «Фильтры», Escape закрывает окошко целиком', async ({
   page,
 }) => {
   await page.goto('/chessboard');
-  const help = page.locator('details.board-help');
+  const pop = await openBoardFilters(page);
+  const help = pop.locator('details.board-filters-pop__help');
+  await expect(help).not.toHaveAttribute('open', '');
   await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
-  // щелчок по строке поиска под подсказкой закрывает её; «Сбросить» появляется, когда есть отбор
-  const search = page.getByRole('main').getByLabel('Поиск на шахматке');
-  await search.click();
-  await expect(help).not.toHaveAttribute('open', '');
+  await expect(help).toContainText('Ночь выезда ячейку не занимает');
+  await page.keyboard.press('Escape');
+  await expect(pop).toBeHidden();
+  // «Сбросить» появляется, когда есть отбор, и до неё достаёт мышь
+  const search = page.getByRole('main').getByLabel('Поиск в календаре');
   await search.fill('R0');
   const reset = page.getByRole('button', { name: 'Сбросить', exact: true });
   await expect(reset).toBeVisible();
   await reset.click({ timeout: 5000 });
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  // Escape закрывает её так же, как щелчок вне
-  await help.locator('summary').click();
-  await expect(help).toHaveAttribute('open', '');
-  await page.keyboard.press('Escape');
-  await expect(help).not.toHaveAttribute('open', '');
 });
 
 test('ошибка создания сохраняет ввод; повтор отправляет поля существующего API', async ({
@@ -344,6 +354,8 @@ test('ошибка создания сохраняет ввод; повтор о
   await request.post(`${fixture}/__test/control`, { data: { rejectCreate: true } });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
+  // источник, промокод и заметки — за свёрнутым «Дополнительно» (booking-compact)
+  await form.locator('.booking-create__extras > summary').click();
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByLabel('Имя *', { exact: true }).fill('Новый');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
@@ -357,13 +369,16 @@ test('ошибка создания сохраняет ввод; повтор о
   await expect(form.locator('[name="unitCode"]')).toHaveValue('M03');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await form.getByRole('button', { name: 'Создать бронь' }).click();
-  await expect(page).toHaveURL(/\/reservations\/20260913-NEW2$/);
+  // номер даёт фикстура по длине журнала команд, а в журнале теперь и POST /reservations/quote
+  // компактной формы: ровно два создания проверяем по самому журналу, номер не зашиваем
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
   await expect(page.getByTestId('stay-row')).toContainText('M03');
   await expect(page.getByRole('main')).toContainText('Тестович');
   const response = await request.get(`${fixture}/__test/commands`);
-  const commands = await response.json();
-  expect(commands).toHaveLength(2);
-  expect(commands[1].body).toMatchObject({
+  const commands = (await response.json()) as Array<{ path: string; body: object }>;
+  const creates = commands.filter((c) => c.path === '/reservations');
+  expect(creates).toHaveLength(2);
+  expect(creates[1]!.body).toMatchObject({
     guest: { email: 'new@example.invalid', middleName: 'Тестович' },
     items: [{ accommodationTypeCode: 'MALE', unitCode: 'M03', quantity: 1 }],
   });
@@ -405,7 +420,7 @@ test('карточка: профиль гостя и заселение прох
   // §8 «сделал — и что?»: карточка перерисовывается молча, итог называет уведомление (срез 7.4)
   await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
-  await expect(page.getByTestId('stay-row')).toContainText('заселён');
+  await expect(page.getByTestId('stay-row')).toContainText('Проживает');
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(commands.map((c: { path: string }) => c.path)).toContain(
     `/reservations/${booking}/items/ui-item/check-in`,
@@ -506,20 +521,9 @@ test('сбой API показывает ошибку, повтор восста�
 test('неисправности из обновлённого main: принятие и закрытие работают в новом каркасе', async ({
   page,
 }) => {
-  await page.goto('/today');
-  // «Неисправности» лежат в группе «Контроль», и до раскрытия ссылки на экране нет. Главная
-  // стримится, и клик по группе до гидрации теряется (тот же класс, что real-data.spec 20.09) —
-  // жмём, пока ссылка не раскроется, но только если группа свёрнута: иначе щелчок её закроет
-  // (правка ветки PR #28)
-  const control = page.locator('.workspace-sidebar .sidebar-section', { hasText: 'Контроль' });
-  const toggle = control.getByRole('button');
-  await expect(async () => {
-    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
-    await expect(control.getByRole('link', { name: 'Неисправности', exact: true })).toBeVisible({
-      timeout: 1_500,
-    });
-  }).toPass({ timeout: 15_000 });
-  await control.getByRole('link', { name: 'Неисправности', exact: true }).click();
+  await page.goto('/finance');
+  // «Неисправности» лежат в разделе «Настройки» левого меню (ADR-161): панель, затем подраздел
+  await goViaMenu(page, 'Настройки', 'Неисправности');
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');
   await page.getByTestId('incident-resolve').click();
@@ -544,7 +548,9 @@ test('сбой списка неисправностей не выдаётся �
 test('неверная дата в ссылке оставляет доступную форму для исправления', async ({ page }) => {
   await page.goto('/reservations/new?arrival=bad-date');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Новая бронь');
-  await expect(page.getByText('Даты некорректны:', { exact: false })).toBeVisible();
+  // ошибка даты стоит у самого поля (booking-compact), а не общей строкой; битый заезд делает
+  // некорректным и выезд — алертов два, проверяем поле заезда
+  await expect(page.locator('#booking-arrival-error')).toHaveText('Введите корректную дату');
   await expect(page.getByRole('button', { name: 'Создать бронь' })).toBeDisabled();
 });
 
@@ -561,6 +567,7 @@ test('групповая бронь: разные категории сохра�
   await request.post(`${fixture}/__test/control`, { data: { rejectCreate: true } });
   await page.goto('/reservations/new');
   const form = page.getByTestId('new-reservation-form');
+  await form.locator('.booking-create__extras > summary').click();
   await form.getByLabel('Источник *').selectOption('PHONE');
   await form.getByRole('button', { name: '+ Добавить размещение' }).click();
   const second = form.getByTestId('placement-fields').nth(1);
@@ -572,9 +579,15 @@ test('групповая бронь: разные категории сохра�
   await expect(form.getByRole('alert')).toContainText('Место уже занято');
   await expect(second.getByLabel('Категория *')).toHaveValue('MALE');
   await expect(second.getByLabel('Количество мест')).toHaveValue('4');
-  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
-  expect(commands[0].body.items).toHaveLength(2);
-  expect(commands[0].body.items[1]).toMatchObject({
+  // Журнал команд пишет и `POST /reservations/quote` (правка 02.10), поэтому команду создания берём
+  // по пути, как в channel-booking-number и pii-storage: первой записью ложится запрос цены
+  const commands = (await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{
+    path: string;
+    body: { items: Array<Record<string, unknown>> };
+  }>;
+  const created = commands.filter((c) => c.path === '/reservations').at(-1)?.body;
+  expect(created?.items).toHaveLength(2);
+  expect(created?.items[1]).toMatchObject({
     accommodationTypeCode: 'MALE',
     quantity: 4,
     unitCode: null,
@@ -593,11 +606,13 @@ test('общий платёж: ошибка не стирает распреде
   await form.getByLabel('Общая сумма, KZT').fill('2000');
   await form.getByLabel('На счёт 1', { exact: true }).fill('1000');
   await form.getByLabel('На счёт 2', { exact: true }).fill('500');
-  await form.getByRole('button', { name: 'Принять общий платёж' }).click();
+  await form.getByRole('button', { name: 'Проверить общий платёж' }).click();
+  await form.getByRole('button', { name: 'Подтвердить общий платёж' }).click();
   await expect(form.getByRole('alert')).toContainText('должны совпадать');
   await expect(form.getByLabel('На счёт 1', { exact: true })).toHaveValue('1000');
   await form.getByLabel('На счёт 2', { exact: true }).fill('1000');
-  await form.getByRole('button', { name: 'Принять общий платёж' }).click();
+  await form.getByRole('button', { name: 'Проверить общий платёж' }).click();
+  await form.getByRole('button', { name: 'Подтвердить общий платёж' }).click();
   await expect(form.getByRole('status')).toContainText('Платёж принят');
   await expect(page.getByTestId('finance-total')).toContainText('30 000 ₸');
   const result = await (
@@ -608,48 +623,33 @@ test('общий платёж: ошибка не стирает распреде
   expect(result.balanceMinor).toBe('3000000');
 });
 
-test('обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия', async ({
+test('обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия', async ({
   page,
 }) => {
+  // компактный дашборд владельца (ea9dd3c): очередь A3 живёт за кнопкой «Требуют внимания» в панели,
+  // полосы «День стойки» и «Сегодня на стойке» сняты тем же срезом; с 09.10 блоки живут в «Финансах»
   await page.goto('/today');
-  const tasks = page.getByRole('region', { name: 'Требуют внимания' });
-  await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
-  // A3 (план today-a3): счётчик в шапке — сумма событий очереди; долг уезжающего — строкой своего события
-  const queueTotal = async () =>
-    String(
-      (await tasks.getByTestId('attention-event').evaluateAll((els) =>
-        els.map((el) => Number(el.getAttribute('data-count'))),
-      )).reduce((a, b) => a + b, 0),
-    );
-  await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
+  const tasks = page.getByRole('dialog', { name: 'Требуют внимания', exact: true });
   const departureDebt = tasks.locator('[data-event="departure-debt"] .attention-item').first();
   await expect(departureDebt).toContainText('К оплате');
-  await expect(departureDebt).toHaveAttribute('href', '/reservations/20260913-TEST4#booking-finance');
+  await expect(departureDebt).toHaveAttribute(
+    'href',
+    '/reservations/20260913-TEST4#booking-finance',
+  );
   const overdue = tasks.getByTestId('overdue-arrival');
   await expect(overdue).toHaveCount(1);
   await expect(overdue).toContainText('Не заехал');
   await expect(overdue).toHaveAttribute('href', '/reservations/20260913-TEST8#booking-actions');
-  // A1 (ADR-103): Главная живёт одним днём — «Завтра» меняет и полосу, и задачи на тот день
-  await page.getByRole('navigation', { name: 'День стойки' }).getByRole('link', { name: 'Завтра' }).click();
-  await expect(page).toHaveURL(/date=\d{4}-\d{2}-\d{2}/);
-  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).not.toContainText('сейчас');
-  await page
-    .getByRole('navigation', { name: 'День стойки' })
-    .getByRole('link', { name: 'Сегодня' })
-    .click();
-  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('сейчас');
-  await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
-  await expect(
-    page
-      .getByRole('region', { name: 'Сегодня на стойке' })
-      .getByRole('link', { name: 'Все брони дня' }),
-  ).toHaveAttribute('href', /\/reservations\?date=\d{4}-\d{2}-\d{2}/);
+  await page.keyboard.press('Escape');
+  await expect(tasks).toBeHidden();
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     await noPageOverflow(page);
-    await expect(page.getByRole('link', { name: 'Новая бронь', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Все задачи', exact: true })).toBeVisible();
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   await departureDebt.click();
   await expect(page).toHaveURL(/#booking-finance$/);
   await expect(page.locator('#booking-finance')).toBeInViewport();
@@ -675,13 +675,18 @@ test('ошибка буфера обмена видна, код остаётся
 
 test('финансы: неверные даты можно исправить без падения страницы', async ({ page }) => {
   await page.goto('/finance?from=2026-09-30&to=2026-09-01');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Финансы за период');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Финансы');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Проверьте даты');
   await expect(page.getByTestId('charged')).toHaveCount(0);
-  await page.locator('input[name="to"]').fill('2026-09-30');
+  await page.locator('#finance-filters input[name="to"]').fill('2026-09-30');
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   // Во время перехода Next держит в DOM уходящую страницу: смотрим ту, что видит человек
-  await expect(page.getByRole('main').getByTestId('charged')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('cash-summary')).toBeVisible();
+  // та же область, что строкой выше: без неё уходящая страница даёт второй `cash-period-income`,
+  // и строгий режим отказывается выбирать
+  await expect(page.getByRole('main').getByTestId('cash-period-income')).not.toHaveText(
+    'Нет данных',
+  );
 });
 
 test('ошибка загрузки тарифов не позволяет включить виджет', async ({ page, request }) => {
@@ -752,30 +757,38 @@ test('гости: удаление документа переспрашивае
 
 test('новая бронь: число гостей ограничено вместимостью выбранной категории', async ({ page }) => {
   await page.goto('/reservations/new?unit=M03');
-  const guests = page.getByTestId('placement-fields').first().getByLabel('Гостей в проживании');
+  const guests = page
+    .getByTestId('placement-fields')
+    .first()
+    .getByLabel('Гостей на место', { exact: true });
   // койка в общем номере — один гость
   await expect(guests).toHaveAttribute('max', '1');
   await page.getByTestId('placement-fields').first().getByLabel('Категория *').selectOption('ROOM');
   await expect(guests).toHaveAttribute('max', '2');
 });
 
-test('тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы»', async ({
-  page,
-  request,
-}) => {
-  await page.goto('/rates?month=2026-10&category=MALE');
-  await page.getByTestId('rates-edit-open').click();
-  const editor = page.getByTestId('bulk-editor');
-  await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '1');
-  await editor.locator('select[name="accommodationTypeCode"]').selectOption('ROOM');
-  await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '2');
-  await request.post(`${fixture}/__test/control`, { data: { ratesUnmapped: true } });
-  await editor.getByLabel('Цена за ночь').fill('9100');
-  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
-  await page.getByTestId('apply-changes').click();
-  await expect(page.getByTestId('bulk-done')).toContainText('Сохранено изменений: 1');
-  await expect(page.getByTestId('bulk-done')).toContainText('В каналы не ушло');
-  await expect(page.getByTestId('bulk-done')).not.toContainText('Ушло в очередь');
+test('групповая бронь: три места показывают трёх гостей в итогах', async ({ page }) => {
+  await page.goto('/reservations/new?unit=M03');
+  for (const [quantity, guests] of [
+    ['1', '1 гость'],
+    ['2', '2 гостя'],
+    ['3', '3 гостя'],
+  ]) {
+    await page.getByLabel('Количество мест', { exact: true }).fill(quantity!);
+    await page.getByLabel('Количество мест', { exact: true }).blur();
+    await expect(page.getByTestId('booking-summary')).toContainText(guests!);
+  }
+  await page
+    .getByTestId('new-reservation-form')
+    .locator('summary', { hasText: 'Дополнительно' })
+    .click();
+  await page.getByRole('button', { name: '+ Добавить размещение' }).click();
+  const second = page.getByTestId('placement-fields').nth(1);
+  await second.getByLabel('Категория *').selectOption('ROOM');
+  await second.getByLabel('Гостей на место').fill('2');
+  await second.getByLabel('Гостей на место').blur();
+  await expect(page.getByTestId('booking-summary')).toContainText('3 гостя');
+  await expect(page.getByTestId('booking-summary')).toContainText('2 гостя');
 });
 
 test('неисправности: когда история обрезана, это написано', async ({ page, request }) => {
@@ -796,32 +809,6 @@ test('настройки: подсказка про услуги ведёт во
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(page.getByTestId('stored-property')).toContainText('Основная информация');
   await expect(page.getByTestId('content-description')).toHaveCount(0);
-});
-
-test('тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список', async ({
-  page,
-  request,
-}) => {
-  await page.goto('/rates?month=2026-10');
-  await page.getByTestId('rates-edit-open').click();
-  const editor = page.getByTestId('bulk-editor');
-  await editor.getByLabel('Цена за ночь').fill('9100');
-  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
-  await expect(page.getByTestId('pending-changes')).toContainText('9100');
-  await editor.getByRole('button', { name: 'Убрать строку 1', exact: true }).click();
-  await expect(page.getByTestId('apply-changes')).toBeDisabled();
-  await editor.getByLabel('Цена за ночь').fill('9100');
-  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
-  await request.post(`${fixture}/__test/control`, { data: { failPath: '/rates/bulk' } });
-  await page.getByTestId('apply-changes').click();
-  await expect(editor.getByRole('alert')).toBeVisible();
-  await expect(page.getByTestId('pending-changes')).toContainText('9100');
-  await request.post(`${fixture}/__test/control`, { data: {} });
-  await page.getByTestId('apply-changes').click();
-  // Отправку в каналы экран обещает по ответу API, а не «всегда» (§7.3)
-  await expect(page.getByTestId('bulk-done')).toContainText('Сохранено изменений: 1');
-  await expect(page.getByTestId('bulk-done')).toContainText('В очередь каналов ушло 1');
-  await expect(page.getByTestId('price-2026-10-01-1')).toContainText('9 100');
 });
 
 test('сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные', async ({
@@ -874,7 +861,7 @@ test('кнопки Channex отправляют команды один раз �
   request,
 }) => {
   // «Настройка подключения» видна только вошедшему владельцу (ADR-112): роль читается из /auth/me
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -889,6 +876,8 @@ test('кнопки Channex отправляют команды один раз �
   expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
   // ежедневный обмен — на «Обзоре», настройка подключения — на «Подключениях» (ADR-112)
   await page.goto('/channels');
+  // ручной обмен спрятан в раскрывашке «Активность каналов и ручной обмен»
+  await page.getByTestId('channels-activity').locator('> summary').click();
   for (const id of ['channel-pull', 'channel-flush']) {
     // Streamed Suspense may briefly retain a hidden copy; require one visible action.
     const button = page.getByTestId(id).filter({ visible: true });
@@ -898,7 +887,9 @@ test('кнопки Channex отправляют команды один раз �
     await expect(button).toBeEnabled();
     await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
   }
-  await page.goto('/channels/connections');
+  // «Подключения» каналов переехали на /connections/channex (INT2)
+  await page.goto('/connections/channex');
+  await page.getByLabel('Тариф для продажи в каналах').selectOption({ index: 1 });
   for (const id of ['channel-sync', 'channel-setup']) {
     const button = page.getByTestId(id).filter({ visible: true });
     await expect(button).toHaveCount(1);
@@ -931,49 +922,53 @@ test('пустые ответы дают нули; сбой API не выдаё�
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0 ₸');
   // Номерной фонд с PR #66 — `/inventory`; `/rooms` уводит туда потоком, и переход в пути обрывал следующий goto
   await page.goto('/inventory');
-  for (const id of ['total-units', 'rooms', 'beds', 'max-guests', 'blocks'])
+  for (const id of ['total-units', 'rooms', 'beds', 'on-sale', 'blocks', 'needs-cleaning'])
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
-  for (const route of ['/chessboard', '/inventory']) {
+  // Без ответа авторизации новый контур филиалов закрывает рабочие экраны.
+  for (const route of [
+    '/chessboard',
+    '/inventory',
+    '/channels',
+    '/finance',
+    '/today',
+    '/management/analytics',
+    '/management/analytics/occupancy',
+  ]) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
     await expect(page.getByTestId('inventory-summary')).toHaveCount(0);
+    await expect(page.getByTestId('kpi-occupancy')).toHaveCount(0);
+    await expect(page.getByTestId('owner-paid')).toHaveCount(0);
+    await expect(page.locator('.kpi__value:visible')).toHaveCount(0);
   }
-  // «Каналы продаж» с D4 (20.09) остаются на экране: заголовок и форма на месте, вместо чисел — сбой
+  // Частичные сбои данных при доступной авторизации сохраняют экран и явную ошибку отчёта.
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
   await page.goto('/channels');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
     'Каналы продаж',
   );
   await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
-  // «Финансы за период» с D2 (20.09) остаются на экране: заголовок и период на месте, вместо чисел — сбой
-  // (и у итогов, и у списка долгов — ADR-113)
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });
   await page.goto('/finance');
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-    'Финансы за период',
-  );
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Финансы');
   await expect(page.getByRole('main').getByTestId('finance-error')).toBeVisible();
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/debts' } });
+  await page.goto('/finance');
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('debts-error')).toBeVisible();
-  await expect(page.locator('.stat__value:visible')).toHaveCount(0);
-  /*
-   * «Главная» с 16.09.2026 ведёт себя иначе намеренно (замечание владельца «выбираю период и нифига
-   * не открывает»): экран открывается, а каждый неудавшийся блок называет причину сам. Правило этой
-   * проверки остаётся тем же — нули вместо неизвестных чисел не показываются.
-   */
-  await page.goto('/today');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Главная');
-  await expect(page.getByTestId('desk-error')).toBeVisible();
-  await expect(page.locator('.stat__value:visible')).toHaveCount(0);
-  await expect(page.locator('.desk-stat__value:visible')).toHaveCount(0);
-  await expect(page.getByTestId('kpi-occupancy')).toHaveCount(0);
-  // показатели за период — «Аналитика» (A1 → ADR-114): отказ называется на обеих вкладках
+  await expect(page.getByRole('main').getByTestId('debt-row')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/desk/dashboard' } });
+  // Авторизация доступна, отказ данных отчёта называется на обеих вкладках аналитики.
   await page.goto('/management/analytics');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
   await expect(page.getByTestId('pa-error')).toBeVisible();
   await page.goto('/management/analytics/occupancy');
   await expect(page.getByTestId('statistics-error')).toBeVisible();
   await expect(page.locator('.kpi__value:visible')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   await page.goto('/connections');
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
   await expect(page.getByTestId('integration-health')).not.toHaveText('Работает');
@@ -1042,9 +1037,9 @@ test('удаление документа гостя спрашивают: от�
 test('гости на сегодня: в списке все, а не первые двадцать пять', async ({ page, request }) => {
   const seeded = await (await request.post(`${fixture}/__test/crowd-seed?n=40`)).json();
   expect(seeded.stays).toBe(40);
-  // Гости v2: полный дом (до 92 живущих) виден без листания — страница просит потолок API (ТЗ §44)
-  await page.goto('/guests?state=inhouse');
-  const rows = page.locator('.dir-table tbody tr');
+  // «Гости и бронирования» листают по 10, 25 или 50: полный дом помещается на странице в 50 строк (ТЗ §44)
+  await page.goto('/guests?state=inhouse&size=50');
+  const rows = page.getByTestId('guest-row');
   const shown = await rows.count();
   expect(shown).toBeGreaterThan(40);
   await expect(page.getByTestId('guests-meta')).toContainText(`${shown} гост`);
@@ -1068,13 +1063,17 @@ test('настройки услуг: путь к начислению назва
   await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
   // Гости v2: раздел «Проживают» открывается адресом (ТЗ §31)
   await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
-  await expect(page.getByTestId('guests-meta')).toContainText('проживают');
+  await expect(page.getByTestId('guests-meta')).toContainText('проживает');
 });
 
 test('общие настройки показывают адрес PMS без дублирования контента Channex', async ({ page }) => {
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
-  await expect(page.getByTestId('stored-property')).toContainText('Тестовый адрес, 1');
+  // «Настройки объекта» по макету владельца (ADR-158): адрес теперь в поле формы, а значение поля в текст блока
+  // не входит, поэтому сверяем само поле
+  await expect(
+    page.getByTestId('stored-property').getByLabel('Адрес', { exact: true }),
+  ).toHaveValue('Тестовый адрес, 1');
   await expect(page.getByText('Адрес в Channex')).toHaveCount(0);
 });
 
@@ -1092,12 +1091,13 @@ test('кнопки называют своё действие: гость зав
 
   // С F1 (ADR-113) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
   await page.goto('/finance');
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const pay = page.getByRole('main').getByRole('link', { name: 'Принять оплату' });
   await expect(pay.first()).toBeVisible();
   for (const href of await pay.evaluateAll((xs) => xs.map((x) => x.getAttribute('href'))))
     expect(href).toMatch(/^\/reservations\/[^/#]+#booking-finance$/);
-  await page.getByRole('link', { name: 'Найти бронь для оплаты' }).click();
-  await expect(page).toHaveURL(/\/reservations$/);
+  await pay.first().click();
+  await expect(page).toHaveURL(/\/reservations\/[^/#]+#booking-finance$/);
 });
 
 /**
@@ -1218,7 +1218,8 @@ test('счета: приём оплаты подтверждается сумм�
   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
   const payment = page.getByTestId('payment-form').filter({ visible: true }).first();
   await payment.getByLabel('Сумма', { exact: true }).fill('1200');
-  await payment.getByRole('button', { name: 'Принять оплату', exact: true }).click();
+  await payment.getByRole('button', { name: 'Проверить оплату', exact: true }).click();
+  await payment.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
   await expect(page.getByTestId('finance-done')).toContainText('Оплата принята');
   await expect(page.getByTestId('finance-done')).toContainText('1 200');
 });
@@ -1235,7 +1236,7 @@ test('деньги за период: период длиннее года об�
   await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше года');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('366');
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
-  await expect(page.locator('input[name="from"]')).toHaveValue('2020-01-01');
+  await expect(page.locator('#finance-filters input[name="from"]')).toHaveValue('2020-01-01');
   // отчёт не запрашивался: чисел за период на экране нет
   await expect(page.getByTestId('charged')).toHaveCount(0);
 });
@@ -1250,6 +1251,7 @@ test('деньги за период: период длиннее года об�
  * никогда.
  */
 test('шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
   await page.goto('/chessboard');
   const plate = page.getByTestId('stay-cell').first();
   await expect(plate).toBeVisible();
@@ -1272,20 +1274,24 @@ test('шахматка: фильтр «Уборка» показывает гр�
   await page.goto('/chessboard');
   const all = await page.getByTestId('unit-row').count();
   // уборка со счётчиком: «Уборка 2» (21.09); с PR 7 «Шахматки v2» — пункт поля «Места»
-  const places = page.getByRole('main').getByLabel('Места на шахматке');
-  await expect(places.locator('option[value="cleaning"]')).toHaveText(/^Уборка \d+$/);
-  await places.selectOption('cleaning');
+  const pop = await openBoardFilters(page);
+  await expect(pop.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
+    /^Уборка и проверка \d+$/,
+  );
+  await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
+  await boardFilter(page, { state: 'cleaning' });
   const dirty = await page.getByTestId('unit-row').count();
   expect(dirty).toBeGreaterThan(0);
   expect(dirty).toBeLessThan(all);
   // легенда называет статусы глифом и словом, а не одним цветом (принцип 4)
-  await expect(page.getByTestId('board-legend')).toContainText('не подтверждена');
+  await expect(page.getByTestId('board-status-legend')).toBeVisible();
+  await expect(page.getByTestId('board-status-legend')).toContainText('Не подтверждена');
 });
 
 /**
  * Срез 7.2 — три сцены показа Channex на сертификации. Очередь строками, ссылка входящей ревизии на
  * карточку брони и цепочка «ревизия → бронь → ячейка» проверяются в `channex-screens.spec.ts` на витрине
- * фикстуры; плашка «входящая бронь требует разбора» на шахматке (Q-135) — в `manager-actions.spec.ts`
+ * фикстуры; плашка «входящая бронь требует разбора» в календаре (Q-135) — в `manager-actions.spec.ts`
  * (`review-callout`). Здесь осталась третья сцена — правка цены в ячейке календаря. После слияния 19.09
  * их дубли из второй ветки ждали другие testid и другие слова — сведено к одному тесту на утверждение.
  */
@@ -1344,20 +1350,6 @@ test('каналы: входящая бронь ведёт на карточку
   await expect(page).toHaveURL(new RegExp(`/reservations/${encodeURIComponent(number)}$`));
 });
 
-test('цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь', async ({
-  page,
-}) => {
-  await page.goto('/rates');
-  const cell = page.getByTestId('rates-calendar').getByTestId('price-cell-edit').first();
-  await cell.click();
-  const input = page.getByTestId('price-cell-input');
-  await input.fill('15000');
-  await page.getByRole('button', { name: 'Сохранить цену' }).click();
-  const said = page.getByTestId('price-cell-result');
-  await expect(said).toContainText('Цена сохранена');
-  await expect(said).toContainText('в очередь каналов');
-});
-
 /**
  * Срез 7.3 (Д5): сумму администратор объявляет гостю ДО действия, а система до сих пор считала её
  * молча после нажатия. Окно подтверждения обязано назвать число — одно и то же с тем, что появится
@@ -1367,11 +1359,12 @@ test('незаезд: окно называет штраф суммой, а не
   await page.goto('/reservations/20260913-TEST1');
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
   await page
-    .getByTestId(/^no-show-/)
+    .getByTestId(/^cancel-stay-/)
     .first()
     .click();
   const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
-  await expect(dialog).toContainText('Отметить незаезд');
+  await dialog.getByLabel('Причина отмены').selectOption('no_show');
+  await expect(dialog).toContainText('Подтвердить незаезд');
   await expect(dialog.getByTestId('no-show-penalty')).toHaveText(
     'Штраф 8 000 ₸ останется на счёте',
   );
@@ -1436,7 +1429,7 @@ test('новая бронь: резюме выбора обновляется п
     /\s*\(свободно \d+\)\s*$/,
     '',
   );
-  const unitSelect = first.getByLabel('Ячейка');
+  const unitSelect = first.getByLabel('Номер / койка');
   // первая настоящая ячейка: до неё «назначить позже» и «Автоматически» (AV3, ADR-110)
   const unitCode = (await unitSelect
     .locator('option:not([value=""]):not([value="@auto"])')
@@ -1445,8 +1438,9 @@ test('новая бронь: резюме выбора обновляется п
   await unitSelect.selectOption(unitCode);
   await expect(summary).toContainText(categoryName);
   await expect(summary).toContainText(`ячейка ${unitCode}`);
+  await form.locator('.booking-create__extras > summary').click();
   await form.getByLabel('Источник *').selectOption('PHONE');
-  await expect(summary).toContainText('телефон');
+  await expect(summary).toContainText('Телефон');
   await form.getByLabel('Имя *', { exact: true }).fill('Айгуль');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тестовая');
   // §14: «Фамилия Имя»
@@ -1468,11 +1462,9 @@ test('новая бронь: резюме выбора обновляется п
   const button = form.getByRole('button', { name: 'Создать бронь' });
   await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
   await expect(button).toBeInViewport();
-  const [box, nav] = await Promise.all([
-    button.boundingBox(),
-    page.locator('.bottom-navigation').boundingBox(),
-  ]);
-  expect(box!.y + box!.height).toBeLessThanOrEqual(nav!.y + 1);
+  const box = await button.boundingBox();
+  await expect(page.locator('.bottom-navigation')).toHaveCount(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(page.viewportSize()!.height + 1);
   const layout = await page.evaluate(() => ({
     viewport: window.innerWidth,
     content: document.documentElement.scrollWidth,
@@ -1570,7 +1562,9 @@ test('финансы F1: период в подзаголовке, четыре 
 }) => {
   await page.goto('/finance?from=2026-09-01&to=2026-09-30');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('finance-period')).toHaveText('1 сент. → 30 сент., 30 дней');
+  // один контрол периода (ADR-180): подпись отрезка на кнопке
+  await expect(main.getByTestId('finance-period')).toContainText('1–30 сентября 2026');
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   const kpis = main.getByTestId('finance-kpis');
   await expect(kpis.getByTestId('charged')).toHaveText('24 000 ₸');
   await expect(kpis.getByTestId('paid')).toHaveText('8 000 ₸');
@@ -1587,22 +1581,33 @@ test('финансы F1: период в подзаголовке, четыре 
   await expect(kpis).toContainText('остаток по броням периода');
   await expect(main.getByTestId('finance-charges')).toContainText('По видам начислений');
   // готовые отрезки: ссылка ведёт на период в адресе, активный отмечен
-  await main.getByRole('link', { name: 'Сегодня', exact: true }).click();
+  // с 09.10 в main две ссылки «Сегодня» (навигация «Период обзора» в шапке и «Готовые периоды»
+  // у фильтров) — проверяем ровно фильтровую
+  const presets = main.getByRole('navigation', { name: 'Готовые периоды' });
+  const todayHref = await presets.getByRole('link', { name: 'Сегодня', exact: true }).getAttribute('href');
+  const day = new URL(todayHref!, 'http://wetop.test').searchParams.get('from')!;
+  const month = new Intl.DateTimeFormat('ru-RU', {day: 'numeric', month: 'long', timeZone: 'UTC'})
+    .formatToParts(new Date(`${day}T00:00:00Z`)).find((part) => part.type === 'month')!.value;
+  await presets.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page).toHaveURL(/\/finance\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
-  await expect(main.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(/is-active/);
-  await expect(main.getByTestId('finance-period')).toContainText(', 1 день');
+  await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(
+    /is-active/,
+  );
+  // компактная подпись контрола периода (ADR-180): дата словами, без «За период с»
+  await expect(main.getByTestId('finance-period')).toContainText(`${Number(day.slice(8))} ${month} ${day.slice(0, 4)}`);
   // отказ API: заголовок, форма и период остаются, чисел нет, повтор возвращает их
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });
   await page.goto('/finance?from=2026-09-01&to=2026-09-30');
   await expect(main.getByTestId('finance-period')).toBeVisible();
   await expect(main.getByTestId('finance-error')).toContainText('Проверьте подключение');
   await expect(main.getByTestId('charged')).toHaveCount(0);
-  await expect(main.locator('input[name="from"]')).toHaveValue('2026-09-01');
+  await expect(main.getByTestId('period-form').locator('input[name="from"]')).toHaveValue('2026-09-01');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await main
     .getByTestId('finance-error')
     .getByRole('button', { name: 'Повторить загрузку' })
     .click();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(main.getByTestId('charged')).toHaveText('24 000 ₸');
   await expect(main.getByTestId('finance-error')).toHaveCount(0);
 });

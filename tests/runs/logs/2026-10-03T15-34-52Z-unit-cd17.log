@@ -1,0 +1,87 @@
+# Модульные (unit) · 03.10.2026 20:34 Алматы · vm
+# коммит 6af7487 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-34-52Z-unit-cd17.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 62ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 59ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(235) } to deeply equal { 'GET /branches': 'desk', …(239) }
+
+- Expected
++ Received
+
+@@ -82,11 +82,10 @@
+    "GET /hotel/services": "settings",
+    "GET /hotel/settings": "desk",
+    "GET /inventory/categories": "property",
+    "GET /inventory/summary": "desk",
+    "GET /inventory/units": "desk",
+-   "GET /market/occupancy": "reports",
+    "GET /platform/organizations": "platform",
+    "GET /platform/support/conversations": "platform",
+    "GET /platform/support/conversations/:id": "platform",
+    "GET /platform/support/conversations/:id/actions": "platform",
+    "GET /platform/support/conversations/:id/knowledge": "platform",
+@@ -126,11 +125,10 @@
+    "PATCH /guests/:id": "desk",
+    "PATCH /hotel/services/:code": "settings",
+    "PATCH /hotel/settings": "settings",
+    "PATCH /inventory/categories/:code": "property",
+    "PATCH /inventory/rooms/:code": "property",
+-   "PATCH /market/competitors/:id": "rates",
+    "PATCH /rates/plans/:code": "rates",
+    "PATCH /rates/plans/:code/derived": "rates",
+    "PATCH /rates/promo-codes/:code": "rates",
+    "PATCH /reservations/:number": "desk",
+    "PATCH /reservations/:number/dates": "desk",
+@@ -197,11 +195,10 @@
+    "POST /hotel/onboarding": "settings",
+    "POST /hotel/services": "settings",
+    "POST /inventory/categories": "property",
+    "POST /inventory/categories/:code/rate-plan": "property",
+    "POST /inventory/rooms": "property",
+-   "POST /market/competitors": "rates",
+    "POST /platform/support/conversations/:id/close": "platform",
+    "POST /platform/support/conversations/:id/knowledge-draft": "platform",
+    "POST /platform/support/conversations/:id/release": "platform",
+    "POST /platform/support/conversations/:id/reply": "platform",
+    "POST /platform/support/conversations/:id/takeover": "platform",
+@@ -231,11 +228,10 @@
+    "PUT /ai-seller/agents/:id/telegram": "seller",
+    "PUT /ai-seller/llm-key": "seller",
+    "PUT /ai-seller/profile": "seller",
+    "PUT /ai-seller/prompt": "seller",
+    "PUT /ai-seller/whatsapp": "seller",
+-   "PUT /market/competitors/:id/occupancy": "rates",
+    "PUT /platform/organizations/:id/extensions/ai-seller": "platform",
+    "PUT /platform/organizations/:id/status": "platform",
+    "PUT /platform/support/kb/:id": "platform",
+    "PUT /platform/support/prompt": "platform",
+    "PUT /platform/support/settings/model": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:335:20
+    333|       .map(([key]) => key);
+    334|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    335|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    336|   });
+    337|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  15:34:53
+   Duration  3.24s (transform 72%, import 26%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-34-52Z-unit-cd17.json
+
+# код выхода 1 · 4 с

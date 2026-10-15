@@ -1,0 +1,238 @@
+# Сквозные (e2e) · 05.10.2026 23:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит 266e9ab (codex/remaining-release-20261005)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/real-data.spec.ts' 'tests/ui/reservations-v2.spec.ts' 'tests/ui/trial-read-only.spec.ts' 'tests/ui/workspace.spec.ts' '--grep' 'недоступный API не скрывается|только чтение.*список|пробный срок вышел|пустые ответы дают нули' '--workers=1'
+[WebServer] (node:6763) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6802) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6838) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:6856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/real-data.spec.ts:68:1 › недоступный API не скрывается за демо или выдуманным объектом (17.0s)
+(node:7103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/reservations-v2.spec.ts:155:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте (21.9s)
+(node:7533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7567) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет (7.1m)
+(node:7683) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7873) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async Object.me (src/lib/api.ts:518:20)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async Object.me (src/lib/api.ts:518:20)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async Object.me (src/lib/api.ts:518:20)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] (node:7918) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/ui/workspace.spec.ts:966:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (46.3s)
+
+
+  1) tests/ui/real-data.spec.ts:68:1 › недоступный API не скрывается за демо или выдуманным объектом 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.workspace-header .workspace-property')
+    Expected substring: "Объект не загружен"
+    Received string:    "Филиал недоступенФилиал недоступен"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" locator('.workspace-header .workspace-property') with timeout 15000ms
+      - waiting for locator('.workspace-header .workspace-property')
+        34 × locator resolved to <div class="workspace-property">…</div>
+           - unexpected value "Филиал недоступенФилиал недоступен"
+
+
+      74 |     'Не удалось проверить менеджер каналов',
+      75 |   );
+    > 76 |   await expect(page.locator('.workspace-header .workspace-property')).toContainText(
+         |                                                                       ^
+      77 |     'Объект не загружен',
+      78 |   );
+      79 |   await expect(page.getByTestId('database-units')).toHaveCount(0);
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/real-data.spec.ts:76:71
+
+    Error Context: test-results/real-data-недоступный-API--b2f19-емо-или-выдуманным-объектом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/real-data-недоступный-API--b2f19-емо-или-выдуманным-объектом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/real-data-недоступный-API--b2f19-емо-или-выдуманным-объектом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/reservations-v2.spec.ts:155:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('read-only-banner')
+    Expected substring: "Пробный период закончился — оплатите подписку"
+    Received string:    "Пробный период закончился, оплатите подписку. Данные доступны для просмотра, изменения после оплаты. Счёт и реквизиты выставит WETOP, напишите в чат помощника справа внизу."
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('read-only-banner') with timeout 15000ms
+      - waiting for getByTestId('read-only-banner')
+        33 × locator resolved to <div role="status" class="read-only-banner" data-testid="read-only-banner">…</div>
+           - unexpected value "Пробный период закончился, оплатите подписку. Данные доступны для просмотра, изменения после оплаты. Счёт и реквизиты выставит WETOP, напишите в чат помощника справа внизу."
+
+
+      162 |   await page.goto('/reservations');
+      163 |   const main = page.getByRole('main');
+    > 164 |   await expect(page.getByTestId('read-only-banner')).toContainText(
+          |                                                      ^
+      165 |     'Пробный период закончился — оплатите подписку',
+      166 |   );
+      167 |   await expect(main.getByRole('link', { name: 'Новая бронь', exact: true })).toHaveCount(0);
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/reservations-v2.spec.ts:164:54
+
+    Error Context: test-results/reservations-v2-R1-«только-1359f--брони»-нет-полоса-на-месте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-R1-«только-1359f--брони»-нет-полоса-на-месте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-R1-«только-1359f--брони»-нет-полоса-на-месте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('read-only-banner')
+    Expected substring: "Пробный период закончился — оплатите подписку"
+    Received string:    "Пробный период закончился, оплатите подписку. Данные доступны для просмотра, изменения после оплаты. Счёт и реквизиты выставит WETOP, напишите в чат помощника справа внизу."
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('read-only-banner') with timeout 15000ms
+      - waiting for getByTestId('read-only-banner')
+        10 × locator resolved to <div role="status" class="read-only-banner" data-testid="read-only-banner">…</div>
+           - unexpected value "Пробный период закончился, оплатите подписку. Данные доступны для просмотра, изменения после оплаты. Счёт и реквизиты выставит WETOP, напишите в чат помощника справа внизу."
+
+
+      35 |     await page.goto(path);
+      36 |     const banner = page.getByTestId('read-only-banner');
+    > 37 |     await expect(banner).toContainText('Пробный период закончился — оплатите подписку');
+         |                          ^
+      38 |     await expect(banner).toContainText('Данные доступны для просмотра');
+      39 |   }
+      40 |   // «Гости» после срока читаются целиком: список со счётчиками, поиск, карточка и документы;
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/trial-read-only.spec.ts:37:26
+
+    Error Context: test-results/trial-read-only-пробный-ср-652b7-бочих-экранах-в-срок-её-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/trial-read-only-пробный-ср-652b7-бочих-экранах-в-срок-её-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/trial-read-only-пробный-ср-652b7-бочих-экранах-в-срок-её-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/workspace.spec.ts:966:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Каналы продаж"
+    Received: "Не удалось загрузить данные"
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        8 × locator resolved to <h1 class="page__title">Не удалось загрузить данные</h1>
+          - unexpected value "Не удалось загрузить данные"
+      - Test timeout of 45000ms exceeded.
+
+
+      985 |   // «Каналы продаж» с D4 (20.09) остаются на экране: заголовок и форма на месте, вместо чисел — сбой
+      986 |   await page.goto('/channels');
+    > 987 |   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
+          |                                                                           ^
+      988 |     'Каналы продаж',
+      989 |   );
+      990 |   await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/workspace.spec.ts:987:75
+
+    Error Context: test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/ui/trial-read-only.spec.ts (7.1m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  4 failed
+    tests/ui/real-data.spec.ts:68:1 › недоступный API не скрывается за демо или выдуманным объектом 
+    tests/ui/reservations-v2.spec.ts:155:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте 
+    tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет 
+    tests/ui/workspace.spec.ts:966:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+
+# код выхода 1 · 9 мин 22 с

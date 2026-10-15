@@ -1,0 +1,91 @@
+# Сквозные (e2e) · 02.10.2026 17:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8ff6876 (main), незакоммиченных файлов набора: 30
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/team.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (18.5s)
+  ✘  2 tests/ui/team.spec.ts:48:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (45.4s)
+  ✓  3 tests/ui/team.spec.ts:65:1 › ошибка приглашения — словами в панели, ввод не стирается (2.4s)
+  ✓  4 tests/ui/team.spec.ts:77:1 › «Отключить» — только после подтверждения с последствием (1.8s)
+  ✓  5 tests/ui/team.spec.ts:89:1 › управляющий: роль не меняет, приглашает только администраторов (1.3s)
+  ✓  6 tests/ui/team.spec.ts:101:1 › администратору раздел закрыт: гейт и меню без пункта (1.7s)
+  ✓  7 tests/ui/team.spec.ts:110:3 › снимки TEAM1 и доступность: light (2.0s)
+  ✓  8 tests/ui/team.spec.ts:110:3 › снимки TEAM1 и доступность: dark (1.8s)
+
+
+  1) tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('member-row').nth(1)
+    Expected substring: "28.09.2026"
+    Received string:    "Марат Тестов<email>управляющийУправляющийАдминистратор2 сент.28 сент.Отключить"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('member-row').nth(1) with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('member-row').nth(1)
+        33 × locator resolved to <tr data-testid="member-row">…</tr>
+           - unexpected value "Марат Тестов<email>управляющийУправляющийАдминистратор2 сент.28 сент.Отключить"
+
+
+      40 |   await expect(rows.nth(1)).toContainText('управляющий');
+      41 |   // «Был в системе» — дата последнего входа; не входил — слова, а не прочерк без объяснения
+    > 42 |   await expect(rows.nth(1)).toContainText('28.09.2026');
+         |                             ^
+      43 |   await expect(rows.nth(2)).toContainText('ещё не входил');
+      44 |   // в меню группа «Настройки» ведёт сюда
+      45 |   await expect(page.locator('.workspace-sidebar a[href="/team"]')).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/team.spec.ts:42:29
+
+    Error Context: test-results/team-владелец-таблица-люде-70662-и-пункт-«Сотрудники»-в-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-владелец-таблица-люде-70662-и-пункт-«Сотрудники»-в-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-владелец-таблица-люде-70662-и-пункт-«Сотрудники»-в-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/team.spec.ts:48:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Роль приглашённого', { exact: true })
+
+
+      54 |   await expect(drawer.getByRole('heading', { name: 'Пригласить сотрудника' })).toBeVisible();
+      55 |   await drawer.getByLabel('Почта приглашённого').fill('<email>');
+    > 56 |   await drawer.getByLabel('Роль приглашённого', { exact: true }).selectOption('MANAGER');
+         |                                                                  ^
+      57 |   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
+      58 |   // панель закрылась, приглашение видно в списке ожидающих
+      59 |   await expect(page.getByRole('dialog')).toHaveCount(0);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/team.spec.ts:56:66
+
+    Error Context: test-results/team-приглашение-—-панелью-861c6-ь-строка-в-«Ожидают-ответа»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-приглашение-—-панелью-861c6-ь-строка-в-«Ожидают-ответа»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-приглашение-—-панелью-861c6-ь-строка-в-«Ожидают-ответа»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню 
+    tests/ui/team.spec.ts:48:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» 
+  6 passed (1.5m)
+
+# код выхода 1 · 1 мин 31 с

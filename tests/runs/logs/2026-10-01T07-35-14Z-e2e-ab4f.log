@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 01.10.2026 12:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 72
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'homepage-refresh.spec.ts' '--grep' 'brand introduction'
+[WebServer] (node:31535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31547) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31546) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:31588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/site/homepage-refresh.spec.ts:4:1 › brand introduction does not depend on unpublished legal details (10.4s)
+
+
+  1) tests/site/homepage-refresh.spec.ts:4:1 › brand introduction does not depend on unpublished legal details 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#about')
+    Expected substring: "Создаём пространство"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" locator('#about') with timeout 10000ms
+      - waiting for locator('#about')
+
+
+      4 | test('brand introduction does not depend on unpublished legal details', async ({ page }) => {
+      5 |   await page.goto('/');
+    > 6 |   await expect(page.locator('#about')).toContainText('Создаём пространство');
+        |                                        ^
+      7 |   await expect(page.locator('#about')).toContainText('Hospitality');
+      8 |   await expect(page.locator('#control')).toContainText('Роли');
+      9 |   await expect(page.locator('#start')).toContainText('Подтвердите почту');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/homepage-refresh.spec.ts:6:40
+
+    Error Context: test-results/homepage-refresh-brand-int-96d5d-n-unpublished-legal-details/error-context.md
+
+  1 failed
+    tests/site/homepage-refresh.spec.ts:4:1 › brand introduction does not depend on unpublished legal details 
+
+# код выхода 1 · 17 с

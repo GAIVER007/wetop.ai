@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 07.10.2026 00:15 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-15-39Z-integration-802c.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+No test files found, exiting with code 0
+
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+JSON report written to /tmp/pms-test-2026-10-06T19-15-39Z-integration-802c.json
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: цикл внешних ключей: marketing_site_versions, marketing_sites
+ ❯ copyOrder tests/tools/test-schema-plan.ts:59:13
+     57|     const next = sorted.find((t) => !done.has(t) && [...deps.get(t)!].…
+     58|     if (!next)
+     59|       throw new Error(`цикл внешних ключей: ${sorted.filter((t) => !do…
+       |             ^
+     60|     order.push(next);
+     61|     done.add(next);
+ ❯ copyLiveData tests/tools/test-schema.ts:179:17
+ ❯ processTicksAndRejections node:internal/process/task_queues:105:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:102:39
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+
+
+
+
+
+# код выхода 1 · 2 с

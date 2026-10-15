@@ -77,8 +77,8 @@ def _availability(providers_getter: Callable[[], Providers]):
     return getattr(providers, "availability", None)
 
 
-def build_registry(providers_getter: Callable[[], Providers]) -> ToolRegistry:
-    """Реестр из двух инструментов. Движок получает его снаружи, через llm."""
+def build_registry(providers_getter: Callable[[], Providers], *, booking=None) -> ToolRegistry:
+    """Реестр из двух инструментов; с `booking` (ADR-144) ещё два — бронь из чата. Движок получает его снаружи."""
 
     async def check_availability(
         arrival: str, departure: str, guests: int, category: str | None = None
@@ -167,6 +167,10 @@ def build_registry(providers_getter: Callable[[], Providers]) -> ToolRegistry:
             handler=get_price,
         )
     )
+    if booking is not None:
+        from src.ai.seller_booking import register_booking_tools
+
+        register_booking_tools(registry, providers_getter, booking)
     return registry
 
 

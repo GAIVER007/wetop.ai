@@ -1,5 +1,5 @@
 import type { APIRequestContext } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -11,7 +11,7 @@ import { mkdirSync } from 'node:fs';
  * а ожидания подтверждают, что снят нужный момент.
  */
 const DIR = 'reports/chessboard-v2-pr6-2026-09-28/gate';
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 
 const add = (date: string, n: number) => {

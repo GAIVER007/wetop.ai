@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { CLOSED_SHELL, UNKNOWN_SHELL, deskPerson, deskShellOf, trialLine } from './desk-person';
-import { sidebarSectionsFor } from './navigation';
+import { menuSectionsFor } from './navigation';
 
 const hrefs = (access: { aiSeller: boolean; platform: boolean }) =>
-  sidebarSectionsFor({ ...access, role: null }).flatMap((s) => s.items.map((i) => i.href));
+  menuSectionsFor({ ...access, role: null }).flatMap((s) => s.items.map((i) => i.href));
 
 describe('меню и подпись по тому, кто вошёл (ADR-083)', () => {
   const me = (over: Record<string, unknown> = {}, seller?: string) => ({
@@ -40,7 +40,7 @@ describe('меню и подпись по тому, кто вошёл (ADR-083)'
     expect(hrefs({ aiSeller: false, platform: false })).toContain('/ai-agents');
     expect(hrefs({ aiSeller: false, platform: false })).not.toContain('/platform');
     expect(
-      sidebarSectionsFor({ aiSeller: false, platform: false, role: null }).map((s) => s.id),
+      menuSectionsFor({ aiSeller: false, platform: false, role: null }).map((s) => s.id),
     ).not.toContain('platform');
     expect(hrefs({ aiSeller: true, platform: false })).toContain('/ai-agents');
     expect(hrefs({ aiSeller: false, platform: true })).toContain('/platform');

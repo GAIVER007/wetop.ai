@@ -1,10 +1,10 @@
 import { Page } from '../../components/page';
 import { LoadingState, Skeleton } from '../../components/ui';
 
-/** Ожидание «Интеграций» (D4): заголовок сразу, под ним место карточки подключения. */
+/** Ожидание «Подключений» (D4): заголовок тот же, что у страницы, под ним место карточки подключения. */
 export default function Loading() {
   return (
-    <Page title="Интеграции">
+    <Page title="Подключения">
       <LoadingState label="Проверяем подключения…" data-testid="connections-loading">
         <Skeleton variant="row" />
         <Skeleton variant="row" />

@@ -1,0 +1,142 @@
+# Модульные (unit) · 06.10.2026 17:39 Алматы · vm
+# коммит 550e572 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-39-00Z-unit-5a90.json' 'packages/domain/src/web-booking' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests) 277ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (19 tests) 633ms
+   ✓ котировка продавца /bot/availability (7)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 325ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (40 tests) 810ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 95ms
+ ❯ |unit| packages/domain/src/web-booking/request.test.ts (37 tests | 6 failed) 38ms
+   ✓ запрос цен с сайта (quote) (10)
+     ✓ принимает даты в окне и гостей 3ms
+     ✓ отклоняет: заезд вчера 0ms
+     ✓ отклоняет: выезд не позже заезда 0ms
+     ✓ отклоняет: дальше окна 0ms
+     ✓ отклоняет: слишком долго 0ms
+     ✓ отклоняет: кривая дата 0ms
+     ✓ отклоняет: гостей 0 0ms
+     ✓ отклоняет: гостей 9 0ms
+     ✓ отклоняет: ключ не по форме 1ms
+     ✓ заезд сегодня допустим; окно — 365 дней и 30 ночей 0ms
+   ✓ запрос брони с сайта (book) (11)
+     ✓ нормализует гостя: обрезает пробелы, телефон в +7…, почту в нижний регистр 1ms
+     ✓ телефон 8 701… становится +7 701…; почта необязательна; комментарий обрезается до 500 1ms
+     ✓ отклоняет: honeypot заполнен (бот) 0ms
+     ✓ отклоняет: нет имени 0ms
+     ✓ отклоняет: нет фамилии 0ms
+     ✓ отклоняет: телефон короткий 0ms
+     ✓ отклоняет: телефон с буквами 0ms
+     ✓ отклоняет: почта кривая 0ms
+     ✓ отклоняет: нет категории 0ms
+     ✓ отклоняет: имя длиннее 80 0ms
+     ✓ ключи счётчика необязательны и должны быть по форме 0ms
+   ✓ промокод в запросе виджета (DATA_MODEL §20) (3)
+     ✓ приводит к верхнему регистру и обрезает пробелы 0ms
+     ✓ пустой и отсутствующий — без промокода 0ms
+     ✓ введённый неверно — отказ словами, а не «без скидки» 1ms
+   ✓ язык гостя в запросе брони (ADR-144, срез «подтверждение брони») (7)
+     ✓ без языка — русский 0ms
+     ✓ принимает ru 0ms
+     ✓ принимает kk 0ms
+     ✓ принимает en 0ms
+     ✓ принимает zh 0ms
+     ✓ регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, kz → kk 2ms
+     ✓ незнакомый язык — русский, а не отказ: бронь важнее языка письма 3ms
+   ❯ ключ создания брони с сайта (MKT1B BOOK-2) (6)
+     × UUID v4 обязателен и приводится к нижнему регистру 12ms
+     × нет ключа — отказ 2ms
+     × пустой — отказ 1ms
+     × не UUID — отказ 1ms
+     × UUID не версии 4 — отказ 1ms
+     × число — отказ 1ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 12ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (2 tests) 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > ключ создания брони с сайта (MKT1B BOOK-2) > UUID v4 обязателен и приводится к нижнему регистру
+AssertionError: expected { ok: true, value: { …(11) } } to match object { ok: true, …(1) }
+(15 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "ok": true,
+    "value": {
+-     "creationKey": "b6f2c1e4-0a3d-4f1b-9c2e-7d8a9b0c1d2e",
++     "adults": 1,
++     "arrivalDate": "2026-09-13",
++     "categoryCode": "category-single",
++     "comment": "Приеду поздно",
++     "departureDate": "2026-09-15",
++     "guest": {
++       "email": "<email>",
++       "firstName": "Айгерим",
++       "lastName": "Тестова",
++       "phone": "<телефон>",
++     },
++     "lang": "ru",
++     "promoCode": null,
++     "sessionKey": "session-0001",
++     "siteKey": "pms_5f3c9a1b2d4e",
++     "visitorKey": "visitor-0001",
+    },
+  }
+
+ ❯ packages/domain/src/web-booking/request.test.ts:176:15
+    174|   it('UUID v4 обязателен и приводится к нижнему регистру', () => {
+    175|     const r = parseBookingRequest(good, today);
+    176|     expect(r).toMatchObject({ ok: true, value: { creationKey: 'b6f2c1e…
+       |               ^
+    177|   });
+    178|   it.each([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > ключ создания брони с сайта (MKT1B BOOK-2) > нет ключа — отказ
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > ключ создания брони с сайта (MKT1B BOOK-2) > пустой — отказ
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > ключ создания брони с сайта (MKT1B BOOK-2) > не UUID — отказ
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > ключ создания брони с сайта (MKT1B BOOK-2) > UUID не версии 4 — отказ
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > ключ создания брони с сайта (MKT1B BOOK-2) > число — отказ
+AssertionError: expected { ok: true, value: { …(11) } } to match object { ok: false, …(1) }
+(12 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "ok": false,
+-   "reason": "creationKey: UUID v4",
++   "ok": true,
+  }
+
+ ❯ packages/domain/src/web-booking/request.test.ts:185:66
+    183|     ['число', 42],
+    184|   ])('%s — отказ', (_name, creationKey) => {
+    185|     expect(parseBookingRequest({ ...good, creationKey }, today)).toMat…
+       |                                                                  ^
+    186|       ok: false,
+    187|       reason: 'creationKey: UUID v4',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  6 failed | 133 passed (139)
+   Start at  12:39:01
+   Duration  5.34s (transform 56%, import 30%, tests 14%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-39-00Z-unit-5a90.json
+
+# код выхода 1 · 7 с

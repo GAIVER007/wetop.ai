@@ -1,0 +1,192 @@
+# Сквозные (e2e) · 04.10.2026 01:03 Алматы · vm
+# коммит d9314ea (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/form910.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/ui/form910.spec.ts:13:1 › хаб ведёт на полугодие; шесть месяцев и итог (16.5s)
+  ✘  2 tests/ui/form910.spec.ts:26:5 › доступность: light, 1440px (16.1s)
+  ✘  3 tests/ui/form910.spec.ts:26:5 › доступность: light, 390px (16.0s)
+  ✘  4 tests/ui/form910.spec.ts:26:5 › доступность: dark, 1440px (16.1s)
+  ✘  5 tests/ui/form910.spec.ts:26:5 › доступность: dark, 390px (16.0s)
+
+
+  1) tests/ui/form910.spec.ts:13:1 › хаб ведёт на полугодие; шесть месяцев и итог ──────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Доход для формы 910', level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Доход для формы 910', level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Доход для формы 910', level: 1 })
+
+
+      14 |   await page.goto('/reports');
+      15 |   await page.getByTestId('report-form910').click();
+    > 16 |   await expect(page.getByRole('heading', { level: 1, name: 'Доход для формы 910' })).toBeVisible();
+         |                                                                                      ^
+      17 |   await page.goto('/reports/form-910?year=2026&half=2');
+      18 |   await expect(page.getByTestId('form910-month')).toHaveCount(6);
+      19 |   await expect(page.getByTestId('form910-month').first()).toContainText('Июль');
+        at /home/user/wetop.ai/tests/ui/form910.spec.ts:16:86
+
+    Error Context: test-results/form910-хаб-ведёт-на-полугодие-шесть-месяцев-и-итог/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/form910-хаб-ведёт-на-полугодие-шесть-месяцев-и-итог/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/form910-хаб-ведёт-на-полугодие-шесть-месяцев-и-итог/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/form910.spec.ts:26:5 › доступность: light, 1440px ────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('form910-total')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('form910-total') with timeout 15000ms
+      - waiting for getByTestId('form910-total')
+
+
+      28 |       await page.setViewportSize({ width, height: 900 });
+      29 |       await page.goto('/reports/form-910?year=2026&half=1');
+    > 30 |       await expect(page.getByTestId('form910-total')).toBeVisible();
+         |                                                       ^
+      31 |       const axe = await new AxeBuilder({ page })
+      32 |         .include('main')
+      33 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        at /home/user/wetop.ai/tests/ui/form910.spec.ts:30:55
+
+    Error Context: test-results/form910-доступность-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/form910-доступность-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/form910-доступность-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/form910.spec.ts:26:5 › доступность: light, 390px ─────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('form910-total')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('form910-total') with timeout 15000ms
+      - waiting for getByTestId('form910-total')
+
+
+      28 |       await page.setViewportSize({ width, height: 900 });
+      29 |       await page.goto('/reports/form-910?year=2026&half=1');
+    > 30 |       await expect(page.getByTestId('form910-total')).toBeVisible();
+         |                                                       ^
+      31 |       const axe = await new AxeBuilder({ page })
+      32 |         .include('main')
+      33 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        at /home/user/wetop.ai/tests/ui/form910.spec.ts:30:55
+
+    Error Context: test-results/form910-доступность-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/form910-доступность-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/form910-доступность-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/form910.spec.ts:26:5 › доступность: dark, 1440px ─────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('form910-total')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('form910-total') with timeout 15000ms
+      - waiting for getByTestId('form910-total')
+
+
+      28 |       await page.setViewportSize({ width, height: 900 });
+      29 |       await page.goto('/reports/form-910?year=2026&half=1');
+    > 30 |       await expect(page.getByTestId('form910-total')).toBeVisible();
+         |                                                       ^
+      31 |       const axe = await new AxeBuilder({ page })
+      32 |         .include('main')
+      33 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        at /home/user/wetop.ai/tests/ui/form910.spec.ts:30:55
+
+    Error Context: test-results/form910-доступность-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/form910-доступность-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/form910-доступность-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/form910.spec.ts:26:5 › доступность: dark, 390px ──────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('form910-total')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('form910-total') with timeout 15000ms
+      - waiting for getByTestId('form910-total')
+
+
+      28 |       await page.setViewportSize({ width, height: 900 });
+      29 |       await page.goto('/reports/form-910?year=2026&half=1');
+    > 30 |       await expect(page.getByTestId('form910-total')).toBeVisible();
+         |                                                       ^
+      31 |       const axe = await new AxeBuilder({ page })
+      32 |         .include('main')
+      33 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        at /home/user/wetop.ai/tests/ui/form910.spec.ts:30:55
+
+    Error Context: test-results/form910-доступность-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/form910-доступность-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/form910-доступность-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/form910.spec.ts:13:1 › хаб ведёт на полугодие; шесть месяцев и итог ───────────────────
+    tests/ui/form910.spec.ts:26:5 › доступность: light, 1440px ─────────────────────────────────────
+    tests/ui/form910.spec.ts:26:5 › доступность: light, 390px ──────────────────────────────────────
+    tests/ui/form910.spec.ts:26:5 › доступность: dark, 1440px ──────────────────────────────────────
+    tests/ui/form910.spec.ts:26:5 › доступность: dark, 390px ───────────────────────────────────────
+
+# код выхода 1 · 1 мин 34 с

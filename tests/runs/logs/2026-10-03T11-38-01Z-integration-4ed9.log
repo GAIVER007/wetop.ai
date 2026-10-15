@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 03.10.2026 16:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (main)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-38-01Z-integration-4ed9.json'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+No test files found, exiting with code 0
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-38-01Z-integration-4ed9.json
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Автотесты ходят только в локальную базу (Q-170): DATABASE_URL указывает не на 127.0.0.1 или localhost — на Mac это рабочая база. Своя поднимается одной командой: npm run db:local, затем DATABASE_URL='postgresql://postgres@127.0.0.1:55432/pmslocal'. Осознанно на другой базе — PMS_TEST_REMOTE_DB=1.
+ ❯ connectionString tests/tools/test-schema.ts:47:22
+     45|   if (!url) throw new Error('DATABASE_URL не задан в .env — тестовую с…
+     46|   const refusal = testDatabaseRefusal(url);
+     47|   if (refusal) throw new Error(refusal);
+       |                      ^
+     48|   return url;
+     49| }
+ ❯ ensureTestSchema tests/tools/test-schema.ts:55:48
+ ❯ Object.setup tests/integration-setup.ts:14:24
+ ❯ TestProject._initializeGlobalSetup ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:50
+ ❯ Vitest.initializeGlobalSetup ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+ ❯ start ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/cac.D805sv8h.js:2370:15
+
+
+
+
+
+# код выхода 1 · 8 с

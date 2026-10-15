@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 04.10.2026 11:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 76a2d05 (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 148
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/analytics-channels.spec.ts' 'tests/ui/channels-list.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/market.spec.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/booking-compact.spec.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/incidents-design.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/unified-sections.spec.ts' '--workers=1' '--timeout=120000'
+Error: http://127.0.0.1:3100/today is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 5 с

@@ -1,0 +1,19 @@
+# Модульные (unit) · 06.10.2026 12:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит c86e529 (codex/bar-runtime-injection), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-06T07-31-29Z-unit-13d9.json' 'apps/api/src/bar' 'apps/web/src/app/bar/actions.test.ts' 'packages/domain/src/bar'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+ ✓ |unit| packages/domain/src/bar/bar.test.ts (6 tests) 3ms
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (8 tests) 19ms
+ ✓ |unit| apps/api/src/bar/bar.runtime.test.ts (1 test) 91ms
+ ✓ |unit| apps/api/src/bar/bar.controller.test.ts (9 tests) 133ms
+
+ Test Files  4 passed (4)
+      Tests  24 passed (24)
+   Start at  00:31:29
+   Duration  772ms (transform 42%, import 41%, tests 17%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-06T07-31-29Z-unit-13d9.json
+
+# код выхода 0 · 2 с

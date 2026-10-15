@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { ForbiddenException, type CallHandler, type ExecutionContext } from '@nestjs/common';
+import { NotFoundException, type CallHandler, type ExecutionContext } from '@nestjs/common';
 import { INTERCEPTORS_METADATA } from '@nestjs/common/constants';
 import { Reflector } from '@nestjs/core';
 import { lastValueFrom, of } from 'rxjs';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { hasSignedInActor, withSignedInUser } from '../auth/request-context';
 import { PUBLIC_ROUTE } from '../auth/public.decorator';
 import { GuardController } from '../guard/guard.controller';
@@ -11,6 +11,7 @@ import { ChannelOperatorInterceptor } from './operator-access';
 import { ChannelsController } from './channels.controller';
 import { ChannelConnectionController } from './connection';
 import { ChannelContentController } from './content';
+import { forgetPropertyRef } from '../database/property-ref';
 
 /**
  * Аудит 26.09, В-2 (Q-193, ADR-095) и С-3: маршруты Channex и сторожа были открыты любому вошедшему. Сотрудник второй
@@ -22,10 +23,21 @@ import { ChannelContentController } from './content';
 const OWNER_ORG = 'org-luxx';
 const prisma = {
   db: {
-    channelMapping: {
-      findFirst: async () => ({ property: { organizationId: OWNER_ORG } }),
+    property: {
+      findFirst: async ({
+        where,
+      }: {
+        where: { location: { business: { organizationId: string } } };
+      }) =>
+        where.location.business.organizationId === 'org-without-property'
+          ? null
+          : {
+              id: where.location.business.organizationId,
+              organizationId: where.location.business.organizationId,
+              name: 'Same hotel',
+              timezone: 'Asia/Almaty',
+            },
     },
-    property: { findFirst: async () => ({ organizationId: OWNER_ORG }) },
   },
 };
 
@@ -71,28 +83,37 @@ const run = async (
 };
 
 describe('доступ к Channex и сторожу', () => {
+  beforeEach(() => forgetPropertyRef());
   it('сотрудник организации, чей объект подключён, работает как прежде — от своего имени', async () => {
     await expect(run({ userId: 'u-1', organizationId: OWNER_ORG, role: 'STAFF' })).resolves.toEqual(
       { result: 'ok', signedIn: true },
     );
   });
 
-  it('вошедший из другой организации получает 403 и до обработчика не доходит', async () => {
+  it('вторая организация работает только в своём контексте филиала', async () => {
+    await expect(run({ userId: 'u-2', organizationId: 'org-b', role: 'OWNER' })).resolves.toEqual({
+      result: 'ok',
+      signedIn: true,
+    });
+  });
+
+  it('без своего филиала обработчик не запускается', async () => {
     const { ctx, reflector } = context();
     const interceptor = new ChannelOperatorInterceptor(reflector, prisma as never);
     const { next, seen } = handler();
     await expect(
-      withSignedInUser({ userId: 'u-2', organizationId: 'org-b', role: 'OWNER' }, () =>
-        interceptor.intercept(ctx, next),
+      withSignedInUser(
+        { userId: 'u-2', organizationId: 'org-without-property', role: 'OWNER' },
+        () => interceptor.intercept(ctx, next),
       ),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).rejects.toBeInstanceOf(NotFoundException);
     expect(seen.signedIn).toBeNull();
   });
 
-  it('главный администратор из другой организации проходит, но разбор идёт в служебном контексте', async () => {
+  it('главный администратор сохраняет подписанный контекст выбранного филиала', async () => {
     await expect(
       run({ userId: 'u-3', organizationId: 'org-wetop', role: 'OWNER', platformAdmin: true }),
-    ).resolves.toEqual({ result: 'ok', signedIn: false });
+    ).resolves.toEqual({ result: 'ok', signedIn: true });
   });
 
   it('служебный ключ и webhook Channex проходят без вопросов', async () => {

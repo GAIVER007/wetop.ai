@@ -1,0 +1,18 @@
+# Модульные (unit) · 04.10.2026 12:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит ae4bd2d (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 140
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-43-50Z-unit-7f9b.json' 'apps/api/src/auth/auth.service.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8
+
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (50 tests) 4385ms
+   ✓ AuthService.login (14)
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 339ms
+
+ Test Files  1 passed (1)
+      Tests  50 passed (50)
+   Start at  00:43:54
+   Duration  7.25s (tests 64%, import 21%, transform 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-43-50Z-unit-7f9b.json
+
+# код выхода 0 · 12 с

@@ -1,31 +1,29 @@
-import Link from 'next/link';
 import { sellerAgentsApi, ApiError } from '../../../../lib/api';
+import { Page, BackCrumb } from '../../../../components/page';
+import { LoadError } from '../../../../components/load-error';
+import { loadErrorProps } from '../../../../lib/load-error';
 import { AgentEditor } from '../editor';
 import '../agents.css';
 import '../../../create/wizard.css';
+
+const back = <BackCrumb href="/ai-seller/agents">Мои ИИ-продавцы</BackCrumb>;
+
 export default async function AgentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   try {
     const agent = await sellerAgentsApi.get(id);
     return (
-      <main className="seller-agents">
-        <header>
-          <div>
-            <Link href="/ai-seller/agents">Все агенты</Link>
-            <h1>{agent.name}</h1>
-          </div>
-        </header>
+      <Page className="seller-agents" crumbs={back} title={agent.name}>
         <AgentEditor agent={agent} />
-      </main>
+      </Page>
     );
   } catch (e) {
     if (e instanceof ApiError)
+      // заголовок тот же, что у списка: экран не меняет имя на «Карточка агента» при сбое
       return (
-        <main className="seller-agents">
-          <h1>Карточка агента</h1>
-          <p role="alert">{e.message}</p>
-          <Link href="/ai-seller/agents">Все агенты</Link>
-        </main>
+        <Page className="seller-agents" crumbs={back} title="ИИ-продавец">
+          <LoadError testId="seller-agent-error" {...loadErrorProps(e)} />
+        </Page>
       );
     throw e;
   }

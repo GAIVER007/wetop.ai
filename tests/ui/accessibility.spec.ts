@@ -1,4 +1,4 @@
-import { expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -7,7 +7,6 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 // tests/ui/settings-simplification.spec.ts. Аудит на них ломался: докрутка к якорю после перехода
 // сносила контекст страницы посреди axe (разбор 21.09.2026).
 const routes = [
-  '/today',
   '/chessboard',
   '/reservations',
   '/reservations/new?unit=M03',
@@ -20,7 +19,6 @@ const routes = [
   '/rooms/availability',
   '/inventory',
   '/units/R01',
-  '/rates',
   '/finance',
   '/hotel-settings',
   '/hotel-settings/stay',
@@ -28,7 +26,7 @@ const routes = [
   '/management/analytics',
   '/management/analytics/occupancy',
   '/channels',
-  '/channels/connections',
+  // «Подключения» каналов — redirect() на /connections/channex (INT2), он в списке ниже
   '/channels/mapping',
   '/channels/sync',
   '/channels/events',
@@ -36,12 +34,14 @@ const routes = [
   // страница настроек Channex (INT2, ADR-121)
   '/connections/channex',
   // «Сайт и онлайн-бронирование» (ADR-117): четыре вкладки вместо «Аналитики сайта» и «Настроек сайта»
+  // хаб «Маркетинг» (MKT2), вход в «Сайт и SEO»
+  '/marketing',
   '/website',
   '/website/booking',
   '/website/analytics',
   '/website/settings',
   '/profile',
-  '/login',
+  '/profile/access',
   '/incidents',
   '/journal',
   // раздел «ИИ-продавец» (макет владельца 26.09.2026, ADR-097): четыре вкладки и открытая карточка диалога
@@ -57,8 +57,15 @@ for (const width of [1440, 390]) {
   for (const theme of ['light', 'dark'] as const) {
     test(`доступность всех разделов: ${theme}, ${width}px`, async ({ page, request }) => {
       test.setTimeout(360_000);
-      await request.post('http://127.0.0.1:4311/__test/reset');
+      await request.post(`${FIXTURE_API}/__test/reset`);
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      await page.setViewportSize({ width: 1440, height: 1000 });
+      // /profile/access для невошедшего уводит на вход wetop.ai (объединение входа): обход идёт вошедшим
+      await page.goto('/auth/fallback');
+      await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+      await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      await page.waitForURL('**/today');
       await page.setViewportSize({ width, height: 1000 });
       const errors: string[] = [];
       page.on('pageerror', (e) => {
@@ -93,7 +100,7 @@ for (const width of [1440, 390]) {
         expect
           .soft(layout.content, `${route}: page overflow`)
           .toBeLessThanOrEqual(layout.viewport + 1);
-        if (['/today', '/chessboard', '/guests', '/inventory'].includes(route))
+        if (['/finance', '/chessboard', '/guests', '/inventory'].includes(route))
           await page.screenshot({
             path: `reports/ui-quality/${route.slice(1)}-${theme}-${width}.png`,
           });
@@ -121,7 +128,7 @@ for (const width of [1440, 390]) {
   for (const theme of ['light', 'dark'] as const) {
     test(`доступность открытых форм и drawer: ${theme}, ${width}px`, async ({ page, request }) => {
       test.setTimeout(120_000);
-      await request.post('http://127.0.0.1:4311/__test/reset');
+      await request.post(`${FIXTURE_API}/__test/reset`);
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.setViewportSize({ width, height: 1000 });
       await page.goto('/reservations');

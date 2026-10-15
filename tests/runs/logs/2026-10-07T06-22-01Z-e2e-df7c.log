@@ -1,0 +1,57 @@
+# Сквозные (e2e) · 07.10.2026 11:22 Алматы · vm
+# коммит c53ee7c (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/requests.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-dnd.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 41 tests using 1 worker
+
+  ✓   1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (2.8s)
+  ✓   2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева (3.5s)
+  ✓   3 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (7.9s)
+  ✓   4 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (7.2s)
+  ✓   5 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (6.6s)
+  ✓   6 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (8.2s)
+  ✓   7 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (6.0s)
+  ✓   8 tests/ui/guests-birthdays.spec.ts:15:1 › календарь исключает дни рождения, отдельная страница раскрывает детали (7.7s)
+  ✓   9 tests/ui/guests-birthdays.spec.ts:55:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто (3.7s)
+  ✓  10 tests/ui/requests.spec.ts:81:3 › экран /today: данные берутся одним запросом на путь (2.3s)
+  ✓  11 tests/ui/requests.spec.ts:81:3 › экран /chessboard: данные берутся одним запросом на путь (2.7s)
+  ✓  12 tests/ui/requests.spec.ts:81:3 › экран /reservations: данные берутся одним запросом на путь (3.4s)
+  ✓  13 tests/ui/requests.spec.ts:81:3 › экран /guests: данные берутся одним запросом на путь (3.0s)
+  ✓  14 tests/ui/requests.spec.ts:81:3 › экран /inventory: данные берутся одним запросом на путь (3.3s)
+  ✓  15 tests/ui/requests.spec.ts:81:3 › экран /rooms/categories: данные берутся одним запросом на путь (3.7s)
+  ✓  16 tests/ui/requests.spec.ts:81:3 › экран /rooms/availability: данные берутся одним запросом на путь (2.4s)
+  ✓  17 tests/ui/requests.spec.ts:81:3 › экран /management/analytics: данные берутся одним запросом на путь (2.8s)
+  ✓  18 tests/ui/requests.spec.ts:81:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (2.9s)
+  ✓  19 tests/ui/requests.spec.ts:81:3 › экран /management/analytics/units: данные берутся одним запросом на путь (3.6s)
+  ✓  20 tests/ui/requests.spec.ts:81:3 › экран /finance: данные берутся одним запросом на путь (3.2s)
+  ✓  21 tests/ui/requests.spec.ts:81:3 › экран /reports: данные берутся одним запросом на путь (2.9s)
+  ✓  22 tests/ui/requests.spec.ts:81:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (2.3s)
+  ✓  23 tests/ui/requests.spec.ts:81:3 › экран /channels: данные берутся одним запросом на путь (3.8s)
+  ✓  24 tests/ui/requests.spec.ts:81:3 › экран /connections/channex: данные берутся одним запросом на путь (2.8s)
+  ✓  25 tests/ui/requests.spec.ts:81:3 › экран /channels/mapping: данные берутся одним запросом на путь (2.2s)
+  ✓  26 tests/ui/requests.spec.ts:81:3 › экран /channels/sync: данные берутся одним запросом на путь (2.5s)
+  ✓  27 tests/ui/requests.spec.ts:81:3 › экран /channels/events: данные берутся одним запросом на путь (2.2s)
+  ✓  28 tests/ui/requests.spec.ts:81:3 › экран /marketing: данные берутся одним запросом на путь (2.6s)
+  ✓  29 tests/ui/requests.spec.ts:81:3 › экран /website: данные берутся одним запросом на путь (2.7s)
+  ✓  30 tests/ui/requests.spec.ts:81:3 › экран /website/booking: данные берутся одним запросом на путь (2.8s)
+  ✓  31 tests/ui/requests.spec.ts:81:3 › экран /website/analytics: данные берутся одним запросом на путь (3.2s)
+  ✓  32 tests/ui/requests.spec.ts:81:3 › экран /hotel-settings: данные берутся одним запросом на путь (3.9s)
+  ✓  33 tests/ui/requests.spec.ts:81:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (2.2s)
+  ✓  34 tests/ui/requests.spec.ts:81:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (2.4s)
+  ✓  35 tests/ui/requests.spec.ts:81:3 › экран /team: данные берутся одним запросом на путь (2.9s)
+  ✓  36 tests/ui/requests.spec.ts:81:3 › экран /connections: данные берутся одним запросом на путь (2.8s)
+  ✓  37 tests/ui/requests.spec.ts:81:3 › экран /ai-agents: данные берутся одним запросом на путь (2.6s)
+  ✓  38 tests/ui/requests.spec.ts:81:3 › экран /website/settings: данные берутся одним запросом на путь (2.7s)
+  ✓  39 tests/ui/requests.spec.ts:81:3 › экран /incidents: данные берутся одним запросом на путь (2.8s)
+  ✓  40 tests/ui/requests.spec.ts:81:3 › экран /journal: данные берутся одним запросом на путь (3.1s)
+  ✓  41 tests/ui/requests.spec.ts:81:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.1s)
+
+  41 passed (2.6m)
+
+# код выхода 0 · 2 мин 38 с

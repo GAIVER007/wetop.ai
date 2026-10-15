@@ -1,0 +1,294 @@
+# Сквозные (e2e) · 02.10.2026 16:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0145369 (main), незакоммиченных файлов набора: 77
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/reports-hub.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/ui/reports-hub.spec.ts:40:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (16.3s)
+  ✘  2 tests/ui/reports-hub.spec.ts:107:1 › карточки ведут в готовые экраны с тем же периодом (15.9s)
+  ✘  3 tests/ui/reports-hub.spec.ts:145:1 › пресет «Сегодня» и свой период меняют адрес и числа (45.1s)
+  ✘  4 tests/ui/reports-hub.spec.ts:164:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (16.0s)
+  ✘  5 tests/ui/reports-hub.spec.ts:179:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (16.6s)
+  ✘  6 tests/ui/reports-hub.spec.ts:199:1 › телефон: карточки без горизонтальной прокрутки (16.2s)
+  ✘  7 tests/ui/reports-hub.spec.ts:209:3 › доступность и снимки, light (16.3s)
+  ✘  8 tests/ui/reports-hub.spec.ts:209:3 › доступность и снимки, dark (15.8s)
+
+
+  1) tests/ui/reports-hub.spec.ts:40:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Отчёты"
+    Received: "Страница не найдена"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        31 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      66 |   await page.goto('/reports');
+      67 |   const main = page.getByRole('main');
+    > 68 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Отчёты');
+         |                                                         ^
+      69 |   await expect(main.getByTestId('reports-period')).toContainText('дн');
+      70 |
+      71 |   // группы — по вопросу, на который отвечает отчёт
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/reports-hub.spec.ts:68:57
+
+    Error Context: test-results/reports-hub-хаб-заголовок--e91c5-исла-—-те-же-что-отдаёт-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-hub-хаб-заголовок--e91c5-исла-—-те-же-что-отдаёт-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-hub-хаб-заголовок--e91c5-исла-—-те-же-что-отдаёт-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/reports-hub.spec.ts:107:1 › карточки ведут в готовые экраны с тем же периодом ────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('main').getByTestId('report-finance')
+    Expected: "/finance?from=2026-10-01&to=2026-10-31"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').getByTestId('report-finance') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('report-finance')
+
+
+      108 |   await page.goto('/reports');
+      109 |   const main = page.getByRole('main');
+    > 110 |   await expect(main.getByTestId('report-finance')).toHaveAttribute(
+          |                                                    ^
+      111 |     'href',
+      112 |     `/finance?from=${monthFrom}&to=${monthTo}`,
+      113 |   );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/reports-hub.spec.ts:110:52
+
+    Error Context: test-results/reports-hub-карточки-ведут-bdf18-ые-экраны-с-тем-же-периодом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-hub-карточки-ведут-bdf18-ые-экраны-с-тем-же-периодом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-hub-карточки-ведут-bdf18-ые-экраны-с-тем-же-периодом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/reports-hub.spec.ts:145:1 › пресет «Сегодня» и свой период меняют адрес и числа ──────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('navigation', { name: 'Готовые периоды' }).getByText('Сегодня')
+
+
+      146 |   await page.goto('/reports');
+      147 |   const main = page.getByRole('main');
+    > 148 |   await main.getByRole('navigation', { name: 'Готовые периоды' }).getByText('Сегодня').click();
+          |                                                                                        ^
+      149 |   await expect(page).toHaveURL(`/reports?from=${today}&to=${today}`);
+      150 |   await expect(main.getByTestId('report-finance')).toHaveAttribute(
+      151 |     'href',
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/reports-hub.spec.ts:148:88
+
+    Error Context: test-results/reports-hub-пресет-«Сегодн-54d0a-период-меняют-адрес-и-числа/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-hub-пресет-«Сегодн-54d0a-период-меняют-адрес-и-числа/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-hub-пресет-«Сегодн-54d0a-период-меняют-адрес-и-числа/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/reports-hub.spec.ts:164:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('report-finance').locator('.report-card__value')
+    Expected: "—"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('report-finance').locator('.report-card__value') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('report-finance').locator('.report-card__value')
+
+
+      169 |   await page.goto('/reports');
+      170 |   const main = page.getByRole('main');
+    > 171 |   await expect(main.getByTestId('report-finance').locator('.report-card__value')).toHaveText('—');
+          |                                                                                   ^
+      172 |   await expect(main.getByTestId('report-finance')).toContainText('не загрузилось');
+      173 |   // загрузка из /desk/dashboard живёт
+      174 |   await expect(main.getByTestId('report-occupancy').locator('.report-card__value')).toContainText(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/reports-hub.spec.ts:171:83
+
+    Error Context: test-results/reports-hub-сбой-одного-за-554c3-агрузилось»-остальные-живут/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-hub-сбой-одного-за-554c3-агрузилось»-остальные-живут/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-hub-сбой-одного-за-554c3-агрузилось»-остальные-живут/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/reports-hub.spec.ts:179:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByTestId('debts-export')
+    Expected: "/finance/export-debts?from=2026-10-01&to=2026-10-31"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('debts-export') with timeout 15000ms
+      - waiting for getByTestId('debts-export')
+
+
+      181 |   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
+      182 |   const link = page.getByTestId('debts-export');
+    > 183 |   await expect(link).toHaveAttribute(
+          |                      ^
+      184 |     'href',
+      185 |     `/finance/export-debts?from=${monthFrom}&to=${monthTo}`,
+      186 |   );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/reports-hub.spec.ts:183:22
+
+    Error Context: test-results/reports-hub-CSV-долгов-кно-41dec-Долги»-файл-без-имён-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-hub-CSV-долгов-кно-41dec-Долги»-файл-без-имён-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-hub-CSV-долгов-кно-41dec-Долги»-файл-без-имён-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/reports-hub.spec.ts:199:1 › телефон: карточки без горизонтальной прокрутки ───────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('report-finance')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('report-finance') with timeout 15000ms
+      - waiting for getByTestId('report-finance')
+
+
+      200 |   await page.setViewportSize({ width: 390, height: 844 });
+      201 |   await page.goto('/reports');
+    > 202 |   await expect(page.getByTestId('report-finance')).toBeVisible();
+          |                                                    ^
+      203 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      204 |     true,
+      205 |   );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/reports-hub.spec.ts:202:52
+
+    Error Context: test-results/reports-hub-телефон-карточки-без-горизонтальной-прокрутки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-hub-телефон-карточки-без-горизонтальной-прокрутки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-hub-телефон-карточки-без-горизонтальной-прокрутки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/reports-hub.spec.ts:209:3 › доступность и снимки, light ──────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('report-finance')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('report-finance') with timeout 15000ms
+      - waiting for getByTestId('report-finance')
+
+
+      212 |     await page.setViewportSize({ width: 1440, height: 1000 });
+      213 |     await page.goto('/reports');
+    > 214 |     await expect(page.getByTestId('report-finance')).toBeVisible();
+          |                                                      ^
+      215 |     const scan = await new AxeBuilder({ page }).analyze();
+      216 |     expect(scan.violations.map((v) => v.id)).toEqual([]);
+      217 |     await page.mouse.move(0, 0);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/reports-hub.spec.ts:214:54
+
+    Error Context: test-results/reports-hub-доступность-и-снимки-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-hub-доступность-и-снимки-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-hub-доступность-и-снимки-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/reports-hub.spec.ts:209:3 › доступность и снимки, dark ───────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('report-finance')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('report-finance') with timeout 15000ms
+      - waiting for getByTestId('report-finance')
+
+
+      212 |     await page.setViewportSize({ width: 1440, height: 1000 });
+      213 |     await page.goto('/reports');
+    > 214 |     await expect(page.getByTestId('report-finance')).toBeVisible();
+          |                                                      ^
+      215 |     const scan = await new AxeBuilder({ page }).analyze();
+      216 |     expect(scan.violations.map((v) => v.id)).toEqual([]);
+      217 |     await page.mouse.move(0, 0);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/reports-hub.spec.ts:214:54
+
+    Error Context: test-results/reports-hub-доступность-и-снимки-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-hub-доступность-и-снимки-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-hub-доступность-и-снимки-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/ui/reports-hub.spec.ts:40:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API 
+    tests/ui/reports-hub.spec.ts:107:1 › карточки ведут в готовые экраны с тем же периодом ─────────
+    tests/ui/reports-hub.spec.ts:145:1 › пресет «Сегодня» и свой период меняют адрес и числа ───────
+    tests/ui/reports-hub.spec.ts:164:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут 
+    tests/ui/reports-hub.spec.ts:179:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей 
+    tests/ui/reports-hub.spec.ts:199:1 › телефон: карточки без горизонтальной прокрутки ────────────
+    tests/ui/reports-hub.spec.ts:209:3 › доступность и снимки, light ───────────────────────────────
+    tests/ui/reports-hub.spec.ts:209:3 › доступность и снимки, dark ────────────────────────────────
+
+# код выхода 1 · 2 мин 55 с

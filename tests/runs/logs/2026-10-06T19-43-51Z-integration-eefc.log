@@ -1,0 +1,137 @@
+# Интеграционные (integration) · 07.10.2026 00:43 Алматы · vm
+# коммит e8497b0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-43-51Z-integration-eefc.json' 'tests/integration/from-prices.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/from-prices.test.ts (9 tests | 9 failed) 1378ms
+   ❯ цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) (9)
+     × только тариф брони сайта: более дешёвый тариф объекта не участвует; 30 ночей; полная вместимость; стоп-продажа 7ms
+     × категория без связи с тарифом брони и категория без цен в ответ не попадают 1ms
+     × в ответе нет внутренних идентификаторов: только код категории, цена, валюта и окно 1ms
+     × соседний объект той же организации не используется: у сайта B своя цена 1ms
+     × производный тариф брони: скидка 10 % и окно продаж к ночи, минимум ночей не применяется 1ms
+     × тариф брони выключен: цен нет, другой тариф не подставляется 1ms
+     × бронирование сайта выключено, неизвестный ключ: 404, как у брони 0ms
+     × домен: только домен своего сайта, как у брони; чужой и пустой Origin получают 403 1ms
+     × лимит запросов с одного адреса 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/from-prices.test.ts > цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) > только тариф брони сайта: более дешёвый тариф объекта не участвует; 30 ночей; полная вместимость; стоп-продажа
+TypeError: service(...).fromPrices is not a function
+ ❯ tests/integration/from-prices.test.ts:174:31
+    172|
+    173|   it('только тариф брони сайта: более дешёвый тариф объекта не участву…
+    174|     const r = await service().fromPrices({ k: A.key }, ctx(A));
+       |                               ^
+    175|     expect(r).toEqual({
+    176|       currency: 'KZT',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |integration| tests/integration/from-prices.test.ts > цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) > категория без связи с тарифом брони и категория без цен в ответ не попадают
+TypeError: service(...).fromPrices is not a function
+ ❯ tests/integration/from-prices.test.ts:187:31
+    185|
+    186|   it('категория без связи с тарифом брони и категория без цен в ответ …
+    187|     const r = await service().fromPrices({ k: A.key }, ctx(A));
+       |                               ^
+    188|     expect(r.categories.map((c) => c.code)).not.toContain('unlinked');
+    189|     expect(r.categories.map((c) => c.code)).not.toContain('no-rates');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |integration| tests/integration/from-prices.test.ts > цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) > в ответе нет внутренних идентификаторов: только код категории, цена, валюта и окно
+TypeError: service(...).fromPrices is not a function
+ ❯ tests/integration/from-prices.test.ts:193:31
+    191|
+    192|   it('в ответе нет внутренних идентификаторов: только код категории, ц…
+    193|     const r = await service().fromPrices({ k: A.key }, ctx(A));
+       |                               ^
+    194|     expect(Object.keys(r).sort()).toEqual(['categories', 'currency', '…
+    195|     for (const c of r.categories) expect(Object.keys(c).sort()).toEqua…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |integration| tests/integration/from-prices.test.ts > цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) > соседний объект той же организации не используется: у сайта B своя цена
+TypeError: service(...).fromPrices is not a function
+ ❯ tests/integration/from-prices.test.ts:205:31
+    203|
+    204|   it('соседний объект той же организации не используется: у сайта B св…
+    205|     const r = await service().fromPrices({ k: B.key }, ctx(B));
+       |                               ^
+    206|     expect(r.categories).toEqual([{ code: 'standard-double', fromMinor…
+    207|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |integration| tests/integration/from-prices.test.ts > цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) > производный тариф брони: скидка 10 % и окно продаж к ночи, минимум ночей не применяется
+TypeError: service(...).fromPrices is not a function
+ ❯ tests/integration/from-prices.test.ts:210:31
+    208|
+    209|   it('производный тариф брони: скидка 10 % и окно продаж к ночи, миним…
+    210|     const r = await service().fromPrices({ k: D.key }, ctx(D));
+       |                               ^
+    211|     // ночи 0 и 1 (10 000) раньше двух дней до заезда; дальше 20 000 с…
+    212|     expect(r.categories).toEqual([{ code: 'standard-double', fromMinor…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |integration| tests/integration/from-prices.test.ts > цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) > тариф брони выключен: цен нет, другой тариф не подставляется
+TypeError: service(...).fromPrices is not a function
+ ❯ tests/integration/from-prices.test.ts:216:31
+    214|
+    215|   it('тариф брони выключен: цен нет, другой тариф не подставляется', a…
+    216|     const r = await service().fromPrices({ k: E.key }, ctx(E));
+       |                               ^
+    217|     expect(r.categories).toEqual([]);
+    218|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |integration| tests/integration/from-prices.test.ts > цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) > бронирование сайта выключено, неизвестный ключ: 404, как у брони
+TypeError: service(...).fromPrices is not a function
+ ❯ tests/integration/from-prices.test.ts:221:28
+    219|
+    220|   it('бронирование сайта выключено, неизвестный ключ: 404, как у брони…
+    221|     await expect(service().fromPrices({ k: OFF.key }, ctx(OFF))).rejec…
+       |                            ^
+    222|     await expect(service().fromPrices({ k: 'pms_000000000000' }, ctx(A…
+    223|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |integration| tests/integration/from-prices.test.ts > цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) > домен: только домен своего сайта, как у брони; чужой и пустой Origin получают 403
+TypeError: service(...).fromPrices is not a function
+ ❯ tests/integration/from-prices.test.ts:226:28
+    224|
+    225|   it('домен: только домен своего сайта, как у брони; чужой и пустой Or…
+    226|     await expect(service().fromPrices({ k: A.key }, ctx(B))).rejects.t…
+       |                            ^
+    227|     await expect(
+    228|       service().fromPrices({ k: A.key }, { originHost: null, ownHost: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |integration| tests/integration/from-prices.test.ts > цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) > лимит запросов с одного адреса
+TypeError: svc.fromPrices is not a function
+ ❯ tests/integration/from-prices.test.ts:235:27
+    233|     const svc = service();
+    234|     for (let i = 0; i < FROM_PRICES_PER_IP_PER_MINUTE; i++) await svc.…
+    235|     const err = await svc.fromPrices({ k: A.key }, ctx(A, '203.0.113.7…
+       |                           ^
+    236|     expect(err).toBeInstanceOf(HttpException);
+    237|     expect((err as HttpException).getStatus()).toBe(429);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed (9)
+   Start at  19:43:52
+   Duration  5.34s (transform 45%, tests 37%, import 18%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-43-51Z-integration-eefc.json
+
+# код выхода 1 · 6 с

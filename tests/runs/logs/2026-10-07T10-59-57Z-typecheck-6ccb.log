@@ -1,0 +1,14 @@
+# Типы (typecheck) · 07.10.2026 15:59 Алматы · vm
+# коммит 086ce66 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 13
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+apps/api/src/marketing-site/generation.worker.ts(73,3): error TS2375: Type '{ status: "error" | "ok"; spec: unknown; errorCode: string | undefined; model: string | null; usage: { input: number; output: number; cached: number | null; complete: boolean; paidCalls: number; }; }' is not assignable to type 'BotReply' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'errorCode' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+tests/integration/generation-runs-db.test.ts(100,32): error TS18048: 'id' is possibly 'undefined'.
+apps/api/src/marketing-site/generation.worker.ts(73,3): error TS2375: Type '{ status: "error" | "ok"; spec: unknown; errorCode: string | undefined; model: string | null; usage: { input: number; output: number; cached: number | null; complete: boolean; paidCalls: number; }; }' is not assignable to type 'BotReply' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'errorCode' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+# код выхода 1 · 1 мин 29 с

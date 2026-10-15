@@ -1,0 +1,139 @@
+# Модульные (unit) · 01.10.2026 11:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-36-13Z-unit-f3e0.json' 'apps/web/src/lib/unified-auth-entry.test.ts' 'apps/site/src/lib/site.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/site/src/lib/site.test.ts (15 tests | 2 failed) 6ms
+   ❯ единая точка входа (2)
+     × вход открывается на главной продукта, без второй страницы 4ms
+     × регистрация открывается на главной продукта 0ms
+   ✓ loginLink (4)
+     ✓ ведёт на экран входа стойки 0ms
+     ✓ не удваивает слеш, если адрес стойки записан со слешем в конце 0ms
+     ✓ ведёт наружу — стойка на другом хосте 0ms
+     ✓ останавливает сборку, если адрес стойки записан неверно 0ms
+   ✓ registerLink (2)
+     ✓ ведёт на форму регистрации стойки 0ms
+     ✓ не удваивает слеш, если адрес стойки записан со слешем в конце 0ms
+   ✓ assistantScriptSrc (3)
+     ✓ без адреса помощника чата на главной нет 0ms
+     ✓ скрипт виджета лежит у помощника по /widget/widget.js 0ms
+     ✓ останавливает сборку, если адрес записан неверно 0ms
+   ✓ окно входа: адреса стойки (4)
+     ✓ запросы окна — на /api/site-auth стойки 0ms
+     ✓ «Забыли пароль?» — экран сброса стойки 0ms
+     ✓ после входа — путь от стойки внутри стойки 0ms
+     ✓ чужой адрес или мусор — на Главную стойки, а не на другой сайт 0ms
+ ❯ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests | 2 failed) 5ms
+   ❯ единый вход с главной (2)
+     × истёкшая сессия ведёт на главную с безопасным адресом возврата 4ms
+     × локальная главная и приложение остаются в одном локальном окружении 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/unified-auth-entry.test.ts > единый вход с главной > истёкшая сессия ведёт на главную с безопасным адресом возврата
+AssertionError: expected "vi.fn()" to be called with arguments: [ Array(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   "https://wetop.ai/?next=%2Fjournal%3Fpage%3D2#login",
++   "/login",
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/lib/unified-auth-entry.test.ts:17:22
+     15|     vi.stubEnv('WETOP_SITE_URL', 'https://wetop.ai');
+     16|     await redirectToLoginIfRequired();
+     17|     expect(redirect).toHaveBeenCalledWith('https://wetop.ai/?next=%2Fj…
+       |                      ^
+     18|   });
+     19|   it('локальная главная и приложение остаются в одном локальном окруже…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/unified-auth-entry.test.ts > единый вход с главной > локальная главная и приложение остаются в одном локальном окружении
+AssertionError: expected "vi.fn()" to be called with arguments: [ Array(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   "http://127.0.0.1:3002/?next=%2Fjournal%3Fpage%3D2#login",
++   "/login",
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/lib/unified-auth-entry.test.ts:23:22
+     21|     vi.stubEnv('WETOP_SITE_URL', 'http://127.0.0.1:3002');
+     22|     await redirectToLoginIfRequired();
+     23|     expect(redirect).toHaveBeenCalledWith('http://127.0.0.1:3002/?next…
+       |                      ^
+     24|   });
+     25| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/site/src/lib/site.test.ts > единая точка входа > вход открывается на главной продукта, без второй страницы
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+-   "external": false,
+-   "href": "https://wetop.ai/#login",
++   "external": true,
++   "href": "https://app.wetop.ai/login",
+  }
+
+ ❯ apps/site/src/lib/site.test.ts:15:33
+     13| describe('единая точка входа', () => {
+     14|   it('вход открывается на главной продукта, без второй страницы', () =…
+     15|     expect(loginLink(config())).toEqual({ href: 'https://wetop.ai/#log…
+       |                                 ^
+     16|   });
+     17|   it('регистрация открывается на главной продукта', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/site/src/lib/site.test.ts > единая точка входа > регистрация открывается на главной продукта
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+-   "external": false,
+-   "href": "https://wetop.ai/#register",
++   "external": true,
++   "href": "https://app.wetop.ai/register",
+  }
+
+ ❯ apps/site/src/lib/site.test.ts:18:36
+     16|   });
+     17|   it('регистрация открывается на главной продукта', () => {
+     18|     expect(registerLink(config())).toEqual({ href: 'https://wetop.ai/#…
+       |                                    ^
+     19|   });
+     20| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 13 passed (17)
+   Start at  23:36:13
+   Duration  106ms (transform 59%, import 20%, tests 14%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-36-13Z-unit-f3e0.json
+
+# код выхода 1 · 1 с

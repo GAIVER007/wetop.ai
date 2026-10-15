@@ -1,11 +1,11 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, openProfileMenu } from './fixtures';
 
 /**
  * Обучение в стойке (plans/site-auth-dialog-tour-2026-09-27.md, Д4, ADR-100): после первого входа на Главной само
  * открывается окно «Добро пожаловать», шаги подсвечивают поиск, разделы меню и профиль. «Пропустить» или последний
  * шаг ставят отметку — повторно само не открывается; пункт меню профиля показывает обучение ещё раз.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.use({ tour: true });
 
@@ -17,14 +17,16 @@ test.afterEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 
-test('первый вход: обучение открывается само, идёт по шагам и больше само не открывается', async ({ page }) => {
+test('первый вход: обучение открывается само, идёт по шагам и больше само не открывается', async ({
+  page,
+}) => {
   await signIn(page);
   const tour = page.getByTestId('product-tour');
   await expect(tour.getByRole('heading', { name: 'Добро пожаловать в WETOP' })).toBeVisible();
@@ -33,18 +35,11 @@ test('первый вход: обучение открывается само, �
 
   await tour.getByRole('button', { name: 'Далее' }).click();
   await expect(tour.getByRole('heading', { name: 'Поиск по всей стойке' })).toBeVisible();
-  // подсветка стоит над полем поиска
-  const hole = page.locator('.tour__hole');
-  await expect(hole).toBeVisible();
-  await page.waitForTimeout(400); // вырез переезжает к элементу 180 мс
-  const [holeBox, searchBox] = await Promise.all([
-    hole.boundingBox(),
-    page.locator('[data-tour="search"]').boundingBox(),
-  ]);
-  expect(holeBox && searchBox).toBeTruthy();
-  // вырез охватывает поле поиска с запасом 6 px по краям
-  expect(Math.abs(holeBox!.x - (searchBox!.x - 6))).toBeLessThan(2);
-  expect(Math.abs(holeBox!.width - (searchBox!.width + 12))).toBeLessThan(2);
+  // С 13.10 стартовый экран «Главная» (ADR-180) с обычной шапкой: поиск виден и подсвечивается вырезом.
+  await expect(page.locator('[data-tour="search"]')).toBeVisible();
+  await expect(page.locator('.tour__hole')).toBeVisible();
+  await expect(page.locator('.tour__card--center')).toHaveCount(0);
+  await expect(tour).toContainText('⌘ K / Ctrl K');
   await page.screenshot({ path: 'test-results/product-tour-2-search.png' });
 
   await tour.getByRole('button', { name: 'Далее' }).click();
@@ -63,9 +58,46 @@ test('первый вход: обучение открывается само, �
   await expect(page.getByTestId('product-tour')).toBeHidden();
 
   // повтор — из меню профиля
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await page.getByTestId('tour-restart').click();
-  await expect(page.getByTestId('product-tour').getByRole('heading', { name: 'Добро пожаловать в WETOP' })).toBeVisible();
+  await expect(
+    page.getByTestId('product-tour').getByRole('heading', { name: 'Добро пожаловать в WETOP' }),
+  ).toBeVisible();
+});
+
+test('скрытый поиск в календаре объясняется без подсветки недоступного элемента', async ({ page }) => {
+  await signIn(page);
+  await page.getByTestId('product-tour').getByRole('button', { name: 'Пропустить' }).click();
+  await openProfileMenu(page);
+  await page.getByTestId('tour-restart').click();
+  const financeTour = page.getByTestId('product-tour');
+  await financeTour.getByLabel('Тема обучения').selectOption({ label: '2. Поиск по всей стойке' });
+  await expect(page.locator('.tour__hole')).toBeVisible();
+  await expect(async () => {
+    const hole = await page.locator('.tour__hole').boundingBox();
+    const search = await page.locator('[data-tour="search"]').boundingBox();
+    expect(hole && search).toBeTruthy();
+    expect(Math.abs(hole!.x - (search!.x - 6))).toBeLessThan(2);
+    expect(Math.abs(hole!.width - (search!.width + 12))).toBeLessThan(2);
+  }).toPass({ timeout: 4000 });
+  await page.keyboard.press('Escape');
+  await page.goto('/chessboard');
+  await openProfileMenu(page);
+  await page.getByTestId('tour-restart').click();
+  const tour = page.getByTestId('product-tour');
+  await tour.getByLabel('Тема обучения').selectOption({ label: '2. Поиск по всей стойке' });
+  await expect(tour.getByRole('heading', { name: 'Поиск по всей стойке' })).toBeVisible();
+  await expect(page.locator('[data-tour="search"]')).toHaveCount(0);
+  await expect(page.locator('.tour__hole')).toHaveCount(0);
+  const centered = tour.locator('.tour__card--center');
+  await expect(centered).toBeVisible();
+  const box = await centered.boundingBox();
+  const viewport = page.viewportSize()!;
+  expect(box).not.toBeNull();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
 });
 
 test('последний шаг — профиль, «Начать работу» закрывает обучение', async ({ page }) => {
@@ -84,7 +116,9 @@ test('последний шаг — профиль, «Начать работу�
   await expect(tour).toBeHidden();
 });
 
-test('на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край', async ({ page }) => {
+test('на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page);
   const tour = page.getByTestId('product-tour');
@@ -95,4 +129,70 @@ test('на телефоне шаги меню без подсветки — ок
   const box = await card.boundingBox();
   expect(box && box.x >= 0 && box.x + box.width <= 390).toBe(true);
   await page.screenshot({ path: 'test-results/product-tour-5-mobile.png' });
+});
+
+test('меню содержит только обучение, личность и выход; темы можно выбирать', async ({ page }) => {
+  await signIn(page);
+  const tour = page.getByTestId('product-tour');
+  await expect(tour).toBeVisible();
+  await tour
+    .getByLabel('Тема обучения')
+    .selectOption({ label: '4. Календарь: размещение и продление' });
+  await expect(
+    tour.getByRole('heading', { name: 'Календарь: размещение и продление' }),
+  ).toBeVisible();
+  await expect(tour.locator('ol li')).toHaveCount(3);
+  await page.keyboard.press('Escape');
+  await openProfileMenu(page);
+  const menu = page.locator('.profile-dropdown');
+  await expect(menu.getByTestId('tour-restart')).toHaveText('Обучение работе в WETOP');
+  await expect(menu).not.toContainText('Тема устройства');
+  await expect(menu).not.toContainText('Профиль и предпочтения');
+  await expect(menu).not.toContainText('Настройки объекта');
+  await expect(menu.getByText('admin@wetop.test', { exact: true })).toBeVisible();
+  await expect(menu.getByRole('button', { name: 'Выйти', exact: true })).toBeVisible();
+});
+
+test('администратор на телефоне видит рабочие темы без настроек владельца', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${API}/__test/control`, { data: { role: 'STAFF' } });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page);
+  const tour = page.getByTestId('product-tour');
+  await expect(tour).toBeVisible();
+  const topics = tour.getByLabel('Тема обучения');
+  await expect(topics).not.toContainText('Настройки и сотрудники');
+  await expect(topics).not.toContainText('Тарифы и цены');
+  await topics.selectOption({ label: '4. Календарь: размещение и продление' });
+  await expect(
+    tour.getByRole('heading', { name: 'Календарь: размещение и продление' }),
+  ).toBeVisible();
+  const box = await tour.locator('.tour__card').boundingBox();
+  expect(box && box.y >= 0 && box.y + box.height <= 844).toBe(true);
+});
+
+test('обучение подсвечивает поиск в разделе гостей', async ({ page }) => {
+  await signIn(page);
+  await expect(page.getByTestId('product-tour')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.goto('/guests');
+  await openProfileMenu(page);
+  await page.getByTestId('tour-restart').click();
+  const tour = page.getByTestId('product-tour');
+  await tour.getByRole('button', { name: 'Далее' }).click();
+  await expect(tour.getByRole('heading', { name: 'Поиск по всей стойке' })).toBeVisible();
+  // подсветка стоит над полем поиска
+  const hole = page.locator('.tour__hole');
+  await expect(hole).toBeVisible();
+  await page.waitForTimeout(400); // вырез переезжает к элементу 180 мс
+  const [holeBox, searchBox] = await Promise.all([
+    hole.boundingBox(),
+    page.locator('[data-tour="search"]').boundingBox(),
+  ]);
+  expect(holeBox && searchBox).toBeTruthy();
+  // вырез охватывает поле поиска с запасом 6 px по краям
+  expect(Math.abs(holeBox!.x - (searchBox!.x - 6))).toBeLessThan(2);
+  expect(Math.abs(holeBox!.width - (searchBox!.width + 12))).toBeLessThan(2);
 });

@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 01.10.2026 15:54 Алматы · vm
+# коммит 6e4b768 (claude/epic-johnson-8yejs9), незакоммиченных файлов набора: 37
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/organization.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/organization.spec.ts:32:1 › один филиал: подпись без переключателя; владелец добавляет филиал, ошибки у поля, тёзка — от API (4.7s)
+  ✘  2 tests/ui/organization.spec.ts:70:1 › выбор филиала: «Открыть» и переключатель ставят куку, объект стойки и текущая строка меняются (17.8s)
+  ✓  3 tests/ui/organization.spec.ts:99:1 › сводка по филиалам: строки по каждому, итог суммой, готовые отрезки (2.5s)
+  ✓  4 tests/ui/organization.spec.ts:118:1 › роли: управляющий видит без кнопки, администратору раздел закрыт, в «только чтении» кнопки нет (3.6s)
+  ✓  5 tests/ui/organization.spec.ts:141:1 › «Платформа → Организации» показывает структуру партнёра (2.2s)
+  ✓  6 tests/ui/organization.spec.ts:150:3 › доступность и снимки (light) (3.9s)
+  ✓  7 tests/ui/organization.spec.ts:150:3 › доступность и снимки (dark) (3.9s)
+
+
+  1) tests/ui/organization.spec.ts:70:1 › выбор филиала: «Открыть» и переключатель ставят куку, объект стойки и текущая строка меняются 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByTestId('scope-switcher').getByRole('combobox')
+    Expected pattern: /0c000000-0000-4000-8000-000000000002$/
+    Received string:  "0b000000-0000-4000-8000-000000000001/0c000000-0000-4000-8000-000000000001"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByTestId('scope-switcher').getByRole('combobox') with timeout 15000ms
+      - waiting for getByTestId('scope-switcher').getByRole('combobox')
+        34 × locator resolved to <select name="scope" class="input" id="_R_2aiqlb_" aria-busy="false">…</select>
+           - unexpected value "0b000000-0000-4000-8000-000000000001/0c000000-0000-4000-8000-000000000001"
+
+
+      85 |   // объект в шапке слева — объект выбранного филиала
+      86 |   await expect(page.locator('.sidebar-shell .workspace-property strong')).toHaveText('Luxx Astana');
+    > 87 |   await expect(page.getByTestId('scope-switcher').getByRole('combobox')).toHaveValue(/0c000000-0000-4000-8000-000000000002$/);
+         |                                                                          ^
+      88 |   // сводка подсвечивает текущий
+      89 |   const rows = main.getByTestId('company-summary-row');
+      90 |   await expect(rows).toHaveCount(2);
+        at /home/user/wetop.ai/tests/ui/organization.spec.ts:87:74
+
+    Error Context: test-results/organization-выбор-филиала-da2ac-и-и-текущая-строка-меняются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/organization-выбор-филиала-da2ac-и-и-текущая-строка-меняются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/organization-выбор-филиала-da2ac-и-и-текущая-строка-меняются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/organization.spec.ts:70:1 › выбор филиала: «Открыть» и переключатель ставят куку, объект стойки и текущая строка меняются 
+  6 passed (47.4s)
+
+# код выхода 1 · 49 с

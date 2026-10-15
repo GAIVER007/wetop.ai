@@ -3,8 +3,9 @@
 #
 # Секреты — в файле .env рядом, вписывает владелец руками (SECURITY.md §3):
 #   RUNNER_REPO_URL=https://github.com/GAIVER007/wetop.ai
-#   RUNNER_TOKEN=…   токен регистрации: Settings → Actions → Runners → New self-hosted runner.
-#                    Живёт час и нужен ТОЛЬКО при первой настройке: дальше она лежит в томе.
+#   RUNNER_TOKEN=    после «=» токен регистрации: Settings → Actions → Runners → New self-hosted runner,
+#                    значение после --token (латиница и цифры). Живёт час и нужен ТОЛЬКО при первой
+#                    настройке: дальше она лежит в томе.
 #
 # Сокета Docker здесь нет и не будет: он дал бы коду из любой ветки root на машине, где рядом
 # работают чужие проекты. Поэтому задача `миграции · integration · e2e` с `services: postgres`

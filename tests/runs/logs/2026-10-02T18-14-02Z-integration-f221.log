@@ -1,0 +1,52 @@
+# Интеграционные (integration) · 02.10.2026 23:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0ac6085 (main), незакоммиченных файлов набора: 17
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T18-14-02Z-integration-f221.json' 'tests/integration/rls-credential-grants.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |integration| tests/integration/rls-credential-grants.test.ts (8 tests | 1 failed) 54ms
+   ❯ RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) (8)
+     ✓ password_resets: wetop_app не может ни читать, ни писать 7ms
+     ✓ email_verifications: wetop_app не может ни читать, ни писать 3ms
+     ✓ wizard_sessions: wetop_app не может ни читать, ни писать 3ms
+     ✓ wizard_events: wetop_app не может ни читать, ни писать 2ms
+     ✓ wizard_surveys: wetop_app не может ни читать, ни писать 1ms
+     × users: только id, email, name, status, email_verified_at, last_login_at и только чтение 7ms
+     ✓ platform_admins: читаются только user_id и revoked_at; писать нельзя — выдать себе права главного администратора нечем 6ms
+     ✓ внешний ключ audit_logs.user_id проверяется и без прав на users: запись журнала под организацией проходит 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > users: только id, email, name, status, email_verified_at, last_login_at и только чтение
+AssertionError: expected { ok: false, …(1) } to match object { ok: true }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "ok": true,
++   "ok": false,
+  }
+
+ ❯ tests/integration/rls-credential-grants.test.ts:99:20
+     97|           [id],
+     98|         );
+     99|         expect(ok).toMatchObject({ ok: true });
+       |                    ^
+    100|         expect(ok.ok && ok.rows).toHaveLength(1);
+    101|         // хеш пароля, счётчик попыток, блокировка и «выбрать всё» — н…
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:87:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  11:14:02
+   Duration  391ms (tests 72%, import 21%, transform 4%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T18-14-02Z-integration-f221.json
+
+# код выхода 1 · 1 с

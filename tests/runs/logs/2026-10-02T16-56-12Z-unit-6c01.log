@@ -1,0 +1,66 @@
+# Модульные (unit) · 02.10.2026 21:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0ac6085 (main), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T16-56-12Z-unit-6c01.json' 'apps/web/src/lib/support-queue.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/web/src/lib/support-queue.test.ts (9 tests | 3 failed) 4ms
+   ✓ очередь техподдержки: слова экрана (6)
+     ✓ чипы — по порядку работы оператора, «Закрытые» последними и без числа 1ms
+     ✓ очередь из адреса: чужое слово — «Все открытые» 0ms
+     ✓ сколько ждёт: минуты, часы с минутами, дни; не ждёт — null 0ms
+     ✓ приоритет словом и тоном; у закрытого — нет метки 0ms
+     ✓ последнее сообщение — кто сказал и что; нет сообщения — прочерк 0ms
+     ✓ пустая очередь говорит, что пусто и что это значит 0ms
+   ❯ категории обращений: слова экрана (3)
+     × чипы — словами владельца, «Все» первой и «Другое» последней 2ms
+     × число в чипе; пустая категория показывает ноль, а не прячется 0ms
+     × категория из адреса: чужое слово — «Все» 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/support-queue.test.ts > категории обращений: слова экрана > чипы — словами владельца, «Все» первой и «Другое» последней
+TypeError: Cannot read properties of undefined (reading 'map')
+ ❯ apps/web/src/lib/support-queue.test.ts:97:27
+     95|
+     96|   it('чипы — словами владельца, «Все» первой и «Другое» последней', ()…
+     97|     expect(CATEGORY_CHIPS.map((c) => c.label)).toEqual([
+       |                           ^
+     98|       'Все',
+     99|       'Вопрос по платформе',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/support-queue.test.ts > категории обращений: слова экрана > число в чипе; пустая категория показывает ноль, а не прячется
+TypeError: categoryChipCount is not a function
+ ❯ apps/web/src/lib/support-queue.test.ts:108:12
+    106|
+    107|   it('число в чипе; пустая категория показывает ноль, а не прячется', …
+    108|     expect(categoryChipCount('all', categoryCounts)).toBe('7');
+       |            ^
+    109|     expect(categoryChipCount('payment', categoryCounts)).toBe('1');
+    110|     expect(categoryChipCount('access', categoryCounts)).toBe('0');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/support-queue.test.ts > категории обращений: слова экрана > категория из адреса: чужое слово — «Все»
+TypeError: categoryOf is not a function
+ ❯ apps/web/src/lib/support-queue.test.ts:114:12
+    112|
+    113|   it('категория из адреса: чужое слово — «Все»', () => {
+    114|     expect(categoryOf('payment')).toBe('payment');
+       |            ^
+    115|     expect(categoryOf('деньги')).toBe('all');
+    116|     expect(categoryOf(undefined)).toBe('all');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 6 passed (9)
+   Start at  09:56:13
+   Duration  108ms (transform 63%, import 18%, tests 13%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T16-56-12Z-unit-6c01.json
+
+# код выхода 1 · 1 с

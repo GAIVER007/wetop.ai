@@ -1,0 +1,55 @@
+# Интеграционные (integration) · 03.10.2026 16:33 Алматы · vm
+# коммит 50494b7 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T11-33-44Z-integration-0fba.json' 'tests/integration/beauty-domain.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | tests/integration/beauty-domain.test.ts > Beauty: ограничения и триггеры базы (integration, DATA_MODEL §19.1)
+SQL FAILED: INSERT INTO "employee_locations" ("employee_id", "location_id") VALUES ('2ab0029f-b546-4779-b8e0-46446ba5be74', '209f35cf-f435-4f48-80f1-d54a1e490ca1')
+
+ ❯ |integration| tests/integration/beauty-domain.test.ts (11 tests | 11 skipped) 280ms
+   ❯ Beauty: ограничения и триггеры базы (integration, DATA_MODEL §19.1) (11)
+     ↓ связка клиента с бизнесом: свой бизнес можно, чужая организация нет
+     ↓ мастер в филиале чужого бизнеса не работает
+     ↓ филиал включает только услуги своего бизнеса
+     ↓ мастер умеет только услуги своего бизнеса
+     ↓ график ставится только там, где мастер работает; конец позже начала
+     ↓ отсутствие: конец не раньше начала
+     ↓ записи одного мастера не пересекаются: это запрещает база
+     ↓ отменённая и незаезд место не держат
+     ↓ окно записи: конец позже начала
+     ↓ запись сходится по мастеру, услуге и клиенту с филиалом
+     ↓ все десять таблиц под RLS с политикой rls_tenant
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-domain.test.ts > Beauty: ограничения и триггеры базы (integration, DATA_MODEL §19.1)
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `P0001`. Message: `Филиал принадлежит другому бизнесу, мастер в нём работать не может`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ sql tests/integration/beauty-domain.test.ts:32:7
+     30|   async function sql(text: string): Promise<void> {
+     31|     try {
+     32|       await db.$executeRawUnsafe(text);
+       |       ^
+     33|     } catch (e) {
+     34|       console.error('SQL FAILED:', text);
+ ❯ tests/integration/beauty-domain.test.ts:88:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 skipped (11)
+   Start at  11:33:45
+   Duration  1.91s (transform 43%, tests 37%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-03T11-33-44Z-integration-0fba.json
+
+# код выхода 1 · 3 с

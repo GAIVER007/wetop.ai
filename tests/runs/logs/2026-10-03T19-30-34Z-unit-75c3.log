@@ -1,0 +1,31 @@
+# Модульные (unit) · 04.10.2026 00:30 Алматы · vm
+# коммит 57de965 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-30-34Z-unit-75c3.json' 'apps/api/src/market/collector.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/market/collector.controller.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/market/collector.controller.test.ts [ apps/api/src/market/collector.controller.test.ts ]
+Error: Cannot find module './collector.controller' imported from /home/user/wetop.ai/apps/api/src/market/collector.controller.test.ts
+ ❯ apps/api/src/market/collector.controller.test.ts:10:1
+      8| import { AuthService } from '../auth/auth.service';
+      9| import { databaseTenant } from '../auth/request-context';
+     10| import { MarketCollectorController } from './collector.controller';
+       | ^
+     11| import { MarketCollectorService } from './collector.service';
+     12| import { MarketController } from './market.controller';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  19:30:36
+   Duration  2.43s (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-30-34Z-unit-75c3.json
+
+# код выхода 1 · 4 с

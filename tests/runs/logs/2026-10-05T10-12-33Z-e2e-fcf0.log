@@ -1,0 +1,108 @@
+# Сквозные (e2e) · 05.10.2026 15:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит b408e25 (codex/calendar-mobile), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-mobile.spec.ts' '--workers=1'
+[WebServer] (node:2609) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2641) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2689) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2723) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2727) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+(node:2751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (2.2s)
+  ✓   2 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (1.7s)
+  ✓   3 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (1.8s)
+  ✓   4 tests/ui/chessboard-mobile.spec.ts:78:1 › мобильный период останавливается перед занятой ночью (1.4s)
+  ✓   5 tests/ui/chessboard-mobile.spec.ts:99:3 › телефон light: карточка брони, фильтры и длинный календарь (2.2s)
+  ✓   6 tests/ui/chessboard-mobile.spec.ts:99:3 › телефон dark: карточка брони, фильтры и длинный календарь (2.2s)
+  ✓   7 tests/ui/chessboard-mobile.spec.ts:143:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (933ms)
+  ✓   8 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 360: восемь показателей перед календарём и вертикальная прокрутка (1.2s)
+  ✓   9 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 390: восемь показателей перед календарём и вертикальная прокрутка (1.1s)
+  ✓  10 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 430: восемь показателей перед календарём и вертикальная прокрутка (1.2s)
+  ✘  11 tests/ui/chessboard-mobile.spec.ts:214:1 › мобильная панель меняет заезд без закрытия и показывает выезд (45.3s)
+(node:3586) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3617) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/ui/chessboard-mobile.spec.ts:234:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (19.1s)
+
+
+  1) tests/ui/chessboard-mobile.spec.ts:214:1 › мобильная панель меняет заезд без закрытия и показывает выезд 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('free-menu').getByLabel('Заезд', { exact: true })
+
+
+      224 |   await page.locator(`[data-unit-code="R07"] td[data-date="${from}"] .board__free`).click();
+      225 |   const menu = page.getByTestId('free-menu');
+    > 226 |   await menu.getByLabel('Заезд', { exact: true }).selectOption(add(from, 1));
+          |                                                   ^
+      227 |   await menu.getByLabel('Период проживания').selectOption('2');
+      228 |   await expect(menu.getByTestId('free-menu-departure')).toHaveText(add(from, 4));
+      229 |   await expect(menu.getByRole('link', { name: 'Создать бронь', exact: true })).toHaveAttribute(
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:226:51
+
+    Error Context: test-results/chessboard-mobile-мобильна-32418-закрытия-и-показывает-выезд/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-мобильна-32418-закрытия-и-показывает-выезд/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-мобильна-32418-закрытия-и-показывает-выезд/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-mobile.spec.ts:234:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 9
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      249 |   await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBeCloseTo(position.y, 0);
+      250 |   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
+    > 251 |   await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBe(0);
+          |                                                                 ^
+      252 | });
+      253 |
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:251:65
+
+    Error Context: test-results/chessboard-mobile-календар-c3c9b--и-сбрасывает-их-по-Сегодня/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-календар-c3c9b--и-сбрасывает-их-по-Сегодня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-календар-c3c9b--и-сбрасывает-их-по-Сегодня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-mobile.spec.ts:214:1 › мобильная панель меняет заезд без закрытия и показывает выезд 
+    tests/ui/chessboard-mobile.spec.ts:234:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня 
+  10 passed (1.5m)
+
+# код выхода 1 · 1 мин 30 с

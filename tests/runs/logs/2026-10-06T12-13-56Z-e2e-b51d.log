@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 06.10.2026 17:13 Алматы · vm
+# коммит 80fa3de (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--repeat-each=3' 'tests/ui/requests.spec.ts' '-g' 'экран /today'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь (2.1s)
+  ✓  2 tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь (1.8s)
+  ✓  3 tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь (1.9s)
+
+  3 passed (16.1s)
+
+# код выхода 0 · 17 с

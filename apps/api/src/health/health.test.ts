@@ -75,3 +75,64 @@ describe('GET /health', () => {
     expect(response.body).toMatchObject({ status: 'ok' });
   });
 });
+
+describe('GET /status/public (H14, ADR-144)', () => {
+  let app: INestApplication;
+  const queryRaw = vi.fn();
+  const findMany = vi.fn();
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({ imports: [AppModule] })
+      .overrideProvider(PrismaService)
+      .useValue({
+        db: {
+          $queryRaw: queryRaw,
+          systemIncident: { findMany },
+          externalEvent: {},
+          channelOutbox: {},
+        },
+      })
+      .compile();
+    app = module.createNestApplication({ logger: false });
+    await app.init();
+  });
+  beforeEach(() => {
+    vi.clearAllMocks();
+    queryRaw.mockResolvedValue([{ ok: 1 }]);
+    findMany.mockResolvedValue([]);
+  });
+  afterAll(async () => app?.close());
+
+  it('без входа: всё работает — четыре части словами', async () => {
+    const r = await request(app.getHttpServer()).get('/status/public').expect(200);
+    expect(r.body.overall).toBe('ok');
+    expect(r.body.components.map((c: { key: string }) => c.key)).toEqual([
+      'app',
+      'database',
+      'channels',
+      'booking',
+    ]);
+    expect(r.headers['cache-control']).toBe('no-store');
+  });
+
+  it('открытая неисправность каналов — «с перебоями», а её текст и вид наружу не выходят', async () => {
+    findMany.mockResolvedValue([
+      {
+        id: 'i1',
+        kind: 'outbox.stuck',
+        title: 'Очередь в Channex стоит 40 мин, секретный-хвост',
+        status: 'OPEN',
+        severity: 'CRITICAL',
+      },
+    ]);
+    const r = await request(app.getHttpServer()).get('/status/public').expect(200);
+    expect(r.body.overall).toBe('degraded');
+    expect(r.text).not.toMatch(/outbox|Channex|секретный/);
+  });
+
+  it('база не отвечает — «недоступно», без подробностей драйвера', async () => {
+    queryRaw.mockRejectedValue(new Error('connect ECONNREFUSED 10.0.0.5:5432'));
+    const r = await request(app.getHttpServer()).get('/status/public').expect(200);
+    expect(r.body.overall).toBe('down');
+    expect(r.text).not.toMatch(/ECONNREFUSED|5432/);
+  });
+});

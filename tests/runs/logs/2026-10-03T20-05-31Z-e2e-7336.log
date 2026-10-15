@@ -1,0 +1,114 @@
+# Сквозные (e2e) · 04.10.2026 01:05 Алматы · vm
+# коммит 7e7cf3d (claude/bold-planck-k2ls6o)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/market.spec.ts' 'tests/ui/analytics-channels.spec.ts' 'tests/ui/theme-transition.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/beauty-schedule.spec.ts' 'tests/ui/beauty-journal.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 70 tests using 1 worker
+
+  ✓   1 tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API (2.3s)
+  ✓   2 tests/ui/analytics-channels.spec.ts:88:1 › отбор по каналу, каналы без броней и сравнение: из полосы отбора (4.1s)
+  ✓   3 tests/ui/analytics-channels.spec.ts:119:1 › CSV: те же строки и итог, с разделителем «;» и BOM (1.2s)
+  ✓   4 tests/ui/analytics-channels.spec.ts:135:1 › пустой период и отказ API: словами, не падение страницы (3.3s)
+  ✓   5 tests/ui/analytics-channels.spec.ts:153:1 › телефон: страница без горизонтальной прокрутки (970ms)
+  ✓   6 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, light (3.8s)
+  ✓   7 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, dark (3.3s)
+  ✓   8 tests/ui/analytics-channels.spec.ts:181:1 › вход в отчёт: из раздела «Каналы» и с хаба «Отчёты» с тем же периодом (2.1s)
+  ✓   9 tests/ui/beauty-branch.spec.ts:43:1 › салон заводится той же формой и открывается своим рабочим местом (3.6s)
+  ✓  10 tests/ui/beauty-branch.spec.ts:57:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (3.4s)
+  ✓  11 tests/ui/beauty-branch.spec.ts:73:1 › карточка объекта показывает имя салона, а не «объект не загружен» (3.2s)
+  ✓  12 tests/ui/beauty-branch.spec.ts:84:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (4.3s)
+  ✓  13 tests/ui/beauty-branch.spec.ts:98:3 › салон доступен и в светлой теме (4.5s)
+  ✓  14 tests/ui/beauty-branch.spec.ts:98:3 › салон доступен и в тёмной теме (4.9s)
+  ✓  15 tests/ui/beauty-catalog.spec.ts:47:1 › услуга каталога добавляется и видна в списке (5.2s)
+  ✓  16 tests/ui/beauty-catalog.spec.ts:60:1 › филиал включает услугу и ставит свою цену (6.8s)
+  ✓  17 tests/ui/beauty-catalog.spec.ts:79:1 › ошибки услуги словами, введённое не стирается (4.3s)
+  ✓  18 tests/ui/beauty-catalog.spec.ts:94:1 › мастер добавляется, умения ставятся и снимаются (8.9s)
+  ✓  19 tests/ui/beauty-catalog.spec.ts:124:1 › каталог салона на телефоне: без прокрутки вбок (5.6s)
+  ✓  20 tests/ui/beauty-catalog.spec.ts:142:3 › каталог салона доступен в светлой теме (7.1s)
+  ✓  21 tests/ui/beauty-catalog.spec.ts:142:3 › каталог салона доступен в тёмной теме (7.1s)
+  ✓  22 tests/ui/beauty-journal.spec.ts:93:1 › запись из пустой клетки появляется в сетке и в списке дня (10.3s)
+  ✓  23 tests/ui/beauty-journal.spec.ts:109:1 › занятое время мастера не предлагается и отказ приходит словами (9.9s)
+  ✓  24 tests/ui/beauty-journal.spec.ts:119:1 › вне графика мастера клетки нерабочие (8.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  25 tests/ui/beauty-journal.spec.ts:126:1 › состояния записи идут по жизни, из выполненной дороги нет (13.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  26 tests/ui/beauty-journal.spec.ts:150:1 › отмена спрашивает и освобождает время мастера (11.8s)
+  ✓  27 tests/ui/beauty-journal.spec.ts:172:1 › перенос меняет время записи (10.8s)
+  ✓  28 tests/ui/beauty-journal.spec.ts:188:1 › журнал на телефоне: день списком, без прокрутки вбок (9.9s)
+  ✓  29 tests/ui/beauty-journal.spec.ts:203:3 › журнал доступен в светлой теме (10.7s)
+  ✓  30 tests/ui/beauty-journal.spec.ts:203:3 › журнал доступен в тёмной теме (12.7s)
+  ✓  31 tests/ui/beauty-schedule.spec.ts:76:1 › неделя мастера ставится и читается словами (6.7s)
+  ✓  32 tests/ui/beauty-schedule.spec.ts:95:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (6.2s)
+  ✓  33 tests/ui/beauty-schedule.spec.ts:122:1 › два интервала через перерыв сохраняются (6.4s)
+  ✓  34 tests/ui/beauty-schedule.spec.ts:138:1 › отсутствие предупреждает о записях, снимается с вопросом (6.6s)
+  ✓  35 tests/ui/beauty-schedule.spec.ts:173:1 › отсутствие с концом раньше начала не уходит на сервер (5.4s)
+  ✓  36 tests/ui/beauty-schedule.spec.ts:185:1 › мастер переставляется между филиалами, снятый филиал забирает свой график (10.7s)
+  ✓  37 tests/ui/beauty-schedule.spec.ts:221:1 › график на телефоне: без прокрутки вбок (5.0s)
+  ✓  38 tests/ui/beauty-schedule.spec.ts:237:3 › график доступен в светлой теме (7.1s)
+  ✓  39 tests/ui/beauty-schedule.spec.ts:237:3 › график доступен в тёмной теме (7.3s)
+  ✓  40 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (3.6s)
+  ✓  41 tests/ui/guests-birthdays.spec.ts:52:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (2.2s)
+  ✓  42 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (5.4s)
+  ✓  43 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (4.2s)
+  ✓  44 tests/ui/market.spec.ts:148:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (2.1s)
+  ✓  45 tests/ui/market.spec.ts:164:3 › снимки и доступность: light (6.0s)
+  ✓  46 tests/ui/market.spec.ts:164:3 › снимки и доступность: dark (5.7s)
+  ✓  47 tests/ui/market.spec.ts:204:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (2.9s)
+  ✓  48 tests/ui/market.spec.ts:232:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (3.3s)
+  ✓  49 tests/ui/navigation.spec.ts:50:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (3.1s)
+  ✓  50 tests/ui/navigation.spec.ts:91:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (2.3s)
+  ✓  51 tests/ui/navigation.spec.ts:118:1 › все пункты меню открывают существующие страницы (10.6s)
+  ✓  52 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (3.9s)
+  ✓  53 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (3.8s)
+  ✓  54 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.7s)
+  ✓  55 tests/ui/roles.spec.ts:63:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (6.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  56 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (3.3s)
+  ✓  57 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (5.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  58 tests/ui/roles.spec.ts:146:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (7.0s)
+  ✓  59 tests/ui/roles.spec.ts:208:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (4.3s)
+  ✓  60 tests/ui/roles.spec.ts:263:1 › владелец: зовёт управляющего и администратора, меняет роль (2.9s)
+  ✓  61 tests/ui/roles.spec.ts:294:1 › администратор: сотрудниками ведают владелец и управляющий (1.7s)
+  ✓  62 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.1s)
+  ✓  63 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.9s)
+  ✓  64 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 390px (5.3s)
+  ✓  65 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.1s)
+  ✓  66 tests/ui/theme-transition.spec.ts:10:1 › после смены темы тема применена и переходов цвета в полёте нет (1.6s)
+  ✓  67 tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (2.3s)
+  ✓  68 tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку (4.2s)
+  ✓  69 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: light (3.7s)
+  ✓  70 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: dark (3.7s)
+
+  70 passed (6.6m)
+
+# код выхода 0 · 6 мин 38 с

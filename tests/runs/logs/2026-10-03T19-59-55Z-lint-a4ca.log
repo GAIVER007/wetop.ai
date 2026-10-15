@@ -1,0 +1,14 @@
+# Линтер (lint) · 04.10.2026 00:59 Алматы · vm
+# коммит 3cafa82 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 6
+# npx eslint .
+
+/home/user/wetop.ai/apps/web/src/app/reservations/reservations-csv.ts
+  52:11  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+/home/user/wetop.ai/tests/ui/reservations-export.spec.ts
+  22:42  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 21 с

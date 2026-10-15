@@ -1,0 +1,75 @@
+# Сквозные (e2e) · 04.10.2026 20:28 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 36
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--max-failures=1'
+[WebServer] (node:98367) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98409) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98437) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+(node:98463) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/beauty-ui/beauty.spec.ts:81:1 › empty setup through real UI, persisted appointment, move, confirm, complete (10.3s)
+  ✘  2 tests/beauty-ui/beauty.spec.ts:162:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (7.1s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/beauty-ui/beauty.spec.ts:162:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('dialog').getByLabel('Имя клиента', { exact: true })
+    Expected: "Вторая тестовая клиентка"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('dialog').getByLabel('Имя клиента', { exact: true }) with timeout 5000ms
+      - waiting for getByRole('dialog').getByLabel('Имя клиента', { exact: true })
+        14 × locator resolved to <input class="inp" required="" maxlength="100" name="firstName"/>
+           - unexpected value ""
+
+
+      169 |   const panel = await book(page, 'Вторая тестовая клиентка');
+      170 |   await expect(panel.getByRole('alert')).toContainText('Мастер в это время уже занят');
+    > 171 |   await expect(panel.getByLabel('Имя клиента', { exact: true })).toHaveValue(
+          |                                                                  ^
+      172 |     'Вторая тестовая клиентка',
+      173 |   );
+      174 |   await scope(page, f.otherBusiness, f.locations[2]!);
+        at /Users/urijzapojnov/wetop-mv1-20261004/tests/beauty-ui/beauty.spec.ts:171:66
+
+    Error Context: test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/error-context.md
+
+    Error Context: test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:162:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY
+  4 did not run
+  1 passed (23.0s)
+  1 error was not a part of any test, see above for details
+
+# код выхода 1 · 24 с

@@ -1,0 +1,97 @@
+# Сквозные (e2e) · 02.10.2026 17:49 Алматы · vm
+# коммит bf2e45a (claude/great-cray-1d5t94), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/navigation.spec.ts' 'tests/ui/ai-agents-create.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 29 tests using 1 worker
+
+  ✓   1 tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (6.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   2 tests/ui/ai-agents-create.spec.ts:97:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (3.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   3 tests/ui/ai-agents-create.spec.ts:123:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (3.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   4 tests/ui/ai-agents-create.spec.ts:144:1 › двойной щелчок по «Создать черновик» даёт одного агента (3.7s)
+  ✓   5 tests/ui/ai-agents-create.spec.ts:155:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (2.3s)
+  ✓   6 tests/ui/ai-agents-create.spec.ts:171:1 › сотрудник смены: страница создания объясняет роль, формы нет (2.1s)
+  ✓   7 tests/ui/ai-agents-create.spec.ts:181:1 › управляющий может создать агента (2.5s)
+  ✓   8 tests/ui/ai-agents-create.spec.ts:190:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (2.4s)
+  ✓   9 tests/ui/ai-agents-create.spec.ts:204:1 › расширения нет: на странице создания причина про расширение (1.6s)
+  ✓  10 tests/ui/ai-agents-create.spec.ts:213:1 › несуществующий агент, страница «не найдено», а не пустая карточка (1.9s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  11 tests/ui/ai-agents-create.spec.ts:225:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком (3.0s)
+  ✓  12 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, form, light, 1440 (2.9s)
+  ✓  13 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, agent, light, 1440 (3.3s)
+  ✓  14 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, blocked, light, 1440 (2.9s)
+  ✓  15 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, form, light, 390 (2.6s)
+  ✓  16 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, agent, light, 390 (3.4s)
+  ✓  17 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, blocked, light, 390 (2.7s)
+  ✓  18 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, form, dark, 1440 (2.9s)
+  ✓  19 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, agent, dark, 1440 (3.6s)
+  ✓  20 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, blocked, dark, 1440 (2.5s)
+  ✓  21 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, form, dark, 390 (2.5s)
+  ✓  22 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, agent, dark, 390 (3.2s)
+  ✓  23 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, blocked, dark, 390 (2.6s)
+  ✓  24 tests/ui/ai-agents-create.spec.ts:285:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон (2.9s)
+  ✓  25 tests/ui/navigation.spec.ts:47:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (3.3s)
+  ✓  26 tests/ui/navigation.spec.ts:88:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (2.5s)
+  ✓  27 tests/ui/navigation.spec.ts:115:1 › все пункты меню открывают существующие страницы (10.3s)
+  ✓  28 tests/ui/navigation.spec.ts:163:3 › меню телефона и планшета ровное и доступное: light (3.9s)
+  ✓  29 tests/ui/navigation.spec.ts:163:3 › меню телефона и планшета ровное и доступное: dark (3.7s)
+
+  29 passed (1.7m)
+
+# код выхода 0 · 1 мин 43 с

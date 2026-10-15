@@ -1,0 +1,51 @@
+# Модульные (unit) · 03.10.2026 20:39 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-39-28Z-unit-1162.json' 'packages/domain/src/dashboard/channels.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/dashboard/channels.test.ts (4 tests | 1 failed) 17ms
+   ❯ эффективность каналов: доход, ночи, средняя стоимость ночи по каналу (брони с заездом в периоде) (4)
+     ✓ строки по каналу: сумма, доля дохода, ночи, доля ночей, средняя стоимость; прямые источники отдельными строками 3ms
+     ✓ каналы без броней — нулевыми строками, только если просили; известные дубликаты не повторяются 1ms
+     × отбор по каналу и порядок: по ночам, по средней стоимости 10ms
+     ✓ средняя стоимость — целые тиыны, как ADR «Обзора» (остаток отбрасывается); пустой период — без деления 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/channels.test.ts > эффективность каналов: доход, ночи, средняя стоимость ночи по каналу (брони с заездом в периоде) > отбор по каналу и порядок: по ночам, по средней стоимости
+AssertionError: expected { revenueMinor: '7100000', …(3) } to deeply equal { revenueMinor: '1000000', …(3) }
+
+- Expected
++ Received
+
+  {
+-   "adrMinor": "500000",
+-   "bookings": 1,
+-   "nights": 2,
+-   "revenueMinor": "1000000",
++   "adrMinor": "887500",
++   "bookings": 4,
++   "nights": 8,
++   "revenueMinor": "7100000",
+  }
+
+ ❯ packages/domain/src/dashboard/channels.test.ts:55:25
+     53|     expect(trip.rows.map((x) => x.label)).toEqual(['Trip.com']);
+     54|     // «Итого» — по показанным строкам, доли — от всех каналов периода
+     55|     expect(trip.totals).toEqual({ revenueMinor: '1000000', nights: 2, …
+       |                         ^
+     56|     expect(trip.rows[0]!.revenueShare).toBe(14.1);
+     57|     expect(buildChannelEfficiency(stays, '2026-10-01', '2026-10-31', {…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  15:39:29
+   Duration  228ms (transform 60%, tests 20%, import 15%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-39-28Z-unit-1162.json
+
+# код выхода 1 · 1 с

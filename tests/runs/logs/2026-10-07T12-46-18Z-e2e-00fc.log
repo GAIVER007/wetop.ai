@@ -1,0 +1,95 @@
+# Сквозные (e2e) · 07.10.2026 17:46 Алматы · MacBook-Air-Urij.local
+# коммит 867a391 (codex/public-2-visual-slice-1), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+[WebServer] (node:88737) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88737) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88847) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88852) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88850) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 61 tests using 2 workers
+
+(node:88889) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:88890) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (1.0s)
+  ✓   2 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (1.3s)
+  ✓   3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (460ms)
+  ✓   5 tests/site/homepage-blocks.spec.ts:25:1 › главная объясняет платформу и оставляет регистрацию в мобильной шапке (386ms)
+  ✓   4 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (1.3s)
+  ✓   6 tests/site/homepage-blocks.spec.ts:36:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (555ms)
+  ✓   8 tests/site/homepage-blocks.spec.ts:60:1 › содержимое блоков видно сразу: без вкладок, восемь возможностей, четыре входа броней, три карточки команды (445ms)
+  ✓   7 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (1.4s)
+  ✓   9 tests/site/homepage-blocks.spec.ts:85:1 › первый экран: две кнопки в строку, направления сразу после Hero (1.0s)
+  ✓  11 tests/site/homepage-blocks.spec.ts:98:1 › карточки блоков читаются одной фразой, а не абзацем (1.2s)
+  ✓  10 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (1.8s)
+  ✓  12 tests/site/homepage-blocks.spec.ts:115:1 › ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки (1.4s)
+  ✓  14 tests/site/homepage-blocks.spec.ts:132:1 › первый экран: Today подписан примером и не имитирует кнопки (935ms)
+  ✓  15 tests/site/homepage-blocks.spec.ts:148:1 › на главной нет дорожной карты направлений (1.2s)
+  ✓  13 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (4.3s)
+  ✓  16 tests/site/homepage-blocks.spec.ts:156:1 › пилоты обозначены явно, ведут на configured email и существующий AuthDialog (1.2s)
+  ✓  17 tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (1.6s)
+  ✓  18 tests/site/homepage-blocks.spec.ts:176:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (1.5s)
+  ✓  20 tests/site/homepage-blocks.spec.ts:188:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (1.0s)
+  ✓  19 tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (1.3s)
+  ✓  21 tests/site/homepage-blocks.spec.ts:198:1 › в текстах главной нет длинного тире и разделителя « · » (824ms)
+  ✓  22 tests/site/auth-dialog.spec.ts:223:1 › на телефоне окно открывается из меню и не шире экрана (2.0s)
+  ✓  23 tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (1.3s)
+  ✓  25 tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (1.7s)
+  ✓  26 tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (1.2s)
+  ✓  27 tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (1.4s)
+  ✓  28 tests/site/homepage-blocks.spec.ts:227:1 › блоки доступны в обеих темах (6.1s)
+  ✓  29 tests/site/homepage-blocks.spec.ts:241:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (1.5s)
+  ✓  30 tests/site/homepage-blocks.spec.ts:254:1 › «Загрузка конкурентов»: четыре пункта, пример помечен примером, кнопка ведёт в раздел стойки, сбор ИИ не обещан готовым (1.5s)
+  ✓  31 tests/site/landing.spec.ts:18:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (1.2s)
+  ✓  24 tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (16.4s)
+  ✓  33 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access (1.4s)
+  ✓  32 tests/site/landing.spec.ts:24:3 › / — открывается, доступна и без «TODO» на экране (3.4s)
+  ✓  35 tests/site/landing.spec.ts:39:3 › / — на телефоне нет горизонтальной прокрутки (451ms)
+  ✓  34 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access (1.2s)
+  ✓  36 tests/site/landing.spec.ts:24:3 › /blog/ — открывается, доступна и без «TODO» на экране (1.3s)
+  ✓  38 tests/site/landing.spec.ts:39:3 › /blog/ — на телефоне нет горизонтальной прокрутки (236ms)
+  ✓  37 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (1.7s)
+  ✓  39 tests/site/landing.spec.ts:24:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (1.5s)
+  ✓  41 tests/site/landing.spec.ts:39:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (456ms)
+  ✓  40 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (2.0s)
+  ✓  42 tests/site/landing.spec.ts:24:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (1.6s)
+  ✓  44 tests/site/landing.spec.ts:39:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (468ms)
+  ✓  43 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (2.3s)
+  ✓  45 tests/site/landing.spec.ts:24:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (1.6s)
+  ✓  47 tests/site/landing.spec.ts:39:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (341ms)
+  ✓  46 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (1.9s)
+  ✓  48 tests/site/landing.spec.ts:24:3 › /calculator/ — открывается, доступна и без «TODO» на экране (1.4s)
+  ✓  50 tests/site/landing.spec.ts:39:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (375ms)
+  ✓  49 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (1.8s)
+  ✓  51 tests/site/landing.spec.ts:52:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (1.8s)
+  ✓  53 tests/site/landing.spec.ts:70:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (51ms)
+  ✓  54 tests/site/landing.spec.ts:83:1 › главная: регистрация открыта, маркетинговых обещаний trial нет (751ms)
+  ✓  52 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (2.2s)
+  ✓  55 tests/site/landing.spec.ts:138:1 › первый экран объясняет платформу, направления и зрелость (704ms)
+  ✓  57 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (286ms)
+  ✓  58 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (396ms)
+  ✓  56 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (1.7s)
+  ✓  59 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (346ms)
+  ✓  61 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (482ms)
+  ✓  60 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (1.3s)
+
+  61 passed (58.4s)
+
+# код выхода 0 · 1 мин

@@ -1,0 +1,34 @@
+# Модульные (unit) · 03.10.2026 17:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6cd2fa4 (main), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T12-38-37Z-unit-d559.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/deploy-server.test.ts' '--testTimeout=60000' '--hookTimeout=60000'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| tests/unit/deploy-server.test.ts (39 tests) 37ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 19895ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 1381ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 637ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 1084ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 867ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 1316ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 1166ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1278ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 1107ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 1043ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 1632ms
+     ✓ локальные правки в клоне — не затирает их 1062ms
+     ✓ историю ветки переписали — не выкладывает поверх 1121ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 3359ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 1064ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1015ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 761ms
+
+ Test Files  2 passed (2)
+      Tests  55 passed (55)
+   Start at  05:38:38
+   Duration  20.02s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T12-38-37Z-unit-d559.json
+
+# код выхода 0 · 21 с

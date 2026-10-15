@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 04.10.2026 12:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6fa4ffe (claude/mobile-rest-screens), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/desktop-compact.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/desktop-compact.spec.ts:25:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (1.5m)
+  ✓   2 tests/ui/desktop-compact.spec.ts:52:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (20.9s)
+  ✓   3 tests/ui/desktop-compact.spec.ts:69:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (37.4s)
+  ✓   4 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (51.7s)
+  ✓   5 tests/ui/mobile-adaptation.spec.ts:61:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (3.6s)
+  ✓   6 tests/ui/mobile-adaptation.spec.ts:70:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (3.8s)
+  ✓   7 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана (3.6s)
+  ✓   8 tests/ui/mobile-adaptation.spec.ts:99:1 › узкий телефон: плитки финансов встают в одну колонку (1.0s)
+  ✓   9 tests/ui/mobile-adaptation.spec.ts:108:1 › телефон: месяц цен не растягивается на четыре экрана (929ms)
+  ✘  10 tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (4.9s)
+  ✓  11 tests/ui/mobile-adaptation.spec.ts:156:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (12.5s)
+
+
+  1) tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px 
+
+    Error: /today: цели ниже 44 px — Требуют внимания
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Требуют внимания",
+    + ]
+
+      150 |         .map((el) => (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 24)),
+      151 |     );
+    > 152 |     expect(small, `${route}: цели ниже 44 px — ${small.join(', ')}`).toEqual([]);
+          |                                                                      ^
+      153 |   }
+      154 | });
+      155 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/mobile-adaptation.spec.ts:152:70
+
+    Error Context: test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px 
+  10 passed (4.4m)
+
+# код выхода 1 · 4 мин 26 с

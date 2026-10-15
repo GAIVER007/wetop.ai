@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { RecordTabs } from '../../../components/record-tabs';
+import { Tabs } from '../../../components/tabs';
 import { hotelToday } from '../../../lib/hotel-api';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
@@ -10,32 +10,17 @@ import { formatMoney } from '../../../lib/money';
 import { displayDate } from '../../../lib/display-date';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { nightsBetween, pluralRu } from '../../../lib/plural';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
+import { PaymentRequestsPanel } from './payment-requests';
 import { maskPhone } from './phone-mask';
 import { OpenFullCard } from './open-full-card';
 import { FinanceLine } from '../finance-line';
 import '../../directory.css';
-
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
-const SOURCE_RU: Record<string, string> = {
-  DESK: 'стойка',
-  PHONE: 'телефон',
-  WHATSAPP: 'WhatsApp',
-  WALK_IN: 'с улицы',
-  INSTAGRAM: 'Instagram',
-  OTA: 'OTA',
-  WEBSITE: 'сайт',
-};
+import { sourceStatus } from '../../../lib/status/source';
+import { statusLabel } from '../../../lib/status/types';
 
 /**
  * Карточка брони + действия стойки (шаг 3.5): даты, отмена, назначение/переселение.
@@ -69,21 +54,24 @@ export default async function ReservationPage({
   // предупреждают (волна 3: раньше сбой справочника заменял всю карточку экраном ошибки)
   // журнал — владельцу и управляющему (ADR-107): администратору ссылки туда не даём; тот же `/auth/me`, что у меню
   const access = deskShell();
-  const [ratePlans, finance, services, summary, periodResults, piiStorage] = await Promise.all([
-    reservationsApi.ratePlans().catch(() => null),
-    financeApi.reservation(r.confirmationNumber).catch(() => null),
-    financeApi.services().catch(() => null),
-    api.inventorySummary().catch(() => null),
-    Promise.all(
-      [...periods.values()].map((it) =>
-        tooLong(it)
-          ? Promise.resolve(null)
-          : reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
+  const [ratePlans, finance, services, summary, periodResults, piiStorage, paymentRequests] =
+    await Promise.all([
+      reservationsApi.ratePlans().catch(() => null),
+      financeApi.reservation(r.confirmationNumber).catch(() => null),
+      financeApi.services().catch(() => null),
+      api.inventorySummary().catch(() => null),
+      Promise.all(
+        [...periods.values()].map((it) =>
+          tooLong(it)
+            ? Promise.resolve(null)
+            : reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
+        ),
       ),
-    ),
-    // Q-169: подсказка у заметки зависит от того, где лежит база (ADR-072)
-    api.piiStorage(),
-  ]);
+      // Q-169: подсказка у заметки зависит от того, где лежит база (ADR-072)
+      api.piiStorage(),
+      // запросы оплаты (DATA_MODEL §24, ADR-144): отказ гасит только свой блок
+      financeApi.paymentRequests(r.confirmationNumber).catch(() => null),
+    ]);
   const desk = await access;
   const availabilityByPeriod = new Map(
     [...periods.keys()].map((key, i) => [key, periodResults[i]]),
@@ -107,8 +95,9 @@ export default async function ReservationPage({
   ];
   return (
     <Page
+      embedded={preview}
       width="medium"
-      crumbs={<Link href="/chessboard">← шахматка</Link>}
+      crumbs={<BackCrumb href="/reservations">Брони</BackCrumb>}
       title={`Бронь ${r.confirmationNumber}`}
       actions={
         preview ? (
@@ -117,9 +106,9 @@ export default async function ReservationPage({
       }
       subtitle={
         <>
-          <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />{' '}
+          <StatusBadge kind="hospitality" value={r.status} />{' '}
           <span>
-            {SOURCE_RU[r.source] ?? r.source}
+            {statusLabel(sourceStatus, r.source)}
             {r.channel ? `, ${r.channel}` : ''}
           </span>
         </>
@@ -230,9 +219,9 @@ export default async function ReservationPage({
           </dd>
         </div>
       </dl>
-      <RecordTabs
+      <Tabs
         label="Разделы карточки брони"
-        tabs={[
+        panels={[
           {
             id: 'booking-overview',
             label: 'Обзор',
@@ -242,11 +231,10 @@ export default async function ReservationPage({
                   // срез 7.3, Д4: «не подтверждена» словом и цветом внимания, не только бейджем
                   <Alert boxed tone="warning" data-testid="tentative-callout">
                     Бронь не подтверждена: канал прислал предварительный статус, и подтверждение
-                    приходит оттуда же. Место за ней держится и второй раз не
-                    продаётся.
+                    приходит оттуда же. Место за ней держится и второй раз не продаётся.
                   </Alert>
                 )}
-                {/* Следующее действие смены — первым; ссылки на вкладки ловит RecordTabs (без записи в историю) */}
+                {/* Следующее действие смены — первым; ссылки на вкладки ловят вкладки (Tabs) (без записи в историю) */}
                 <div className="booking-next" data-testid="booking-next">
                   <a
                     href="#booking-finance"
@@ -291,10 +279,7 @@ export default async function ReservationPage({
                           <time dateTime={it.departureDate}>{displayDate(it.departureDate)}</time>
                         </td>
                         <td>
-                          <StatusBadge
-                            status={it.status}
-                            label={STATUS_RU[it.status] ?? it.status}
-                          />
+                          <StatusBadge kind="hospitality" value={it.status} />
                         </td>
                         <td className="num">{formatMoney(it.priceMinor, r.currency)}</td>
                         <td>
@@ -368,12 +353,21 @@ export default async function ReservationPage({
               <>
                 <SectionTitle id="booking-finance">Счета</SectionTitle>
                 {finance && services ? (
-                  <FinancePanel
-                    number={r.confirmationNumber}
-                    finance={finance}
-                    services={services}
-                    today={today}
-                  />
+                  <>
+                    {/* оплата одним шагом первой; запросы оплаты (§24) ниже, свёрнутыми (план 07.10.2026, У8) */}
+                    <FinancePanel
+                      number={r.confirmationNumber}
+                      finance={finance}
+                      services={services}
+                      today={today}
+                    />
+                    <PaymentRequestsPanel
+                      number={r.confirmationNumber}
+                      propertyName={paymentRequests?.propertyName ?? ''}
+                      requests={paymentRequests?.requests ?? null}
+                      folios={finance.folios}
+                    />
+                  </>
                 ) : (
                   <Alert boxed>
                     Не удалось загрузить счета или каталог услуг. Финансовые действия недоступны до
@@ -395,7 +389,7 @@ export default async function ReservationPage({
                 {longPeriods > 0 && (
                   <Alert boxed tone="warning" data-testid="stay-too-long">
                     Проживание длиннее {MAX_CHESSBOARD_DAYS} ночей: список свободных ячеек на весь
-                    срок не строится. Назначайте и переселяйте с шахматки на нужные даты.
+                    срок не строится. Назначайте и переселяйте из календаря на нужные даты.
                   </Alert>
                 )}
                 {periodResults.filter((v, i) => v === null && !tooLong([...periods.values()][i]!))

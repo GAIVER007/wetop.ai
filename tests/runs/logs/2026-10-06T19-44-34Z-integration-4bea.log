@@ -1,0 +1,65 @@
+# Интеграционные (integration) · 07.10.2026 00:44 Алматы · vm
+# коммит e8497b0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-44-34Z-integration-4bea.json' 'tests/integration/from-prices.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/from-prices.test.ts (9 tests | 1 failed) 1185ms
+   ❯ цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) (9)
+     × только тариф брони сайта: более дешёвый тариф объекта не участвует; 30 ночей; полная вместимость; стоп-продажа 61ms
+     ✓ категория без связи с тарифом брони и категория без цен в ответ не попадают 22ms
+     ✓ в ответе нет внутренних идентификаторов: только код категории, цена, валюта и окно 25ms
+     ✓ соседний объект той же организации не используется: у сайта B своя цена 14ms
+     ✓ производный тариф брони: скидка 10 % и окно продаж к ночи, минимум ночей не применяется 16ms
+     ✓ тариф брони выключен: цен нет, другой тариф не подставляется 9ms
+     ✓ бронирование сайта выключено, неизвестный ключ: 404, как у брони 5ms
+     ✓ домен: только домен своего сайта, как у брони; чужой и пустой Origin получают 403 4ms
+     ✓ лимит запросов с одного адреса 559ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/from-prices.test.ts > цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) > только тариф брони сайта: более дешёвый тариф объекта не участвует; 30 ночей; полная вместимость; стоп-продажа
+AssertionError: expected { currency: 'KZT', …(2) } to deeply equal { currency: 'KZT', …(2) }
+
+- Expected
++ Received
+
+@@ -1,14 +1,14 @@
+  {
+    "categories": [
+      {
+-       "code": "standard-double",
+-       "fromMinor": "2500000",
+-     },
+-     {
+        "code": "dorm-bed",
+        "fromMinor": "800000",
++     },
++     {
++       "code": "standard-double",
++       "fromMinor": "2500000",
+      },
+    ],
+    "currency": "KZT",
+    "window": {
+      "from": "2026-10-07",
+
+ ❯ tests/integration/from-prices.test.ts:175:15
+    173|   it('только тариф брони сайта: более дешёвый тариф объекта не участву…
+    174|     const r = await service().fromPrices({ k: A.key }, ctx(A));
+    175|     expect(r).toEqual({
+       |               ^
+    176|       currency: 'KZT',
+    177|       window: { from: day(0), to: day(29) },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  19:44:35
+   Duration  4.31s (transform 46%, tests 41%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-44-34Z-integration-4bea.json
+
+# код выхода 1 · 5 с

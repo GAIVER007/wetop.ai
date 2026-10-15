@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   TEST_SCHEMA,
   copyOrder,
+  copyPlan,
   hardcodedLiveAddress,
   pendingMigrations,
   selectExpressions,
@@ -42,6 +43,38 @@ describe('copyOrder', () => {
       copyOrder(['a', 'b'], [
         { table: 'a', references: 'b' },
         { table: 'b', references: 'a' },
+      ]),
+    ).toThrow(/цикл/);
+  });
+  it('цикл через колонку, допускающую NULL (сайт ↔ версия, MKT3): ребро разрывается и называется', () => {
+    const plan = copyPlan(
+      ['marketing_sites', 'marketing_site_versions', 'locations'],
+      [
+        { table: 'marketing_sites', references: 'locations', nullable: false },
+        { table: 'marketing_sites', references: 'marketing_site_versions', nullable: true },
+        { table: 'marketing_site_versions', references: 'marketing_sites', nullable: false },
+        { table: 'marketing_site_versions', references: 'marketing_site_versions', nullable: true },
+      ],
+    );
+    expect(plan.order.indexOf('locations')).toBeLessThan(plan.order.indexOf('marketing_sites'));
+    expect(plan.order.indexOf('marketing_sites')).toBeLessThan(plan.order.indexOf('marketing_site_versions'));
+    expect(plan.relaxed).toEqual([{ table: 'marketing_sites', references: 'marketing_site_versions' }]);
+  });
+  it('без цикла ничего не разрывается, даже если ссылка допускает NULL', () => {
+    const plan = copyPlan(['a', 'b'], [{ table: 'b', references: 'a', nullable: true }]);
+    expect(plan).toEqual({ order: ['a', 'b'], relaxed: [] });
+  });
+  it('цикл через обязательные ссылки остаётся ошибкой', () => {
+    expect(() =>
+      copyPlan(['a', 'b'], [
+        { table: 'a', references: 'b', nullable: false },
+        { table: 'b', references: 'a', nullable: true },
+      ]),
+    ).not.toThrow();
+    expect(() =>
+      copyPlan(['a', 'b'], [
+        { table: 'a', references: 'b', nullable: false },
+        { table: 'b', references: 'a', nullable: false },
       ]),
     ).toThrow(/цикл/);
   });

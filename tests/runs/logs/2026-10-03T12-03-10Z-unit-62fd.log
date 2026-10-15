@@ -1,0 +1,49 @@
+# Модульные (unit) · 03.10.2026 17:03 Алматы · vm
+# коммит 1497435 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-03-10Z-unit-62fd.json' 'apps/web/src/lib/navigation-beauty.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/navigation-beauty.test.ts (6 tests | 1 failed) 13ms
+   ❯ меню салона (6)
+     ✓ у филиала салона нет гостиничных разделов 3ms
+     ✓ у филиала салона есть только то, что в нём работает 1ms
+     ✓ вертикаль не передана: меню гостиницы, как было до среза 1ms
+     × нижняя панель телефона тоже идёт по вертикали 6ms
+     ✓ у каждого пункта салона есть право: закрытую страницу меню не обещает 0ms
+     ✓ администратору смены платформа не видна, а своё рабочее место видно 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > нижняя панель телефона тоже идёт по вертикали
+AssertionError: expected [ Array(4) ] to deeply equal [ '/beauty', '/team', '/journal' ]
+
+- Expected
++ Received
+
+  [
+    "/beauty",
+    "/team",
+    "/journal",
++   "/platform",
+  ]
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:31:61
+     29|
+     30|   it('нижняя панель телефона тоже идёт по вертикали', () => {
+     31|     expect(phoneNavigationFor('BEAUTY').map((i) => i.href)).toEqual(['…
+       |                                                             ^
+     32|     expect(phoneNavigationFor().map((i) => i.href)).toContain('/chessb…
+     33|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  12:03:11
+   Duration  814ms (transform 85%, import 12%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-03-10Z-unit-62fd.json
+
+# код выхода 1 · 2 с

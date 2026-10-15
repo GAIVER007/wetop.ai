@@ -1,0 +1,16 @@
+# Модульные (unit) · 02.10.2026 18:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит fff94a8 (main), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T13-29-48Z-unit-7632.json' 'apps/web/src/app/finance/services-csv.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/web/src/app/finance/services-csv.test.ts (2 tests) 1ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  06:29:49
+   Duration  93ms (transform 66%, import 20%, worker 8%, tests 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T13-29-48Z-unit-7632.json
+
+# код выхода 0 · 1 с

@@ -1,0 +1,22 @@
+# Типы (typecheck) · 14.10.2026 18:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 19d4fd9 (codex/market-runtime-readiness-20261014)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/.next-ui/dev/types/routes.d.ts(196,1): error TS1434: Unexpected keyword or identifier.
+apps/web/.next-ui/dev/types/routes.d.ts(197,8): error TS1109: Expression expected.
+apps/web/.next-ui/dev/types/routes.d.ts(198,6): error TS1109: Expression expected.
+apps/web/.next-ui/dev/types/routes.d.ts(199,4): error TS1109: Expression expected.
+apps/web/.next-ui/dev/types/routes.d.ts(205,1): error TS1160: Unterminated template literal.
+
+# код выхода 1 · 1 мин 49 с

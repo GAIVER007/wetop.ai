@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import './ai-agents.css';
-import { AGENT_STATUS_WORDS } from '@pms/domain';
 import { LoadError } from '../../components/load-error';
 import { Page } from '../../components/page';
 import { Badge, Fact, Grid, Notice, Panel, Row, Stack } from '../../components/ui';
-import { agentHref, channelLines, createButton, placementLine, statusTone } from '../../lib/ai-agents';
+import {
+  agentHref,
+  channelLines,
+  createButton,
+  placementLine,
+  agentReadiness,
+} from '../../lib/ai-agents';
 import { sellerApi, type AgentCardView, type AgentCatalogView } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
 import { loadErrorProps } from '../../lib/load-error';
@@ -18,7 +23,7 @@ import { loadErrorProps } from '../../lib/load-error';
  * через «Техподдержка → Написать в поддержку».
  */
 export default async function AiAgentsPage() {
-  const { access, readOnly } = await deskShell();
+  const { readOnly } = await deskShell();
   let catalog: AgentCatalogView | null = null;
   let failure: unknown = null;
   try {
@@ -29,10 +34,7 @@ export default async function AiAgentsPage() {
   const button = catalog ? createButton(catalog, readOnly) : null;
   const disabledReasonId = 'agent-add-reason';
   return (
-    <Page
-      title="ИИ-агенты"
-      subtitle="Помощники, которые работают в вашей организации: где они и как их настроить."
-    >
+    <Page title="ИИ-продавцы" subtitle="Настройка продавцов, инструкции и каналы общения.">
       {failure !== null && (
         <LoadError
           testId="agents-error"
@@ -46,29 +48,6 @@ export default async function AiAgentsPage() {
           {catalog?.agents.map((agent) => (
             <AgentCard key={agent.id} agent={agent} />
           ))}
-          {access.platform && (
-            <Panel title="WETOP Support" className="agent-card" data-testid="agent-support">
-              <Stack gap="sm">
-                <div className="muted">Техническая поддержка платформы</div>
-                <div>
-                  <Badge>Platform Agent</Badge>
-                </div>
-                <div>
-                  Отвечает пользователям всех организаций; диалоги, знания и настройки — здесь.
-                </div>
-                <div>
-                  <Link
-                    className="btn"
-                    href="/platform/support"
-                    prefetch={false}
-                    aria-label="Открыть: WETOP Support"
-                  >
-                    Открыть
-                  </Link>
-                </div>
-              </Stack>
-            </Panel>
-          )}
         </Grid>
         {button && (
           <div data-testid="agent-add">
@@ -112,12 +91,8 @@ export default async function AiAgentsPage() {
 /** Расширение не подключено: вместо списка — что даёт продавец и как его подключить (Q-SA-1: счёт, цены здесь нет) */
 function OffCard() {
   return (
-    <Panel title="AI-продавец" className="agent-card" data-testid="agent-seller">
+    <Panel title="ИИ-продавец" className="agent-card" data-testid="agent-seller">
       <Stack gap="sm">
-        <Row>
-          <Badge>Продажи</Badge>
-          <Badge>Hospitality</Badge>
-        </Row>
         <div>Автоматизируйте ответы гостям, подбор размещения и продажи.</div>
         <div data-testid="agent-seller-off" className="muted">
           Расширение «ИИ-продавец» не подключено. Подключает администратор WETOP после оплаты по
@@ -130,27 +105,24 @@ function OffCard() {
 
 function AgentCard({ agent }: { agent: AgentCardView }) {
   const isSeller = agent.kind === 'seller';
-  const isSales = isSeller || agent.kind === 'agent';
   const channels = channelLines(agent);
+  const readiness = agentReadiness(agent);
   return (
     <Panel
       title={agent.name}
       className="agent-card"
-      data-testid={isSeller ? 'agent-seller' : agent.kind === 'agent' ? 'agent-created' : 'agent-draft'}
+      data-testid={
+        isSeller ? 'agent-seller' : agent.kind === 'agent' ? 'agent-created' : 'agent-draft'
+      }
     >
       <Stack gap="sm">
         <Row>
-          {isSales && (
-            <>
-              <Badge>Продажи</Badge>
-              <Badge>Hospitality</Badge>
-            </>
-          )}
-          <Badge tone={statusTone(agent.status)} data-testid="agent-status">
-            {AGENT_STATUS_WORDS[agent.status]}
+          <Badge tone={readiness.tone} data-testid="agent-status">
+            {readiness.label}
           </Badge>
         </Row>
         <div className="muted">{placementLine(agent)}</div>
+        <p className="agent-card__hint">{readiness.hint}</p>
         {channels.length > 0 && (
           <Row gap="lg" data-testid="agent-channels">
             {channels.map((c) => (

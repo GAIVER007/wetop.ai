@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 07.10.2026 11:09 Алматы · vm
+# коммит 7ee1d7b (claude/blissful-newton-6pa4ky)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T06-09-03Z-integration-5c45.json' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 1272ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 821ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 306ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  06:09:05
+   Duration  5.72s (transform 48%, tests 42%, import 10%)
+
+JSON report written to /tmp/pms-test-2026-10-07T06-09-03Z-integration-5c45.json
+
+# код выхода 0 · 7 с

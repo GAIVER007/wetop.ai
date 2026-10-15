@@ -1,0 +1,25 @@
+# Модульные (unit) · 06.10.2026 21:59 Алматы · vm
+# коммит 971d4c1 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T16-59-23Z-unit-354d.json' 'tests/unit/migrations-rollback.test.ts' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/migrations-hold.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 8ms
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (70 tests) 18ms
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 2642ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 422ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 479ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 438ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 426ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 426ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 429ms
+
+ Test Files  3 passed (3)
+      Tests  81 passed (81)
+   Start at  16:59:24
+   Duration  2.92s (tests 90%, transform 7%, import 3%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-06T16-59-23Z-unit-354d.json
+
+# код выхода 0 · 4 с

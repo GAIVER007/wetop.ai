@@ -1,0 +1,59 @@
+# Интеграционные (integration) · 07.10.2026 21:30 Алматы · vm
+# коммит ba1d114 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-30-52Z-integration-8a7b.json' 'tests/integration/site-assets.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §75: запись в хранилище не удалась: строки нет, 503; без права settings 403
+{"event":"site_assets.put_failed","assetId":"64a8743f-df5a-473e-ab17-4851a4c87e5f","kind":"IMAGE","byteSize":76}
+
+(node:7440) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-assets.test.ts (11 tests | 1 failed) 3508ms
+   ❯ MKT8 библиотека изображений сайта (10)
+     ✓ §17, §20, §33–§35: загрузка снимает EXIF и GPS, хранит только готовую копию, SHA от неё; ключа объекта наружу нет 191ms
+     ✓ §25–§27, §86: повтор той же картинки возвращает тот же ассет; другой вид и другой филиал отдельно; гонка даёт одного 351ms
+     ✓ §12–§15, §88: чужие и вредные файлы, предел 10 МиБ, лишние поля, вид: отказ без записи в хранилище и базу 279ms
+     ✓ §75: запись в хранилище не удалась: строки нет, 503; без права settings 403 49ms
+     ✓ §31, §32, §36: список без удалённых и без ключа объекта; ALT правится; чужой ассет 404 189ms
+     ✓ §39, §85: ассет только из черновиков после удаления уходит и из хранилища 92ms
+     × §38–§43, §84: картинка опубликованной версии удалена: библиотека её прячет, сайт и откат продолжают видеть 335ms
+     ✓ §28, §29, гонка удаления и публикации: удержано, если версия успела опубликоваться; иначе публикация отказывает 153ms
+     ✓ §57–§64, §89–§91: фото Channex точного объекта; адрес не из браузера; SSRF, мусор и повтор 177ms
+     ✓ §104: больше 30 загрузок и импортов в час: 429 1072ms
+   ✓ MKT8 хранилище не настроено (1)
+     ✓ §6: метаданные читаются, загрузка и импорт 503 без запасного хранилища 36ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §38–§43, §84: картинка опубликованной версии удалена: библиотека её прячет, сайт и откат продолжают видеть
+AssertionError: expected { deleted: true, …(1) } to deeply equal { deleted: true, …(1) }
+
+- Expected
++ Received
+
+  {
+    "deleted": true,
+-   "retainedForPublishedHistory": true,
++   "retainedForPublishedHistory": false,
+  }
+
+ ❯ tests/integration/site-assets.test.ts:452:22
+    450|
+    451|     const del = await call('DELETE', `/marketing/site/assets/${hero.id…
+    452|     expect(del.body).toEqual({ deleted: true, retainedForPublishedHist…
+       |                      ^
+    453|     expect(storage.objects.has(heroRef)).toBe(true);
+    454|     expect((await call('GET', '/marketing/site/assets', { location: L.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  16:30:53
+   Duration  9.61s (tests 50%, transform 34%, import 16%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-30-52Z-integration-8a7b.json
+
+# код выхода 1 · 11 с

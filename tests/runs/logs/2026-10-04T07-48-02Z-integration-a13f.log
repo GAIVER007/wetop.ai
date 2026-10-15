@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 04.10.2026 12:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0b97470 (claude/desk-tasks), незакоммиченных файлов набора: 93
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-48-02Z-integration-a13f.json' 'tests/integration/desk-tasks.test.ts' 'tests/integration/rls-isolation.test.ts' 'tests/integration/function-search-path.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ✓ |integration| tests/integration/desk-tasks.test.ts (3 tests) 144ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 172ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 85ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  00:48:03
+   Duration  1.31s (tests 45%, import 32%, transform 23%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-48-02Z-integration-a13f.json
+
+# код выхода 0 · 2 с

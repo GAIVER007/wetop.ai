@@ -1,3 +1,4 @@
+import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import 'reflect-metadata';
 import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post, Query } from '@nestjs/common';
 import {
@@ -12,6 +13,7 @@ import { Access } from '../auth/access.decorator';
 
 /** Команды ручной брони (стойка). Чтение — в ChessboardController (GET /reservations/:number). */
 @Access('desk')
+@RequiresBusinessCapability('hospitality.reservations')
 @Controller('reservations')
 export class ReservationsController {
   constructor(@Inject(ReservationsService) private readonly service: ReservationsService) {}
@@ -19,6 +21,11 @@ export class ReservationsController {
   @Post()
   create(@Body() dto: CreateReservationDto) {
     return this.service.create(dto ?? {});
+  }
+
+  @Post('quote')
+  quote(@Body() dto: CreateReservationDto) {
+    return this.service.create(dto ?? {}, { preview: true });
   }
 
   @Patch(':number/dates')
@@ -136,6 +143,7 @@ export class ReservationsController {
 
 /** Справочник активных тарифов для формы брони. Отдельный префикс: /reservations/:number занят чтением карточки. */
 @Access('desk')
+@RequiresBusinessCapability('hospitality.reservations')
 @Controller('rate-plans')
 export class RatePlansController {
   constructor(@Inject(ReservationsService) private readonly service: ReservationsService) {}

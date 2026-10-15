@@ -1,0 +1,74 @@
+# Сквозные (e2e) · 04.10.2026 15:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6f3191b (codex/release-self-hosted-mac), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/chessboard-calendar.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--grep' 'не дублирует дату'
+[WebServer] (node:60107) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60151) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:60497) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60515) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1255ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/apps/site/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+
+Running 1 test using 1 worker
+
+(node:60585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка не дублирует дату из шапки календаря (35.0s)
+
+
+  1) tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка не дублирует дату из шапки календаря 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('free-cell').first()
+    Expected: ""
+    Received: "28"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('free-cell').first() with timeout 15000ms
+      - waiting for getByTestId('free-cell').first()
+        33 × locator resolved to <a tabindex="-1" aria-hidden="true" data-testid="free-cell" class="board__free board__free--link" href="/reservations/new?arrival=2026-09-28&departure=2026-09-29&unit=R01">…</a>
+           - unexpected value "28"
+
+
+      64 |   const free = page.getByTestId('free-cell').first();
+      65 |   await expect(free).toBeAttached();
+    > 66 |   await expect(free).toHaveText('');
+         |                      ^
+      67 |   await expect(free.locator('.board__free-day')).toHaveCount(0);
+      68 | });
+      69 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/chessboard-calendar.spec.ts:66:22
+
+    Error Context: test-results/chessboard-calendar-пустая-ef739-ует-дату-из-шапки-календаря/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-calendar-пустая-ef739-ует-дату-из-шапки-календаря/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-calendar-пустая-ef739-ует-дату-из-шапки-календаря/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка не дублирует дату из шапки календаря ─
+
+# код выхода 1 · 1 мин 34 с

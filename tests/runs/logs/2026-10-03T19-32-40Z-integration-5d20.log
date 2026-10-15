@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 04.10.2026 00:32 Алматы · vm
+# коммит 57de965 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-32-40Z-integration-5d20.json' 'tests/integration/market-occupancy.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/market-occupancy.test.ts (4 tests) 382ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:32:40
+   Duration  2.05s (transform 50%, tests 30%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-32-40Z-integration-5d20.json
+
+# код выхода 0 · 3 с

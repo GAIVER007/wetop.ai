@@ -1,0 +1,17 @@
+# Модульные (unit) · 04.10.2026 11:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1e1ee7a (claude/owner-home-20261003)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-19-18Z-unit-fb3f.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-rules.test.ts' 'apps/web/src/app/today/owner-metrics.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/224c2f74-eb93-4118-97ea-d4be74862d1c/scratchpad/home-wt
+
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 2ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 2ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  23:19:20
+   Duration  176ms (import 65%, transform 28%, tests 3%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-19-18Z-unit-fb3f.json
+
+# код выхода 0 · 3 с

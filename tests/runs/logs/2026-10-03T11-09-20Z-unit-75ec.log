@@ -1,0 +1,183 @@
+# Модульные (unit) · 03.10.2026 16:09 Алматы · vm
+# коммит 83f1db7 (ds), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T11-09-20Z-unit-75ec.json' 'scripts/reconciliation/src/shift-check.test.ts' 'scripts/reconciliation/src/shift-check-sources.test.ts' 'tests/unit/shift-check-cli.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/main-snap
+
+ ✓ |unit| tests/unit/shift-check-cli.test.ts (4 tests) 1932ms
+   ✓ cli-shift-check.ts (4)
+     ✓ расхождение по деньгам: строка журнала с заголовком в stdout, сводка в stderr, код 1, только GET со служебным ключом 455ms
+     ✓ то же расхождение уже открыто в журнале: stdout пуст, номер в «ещё не сошлись» 820ms
+     ✓ API не принял служебный ключ: код 2 и понятная причина, журнал не трогается 366ms
+ ❯ |unit| scripts/reconciliation/src/shift-check-sources.test.ts (5 tests | 2 failed) 31ms
+   ❯ сбор данных сверки смены (5)
+     ✓ часы объекта: Алматы UTC+5 12ms
+     × в ноль на согласованных данных: окно режется по часам объекта, чужие события выкинуты, номер канала найден 7ms
+     ✓ Channex недоступен: брони канала и остатки «не сверено», двойные продажи по шахматке всё равно сверены 5ms
+     × Channex не отдал ленту: только этот список «не сверено», журнал приёма и остатки сверены 2ms
+     ✓ журнал WETOP отдал предел строк, а начало окна в них не попало: события «не сверено» 4ms
+ ❯ |unit| scripts/reconciliation/src/shift-check.test.ts (29 tests | 7 failed) 36ms
+   ✓ значения ячеек (4)
+     ✓ сумма: пробелы, ₸, тиыны через запятую, разделитель тысяч; непонятное даёт null 2ms
+     ✓ дата: ДД.ММ.ГГГГ, ДД.ММ (год смены), ISO; несуществующая даёт null 0ms
+     ✓ время: ЧЧ:ММ, Ч.ММ, с секундами; 25:00 даёт null 0ms
+     ✓ CSV с кавычками: разделитель и перевод строки внутри поля 1ms
+   ✓ разбор таблицы смены (4)
+     ✓ копия из Google Таблицы (табуляция): события, суммы, способы и даты 2ms
+     ✓ выгрузка CSV с «;», BOM и колонками в другом порядке 0ms
+     ✓ ошибки ввода называются строкой таблицы, строка в сверку не идёт 1ms
+     ✓ без колонок «событие» и «бронь» сверять нечего: одна ошибка про заголовок 1ms
+   ✓ брони: таблица против WETOP (5)
+     ✓ в ноль: события WETOP есть в таблице, статус и даты совпадают 7ms
+     ✓ событие WETOP без строки таблицы; статус, объяснённый этой же строкой, второй раз не называется 0ms
+     ✓ бронь таблицы, которой нет в WETOP; статус и даты разные 0ms
+     ✓ в таблице номер брони в канале: сверяется с бронью WETOP, на которую он указывает 0ms
+     ✓ переселение в WETOP строки таблицы не требует 0ms
+   ❯ брони канала: приём ревизий из Channex (без списка всех броней) (4)
+     × в ноль: ревизии обработаны и связаны с бронями, лента Channex пуста 5ms
+     × лента: ревизия ждёт подтверждения дольше 10 минут, свежая ещё не расхождение 1ms
+     × журнал приёма: упала, застряла, обработана без брони, отмена брони, которой нет 0ms
+     × бронь канала, который идёт через Channex, заведена за смену руками: риск двойного ввода 0ms
+   ✓ деньги (5)
+     ✓ в ноль: каждая операция в паре; аннулированные и переводы кассы не считаются 1ms
+     ✓ разный способ, разная сумма, лишняя строка с каждой стороны: по строке на причину 0ms
+     ✓ предоплата канала, которую WETOP записал сам, без строки таблицы не расхождение 0ms
+     ✓ оплата записана в таблице номером канала 0ms
+     ✓ пересчёт кассы: насчитано не равно ожидаемому 0ms
+   ✓ остатки по ночам (2)
+     ✓ канал видит больше (опасно), меньше, нет значения; двойная продажа на шахматке 0ms
+     ✓ очередь к Channex: упавшие, зависшие дольше 10 минут, выключенный ARI; свежая очередь не расхождение 0ms
+   ✓ журнал расхождений между срезами (2)
+     ✓ номер зависит только от содержания и начинается с буквы списка 3ms
+     ✓ открытое второй раз не пишется, разобранное и снова видное пишется заново, пропавшее идёт в «сошлось» 1ms
+   ❯ срез целиком (3)
+     × в ноль: код 0, журнал не трогается 3ms
+     × расхождение: код 1, строка журнала с заголовком в новый файл, без заголовка в старый 1ms
+     × Channex не сверен: расхождений нет, но код 3 и «не сверено» в строке списка 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check-sources.test.ts > сбор данных сверки смены > в ноль на согласованных данных: окно режется по часам объекта, чужие события выкинуты, номер канала найден
+TypeError: Cannot read properties of undefined (reading 'events')
+ ❯ scripts/reconciliation/src/shift-check-sources.test.ts:272:24
+    270|     ]);
+    271|     // журнал приёма: в окне одна ревизия; каналы за 30 дней без Agoda…
+    272|     expect(snap.intake.events.map((e) => [e.revisionId, e.receivedLoca…
+       |                        ^
+    273|       ['rev-2', '2026-10-06 12:00'],
+    274|     ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check-sources.test.ts > сбор данных сверки смены > Channex не отдал ленту: только этот список «не сверено», журнал приёма и остатки сверены
+TypeError: Cannot read properties of undefined (reading 'feed')
+ ❯ scripts/reconciliation/src/shift-check-sources.test.ts:336:24
+    334|       }),
+    335|     );
+    336|     expect(snap.intake.feed).toBeNull();
+       |                        ^
+    337|     expect(snap.intake.feedSkipped).toBe(
+    338|       'лента Channex не прочитана: Channex GET /booking_revisions/feed…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check.test.ts > брони канала: приём ревизий из Channex (без списка всех броней) > в ноль: ревизии обработаны и связаны с бронями, лента Channex пуста
+TypeError: reconcileChannelIntake is not a function
+ ❯ run scripts/reconciliation/src/shift-check.test.ts:296:5
+    294|   });
+    295|   const run = (over: Partial<Parameters<typeof reconcileChannelIntake>…
+    296|     reconcileChannelIntake({
+       |     ^
+    297|       events: [],
+    298|       feed: [],
+ ❯ scripts/reconciliation/src/shift-check.test.ts:308:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check.test.ts > брони канала: приём ревизий из Channex (без списка всех броней) > лента: ревизия ждёт подтверждения дольше 10 минут, свежая ещё не расхождение
+TypeError: reconcileChannelIntake is not a function
+ ❯ run scripts/reconciliation/src/shift-check.test.ts:296:5
+    294|   });
+    295|   const run = (over: Partial<Parameters<typeof reconcileChannelIntake>…
+    296|     reconcileChannelIntake({
+       |     ^
+    297|       events: [],
+    298|       feed: [],
+ ❯ scripts/reconciliation/src/shift-check.test.ts:313:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check.test.ts > брони канала: приём ревизий из Channex (без списка всех броней) > журнал приёма: упала, застряла, обработана без брони, отмена брони, которой нет
+TypeError: reconcileChannelIntake is not a function
+ ❯ run scripts/reconciliation/src/shift-check.test.ts:296:5
+    294|   });
+    295|   const run = (over: Partial<Parameters<typeof reconcileChannelIntake>…
+    296|     reconcileChannelIntake({
+       |     ^
+    297|       events: [],
+    298|       feed: [],
+ ❯ scripts/reconciliation/src/shift-check.test.ts:337:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check.test.ts > брони канала: приём ревизий из Channex (без списка всех броней) > бронь канала, который идёт через Channex, заведена за смену руками: риск двойного ввода
+TypeError: reconcileChannelIntake is not a function
+ ❯ run scripts/reconciliation/src/shift-check.test.ts:296:5
+    294|   });
+    295|   const run = (over: Partial<Parameters<typeof reconcileChannelIntake>…
+    296|     reconcileChannelIntake({
+       |     ^
+    297|       events: [],
+    298|       feed: [],
+ ❯ scripts/reconciliation/src/shift-check.test.ts:356:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check.test.ts > срез целиком > в ноль: код 0, журнал не трогается
+TypeError: Cannot read properties of undefined (reading 'pairs')
+ ❯ checkShift scripts/reconciliation/src/shift-check.ts:1212:44
+    1210|     ...(isSkipped(s.channex)
+    1211|       ? []
+    1212|       : reconcileChannexBookings(s.channex.pairs, s.channex.createdInS…
+       |                                            ^
+    1213|   ];
+    1214|   const money = reconcileMoney(rows, s.operations, s.aliases);
+ ❯ scripts/reconciliation/src/shift-check.test.ts:600:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check.test.ts > срез целиком > расхождение: код 1, строка журнала с заголовком в новый файл, без заголовка в старый
+TypeError: Cannot read properties of undefined (reading 'pairs')
+ ❯ checkShift scripts/reconciliation/src/shift-check.ts:1212:44
+    1210|     ...(isSkipped(s.channex)
+    1211|       ? []
+    1212|       : reconcileChannexBookings(s.channex.pairs, s.channex.createdInS…
+       |                                            ^
+    1213|   ];
+    1214|   const money = reconcileMoney(rows, s.operations, s.aliases);
+ ❯ scripts/reconciliation/src/shift-check.test.ts:619:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |unit| scripts/reconciliation/src/shift-check.test.ts > срез целиком > Channex не сверен: расхождений нет, но код 3 и «не сверено» в строке списка
+TypeError: Cannot read properties of undefined (reading 'pairs')
+ ❯ checkShift scripts/reconciliation/src/shift-check.ts:1212:44
+    1210|     ...(isSkipped(s.channex)
+    1211|       ? []
+    1212|       : reconcileChannexBookings(s.channex.pairs, s.channex.createdInS…
+       |                                            ^
+    1213|   ];
+    1214|   const money = reconcileMoney(rows, s.operations, s.aliases);
+ ❯ scripts/reconciliation/src/shift-check.test.ts:633:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  9 failed | 29 passed (38)
+   Start at  04:09:21
+   Duration  3.06s (tests 76%, transform 18%, import 5%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T11-09-20Z-unit-75ec.json
+
+# код выхода 1 · 4 с

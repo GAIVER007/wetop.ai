@@ -1,0 +1,19 @@
+# Модульные (unit) · 01.10.2026 18:14 Алматы · vm
+# коммит 6a72bd1 (claude/affectionate-albattani-kku39h), незакоммиченных файлов набора: 27
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T13-14-08Z-unit-b177.json' 'tests/unit/site-design.test.ts' 'apps/site'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 27ms
+ ✓ |unit| apps/site/src/lib/posts.test.ts (10 tests) 23ms
+ ✓ |unit| apps/site/src/lib/site.test.ts (15 tests) 15ms
+ ✓ |unit| apps/site/src/lib/phone-countries.test.ts (2 tests) 5ms
+
+ Test Files  4 passed (4)
+      Tests  33 passed (33)
+   Start at  13:14:09
+   Duration  523ms (transform 75%, tests 11%, import 11%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-01T13-14-08Z-unit-b177.json
+
+# код выхода 0 · 2 с

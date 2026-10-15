@@ -1,0 +1,47 @@
+# Интеграционные (integration) · 04.10.2026 00:40 Алматы · vm
+# коммит ba73071 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-40-52Z-integration-974b.json' 'tests/integration/fiscal-receipts.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/fiscal-receipts.test.ts (3 tests | 2 failed) 253ms
+   ❯ фискальные чеки (integration, DATA_MODEL §25) (3)
+     × две одновременные отметки — одна строка, номер виден у платежа в счёте брони 35ms
+     × аннулированный платёж чек не получает 7ms
+     ✓ база не пускает пустой номер 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/fiscal-receipts.test.ts > фискальные чеки (integration, DATA_MODEL §25) > две одновременные отметки — одна строка, номер виден у платежа в счёте брони
+TypeError: repo.issueReceipt is not a function
+ ❯ tests/integration/fiscal-receipts.test.ts:78:12
+     76|     const id = await payment();
+     77|     const results = await Promise.allSettled([
+     78|       repo.issueReceipt(id, 'ФП 000123', audit),
+       |            ^
+     79|       repo.issueReceipt(id, 'ФП 000124', audit),
+     80|     ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/fiscal-receipts.test.ts > фискальные чеки (integration, DATA_MODEL §25) > аннулированный платёж чек не получает
+TypeError: repo.issueReceipt is not a function
+ ❯ tests/integration/fiscal-receipts.test.ts:95:23
+     93|   it('аннулированный платёж чек не получает', async () => {
+     94|     const id = await payment('VOIDED');
+     95|     await expect(repo.issueReceipt(id, '42', audit)).rejects.toThrow('…
+       |                       ^
+     96|   });
+     97|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  19:40:53
+   Duration  2.34s (transform 56%, import 23%, tests 21%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-40-52Z-integration-974b.json
+
+# код выхода 1 · 3 с

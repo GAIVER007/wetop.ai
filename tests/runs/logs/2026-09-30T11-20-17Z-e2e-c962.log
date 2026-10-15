@@ -1,0 +1,514 @@
+# Сквозные (e2e) · 30.09.2026 16:20 Алматы · vm
+# коммит 6983bcb (claude/charming-heisenberg-ainaqm)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-agents-create.spec.ts' 'tests/ui/ai-agents.spec.ts' 'tests/ui/requests.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 78 tests using 2 workers
+
+  ✓   1 tests/ui/ai-agents.spec.ts:29:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (7.6s)
+  ✓   3 tests/ui/ai-agents.spec.ts:52:1 › главный администратор: рядом с продавцом карточка WETOP Support (4.6s)
+  ✓   4 tests/ui/ai-agents.spec.ts:64:1 › расширение не подключено: карточка объясняет, кнопка создания неактивна, ссылка ведёт на страницу с объяснением (3.0s)
+  ✓   5 tests/ui/ai-agents.spec.ts:83:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», кнопка создания неактивна (2.8s)
+  ✓   6 tests/ui/ai-agents.spec.ts:97:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, единственный филиал занят (2.6s)
+  ✓   7 tests/ui/ai-agents.spec.ts:109:1 › продавец работает: статус, каналы по данным, создать ещё нельзя — причина словами (2.6s)
+  ✘   2 tests/ui/ai-agents-create.spec.ts:31:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (24.5s)
+  ✓   8 tests/ui/ai-agents.spec.ts:128:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» (2.8s)
+  ✓   9 tests/ui/ai-agents-create.spec.ts:68:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (5.4s)
+  ✓  11 tests/ui/ai-agents-create.spec.ts:89:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (4.2s)
+  ✓  12 tests/ui/ai-agents-create.spec.ts:105:1 › двойной щелчок по «Создать черновик» даёт одного агента (3.6s)
+  ✓  13 tests/ui/ai-agents-create.spec.ts:116:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (2.6s)
+  ✓  14 tests/ui/ai-agents-create.spec.ts:127:1 › сотрудник смены: страница создания объясняет роль, формы нет (2.5s)
+  ✘  10 tests/ui/ai-agents.spec.ts:137:1 › черновики гостевого мастера: «Черновик», без Business и Location (19.2s)
+  ✓  16 tests/ui/ai-agents.spec.ts:149:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом (3.4s)
+  ✓  17 tests/ui/ai-agents.spec.ts:162:1 › сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль (2.6s)
+  ✓  18 tests/ui/ai-agents.spec.ts:172:1 › старый адрес /ai-seller работает (2.9s)
+  ✓  19 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, light, 1440 (4.1s)
+  ✘  15 tests/ui/ai-agents-create.spec.ts:135:1 › управляющий может создать агента (19.0s)
+  ✓  20 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, light, 1440 (3.8s)
+  ✓  21 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, light, 1440 (5.3s)
+  ✓  22 tests/ui/ai-agents-create.spec.ts:144:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (4.7s)
+  ✓  24 tests/ui/ai-agents-create.spec.ts:155:1 › расширения нет: на странице создания причина про расширение (3.4s)
+  ✓  23 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, light, 1440 (5.3s)
+  ✓  25 tests/ui/ai-agents-create.spec.ts:162:1 › несуществующий агент — страница «не найдено», а не пустая карточка (4.0s)
+  ✓  26 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, light, 390 (4.9s)
+  ✓  28 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, light, 390 (4.0s)
+  ✓  29 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, light, 390 (3.3s)
+  ✓  30 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, light, 390 (3.2s)
+  ✓  31 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, dark, 1440 (3.7s)
+  ✓  32 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, dark, 1440 (3.5s)
+  ✓  33 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, dark, 1440 (3.6s)
+  ✓  34 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, dark, 1440 (3.7s)
+  ✓  35 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, dark, 390 (3.8s)
+  ✓  36 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, dark, 390 (3.6s)
+  ✓  37 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, dark, 390 (3.6s)
+  ✓  38 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, dark, 390 (3.4s)
+  ✓  39 tests/ui/requests.spec.ts:70:3 › экран /today: данные берутся одним запросом на путь (2.0s)
+  ✘  27 tests/ui/ai-agents-create.spec.ts:171:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком (45.2s)
+  ✓  40 tests/ui/requests.spec.ts:70:3 › экран /chessboard: данные берутся одним запросом на путь (3.2s)
+  ✘  42 tests/ui/requests.spec.ts:70:3 › экран /reservations: данные берутся одним запросом на путь (3.7s)
+  ✓  43 tests/ui/requests.spec.ts:70:3 › экран /guests: данные берутся одним запросом на путь (4.1s)
+  ✓  44 tests/ui/requests.spec.ts:70:3 › экран /inventory: данные берутся одним запросом на путь (2.9s)
+  ✓  45 tests/ui/requests.spec.ts:70:3 › экран /rooms/categories: данные берутся одним запросом на путь (2.7s)
+  ✓  46 tests/ui/requests.spec.ts:70:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.9s)
+  ✘  41 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 1440 (18.8s)
+  ✓  47 tests/ui/requests.spec.ts:70:3 › экран /rates: данные берутся одним запросом на путь (2.4s)
+  ✘  48 tests/ui/requests.spec.ts:70:3 › экран /management/analytics: данные берутся одним запросом на путь (3.4s)
+  ✓  49 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 1440 (6.0s)
+  ✓  50 tests/ui/requests.spec.ts:70:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (3.1s)
+  ✘  52 tests/ui/requests.spec.ts:70:3 › экран /finance: данные берутся одним запросом на путь (3.4s)
+  ✓  51 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, light, 1440 (5.1s)
+  ✘  54 tests/ui/requests.spec.ts:70:3 › экран /channels: данные берутся одним запросом на путь (3.6s)
+  ✓  55 tests/ui/requests.spec.ts:70:3 › экран /channels/connections: данные берутся одним запросом на путь (1.8s)
+  ✓  56 tests/ui/requests.spec.ts:70:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.9s)
+  ✓  57 tests/ui/requests.spec.ts:70:3 › экран /channels/sync: данные берутся одним запросом на путь (2.3s)
+  ✓  58 tests/ui/requests.spec.ts:70:3 › экран /channels/events: данные берутся одним запросом на путь (1.9s)
+  ✓  59 tests/ui/requests.spec.ts:70:3 › экран /website: данные берутся одним запросом на путь (2.1s)
+  ✓  60 tests/ui/requests.spec.ts:70:3 › экран /website/booking: данные берутся одним запросом на путь (2.3s)
+  ✘  53 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 390 (17.7s)
+  ✓  61 tests/ui/requests.spec.ts:70:3 › экран /website/analytics: данные берутся одним запросом на путь (3.3s)
+  ✘  63 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings: данные берутся одним запросом на путь (3.6s)
+  ✓  64 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (2.6s)
+  ✓  65 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (2.1s)
+  ✓  66 tests/ui/requests.spec.ts:70:3 › экран /connections: данные берутся одним запросом на путь (2.6s)
+  ✓  67 tests/ui/requests.spec.ts:70:3 › экран /ai-agents: данные берутся одним запросом на путь (1.7s)
+  ✓  68 tests/ui/requests.spec.ts:70:3 › экран /website/settings: данные берутся одним запросом на путь (2.1s)
+  ✓  69 tests/ui/requests.spec.ts:70:3 › экран /incidents: данные берутся одним запросом на путь (2.4s)
+  ✓  70 tests/ui/requests.spec.ts:70:3 › экран /journal: данные берутся одним запросом на путь (2.3s)
+  ✓  71 tests/ui/requests.spec.ts:70:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.5s)
+  ✘  62 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 390 (45.2s)
+  ✓  72 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, light, 390 (3.7s)
+  ✓  73 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 1440 (4.0s)
+  ✓  74 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, dark, 1440 (4.4s)
+  ✓  75 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, dark, 1440 (3.6s)
+  ✓  76 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 390 (3.7s)
+  ✓  77 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, dark, 390 (3.9s)
+  ✓  78 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, dark, 390 (3.4s)
+
+
+  1) tests/ui/ai-agents-create.spec.ts:31:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "AI-продавец Luxx 2"
+    Received: "Страница не найдена"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        34 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      51 |
+      52 |   await expect(page).toHaveURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+    > 53 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('AI-продавец Luxx 2');
+         |                                                         ^
+      54 |   await expect(page.getByText('Сеть Тест · Астана')).toBeVisible();
+      55 |   await expect(page.getByTestId('agent-lifecycle')).toHaveText('Черновик');
+      56 |   // «Основное» готово, остальные шесть этапов — статусы «Пока недоступно», без ссылок и кнопок
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:53:57
+
+    Error Context: test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-agents-create.spec.ts:135:1 › управляющий может создать агента ────────────────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/ai-agents\/[0-9a-f-]{36}$/
+    Received string:  "http://127.0.0.1:3100/ai-agents/new"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/ai-agents/new"
+
+
+      139 |   await page.getByTestId('agent-name').fill('Агент управляющего');
+      140 |   await page.getByTestId('agent-create-submit').click();
+    > 141 |   await expect(page).toHaveURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+          |                      ^
+      142 | });
+      143 |
+      144 | test('«только чтение»: кнопка в каталоге неактивна, форма недоступна', async ({ page, request }) => {
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:141:22
+
+    Error Context: test-results/ai-agents-create-управляющий-может-создать-агента/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-управляющий-может-создать-агента/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-управляющий-может-создать-агента/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ai-agents-create.spec.ts:171:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+      navigated to "http://127.0.0.1:3100/ai-agents/new"
+    ============================================================
+
+      175 |   await page.getByTestId('agent-name').fill('Черновик без запуска');
+      176 |   await page.getByTestId('agent-create-submit').click();
+    > 177 |   await page.waitForURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+          |              ^
+      178 |   const id = page.url().split('/').pop()!;
+      179 |   const answer = await request.post(`${API}/ai-seller/agents/${id}/activate`, {
+      180 |     headers: { 'x-wetop-test-client': '1' },
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:177:14
+
+    Error Context: test-results/ai-agents-create-запуска-н-66745-ерновик-остаётся-черновиком/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-запуска-н-66745-ерновик-остаётся-черновиком/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-запуска-н-66745-ерновик-остаётся-черновиком/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 1440 ─────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('agent-create-form')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('agent-create-form') with timeout 15000ms
+      - waiting for getByTestId('agent-create-form')
+
+
+      203 |         } else {
+      204 |           await page.goto('/ai-agents/new');
+    > 205 |           await expect(page.getByTestId(view === 'form' ? 'agent-create-form' : 'agent-create-blocked')).toBeVisible();
+          |                                                                                                          ^
+      206 |           if (view === 'form') await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
+      207 |         }
+      208 |         const scan = await new AxeBuilder({ page }).analyze();
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:205:106
+
+    Error Context: test-results/ai-agents-create-оформление-axe-и-снимок-form-light-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-оформление-axe-и-снимок-form-light-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-оформление-axe-и-снимок-form-light-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 390 ──────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('agent-create-form')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('agent-create-form') with timeout 15000ms
+      - waiting for getByTestId('agent-create-form')
+
+
+      203 |         } else {
+      204 |           await page.goto('/ai-agents/new');
+    > 205 |           await expect(page.getByTestId(view === 'form' ? 'agent-create-form' : 'agent-create-blocked')).toBeVisible();
+          |                                                                                                          ^
+      206 |           if (view === 'form') await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
+      207 |         }
+      208 |         const scan = await new AxeBuilder({ page }).analyze();
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:205:106
+
+    Error Context: test-results/ai-agents-create-оформление-axe-и-снимок-form-light-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-оформление-axe-и-снимок-form-light-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-оформление-axe-и-снимок-form-light-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 390 ─────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('agent-name')
+
+
+      197 |         if (view === 'agent') {
+      198 |           await page.goto('/ai-agents/new');
+    > 199 |           await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
+          |                                                ^
+      200 |           await page.getByTestId('agent-create-submit').click();
+      201 |           await page.waitForURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+      202 |           await expect(page.getByTestId('agent-setup')).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:199:48
+
+    Error Context: test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/ai-agents.spec.ts:137:1 › черновики гостевого мастера: «Черновик», без Business и Location 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('agent-draft')
+    Expected: 1
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('agent-draft') with timeout 15000ms
+      - waiting for getByTestId('agent-draft')
+        33 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      140 |   await page.goto('/ai-agents');
+      141 |   const draft = page.getByTestId('agent-draft');
+    > 142 |   await expect(draft).toHaveCount(1);
+          |                       ^
+      143 |   await expect(draft).toContainText('Мой хостел');
+      144 |   await expect(draft.getByTestId('agent-status')).toHaveText('Черновик');
+      145 |   await expect(draft).toContainText('Business и Location не выбраны');
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:142:23
+
+    Error Context: test-results/ai-agents-черновики-гостев-e7914-ик»-без-Business-и-Location/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-черновики-гостев-e7914-ик»-без-Business-и-Location/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-черновики-гостев-e7914-ик»-без-Business-и-Location/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/requests.spec.ts:70:3 › экран /reservations: данные берутся одним запросом на путь ───
+
+    Error: путь с данными запрошен повторно за один показ /reservations: {"GET /hotel/settings":3,"GET /auth/me":3,"GET /hotel/reservations?from=2026-09-30&page=1&q=&status=ALL&to=2026-09-30":1,"GET /inventory/categories":1,"POST /auth/login":1,"GET /desk/today?date=2026-09-30":1,"GET /chessboard?from=2026-09-30&to=2026-09-30":1,"GET /guard/status":1,"GET /finance/report?from=2026-09-30&to=2026-09-30":1,"GET /ai-seller/status":1,"GET /system/freshness":4,"GET /ai-seller/agents/options":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     3,
+    +   ],
+    + ]
+
+      77 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      78 |     );
+    > 79 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      80 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      81 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      82 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:79:88
+
+    Error Context: test-results/requests-экран-reservation-bd73c-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-reservation-bd73c-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-reservation-bd73c-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/requests.spec.ts:70:3 › экран /management/analytics: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /management/analytics: {"GET /hotel/settings":2,"GET /auth/me":3,"GET /desk/dashboard?from=2026-09-01&to=2026-09-30":1,"GET /auth/options":1,"GET /system/freshness":2,"POST /auth/login":1,"GET /desk/today?date=2026-09-30":1,"GET /chessboard?from=2026-09-30&to=2026-09-30":1,"GET /guard/status":1,"GET /finance/report?from=2026-09-30&to=2026-09-30":1,"GET /ai-seller/status":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      77 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      78 |     );
+    > 79 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      80 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      81 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      82 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:79:88
+
+    Error Context: test-results/requests-экран-management--f5016-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-management--f5016-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-management--f5016-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/requests.spec.ts:70:3 › экран /finance: данные берутся одним запросом на путь ───────
+
+    Error: путь с данными запрошен повторно за один показ /finance: {"POST /auth/login":1,"GET /hotel/settings":3,"GET /auth/me":3,"GET /desk/today?date=2026-09-30":1,"GET /chessboard?from=2026-09-30&to=2026-09-30":1,"GET /guard/status":1,"GET /finance/report?from=2026-09-30&to=2026-09-30":1,"GET /ai-seller/status":1,"GET /finance/report?from=2026-09-01&to=2026-09-30":1,"GET /finance/debts?from=2026-09-01&to=2026-09-30":1,"GET /finance/operations?from=2026-09-01&limit=20&to=2026-09-30":1,"GET /system/freshness":4,"GET /ai-seller/agents/options":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     3,
+    +   ],
+    + ]
+
+      77 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      78 |     );
+    > 79 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      80 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      81 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      82 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:79:88
+
+    Error Context: test-results/requests-экран-finance-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-finance-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-finance-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/requests.spec.ts:70:3 › экран /channels: данные берутся одним запросом на путь ──────
+
+    Error: путь с данными запрошен повторно за один показ /channels: {"POST /auth/login":1,"GET /hotel/settings":3,"GET /auth/me":3,"GET /desk/today?date=2026-09-30":1,"GET /chessboard?from=2026-09-30&to=2026-09-30":1,"GET /guard/status":1,"GET /finance/report?from=2026-09-30&to=2026-09-30":1,"GET /ai-seller/status":1,"GET /system/freshness":4,"GET /ai-seller/agents/options":1,"GET /channels/channex/connection":1,"GET /channels/channex/webhook/status":1,"GET /channels/channex/outbox":1,"GET /channels/channex/events?limit=1&offset=0&status=FAILED":1,"GET /channels/channex/events?limit=50&offset=0":1,"GET /inventory/summary":1,"GET /hotel/channel-report?from=2026-09-01&status=ALL&to=2026-09-30":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     3,
+    +   ],
+    + ]
+
+      77 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      78 |     );
+    > 79 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      80 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      81 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      82 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:79:88
+
+    Error Context: test-results/requests-экран-channels-да-ab0b2-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-channels-да-ab0b2-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-channels-да-ab0b2-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/requests.spec.ts:70:3 › экран /hotel-settings: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /hotel-settings: {"GET /system/freshness":3,"GET /auth/me":2,"GET /hotel/settings":2,"GET /ai-seller/agents/options":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      77 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      78 |     );
+    > 79 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      80 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      81 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      82 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:79:88
+
+    Error Context: test-results/requests-экран-hotel-setti-0ec1b-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-hotel-setti-0ec1b-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-hotel-setti-0ec1b-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12 failed
+    tests/ui/ai-agents-create.spec.ts:31:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние 
+    tests/ui/ai-agents-create.spec.ts:135:1 › управляющий может создать агента ─────────────────────
+    tests/ui/ai-agents-create.spec.ts:171:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком 
+    tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 1440 ──────────
+    tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 390 ───────────
+    tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 390 ──────────
+    tests/ui/ai-agents.spec.ts:137:1 › черновики гостевого мастера: «Черновик», без Business и Location 
+    tests/ui/requests.spec.ts:70:3 › экран /reservations: данные берутся одним запросом на путь ────
+    tests/ui/requests.spec.ts:70:3 › экран /management/analytics: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:70:3 › экран /finance: данные берутся одним запросом на путь ─────────
+    tests/ui/requests.spec.ts:70:3 › экран /channels: данные берутся одним запросом на путь ────────
+    tests/ui/requests.spec.ts:70:3 › экран /hotel-settings: данные берутся одним запросом на путь ──
+  66 passed (4.3m)
+
+# код выхода 1 · 4 мин 18 с

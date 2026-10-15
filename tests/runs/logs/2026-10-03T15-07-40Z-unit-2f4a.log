@@ -1,0 +1,30 @@
+# Модульные (unit) · 03.10.2026 20:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит 74f3bc8 (claude/birthdays), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T15-07-40Z-unit-2f4a.json' 'packages/domain/src/tasks'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ❯ |unit| packages/domain/src/tasks/tasks.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/tasks/tasks.test.ts [ packages/domain/src/tasks/tasks.test.ts ]
+Error: Cannot find module './tasks' imported from /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/packages/domain/src/tasks/tasks.test.ts
+ ❯ packages/domain/src/tasks/tasks.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { parseTaskInput, taskBucket } from './tasks';
+       | ^
+      3|
+      4| describe('parseTaskInput (DATA_MODEL §22)', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  08:07:52
+   Duration  9.42s (worker 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T15-07-40Z-unit-2f4a.json
+
+# код выхода 1 · 25 с

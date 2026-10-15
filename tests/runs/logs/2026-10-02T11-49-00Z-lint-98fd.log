@@ -1,0 +1,11 @@
+# Линтер (lint) · 02.10.2026 16:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 042c413 (main), незакоммиченных файлов набора: 61
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/tests/integration/cash-operations.test.ts
+  20:7  error  'propertyId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 27 с

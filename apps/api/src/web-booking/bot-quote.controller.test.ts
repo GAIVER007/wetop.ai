@@ -242,10 +242,10 @@ describe('SA2.5: /bot/availability и /bot/agent-origins по агенту', () 
     sites.siteOrganizations.set(SITE.id, ORG);
     sites.sitesById.set(OTHER_SITE.id, OTHER_SITE);
     sites.siteOrganizations.set(OTHER_SITE.id, OTHER_ORG);
-    sites.agentRows.set(AGENT_A, { id: AGENT_A, organizationId: ORG, locationId: 'loc-a', propertyId: SITE.propertyId, lifecycle: 'active', scenario: 'sales' });
-    sites.agentRows.set(AGENT_B, { id: AGENT_B, organizationId: ORG, locationId: 'loc-b', propertyId: PROPERTY_2, lifecycle: 'draft', scenario: 'sales' });
-    sites.agentRows.set(AGENT_ARCHIVED, { id: AGENT_ARCHIVED, organizationId: ORG, locationId: 'loc-a', propertyId: SITE.propertyId, lifecycle: 'archived', scenario: 'sales' });
-    sites.agentRows.set(AGENT_OTHER, { id: AGENT_OTHER, organizationId: OTHER_ORG, locationId: 'loc-o', propertyId: OTHER_SITE.propertyId, lifecycle: 'active', scenario: 'sales' });
+    sites.agentRows.set(AGENT_A, { id: AGENT_A, organizationId: ORG, locationId: 'loc-a', propertyId: SITE.propertyId, bookingTrackedSiteId: SITE.id, lifecycle: 'active', scenario: 'sales' });
+    sites.agentRows.set(AGENT_B, { id: AGENT_B, organizationId: ORG, locationId: 'loc-b', propertyId: PROPERTY_2, bookingTrackedSiteId: null, lifecycle: 'draft', scenario: 'sales' });
+    sites.agentRows.set(AGENT_ARCHIVED, { id: AGENT_ARCHIVED, organizationId: ORG, locationId: 'loc-a', propertyId: SITE.propertyId, bookingTrackedSiteId: SITE.id, lifecycle: 'archived', scenario: 'sales' });
+    sites.agentRows.set(AGENT_OTHER, { id: AGENT_OTHER, organizationId: OTHER_ORG, locationId: 'loc-o', propertyId: OTHER_SITE.propertyId, bookingTrackedSiteId: OTHER_SITE.id, lifecycle: 'active', scenario: 'sales' });
     const m = await Test.createTestingModule({ imports: [WebBookingModule] })
       .overrideProvider(ANALYTICS_REPOSITORY)
       .useValue(sites)
@@ -291,6 +291,16 @@ describe('SA2.5: /bot/availability и /bot/agent-origins по агенту', () 
   it('agent без organization: котировка филиала агента, тот же JSON', async () => {
     const res = await quote({ agent: AGENT_A, ...when }).expect(200);
     expect(res.body).toMatchObject({ site: SITE.name, nights: 2, currency: 'KZT' });
+  });
+
+  it('Q-275: у филиала есть подходящий сайт, но канонический не выбран: котировки нет, «первого» сайта нет', async () => {
+    const unpointed = '7d1e2f30-4a5b-4c6d-8e7f-90a1b2c3d4e5';
+    sites.agentRows.set(unpointed, {
+      id: unpointed, organizationId: ORG, locationId: 'loc-a', propertyId: SITE.propertyId, bookingTrackedSiteId: null,
+      lifecycle: 'active', scenario: 'sales',
+    });
+    await quote({ agent: unpointed, ...when }).expect(404);
+    sites.agentRows.delete(unpointed);
   });
 
   it('organization при agent не читается: чужая организация в запросе не подменяет область', async () => {

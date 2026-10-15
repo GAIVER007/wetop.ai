@@ -1,0 +1,12 @@
+# Линтер (lint) · 03.10.2026 23:46 Алматы · vm
+# коммит 495c002 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 23
+# npx eslint .
+
+/home/user/wetop.ai/packages/domain/src/finance/payment-request.ts
+  36:53  error  Irregular whitespace not allowed                                 no-irregular-whitespace
+  47:9   error  The value assigned to 'ok' is not used in subsequent statements  no-useless-assignment
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 20 с

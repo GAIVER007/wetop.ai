@@ -1,3 +1,4 @@
+import { TelegramPanel } from './telegram-panel';
 import Link from 'next/link';
 import { InstructionEditor } from './instruction-editor';
 import { deskShell } from '../../../lib/desk-shell';
@@ -5,7 +6,7 @@ import { notFound } from 'next/navigation';
 import '../ai-agents.css';
 import { AGENT_STATUS_WORDS } from '@pms/domain';
 import { LoadError } from '../../../components/load-error';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { Badge, Row, Stack } from '../../../components/ui';
 import { ApiError, businessAgentsApi, type BusinessAgentView } from '../../../lib/api';
 import { placement } from '../../../lib/ai-agents';
@@ -24,7 +25,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
   }
   if (!agent) {
     return (
-      <Page title="AI-продавец" crumbs={<Link href="/ai-agents">ИИ-агенты</Link>}>
+      <Page title="ИИ-продавец" crumbs={<BackCrumb href="/ai-agents">ИИ-продавцы</BackCrumb>}>
         <LoadError testId="agent-error" title="Не удалось загрузить агента" {...loadErrorProps(failure)} />
       </Page>
     );
@@ -37,17 +38,25 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
     <Page
       title={agent.name}
       subtitle={placement(agent.business, agent.location)}
-      crumbs={<Link href="/ai-agents">ИИ-агенты</Link>}
+      crumbs={<BackCrumb href="/ai-agents">ИИ-продавцы</BackCrumb>}
       width="wide"
     >
       <Stack>
         <Row>
-          <Badge>Продажи</Badge>
-          <Badge>Hospitality</Badge>
-          <Badge data-testid="agent-lifecycle">{agent.lifecycle === 'draft' ? AGENT_STATUS_WORDS.DRAFT : agent.lifecycle}</Badge>
+          {/* состояние словом; сырое значение API («active») и метки «Продажи»/«Hospitality» на экран не выводятся */}
+          <Badge data-testid="agent-lifecycle">
+            {agent.lifecycle === 'draft'
+              ? AGENT_STATUS_WORDS.DRAFT
+              : agent.lifecycle === 'archived'
+                ? 'В архиве'
+                : agent.lifecycle === 'paused'
+                  ? 'На паузе'
+                  : AGENT_STATUS_WORDS.WORKING}
+          </Badge>
         </Row>
         {instruction ? <InstructionEditor id={id} initial={instruction} readOnly={shell.readOnly} /> :
           <LoadError testId="agent-instruction-error" title="Не удалось загрузить инструкцию" {...loadErrorProps(instructionError)} />}
+        <TelegramPanel id={id} readOnly={shell.readOnly || agent.lifecycle === 'archived'} />
         <div>
           <Link className="btn btn--secondary" href="/ai-agents">
             К списку агентов

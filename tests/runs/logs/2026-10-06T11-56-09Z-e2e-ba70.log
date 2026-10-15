@@ -1,0 +1,26 @@
+# Сквозные (e2e) · 06.10.2026 16:56 Алматы · vm
+# коммит 519c8b8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-beauty-ui.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/beauty-ui/beauty.spec.ts:84:1 › empty setup through real UI, persisted appointment, move, confirm, complete (13.7s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:165:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (6.2s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:202:1 › existing customer can be selected for another appointment without duplication (3.3s)
+  ✓   4 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (11.2s)
+  ✓   5 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (10.4s)
+  ✓   6 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 light, keyboard, axe, no overflow (10.3s)
+  ✓   7 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (10.2s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:311:1 › archived service and employee preserve historical calendar appointments (3.6s)
+  ✓   9 tests/beauty-ui/beauty.spec.ts:345:1 › TimeOff from employee drawer, server denial and timezone persisted (6.3s)
+  ✓  10 tests/beauty-ui/beauty.spec.ts:392:1 › Beauty onboarding completion opens calendar and resumes there (2.6s)
+
+  10 passed (1.4m)
+
+# код выхода 0 · 1 мин 25 с

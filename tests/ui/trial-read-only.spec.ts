@@ -1,11 +1,11 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * Пробный период 14 дней и «только чтение» после него (Q-144 — Б, Q-141 — А, ADR-102). Стойка показывает полосу на
  * каждом экране, вход не закрыт; главный администратор подтверждает оплату в «Платформа → Организации».
  * Сам запрет записи проверяет API (`apps/api/src/auth/auth.guard.test.ts`), здесь — что видит человек.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
@@ -15,23 +15,26 @@ test.afterEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 
-test('пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет', async ({ page, request }) => {
+test('пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет', async ({
+  page,
+  request,
+}) => {
   await request.post(`${API}/__test/control`, { data: { orgTrialDays: 10 } });
   await signIn(page);
   await expect(page.getByTestId('read-only-banner')).toHaveCount(0);
 
   await request.post(`${API}/__test/control`, { data: { orgTrialDays: 'ended' } });
-  for (const path of ['/today', '/chessboard', '/reservations', '/guests']) {
+  for (const path of ['/finance', '/chessboard', '/reservations', '/guests']) {
     await page.goto(path);
     const banner = page.getByTestId('read-only-banner');
-    await expect(banner).toContainText('Пробный период закончился — оплатите подписку');
+    await expect(banner).toContainText('Пробный период закончился, оплатите подписку');
     await expect(banner).toContainText('Данные доступны для просмотра');
   }
   // «Гости» после срока читаются целиком: список со счётчиками, поиск, карточка и документы;
@@ -42,12 +45,13 @@ test('пробный срок вышел — полоса «оплатите п�
   await expect(main.getByLabel('Поиск гостей')).toBeVisible();
   // ТЗ §40: бронь после срока не создать — действие не рисуется (общий флаг оболочки, как на «Бронях»)
   await expect(main.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
-  // G3: щелчок открывает предпросмотр (чтение), из него — полная карточка
-  await main.getByTestId('guests-table').getByRole('link').first().click();
-  const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
-  await expect(drawer.getByTestId('guest-preview')).toBeVisible();
-  await expect(drawer.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
-  await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
+  // панель справа открыта на первом госте (чтение): действий записи в ней нет, из неё ведёт ссылка в полную карточку
+  const panel = main.getByTestId('guest-panel');
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
+  await expect(main.getByRole('toolbar', { name: 'Действия с отмеченными' }).getByText(/Заселить|Выселить/)).toHaveCount(0);
+  await panel.getByRole('tab', { name: 'История', exact: true }).click();
+  await panel.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
   await expect(page).toHaveURL(/\/guests\//);
   await expect(main.getByTestId('guest-head')).toBeVisible();
   // G4: карточка читается целиком — история проживаний на месте; «Редактировать» и «Новая бронь» не рисуются
@@ -65,7 +69,7 @@ test('пробный срок вышел — полоса «оплатите п�
   await main.getByRole('tab', { name: 'Данные гостя', exact: true }).click();
   await expect(main.getByTestId('guest-form')).toBeVisible();
   await expect(main.getByRole('button', { name: 'Сохранить', exact: true })).toHaveCount(0);
-  await page.goto('/today');
+  await page.goto('/finance');
   await page.screenshot({ path: 'test-results/trial-read-only-banner.png' });
 });
 

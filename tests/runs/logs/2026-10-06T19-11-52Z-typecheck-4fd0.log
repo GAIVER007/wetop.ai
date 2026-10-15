@@ -1,0 +1,52 @@
+# Типы (typecheck) · 07.10.2026 00:11 Алматы · vm
+# коммит 32f879e (claude/blissful-newton-6pa4ky)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/marketing-site/marketing-site.service.ts(32,23): error TS2724: '"/home/user/wetop.ai/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'MarketingSiteGetPayload'. Did you mean 'InviteGetPayload'?
+apps/api/src/marketing-site/marketing-site.service.ts(67,15): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(85,20): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(109,32): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(114,31): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(148,34): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(162,18): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+tests/integration/marketing-site.test.ts(240,23): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(253,28): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(300,23): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(313,23): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(322,29): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(338,29): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(339,24): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/marketing-site.test.ts(340,29): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(341,52): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/marketing-site.test.ts(412,31): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(413,31): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(414,32): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(457,31): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(497,31): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(509,30): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(596,29): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(613,30): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(626,23): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(635,23): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(639,31): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(644,23): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/marketing-site/marketing-site.service.ts(32,23): error TS2724: '"/home/user/wetop.ai/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'MarketingSiteGetPayload'. Did you mean 'InviteGetPayload'?
+apps/api/src/marketing-site/marketing-site.service.ts(67,15): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(85,20): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(109,32): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(114,31): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(148,34): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(162,18): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 48 с

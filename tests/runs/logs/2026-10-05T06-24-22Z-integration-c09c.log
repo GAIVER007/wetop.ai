@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 05.10.2026 11:24 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/mv6-food-domain-20261005), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-24-22Z-integration-c09c.json' 'tests/integration/mv6-food-database.test.ts' 'tests/integration/function-search-path.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |integration| tests/integration/mv6-food-database.test.ts (4 tests) 78ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 143ms
+
+ Test Files  2 passed (2)
+      Tests  6 passed (6)
+   Start at  10:24:23
+   Duration  1.13s (transform 43%, tests 36%, import 20%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-24-22Z-integration-c09c.json
+
+# код выхода 0 · 2 с

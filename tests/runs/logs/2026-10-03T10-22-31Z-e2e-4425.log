@@ -1,0 +1,180 @@
+# Сквозные (e2e) · 03.10.2026 15:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4987106 (main), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'chessboard-dnd'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (29.6s)
+  ✘  2 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (25.9s)
+  ✘  3 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (3.3s)
+  ✘  4 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (4.7s)
+  ✘  5 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (2.5s)
+
+
+  1) tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('[data-testid="unit-row"][data-unit-code="R06"]')
+    Expected: "blocked"
+    Received: "ok"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('[data-testid="unit-row"][data-unit-code="R06"]') with timeout 15000ms
+      - waiting for locator('[data-testid="unit-row"][data-unit-code="R06"]')
+        31 × locator resolved to <tr data-drop="ok" data-unit-code="R06" data-testid="unit-row">…</tr>
+           - unexpected value "ok"
+
+
+      87 |   await expect(unitRow(page, 'R07')).toHaveAttribute('data-drop', 'ok');
+      88 |   await expect(unitRow(page, 'R03')).toHaveAttribute('data-drop', 'blocked');
+    > 89 |   await expect(unitRow(page, 'R06')).toHaveAttribute('data-drop', 'blocked');
+         |                                      ^
+      90 |   const ghost = page.getByTestId('drop-ghost');
+      91 |   await expect(ghost).toHaveAttribute('data-tone', 'ok');
+      92 |   await expect(ghost).toContainText(GUEST);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/chessboard-dnd.spec.ts:89:38
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/vyacheslav/Desktop/Проекты/WETOP/test-results/.playwright-artifacts-0/traces/c5f48933f8f6ecf3ef95-ef728df9ef09d70e9ec2-recording2.network' -> '/Users/vyacheslav/Desktop/Проекты/WETOP/test-results/.playwright-artifacts-0/traces/c5f48933f8f6ecf3ef95-ef728df9ef09d70e9ec2-recording2-pwnetcopy-1.network'
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/vyacheslav/Desktop/Проекты/WETOP/test-results/.playwright-artifacts-0/traces/c5f48933f8f6ecf3ef95-ef728df9ef09d70e9ec2.network' -> '/Users/vyacheslav/Desktop/Проекты/WETOP/test-results/.playwright-artifacts-0/traces/c5f48933f8f6ecf3ef95-ef728df9ef09d70e9ec2-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/test-results/.playwright-artifacts-0/traces/c5f48933f8f6ecf3ef95-ef728df9ef09d70e9ec2-recording1.trace'
+
+    Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/test-results/.playwright-artifacts-0/21c88164243a6a5c3ad3873f11b41355.zip'
+
+  2) tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 0
+    Received array:  []
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      126 |
+      127 |   await dialog.getByRole('button', { name: 'Переселить', exact: true }).click();
+    > 128 |   await expect.poll(() => commands(request, '/assign')).toHaveLength(1);
+          |                                                         ^
+      129 |   expect((await commands(request, '/assign'))[0]!.body).toMatchObject({
+      130 |     unitCode: 'R07',
+      131 |     fromDate: arrival,
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/chessboard-dnd.spec.ts:128:57
+
+    Error Context: test-results/chessboard-dnd-drop-на-сво-34c9b--только-после-подтверждения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-dnd-drop-на-сво-34c9b--только-после-подтверждения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-dnd-drop-на-сво-34c9b--только-после-подтверждения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3108/chessboard?from=2026-10-02&to=2026-10-08
+    Call log:
+      - navigating to "http://127.0.0.1:3108/chessboard?from=2026-10-02&to=2026-10-08", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:63:30)
+        at openWeek (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/chessboard-dnd.spec.ts:38:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/chessboard-dnd.spec.ts:146:19
+
+    Error Context: test-results/chessboard-dnd-другая-кате-2846c-разница-стоимости-со-знаком/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-dnd-другая-кате-2846c-разница-стоимости-со-знаком/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-dnd-другая-кате-2846c-разница-стоимости-со-знаком/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3108/chessboard?from=2026-10-02&to=2026-10-08
+    Call log:
+      - navigating to "http://127.0.0.1:3108/chessboard?from=2026-10-02&to=2026-10-08", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:63:30)
+        at openWeek (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/chessboard-dnd.spec.ts:38:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/chessboard-dnd.spec.ts:176:19
+
+    Error Context: test-results/chessboard-dnd-отказ-серве-b5ca3-сте-ошибка-словами-§49-§54-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-dnd-отказ-серве-b5ca3-сте-ошибка-словами-§49-§54-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-dnd-отказ-серве-b5ca3-сте-ошибка-словами-§49-§54-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3108/chessboard?from=2026-10-02&to=2026-10-08
+    Call log:
+      - navigating to "http://127.0.0.1:3108/chessboard?from=2026-10-02&to=2026-10-08", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:63:30)
+        at openWeek (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/chessboard-dnd.spec.ts:38:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/chessboard-dnd.spec.ts:203:19
+
+    Error Context: test-results/chessboard-dnd-продление-з-0082f-овки-—-конфликт-команды-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-dnd-продление-з-0082f-овки-—-конфликт-команды-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-dnd-продление-з-0082f-овки-—-конфликт-команды-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает 
+    tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения 
+    tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком 
+    tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) 
+    tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет 
+
+# код выхода 1 · 2 мин 25 с

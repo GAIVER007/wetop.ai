@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 10.10.2026 00:23 Алматы · vm
+# коммит 25f2449 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/desktop-compact.spec.ts' 'tests/ui/unified-sections.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (11.0s)
+  ✓  2 tests/ui/desktop-compact.spec.ts:51:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (1.5s)
+  ✓  3 tests/ui/desktop-compact.spec.ts:68:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (4.9s)
+  ✓  4 tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение видны на ноутбуке сразу, вбок не прокручивается (6.9s)
+  ✓  5 tests/ui/unified-sections.spec.ts:29:1 › интеграции: незавершённая настройка не называется подключением (3.8s)
+  ✓  6 tests/ui/unified-sections.spec.ts:35:1 › адаптивный обзор разделов (10.7s)
+
+  6 passed (47.6s)
+
+# код выхода 0 · 48 с

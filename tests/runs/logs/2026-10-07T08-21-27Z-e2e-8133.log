@@ -1,0 +1,403 @@
+# Сквозные (e2e) · 07.10.2026 13:21 Алматы · vm
+# коммит 45912be (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✘   1 tests/beauty-ui/beauty.spec.ts:84:1 › empty setup through real UI, persisted appointment, move, confirm, complete (28ms)
+  ✘   2 tests/beauty-ui/beauty.spec.ts:165:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (7ms)
+  ✘   3 tests/beauty-ui/beauty.spec.ts:202:1 › existing customer can be selected for another appointment without duplication (5ms)
+  ✘   4 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (6ms)
+  ✘   5 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (5ms)
+  ✘   6 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 light, keyboard, axe, no overflow (5ms)
+  ✘   7 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (7ms)
+  ✘   8 tests/beauty-ui/beauty.spec.ts:311:1 › archived service and employee preserve historical calendar appointments (5ms)
+  ✘   9 tests/beauty-ui/beauty.spec.ts:345:1 › TimeOff from employee drawer, server denial and timezone persisted (5ms)
+  ✘  10 tests/beauty-ui/beauty.spec.ts:392:1 › Beauty onboarding completion opens Today and resumes there (5ms)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:84:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/beauty.spec.ts:165:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 | }
+      80 | test.afterAll(async ({ request }) => {
+    > 81 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      82 | });
+      83 |
+      84 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:81:62
+
+    Error Context: test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/error-context.md
+
+    Error Context: test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/beauty-ui/beauty.spec.ts:202:1 › existing customer can be selected for another appointment without duplication 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 | }
+      80 | test.afterAll(async ({ request }) => {
+    > 81 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      82 | });
+      83 |
+      84 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:81:62
+
+    Error Context: test-results/beauty-existing-customer-c-f288a-intment-without-duplication/error-context.md
+
+    Error Context: test-results/beauty-existing-customer-c-f288a-intment-without-duplication/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-existing-customer-c-f288a-intment-without-duplication/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-existing-customer-c-f288a-intment-without-duplication/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 light, keyboard, axe, no overflow 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 | }
+      80 | test.afterAll(async ({ request }) => {
+    > 81 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      82 | });
+      83 |
+      84 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:81:62
+
+    Error Context: test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 | }
+      80 | test.afterAll(async ({ request }) => {
+    > 81 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      82 | });
+      83 |
+      84 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:81:62
+
+    Error Context: test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 light, keyboard, axe, no overflow 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 | }
+      80 | test.afterAll(async ({ request }) => {
+    > 81 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      82 | });
+      83 |
+      84 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:81:62
+
+    Error Context: test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 dark, keyboard, axe, no overflow 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 | }
+      80 | test.afterAll(async ({ request }) => {
+    > 81 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      82 | });
+      83 |
+      84 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:81:62
+
+    Error Context: test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/beauty-ui/beauty.spec.ts:311:1 › archived service and employee preserve historical calendar appointments 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 | }
+      80 | test.afterAll(async ({ request }) => {
+    > 81 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      82 | });
+      83 |
+      84 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:81:62
+
+    Error Context: test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/error-context.md
+
+    Error Context: test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/beauty-ui/beauty.spec.ts:345:1 › TimeOff from employee drawer, server denial and timezone persisted 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 | }
+      80 | test.afterAll(async ({ request }) => {
+    > 81 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      82 | });
+      83 |
+      84 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:81:62
+
+    Error Context: test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/error-context.md
+
+    Error Context: test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/beauty-ui/beauty.spec.ts:392:1 › Beauty onboarding completion opens Today and resumes there 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 | }
+      80 | test.afterAll(async ({ request }) => {
+    > 81 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      82 | });
+      83 |
+      84 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:81:62
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/error-context.md
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests/beauty-ui/beauty.spec.ts:84:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+    tests/beauty-ui/beauty.spec.ts:165:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY 
+    tests/beauty-ui/beauty.spec.ts:202:1 › existing customer can be selected for another appointment without duplication 
+    tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 light, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 light, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 dark, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:311:1 › archived service and employee preserve historical calendar appointments 
+    tests/beauty-ui/beauty.spec.ts:345:1 › TimeOff from employee drawer, server denial and timezone persisted 
+    tests/beauty-ui/beauty.spec.ts:392:1 › Beauty onboarding completion opens Today and resumes there 
+
+# код выхода 1 · 31 с

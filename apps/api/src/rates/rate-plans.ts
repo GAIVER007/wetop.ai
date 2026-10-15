@@ -1,5 +1,11 @@
 import 'reflect-metadata';
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { Prisma, type Db } from '@pms/database';
 import {
@@ -147,7 +153,8 @@ export class RatePlansService {
       return typeof v === 'number' ? v : Number.NaN;
     };
     const rule: DerivedRule = {
-      discountPercent: (int('discountPercent', current?.discountPercent ?? null) ?? Number.NaN) as number,
+      discountPercent: (int('discountPercent', current?.discountPercent ?? null) ??
+        Number.NaN) as number,
       minDaysBeforeArrival: int('minDaysBeforeArrival', current?.minDaysBeforeArrival ?? null),
       maxDaysBeforeArrival: int('maxDaysBeforeArrival', current?.maxDaysBeforeArrival ?? null),
       minNights: int('minNights', current?.minNights ?? null),
@@ -160,20 +167,35 @@ export class RatePlansService {
   /** Новый производный тариф: код даёт система, валюта и штраф при отмене — от родителя (DATA_MODEL §20) */
   async createDerived(raw: unknown) {
     const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-    const allowed = ['name', 'parentCode', 'discountPercent', 'minDaysBeforeArrival', 'maxDaysBeforeArrival', 'minNights'];
+    const allowed = [
+      'name',
+      'parentCode',
+      'discountPercent',
+      'minDaysBeforeArrival',
+      'maxDaysBeforeArrival',
+      'minNights',
+    ];
     const extra = Object.keys(body).find((k) => !allowed.includes(k));
     if (extra) throw new BadRequestException(`Неизвестное поле: ${extra}`);
     const name = typeof body.name === 'string' ? body.name.trim().replace(/\s+/g, ' ') : '';
-    if (!name || name.length > 120) throw new BadRequestException('Название тарифа: от 1 до 120 знаков');
+    if (!name || name.length > 120)
+      throw new BadRequestException('Название тарифа: от 1 до 120 знаков');
     const rule = this.parseRule(body);
     const propertyId = await this.property();
     const parentCode = typeof body.parentCode === 'string' ? body.parentCode : '';
     const parent = await this.prisma.db.ratePlan.findFirst({
       where: { propertyId, code: parentCode },
-      select: { id: true, currency: true, cancellationPenalty: true, parentRatePlanId: true, active: true },
+      select: {
+        id: true,
+        currency: true,
+        cancellationPenalty: true,
+        parentRatePlanId: true,
+        active: true,
+      },
     });
     if (!parent) throw new NotFoundException('Родительский тариф не найден');
-    if (parent.parentRatePlanId) throw new BadRequestException('Родитель не может сам быть производным тарифом');
+    if (parent.parentRatePlanId)
+      throw new BadRequestException('Родитель не может сам быть производным тарифом');
     const code = `rate-${randomUUID().slice(0, 8)}`;
     await this.prisma.db.$transaction(async (tx) => {
       const plan = await tx.ratePlan.create({
@@ -209,7 +231,14 @@ export class RatePlansService {
   /** Правка производного: название, процент, окно продаж, минимум ночей, действует ли. Родитель не меняется */
   async updateDerived(code: string, raw: unknown) {
     const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-    const allowed = ['name', 'discountPercent', 'minDaysBeforeArrival', 'maxDaysBeforeArrival', 'minNights', 'active'];
+    const allowed = [
+      'name',
+      'discountPercent',
+      'minDaysBeforeArrival',
+      'maxDaysBeforeArrival',
+      'minNights',
+      'active',
+    ];
     const extra = Object.keys(body).find((k) => !allowed.includes(k));
     if (extra) throw new BadRequestException(`Неизвестное поле: ${extra}`);
     const propertyId = await this.property();
@@ -239,7 +268,8 @@ export class RatePlansService {
     let name = plan.name;
     if ('name' in body) {
       name = typeof body.name === 'string' ? body.name.trim().replace(/\s+/g, ' ') : '';
-      if (!name || name.length > 120) throw new BadRequestException('Название тарифа: от 1 до 120 знаков');
+      if (!name || name.length > 120)
+        throw new BadRequestException('Название тарифа: от 1 до 120 знаков');
     }
     let active = plan.active;
     if ('active' in body) {
@@ -247,6 +277,33 @@ export class RatePlansService {
       active = body.active;
     }
     await this.prisma.db.$transaction(async (tx) => {
+      if (plan.active && !active) {
+        // Тот же порядок и ключи, что у ручной продажи группы: проверка связей не обгоняет создание брони.
+        const types = await tx.accommodationType.findMany({
+          where: { propertyId },
+          select: { id: true },
+          orderBy: { id: 'asc' },
+        });
+        for (const type of types) {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.category:${type.id}`}, 0))`;
+        }
+        const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+        const [bookings, mappings] = await Promise.all([
+          tx.reservationItem.count({
+            where: {
+              ratePlanId: plan.id,
+              reservation: { propertyId },
+              status: { in: ['TENTATIVE', 'CONFIRMED', 'CHECKED_IN'] },
+              departureDate: { gte: new Date(today + 'T00:00:00Z') },
+            },
+          }),
+          tx.channelMapping.count({ where: { propertyId, localRatePlanId: plan.id } }),
+        ]);
+        if (bookings || mappings)
+          throw new ConflictException(
+            `Нельзя отключить тариф: действующих броней ${bookings}, сопоставлений каналов ${mappings}. Сначала разберите эти связи.`,
+          );
+      }
       await tx.ratePlan.update({
         where: { id: plan.id },
         data: { name, active, ...rule },

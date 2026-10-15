@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { AuthShell } from '../../../components/auth-shell';
 import { Icon } from '../../../components/icon';
 import { verifyEmailAction } from '../actions';
 
@@ -34,51 +35,40 @@ export function VerifyPanel({ token }: { token: string }) {
   }, []);
 
   return (
-    <main className="login-page" id="main-content">
-      <section className="login-story">
-        <Link className="workspace-brand" href="/login">
-          <span className="workspace-mark">W</span>
-          <span className="brand-name">
-            WETOP<span>.AI</span>
-          </span>
-        </Link>
-        <div className="login-message">
-          <span className="eyebrow">Подтверждение почты</span>
-          <h1>
-            Почти
-            <br />
-            готово.
-          </h1>
-          <p>Подтверждаем вашу почту — и сразу откроем рабочее место.</p>
-        </div>
-      </section>
-      <section className="login-form-panel">
-        <div className="login-form">
-          <span className="round-icon">
-            <Icon name="shield" />
-          </span>
-          <h2>Подтверждение почты</h2>
-          {error ? (
-            <>
-              <p className="alert" role="alert">
-                {error}
-              </p>
-              {token && (
-                <button className="btn" type="button" disabled={pending} onClick={confirm}>
-                  {pending ? 'Подтверждаем…' : 'Подтвердить ещё раз'}
-                  <Icon name="arrow" width={16} />
-                </button>
-              )}
-              <div className="login-preview">
-                <span>Ссылка не сработала?</span>
-                <Link href="/login">Войти и запросить письмо заново</Link>
-              </div>
-            </>
-          ) : (
-            <p role="status">Подтверждаем почту и открываем рабочее место…</p>
+    <AuthShell
+      story={{
+        eyebrow: 'Подтверждение почты',
+        title: (
+          <>
+            Почти <br /> готово.
+          </>
+        ),
+        text: 'Подтверждаем вашу почту — и сразу откроем рабочее место.',
+      }}
+    >
+      <span className="round-icon">
+        <Icon name="shield" />
+      </span>
+      <h2>Подтверждение почты</h2>
+      {error ? (
+        <>
+          <p className="alert" role="alert">
+            {error}
+          </p>
+          {token && (
+            <button className="btn" type="button" disabled={pending} onClick={confirm}>
+              {pending ? 'Подтверждаем…' : 'Подтвердить ещё раз'}
+              <Icon name="arrow" width={16} />
+            </button>
           )}
-        </div>
-      </section>
-    </main>
+          <div className="login-preview">
+            <span>Ссылка не сработала?</span>
+            <Link href="/login">Войти и запросить письмо заново</Link>
+          </div>
+        </>
+      ) : (
+        <p role="status">Подтверждаем почту и открываем рабочее место…</p>
+      )}
+    </AuthShell>
   );
 }

@@ -1,0 +1,54 @@
+# Модульные (unit) · 06.10.2026 00:42 Алматы · MacBook-Air-Urij.local
+# коммит 53d355d (codex/mv8-food-branch-contract-20261005), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T19-42-23Z-unit-bcec.json' 'apps/api/src/hotel/branches.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-unblock-20261005
+
+ ❯ |unit| apps/api/src/hotel/branches.test.ts (11 tests | 1 failed) 20ms
+   ✓ создание филиала (4)
+     ✓ сотрудник не создаёт филиал, даже вызывая сервис напрямую 3ms
+     ✓ не принимает неверный часовой пояс до записи 3ms
+     ✓ повтор с тем же UUID возвращает исходный объект 2ms
+     ✓ UUID другой формы не притворяется успешным созданием 1ms
+   ✓ создаёт пустой объект в цепочке и возвращает тот же объект при повторе 1ms
+   ✓ вертикаль филиала (4)
+     ✓ без вертикали создаётся гостиница, как было до среза 0ms
+     ✓ вертикаль BEAUTY не трогает объекты вовсе 1ms
+     ✓ незнакомое направление отклоняется до записи 0ms
+     ✓ сотрудник не создаёт и салон 0ms
+   ✓ Food is read-only for /branches creation contract 0ms
+   × canonical read projection includes only active owned Beauty/Food Locations 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/branches.test.ts > canonical read projection includes only active owned Beauty/Food Locations
+AssertionError: expected [ { id: 'food', name: 'Food', …(7) } ] to deeply equal [ { id: 'food', name: 'Food', …(7) } ]
+
+- Expected
++ Received
+
+@@ -11,8 +11,8 @@
+        "businessId": "fb",
+      },
+      "locationId": "food",
+      "name": "Food",
+      "timezone": "Asia/Dubai",
+-     "vertical": "FOOD_SERVICE",
++     "vertical": "BEAUTY",
+    },
+  ]
+
+ ❯ apps/api/src/hotel/branches.test.ts:128:24
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  23:42:24
+   Duration  1.06s (transform 64%, import 33%, tests 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T19-42-23Z-unit-bcec.json
+
+# код выхода 1 · 2 с

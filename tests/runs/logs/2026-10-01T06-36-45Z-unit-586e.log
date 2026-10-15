@@ -1,0 +1,62 @@
+# Модульные (unit) · 01.10.2026 11:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-36-45Z-unit-586e.json' 'apps/web/src/lib/auth-entry.test.ts' 'apps/web/src/app/login/actions.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/web/src/lib/auth-entry.test.ts (0 test)
+ ❯ |unit| apps/web/src/app/login/actions.test.ts (3 tests | 1 failed) 4ms
+   × выход возвращает к единой форме на главной 3ms
+   ✓ непонятная роль — отказ, приглашение не уходит 0ms
+   ✓ роль из формы уходит в API как есть 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/auth-entry.test.ts [ apps/web/src/lib/auth-entry.test.ts ]
+Error: Cannot find module './auth-entry' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/src/lib/auth-entry.test.ts
+ ❯ apps/web/src/lib/auth-entry.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { publicAuthUrl, safeReturnPath } from './auth-entry';
+       | ^
+      3|
+      4| describe('безопасный возврат после входа', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/login/actions.test.ts > выход возвращает к единой форме на главной
+AssertionError: expected "vi.fn()" to be called with arguments: [ Array(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   "https://wetop.ai/?next=%2Ftoday#login",
++   "/login",
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/app/login/actions.test.ts:20:20
+     18|   vi.spyOn(authApi, 'logout').mockResolvedValue(undefined as never);
+     19|   await signOut();
+     20|   expect(redirect).toHaveBeenCalledWith('https://wetop.ai/?next=%2Ftod…
+       |                    ^
+     21| });
+     22|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 2 passed (3)
+   Start at  23:36:46
+   Duration  240ms (transform 76%, import 19%, tests 2%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-36-45Z-unit-586e.json
+
+# код выхода 1 · 1 с

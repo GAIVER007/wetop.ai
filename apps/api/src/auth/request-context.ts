@@ -1,9 +1,16 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { can, type MembershipRole, type Permission } from '@pms/domain';
+import {
+  can,
+  isRestricted,
+  type MembershipRole,
+  type Permission,
+  type ScopeAssignment,
+} from '@pms/domain';
 
 /** Рабочая область запроса (Platform P2, К1; план P2 §3–§4, ADR-120): вычисляется API, снаружи не приходит */
 export type RequestScope = 'ORGANIZATION' | 'BUSINESS' | 'LOCATION';
-export type BusinessVertical = 'HOSPITALITY' | 'BEAUTY';
+export type { BusinessVertical } from '@pms/domain';
+import type { BusinessVertical } from '@pms/domain';
 
 /**
  * Кто делает текущий запрос — чтобы `audit_logs.user_id` заполнялся сам, а не в каждом репозитории руками
@@ -23,6 +30,8 @@ interface RequestActor {
   role?: MembershipRole | null;
   /** Главный администратор платформы (§16.2) */
   platformAdmin?: boolean;
+  /** Назначения по бизнесам и филиалам (DATA_MODEL §31.1); нет или пусто: вся организация */
+  scopes?: ScopeAssignment[];
   /**
    * Публичный путь сайта организации (виджет брони, котировка продавца): человека нет, но объект — её, а не объект
    * по имени (план tenant-isolation-2026-09-26 п. 4). Прав владельца и автора в журнале это не даёт.
@@ -44,6 +53,8 @@ interface RequestActor {
   locationId?: string;
   /** Направление — из строки Business, никогда не приходит снаружи */
   vertical?: BusinessVertical;
+  /** Internal Channex job scope, set only after provider property ID is resolved server-side. */
+  integrationPropertyId?: string;
 }
 
 const storage = new AsyncLocalStorage<RequestActor>();
@@ -62,9 +73,7 @@ export function withSignedInUser<T>(
 ): Promise<T> {
   // Строка — прежний вызов «только автор»: оставлен, чтобы тесты и служебные пути не переписывать.
   const value: RequestActor =
-    actor === null || typeof actor === 'string'
-      ? { userId: actor, organizationId: null }
-      : actor;
+    actor === null || typeof actor === 'string' ? { userId: actor, organizationId: null } : actor;
   return runAwaited(value, fn);
 }
 
@@ -94,7 +103,26 @@ export function databaseTenant(): string | null {
 /** Выполнить внутри запроса человека служебной ролью базы — только для раздела «Платформа» (§17.2) */
 export function withServiceDatabase<T>(fn: () => Promise<T>): Promise<T> {
   const store = storage.getStore();
-  return runAwaited({ ...(store ?? { userId: null, organizationId: null }), serviceDatabase: true }, fn);
+  return runAwaited(
+    { ...(store ?? { userId: null, organizationId: null }), serviceDatabase: true },
+    fn,
+  );
+}
+
+/** Keep background Channex operations on one verified Property across async database calls. */
+export function withIntegrationPropertyScope<T>(
+  propertyId: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const store = storage.getStore();
+  return runAwaited(
+    { ...(store ?? { userId: null, organizationId: null }), integrationPropertyId: propertyId },
+    fn,
+  );
+}
+
+export function currentIntegrationPropertyId(): string | null {
+  return storage.getStore()?.integrationPropertyId ?? null;
 }
 
 export function currentUserId(): string | null {
@@ -127,7 +155,13 @@ export function attachAuthor<T extends AuditCreateArgs>(
   userId: string | null,
   organizationId: string | null = null,
 ): T {
-  if ((!userId && !organizationId) || !args || typeof args !== 'object' || !('data' in args) || !args.data)
+  if (
+    (!userId && !organizationId) ||
+    !args ||
+    typeof args !== 'object' ||
+    !('data' in args) ||
+    !args.data
+  )
     return args;
   const stamp = (row: Record<string, unknown>) => ({
     ...row,
@@ -162,12 +196,26 @@ export function actorMay(permission: Permission): boolean {
   return !hasSignedInActor() || can(currentRole(), permission);
 }
 
+/**
+ * Вошедший работает с областью доступа (DATA_MODEL §31.1): не владелец и есть назначения. Служебный ходок, сторож и
+ * вошедший без назначений — нет. Для данных организации без ключа филиала (гости, O3=A), которые ограниченному закрыты.
+ */
+export function actorIsRestricted(): boolean {
+  const role = currentRole();
+  return hasSignedInActor() && role !== null && isRestricted(role, currentAssignments());
+}
+
 /** Главный администратор платформы — только вошедший с отметкой: служебные ключи раздел «Платформа» не открывают */
 export function actorIsPlatformAdmin(): boolean {
   return hasSignedInActor() && storage.getStore()?.platformAdmin === true;
 }
 
 /** Scope текущего запроса. `null` — за запросом нет человека (служебный ходок) или запрос вне контекста. */
+/** Назначения вошедшего; пусто: он работает во всей организации */
+export function currentAssignments(): ScopeAssignment[] {
+  return storage.getStore()?.scopes ?? [];
+}
+
 export function currentScope(): RequestScope | null {
   const store = storage.getStore();
   if (!store || !hasSignedInActor()) return null;
@@ -197,4 +245,15 @@ export function scopeView() {
     locationId: currentLocationId(),
     vertical: currentVertical(),
   };
+}
+
+/** Только для внутренних отчётов по филиалам, уже выбранным запросом своей организации. */
+export function withReportLocation<T>(
+  businessId: string,
+  locationId: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const actor = storage.getStore();
+  if (!actor?.userId || !actor.organizationId) throw new Error('Для отчёта нужна организация');
+  return runAwaited({ ...actor, scope: 'LOCATION', businessId, locationId }, fn);
 }

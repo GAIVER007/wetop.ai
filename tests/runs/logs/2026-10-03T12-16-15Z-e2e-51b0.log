@@ -1,0 +1,1197 @@
+# Сквозные (e2e) · 03.10.2026 17:16 Алматы · vm
+# коммит d950eb4 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/channels-list.spec.ts' 'tests/ui/channex-screens.spec.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/integrations-channex.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 2 workers
+
+  ✘   1 tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (46ms)
+  ✘   3 tests/ui/channels-compact.spec.ts:27:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (43ms)
+  ✘   4 tests/ui/channels-compact.spec.ts:48:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (47ms)
+  ✓   2 tests/ui/channels-list.spec.ts:22:1 › вкладка «Каналы»: подключённые с ID, названием, бронями за 30 дней и честным статусом (2.1s)
+  ✘   6 tests/ui/channels-compact.spec.ts:56:1 › sync never calls an empty disconnected queue successful (45ms)
+  ✘   7 tests/ui/channex-screens.spec.ts:34:1 › обзор каналов: отчёт по источникам без дубля числа источников и без монограмм (46ms)
+  ✘   8 tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой (60ms)
+  ✓   5 tests/ui/channels-list.spec.ts:41:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых (3.2s)
+  ✘  10 tests/ui/channex-screens.spec.ts:109:1 › подключения каналов: настройка подключения только владельцу (56ms)
+  ✘  11 tests/ui/channex-screens.spec.ts:146:1 › сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N» (65ms)
+  ✘  12 tests/ui/channex-screens.spec.ts:216:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (46ms)
+  ✓   9 tests/ui/channels-list.spec.ts:52:1 › владелец открывает окно Channex; после «Готово» окно закрывается (3.0s)
+  ✘  14 tests/ui/channex-screens.spec.ts:276:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (52ms)
+  ✘  15 tests/ui/channex-screens.spec.ts:295:1 › синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями» (46ms)
+  ✘  16 tests/ui/channex-screens.spec.ts:324:1 › события: фильтры, поиск и постраничность на своей вкладке (75ms)
+  ✓  13 tests/ui/channels-list.spec.ts:62:1 › управляющий видит каналы, но не подключает: окно Channex только у владельца (3.0s)
+  ✘  17 tests/ui/channex-screens.spec.ts:358:1 › старые адреса /channels с параметрами пульта открывают нужную вкладку (46ms)
+  ✘  19 tests/ui/channex-screens.spec.ts:367:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (42ms)
+  ✘  20 tests/ui/channex-screens.spec.ts:416:1 › приём брони: ревизия с двоеточиями в номере открывается (44ms)
+  ✓  18 tests/ui/channels-list.spec.ts:72:1 › Channex не ответил: причина словами, брони мимо подключений видны (2.2s)
+  ✘  22 tests/ui/channex-screens.spec.ts:430:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (53ms)
+  ✘  23 tests/ui/channex-screens.spec.ts:450:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (48ms)
+  ✘  24 tests/ui/channex-screens.spec.ts:518:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (47ms)
+  ✓  21 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: light, 1440px (3.5s)
+  ✘  25 tests/ui/channex-screens.spec.ts:610:1 › отчёт по источникам и интеграции: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (61ms)
+  ✘  27 tests/ui/integrations-channex.spec.ts:34:1 › работает: соединение и состояние без очереди, событий, ключей и лишних кнопок (44ms)
+  ✘  28 tests/ui/integrations-channex.spec.ts:97:1 › устарело: очередь стоит — внимание, ссылка в очередь, обмен часами назад (49ms)
+  ✘  29 tests/ui/integrations-channex.spec.ts:121:1 › webhook не отвечает: причина словами и тот же вывод на карточке (44ms)
+  ✓  26 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: light, 390px (3.3s)
+  ✘  31 tests/ui/integrations-channex.spec.ts:130:1 › не подключено: как подключить, без ссылки в «Каналы продаж» и без состояния (63ms)
+  ✘  32 tests/ui/integrations-channex.spec.ts:143:1 › ключ не задан — тоже «не подключено» (57ms)
+  ✘  33 tests/ui/integrations-channex.spec.ts:151:1 › только чтение: состояние и проверка доступны, изменения — после оплаты (61ms)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="list/" loading={[...]}>
+[WebServer]         <Suspense name="list/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/channels/..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <ChannelSalesPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <ChannelList>
+[WebServer]                             <div className="stack chan..." data-testid="channel-list">
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               <form className="channel-li..." role="search" action="/channels/...">
+[WebServer]                                 <Input>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="search"
+[WebServer]                                     name="q"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     placeholder="Канал или ID в канале"
+[WebServer]                                     aria-label="Найти канал"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✘  34 tests/ui/integrations-channex.spec.ts:163:1 › управляющий: без технических деталей и без ссылки на настройку владельца; сотруднику закрыто (52ms)
+  ✓  30 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: dark, 1440px (4.0s)
+  ✘  36 tests/ui/integrations-channex.spec.ts:181:1 › телефон: страница без прокрутки вбок (83ms)
+  ✘  37 tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, light (45ms)
+  ✘  38 tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, dark (43ms)
+  ✓  35 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: dark, 390px (3.2s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="list/" loading={[...]}>
+[WebServer]         <Suspense name="list/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/channels/..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <ChannelSalesPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <ChannelList>
+[WebServer]                             <div className="stack chan..." data-testid="channel-list">
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               <form className="channel-li..." role="search" action="/channels/...">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="view"
+[WebServer]                                   value="available"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <Input>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="search"
+[WebServer]                                     name="q"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     placeholder="Найти канал"
+[WebServer]                                     aria-label="Найти канал"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓  39 tests/ui/channels-list.spec.ts:99:1 › снимок «Все доступные» и окна Channex (3.5s)
+
+
+  1) tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      2 | const fixture = 'http://127.0.0.1:4311';
+      3 | test.beforeEach(async ({ request }) => {
+    > 4 |   await request.post(`${fixture}/__test/reset`);
+        |                 ^
+      5 | });
+      6 | test('обзор каналов: состояние, период и таблица помещаются на ноутбуке', async ({
+      7 |   page,
+        at /home/user/wetop.ai/tests/ui/channels-compact.spec.ts:4:17
+
+    Error Context: test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/channels-compact.spec.ts:27:1 › нет подключения: пустая очередь не выдаётся за успешную отправку 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      2 | const fixture = 'http://127.0.0.1:4311';
+      3 | test.beforeEach(async ({ request }) => {
+    > 4 |   await request.post(`${fixture}/__test/reset`);
+        |                 ^
+      5 | });
+      6 | test('обзор каналов: состояние, период и таблица помещаются на ноутбуке', async ({
+      7 |   page,
+        at /home/user/wetop.ai/tests/ui/channels-compact.spec.ts:4:17
+
+    Error Context: test-results/channels-compact-нет-подкл-d0572-даётся-за-успешную-отправку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-нет-подкл-d0572-даётся-за-успешную-отправку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-нет-подкл-d0572-даётся-за-успешную-отправку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/channels-compact.spec.ts:48:1 › доступ к API в staging не выдаётся за работающий обмен с OTA 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      2 | const fixture = 'http://127.0.0.1:4311';
+      3 | test.beforeEach(async ({ request }) => {
+    > 4 |   await request.post(`${fixture}/__test/reset`);
+        |                 ^
+      5 | });
+      6 | test('обзор каналов: состояние, период и таблица помещаются на ноутбуке', async ({
+      7 |   page,
+        at /home/user/wetop.ai/tests/ui/channels-compact.spec.ts:4:17
+
+    Error Context: test-results/channels-compact-доступ-к--72564-я-за-работающий-обмен-с-OTA/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-доступ-к--72564-я-за-работающий-обмен-с-OTA/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-доступ-к--72564-я-за-работающий-обмен-с-OTA/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/channels-compact.spec.ts:56:1 › sync never calls an empty disconnected queue successful 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      2 | const fixture = 'http://127.0.0.1:4311';
+      3 | test.beforeEach(async ({ request }) => {
+    > 4 |   await request.post(`${fixture}/__test/reset`);
+        |                 ^
+      5 | });
+      6 | test('обзор каналов: состояние, период и таблица помещаются на ноутбуке', async ({
+      7 |   page,
+        at /home/user/wetop.ai/tests/ui/channels-compact.spec.ts:4:17
+
+    Error Context: test-results/channels-compact-sync-neve-decb3-sconnected-queue-successful/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-sync-neve-decb3-sconnected-queue-successful/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-sync-neve-decb3-sconnected-queue-successful/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/channex-screens.spec.ts:34:1 › обзор каналов: отчёт по источникам без дубля числа источников и без монограмм 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-обзор-кана-a9e39--источников-и-без-монограмм/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-обзор-кана-a9e39--источников-и-без-монограмм/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-обзор-кана-a9e39--источников-и-без-монограмм/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-обзор-кана-45d79-ические-детали-раскрывашкой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-обзор-кана-45d79-ические-детали-раскрывашкой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-обзор-кана-45d79-ические-детали-раскрывашкой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/channex-screens.spec.ts:109:1 › подключения каналов: настройка подключения только владельцу 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-подключени-18423-одключения-только-владельцу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-подключени-18423-одключения-только-владельцу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-подключени-18423-одключения-только-владельцу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/channex-screens.spec.ts:146:1 › сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N» 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-сопоставле-3a175-я-категория-тарифы-«K-из-N»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-сопоставле-3a175-я-категория-тарифы-«K-из-N»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-сопоставле-3a175-я-категория-тарифы-«K-из-N»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/channex-screens.spec.ts:216:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-цены-правк-c199c-ape-отменяет-ноль-не-уходит/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-цены-правк-c199c-ape-отменяет-ноль-не-уходит/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-цены-правк-c199c-ape-отменяет-ноль-не-уходит/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/channex-screens.spec.ts:276:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-цены-месяц-72298-ссового-изменения-без-«-·-»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-цены-месяц-72298-ссового-изменения-без-«-·-»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-цены-месяц-72298-ссового-изменения-без-«-·-»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/channex-screens.spec.ts:295:1 › синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями» 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-синхрониза-86ab2--за-«Техническими-деталями»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-синхрониза-86ab2--за-«Техническими-деталями»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-синхрониза-86ab2--за-«Техническими-деталями»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/channex-screens.spec.ts:324:1 › события: фильтры, поиск и постраничность на своей вкладке 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-события-фи-4f991-раничность-на-своей-вкладке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-события-фи-4f991-раничность-на-своей-вкладке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-события-фи-4f991-раничность-на-своей-вкладке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/channex-screens.spec.ts:358:1 › старые адреса /channels с параметрами пульта открывают нужную вкладку 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-старые-адр-46be3-та-открывают-нужную-вкладку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-старые-адр-46be3-та-открывают-нужную-вкладку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-старые-адр-46be3-та-открывают-нужную-вкладку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/channex-screens.spec.ts:367:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-приём-брон-d319f-нальных-данных-ошибка-и-404/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-приём-брон-d319f-нальных-данных-ошибка-и-404/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-приём-брон-d319f-нальных-данных-ошибка-и-404/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/channex-screens.spec.ts:416:1 › приём брони: ревизия с двоеточиями в номере открывается 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-приём-брон-29a64-очиями-в-номере-открывается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-приём-брон-29a64-очиями-в-номере-открывается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-приём-брон-29a64-очиями-в-номере-открывается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/channex-screens.spec.ts:430:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-приём-брон-e1ac2--а-не-«страница-не-найдена»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-приём-брон-e1ac2--а-не-«страница-не-найдена»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-приём-брон-e1ac2--а-не-«страница-не-найдена»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/channex-screens.spec.ts:450:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-цены-сбой--d7b48-чник-назван-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-цены-сбой--d7b48-чник-назван-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-цены-сбой--d7b48-чник-назван-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/channex-screens.spec.ts:518:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-каналы-сбо-743d3-ицы-названы-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-каналы-сбо-743d3-ицы-названы-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-каналы-сбо-743d3-ицы-названы-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/channex-screens.spec.ts:610:1 › отчёт по источникам и интеграции: период словами, сбой без потери формы, пустой отчёт с причиной, телефон 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      10 |
+      11 | test.beforeEach(async ({ request }) => {
+    > 12 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      13 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+      14 | });
+      15 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:12:17
+
+    Error Context: test-results/channex-screens-отчёт-по-и-44cab-ой-отчёт-с-причиной-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-отчёт-по-и-44cab-ой-отчёт-с-причиной-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-отчёт-по-и-44cab-ой-отчёт-с-причиной-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/ui/integrations-channex.spec.ts:34:1 › работает: соединение и состояние без очереди, событий, ключей и лишних кнопок 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 |
+      18 | test.beforeEach(async ({ request }) => {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+      22 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:19:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 | });
+      24 |
+      25 | /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:22:17
+
+    Error Context: test-results/integrations-channex-работ-ecd97-ытий-ключей-и-лишних-кнопок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-работ-ecd97-ытий-ключей-и-лишних-кнопок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-работ-ecd97-ытий-ключей-и-лишних-кнопок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) tests/ui/integrations-channex.spec.ts:97:1 › устарело: очередь стоит — внимание, ссылка в очередь, обмен часами назад 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 |
+      18 | test.beforeEach(async ({ request }) => {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+      22 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:19:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 | });
+      24 |
+      25 | /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:22:17
+
+    Error Context: test-results/integrations-channex-устар-e8113--очередь-обмен-часами-назад/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-устар-e8113--очередь-обмен-часами-назад/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-устар-e8113--очередь-обмен-часами-назад/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) tests/ui/integrations-channex.spec.ts:121:1 › webhook не отвечает: причина словами и тот же вывод на карточке 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 |
+      18 | test.beforeEach(async ({ request }) => {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+      22 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:19:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 | });
+      24 |
+      25 | /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:22:17
+
+    Error Context: test-results/integrations-channex-webho-51b27--и-тот-же-вывод-на-карточке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-webho-51b27--и-тот-же-вывод-на-карточке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-webho-51b27--и-тот-же-вывод-на-карточке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) tests/ui/integrations-channex.spec.ts:130:1 › не подключено: как подключить, без ссылки в «Каналы продаж» и без состояния 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 |
+      18 | test.beforeEach(async ({ request }) => {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+      22 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:19:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 | });
+      24 |
+      25 | /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:22:17
+
+    Error Context: test-results/integrations-channex-не-по-8de67-алы-продаж»-и-без-состояния/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-не-по-8de67-алы-продаж»-и-без-состояния/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-не-по-8de67-алы-продаж»-и-без-состояния/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) tests/ui/integrations-channex.spec.ts:143:1 › ключ не задан — тоже «не подключено» ───────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 |
+      18 | test.beforeEach(async ({ request }) => {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+      22 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:19:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 | });
+      24 |
+      25 | /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:22:17
+
+    Error Context: test-results/integrations-channex-ключ-не-задан-—-тоже-«не-подключено»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-ключ-не-задан-—-тоже-«не-подключено»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-ключ-не-задан-—-тоже-«не-подключено»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) tests/ui/integrations-channex.spec.ts:151:1 › только чтение: состояние и проверка доступны, изменения — после оплаты 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 |
+      18 | test.beforeEach(async ({ request }) => {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+      22 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:19:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 | });
+      24 |
+      25 | /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:22:17
+
+    Error Context: test-results/integrations-channex-тольк-ce045-ны-изменения-—-после-оплаты/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-тольк-ce045-ны-изменения-—-после-оплаты/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-тольк-ce045-ны-изменения-—-после-оплаты/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) tests/ui/integrations-channex.spec.ts:163:1 › управляющий: без технических деталей и без ссылки на настройку владельца; сотруднику закрыто 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 |
+      18 | test.beforeEach(async ({ request }) => {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+      22 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:19:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 | });
+      24 |
+      25 | /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:22:17
+
+    Error Context: test-results/integrations-channex-управ-8f031-ладельца-сотруднику-закрыто/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-управ-8f031-ладельца-сотруднику-закрыто/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-управ-8f031-ладельца-сотруднику-закрыто/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) tests/ui/integrations-channex.spec.ts:181:1 › телефон: страница без прокрутки вбок ───────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 |
+      18 | test.beforeEach(async ({ request }) => {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+      22 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:19:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 | });
+      24 |
+      25 | /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:22:17
+
+    Error Context: test-results/integrations-channex-телефон-страница-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-телефон-страница-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-телефон-страница-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, light ───
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 |
+      18 | test.beforeEach(async ({ request }) => {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+      22 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:19:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 | });
+      24 |
+      25 | /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:22:17
+
+    Error Context: test-results/integrations-channex-INT2--0f5b7--снимки-для-владельца-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-INT2--0f5b7--снимки-для-владельца-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-INT2--0f5b7--снимки-для-владельца-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, dark ────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 |
+      18 | test.beforeEach(async ({ request }) => {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+      22 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:19:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (x64; ubuntu 24.04) node/22.22
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 | });
+      21 | test.afterEach(async ({ request }) => {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 | });
+      24 |
+      25 | /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:22:17
+
+    Error Context: test-results/integrations-channex-INT2--00e2e-т-снимки-для-владельца-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-INT2--00e2e-т-снимки-для-владельца-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-INT2--00e2e-т-снимки-для-владельца-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29 failed
+    tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке 
+    tests/ui/channels-compact.spec.ts:27:1 › нет подключения: пустая очередь не выдаётся за успешную отправку 
+    tests/ui/channels-compact.spec.ts:48:1 › доступ к API в staging не выдаётся за работающий обмен с OTA 
+    tests/ui/channels-compact.spec.ts:56:1 › sync never calls an empty disconnected queue successful 
+    tests/ui/channex-screens.spec.ts:34:1 › обзор каналов: отчёт по источникам без дубля числа источников и без монограмм 
+    tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой 
+    tests/ui/channex-screens.spec.ts:109:1 › подключения каналов: настройка подключения только владельцу 
+    tests/ui/channex-screens.spec.ts:146:1 › сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N» 
+    tests/ui/channex-screens.spec.ts:216:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит 
+    tests/ui/channex-screens.spec.ts:276:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » 
+    tests/ui/channex-screens.spec.ts:295:1 › синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями» 
+    tests/ui/channex-screens.spec.ts:324:1 › события: фильтры, поиск и постраничность на своей вкладке 
+    tests/ui/channex-screens.spec.ts:358:1 › старые адреса /channels с параметрами пульта открывают нужную вкладку 
+    tests/ui/channex-screens.spec.ts:367:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 
+    tests/ui/channex-screens.spec.ts:416:1 › приём брони: ревизия с двоеточиями в номере открывается 
+    tests/ui/channex-screens.spec.ts:430:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» 
+    tests/ui/channex-screens.spec.ts:450:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом 
+    tests/ui/channex-screens.spec.ts:518:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом 
+    tests/ui/channex-screens.spec.ts:610:1 › отчёт по источникам и интеграции: период словами, сбой без потери формы, пустой отчёт с причиной, телефон 
+    tests/ui/integrations-channex.spec.ts:34:1 › работает: соединение и состояние без очереди, событий, ключей и лишних кнопок 
+    tests/ui/integrations-channex.spec.ts:97:1 › устарело: очередь стоит — внимание, ссылка в очередь, обмен часами назад 
+    tests/ui/integrations-channex.spec.ts:121:1 › webhook не отвечает: причина словами и тот же вывод на карточке 
+    tests/ui/integrations-channex.spec.ts:130:1 › не подключено: как подключить, без ссылки в «Каналы продаж» и без состояния 
+    tests/ui/integrations-channex.spec.ts:143:1 › ключ не задан — тоже «не подключено» ─────────────
+    tests/ui/integrations-channex.spec.ts:151:1 › только чтение: состояние и проверка доступны, изменения — после оплаты 
+    tests/ui/integrations-channex.spec.ts:163:1 › управляющий: без технических деталей и без ссылки на настройку владельца; сотруднику закрыто 
+    tests/ui/integrations-channex.spec.ts:181:1 › телефон: страница без прокрутки вбок ─────────────
+    tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, light ─────
+    tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, dark ──────
+  10 passed (36.9s)
+
+# код выхода 1 · 38 с

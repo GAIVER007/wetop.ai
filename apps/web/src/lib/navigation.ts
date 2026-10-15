@@ -648,8 +648,8 @@ export const foodMenuSections: MenuSection[] = [
       menuItem('/stock'),
     ],
   },
-  direct('customers', '/customers', 'guests', 'Клиенты'),
-  direct('guests', '/guests', 'guests', 'Гости', ['/reservations']),
+  // гости ресторана это его клиенты (`customers`); гостиничный `/guests` ресторану не нужен
+  direct('customers', '/customers', 'guests', 'Гости'),
   {
     id: 'money',
     label: 'Финансы',

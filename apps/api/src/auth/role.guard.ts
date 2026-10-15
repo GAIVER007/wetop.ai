@@ -11,6 +11,7 @@ import {
 import { PLATFORM_ADMIN_ONLY } from '../platform/admin';
 import { ROUTE_ACCESS, type RouteAccess } from './access.decorator';
 import type { SignedInUser } from './auth.service';
+import { ORGANIZATION_LEVEL_ROUTE } from './organization-level.decorator';
 import { PUBLIC_ROUTE } from './public.decorator';
 
 export const SERVICE_KEY_ONLY = 'Этот адрес — только для служебного ключа, не для входа человека';
@@ -43,8 +44,16 @@ export class RoleGuard implements CanActivate {
     }
     if (access === 'service') throw new ForbiddenException(SERVICE_KEY_ONLY);
     // человеку с областью доступа организационные разделы закрыты, какая бы роль у него ни была в филиале (§31.1)
-    if (isRestricted(user.role, user.scopes ?? []) && ORGANIZATION_LEVEL_PERMISSIONS.includes(access))
-      throw new ForbiddenException(RESTRICTED_ORGANIZATION_MESSAGE);
+    if (isRestricted(user.role, user.scopes ?? [])) {
+      if (ORGANIZATION_LEVEL_PERMISSIONS.includes(access))
+        throw new ForbiddenException(RESTRICTED_ORGANIZATION_MESSAGE);
+      // маршрут с данными организации, а не филиала (гости): право общее со стойкой, поэтому закрыт меткой
+      const organizationLevel = this.reflector.getAllAndOverride<string | undefined>(
+        ORGANIZATION_LEVEL_ROUTE,
+        targets,
+      );
+      if (organizationLevel) throw new ForbiddenException(organizationLevel);
+    }
     if (can(user.role, access)) return true;
     throw new ForbiddenException(accessDeniedMessage(access));
   }

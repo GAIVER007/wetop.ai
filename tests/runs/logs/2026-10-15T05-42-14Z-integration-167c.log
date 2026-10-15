@@ -1,0 +1,260 @@
+# Интеграционные (integration) · 15.10.2026 10:42 Алматы · MacBook-Air-Urij.local
+# коммит 3d3a4e4 (claude/core-security-fix-20261015), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-15T05-42-14Z-integration-167c.json' 'tests/integration/core-security-fix.test.ts' 'tests/integration/core-01-repro.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/core-sec
+
+ ❯ |integration| tests/integration/core-security-fix.test.ts (6 tests | 5 failed) 1259ms
+   ❯ CORE-SECURITY-FIX: границы скоупа (настоящая PostgreSQL) (6)
+     × назначенный на объект A не видит гостя объекта B, свой и новый видит 44ms
+     ✓ без назначений гости организации видны целиком, как раньше 9ms
+     × назначенный на один салон не добавит мастеру чужой филиал 52ms
+     × self-онбординг чужого филиала для назначенного закрыт 9ms
+     × менеджер организации без отеля не создаст гостиничный бизнес онбордингом 557ms
+     × организационный скоуп не берёт Property архивного филиала 92ms
+ ❯ |integration| tests/integration/core-01-repro.test.ts (1 test | 1 failed) 239ms
+   ❯ CORE-01 репродукции: границы областей (настоящая PostgreSQL) (1)
+     × повтор события каналов не трогает событие чужой организации (U2-1, пока дефект) 17ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/core-security-fix.test.ts > CORE-SECURITY-FIX: границы скоупа (настоящая PostgreSQL)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.delete()` invocation:
+
+
+Foreign key constraint violated on the constraint: `audit_logs_organization_id_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/core-security-fix.test.ts:120:5
+    118|     await db.business.deleteMany({ where: { organizationId: org } });
+    119|     await db.user.delete({ where: { id: user } });
+    120|     await db.organization.delete({ where: { id: org } });
+       |     ^
+    121|   });
+    122|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/core-01-repro.test.ts > CORE-01 репродукции: границы областей (настоящая PostgreSQL) > повтор события каналов не трогает событие чужой организации (U2-1, пока дефект)
+AssertionError: expected { attemptCount: +0, …(2) } to deeply equal { attemptCount: 3, …(2) }
+
+- Expected
++ Received
+
+  {
+-   "attemptCount": 3,
+-   "lastError": "synthetic",
+-   "status": "FAILED",
++   "attemptCount": 0,
++   "lastError": null,
++   "status": "RECEIVED",
+  }
+
+ ❯ tests/integration/core-01-repro.test.ts:109:10
+    107|         status: foreign.status,
+    108|         lastError: foreign.lastError,
+    109|       }).toEqual({
+       |          ^
+    110|         attemptCount: 3,
+    111|         status: 'FAILED',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |integration| tests/integration/core-security-fix.test.ts > CORE-SECURITY-FIX: границы скоупа (настоящая PostgreSQL) > назначенный на объект A не видит гостя объекта B, свой и новый видит
+AssertionError: expected { …(12) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "birthDate": null,
+  "citizenship": null,
+  "documents": [],
+  "email": null,
+  "firstName": "Гость",
+  "gender": "UNKNOWN",
+  "id": "7c6879f6-2ac6-45b6-b692-e3911766b7a4",
+  "lastName": "Объекта-Б",
+  "middleName": null,
+  "notes": null,
+  "phone": null,
+  "stays": [],
+}
+
+ ❯ tests/integration/core-security-fix.test.ts:142:21
+    140|     expect(own?.id).toBe(guestA);
+    141|     expect(fresh?.id).toBe(guestNew);
+    142|     expect(foreign).toBeNull();
+       |                     ^
+    143|   });
+    144|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |integration| tests/integration/core-security-fix.test.ts > CORE-SECURITY-FIX: границы скоупа (настоящая PostgreSQL) > назначенный на один салон не добавит мастеру чужой филиал
+AssertionError: promise resolved "{ location: { …(3) }, …(5) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "employee": {
++     "active": true,
++     "id": "60a599ab-dace-47ac-86d6-58a8648812c2",
++     "locationIds": [
++       "bc136514-a9de-48ba-b5a5-d4566fefd1c9",
++       "1d9be66f-69af-4367-a8d9-0bb0076b42c2",
++     ],
++     "name": "Мастер Синтетик",
++     "worksHere": true,
++   },
++   "employees": [
++     {
++       "active": true,
++       "id": "60a599ab-dace-47ac-86d6-58a8648812c2",
++       "name": "Мастер Синтетик",
++       "worksHere": true,
++     },
++   ],
++   "location": {
++     "id": "bc136514-a9de-48ba-b5a5-d4566fefd1c9",
++     "name": "Салон 1",
++     "timezone": "Asia/Almaty",
++   },
++   "locations": [
++     {
++       "assigned": true,
++       "id": "bc136514-a9de-48ba-b5a5-d4566fefd1c9",
++       "name": "Салон 1",
++     },
++     {
++       "assigned": true,
++       "id": "1d9be66f-69af-4367-a8d9-0bb0076b42c2",
++       "name": "Салон 2",
++     },
++   ],
++   "timeOffs": [],
++   "week": [
++     {
++       "intervals": [],
++       "weekday": 1,
++     },
++     {
++       "intervals": [],
++       "weekday": 2,
++     },
++     {
++       "intervals": [],
++       "weekday": 3,
++     },
++     {
++       "intervals": [],
++       "weekday": 4,
++     },
++     {
++       "intervals": [],
++       "weekday": 5,
++     },
++     {
++       "intervals": [],
++       "weekday": 6,
++     },
++     {
++       "intervals": [],
++       "weekday": 0,
++     },
++   ],
+  }
+
+ ❯ tests/integration/core-security-fix.test.ts:167:6
+    165|         svc.setLocations(master, { locationIds: [beautyL1, beautyL2] }…
+    166|       ),
+    167|     ).rejects.toBeInstanceOf(ForbiddenException);
+       |      ^
+    168|     const rows = await db.employeeLocation.findMany({ where: { employe…
+    169|     expect(rows.map((r) => r.locationId)).toEqual([beautyL1]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |integration| tests/integration/core-security-fix.test.ts > CORE-SECURITY-FIX: границы скоупа (настоящая PostgreSQL) > self-онбординг чужого филиала для назначенного закрыт
+AssertionError: promise resolved "{ vertical: 'BEAUTY', …(8) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "businessId": "d959d716-7c83-43a0-b968-4f2195a25494",
++   "canEdit": true,
++   "completedAt": null,
++   "currentStep": "business",
++   "draft": {
++     "businessName": "ADR183 салон",
++     "currency": "KZT",
++     "locationName": "Салон 2",
++     "timezone": "Asia/Almaty",
++   },
++   "flowVersion": 1,
++   "locationId": "1d9be66f-69af-4367-a8d9-0bb0076b42c2",
++   "updatedAt": null,
++   "vertical": "BEAUTY",
+  }
+
+ ❯ tests/integration/core-security-fix.test.ts:183:74
+    181|       scopes: [{ role: 'MANAGER', businessId: beautyBusiness, location…
+    182|     });
+    183|     await expect(withSignedInUser(restricted, () => onboarding.status(…
+       |                                                                          ^
+    184|       ForbiddenException,
+    185|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |integration| tests/integration/core-security-fix.test.ts > CORE-SECURITY-FIX: границы скоупа (настоящая PostgreSQL) > менеджер организации без отеля не создаст гостиничный бизнес онбордингом
+PrismaClientKnownRequestError: 
+Invalid `prisma.floor.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `physical_rooms_floor_id_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |integration| tests/integration/core-security-fix.test.ts > CORE-SECURITY-FIX: границы скоупа (настоящая PostgreSQL) > организационный скоуп не берёт Property архивного филиала
+AssertionError: expected '18fc86b8-49c1-4926-a2f3-6ce5d29d2c8b' to be '06067a61-1229-49df-8887-ddeef0f38e0c' // Object.is equality
+
+Expected: "06067a61-1229-49df-8887-ddeef0f38e0c"
+Received: "18fc86b8-49c1-4926-a2f3-6ce5d29d2c8b"
+
+ ❯ tests/integration/core-security-fix.test.ts:265:25
+    263|         () => propertyRef(db, 'ADR183 Старый'),
+    264|       );
+    265|       expect(picked.id).toBe(second.id);
+       |                         ^
+    266|     } finally {
+    267|       await db.property.deleteMany({ where: { organizationId: archOrg …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  6 failed | 1 passed (7)
+   Start at  09:42:16
+   Duration  6.50s (import 53%, tests 28%, transform 19%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-15T05-42-14Z-integration-167c.json
+
+# код выхода 1 · 9 с

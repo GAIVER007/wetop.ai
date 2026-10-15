@@ -24,7 +24,7 @@ describe.skipIf(!process.env.DATABASE_URL)('онбординг организа�
     const org = await db.organization.create({ data: { name: `TEST onboarding ${marker}` } });
     const user = await db.user.create({ data: { email: `onboarding-${marker}@example.invalid` } });
     const service = new OnboardingService({ db } as PrismaService, { forget: () => {} } as never);
-    const as = <T>(fn: () => Promise<T>) => withSignedInUser({ userId: user.id, organizationId: org.id }, fn);
+    const as = <T>(fn: () => Promise<T>) => withSignedInUser({ userId: user.id, organizationId: org.id, role: 'OWNER' }, fn) // новое направление создаёт владелец (ADR-183);
     try {
       expect(await as(() => service.status())).toEqual({
         needed: true,

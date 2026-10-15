@@ -1,0 +1,16 @@
+# Модульные (unit) · 15.10.2026 00:33 Алматы · MacBook-Air-Urij.local
+# коммит b46db14 (claude/core-01-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-33-10Z-unit-943b.json' 'apps/api/src/web-booking/bot-quote.controller.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/core-01
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (20 tests) 293ms
+
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+   Start at  23:33:12
+   Duration  2.41s (transform 49%, import 38%, tests 13%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-33-10Z-unit-943b.json
+
+# код выхода 0 · 5 с

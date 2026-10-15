@@ -19,7 +19,6 @@ describe('Food workspace isolation', () => {
       '/menu',
       '/stock',
       '/customers',
-      '/guests',
       '/restaurant-finance',
       '/cashbox',
       '/finance',
@@ -45,7 +44,6 @@ describe('Food workspace isolation', () => {
       'Главная',
       'Зал',
       'Заказы',
-      'Клиенты',
       'Гости',
       'Финансы',
       'Команда',
@@ -61,7 +59,7 @@ describe('Food workspace isolation', () => {
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],
       ['/orders', 'Заказы'],
-      ['/customers', 'Клиенты'],
+      ['/customers', 'Гости'],
     ]);
     const labels = sections.flatMap((s) => s.items);
     expect(labels.find((i) => i.href === '/orders')?.label).toBe('Заказы');

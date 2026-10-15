@@ -65,6 +65,7 @@ export function MastersBoard({
   const [epoch, setEpoch] = useState(0);
   const [notice, setNotice] = useState('');
   const [openingCreated, setOpeningCreated] = useState<string | null>(null);
+  const createdNavigation = useRef(false);
   const guard = useRef<(action: () => void) => void>((action) => action());
   const registerGuard = useCallback((request: (action: () => void) => void) => {
     guard.current = request;
@@ -233,6 +234,7 @@ export function MastersBoard({
   const lastSubmit = useRef<HTMLFormElement | null>(null);
   useEffect(() => {
     if (!openingCreated || initialEmployeeId !== openingCreated) return;
+    createdNavigation.current = false;
     const version = ++generation.current;
     load(async () => {
       const result = await loadBeautySchedule(openingCreated);
@@ -253,6 +255,7 @@ export function MastersBoard({
       const url = new URL(location.href);
       url.searchParams.set('employee', row.id);
       url.hash = 'profile';
+      createdNavigation.current = true;
       router.replace(`${url.pathname}${url.search}${url.hash}`, {scroll:false});
       focusedEmployee.current = row.id;
     } else setNotice('Профиль сохранён');
@@ -263,6 +266,12 @@ export function MastersBoard({
     setEditing(null);
     setOpeningCreated(null);
     setAddress(null);
+    // A pending profile route must not restore the employee URL after the card closes.
+    if (createdNavigation.current) {
+      createdNavigation.current = false;
+      const url = new URL(location.href);
+      router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
+    }
   };
   const refreshSchedule = async () => {
     if (editing?.mode !== 'edit') return;

@@ -1,4 +1,5 @@
-import { SITE_SPEC_ICONS, SITE_SPEC_LOCALES, SITE_SPEC_SECTIONS, SITE_SPEC_THEME } from './site-spec';
+import { SITE_LEAD_MODES, type SiteLeadMode } from './site-lead';
+import { SITE_SPEC_ICONS, SITE_SPEC_LIMITS, SITE_SPEC_LOCALES, SITE_SPEC_SECTIONS, SITE_SPEC_THEME } from './site-spec';
 
 /**
  * Редактор управляемого сайта (MKT9, `docs/marketing/site-editor-v0.md`). Здесь только чистые правила, без React:
@@ -28,6 +29,18 @@ export type EditorFieldSpec =
   /** Категории секции цен: только коды карточек размещения этого документа */
   | { kind: 'categoryCodes' }
   | { kind: 'map' }
+  /** SITE-2: целое число (длительность, вес) */
+  | { kind: 'int'; min: number; max: number }
+  /** SITE-2: время ЧЧ:ММ */
+  | { kind: 'clock' }
+  /** SITE-2: день недели числом 0–6 (0 воскресенье), выбор из списка `WEEKDAY_OPTIONS` */
+  | { kind: 'weekday' }
+  /**
+   * SITE-2: ссылка на запись данных WETOP (код услуги или блюда, id мастера) и цена снимком из данных. Человек и ИИ их
+   * не пишут: их ставит заготовка из фактов филиала (`starterSpecFromFacts`); редактор показывает их только для чтения
+   */
+  | { kind: 'dataRef'; ref: 'service' | 'menuItem' | 'employee' }
+  | { kind: 'money' }
   | { kind: 'list'; min: number; max: number; itemLabel: string; item: readonly EditorField[] };
 
 export interface EditorField {
@@ -65,7 +78,19 @@ const icon: EditorField = { key: 'icon', label: 'Значок', required: true, 
 const heading = text('heading', 'Заголовок секции', 80, true);
 const option = (value: string, label: string): EditorOption => ({ value, label });
 
-/** Реестр редактора: подписи, варианты и поля каждой из 11 секций SiteSpec v0 */
+/** Дни недели как в данных WETOP: 0 воскресенье (`Date.getDay()`); значение в документе число, подпись строкой */
+export const WEEKDAY_LABEL: readonly string[] = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+/** Порядок выбора с понедельника; значение строкой для `<select>`, в документ уходит числом */
+export const WEEKDAY_OPTIONS: readonly EditorOption[] = [1, 2, 3, 4, 5, 6, 0].map((d) => option(String(d), WEEKDAY_LABEL[d]!));
+export const LEAD_MODE_LABEL: Readonly<Record<SiteLeadMode, string>> = Object.freeze({
+  HOTEL_BOOKING: 'Бронь номера',
+  BEAUTY_APPOINTMENT: 'Запись к мастеру',
+  TABLE_RESERVATION: 'Бронь стола',
+  CALLBACK: 'Перезвоните мне',
+});
+const LEAD_MODE_OPTIONS: readonly EditorOption[] = SITE_LEAD_MODES.map((m) => option(m, LEAD_MODE_LABEL[m]));
+
+/** Реестр редактора: подписи, варианты и поля каждой секции SiteSpec (11 гостиничных и 5 секций SITE-2) */
 export const SITE_EDITOR_SECTIONS: Readonly<Record<string, EditorSection>> = Object.freeze({
   hero: {
     type: 'hero',
@@ -200,6 +225,117 @@ export const SITE_EDITOR_SECTIONS: Readonly<Record<string, EditorSection>> = Obj
       { key: 'image', label: 'Фото', required: true, spec: { kind: 'image' }, variants: ['SPLIT'] },
     ],
   },
+  services: {
+    type: 'services',
+    label: 'Услуги',
+    variants: [option('LIST', 'Список'), option('CARDS', 'Карточки')],
+    fields: [
+      heading,
+      {
+        key: 'items', label: 'Услуги', required: true,
+        spec: {
+          kind: 'list', min: 1, max: SITE_SPEC_LIMITS.servicesItems, itemLabel: 'Услуга',
+          item: [
+            { key: 'serviceCode', label: 'Услуга салона', required: true, spec: { kind: 'dataRef', ref: 'service' } },
+            text('title', 'Название на сайте', 80, true),
+            text('description', 'Описание', 300),
+            text('category', 'Группа', 60),
+            { key: 'durationMin', label: 'Длительность, мин', required: false, spec: { kind: 'int', min: 1, max: 1440 }, hint: 'Из данных салона' },
+            { key: 'price', label: 'Цена', required: false, spec: { kind: 'money' }, hint: 'Из данных салона; на сайте меняется кнопкой «Обновить данными WETOP»' },
+            bool('priceFrom', 'Цена «от»'),
+          ],
+        },
+      },
+      bool('showPrices', 'Показывать цены'),
+      bool('showDuration', 'Показывать длительность'),
+      bool('groupByCategory', 'Группировать по группам'),
+      { key: 'itemAction', label: 'Кнопка у услуги', required: false, spec: { kind: 'cta' } },
+    ],
+  },
+  staff: {
+    type: 'staff',
+    label: 'Мастера',
+    variants: [option('CARDS', 'Карточки'), option('LIST', 'Список')],
+    fields: [
+      heading,
+      {
+        key: 'items', label: 'Мастера', required: true,
+        spec: {
+          kind: 'list', min: 1, max: SITE_SPEC_LIMITS.staffItems, itemLabel: 'Мастер',
+          item: [
+            { key: 'employeeId', label: 'Мастер салона', required: true, spec: { kind: 'dataRef', ref: 'employee' } },
+            text('name', 'Имя на сайте', 80, true),
+            text('specialization', 'Специализация', 120),
+            { key: 'image', label: 'Фото', required: false, spec: { kind: 'image' } },
+          ],
+        },
+      },
+    ],
+  },
+  menu: {
+    type: 'menu',
+    label: 'Меню',
+    variants: [option('LIST', 'Список'), option('CARDS', 'Карточки')],
+    fields: [
+      heading,
+      {
+        key: 'categories', label: 'Разделы меню', required: true,
+        spec: {
+          kind: 'list', min: 1, max: SITE_SPEC_LIMITS.menuCategories, itemLabel: 'Раздел',
+          item: [
+            text('title', 'Раздел', 80, true),
+            {
+              key: 'items', label: 'Блюда', required: true,
+              spec: {
+                kind: 'list', min: 1, max: SITE_SPEC_LIMITS.menuItemsPerCategory, itemLabel: 'Блюдо',
+                item: [
+                  { key: 'itemCode', label: 'Блюдо ресторана', required: true, spec: { kind: 'dataRef', ref: 'menuItem' } },
+                  text('title', 'Название на сайте', 120, true),
+                  text('description', 'Описание', 300),
+                  { key: 'weightGrams', label: 'Выход, г', required: false, spec: { kind: 'int', min: 1, max: 100_000 }, hint: 'Из данных ресторана' },
+                  { key: 'price', label: 'Цена', required: false, spec: { kind: 'money' }, hint: 'Из данных ресторана' },
+                  { key: 'image', label: 'Фото', required: false, spec: { kind: 'image' } },
+                ],
+              },
+            },
+          ],
+        },
+      },
+      bool('showPhotos', 'Показывать фото блюд'),
+    ],
+  },
+  hours: {
+    type: 'hours',
+    label: 'Часы работы',
+    variants: [option('TABLE', 'Таблица'), option('COMPACT', 'Коротко')],
+    fields: [
+      heading,
+      {
+        key: 'days', label: 'Дни', required: true,
+        spec: {
+          kind: 'list', min: 1, max: 7, itemLabel: 'День',
+          item: [
+            { key: 'weekday', label: 'День недели', required: true, spec: { kind: 'weekday' } },
+            { key: 'open', label: 'Открытие', required: true, spec: { kind: 'clock' } },
+            { key: 'close', label: 'Закрытие', required: true, spec: { kind: 'clock' } },
+          ],
+        },
+      },
+      text('note', 'Примечание', 300),
+    ],
+  },
+  leadForm: {
+    type: 'leadForm',
+    label: 'Форма заявки',
+    variants: [option('INLINE', 'На странице'), option('CARD', 'Карточкой')],
+    fields: [
+      heading,
+      { key: 'mode', label: 'Что делает форма', required: true, spec: { kind: 'enum', options: LEAD_MODE_OPTIONS } },
+      text('note', 'Примечание', 300),
+      bool('showComment', 'Поле комментария'),
+      text('submitLabel', 'Подпись кнопки', 30),
+    ],
+  },
 } satisfies Record<string, EditorSection>);
 
 export const SITE_EDITOR_SECTION_TYPES: readonly string[] = Object.keys(SITE_SPEC_SECTIONS);
@@ -288,6 +424,16 @@ export function newSection(
       return { ...base, items: [{ question: t(l, 'Вопрос'), answer: t(l, 'Ответ.') }] };
     case 'cta':
       return { ...base, variant: 'BANNER', action: book };
+    case 'hours':
+      return { ...base, days: [1, 2, 3, 4, 5].map((weekday) => ({ weekday, open: '10:00', close: '20:00' })) };
+    case 'leadForm':
+      return { ...base, mode: 'CALLBACK' };
+    // услуги, мастера и меню ссылаются на записи WETOP: пустой список подсветит проверка, человек выбирает из данных
+    case 'services':
+    case 'staff':
+      return { ...base, items: [] };
+    case 'menu':
+      return { ...base, categories: [] };
     default:
       return base;
   }

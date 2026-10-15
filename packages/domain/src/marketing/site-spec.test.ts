@@ -240,10 +240,18 @@ describe('SiteSpec v0: отказы', () => {
     rejects(description, /seo\.description\.ru$/, 'too_long');
   });
 
-  it('направление v0 только Hospitality', () => {
+  it('направление: только гостиница, салон и ресторан', () => {
+    const s = spec();
+    s.site.vertical = 'CAR_WASH';
+    rejects(s, 'site.vertical', 'enum');
+  });
+
+  it('SITE-2: гостиничные секции и тип schema.org у салона не проходят', () => {
     const s = spec();
     s.site.vertical = 'BEAUTY';
-    rejects(s, 'site.vertical');
+    const errors = errorsOf(s);
+    expect(errors.some((e) => e.path === 'site.seo.structuredData.type' && e.code === 'enum')).toBe(true);
+    expect(errors.some((e) => e.code === 'section_not_for_vertical' && /sections\[3\]\.type$/.test(e.path))).toBe(true);
   });
 
   it('ассет: только форма UUID (наличие ассета проверит MKT8)', () => {

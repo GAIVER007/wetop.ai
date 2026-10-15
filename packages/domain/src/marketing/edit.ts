@@ -1,6 +1,7 @@
 import type { SiteBriefInput } from './brief';
 import { canonicalJson } from './canonical';
 import { siteSpecAssetRefs } from './assets';
+import { catalogFactErrors } from './generation';
 import { validateSiteSpec, type SiteSpecError, type SiteSpecResult } from './site-spec';
 
 /**
@@ -150,6 +151,7 @@ export function checkEditedSpec(spec: unknown, baseSpec: unknown, input: SiteBri
       for (const url of externalUrls(after.section)) if (!baseUrls.has(url)) fail(path, 'invented_link', 'Новые внешние ссылки не допускаются');
       for (const ref of categoryCodes(after.section, path, []))
         if (typeof ref.code !== 'string' || !known.has(ref.code)) fail(ref.path, 'unknown_category', 'Категории нет в брифе');
+      errors.push(...catalogFactErrors(after.section, input, path));
     }
     return errors.length ? { ok: false, errors } : checked;
   }
@@ -184,5 +186,6 @@ export function checkEditedSpec(spec: unknown, baseSpec: unknown, input: SiteBri
   for (const url of externalUrls(spec)) if (!baseUrls.has(url)) fail('', 'invented_link', 'Новые внешние ссылки не допускаются');
   for (const ref of categoryCodes(spec, '', []))
     if (typeof ref.code !== 'string' || !known.has(ref.code)) fail(ref.path.replace(/^\./, ''), 'unknown_category', 'Категории нет в брифе');
+  errors.push(...catalogFactErrors(spec, input));
   return errors.length ? { ok: false, errors } : checked;
 }

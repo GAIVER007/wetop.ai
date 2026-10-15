@@ -1,4 +1,5 @@
 import { canonicalByteLength } from './canonical';
+import { SITE_LEAD_MODES, SITE_LEAD_MODES_BY_VERTICAL } from './site-lead';
 
 /**
  * Проверка `SiteSpec` v0 (MKT3) по `docs/marketing/sitespec-v0.md`. Схема строгая: неизвестное поле на любом уровне
@@ -35,6 +36,26 @@ const CATEGORY_CODE_RE = /^[A-Za-z0-9_-]{1,64}$/;
 const CONTROL_RE = /[\u0000-\u001f\u007f]/;
 const MARKUP_RE = /<[A-Za-z/!?]/;
 const TEMPLATE_RE = /\{\{|\$\{/;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** Деньги в документе только целыми minor units строкой (ADR-008): JSON-число не держит BigInt без потерь */
+const MINOR_RE = /^(?:0|[1-9][0-9]{0,14})$/;
+const CURRENCY_RE = /^[A-Z]{3}$/;
+const CLOCK_RE = /^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/;
+
+/**
+ * Направления сайта (SITE-2, план `plans/site-seo-flow-2026-10-15.md`): гостиница, салон, ресторан. Схема остаётся
+ * `site-spec/0`: новые секции и поля только добавлены, прежние документы проверяются как раньше.
+ */
+export const SITE_SPEC_VERTICALS = ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const;
+export type SiteSpecVertical = (typeof SITE_SPEC_VERTICALS)[number];
+
+/** Тип schema.org по направлению: гостинице свои четыре, салону `BeautySalon`, ресторану `Restaurant` или `CafeOrCoffeeShop` */
+export const SITE_SPEC_STRUCTURED_TYPES: Readonly<Record<SiteSpecVertical, readonly string[]>> = Object.freeze({
+  HOSPITALITY: ['HOTEL', 'HOSTEL', 'APARTMENT', 'LODGING'],
+  BEAUTY: ['BEAUTY_SALON'],
+  FOOD_SERVICE: ['RESTAURANT', 'CAFE'],
+});
+
 
 /**
  * Правило обычного текста SiteSpec наружу (MKT8: подсказка ALT у ассета): управляющие символы, разметка HTML и шаблоны
@@ -93,6 +114,48 @@ class Checker {
   readonly cardCodes = new Set<string>();
   /** Коды категорий секций цен: каждый ищется среди карточек после разбора всех страниц */
   readonly pricingCodes: Array<{ path: string; code: string }> = [];
+  /** Направление сайта: от него зависят тип schema.org и режимы формы заявки */
+  vertical = '';
+  /** Коды услуг секций `services` документа: форма записи предлагает только их */
+  readonly serviceCodes = new Set<string>();
+  readonly menuCodes = new Set<string>();
+  /** Формы записи к мастеру: каждой нужна хотя бы одна услуга в документе */
+  readonly appointmentForms: string[] = [];
+
+  /** Код позиции каталога WETOP (услуга, блюдо): тот же вид, что код категории, сверяется с брифом при генерации */
+  catalogCode: Field = (value, path) => {
+    if (typeof value !== 'string' || !CATEGORY_CODE_RE.test(value))
+      this.fail(path, 'invalid_catalog_code', 'Код позиции каталога: латиница, цифры, дефис и подчёркивание');
+  };
+
+  /** Цена снимком из данных WETOP: `{ minor, currency }`; ИИ её не пишет, платформа ставит из брифа */
+  money: Field = (value, path) => {
+    this.obj(value, path, { minor: this.minor, currency: this.currency }, ['minor', 'currency']);
+  };
+
+  int(min: number, max: number): Field {
+    return (value, path) => {
+      if (typeof value !== 'number' || !Number.isInteger(value) || value < min || value > max)
+        this.fail(path, 'invalid_number', `Целое число от ${min} до ${max}`);
+    };
+  }
+
+  minor: Field = (value, path) => {
+    if (typeof value !== 'string' || !MINOR_RE.test(value))
+      this.fail(path, 'invalid_money', 'Цена: целое число минимальных единиц строкой («250000» это 2 500,00)');
+  };
+
+  currency: Field = (value, path) => {
+    if (typeof value !== 'string' || !CURRENCY_RE.test(value)) this.fail(path, 'invalid_currency', 'Валюта: код ISO 4217');
+  };
+
+  clock: Field = (value, path) => {
+    if (typeof value !== 'string' || !CLOCK_RE.test(value)) this.fail(path, 'invalid_time', 'Время ЧЧ:ММ');
+  };
+
+  uuid: Field = (value, path) => {
+    if (typeof value !== 'string' || !UUID_RE.test(value)) this.fail(path, 'invalid_reference', 'Ссылка на запись WETOP (UUID)');
+  };
 
   fail(path: string, code: string, message: string): void {
     this.errors.push({ path, code, message });
@@ -343,6 +406,7 @@ export function validateSiteSpec(input: unknown): SiteSpecResult {
   if (site && typeof site === 'object') {
     if (typeof site['defaultLocale'] === 'string') c.defaultLocale = site['defaultLocale'];
     if (Array.isArray(site['locales'])) c.locales = site['locales'].filter((l): l is string => typeof l === 'string');
+    if (typeof site['vertical'] === 'string') c.vertical = site['vertical'];
   }
   const booking = ((root['integrations'] as Rec | undefined)?.['booking'] as Rec | undefined)?.['mode'];
   const pages: Array<{ id: string; sections: string[] }> = [];
@@ -419,6 +483,9 @@ export function validateSiteSpec(input: unknown): SiteSpecResult {
     if (!c.cardCodes.has(ref.code))
       c.fail(ref.path, 'pricing_category_without_card',
         'Для категории секции цен нужна карточка размещения с тем же categoryCode');
+  // форма записи к мастеру предлагает услуги документа: без единой услуги ей нечего предложить
+  if (c.serviceCodes.size === 0)
+    for (const at of c.appointmentForms) c.fail(at, 'appointment_without_services', 'Форме записи нужна секция услуг');
   const privacy = (site?.['legal'] as Rec | undefined)?.['privacyPageId'];
   if (typeof privacy === 'string' && !pages.some((p) => p.id === privacy))
     c.fail('site.legal.privacyPageId', 'unknown_reference', `Страницы «${privacy}» нет в документе`);
@@ -433,7 +500,7 @@ function checkSite(c: Checker, value: unknown, path: string): void {
     value,
     path,
     {
-      vertical: c.oneOf(['HOSPITALITY']),
+      vertical: c.oneOf(SITE_SPEC_VERTICALS),
       displayName: c.text(80),
       defaultLocale: c.oneOf(LOCALES),
       locales: (v, p) => {
@@ -495,7 +562,10 @@ function checkSite(c: Checker, value: unknown, path: string): void {
                 sd,
                 sdp,
                 {
-                  type: c.oneOf(['HOTEL', 'HOSTEL', 'APARTMENT', 'LODGING']),
+                  type: (t, tp) => {
+                    const allowed = SITE_SPEC_STRUCTURED_TYPES[c.vertical as SiteSpecVertical] ?? SITE_SPEC_STRUCTURED_TYPES.HOSPITALITY;
+                    c.oneOf(allowed)(t, tp);
+                  },
                   includeAddress: c.bool,
                   includeGeo: c.bool,
                 },
@@ -517,6 +587,10 @@ function checkNavigation(c: Checker, value: unknown, path: string): void {
       header: (v, p) =>
         c.arr(v, p, 0, 7, (item, ip) => c.obj(item, ip, { label: c.text(30), target: c.target }, ['label', 'target'])),
       headerCta: c.cta,
+      mobileBar: (v, p) => {
+        const bar = c.obj(v, p, { book: c.bool, whatsapp: c.bool }, ['book', 'whatsapp']);
+        if (bar?.['whatsapp'] === true) c.contactNeeds.push({ path: join(p, 'whatsapp'), contact: 'whatsapp' });
+      },
       footer: (v, p) =>
         c.arr(v, p, 0, 12, (item, ip) => c.obj(item, ip, { label: c.text(40), target: c.target }, ['label', 'target'])),
     },
@@ -556,6 +630,9 @@ function checkPage(
             c.fail(`${p}[${i}]`, 'hero_position', 'Секция героя одна на странице и стоит первой');
           if (type === 'booking' && types.indexOf('booking') !== i)
             c.fail(`${p}[${i}]`, 'duplicate_booking', 'Секция брони одна на странице');
+          // одна форма на странице: кнопка «Записаться» ведёт к ней, второй цели у неё быть не может
+          if (type === 'leadForm' && (types.indexOf('leadForm') !== i || types.includes('booking')))
+            c.fail(`${p}[${i}]`, 'duplicate_booking', 'Форма заявки одна на странице и не рядом с секцией брони');
         });
       },
     },
@@ -710,10 +787,168 @@ const SECTIONS: Record<string, SectionShape> = {
     fields: (c) => ({ action: c.cta, text: c.text(300), image: c.image }),
     required: ['action'],
   },
+  // ---------- SITE-2: салон, ресторан и общие секции сайта для заявок ----------
+  services: {
+    variants: ['LIST', 'CARDS'],
+    fields: (c) => ({
+      items: (v, p) => {
+        const items = c.arr(v, p, 1, SITE_SPEC_LIMITS.servicesItems, (i, ip) =>
+          c.obj(
+            i,
+            ip,
+            {
+              serviceCode: c.catalogCode,
+              title: c.text(80),
+              description: c.text(300),
+              category: c.text(60),
+              durationMin: c.int(1, 1440),
+              price: c.money,
+              priceFrom: c.bool,
+            },
+            ['serviceCode', 'title'],
+          ));
+        uniqueCodes(c, items, p, 'serviceCode', 'duplicate_service', 'Услуга уже есть в секции');
+        (items ?? []).forEach((item) => {
+          const code = (item as Rec | null)?.['serviceCode'];
+          if (typeof code === 'string') c.serviceCodes.add(code);
+        });
+      },
+      showPrices: c.bool,
+      showDuration: c.bool,
+      groupByCategory: c.bool,
+      itemAction: c.cta,
+    }),
+    required: ['items'],
+  },
+  staff: {
+    variants: ['CARDS', 'LIST'],
+    fields: (c) => ({
+      items: (v, p) => {
+        const items = c.arr(v, p, 1, SITE_SPEC_LIMITS.staffItems, (i, ip) =>
+          c.obj(i, ip, { employeeId: c.uuid, name: c.text(80), specialization: c.text(120), image: c.image }, ['employeeId', 'name']));
+        uniqueCodes(c, items, p, 'employeeId', 'duplicate_employee', 'Мастер уже есть в секции');
+      },
+    }),
+    required: ['items'],
+  },
+  menu: {
+    variants: ['LIST', 'CARDS'],
+    fields: (c) => ({
+      categories: (v, p) => {
+        const cats = c.arr(v, p, 1, SITE_SPEC_LIMITS.menuCategories, (cat, cp) =>
+          c.obj(
+            cat,
+            cp,
+            {
+              title: c.text(80),
+              items: (iv, ipath) => {
+                const items = c.arr(iv, ipath, 1, SITE_SPEC_LIMITS.menuItemsPerCategory, (i, ip) =>
+                  c.obj(
+                    i,
+                    ip,
+                    {
+                      itemCode: c.catalogCode,
+                      title: c.text(120),
+                      description: c.text(300),
+                      weightGrams: c.int(1, 100_000),
+                      price: c.money,
+                      image: c.image,
+                    },
+                    ['itemCode', 'title'],
+                  ));
+                uniqueCodes(c, items, ipath, 'itemCode', 'duplicate_menu_item', 'Блюдо уже есть в меню', c.menuCodes);
+              },
+            },
+            ['title', 'items'],
+          ));
+        // блюдо одно на всё меню, а не только в своём разделе
+        const seen = new Set<string>();
+        (cats ?? []).forEach((cat, ci) => {
+          const items = (cat as Rec | null)?.['items'];
+          if (!Array.isArray(items)) return;
+          const own = new Set<string>();
+          items.forEach((item, ii) => {
+            const code = (item as Rec | null)?.['itemCode'];
+            if (typeof code !== 'string') return;
+            if (seen.has(code) && !own.has(code))
+              c.fail(`${p}[${ci}].items[${ii}].itemCode`, 'duplicate_menu_item', 'Блюдо уже есть в меню');
+            own.add(code);
+          });
+          own.forEach((code) => seen.add(code));
+        });
+        const total = (cats ?? []).reduce<number>((n, cat) => n + (Array.isArray((cat as Rec | null)?.['items']) ? ((cat as Rec)['items'] as unknown[]).length : 0), 0);
+        if (total > SITE_SPEC_LIMITS.menuItems) c.fail(p, 'count', `В меню не больше ${SITE_SPEC_LIMITS.menuItems} блюд`);
+      },
+      showPhotos: c.bool,
+    }),
+    required: ['categories'],
+  },
+  hours: {
+    variants: ['TABLE', 'COMPACT'],
+    fields: (c) => ({
+      days: (v, p) => {
+        const days = c.arr(v, p, 1, 7, (d, dp) => {
+          const day = c.obj(d, dp, { weekday: c.int(0, 6), open: c.clock, close: c.clock }, ['weekday', 'open', 'close']);
+          if (day && typeof day['open'] === 'string' && day['open'] === day['close'])
+            c.fail(join(dp, 'close'), 'invalid_time', 'Время закрытия не равно времени открытия');
+        });
+        const weekdays = (days ?? []).map((d) => (d as Rec | null)?.['weekday']);
+        weekdays.forEach((w, i) => {
+          if (typeof w === 'number' && weekdays.indexOf(w) !== i) c.fail(`${p}[${i}].weekday`, 'duplicate_weekday', 'День недели уже есть');
+        });
+      },
+      note: c.text(300),
+    }),
+    required: ['days'],
+  },
+  leadForm: {
+    variants: ['INLINE', 'CARD'],
+    fields: (c) => ({
+      mode: (v, p) => {
+        const allowed = SITE_LEAD_MODES_BY_VERTICAL[c.vertical as SiteSpecVertical] ?? SITE_LEAD_MODES;
+        c.oneOf(allowed)(v, p);
+      },
+      note: c.text(300),
+      showComment: c.bool,
+      submitLabel: c.text(30),
+    }),
+    required: ['mode'],
+  },
 };
 
+/** Пределы секций SITE-2: документ остаётся в 256 КБ, а форма записи со списком услуг удобна на телефоне */
+export const SITE_SPEC_LIMITS = Object.freeze({
+  servicesItems: 60,
+  staffItems: 30,
+  menuCategories: 30,
+  menuItemsPerCategory: 80,
+  menuItems: 300,
+});
+
 /**
- * Реестр секций v0 наружу: тип и его варианты (MKT4). Рантайм `apps/sites` держит свой явный реестр рендереров, и тест
+ * Какие секции у какого направления (SITE-2). Общие секции (`hero`, `about`, `features`, `gallery`, `contacts`, `faq`,
+ * `cta`, `hours`, `leadForm`, `amenities`) есть у всех; номера, цены «от» и виджет брони только у гостиницы; услуги и
+ * мастера у салона; меню у ресторана.
+ */
+const COMMON_SECTIONS = ['hero', 'about', 'features', 'amenities', 'gallery', 'contacts', 'faq', 'cta', 'hours', 'leadForm'];
+export const SITE_SPEC_SECTIONS_BY_VERTICAL: Readonly<Record<SiteSpecVertical, readonly string[]>> = Object.freeze({
+  HOSPITALITY: [...COMMON_SECTIONS, 'accommodations', 'pricing', 'booking'],
+  BEAUTY: [...COMMON_SECTIONS, 'services', 'staff'],
+  FOOD_SERVICE: [...COMMON_SECTIONS, 'menu'],
+});
+
+/** Коды в списке секции не повторяются; найденные коды можно собрать в общий набор документа */
+function uniqueCodes(c: Checker, items: unknown[] | null, path: string, key: string, code: string, message: string, into?: Set<string>): void {
+  const codes = (items ?? []).map((i) => (i as Rec | null)?.[key]);
+  codes.forEach((value, i) => {
+    if (typeof value !== 'string') return;
+    into?.add(value);
+    if (codes.indexOf(value) !== i) c.fail(`${path}[${i}].${key}`, code, message);
+  });
+}
+
+/**
+ * Реестр секций наружу: тип и его варианты (MKT4). Рантайм `apps/sites` держит свой явный реестр рендереров, и тест
  * сверяет оба: у каждой секции и варианта валидатора есть рендерер, лишних нет.
  */
 export const SITE_SPEC_SECTIONS: Readonly<Record<string, readonly string[]>> = Object.freeze(
@@ -760,5 +995,11 @@ function checkSection(c: Checker, value: unknown, path: string, booking: unknown
   }
   if (type === 'booking' && booking !== 'WETOP_WIDGET')
     c.fail(path, 'booking_disabled', 'Секции брони нужна бронь WETOP в интеграциях сайта');
+  if (type === 'leadForm' && record['mode'] === 'HOTEL_BOOKING' && booking !== 'WETOP_WIDGET')
+    c.fail(join(path, 'mode'), 'booking_disabled', 'Форме брони номера нужна бронь WETOP в интеграциях сайта');
+  if (type === 'leadForm' && record['mode'] === 'BEAUTY_APPOINTMENT') c.appointmentForms.push(join(path, 'mode'));
+  const allowed = SITE_SPEC_SECTIONS_BY_VERTICAL[c.vertical as SiteSpecVertical];
+  if (allowed && !allowed.includes(type as string))
+    c.fail(join(path, 'type'), 'section_not_for_vertical', `Секция «${String(type)}» не для этого направления`);
   return typeof record['id'] === 'string' ? record['id'] : null;
 }

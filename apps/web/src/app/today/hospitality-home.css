@@ -34,7 +34,7 @@
   .hospitality-home .biz-today__tiles { gap: var(--space-2); }
   .hospitality-home .biz-today__tile {
     min-height: 64px;
-    padding: var(--space-3);
+    padding: var(--space-4);
     text-decoration: none;
   }
   .hospitality-home .biz-attention__list {
@@ -45,12 +45,12 @@
   .hospitality-home .biz-attention__list a {
     height: 100%;
     min-height: 80px;
-    padding: var(--space-3);
+    padding: var(--space-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--surface-muted);
     text-decoration: none;
-    gap: var(--space-3);
+    gap: var(--space-4);
   }
   .hospitality-home .biz-attention__list a:hover { background: var(--row-hover); }
   .hospitality-home .biz-attention__count { min-width: 32px; height: 32px; }

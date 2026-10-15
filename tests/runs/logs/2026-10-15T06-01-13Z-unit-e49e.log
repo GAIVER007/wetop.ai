@@ -1,0 +1,23 @@
+# Модульные (unit) · 15.10.2026 11:01 Алматы · MacBook-Air-Urij.local
+# коммит 3d3a4e4 (claude/core-security-fix-20261015), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-15T06-01-13Z-unit-e49e.json' 'tests/unit/db-restore-prod.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/core-sec
+
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 12945ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 2848ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 2623ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 1664ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 2004ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 1700ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 2086ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  10:01:14
+   Duration  13.17s (tests 99%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-15T06-01-13Z-unit-e49e.json
+
+# код выхода 0 · 15 с

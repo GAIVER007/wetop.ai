@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 15.10.2026 10:55 Алматы · MacBook-Air-Urij.local
+# коммит 3d3a4e4 (claude/core-security-fix-20261015), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-15T05-55-41Z-integration-c96f.json' 'tests/integration/onboarding-without-property.test.ts' 'tests/integration/onboarding-concurrency.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/core-sec
+
+ ✓ |integration| tests/integration/onboarding-without-property.test.ts (1 test) 485ms
+   ✓ онбординг организации без объекта (после сброса) (1)
+     ✓ status просит онбординг, provision создаёт объект в цепочке и номера под ним 484ms
+ ✓ |integration| tests/integration/onboarding-concurrency.test.ts (1 test) 284ms
+
+ Test Files  2 passed (2)
+      Tests  2 passed (2)
+   Start at  09:55:42
+   Duration  3.38s (import 46%, tests 30%, transform 24%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-15T05-55-41Z-integration-c96f.json
+
+# код выхода 0 · 4 с

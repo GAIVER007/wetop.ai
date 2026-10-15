@@ -1,0 +1,43 @@
+# Модульные (unit) · 15.10.2026 00:34 Алматы · MacBook-Air-Urij.local
+# коммит b46db14 (claude/core-01-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-34-38Z-unit-818f.json' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/core-01
+
+ ❯ |unit| tests/unit/ui-fixture-address.test.ts (2 tests | 1 failed) 87ms
+   ❯ адрес подставного API в наборе UI (2)
+     × ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API 84ms
+     ✓ FIXTURE_API берёт адрес из UI_FIXTURE_API, а 4311 оставляет умолчанием 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ui-fixture-address.test.ts > адрес подставного API в наборе UI > ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API
+AssertionError: expected [ 'bar-reference.spec.ts' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "bar-reference.spec.ts",
++ ]
+
+ ❯ tests/unit/ui-fixture-address.test.ts:30:41
+     28| describe('адрес подставного API в наборе UI', () => {
+     29|   it('ни один спек не зашивает адрес стенда: он приходит из FIXTURE_AP…
+     30|     expect(specsWithHardcodedAddress()).toEqual([]);
+       |                                         ^
+     31|   });
+     32|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  23:34:40
+   Duration  269ms (tests 77%, transform 13%, import 7%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-34-38Z-unit-818f.json
+
+# код выхода 1 · 2 с

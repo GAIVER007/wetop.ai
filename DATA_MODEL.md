@@ -1820,7 +1820,7 @@ MVP вводится вручную и используется всеми Busin
 | `id` | `uuid` PK | |
 | `organization_id` | `uuid` FK → `organizations` NOT NULL | бизнес принадлежит одной организации; у организации N бизнесов |
 | `name` | `varchar(200)` NOT NULL | «Luxx Hotels», «Alma Beauty» |
-| `vertical` | enum `BusinessVertical` NOT NULL | `HOSPITALITY`, `BEAUTY` — минимальный набор из задачи; вертикаль живёт здесь, не на организации и не на филиале |
+| `vertical` | enum `BusinessVertical` NOT NULL | `HOSPITALITY`, `BEAUTY`, с 04.10.2026 и `FOOD_SERVICE` (поправка MV1, см. хвост файла); вертикаль живёт здесь, не на организации и не на филиале |
 | `status` | enum `BusinessStatus` NOT NULL DEFAULT `ACTIVE` | `ACTIVE`, `ARCHIVED`; удаления строк нет, как во всём §13 |
 | `created_at` / `updated_at` | `timestamptz` NOT NULL | |
 

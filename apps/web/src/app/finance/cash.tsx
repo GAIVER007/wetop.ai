@@ -154,13 +154,16 @@ export function CashPanel({
             ))}
           </div>
           <ReconciliationStatus cash={cash} />
-          <p className="finance-note">
-            Остатки — за всё время: оплаты гостей по способу, минус возвраты, плюс операции кассы.{' '}
-            <Link href={cashOpsHref} data-testid="cash-ops-link">
-              Движения кассы за период — во вкладке «Операции»
-            </Link>
-            .
-          </p>
+          <details className="finance-disclosure">
+            <summary>Как считается остаток</summary>
+            <p className="finance-note">
+              Остатки , за всё время: оплаты гостей по способу, минус возвраты, плюс операции кассы.{' '}
+              <Link href={cashOpsHref} data-testid="cash-ops-link">
+                Движения кассы за период , во вкладке «Операции»
+              </Link>
+              .
+            </p>
+          </details>
         </>
       )}
       {drawer === 'operation' && (

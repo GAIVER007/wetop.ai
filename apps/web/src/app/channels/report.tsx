@@ -82,7 +82,7 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
       <form
         method="get"
         action="/channels"
-        className="row toolbar channels-period"
+        className="row filter-bar channels-period"
         data-testid="channel-period-form"
       >
         <Field label="Заезд с">

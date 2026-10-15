@@ -1,0 +1,16 @@
+# Модульные (unit) · 10.10.2026 12:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8364a37 (claude/market-ai-collector), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-49-28Z-unit-5257.json' 'packages/domain/src/market/occupancy.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ✓ |unit| packages/domain/src/market/occupancy.test.ts (24 tests) 21ms
+
+ Test Files  1 passed (1)
+      Tests  24 passed (24)
+   Start at  00:49:35
+   Duration  784ms (transform 72%, import 21%, tests 4%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-49-28Z-unit-5257.json
+
+# код выхода 0 · 8 с

@@ -1,0 +1,213 @@
+# Сквозные (e2e) · 13.10.2026 13:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3228784 (claude/integrate-422-ui31)
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/ui31-board-width.spec.ts' 'tests/ui/ui31-settings-loading.spec.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/side-nav.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/profile-menu-readiness.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/desktop-compact.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1551ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-422/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 40 tests using 1 worker
+
+  ✘   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (54.0s)
+  ✘   2 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (51.3s)
+  ✓   3 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (41.8s)
+  ✘   4 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (2.3m)
+  ✓   5 tests/ui/desktop-compact.spec.ts:51:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (14.6s)
+  ✓   6 tests/ui/desktop-compact.spec.ts:68:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (34.3s)
+  ✘   7 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (39.1s)
+  ✓   8 tests/ui/marketing.spec.ts:75:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (8.3s)
+  ✓   9 tests/ui/marketing.spec.ts:95:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (5.0s)
+  ✓  10 tests/ui/marketing.spec.ts:185:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (7.7s)
+  ✓  11 tests/ui/marketing.spec.ts:243:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.5s)
+  ✓  12 tests/ui/marketing.spec.ts:265:3 › хаб на компьютере и телефоне, доступность: light (11.1s)
+  ✓  13 tests/ui/marketing.spec.ts:265:3 › хаб на компьютере и телефоне, доступность: dark (10.3s)
+  ✓  14 tests/ui/marketing.spec.ts:320:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (6.3s)
+  ✓  15 tests/ui/navigation.spec.ts:54:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (15.9s)
+  ✓  16 tests/ui/navigation.spec.ts:98:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (10.8s)
+  ✘  17 tests/ui/navigation.spec.ts:125:1 › все пункты меню открывают существующие страницы (1.4m)
+  ✓  18 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: light (9.4s)
+  ✓  19 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: dark (4.2s)
+  ✓  20 tests/ui/navigation.spec.ts:224:1 › «Гости и бронирования»: один пункт меню, список броней под той же вкладкой (2.1s)
+  ✓  21 tests/ui/profile-menu-readiness.spec.ts:52:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (3.3s)
+  ✓  22 tests/ui/profile-menu-readiness.spec.ts:69:1 › после готовности меню открывается обычным кликом (4.4s)
+  ✓  23 tests/ui/profile-menu-readiness.spec.ts:82:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (5.8s)
+  ✓  24 tests/ui/side-nav.spec.ts:49:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу (6.3s)
+  ✓  25 tests/ui/side-nav.spec.ts:103:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (3.6s)
+  ✓  26 tests/ui/side-nav.spec.ts:143:1 › вложенные адреса показывают свой раздел (18.4s)
+  ✓  27 tests/ui/side-nav.spec.ts:174:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (14.7s)
+  ✓  28 tests/ui/side-nav.spec.ts:186:3 › меню без прокрутки вбок и доступное: light (14.3s)
+  ✓  29 tests/ui/side-nav.spec.ts:186:3 › меню без прокрутки вбок и доступное: dark (7.2s)
+  ✓  30 tests/ui/side-nav.spec.ts:241:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (2.1s)
+  ✓  31 tests/ui/ui31-board-width.spec.ts:3:1 › UI3.1: сетка занимает ширину без постоянной сводки дня (9.4s)
+  ✓  32 tests/ui/ui31-settings-loading.spec.ts:3:1 › UI3.1: переход в настройки показывает загрузку до ответа API (9.5s)
+  ✓  33 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (15.0s)
+  ✓  34 tests/ui/ui31-shell.spec.ts:40:1 › UI3.1: mobile освобождает низ и возвращает фокус (5.9s)
+  ✓  35 tests/ui/ui31-shell.spec.ts:60:1 › UI3.1: переход закрывает меню, active route сохраняется (4.5s)
+  ✓  36 tests/ui/ui31-shell.spec.ts:77:1 › UI3.1: граница desktop/mobile и узкий экран (4.5s)
+  ✓  37 tests/ui/ui31-shell.spec.ts:111:1 › UI3.1: размеры целей шапки и мобильной поверхности (2.1s)
+  ✓  38 tests/ui/ui31-shell.spec.ts:136:3 › UI3.1: история периода закрывает меню 1440 (3.3s)
+  ✓  39 tests/ui/ui31-shell.spec.ts:136:3 › UI3.1: история периода закрывает меню 390 (4.0s)
+  ✓  40 tests/ui/ui31-shell.spec.ts:159:1 › UI3.1: мобильный переход фокусирует готовое содержимое (3.0s)
+
+
+  1) tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор ────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: net::ERR_ABORTED; maybe frame was detached?
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+       6 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+       7 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    >  8 |   await page.waitForURL('**/finance');
+         |              ^
+       9 |   await page.goto('/branches');
+      10 |   const main = page.getByRole('main');
+      11 |   await expect(main.getByRole('heading', { name: 'Организация и филиалы' })).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-422/tests/ui/branches.spec.ts:8:14
+
+    Error Context: test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Email', { exact: true })
+
+
+      37 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      38 |   await page.goto('/auth/fallback');
+    > 39 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+         |                                                   ^
+      40 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      41 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      42 |   await page.waitForURL('**/finance');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-422/tests/ui/branches.spec.ts:39:51
+
+    Error Context: test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы 
+
+    Test timeout of 135000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 135000ms exceeded.
+
+      42 |     await page.goto(route);
+      43 |     await expect(page.getByRole('main')).toBeVisible();
+    > 44 |     const over = await page.evaluate(
+         |                             ^
+      45 |       () => document.documentElement.scrollHeight - window.innerHeight,
+      46 |     );
+      47 |     expect(over, `${route}: страница выше экрана на ${over} px`).toBeLessThanOrEqual(8);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-422/tests/ui/desktop-compact.spec.ts:44:29
+
+    Error Context: test-results/desktop-compact-ноутбук-14-f9b79-ются-без-прокрутки-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop-compact-ноутбук-14-f9b79-ются-без-прокрутки-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop-compact-ноутбук-14-f9b79-ются-без-прокрутки-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/marketing$/
+    Received string:  "http://127.0.0.1:3108/finance"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        27 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3108/finance"
+
+
+      62 |   await expect(siteLink).toBeFocused();
+      63 |   await page.keyboard.press('Enter');
+    > 64 |   await expect(page).toHaveURL(/\/marketing$/);
+         |                      ^
+      65 |   await expect(trigger).toHaveText('Маркетинг');
+      66 |   await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Сайт и SEO');
+      67 |   // «Продажи» без сайта
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-422/tests/ui/marketing.spec.ts:64:22
+
+    Error Context: test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/navigation.spec.ts:125:1 › все пункты меню открывают существующие страницы ───────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/team$/
+    Received string:  "http://127.0.0.1:3108/hotel-settings"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        20 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3108/hotel-settings"
+
+
+      139 |       const href = await link.getAttribute('href');
+      140 |       await link.click();
+    > 141 |       await expect(page).toHaveURL(new RegExp(`${href}$`));
+          |                          ^
+      142 |       await expect(
+      143 |         page
+      144 |           .getByRole('main')
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-422/tests/ui/navigation.spec.ts:141:26
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор ─────────────
+    tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload 
+    tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы 
+    tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп 
+    tests/ui/navigation.spec.ts:125:1 › все пункты меню открывают существующие страницы ────────────
+  35 passed (14.8m)
+
+# код выхода 1 · 15 мин 6 с

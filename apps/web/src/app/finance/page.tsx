@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
-import { hotelToday, reservationStatusWords, validDate } from '../../lib/hotel-api';
+import { hotelToday, plusDays, validDate } from '../../lib/hotel-api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import { displayDate } from '../../lib/display-date';
 import { can } from '@pms/domain';
@@ -37,6 +37,21 @@ import {
 import { DateInput } from '../../components/date-field';
 import '../directory.css';
 import './finance.css';
+import './owner-dashboard.css';
+import './attention.css';
+import './overview.css';
+import { DateRangePopover } from '../../components/date-range-popover';
+import {
+  AnalyticsCta,
+  ExpenseCategories,
+  FinanceDynamics,
+  FinanceKpis,
+  FinanceReports,
+  IncomeStructure,
+  dailyFlow,
+} from './finance-board';
+import './finance-board.css';
+import { MoneyOverview, RecentOperations } from './overview';
 import { FinanceWorkspace } from './workspace';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 import { operationFilter } from './operation-filter';
@@ -70,10 +85,10 @@ const byAmount = <T extends { amountMinor: string }>(xs: T[]) =>
   });
 
 /**
- * «Финансы за период», срез F1 (ADR-113, план `plans/finance-f1-2026-09-27.md`). Экран отвечает на три вопроса
- * за секунды: сколько начислили, сколько получили, сколько ещё собрать и с кого. Сверху — период одной строкой и
- * четыре итога в ряд; под ними — что требует внимания; дальше — из чего сложились деньги; внизу — брони с
- * остатком, по которым можно работать. Числа итогов — прежние поля `/finance/report`; список долгов —
+ * «Финансы», единый раздел гостиницы (план `plans/finance-home-merge-2026-10-09.md`): сверху блоки
+ * прежней Главной (загрузка с прогнозом, события дня, «Требуют внимания») и сводка кассы на месте
+ * блока «Деньги»; ниже касса по ADR-113/§21: фильтры, лента операций по «Показать», свёрнутые
+ * отчёты и управление. Числа итогов: прежние поля `/finance/report`; список долгов из
  * `/finance/debts`. Отказ одного запроса не роняет другой и не выдаётся за нули.
  */
 export default async function FinanceReportPage({
@@ -81,7 +96,17 @@ export default async function FinanceReportPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  // Ресторан и салон: свои финансовые экраны (restaurant-finance, cashbox); общий /finance перенаправляет
+  if (me.context?.vertical === 'FOOD_SERVICE') {
+    const { redirect } = await import('next/navigation');
+    redirect('/restaurant-finance');
+  }
+  if (me.context?.vertical === 'BEAUTY') {
+    // Салон пока не имеет собственного финансового модуля: показываем упрощённый экран выручки из записей
+    const { BeautyFinanceScreen } = await import('./beauty-finance');
+    return <BeautyFinanceScreen />;
+  }
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const yesterday = new Date(`${cal.today}T00:00:00Z`);
@@ -104,24 +129,36 @@ export default async function FinanceReportPage({
     );
   const filter = operationFilter(sp.op, sp.method, sp.src);
   const opsAll = sp.ops === 'all';
-  const [loaded, debtsLoaded, opsLoaded, shell, cashLoaded, servicesLoaded, periodOpsLoaded] =
-    await Promise.all([
-      valid ? settle(financeApi.report(from, to)) : null,
-      valid ? settle(financeApi.debts(from, to)) : null,
-      valid
-        ? settle(
-            financeApi.operations(from, to, { ...filter, limit: opsAll ? OPS_ALL : OPS_SHOWN }),
-          )
-        : null,
-      deskShell(),
-      // Касса (§21): остатки за всё время и статьи одним запросом, от периода не зависят.
-      settle(financeApi.cash()),
-      // отчёт по услугам (REP2): то же окно, что у сводки
-      valid ? settle(financeApi.servicesReport(from, to)) : null,
-      valid && (filter.type || filter.method || filter.source)
-        ? settle(financeApi.operations(from, to, { limit: 1 }))
-        : null,
-    ]);
+  // прошлый отрезок той же длины: сравнения плиток обзора (план finance-overview-2026-10-09)
+  const prevTo = dates ? plusDays(from, -1) : from;
+  const prevFrom = dates ? plusDays(from, -days) : from;
+  const [
+    loaded,
+    debtsLoaded,
+    opsLoaded,
+    shell,
+    cashLoaded,
+    servicesLoaded,
+    periodOpsLoaded,
+    prevOpsLoaded,
+    prevReportLoaded,
+  ] = await Promise.all([
+    valid ? settle(financeApi.report(from, to)) : null,
+    valid ? settle(financeApi.debts(from, to)) : null,
+    // лента и график обзора из одного ответа: всегда до OPS_ALL строк, лента ниже режется сама
+    valid ? settle(financeApi.operations(from, to, { ...filter, limit: OPS_ALL })) : null,
+    deskShell(),
+    // Касса (§21): остатки за всё время и статьи одним запросом, от периода не зависят.
+    settle(financeApi.cash()),
+    // отчёт по услугам (REP2): то же окно, что у сводки
+    valid ? settle(financeApi.servicesReport(from, to)) : null,
+    valid && (filter.type || filter.method || filter.source)
+      ? settle(financeApi.operations(from, to, { limit: OPS_ALL }))
+      : null,
+    valid ? settle(financeApi.operations(prevFrom, prevTo, { limit: 1 })) : null,
+    // «Общий доход» к прошлому периоду: тот же отчёт за отрезок той же длины (эталон «Финансы» 13.10.2026)
+    valid ? settle(financeApi.report(prevFrom, prevTo)) : null,
+  ]);
   const r = loaded?.ok ? loaded.r : null;
   const loadError = loaded && !loaded.ok ? loaded.e : null;
   const debts = debtsLoaded?.ok ? debtsLoaded.r : null;
@@ -131,6 +168,7 @@ export default async function FinanceReportPage({
   const periodOpsResult = periodOpsLoaded ?? opsLoaded;
   const periodOps = periodOpsResult?.ok ? periodOpsResult.r : null;
   const periodOpsError = periodOpsResult && !periodOpsResult.ok ? periodOpsResult.e : null;
+  const prevOps = prevOpsLoaded?.ok ? prevOpsLoaded.r : null;
   const cashBalances = cashLoaded.ok ? cashLoaded.r : null;
   const cashError = !cashLoaded.ok ? cashLoaded.e : null;
   const services = servicesLoaded?.ok ? servicesLoaded.r : null;
@@ -143,6 +181,22 @@ export default async function FinanceReportPage({
   const period = `/finance?from=${from}&to=${to}`;
   const preset = (p: { from: string; to: string }) => `/finance?from=${p.from}&to=${p.to}`;
   const isPreset = (p: { from: string; to: string }) => p.from === from && p.to === to;
+  // деньги обзора: поступления, возвраты и расходы кассовыми правилами (finance-cash-first), в BigInt.
+  // Решение владельца 13.10.2026: возврат гостю не «расход», а отдельная строка «Возвраты»
+  const income = periodOps ? BigInt(periodOps.paidMinor) + BigInt(periodOps.incomeMinor) : null;
+  const refunds = periodOps ? BigInt(periodOps.refundedMinor) : null;
+  const expense = periodOps ? BigInt(periodOps.expenseMinor) : null;
+  const sums = {
+    income,
+    refunds,
+    expense,
+    prevIncome: prevOps ? BigInt(prevOps.paidMinor) + BigInt(prevOps.incomeMinor) : null,
+    prevRefunds: prevOps ? BigInt(prevOps.refundedMinor) : null,
+    prevExpense: prevOps ? BigInt(prevOps.expenseMinor) : null,
+    currency: periodOps?.currency ?? cashBalances?.currency ?? 'KZT',
+  };
+  // лента ниже по-прежнему начинается с двадцати строк; полный ответ остаётся графику и «Показать все»
+  const opsForList = ops && !opsAll ? { ...ops, rows: ops.rows.slice(0, OPS_SHOWN) } : ops;
   // Q-206: «К сбору» — сумма того же списка долгов, куда ведёт плитка: число сверху всегда равно сумме строк
   const due = debts ? BigInt(debts.balanceMinor) : 0n;
   const onlyOverdue = sp.debts === 'overdue';
@@ -167,65 +221,102 @@ export default async function FinanceReportPage({
   if (opParam) exportQuery.set('op', opParam);
   if (filter.method) exportQuery.set('method', filter.method);
   if (srcParam) exportQuery.set('src', srcParam);
+  const prevReport = prevReportLoaded?.ok ? prevReportLoaded.r : null;
+  const flow = periodOps ? dailyFlow(periodOps.rows, from, to) : [];
+  const profit =
+    sums.income !== null && sums.refunds !== null && sums.expense !== null
+      ? sums.income - sums.refunds - sums.expense
+      : null;
+  const prevProfit =
+    sums.prevIncome !== null && sums.prevRefunds !== null && sums.prevExpense !== null
+      ? sums.prevIncome - sums.prevRefunds - sums.prevExpense
+      : null;
+  const kindLabel = (kind: string) => KINDS.find(([k]) => k === kind)?.[1] ?? kind;
   return (
-    <Page title="Касса">
-      <section className="cash-summary" aria-label="Итоги кассы" data-testid="cash-summary">
-        <div className="cash-summary__balance">
-          <span className="cash-summary__label">
-            Всего <small>за всё время</small>
-          </span>
-          <strong data-testid="cash-balance">
-            {cashBalances
-              ? formatMoney(cashBalances.totalMinor, cashBalances.currency)
-              : 'Нет данных'}
-          </strong>
-        </div>
-        <div className="cash-summary__period">
-          <a href="#finance-filters" className="cash-summary__label" data-testid="finance-period">
-            За период с {displayDate(from, 'numeric')} по {displayDate(to, 'numeric')}
+    <Page
+      title="Финансы"
+      subtitle="Доходы, расходы и финансовые показатели вашего бизнеса"
+      width="full"
+      actions={
+        <>
+          {/* один контрол периода (Q-DES-1) вместо «Сегодня / 7 дней / Месяц» и строки дат */}
+          <div className="fin-period">
+            <DateRangePopover
+              from={from}
+              to={to}
+              today={cal.today}
+              maxDays={MAX_REPORT_DAYS}
+              action="/finance"
+              triggerTestId="finance-period"
+              compact
+            />
+            {dates && (
+              <>
+                <Link
+                  className="icon-button"
+                  href={preset({ from: prevFrom, to: prevTo })}
+                  aria-label="Предыдущий период"
+                >
+                  <Icon name="chevron" className="rotate-left" />
+                </Link>
+                <Link
+                  className="icon-button"
+                  href={preset({ from: plusDays(to, 1), to: plusDays(to, days) })}
+                  aria-label="Следующий период"
+                >
+                  <Icon name="chevron" />
+                </Link>
+              </>
+            )}
+          </div>
+          <a
+            className="btn"
+            href={`/finance/export?${exportQuery}`}
+            data-testid="finance-export-top"
+          >
+            Экспорт
           </a>
-          <dl>
-            <div className="cash-summary__income">
-              <dt>Поступления</dt>
-              <dd data-testid="cash-period-income">
-                {periodOps
-                  ? formatMoney(
-                      BigInt(periodOps.paidMinor) + BigInt(periodOps.incomeMinor),
-                      periodOps.currency,
-                    )
-                  : 'Нет данных'}
-              </dd>
-            </div>
-            <div className="cash-summary__expense">
-              <dt>Расходы</dt>
-              <dd data-testid="cash-period-expense">
-                {periodOps
-                  ? formatMoney(
-                      BigInt(periodOps.refundedMinor) + BigInt(periodOps.expenseMinor),
-                      periodOps.currency,
-                    )
-                  : 'Нет данных'}
-              </dd>
-            </div>
-          </dl>
+        </>
+      }
+    >
+      {/* «Финансы» по эталону владельца 13.10.2026: только деньги. Загрузка, события дня и задачи
+          вернулись на «Главную» (/today); числа считаются из тех же ответов API, что раньше */}
+      <div className="fin-board" data-testid="finance-board">
+        <FinanceKpis
+          charged={r ? BigInt(r.chargedMinor) : null}
+          prevCharged={prevReport ? BigInt(prevReport.chargedMinor) : null}
+          income={sums.income}
+          prevIncome={sums.prevIncome}
+          expense={sums.expense}
+          prevExpense={sums.prevExpense}
+          profit={profit}
+          prevProfit={prevProfit}
+          currency={sums.currency}
+          flow={flow}
+        />
+        <div className="fin-row fin-row--wide">
+          <FinanceDynamics flow={flow} currency={sums.currency} />
+          <IncomeStructure report={r} kindLabel={kindLabel} />
         </div>
-        {cashBalances && (
-          <details className="cash-summary__methods">
-            <summary>
-              <Icon name="chevron" />
-              Баланс по способам оплаты
-            </summary>
-            <dl>
-              {cashBalances.balances.map((balance) => (
-                <div key={balance.method}>
-                  <dt>{METHOD_RU[balance.method] ?? balance.method}</dt>
-                  <dd>{formatMoney(balance.balanceMinor, cashBalances.currency)}</dd>
-                </div>
-              ))}
-            </dl>
-          </details>
-        )}
-      </section>
+        <div className="fin-row fin-row--wide">
+          <RecentOperations ops={periodOps} period={period} />
+          <ExpenseCategories ops={periodOps} allHref={opsHref({ op: 'expense' })} />
+        </div>
+        <div className="fin-row fin-row--three">
+          {/* «Платежи и транзакции» эталона: «Финансовый обзор» с возвратами отдельной строкой
+              (ADR-176) и «Остатком на счетах» по способам */}
+          <MoneyOverview
+            sums={sums}
+            ops={periodOps}
+            from={from}
+            to={to}
+            cash={cashBalances}
+            detailsHref={`${period}&show=1#operations`}
+          />
+          <FinanceReports exportHref={`/finance/export?${exportQuery}`} from={from} to={to} />
+          <AnalyticsCta />
+        </div>
+      </div>
       {cashError !== null && (
         <LoadError testId="cash-summary-error" {...loadErrorProps(cashError)} />
       )}
@@ -457,6 +548,7 @@ export default async function FinanceReportPage({
                   <SectionTitle first>По видам начислений</SectionTitle>
                   <MoneyTable
                     testId="charges-table"
+                    label="Начисления по видам"
                     head={['Вид', 'Штук', 'Сумма']}
                     cur={cur}
                     rows={KINDS.map(([kind, label]) => {
@@ -475,6 +567,7 @@ export default async function FinanceReportPage({
                     <summary>Проживание по категориям</summary>
                     <MoneyTable
                       testId="category-table"
+                      label="Проживание по категориям"
                       head={['Категория', 'Проживаний', 'Сумма']}
                       cur={cur}
                       empty="Начислений за проживание за период нет"
@@ -490,6 +583,7 @@ export default async function FinanceReportPage({
                   <SectionTitle first>Оплаты по способам</SectionTitle>
                   <MoneyTable
                     testId="payments-table"
+                    label="Оплаты по способам"
                     head={['Способ', 'Операций', 'Сумма']}
                     cur={cur}
                     empty="Оплат за период нет"
@@ -613,9 +707,9 @@ export default async function FinanceReportPage({
                 {opsError !== null && (
                   <LoadError testId="ops-error" {...loadErrorProps(opsError)} />
                 )}
-                {ops && (
+                {opsForList && (
                   <Operations
-                    ops={ops}
+                    ops={opsForList}
                     type={filter.type}
                     method={filter.method}
                     all={opsAll}
@@ -908,10 +1002,7 @@ function DebtList({
                     )}
                   </td>
                   <td>
-                    <StatusBadge
-                      status={x.status}
-                      label={reservationStatusWords[x.status] || x.status}
-                    />
+                    <StatusBadge kind="hospitality" value={x.status} />
                   </td>
                   <td className="finance-debts__actions">
                     {canPay && (
@@ -1110,6 +1201,7 @@ function Operations({
 
 function MoneyTable({
   head,
+  label,
   rows,
   cur,
   testId,
@@ -1117,6 +1209,7 @@ function MoneyTable({
   total,
 }: {
   head: [string, string, string];
+  label: string;
   rows: Array<{ label: string; count: number; amountMinor: string; href?: string }>;
   cur: string;
   testId: string;
@@ -1125,7 +1218,7 @@ function MoneyTable({
   total?: string | undefined;
 }) {
   return (
-    <Table size="sm" data-testid={testId}>
+    <Table size="sm" data-testid={testId} aria-label={label}>
       <thead>
         <tr>
           {head.map((h, i) => (

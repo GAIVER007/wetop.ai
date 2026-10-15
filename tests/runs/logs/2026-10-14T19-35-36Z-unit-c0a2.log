@@ -1,0 +1,16 @@
+# Модульные (unit) · 15.10.2026 00:35 Алматы · MacBook-Air-Urij.local
+# коммит b46db14 (claude/core-01-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-35-36Z-unit-c0a2.json' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/core-01
+
+ ✓ |unit| tests/unit/ui-fixture-address.test.ts (2 tests) 59ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  23:35:38
+   Duration  259ms (tests 52%, transform 29%, import 14%, worker 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-35-36Z-unit-c0a2.json
+
+# код выхода 0 · 2 с

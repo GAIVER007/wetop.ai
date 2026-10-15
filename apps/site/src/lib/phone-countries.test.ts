@@ -14,6 +14,7 @@ describe('страны телефона главной = домена', () => {
       [['ru'], 'UTC'],
       [['fr-FR'], 'Europe/Paris'],
       [[], 'Asia/Dubai'],
+      [[], 'Asia/Qatar'],
     ];
     for (const [langs, tz] of cases) {
       expect(defaultPhoneCountry(langs, tz), `${langs.join(',')} ${tz}`).toBe(domain.defaultPhoneCountry(langs, tz));

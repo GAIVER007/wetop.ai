@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 09.10.2026 18:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (main), незакоммиченных файлов набора: 58
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/theme-transition.spec.ts' '--workers=1' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/theme-transition.spec.ts:10:1 › после смены темы тема применена и переходов цвета в полёте нет (3.1s)
+  ✘  2 tests/ui/theme-transition.spec.ts:29:1 › axe замеряет после конца анимаций на странице (2.4s)
+
+
+  1) tests/ui/theme-transition.spec.ts:29:1 › axe замеряет после конца анимаций на странице ────────
+
+    Error: анимаций в полёте к моменту замера
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 1
+
+      40 |     () => document.getAnimations().filter((a) => a.playState === 'running').length,
+      41 |   );
+    > 42 |   expect(running, 'анимаций в полёте к моменту замера').toBe(0);
+         |                                                         ^
+      43 | });
+      44 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/theme-transition.spec.ts:42:57
+
+    Error Context: test-results/theme-transition-axe-замер-0c146--конца-анимаций-на-странице/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/theme-transition-axe-замер-0c146--конца-анимаций-на-странице/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/theme-transition-axe-замер-0c146--конца-анимаций-на-странице/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/theme-transition.spec.ts:29:1 › axe замеряет после конца анимаций на странице ─────────
+  1 passed (10.1s)
+
+# код выхода 1 · 11 с

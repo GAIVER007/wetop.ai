@@ -1,0 +1,11 @@
+# Сквозные (e2e) · 12.10.2026 18:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 981d250 (claude/ui-master-pass2), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/system-screens.spec.ts:305'
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (10.5s)
+
+  1 passed (14.4s)
+
+# код выхода 0 · 16 с

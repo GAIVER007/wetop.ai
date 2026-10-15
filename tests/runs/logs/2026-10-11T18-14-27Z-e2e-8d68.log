@@ -1,0 +1,107 @@
+# Сквозные (e2e) · 11.10.2026 23:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит c871865 (codex/compact-navigation-20261011), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/global-search-navigation.spec.ts' '--workers=1'
+[WebServer] (node:17154) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17193) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17234) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17235) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:17239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/global-search-navigation.spec.ts:7:1 › поиск гостиницы предлагает гостиничные разделы и открывает календарь (17.9s)
+(node:17284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/global-search-navigation.spec.ts:21:1 › поиск не предлагает закрытый роли журнал (17.0s)
+
+
+  1) tests/ui/global-search-navigation.spec.ts:7:1 › поиск гостиницы предлагает гостиничные разделы и открывает календарь 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('dialog', { name: 'Быстрый поиск' }).getByRole('link', { name: 'План зала', exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('dialog', { name: 'Быстрый поиск' }).getByRole('link', { name: 'План зала', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Быстрый поиск' }).getByRole('link', { name: 'План зала', exact: true })
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+       9 |   await page.getByRole('button', { name: 'Найти гостя или бронь', exact: true }).click();
+      10 |   const dialog = page.getByRole('dialog', { name: 'Быстрый поиск' });
+    > 11 |   await expect(dialog.getByRole('link', { name: 'План зала', exact: true })).toHaveCount(0);
+         |                                                                              ^
+      12 |   await expect(dialog.getByRole('link', { name: 'Кухня', exact: true })).toHaveCount(0);
+      13 |   await dialog.getByRole('textbox', { name: 'Запрос' }).fill('Календарь');
+      14 |   const calendar = dialog.getByRole('link', { name: 'Календарь', exact: true });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/global-search-navigation.spec.ts:11:78
+
+    Error Context: test-results/global-search-navigation-п-541b4-зделы-и-открывает-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/global-search-navigation-п-541b4-зделы-и-открывает-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/global-search-navigation-п-541b4-зделы-и-открывает-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/global-search-navigation.spec.ts:21:1 › поиск не предлагает закрытый роли журнал ─────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('dialog', { name: 'Быстрый поиск' }).getByRole('link', { name: /Журнал/ })
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('dialog', { name: 'Быстрый поиск' }).getByRole('link', { name: /Журнал/ }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Быстрый поиск' }).getByRole('link', { name: /Журнал/ })
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      25 |   const dialog = page.getByRole('dialog', { name: 'Быстрый поиск' });
+      26 |   await dialog.getByRole('textbox', { name: 'Запрос' }).fill('Журнал');
+    > 27 |   await expect(dialog.getByRole('link', { name: /Журнал/ })).toHaveCount(0);
+         |                                                              ^
+      28 |   await expect(dialog).toContainText('Нет разделов с таким названием');
+      29 |   await dialog.getByRole('textbox', { name: 'Запрос' }).press('Escape');
+      30 |   await expect(dialog).toBeHidden();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/global-search-navigation.spec.ts:27:62
+
+    Error Context: test-results/global-search-navigation-п-75a02-лагает-закрытый-роли-журнал/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/global-search-navigation-п-75a02-лагает-закрытый-роли-журнал/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/global-search-navigation-п-75a02-лагает-закрытый-роли-журнал/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/global-search-navigation.spec.ts:7:1 › поиск гостиницы предлагает гостиничные разделы и открывает календарь 
+    tests/ui/global-search-navigation.spec.ts:21:1 › поиск не предлагает закрытый роли журнал ──────
+
+# код выхода 1 · 43 с

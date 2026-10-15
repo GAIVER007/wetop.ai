@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 13.10.2026 11:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 789517d (worktree-marketing-module-b1), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/marketing-budget.spec.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/side-nav.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 22 tests using 1 worker
+
+  ✓   1 tests/ui/marketing-budget.spec.ts:55:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный (4.2s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   2 tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают (3.2s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   3 tests/ui/marketing-budget.spec.ts:99:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление (2.8s)
+  ✓   4 tests/ui/marketing-budget.spec.ts:136:1 › аналитика маркетинга: расходы с динамикой, эффективность источников, честные «Недостаточно данных» (1.7s)
+  ✓   5 tests/ui/marketing-budget.spec.ts:162:1 › переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту (921ms)
+  ✓   6 tests/ui/marketing-budget.spec.ts:176:3 › снимки и доступность: light (4.6s)
+  ✓   7 tests/ui/marketing-budget.spec.ts:176:3 › снимки и доступность: dark (4.0s)
+  ✓   8 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (4.6s)
+  ✓   9 tests/ui/marketing.spec.ts:73:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (4.7s)
+  ✓  10 tests/ui/marketing.spec.ts:93:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (2.7s)
+  ✓  11 tests/ui/marketing.spec.ts:183:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (5.7s)
+  ✓  12 tests/ui/marketing.spec.ts:241:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (13.1s)
+  ✓  13 tests/ui/marketing.spec.ts:263:3 › хаб на компьютере и телефоне, доступность: light (18.2s)
+  ✓  14 tests/ui/marketing.spec.ts:263:3 › хаб на компьютере и телефоне, доступность: dark (11.0s)
+  ✓  15 tests/ui/marketing.spec.ts:318:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (8.4s)
+  ✓  16 tests/ui/side-nav.spec.ts:51:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню (7.4s)
+  ✓  17 tests/ui/side-nav.spec.ts:103:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (4.9s)
+  ✓  18 tests/ui/side-nav.spec.ts:143:1 › вложенные адреса показывают свой раздел (11.7s)
+  ✓  19 tests/ui/side-nav.spec.ts:174:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (2.4s)
+  ✓  20 tests/ui/side-nav.spec.ts:186:3 › меню без прокрутки вбок и доступное: light (4.4s)
+  ✓  21 tests/ui/side-nav.spec.ts:186:3 › меню без прокрутки вбок и доступное: dark (3.8s)
+  ✓  22 tests/ui/side-nav.spec.ts:241:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (2.0s)
+
+  22 passed (2.3m)
+
+# код выхода 0 · 2 мин 22 с

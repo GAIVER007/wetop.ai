@@ -1,0 +1,30 @@
+{
+ "/guests/ui-guest": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гость Тестовый",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:14 окт. → 17 окт. 2026 147x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гость Тестовый",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гость Тестовый",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

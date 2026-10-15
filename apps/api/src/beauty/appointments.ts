@@ -29,6 +29,11 @@ import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
 
+/** Код P2002 у Prisma: нарушен уникальный индекс. Другие ошибки базы не глотаем. */
+function isUniqueViolation(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && (error as { code?: unknown }).code === 'P2002';
+}
+
 /**
  * Журнал записей салона (DATA_MODEL §19.1, срез B5): день филиала столбцами по мастерам.
  *
@@ -207,16 +212,28 @@ export class BeautyAppointmentsService {
           : null;
         if (known && known.status !== 'ACTIVE') throw new ConflictException('Клиент в архиве');
         customerId = known?.id ?? randomUUID();
-        if (!known)
-          await tx.customer.create({
-            data: {
-              id: customerId,
-              organizationId: scope.organizationId,
-              firstName: input.customer.firstName,
-              lastName: input.customer.lastName,
-              phone: input.customer.phone,
-            },
-          });
+        if (!known) {
+          try {
+            await tx.customer.create({
+              data: {
+                id: customerId,
+                organizationId: scope.organizationId,
+                firstName: input.customer.firstName,
+                lastName: input.customer.lastName,
+                phone: input.customer.phone,
+              },
+            });
+          } catch (error) {
+            // Гонка: параллельный запрос с тем же новым телефоном успел раньше (двойная отправка формы, два окна).
+            // Уникальный индекс (organization_id, phone) не даёт завести второго клиента; проигравший откатывается
+            // целиком и получает понятный 409 (CORE-SECURITY-FIX-01, U3-b). Повтор найдёт клиента по телефону.
+            if (isUniqueViolation(error))
+              throw new ConflictException(
+                'Клиент с таким телефоном уже записывается: повторите запись через несколько секунд',
+              );
+            throw error;
+          }
+        }
       }
       // клиент становится виден бизнесу при первом обращении в него (§19.1)
       await tx.customerBusiness.createMany({

@@ -1,0 +1,66 @@
+# Сквозные (e2e) · 14.10.2026 16:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5413b09 (claude/restaurant-module-tz), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-customers.spec.ts' 'tests/ui/beauty-catalog.spec.ts' '--workers=1'
+[WebServer] (node:21242) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21277) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21315) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+(node:21510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21719) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/beauty-catalog.spec.ts:49:1 › услуга каталога добавляется и видна в списке (7.9s)
+[WebServer] (node:21740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/beauty-catalog.spec.ts:62:1 › филиал включает услугу и ставит свою цену (4.9s)
+[WebServer] (node:21753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/beauty-catalog.spec.ts:85:1 › ошибки услуги словами, введённое не стирается (3.5s)
+[WebServer] (node:21760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/beauty-catalog.spec.ts:100:1 › мастер добавляется, умения ставятся и снимаются (7.6s)
+[WebServer] (node:21788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/beauty-catalog.spec.ts:138:1 › каталог салона на телефоне: без прокрутки вбок (5.5s)
+[WebServer] (node:21798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/beauty-catalog.spec.ts:157:3 › каталог салона доступен в светлой теме (13.2s)
+[WebServer] (node:21829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/beauty-catalog.spec.ts:157:3 › каталог салона доступен в тёмной теме (10.0s)
+[WebServer] (node:21846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/beauty-customers.spec.ts:114:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE (14.4s)
+[WebServer] (node:21861) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/beauty-customers.spec.ts:132:1 › поиск и сегмент отбирают строки, итог говорит сколько показано (11.2s)
+[WebServer] (node:21877) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/beauty-customers.spec.ts:155:1 › клиенты на телефоне: без прокрутки вбок (12.8s)
+[WebServer] (node:22027) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/beauty-customers.spec.ts:164:3 › клиенты доступны в светлой теме (10.7s)
+[WebServer] (node:22054) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/beauty-customers.spec.ts:164:3 › клиенты доступны в тёмной теме (10.9s)
+
+  12 passed (2.0m)
+
+# код выхода 0 · 2 мин 4 с

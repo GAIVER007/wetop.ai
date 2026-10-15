@@ -10,6 +10,10 @@ import type { MembershipRole } from '@pms/domain';
 import { FoodModule } from '../../apps/api/src/food-service/food.module';
 import { BeautyModule } from '../../apps/api/src/beauty/beauty.module';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import {
+  MemorySiteAssetStorage,
+  SITE_ASSET_STORAGE,
+} from '../../apps/api/src/marketing-site/asset-storage';
 import { AuthorInterceptor } from '../../apps/api/src/auth/author.interceptor';
 import { RoleGuard } from '../../apps/api/src/auth/role.guard';
 import { Access } from '../../apps/api/src/auth/access.decorator';
@@ -98,6 +102,9 @@ const module = await Test.createTestingModule({
 })
   .overrideProvider(PrismaService)
   .useValue(prisma)
+  // фото блюд (§37): хранилище в памяти; адреса подписаны, но картинка в браузере не грузится (проверяется адрес)
+  .overrideProvider(SITE_ASSET_STORAGE)
+  .useValue(new MemorySiteAssetStorage('https://assets.storage.test'))
   .compile();
 const app = module.createNestApplication();
 app.use(
@@ -136,7 +143,17 @@ app.use(
                 where: { business: { organizationId: org } },
                 data: { status: 'ARCHIVED' },
               });
-              await db.organization.update({ where: { id: org }, data: { status: 'ACTIVE' } });
+              // «marker guarded cleanup» сносит организацию и пользователя; следующий спек начинает заново
+              await db.organization.upsert({
+                where: { id: org },
+                create: { id: org, name: `MV7-browser-${org}`, status: 'ACTIVE' },
+                update: { status: 'ACTIVE' },
+              });
+              await db.user.upsert({
+                where: { id: user },
+                create: { id: user, name: 'Тестовый владелец', email: `mv7-${user}@example.invalid` },
+                update: {},
+              });
               const b1 = await db.business.create({
                 data: {
                   organizationId: org,
@@ -198,6 +215,15 @@ app.use(
               if (marker.name !== `MV7-browser-${org}`) throw new Error('Marker mismatch');
               const b = { organizationId: org };
               await db.$transaction(async (tx) => {
+                await tx.restaurantOrderItem.deleteMany({
+                  where: { order: { location: { business: b } } },
+                });
+                await tx.restaurantOrder.deleteMany({ where: { location: { business: b } } });
+                await tx.menuItemIngredient.deleteMany({ where: { menuItem: { business: b } } });
+                await tx.menuItem.deleteMany({ where: { business: b } });
+                await tx.menuCategory.deleteMany({ where: { business: b } });
+                await tx.employeePayAdjustment.deleteMany({ where: { employee: { business: b } } });
+                await tx.employeePaySetting.deleteMany({ where: { employee: { business: b } } });
                 await tx.tableAssignment.deleteMany({
                   where: { reservation: { location: { business: b } } },
                 });
@@ -205,6 +231,8 @@ app.use(
                 await tx.diningTable.deleteMany({ where: { area: { location: { business: b } } } });
                 await tx.diningArea.deleteMany({ where: { location: { business: b } } });
                 await tx.servicePeriod.deleteMany({ where: { location: { business: b } } });
+                await tx.foodBookingRules.deleteMany({ where: { location: { business: b } } });
+                await tx.foodClosedDay.deleteMany({ where: { location: { business: b } } });
                 await tx.appointment.deleteMany({ where: { location: { business: b } } });
                 await tx.timeOff.deleteMany({ where: { employee: { business: b } } });
                 await tx.workingHours.deleteMany({ where: { employee: { business: b } } });
@@ -216,6 +244,10 @@ app.use(
                 await tx.employee.deleteMany({ where: { business: b } });
                 await tx.beautyService.deleteMany({ where: { business: b } });
                 await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+                // лента склада только дописывается: удаление проходит только под audit_purge (DATA_MODEL §34)
+                await tx.kitchenStockMovement.deleteMany({ where: { location: { business: b } } });
+                await tx.kitchenStockLot.deleteMany({ where: { location: { business: b } } });
+                await tx.kitchenProduct.deleteMany({ where: { business: b } });
                 await tx.auditLog.deleteMany({ where: { organizationId: org } });
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
                 await tx.location.deleteMany({ where: { business: b } });
@@ -253,7 +285,7 @@ app.use(
 );
 app.useGlobalGuards(new RoleGuard(new Reflector()));
 app.useGlobalInterceptors(new AuthorInterceptor(prisma));
-await app.listen(55824, '127.0.0.1');
+await app.listen(Number(process.env.FOOD_UI_API_PORT ?? 55824), '127.0.0.1');
 for (const signal of ['SIGTERM', 'SIGINT'] as const)
   process.on(signal, () => {
     void app

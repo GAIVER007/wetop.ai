@@ -1,0 +1,77 @@
+# Модульные (unit) · 13.10.2026 14:41 Алматы · MacBook-Air-Urij.local
+# коммит 66fe9e5 (claude/desk-polish-20261013), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-41-59Z-unit-46e8.json' 'apps/web/src/app/incidents/incident-view.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-urijzapojnov-Documents-ChatGPT-WETOP/a8708228-98f1-45e4-a395-95f6ac3385d1/scratchpad/ui-wt
+
+ ❯ |unit| apps/web/src/app/incidents/incident-view.test.ts (17 tests | 3 failed) 5ms
+   ✓ heldForWords — сколько держится, словами (21.09) (5)
+     ✓ минуты до часа остаются минутами 1ms
+     ✓ 1226 минут читаются часами, а не минутами 0ms
+     ✓ ровный час — без минут 0ms
+     ✓ больше суток — днями со склонением 0ms
+     ✓ меньше минуты названо словами, а не нулём 0ms
+   ✓ incidentOrder — срочное сверху, взятое в работу вниз (3)
+     ✓ срочная поднимается над несрочной, что пришла раньше 0ms
+     ✓ при равной срочности первым идёт то, что ждёт человека, принятое — последним 0ms
+     ✓ при равном статусе первой идёт та, что висит дольше 0ms
+   ✓ guardWords — кто отвечает и что сторож сделал (3)
+     ✓ техника с попытками: число попыток и результат последней 0ms
+     ✓ техника без попыток названа словами, а не пустым местом 0ms
+     ✓ данные и код: сказано, кто решает, без «не его класс» в каждой строке 0ms
+   ✓ repeatWords — повторы у ошибок API, время у остальных (3)
+     ✓ ошибка API считает повторы 0ms
+     ✓ бронь без ячейки считает время, а не повторы 0ms
+     ✓ свежая неисправность ничего лишнего не говорит 0ms
+   ❯ incidentHeadline (3)
+     × сообщение сторожа: заголовок до тире, технические подробности отдельно 2ms
+     × короткий заголовок без технической части остаётся как есть 0ms
+     × длинный текст без тире обрезается до понятной строки, полностью в подробностях 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/incidents/incident-view.test.ts > incidentHeadline > сообщение сторожа: заголовок до тире, технические подробности отдельно
+TypeError: incidentHeadline is not a function
+ ❯ apps/web/src/app/incidents/incident-view.test.ts:104:12
+    102|     const title =
+    103|       'Падает набор тестов «unit»: упавших 7 — scripts/design/build-to…
+    104|     expect(incidentHeadline(title)).toEqual({
+       |            ^
+    105|       headline: 'Падает набор тестов «unit»: упавших 7',
+    106|       details: title,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/app/incidents/incident-view.test.ts > incidentHeadline > короткий заголовок без технической части остаётся как есть
+TypeError: incidentHeadline is not a function
+ ❯ apps/web/src/app/incidents/incident-view.test.ts:110:12
+    108|   });
+    109|   it('короткий заголовок без технической части остаётся как есть', () …
+    110|     expect(incidentHeadline('API не отвечает')).toEqual({ headline: 'A…
+       |            ^
+    111|   });
+    112|   it('длинный текст без тире обрезается до понятной строки, полностью …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/incidents/incident-view.test.ts > incidentHeadline > длинный текст без тире обрезается до понятной строки, полностью в подробностях
+TypeError: incidentHeadline is not a function
+ ❯ apps/web/src/app/incidents/incident-view.test.ts:114:18
+    112|   it('длинный текст без тире обрезается до понятной строки, полностью …
+    113|     const title = 'x'.repeat(300);
+    114|     const view = incidentHeadline(title);
+       |                  ^
+    115|     expect(view.headline.length).toBeLessThanOrEqual(121);
+    116|     expect(view.headline.endsWith('…')).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 14 passed (17)
+   Start at  13:42:02
+   Duration  118ms (transform 59%, import 20%, tests 14%, worker 7%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-41-59Z-unit-46e8.json
+
+# код выхода 1 · 3 с

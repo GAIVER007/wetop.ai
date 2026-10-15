@@ -1,0 +1,83 @@
+# Модульные (unit) · 11.10.2026 00:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит b753c5d (worktree-marketing-module-b1)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T19-08-49Z-unit-531e.json' 'tests/unit/db-restore-prod.test.ts' 'apps/web/src/lib/hotel-time.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests | 1 failed) 947160ms
+   × «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 946349ms
+   ✓ API не ответил — пояс платформы, страница не падает 722ms
+   ✓ настройки не ответили в срок — пояс платформы, страница не ждёт 88ms
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (7 tests | 2 failed) 3219059ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ без --yes-replace-production ничего не делает 957ms
+     × данные и все миграции прав одной транзакцией, права после данных и по порядку 948375ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 2315ms
+     × схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 2259883ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 1691ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 3135ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 2697ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > данные и все миграции прав одной транзакцией, права после данных и по порядку
+AssertionError: db-restore-prod: wetop-20261002T233000Z.dump восстановлена, таблиц с данными в копии: 2; права повторены миграциями: 026 033 034 038 042 059 061 063 065 067 069 071 073 077 082 084
+: expected null to be +0 // Object.is equality
+
+- Expected:
+0
+
++ Received:
+null
+
+ ❯ tests/unit/db-restore-prod.test.ts:100:27
+     98|     const s = sandbox();
+     99|     const r = s.run([s.dump, '--yes-replace-production']);
+    100|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    101|     expect(s.read('calls')).toMatch(/psql .*--single-transaction/);
+    102|     expect(s.read('calls')).toMatch(/pg_restore .*--clean --if-exists …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления
+AssertionError: expected null to be +0 // Object.is equality
+
+- Expected:
+0
+
++ Received:
+null
+
+ ❯ tests/unit/db-restore-prod.test.ts:128:62
+    126|   it('схема public из копии не пересоздаётся: её записи вычеркнуты из …
+    127|     const s = sandbox();
+    128|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+       |                                                              ^
+    129|     const used = s.read('used-list');
+    130|     expect(used).toContain('TABLE DATA public reservations');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/hotel-time.test.ts > «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/web/src/lib/hotel-time.test.ts:34:1
+     32| const NOW = new Date('2026-09-30T19:30:00Z');
+     33|
+     34| it('«сегодня» стойки — по поясу объекта из /hotel/settings, а не по UT…
+       | ^
+     35|   // таймер предела тоже поддельный: под нагрузкой ответ настроек мог …
+     36|   // и тест проигрывал `TIMEZONE_WAIT_MS` (падал 28.09 в полном unit д…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 7 passed (10)
+   Start at  13:16:13
+   Duration  3222.24s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T19-08-49Z-unit-531e.json
+
+# код выхода 1 · 2 ч 1 мин

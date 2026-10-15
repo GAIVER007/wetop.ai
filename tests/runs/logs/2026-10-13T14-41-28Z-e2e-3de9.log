@@ -1,0 +1,77 @@
+# Сквозные (e2e) · 13.10.2026 19:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит 637a111 (codex/organizations-card-editor), незакоммиченных файлов набора: 66
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--grep' 'scope|изоляц' '--workers=1'
+[WebServer] (node:18578) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18610) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18611) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18650) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18651) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+(node:18662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/branches-ui/analytics.spec.ts:135:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (3.7s)
+  ✘  2 tests/branches-ui/branches.spec.ts:49:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (6.2s)
+(node:18684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/branches-ui/branches.spec.ts:66:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (832ms)
+  ✓  4 tests/branches-ui/branches.spec.ts:78:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (642ms)
+  ✓  5 tests/branches-ui/branches.spec.ts:90:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (1.5s)
+  ✓  6 tests/branches-ui/branches.spec.ts:118:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (9.1s)
+  ✓  7 tests/branches-ui/today.spec.ts:406:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (4.1s)
+
+
+  1) tests/branches-ui/branches.spec.ts:49:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.org-card--HOSPITALITY')
+    Expected: 1
+    Received: 2
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.org-card--HOSPITALITY') with timeout 5000ms
+      - waiting for locator('.org-card--HOSPITALITY')
+        14 × locator resolved to 2 elements
+           - unexpected value "2"
+
+
+      56 |     expect(await scopeCookie(page)).toBe('');
+      57 |     await expect(page.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
+    > 58 |     await expect(page.locator('.org-card--HOSPITALITY')).toHaveCount(1);
+         |                                                          ^
+      59 |     await expect(page.locator('.org-card--BEAUTY')).toHaveCount(1);
+      60 |     await expect(page.locator('.org-card--BEAUTY')).toContainText('Учёт оплат не подключён');
+      61 |     await expect(page.locator('.org-card--HOSPITALITY .org-branch-rows')).toContainText(
+        at /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP/tests/branches-ui/branches.spec.ts:58:58
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-a9319-ый-филиал-сам-не-выбирается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-a9319-ый-филиал-сам-не-выбирается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-a9319-ый-филиал-сам-не-выбирается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/branches.spec.ts:49:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается 
+  6 passed (34.0s)
+
+# код выхода 1 · 35 с

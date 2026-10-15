@@ -1,8 +1,8 @@
-import { FIXTURE_API, expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, openProfileMenu } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 
 const SITE = 'http://127.0.0.1:3002';
-const APP = 'http://127.0.0.1:3100';
+const APP = process.env.UI_APP_URL ?? 'http://127.0.0.1:3100';
 const API = FIXTURE_API;
 // ADR-131: прежние проверки формы перенесены на реальную главную, не на заменитель /login.
 test.beforeEach(async ({ request }) => {
@@ -18,14 +18,14 @@ async function fillRegister(page: Page, email = 'new@example.invalid') {
   await form.getByLabel('Почта').fill(email);
   await form.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
   await form.getByLabel('Название бизнеса').fill('Тестовый объект');
-  await form.getByLabel('Код страны').selectOption('KZ');
-  await form.getByLabel('Телефон', { exact: true }).fill('7015554433');
+  await form.getByLabel('Страна', { exact: true }).selectOption('KZ');
+  await form.getByRole('textbox', { name: 'Телефон', exact: true }).fill('7015554433');
   await form.getByLabel('Пароль', { exact: true }).fill('synthetic-password');
   await form.getByRole('checkbox').check();
   await expect(form.getByLabel('Почта')).toHaveValue(email);
   await expect(form.getByLabel('Имя', { exact: true })).toHaveValue('Тестовый Пользователь');
   await expect(form.getByLabel('Название бизнеса')).toHaveValue('Тестовый объект');
-  await expect(form.getByLabel('Телефон', { exact: true })).toHaveValue('7015554433');
+  await expect(form.getByRole('textbox', { name: 'Телефон', exact: true })).toHaveValue('7015554433');
   await expect(form.getByLabel('Пароль', { exact: true })).toHaveValue('synthetic-password');
 }
 test('главная просит почту и пароль, без второго рекламного экрана', async ({ page }) => {
@@ -43,12 +43,7 @@ test('верный пароль открывает рабочее место, в
   await fillLogin(page);
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
   await expect(page).toHaveURL(APP + '/today');
-  // клик до гидратации шапки теряется (меню не открывается): повторяем, пока меню не раскрыто
-  const profile = page.getByRole('button', { name: 'Меню администратора' });
-  await expect(async () => {
-    if ((await profile.getAttribute('aria-expanded')) !== 'true') await profile.click();
-    await expect(profile).toHaveAttribute('aria-expanded', 'true', { timeout: 1000 });
-  }).toPass();
+  await openProfileMenu(page);
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).toHaveURL(SITE + '/?next=%2Ftoday#login');
 });
@@ -149,7 +144,7 @@ test('сеансы открываются в профиле, команда в �
 });
 test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
   await page.goto('/login');
-  await dialog(page).getByRole('tab', { name: 'Получить доступ' }).click();
+  await dialog(page).getByRole('tab', { name: 'Регистрация', exact: true }).click();
   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
   await expect(
     dialog(page).getByRole('link', { name: 'политикой конфиденциальности' }),

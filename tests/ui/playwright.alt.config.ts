@@ -44,7 +44,9 @@ export default defineConfig({
       cwd: '../..',
       env: { FIXTURE_PORT },
       url: `${FIXTURE}/__test/health`,
-      reuseExistingServer: false,
+      // `UI_REUSE=1`: стенд уже поднят и прогрет (на загруженной машине холодная компиляция страницы дольше таймаута
+      // теста, мастер-проход UI 11.10.2026); без флага поведение прежнее
+      reuseExistingServer: process.env.UI_REUSE === '1',
     },
     {
       command: `npm exec -w apps/web -- next dev --port ${WEB_PORT} --hostname 127.0.0.1`,
@@ -57,8 +59,10 @@ export default defineConfig({
         APP_URL: WEB,
         WETOP_SITE_URL: 'http://127.0.0.1:3002',
       },
-      url: `${WEB}/today`,
-      reuseExistingServer: false,
+      url: `${WEB}/auth/fallback`,
+      // `UI_REUSE=1`: стенд уже поднят и прогрет (на загруженной машине холодная компиляция страницы дольше таймаута
+      // теста, мастер-проход UI 11.10.2026); без флага поведение прежнее
+      reuseExistingServer: process.env.UI_REUSE === '1',
       timeout: 120_000,
     },
   ],

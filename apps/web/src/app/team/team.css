@@ -38,3 +38,38 @@
     }
   }
 }
+
+@layer sections {
+  .team-scope {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+  }
+  .team-scope legend {
+    padding: 0 var(--space-2);
+    font-weight: var(--weight-medium);
+  }
+  .team-scope__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--control-h);
+  }
+  .team-scope__row:has(input[type='checkbox']),
+  .team-scope__row:has(input[type='radio']) {
+    justify-content: flex-start;
+  }
+  .team-scope__tree,
+  .team-scope__business {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .team-scope__business {
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+  }
+}

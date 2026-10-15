@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, openProfileMenu } from './fixtures';
 
 const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
@@ -60,7 +60,7 @@ test('ошибка базы не превращается в нулевые по
 
 test('название гостиницы в каркасе и обзоре поступает из backend', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { propertyName: 'Проверочный хостел' } });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(page.locator('.workspace-header .workspace-property')).toContainText(
     'Проверочный хостел',
   );
@@ -90,14 +90,11 @@ test('поздняя загрузка гостиницы сохраняет вв
   });
   try {
     await page.goto('/reservations/new', { waitUntil: 'commit' });
-    await page.getByLabel('Имя *', { exact: true }).fill('Тестовый ввод');
-    const menu = page.getByRole('button', { name: 'Меню администратора' });
-    // страница ещё стримится (гостиница задержана): клик до гидратации кнопки теряется — на медленном
-    // раннере CI так и было (20.09, 184/185); повторяем клик, пока меню не раскроется
-    await expect(async () => {
-      await menu.click();
-      await expect(menu).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
-    }).toPass({ timeout: 15_000 });
+    const firstName = page.getByRole('main').getByRole('textbox', { name: 'Имя *', exact: true });
+    await firstName.fill('Тестовый ввод');
+    // страница ещё стримится (гостиница задержана): меню открывается, когда React оживил кнопку. Клик до
+    // оживления терялся на медленном раннере CI (20.09, 184/185)
+    const menu = await openProfileMenu(page);
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Объект не загружен',
     );
@@ -105,7 +102,7 @@ test('поздняя загрузка гостиницы сохраняет вв
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Поздний ответ гостиницы',
     );
-    await expect(page.getByLabel('Имя *', { exact: true })).toHaveValue('Тестовый ввод');
+    await expect(firstName).toHaveValue('Тестовый ввод');
     await expect(menu).toHaveAttribute('aria-expanded', 'true');
   } finally {
     await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });

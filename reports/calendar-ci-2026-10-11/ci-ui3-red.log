@@ -1,0 +1,96 @@
+2026-10-11T09:58:31.0825060Z   1) tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category
+2026-10-11T09:58:31.0825674Z
+2026-10-11T09:58:31.0825825Z     Test timeout of 45000ms exceeded.
+2026-10-11T09:58:31.0826002Z
+2026-10-11T09:58:31.0826186Z     Error: locator.click: Test timeout of 45000ms exceeded.
+2026-10-11T09:58:31.0826523Z     Call log:
+2026-10-11T09:58:31.0826967Z       - waiting for getByRole('link', { name: 'Поиск свободных номеров' })
+2026-10-11T09:58:31.0827294Z
+2026-10-11T09:58:31.0827301Z
+2026-10-11T09:58:31.0827606Z       139 |         // then the actual mobile search, without forcing clicks on hidden controls.
+2026-10-11T09:58:31.0828701Z       140 |         await page.goto((await link.getAttribute('href'))!);
+2026-10-11T09:58:31.0829096Z     > 141 |       } else await link.click();
+2026-10-11T09:58:31.0829390Z           |                         ^
+2026-10-11T09:58:31.0829939Z       142 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+2026-10-11T09:58:31.0830626Z       143 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+2026-10-11T09:58:31.0831876Z       144 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+2026-10-11T09:58:31.0832561Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/search-filter-recovery.spec.ts:141:25
+2026-10-11T09:58:31.0832880Z
+2026-10-11T09:58:31.0833283Z     Error Context: test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/error-context.md
+2026-10-11T09:58:31.0833757Z
+2026-10-11T09:58:31.0834205Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-10-11T09:58:31.0835098Z     test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+2026-10-11T09:58:31.0835553Z     Usage:
+2026-10-11T09:58:31.0835661Z
+2026-10-11T09:58:31.0836076Z         npx playwright show-trace test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+2026-10-11T09:58:31.0836519Z
+2026-10-11T09:58:31.0836886Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-10-11T09:58:31.0837157Z
+2026-10-11T09:58:31.0837788Z   2) tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category
+2026-10-11T09:58:31.0838307Z
+2026-10-11T09:58:31.0838429Z     Test timeout of 45000ms exceeded.
+2026-10-11T09:58:31.0838597Z
+2026-10-11T09:58:31.0838804Z     Error: locator.getAttribute: Test timeout of 45000ms exceeded.
+2026-10-11T09:58:31.0839149Z     Call log:
+2026-10-11T09:58:31.0839524Z       - waiting for getByRole('link', { name: 'Поиск свободных номеров' })
+2026-10-11T09:58:31.0839780Z
+2026-10-11T09:58:31.0839786Z
+2026-10-11T09:58:31.0840101Z       138 |         // The existing mobile calendar hides this desktop header action. Verify its destination,
+2026-10-11T09:58:31.0840700Z       139 |         // then the actual mobile search, without forcing clicks on hidden controls.
+2026-10-11T09:58:31.0841390Z     > 140 |         await page.goto((await link.getAttribute('href'))!);
+2026-10-11T09:58:31.0841749Z           |                                     ^
+2026-10-11T09:58:31.0842016Z       141 |       } else await link.click();
+2026-10-11T09:58:31.0842551Z       142 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+2026-10-11T09:58:31.0843201Z       143 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+2026-10-11T09:58:31.0843787Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/search-filter-recovery.spec.ts:140:37
+2026-10-11T09:58:31.0844137Z
+2026-10-11T09:58:31.0844517Z     Error Context: test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/error-context.md
+2026-10-11T09:58:31.0844945Z
+2026-10-11T09:58:31.0845337Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-10-11T09:58:31.0845991Z     test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/trace.zip
+2026-10-11T09:58:31.0846426Z     Usage:
+2026-10-11T09:58:31.0846525Z
+2026-10-11T09:58:31.0846956Z         npx playwright show-trace test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/trace.zip
+2026-10-11T09:58:31.0847408Z
+2026-10-11T09:58:31.0847762Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-10-11T09:58:31.0848027Z
+2026-10-11T09:58:31.0848428Z   3) tests/ui/workspace.spec.ts:1267:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту
+2026-10-11T09:58:31.0848949Z
+2026-10-11T09:58:31.0849260Z     Error: expect(locator).toHaveText(expected) failed
+2026-10-11T09:58:31.0849459Z
+2026-10-11T09:58:31.0849937Z     Locator: getByRole('dialog', { name: 'Фильтры календаря' }).getByLabel('Места в календаре').locator('option[value="cleaning"]')
+2026-10-11T09:58:31.0850548Z     Expected pattern: /^Уборка \d+$/
+2026-10-11T09:58:31.0850908Z     Received string:  "Уборка и проверка 2"
+2026-10-11T09:58:31.0851549Z     Timeout: 15000ms
+2026-10-11T09:58:31.0851670Z
+2026-10-11T09:58:31.0851766Z     Call log:
+2026-10-11T09:58:31.0852664Z       - Expect "toHaveText" getByRole('dialog', { name: 'Фильтры календаря' }).getByLabel('Места в календаре').locator('option[value="cleaning"]') with timeout 15000ms
+2026-10-11T09:58:31.0853546Z       - waiting for getByRole('dialog', { name: 'Фильтры календаря' }).getByLabel('Места в календаре').locator('option[value="cleaning"]')
+2026-10-11T09:58:31.0854199Z         31 × locator resolved to <option value="cleaning">Уборка и проверка 2</option>
+2026-10-11T09:58:31.0854719Z            - unexpected value "Уборка и проверка 2"
+2026-10-11T09:58:31.0854903Z
+2026-10-11T09:58:31.0854908Z
+2026-10-11T09:58:31.0855212Z       1270 |   // уборка со счётчиком: «Уборка 2» (21.09); с PR 7 «Шахматки v2» — пункт поля «Места»
+2026-10-11T09:58:31.0855626Z       1271 |   const pop = await openBoardFilters(page);
+2026-10-11T09:58:31.0856186Z     > 1272 |   await expect(pop.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
+2026-10-11T09:58:31.0856689Z            |                                                                                         ^
+2026-10-11T09:58:31.0857036Z       1273 |     /^Уборка \d+$/,
+2026-10-11T09:58:31.0857250Z       1274 |   );
+2026-10-11T09:58:31.0857626Z       1275 |   await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
+2026-10-11T09:58:31.0858101Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/workspace.spec.ts:1272:89
+2026-10-11T09:58:31.0858382Z
+2026-10-11T09:58:31.0861490Z     Error Context: test-results/workspace-шахматка-фильтр--40a93-грязные-ячейки-а-не-пустоту/error-context.md
+2026-10-11T09:58:31.0861870Z
+2026-10-11T09:58:31.0862266Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-10-11T09:58:31.0862868Z     test-results/workspace-шахматка-фильтр--40a93-грязные-ячейки-а-не-пустоту/trace.zip
+2026-10-11T09:58:31.0863214Z     Usage:
+2026-10-11T09:58:31.0863312Z
+2026-10-11T09:58:31.0863725Z         npx playwright show-trace test-results/workspace-шахматка-фильтр--40a93-грязные-ячейки-а-не-пустоту/trace.zip
+2026-10-11T09:58:31.0864082Z
+2026-10-11T09:58:31.0864404Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-10-11T09:58:31.0864652Z
+2026-10-11T09:58:31.0864725Z   3 failed
+2026-10-11T09:58:31.0865391Z     tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category
+2026-10-11T09:58:31.0866794Z     tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category
+2026-10-11T09:58:31.0867652Z     tests/ui/workspace.spec.ts:1267:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту
+2026-10-11T09:58:31.0868036Z   411 passed (23.6m)

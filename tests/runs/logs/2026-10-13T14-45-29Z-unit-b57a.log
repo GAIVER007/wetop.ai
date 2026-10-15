@@ -1,0 +1,25 @@
+# Модульные (unit) · 13.10.2026 19:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит 637a111 (codex/organizations-card-editor), незакоммиченных файлов набора: 54
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T14-45-29Z-unit-b57a.json' 'tests/unit/guard-run.test.ts' 'tests/unit/design-primitive-owner.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 56ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 4741ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1245ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 801ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 801ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 576ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 813ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 495ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  07:45:30
+   Duration  4.84s (tests 99%, transform 1%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T14-45-29Z-unit-b57a.json
+
+# код выхода 0 · 6 с

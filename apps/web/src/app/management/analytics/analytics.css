@@ -1,6 +1,6 @@
 /*
  * «Аналитика» (ADR-114, срез AN1). Плитки, графики, источники и таблица — общие классы Главной
- * (`.kpi*`, `.bars*`, `.dash-*`, `.sources` в today/dashboard.css) и вкладки `.settings-tabs`; здесь только
+ * (`.kpi*`, `.bars*`, `.dash-*`, `.sources` в today/dashboard.css) и вкладки `Tabs`; здесь только
  * то, чего у них нет: полоса периода с типом фонда, шесть плиток в ряд, скелетон.
  */
 @layer sections {
@@ -186,6 +186,14 @@
   }
   .bars-legend a {
     margin-left: auto;
+  }
+  /* телефон: «Открыть календарь» — цель касания 44 px (аудит UI5) */
+  @media (max-width: 600px) {
+    .bars-legend a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
+    }
   }
   .bars-legend i {
     display: inline-block;
@@ -392,6 +400,39 @@
     font-size: var(--text-lg);
     font-weight: var(--weight-semibold);
   }
+  /* категория и детализация отчёта (RPT2.2c-3): отдельная строка над плитками */
+  .dash-grid > .pa-wide {
+    grid-column: 1 / -1;
+  }
+  /* «Финансы» (RPT2.4a): таблица по дням и расходы по статьям друг под другом */
+  .dash-note a {
+    text-decoration: underline;
+  }
+  .pa-cashflow {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .pa-expenses {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+  .pa-expenses li {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .pa-expenses strong {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .pa-filters {
+    margin-bottom: var(--space-4);
+  }
   .pa-toolbar__row {
     display: flex;
     flex-wrap: wrap;
@@ -496,6 +537,12 @@
   } /* «Загрузка» (AN2): пять плиток в ряд */
   .pa-kpis--occupancy {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  /* с отдельными плитками номеров и коек (ADR-155) число плиток переменное: ряд подстраивается, на узких экранах прежние колонки */
+  @media (min-width: 1280px) {
+    .analytics-page .kpi-grid.pa-kpis {
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    }
   }
   .pa-kpis .kpi__hint .pa-kpi-link {
     text-decoration: underline;
@@ -657,11 +704,6 @@
   }
   .analytics-page .page__subtitle {
     font-size: var(--text-xs);
-  }
-  .analytics-page .pa-tabs {
-    background: transparent;
-    border: 0;
-    margin-bottom: 16px;
   }
   .analytics-page .pa-toolbar {
     margin-bottom: 16px;

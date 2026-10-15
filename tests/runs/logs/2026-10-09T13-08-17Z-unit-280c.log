@@ -1,0 +1,58 @@
+# Модульные (unit) · 09.10.2026 18:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (main), незакоммиченных файлов набора: 28
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T13-08-17Z-unit-280c.json' 'packages/domain/src/market/occupancy.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| packages/domain/src/market/occupancy.test.ts (20 tests | 1 failed) 8ms
+   ✓ parseOccupancyPercent (3)
+     ✓ процент в базисные пункты: целый, с запятой и точкой, знак процента 1ms
+     ✓ пусто: значения нет 0ms
+     ✓ мимо 0…100, больше двух знаков после запятой и не число: отказ словами 0ms
+   ✓ formatOccupancy и demandLevel (2)
+     ✓ без лишних нулей, запятая 0ms
+     ✓ уровни спроса по порогам Q-258 0ms
+   ✓ parseCompetitorInput (3)
+     ✓ название обязательно при создании, поля чистятся 0ms
+     ✓ пустые необязательные поля при правке снимаются (null) 0ms
+     ✓ отрицательное расстояние, ноль номеров, адрес не http: отказ 0ms
+   ✓ marketDates (1)
+     ✓ окно подряд, через границу месяца 0ms
+   ✓ buildMarketBoard (8)
+     ✓ своя загрузка из календаря: занято от занято + свободно + блок 0ms
+     ✓ клетка конкурента: последний снимок не позже даты снимка и изменение к сравнению 0ms
+     ✓ конкуренты по расстоянию, без расстояния последними 0ms
+     ✓ средняя по рынку: простое среднее по конкурентам с данными; разница с вами 0ms
+     ✓ итог окна: рынок средним по дням, вы от суммы клеток, дни высокого спроса 0ms
+     ✓ подсказки: высокий спрос с отставанием, высокий спрос, слабый спрос, нет данных 0ms
+     ✓ ночи одного правила подряд склеиваются в отрезок, подсказок не больше пяти 0ms
+     ✓ пустой календарь (нет мест) и рынок без данных: прочерки, без деления на ноль 0ms
+   ✓ buildNightHistory (2)
+     ✓ по дням снимка: значение переносится до нового снимка, отмечено, был ли снимок в этот день; темп рынка 0ms
+     ✓ нет снимков: пустая история, темп неизвестен; дней не больше предела, свежие остаются 0ms
+   ❯ competitorPlatform (1)
+     × площадка по ссылке конкурента: по ней ИИ-сборщик понимает, где смотреть свободные номера 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > competitorPlatform > площадка по ссылке конкурента: по ней ИИ-сборщик понимает, где смотреть свободные номера
+TypeError: competitorPlatform is not a function
+ ❯ packages/domain/src/market/occupancy.test.ts:283:12
+    281| describe('competitorPlatform', () => {
+    282|   it('площадка по ссылке конкурента: по ней ИИ-сборщик понимает, где с…
+    283|     expect(competitorPlatform('https://www.booking.com/hotel/kz/altyn.…
+       |            ^
+    284|     expect(competitorPlatform('https://kz.trip.com/hotels/almaty-hotel…
+    285|     expect(competitorPlatform('https://ostrovok.ru/hotel/kazakhstan/al…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 passed (20)
+   Start at  06:08:18
+   Duration  110ms (transform 49%, import 32%, tests 15%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T13-08-17Z-unit-280c.json
+
+# код выхода 1 · 1 с

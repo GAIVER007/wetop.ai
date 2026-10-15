@@ -1,0 +1,79 @@
+# Сквозные (e2e) · 11.10.2026 23:10 Алматы · MacBook-Air-Urij.local
+# коммит 1d6bcbe (codex/ai-seller-wizard-chat-20261011)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/branches.spec.ts:84' 'tests/ui/chessboard-calendar.spec.ts:12' 'tests/ui/chessboard-extend.spec.ts:45' 'tests/ui/chessboard-range.spec.ts:56' 'tests/ui/date-field.spec.ts:89' 'tests/ui/housekeeping.spec.ts:21' 'tests/ui/housekeeping.spec.ts:82'
+[WebServer] (node:68240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:68266) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:68267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:68341) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:68369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:68370) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+(node:68691) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (53.1s)
+(node:69183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (41.4s)
+  ✓  3 tests/ui/chessboard-extend.spec.ts:45:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (15.8s)
+  ✓  4 tests/ui/chessboard-range.spec.ts:56:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена (21.7s)
+[WebServer] (node:69523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69527) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/ui/date-field.spec.ts:89:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле (23.0s)
+  ✓  6 tests/ui/housekeeping.spec.ts:21:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (11.3s)
+  ✓  7 tests/ui/housekeeping.spec.ts:82:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (15.0s)
+
+
+  1) tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:56310/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/branches.spec.ts:98:14
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+  6 passed (4.6m)
+
+# код выхода 1 · 4 мин 42 с

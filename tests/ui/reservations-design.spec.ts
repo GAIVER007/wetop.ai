@@ -25,7 +25,7 @@ test('выбранный статус броней доступен с клав�
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/status=CONFIRMED/);
   await expect(statuses).toHaveValue('CONFIRMED');
-  await expect(page.getByTestId('directory-meta')).toContainText('Подтверждены');
+  await expect(page.getByTestId('directory-meta')).toContainText('Подтверждённые');
 });
 
 test('мобильный статус и поиск сохраняются в URL, карточка открывается из списка', async ({
@@ -79,7 +79,9 @@ for (const theme of ['light', 'dark'] as const) {
         await table.locator('..').evaluate((el) => el.scrollWidth - el.clientWidth),
       ).toBeLessThanOrEqual(1);
       if (width <= 390) {
-        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(450);
+        // 450 был замером до кнопки «Гости» в шапке (09.10.2026, «Гости и бронирования»): на 390 px она
+        // сидит в одной строке с «Новой бронью» (431), на 320 px действия переносятся (465), бюджет 470
+        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(470);
         const dates = page.getByRole('button', { name: 'Даты', exact: true });
         for (const control of [
           page.getByLabel('Статус брони', { exact: true }),

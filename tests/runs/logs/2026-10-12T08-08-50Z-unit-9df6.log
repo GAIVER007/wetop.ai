@@ -1,0 +1,46 @@
+# Модульные (unit) · 12.10.2026 13:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 22facc1 (claude/fix-analytics-load-mock)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T08-08-50Z-unit-9df6.json' 'apps/web/src/app/management/analytics/vertical/load.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests | 1 failed) 27ms
+   ✓ MV9 scoped report adapters (2)
+     ✓ checks day and location identity before counting actual snapshots 21ms
+     ✓ does not mislabel another date or count appointments outside the local date 1ms
+   × Food period excludes previous-day overlap and rejects a foreign Location response 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/vertical/load.test.ts > Food period excludes previous-day overlap and rejects a foreign Location response
+Error: [vitest] No "branchFoodPeriod" export is defined on the "../../../../lib/api" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("../../../../lib/api"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.loadBranchPeriod apps/web/src/app/management/analytics/vertical/load.ts:46:17
+     44|     counts: foodPeriod(foodRows),
+     45|     revenue: null,
+     46|     food: await branchFoodPeriod(branch, dates[0]!, dates[dates.length…
+       |                 ^
+     47|   };
+     48| }
+ ❯ apps/web/src/app/management/analytics/vertical/load.test.ts:71:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  01:08:52
+   Duration  318ms (transform 58%, tests 18%, import 12%, worker 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T08-08-50Z-unit-9df6.json
+
+# код выхода 1 · 3 с

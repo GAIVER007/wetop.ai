@@ -1,0 +1,13 @@
+{
+ "/bar/receipts/new": {
+  "open": null,
+  "controls": 11,
+  "unlabeled": [],
+  "placeholderOnly": [],
+  "controlHeights": {
+   "38px": 1,
+   "41px": 6,
+   "43px": 2
+  }
+ }
+}

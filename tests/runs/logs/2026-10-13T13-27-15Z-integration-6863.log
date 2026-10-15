@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 13.10.2026 18:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит b25addf (codex/organizations-card-editor), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-27-15Z-integration-6863.json' 'tests/integration/organization-feedback.test.ts' 'tests/integration/business-card-metadata.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |integration| tests/integration/business-card-metadata.test.ts (5 tests | 1 failed) 9046ms
+   ❯ business card database persistence and tenant isolation (5)
+     ✓ shows owner projects without locations while excluding another organization 219ms
+     × edits a legacy business whose updated_at has PostgreSQL microseconds 5210ms
+     ✓ persists metadata, rolls back an audit failure, and rejects stale versions 1106ms
+     ✓ rejects foreign business metadata and raw foreign image references 74ms
+     ✓ persists a sanitized cover and removes its reference without deleting unrelated objects 283ms
+ ✓ |integration| tests/integration/organization-feedback.test.ts (3 tests) 7060ms
+   ✓ adds a branch to the selected business instead of the first hotel 2381ms
+   ✓ reports received payments, preserves currency and archived history, and restores the object 3075ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/business-card-metadata.test.ts > business card database persistence and tenant isolation > edits a legacy business whose updated_at has PostgreSQL microseconds
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/business-card-metadata.test.ts:55:3
+     53|     expect(cards.some((card) => card.id === businessB)).toBe(false);
+     54|   });
+     55|   it('edits a legacy business whose updated_at has PostgreSQL microsec…
+       |   ^
+     56|     const id = randomUUID();
+     57|     await db.business.create({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 7 passed (8)
+   Start at  06:27:44
+   Duration  55.04s (import 35%, tests 35%, transform 30%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-27-15Z-integration-6863.json
+
+# код выхода 1 · 1 мин 28 с

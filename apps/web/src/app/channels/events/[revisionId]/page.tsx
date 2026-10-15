@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { api, channelsApi, type RevisionPage } from '../../../../lib/api';
 import { ApiError } from '../../../../lib/api-error';
 import { decodeRouteParam } from '../../../../lib/route-param';
-import { Page } from '../../../../components/page';
+import { Page, BackCrumb } from '../../../../components/page';
 import { Icon } from '../../../../components/icon';
 import { Badge, StatusBadge } from '../../../../components/ui';
 import { AmountChip } from '../../../../components/amount-chip';
@@ -29,14 +29,6 @@ function decimalToMinor(amount: string): string | null {
 const COLLECT_RU: Record<string, string> = {
   ota: 'предоплата канала',
   property: 'оплата на объекте',
-};
-const RESERVATION_STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'не подтверждена',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
 };
 
 /**
@@ -91,8 +83,8 @@ export default async function RevisionPageView({
     <Page
       width="wide"
       title="Приём брони из канала"
-      subtitle="Входящая ревизия → бронь → назначенная койка, время объекта (Алматы)"
-      crumbs={<Link href="/channels/events">← события каналов</Link>}
+      subtitle="Входящая ревизия → бронь → назначенная койка, время объекта"
+      crumbs={<BackCrumb href="/channels/events">События каналов</BackCrumb>}
     >
       <div className="chain" data-testid="revision-chain">
         <section className="chain__card" aria-labelledby="chain-revision">
@@ -162,10 +154,7 @@ export default async function RevisionPageView({
           {reservation ? (
             <>
               <div className="row row--inline">
-                <StatusBadge
-                  status={reservation.status}
-                  label={RESERVATION_STATUS_RU[reservation.status] ?? reservation.status}
-                />
+                <StatusBadge kind="hospitality" value={reservation.status} />
                 <Link
                   href={`/reservations/${encodeURIComponent(reservation.confirmationNumber)}`}
                   className="bold"
@@ -235,10 +224,7 @@ export default async function RevisionPageView({
                   <Badge tone={it.unitCode ? 'ok' : 'warn'}>
                     {it.unitCode ? `${it.unitCode}, ${it.accommodationTypeName}` : 'без ячейки'}
                   </Badge>
-                  <StatusBadge
-                    status={it.status}
-                    label={RESERVATION_STATUS_RU[it.status] ?? it.status}
-                  />
+                  <StatusBadge kind="hospitality" value={it.status} />
                 </div>
                 <div>{displayPeriod(it.arrivalDate, it.departureDate)}</div>
                 <div className="muted">

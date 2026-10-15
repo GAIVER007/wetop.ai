@@ -1,29 +1,58 @@
 /* Раздел «ИИ-продавец» (макет владельца 26.09.2026, ADR-097). Только раскладка: цвета и размеры — токены. */ /* Вкладки раздела: четыре, в одну строку; на узком — прокрутка вкладок, а не страницы */
 @layer sections {
-  .seller-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    max-width: 100%;
-    padding: var(--space-1);
-    gap: var(--space-1);
-    background: var(--surface);
-    /* concentric corners: tab radius + container padding */
-    border-radius: calc(var(--radius-control) + var(--space-1));
-    scrollbar-width: thin;
+  /* «Диалоги» (S2.6): список, переписка и карточка гостя в три колонки; ниже 1280 px колонки друг под другом */
+  .seller-dialogs__search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
   }
-  .seller-tabs > a {
-    flex: none;
+  .seller-dialogs__search .field {
+    margin: 0;
     white-space: nowrap;
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--text-md);
-    min-height: 44px;
-    border-radius: var(--radius-control);
   }
-  @media (max-width: 700px) {
-    .seller-tabs > a {
-      font-size: var(--text-sm);
+  .seller-dialogs {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  .seller-dialogs > * {
+    min-width: 0;
+  }
+  .seller-dialogs tr[aria-selected='true'] {
+    background: var(--row-hover);
+  }
+  .seller-dialogs .sub {
+    display: block;
+  }
+  @media (min-width: 1280px) {
+    .seller-dialogs {
+      grid-template-columns: minmax(280px, 1fr) minmax(0, 2fr) minmax(240px, 1fr);
     }
-  } /* Метка состояния под заголовком: слово бейджем и строка рядом */
+    .seller-dialogs__wide {
+      grid-column: span 2;
+    }
+  }
+
+  /* «Обзор» и «Аналитика» (S3.1): плитки показателей те же, что на хабе «Продажи», в четыре колонки */
+  .seller-overview,
+  .seller-analytics {
+    display: grid;
+    gap: var(--space-6);
+    min-width: 0;
+  }
+  .seller-overview .kpi-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  @media (max-width: 960px) {
+    .seller-overview .kpi-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+ /* Метка состояния под заголовком: слово бейджем и строка рядом */
   .seller-state {
     display: inline-flex;
     flex-wrap: wrap;
@@ -213,4 +242,18 @@
   .seller-wizard__body .panel .settings-note {
     margin: 0;
   }
+}
+
+@layer sections {
+  .seller-overview__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2); }
+  .seller-overview .kpi-row { gap: var(--space-2); grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .seller-setup-disclosure { padding: var(--space-2) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+  .seller-setup-disclosure > summary { min-height: 44px; display: flex; align-items: center; font-weight: var(--weight-semibold); cursor: pointer; }
+  .seller-setup-disclosure > summary::before { content: '+'; color: var(--primary); margin-right: var(--space-2); }
+  .seller-setup-disclosure[open] > summary::before { content: '−'; }
+  .seller-wizard__steps { gap: var(--space-2); }
+  .seller-wizard__heading { margin-block: var(--space-2); }
+  .seller-wizard__heading p, .seller-wizard__footer .muted { font-size: var(--text-sm); }
+  .seller-wizard__steps button { min-height: 44px; white-space: normal; }
+  @media (max-width: 600px) { .seller-overview .kpi-row { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 }

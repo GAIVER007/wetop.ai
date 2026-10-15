@@ -1,68 +1,78 @@
 import Link from 'next/link';
+import styles from './audience-segments.module.css';
 import { getDictionary } from '../../i18n';
-import { contactLinks } from '../../lib/site';
-import { ChessboardMockup } from '../chessboard-mockup';
 import { Icon } from '../icon';
-import { SectionHeading } from '../section-heading';
-import { typo } from '../typo';
 
 /*
- * «Для кого» (03.10.2026, решение владельца): три типа объектов, с которыми система работает, рядом макет
- * шахматки, ниже приглашение салонам и студиям. Дорожной карты направлений («Первое направление: Hospitality»,
- * «Следующее направление», «подключить пока нельзя») на странице нет: она говорила посетителю, что продукт
- * недоделан, а салону, что ему сюда нельзя.
- *
- * Приглашение ведёт на почту, а не на регистрацию, и намеренно не обещает журнал записи, мастеров и расписание
- * услуг: в стойке этих функций ещё нет (DESIGN.md §19.9).
+ * «Три направления. Одна платформа»: фото направления сверху карточки во всю ширину (пометка владельца
+ * 13.10.2026: мелкие картинки сбоку выглядели бедно), иконка и название, список возможностей и переход на страницу направления в заголовке.
  */
+const DIRECTION = {
+  HOSPITALITY: 'hotels',
+  BEAUTY: 'salons',
+  FOOD_SERVICE: 'restaurants',
+} as const;
+
+/* Фото направлений сгенерированы через KIE по решению владельца 10.10.2026 (ключ в связке ключей
+ * Mac, `security find-generic-password -s KIE_API_KEY`); файлы свои, не стоки, людей и текста нет. */
+const PHOTO: Record<'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', string> = {
+  HOSPITALITY: '/photos/hotel.jpg',
+  BEAUTY: '/photos/salon.jpg',
+  FOOD_SERVICE: '/photos/restaurant.jpg',
+};
+
 export function Audience() {
-  const { audience } = getDictionary();
-  const email = contactLinks().find((contact) => contact.kind === 'email');
+  const t = getDictionary();
   return (
-    <section id="audience" className="section section--band" aria-labelledby="audience-title">
+    <section id="audience" className="verticals section" aria-labelledby="audience-title">
       <div className="container">
-        <div className="showcase__layout">
-          <div>
-            <SectionHeading
-              id="audience-title"
-              eyebrow={audience.eyebrow}
-              title={audience.title}
-              lead={audience.lead}
-            />
-            <ul className="showcase__cases">
-              {audience.items.map((item) => (
-                <li key={item.title}>
+        <div className="section-heading section-heading--center">
+          <p className="eyebrow">{t.nav.audience}</p>
+          <h2 id="audience-title" className="section-heading__title">
+            {t.intro.verticalTitle}
+          </h2>
+          <p className="section-heading__lead">{t.intro.verticalLead}</p>
+        </div>
+        <div className="verticals__grid">
+          {t.intro.cards.map((card) => {
+            const direction = DIRECTION[card.id];
+            return (
+              <article className={`verticals__card ${styles.card}`} key={card.id}>
+                <img
+                  className="verticals__photo"
+                  src={PHOTO[card.id]}
+                  alt=""
+                  width={1184}
+                  height={864}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="verticals__head">
                   <span className="icon-tile">
-                    <Icon name={item.icon} />
+                    <Icon name={card.icon} size={22} />
                   </span>
                   <div>
-                    <h3>{typo(item.title)}</h3>
-                    <p>{typo(item.text)}</p>
-                    <Link className="link-arrow" href={`/for/${item.segment}/`}>
-                      {audience.more}
-                      <Icon name="arrowRight" size={16} />
-                    </Link>
+                    <h3>
+                      <Link className={styles.titleLink} href={`/for/${direction}/`}>
+                        {card.title}
+                        <Icon name="arrowRight" size={18} />
+                      </Link>
+                    </h3>
+                    <p className="verticals__name">{card.name}</p>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="showcase">
-            <ChessboardMockup />
-            <p className="showcase__caption">{typo(audience.caption)}</p>
-          </div>
-        </div>
-        <div className="invite card glass glass--quiet">
-          <div>
-            <h3 className="card__title">{audience.invite.title}</h3>
-            <p className="card__text">{typo(audience.invite.text)}</p>
-          </div>
-          {email ? (
-            <a className="btn btn--secondary" href={email.href}>
-              {audience.invite.action}
-              <Icon name="mail" size={18} />
-            </a>
-          ) : null}
+                </div>
+                <p className="verticals__text">{card.text}</p>
+                <ul className="verticals__capabilities">
+                  {card.capabilities.map((item) => (
+                    <li key={item}>
+                      <Icon name="check" size={15} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -1,0 +1,21 @@
+# Сквозные (e2e) · 13.10.2026 13:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9dbbda7 (claude/restaurant-design-mockup), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' 'tests/food-ui/stock.spec.ts' '--grep' 'оценка по QR|бар, финансы|снимки и axe'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+[WebServer] (node:77569) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/food-ui/restaurant.spec.ts:542:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (24.4s)
+  ✓  2 tests/food-ui/restaurant.spec.ts:780:1 › бар, финансы и настройки ресторана по макету (экраны 7, 12, 13) (48.1s)
+  ✓  3 tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 (24.2s)
+
+  3 passed (1.9m)
+
+# код выхода 0 · 2 мин

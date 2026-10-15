@@ -807,6 +807,40 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     });
   });
 
+  it('RPT2.4a: деньги за период по дням — поступления, возвраты, чистые и поток раздельно; аннулированное не считается; неверный период → 400', async () => {
+    const cf = (qs: string) => request(app.getHttpServer()).get(`/finance/cashflow${qs}`);
+    await cf('').expect(400);
+    await cf('?from=2026-10-31&to=2026-10-01').expect(400);
+    await cf('?from=2025-01-01&to=2026-10-31').expect(400);
+    const r = await cf('?from=2026-10-01&to=2026-10-31').expect(200);
+    expect(r.body).toMatchObject({
+      from: '2026-10-01',
+      to: '2026-10-31',
+      currency: 'KZT',
+      truncated: false,
+    });
+    expect(r.body.days).toHaveLength(31);
+    // P1 1 500 000 нал + P2 200 000 Kaspi; P3 аннулирована; возврат R1 50 000
+    expect(r.body.totals).toMatchObject({
+      receiptsMinor: '1700000',
+      receiptsCashMinor: '1700000',
+      receiptsOffCashMinor: '0',
+      refundsMinor: '50000',
+      netReceiptsMinor: '1650000',
+      incomeMinor: '0',
+      expenseMinor: '0',
+      cashFlowMinor: '1650000',
+    });
+    const sum = r.body.days.reduce(
+      (n: bigint, d: { receiptsMinor: string }) => n + BigInt(d.receiptsMinor),
+      0n,
+    );
+    expect(sum.toString()).toBe(r.body.totals.receiptsMinor);
+    expect(r.body.days.find((d: { date: string }) => d.date === '2026-10-05')).toMatchObject({
+      receiptsMinor: '1500000',
+    });
+  });
+
   it('ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400', async () => {
     const ops = (qs: string) => request(app.getHttpServer()).get(`/finance/operations${qs}`);
     await ops('').expect(400);
@@ -1277,7 +1311,10 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     const http = () => request(app.getHttpServer());
     const F1 = '00000000-0000-4000-8000-000000000021';
     const F2 = '00000000-0000-4000-8000-000000000022';
-    const pay = async (allocations: Array<{ folioId: string; amount: string }>, method = 'CASH') => {
+    const pay = async (
+      allocations: Array<{ folioId: string; amount: string }>,
+      method = 'CASH',
+    ) => {
       const amount = allocations.reduce((x, a) => x + Number(a.amount), 0).toString();
       await http().post('/finance/payments').send({ method, amount, allocations }).expect(201);
       return (await folioOf(allocations[0]!.folioId)).allocations.at(-1)!.paymentId;
@@ -1352,8 +1389,14 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       expect(stored.paidAt).toBe('2026-09-09T12:00:00.000Z');
       // способ не из справочника и сумма не число — 400 до записи
       const fresh = String(lines[1]!['paymentId']);
-      await http().post(`/finance/payments/${fresh}/replace`).send({ method: 'GOLD', amount: '1' }).expect(400);
-      await http().post(`/finance/payments/${fresh}/replace`).send({ method: 'CASH', amount: 'x' }).expect(400);
+      await http()
+        .post(`/finance/payments/${fresh}/replace`)
+        .send({ method: 'GOLD', amount: '1' })
+        .expect(400);
+      await http()
+        .post(`/finance/payments/${fresh}/replace`)
+        .send({ method: 'CASH', amount: 'x' })
+        .expect(400);
     });
 
     it('групповой платёж: без распределения 409 словами, с распределением заменяется', async () => {
@@ -1482,9 +1525,9 @@ describe('роли в деньгах: возврат, сторно и умень
       .set(as('session-manager'))
       .send({ method: 'KASPI', amount: '1000' })
       .expect(200);
-    const fresh = (replaced.body.folios[0].payments as Array<{ paymentId: string; status: string }>).find(
-      (x) => x.status === 'COMPLETED',
-    )!.paymentId;
+    const fresh = (
+      replaced.body.folios[0].payments as Array<{ paymentId: string; status: string }>
+    ).find((x) => x.status === 'COMPLETED')!.paymentId;
     await request(app.getHttpServer())
       .post(`/finance/payments/${fresh}/void`)
       .set(as('session-manager'))

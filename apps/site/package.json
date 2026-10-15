@@ -10,9 +10,11 @@
   },
   "devDependencies": {
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.7"
+    "@types/react-dom": "^19.2.7",
+    "agentation": "3.1.2"
   },
   "dependencies": {
+    "lucide-react": "^1.45.0",
     "marked": "18.0.13",
     "next": "^16.3.6",
     "react": "^19.2.8",

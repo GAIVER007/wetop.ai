@@ -1,0 +1,32 @@
+{
+ "/inventory": {
+  "390": [
+   {
+    "cols": 10,
+    "noHead": false,
+    "rows": 91,
+    "rowHeights": [
+     60,
+     61,
+     69
+    ],
+    "widerThanViewport": true,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 10,
+    "noHead": false,
+    "rows": 91,
+    "rowHeights": [
+     46,
+     47,
+     48
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

@@ -1,0 +1,21 @@
+# Типы (typecheck) · 09.10.2026 19:17 Алматы · vm
+# коммит f9f53f4 (claude/serene-newton-q453ps)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/chessboard/board-zoom.tsx(23,13): error TS2345: Argument of type '() => () => string' is not assignable to parameter of type 'EffectCallback'.
+  Type '() => string' is not assignable to type 'void | Destructor'.
+    Type '() => string' is not assignable to type 'Destructor'.
+      Type 'string' is not assignable to type 'void | { [UNDEFINED_VOID_ONLY]: never; }'.
+
+# код выхода 1 · 1 мин 2 с

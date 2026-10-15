@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { requireVertical } from '../../lib/vertical-guard';
 import { SCOPE_COOKIE, scopeHeader } from '../../lib/scope-pointer';
 import { authRequired } from '../../lib/session';
-import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { BeautyToday } from './beauty-today';
 import {
   TODAY_VERTICALS,
@@ -12,15 +11,16 @@ import {
   unresolvedTarget,
 } from './dispatch';
 import { FoodToday } from './food-today';
-import { TodayScopeContent } from './scope-content';
 import { HospitalityToday } from './hospitality-today';
-import './desk.css';
+import { TodayScopeContent } from './scope-content';
 
 /**
  * Рабочий экран дня (MV8): один адрес на все направления. Экран выбирает подтверждённое направление
  * выбранного филиала; без него гостиница не угадывается, человек идёт через выбор филиала (SCOPE-HARDENING).
+ * Гостиница: с 13.10.2026 снова своя Главная (загрузка, события дня, задачи), «Финансы» отдельно
+ * (решение владельца поверх ADR-152, план объединения plans/finance-home-merge-2026-10-09.md).
  */
-export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+export default async function TodayPage() {
   const me = await requireVertical(TODAY_VERTICALS);
   const { screen, key } = todayScreen(me, {
     allowAnonymousHospitality: anonymousHospitalityAllowed({
@@ -32,13 +32,13 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     const pointer = (await cookies()).get(SCOPE_COOKIE)?.value;
     redirect(unresolvedTarget(Boolean(scopeHeader(pointer)['x-wetop-scope'])));
   }
-  const content =
-    screen === 'BEAUTY' ? (
-      <BeautyToday />
-    ) : screen === 'FOOD_SERVICE' ? (
-      <FoodToday />
-    ) : (
-      <HospitalityToday sp={normalizeSearchParams(await searchParams)} />
+  // гостиница: Главная снова отдельным экраном (решение владельца 13.10.2026, «Финансы» по эталону)
+  if (screen === 'HOSPITALITY')
+    return (
+      <TodayScopeContent key={key}>
+        <HospitalityToday />
+      </TodayScopeContent>
     );
+  const content = screen === 'BEAUTY' ? <BeautyToday /> : <FoodToday />;
   return <TodayScopeContent key={key}>{content}</TodayScopeContent>;
 }

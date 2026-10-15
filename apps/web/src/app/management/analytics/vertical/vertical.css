@@ -31,3 +31,43 @@
     }
   }
 }
+
+@layer sections {
+  /* ресторан: выручка по дням и продажи по категориям рядом, как на макете (экран 10) */
+  .vertical-food__charts {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  @media (max-width: 960px) {
+    .vertical-food__charts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+@layer sections {
+  /* ресторан: четыре плитки слева направо, как на макете (экран 10) */
+  .vertical-food__kpis .stat {
+    justify-content: flex-start;
+    text-align: left;
+    min-height: 0;
+  }
+  .vertical-food__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-8);
+    margin: 0;
+  }
+  .vertical-food__facts dt {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .vertical-food__facts dd {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+}

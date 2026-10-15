@@ -1,0 +1,18 @@
+# Модульные (unit) · 09.10.2026 17:46 Алматы · vm
+# коммит 857c4ad (claude/stoic-darwin-hjb5x3)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-46-04Z-unit-2b29.json' 'apps/web/src/lib/workspace-organization.test.ts' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/components/shell/tour-steps.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests) 10ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (3 tests) 7ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (18 tests) 15ms
+
+ Test Files  3 passed (3)
+      Tests  29 passed (29)
+   Start at  12:46:05
+   Duration  1.86s (transform 87%, import 11%, tests 1%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-46-04Z-unit-2b29.json
+
+# код выхода 0 · 3 с

@@ -34,7 +34,7 @@
   .workspace {
     min-height: 100vh;
   }
-  /* Шапка из двух липких строк (ADR-134): знак, объект, поиск и профиль; ниже строка разделов (top-menu.css) */
+  /* Шапка одной липкой строкой: объект, поиск и профиль; разделы в левом меню (side-nav.css, ADR-161) */
   .workspace-header {
     position: sticky;
     top: 0;
@@ -291,7 +291,10 @@
     margin-top: 26px;
     margin-bottom: 12px;
   }
+  /* Опорный блок для скрытых подписей `.sr-only` (position: absolute) в ячейках: без него подпись встаёт в
+     начальный блок страницы и тянет её вбок на телефоне (грабли 07.10, 09.10 и 11.10.2026, чинились поштучно) */
   .table-scroll {
+    position: relative;
     width: 100%;
     max-width: 100%;
     overflow: auto;
@@ -300,7 +303,8 @@
   .tbl-wrap .table-scroll > .tbl {
     border: 0;
   }
-  .toolbar {
+  /* Прежняя полоса отбора карточкой (до DS1b `.toolbar`); осталась у отчёта каналов до DS4–DS7 */
+  .filter-bar {
     padding: 16px;
     border: 1px solid var(--border);
     margin-bottom: 20px;
@@ -388,12 +392,12 @@
     }
   }
   @media (max-width: 960px) {
-    /* строки разделов нет: одна строка шапки 60 px, объект вверху меню телефона */
+    /* UI3.1: одна строка шапки 56 px, объект вверху меню телефона */
     .workspace {
-      --header-h: 60px;
+      --header-h: calc(var(--header-row-h) + env(safe-area-inset-top, 0px));
     }
     .workspace-header__row {
-      min-height: 60px;
+      min-height: var(--header-row-h);
     }
     .workspace-header__property {
       display: none;
@@ -411,11 +415,10 @@
     .workspace-brand .brand-name {
       display: none;
     }
-    /* Нижняя навигация — fixed ~70 px (ADR-050): без запаса последние строки страницы уходят под неё.
-   * Правило живёт здесь, а не в блоке ≤360: иначе на обычном телефоне (375–430 px) его нет. */
+    /* UI3.1: нижней навигации нет, остаётся отступ содержимого и safe-area. */
     .workspace .page,
     .workspace .page--full {
-      padding: 22px 16px calc(90px + env(safe-area-inset-bottom, 0px));
+      padding: 22px 16px calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
     }
     /* Телефон целиком. ADR-134 свёл эти правила в блок ≤360 px, и на обычном телефоне (361–600 px)
    * перестали действовать цели 44 px, размер заголовка и отступы панелей: кнопки падали до 36 px. */
@@ -443,10 +446,10 @@
     .workspace textarea {
       font-size: var(--text-lg);
     }
-    .toolbar {
+    .filter-bar {
       gap: 12px;
     }
-    .toolbar .field {
+    .filter-bar .field {
       flex: 1 1 140px;
     }
   }
@@ -476,7 +479,6 @@
   @media (min-width: 961px) {
     .workspace .page:has(> .reservations-results),
     .workspace .page:has(> .inventory-content),
-    .workspace .page:has(> .guests-bar),
     .workspace .page:has(> .fund-availability) {
       display: flex;
       flex-direction: column;
@@ -486,7 +488,6 @@
     /* остаток высоты — последнему блоку, и он передаёт его своей таблице */
     .workspace .page > .reservations-results,
     .workspace .page > .inventory-content,
-    .workspace .page:has(> .guests-bar) > section:last-of-type,
     .workspace .page > .fund-availability {
       flex: 1 1 0;
       min-height: 0;
@@ -500,8 +501,7 @@
       flex-direction: column;
     }
     .workspace .page .reservations-results .table-scroll,
-    .workspace .page .inventory-content .table-scroll,
-    .workspace .page:has(> .guests-bar) > section:last-of-type .table-scroll {
+    .workspace .page .inventory-content .table-scroll {
       flex: 1 1 0;
       min-height: 0;
       max-height: none;
@@ -696,22 +696,6 @@
   .board-date-nav {
     gap: 6px;
   }
-  .board-period .seg {
-    padding: 3px;
-    background: var(--surface-muted);
-    border: 1px solid var(--border);
-    gap: 2px;
-  }
-  .board-period .seg a {
-    border: 0;
-    border-radius: 5px;
-    padding: 7px 13px;
-  }
-  .board-period .seg a.is-on {
-    background: var(--surface);
-    color: var(--text);
-    box-shadow: 0 1px 3px var(--overlay);
-  }
   .rotate-left {
     transform: rotate(180deg);
   }
@@ -856,7 +840,7 @@
     display: contents;
   }
   /* полоса отборов с подписанными полями: поля по нижнему краю (до DS0b жило в management/hotel.css) */
-  .row.toolbar {
+  .row.filter-bar {
     align-items: flex-end;
   }
 }

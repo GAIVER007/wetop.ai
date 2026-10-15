@@ -1,0 +1,166 @@
+# Сквозные (e2e) · 10.10.2026 14:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит c610ef0 (claude/sales2-impl), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/ai-seller-overview.spec.ts' '--workers=1' '--timeout=240000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 20 tests using 1 worker
+
+  ✓   1 tests/ui/ai-seller-overview.spec.ts:24:1 › вкладки по макету: обзор, настройка, диалоги, знания, подключения, сценарии, аналитика (10.6s)
+  ✓   2 tests/ui/ai-seller-overview.spec.ts:31:1 › обзор: восемь плиток, числа из бота и из сводки продаж (9.1s)
+  ✓   3 tests/ui/ai-seller-overview.spec.ts:48:1 › обзор: диалог, которому нужен человек, виден списком и ведёт в диалоги (12.7s)
+  ✓   4 tests/ui/ai-seller-overview.spec.ts:60:1 › сводка продаж не посчиталась: сказано словами, плитки бота живы (16.3s)
+  ✓   5 tests/ui/ai-seller-overview.spec.ts:68:1 › аналитика: таблица периода и прошлого такого же, период переключается (22.3s)
+  ✓   6 tests/ui/ai-seller-overview.spec.ts:83:1 › аналитика: работа продавца за сутки, доля без человека, передачи и время первого ответа (8.1s)
+  ✓   7 tests/ui/ai-seller-overview.spec.ts:91:1 › аналитика: сводка недоступна, сказано словами (6.3s)
+  ✓   8 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: overview, light, 1440px (7.3s)
+  ✓   9 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: overview, light, 390px (6.0s)
+  ✓  10 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: overview, dark, 1440px (6.1s)
+  ✓  11 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: overview, dark, 390px (4.2s)
+  ✓  12 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: scenarios, light, 1440px (3.9s)
+  ✓  13 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: scenarios, light, 390px (4.4s)
+  ✓  14 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: scenarios, dark, 1440px (15.4s)
+  ✓  15 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: scenarios, dark, 390px (12.2s)
+  ✘  16 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, light, 1440px (7.8s)
+  ✘  17 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, light, 390px (10.2s)
+  ✘  18 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, dark, 1440px (13.0s)
+  ✘  19 tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, dark, 390px (8.8s)
+  ✓  20 tests/ui/ai-seller-overview.spec.ts:115:1 › сценарии: работает «Продажи», «Поддержка сайта» помечена «скоро», конструктор честно назван будущим (4.3s)
+
+
+  1) tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, light, 1440px ────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "landmark-unique",
+    + ]
+
+      104 |         await expect(page.getByTestId(`seller-${view}`)).toBeVisible();
+      105 |         const scan = await new AxeBuilder({ page }).analyze();
+    > 106 |         expect(scan.violations.map((v) => v.id)).toEqual([]);
+          |                                                  ^
+      107 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      108 |         mkdirSync(SHOTS, { recursive: true });
+      109 |         await page.screenshot({ path: `${SHOTS}/${view}-${theme}-${width}.png`, fullPage: true });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller-overview.spec.ts:106:50
+
+    Error Context: test-results/ai-seller-overview-доступн-0a2ad-имки-analytics-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-overview-доступн-0a2ad-имки-analytics-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-overview-доступн-0a2ad-имки-analytics-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, light, 390px ─────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "landmark-unique",
+    + ]
+
+      104 |         await expect(page.getByTestId(`seller-${view}`)).toBeVisible();
+      105 |         const scan = await new AxeBuilder({ page }).analyze();
+    > 106 |         expect(scan.violations.map((v) => v.id)).toEqual([]);
+          |                                                  ^
+      107 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      108 |         mkdirSync(SHOTS, { recursive: true });
+      109 |         await page.screenshot({ path: `${SHOTS}/${view}-${theme}-${width}.png`, fullPage: true });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller-overview.spec.ts:106:50
+
+    Error Context: test-results/ai-seller-overview-доступн-6fd2a-нимки-analytics-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-overview-доступн-6fd2a-нимки-analytics-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-overview-доступн-6fd2a-нимки-analytics-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, dark, 1440px ─────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "landmark-unique",
+    + ]
+
+      104 |         await expect(page.getByTestId(`seller-${view}`)).toBeVisible();
+      105 |         const scan = await new AxeBuilder({ page }).analyze();
+    > 106 |         expect(scan.violations.map((v) => v.id)).toEqual([]);
+          |                                                  ^
+      107 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      108 |         mkdirSync(SHOTS, { recursive: true });
+      109 |         await page.screenshot({ path: `${SHOTS}/${view}-${theme}-${width}.png`, fullPage: true });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller-overview.spec.ts:106:50
+
+    Error Context: test-results/ai-seller-overview-доступн-55956-нимки-analytics-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-overview-доступн-55956-нимки-analytics-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-overview-доступн-55956-нимки-analytics-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, dark, 390px ──────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "landmark-unique",
+    + ]
+
+      104 |         await expect(page.getByTestId(`seller-${view}`)).toBeVisible();
+      105 |         const scan = await new AxeBuilder({ page }).analyze();
+    > 106 |         expect(scan.violations.map((v) => v.id)).toEqual([]);
+          |                                                  ^
+      107 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      108 |         mkdirSync(SHOTS, { recursive: true });
+      109 |         await page.screenshot({ path: `${SHOTS}/${view}-${theme}-${width}.png`, fullPage: true });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller-overview.spec.ts:106:50
+
+    Error Context: test-results/ai-seller-overview-доступность-и-снимки-analytics-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-overview-доступность-и-снимки-analytics-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-overview-доступность-и-снимки-analytics-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, light, 1440px ─────
+    tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, light, 390px ──────
+    tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, dark, 1440px ──────
+    tests/ui/ai-seller-overview.spec.ts:100:7 › доступность и снимки: analytics, dark, 390px ───────
+  16 passed (4.1m)
+
+# код выхода 1 · 4 мин 8 с

@@ -1,0 +1,34 @@
+# Интеграционные (integration) · 13.10.2026 23:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8391e6a (codex/organizations-card-editor)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T18-59-43Z-integration-691b.json' 'tests/integration/organization-feedback.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |integration| tests/integration/organization-feedback.test.ts (3 tests | 3 skipped) 4ms
+   ↓ adds a branch to the selected business instead of the first hotel
+   ↓ creates another hotel brand atomically with its first object and replays safely
+   ↓ reports received payments, preserves currency and archived history, and restores the object
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/organization-feedback.test.ts [ tests/integration/organization-feedback.test.ts ]
+Error: Isolated local database required
+ ❯ tests/integration/organization-feedback.test.ts:31:11
+     29| beforeAll(async () => {
+     30|   if (!process.env.DATABASE_URL?.includes('127.0.0.1:55613'))
+     31|     throw new Error('Isolated local database required');
+       |           ^
+     32|   await db.user.create({
+     33|     data: { id: user, email: `feedback-${user}@example.invalid`, name:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 skipped (3)
+   Start at  11:59:44
+   Duration  1.59s (import 59%, transform 40%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T18-59-43Z-integration-691b.json
+
+# код выхода 1 · 2 с

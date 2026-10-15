@@ -1,0 +1,15 @@
+# Сквозные (e2e) · 13.10.2026 20:48 Алматы · MacBook-Air-Urij.local
+# коммит e66c372 (claude/ui43-hospitality-20261013)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/ref-capture.spec.ts' '--workers=1'
+[WebServer] /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/beauty-ui/fixture-api.ts:24
+[WebServer]   throw new Error('Own local database required');
+[WebServer]         ^
+[WebServer] 
+[WebServer] Error: Own local database required
+[WebServer]     at <anonymous> (/Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/beauty-ui/fixture-api.ts:24:9)
+[WebServer] 
+[WebServer] Node.js v24.15.0
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 4 с

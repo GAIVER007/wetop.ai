@@ -1,0 +1,3233 @@
+# Сквозные (e2e) · 09.10.2026 19:58 Алматы · vm
+# коммит c50af50 (claude/quirky-newton-qkhfgz)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/chessboard-card.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/chessboard-extend.spec.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/chessboard-focus.spec.ts' 'tests/ui/chessboard-gate-pr3.spec.ts' 'tests/ui/chessboard-gate-pr4.spec.ts' 'tests/ui/chessboard-gate-pr5.spec.ts' 'tests/ui/chessboard-gate-pr6.spec.ts' 'tests/ui/chessboard-gate-pr7.spec.ts' 'tests/ui/chessboard-gate.spec.ts' 'tests/ui/chessboard-grid.spec.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-range.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-unassigned.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/control-design.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' 'tests/ui/date-field.spec.ts' 'tests/ui/design-reference.spec.ts' 'tests/ui/design-refresh.spec.ts' 'tests/ui/design-system.spec.ts' 'tests/ui/desk-tasks.spec.ts' 'tests/ui/desktop-compact.spec.ts' 'tests/ui/ds0b-capture.spec.ts' 'tests/ui/ds1a-capture.spec.ts' '--config' 'tests/ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 176 tests using 2 workers
+
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url={"/chessbo..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_d3pbn5r..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-09-14" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-09-14"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-09-20" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-09-20"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-09" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓    2 tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (3.5s)
+  ✓    1 tests/ui/chessboard-card.spec.ts:15:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (4.5s)
+  ✓    3 tests/ui/chessboard-compact-screen.spec.ts:62:1 › свёрнутые категории переживают перезагрузку и разворачиваются (4.0s)
+  ✓    4 tests/ui/chessboard-card.spec.ts:40:1 › двойной клик открывает полную карточку брони (5.3s)
+  ✓    6 tests/ui/chessboard-card.spec.ts:46:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить (3.3s)
+  ✓    5 tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Компактный», сохранённый «Обычный» и «Подробный» восстанавливаются (8.6s)
+  ✓    7 tests/ui/chessboard-card.spec.ts:68:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (3.2s)
+  ✓    8 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (2.6s)
+  ✓   10 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (4.6s)
+  ✘    9 tests/ui/chessboard-card.spec.ts:87:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (19.2s)
+  ✓   11 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (14.4s)
+  ✓   13 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (14.4s)
+  ✘   12 tests/ui/chessboard-card.spec.ts:122:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (18.6s)
+  ✓   14 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (3.9s)
+  ✓   15 tests/ui/chessboard-card.spec.ts:150:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (3.6s)
+  ✓   16 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (4.6s)
+  ✓   18 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (3.5s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   19 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (5.4s)
+  ✓   20 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (3.2s)
+  ✓   21 tests/ui/chessboard-extend.spec.ts:24:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (2.2s)
+  ✓   22 tests/ui/chessboard-extend.spec.ts:43:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (4.5s)
+  ✘   17 tests/ui/chessboard-card.spec.ts:165:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (21.1s)
+  ✓   23 tests/ui/chessboard-extend.spec.ts:79:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (4.5s)
+  ✓   25 tests/ui/chessboard-extend.spec.ts:112:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (3.5s)
+  ✓   24 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (6.6s)
+  ✓   26 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 escape: restores cell focus without scrolling (2.3s)
+  ✓   28 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 button: restores cell focus without scrolling (2.5s)
+  ✓   27 tests/ui/chessboard-filters.spec.ts:142:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (3.8s)
+  ✓   29 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 escape: restores cell focus without scrolling (2.7s)
+[WebServer] [browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+  ✓   31 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 button: restores cell focus without scrolling (2.4s)
+  ✓   32 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 escape: restores cell focus without scrolling (2.0s)
+  ✓   33 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 button: restores cell focus without scrolling (1.9s)
+  ✓   34 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling (1.9s)
+  ✓   35 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling (1.8s)
+  ✓   36 tests/ui/chessboard-focus.spec.ts:64:1 › free panel outside click leaves focus on the selected control (1.9s)
+  ✘   30 tests/ui/chessboard-filters.spec.ts:173:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (19.1s)
+  ✓   37 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: light (5.8s)
+  ✓   38 tests/ui/chessboard-filters.spec.ts:238:1 › §37: ничего не найдено — «Сбросить фильтры» (2.3s)
+  ✓   40 tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (4.5s)
+  ✓   41 tests/ui/chessboard-filters.spec.ts:276:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (2.0s)
+  ✓   42 tests/ui/chessboard-filters.spec.ts:294:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (2.5s)
+  ✓   43 tests/ui/chessboard-filters.spec.ts:321:1 › доступность: окошко «Фильтры» открыто (2.7s)
+  ✘   39 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: dark (20.2s)
+  ✘   44 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: light (22.1s)
+  ✓   46 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: dark (12.9s)
+  ✓   47 tests/ui/chessboard-gate-pr6.spec.ts:47:3 › гейт PR 6: light (8.5s)
+  ✓   48 tests/ui/chessboard-gate-pr6.spec.ts:47:3 › гейт PR 6: dark (7.9s)
+  ✓   49 tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: light (6.7s)
+  ✓   50 tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: dark (6.7s)
+  ✓   51 tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (3.7s)
+  ✓   52 tests/ui/chessboard-gate.spec.ts:72:1 › гейт: тёмная тема — полный экран и верх (3.5s)
+  ✓   53 tests/ui/chessboard-gate.spec.ts:95:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (5.9s)
+  ✓   54 tests/ui/chessboard-grid.spec.ts:12:1 › колонка места объясняет себя подсказкой: вид, код и состояние уборки (1.5s)
+  ✓   55 tests/ui/chessboard-grid.spec.ts:23:1 › свёрнутая категория переживает перезагрузку страницы (4.4s)
+  ✓   56 tests/ui/chessboard-grid.spec.ts:39:1 › строка категории прилипает под шапкой дат при вертикальной прокрутке (1.8s)
+  ✓   57 tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (2.6s)
+  ✓   58 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (3.9s)
+  ✓   59 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (4.0s)
+  ✓   60 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (3.1s)
+  ✓   61 tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (1.8s)
+  ✓   62 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (3.1s)
+  ✓   63 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (3.2s)
+  ✓   64 tests/ui/chessboard-mobile.spec.ts:160:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (1.7s)
+  ✓   65 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 360: виджеты дня перед календарём и вертикальная прокрутка (2.4s)
+  ✓   66 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 390: виджеты дня перед календарём и вертикальная прокрутка (2.5s)
+  ✓   67 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 430: виджеты дня перед календарём и вертикальная прокрутка (2.2s)
+  ✓   68 tests/ui/chessboard-mobile.spec.ts:222:1 › мобильная панель меняет заезд без закрытия и показывает выезд (2.9s)
+  ✓   69 tests/ui/chessboard-mobile.spec.ts:242:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (5.0s)
+  ✓   70 tests/ui/chessboard-mobile.spec.ts:271:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (1.4s)
+  ✓   71 tests/ui/chessboard-mobile.spec.ts:294:3 › телефон light: длинное имя и бронь на 28 ночей (3.1s)
+  ✓   72 tests/ui/chessboard-mobile.spec.ts:294:3 › телефон dark: длинное имя и бронь на 28 ночей (3.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   73 tests/ui/chessboard-mobile.spec.ts:327:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (5.3s)
+  ✓   74 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (3.4s)
+  ✓   75 tests/ui/chessboard-month.spec.ts:28:1 › все 31 день помещаются по ширине окна (4.2s)
+  ✓   76 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (5.2s)
+  ✓   77 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (5.4s)
+  ✓   78 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (4.9s)
+  ✓   79 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (5.2s)
+  ✓   80 tests/ui/chessboard-month.spec.ts:72:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (5.5s)
+  ✓   81 tests/ui/chessboard-month.spec.ts:99:1 › 30 дней: окно от сегодня, «Месяц» ушёл из сегмента в «Даты» (4.5s)
+  ✓   82 tests/ui/chessboard-month.spec.ts:123:1 › в месяце открываются брони, свободные даты и группы номеров (10.5s)
+  ✘   45 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light (3.0m)
+  ✓   84 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: dark (9.4s)
+  ✓   85 tests/ui/chessboard-range.spec.ts:51:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена (3.8s)
+  ✓   86 tests/ui/chessboard-range.spec.ts:85:1 › выделение не заходит на занятую или закрытую ночь — ни вправо, ни влево (4.5s)
+  ✓   87 tests/ui/chessboard-range.spec.ts:127:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом (2.8s)
+  ✓   88 tests/ui/chessboard-range.spec.ts:150:1 › «только чтение» (ADR-102): окошко говорит, что свободно, но действий не предлагает (6.4s)
+  ✓   83 tests/ui/chessboard-month.spec.ts:167:3 › месячная сетка: light, читаемость и адаптивность (30.8s)
+  ✘   89 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (17.3s)
+  ✓   91 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (2.4s)
+  ✓   92 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (2.3s)
+  ✓   93 tests/ui/chessboard-statistics.spec.ts:54:1 › today statistics stay available when the calendar shows another month (5.3s)
+  ✓   90 tests/ui/chessboard-month.spec.ts:167:3 › месячная сетка: dark, читаемость и адаптивность (28.6s)
+  ✓   94 tests/ui/chessboard-statistics.spec.ts:68:1 › empty booking base shows zero occupancy and no urgent bookings (2.4s)
+  ✓   96 tests/ui/chessboard-statistics.spec.ts:82:3 › daily widgets light: accessible labels and contrasts (3.4s)
+  ✓   97 tests/ui/chessboard-statistics.spec.ts:82:3 › daily widgets dark: accessible labels and contrasts (3.2s)
+  ✓   98 tests/ui/chessboard-statistics.spec.ts:99:3 › desktop daily widgets light: accessible pointer targets (2.7s)
+  ✓   99 tests/ui/chessboard-statistics.spec.ts:99:3 › desktop daily widgets dark: accessible pointer targets (2.7s)
+  ✓  100 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (2.1s)
+  ✘   95 tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) (18.9s)
+  ✓  101 tests/ui/chessboard-week.spec.ts:28:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (7.7s)
+  ✓  103 tests/ui/chessboard-week.spec.ts:74:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (2.6s)
+  ✓  104 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (4.2s)
+  ✓  105 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (3.9s)
+  ✓  106 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (3.9s)
+  ✘  102 tests/ui/chessboard-unassigned.spec.ts:116:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом (19.3s)
+  ✓  107 tests/ui/chessboard-week.spec.ts:126:1 › в неделе работают бронь, категории и создание на воскресенье (5.3s)
+  ✓  108 tests/ui/chessboard-unassigned.spec.ts:157:1 › «Разрешить» у «Продано сверх мест» и ссылка с Главной открывают ящик; тон critical (3.2s)
+  ✓  110 tests/ui/chessboard-unassigned.spec.ts:175:1 › «только чтение» (ADR-102): места видны, назначить нельзя, бронь открывается (5.5s)
+  ✓  111 tests/ui/control-design.spec.ts:10:1 › контроль: поиск и чипы открытых неисправностей не меняют сводку и не повторяют API (2.1s)
+  ✓  112 tests/ui/control-design.spec.ts:34:1 › контроль: принятие с ошибкой и повтором, закрытие и история сохраняются после reload (3.3s)
+  ✓  113 tests/ui/control-design.spec.ts:57:1 › журнал: дни группами, время без года, объект одной подписью, чипы разделов (2.7s)
+CONTROL_JOURNAL_CONTROLS_MS 754
+  ✓  109 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: light, обе панели и телефон (18.7s)
+  ✓  114 tests/ui/control-design.spec.ts:105:1 › контроль: поиск журнала и переходы доступны до окончания медленного запроса (8.3s)
+  ✓  116 tests/ui/control-design.spec.ts:132:3 › контроль: мобильный вид, клавиатура и доступность light (5.2s)
+  ✓  117 tests/ui/control-design.spec.ts:132:3 › контроль: мобильный вид, клавиатура и доступность dark (6.1s)
+  ✓  115 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: dark, обе панели и телефон (17.6s)
+  ✓  118 tests/ui/dashboard-design.spec.ts:28:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (3.9s)
+  ✓  119 tests/ui/chessboard-week.spec.ts:205:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (2.4s)
+  ✓  120 tests/ui/dashboard-design.spec.ts:68:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (1.6s)
+  ✓  121 tests/ui/dashboard-desk.spec.ts:19:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез (2.3s)
+  ✓  122 tests/ui/dashboard-design.spec.ts:107:1 › финансы: «Требуют внимания» разбито по важности, сумма равна счётчику; быстрых действий нет (2.6s)
+  ✓  123 tests/ui/dashboard-desk.spec.ts:29:1 › 5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди (2.7s)
+  ✓  124 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (1.4s)
+  ✓  126 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (2.1s)
+  ✓  125 tests/ui/dashboard-desk.spec.ts:37:1 › 6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка (2.6s)
+  ✓  128 tests/ui/dashboard-desk.spec.ts:46:1 › 7. краткие подписи без декоративных разделителей (2.3s)
+  ✓  127 tests/ui/dashboard-resilience.spec.ts:37:1 › «Финансы» открываются и с упавшими показателями периода: риски остаются доступны (2.9s)
+  ✓  129 tests/ui/dashboard-desk.spec.ts:50:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (2.1s)
+  ✓  130 tests/ui/date-field.spec.ts:24:1 › показатели за период: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает (1.9s)
+  ✓  132 tests/ui/date-field.spec.ts:56:1 › показатели за период: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности (3.6s)
+  ✓  133 tests/ui/date-field.spec.ts:80:1 › телефон: кнопки календаря нет, родное поле остаётся (1.7s)
+  ✓  131 tests/ui/dashboard-desk.spec.ts:84:1 › 9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки (9.2s)
+  ✓  134 tests/ui/date-field.spec.ts:89:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле (5.7s)
+  ✓  135 tests/ui/dashboard-desk.spec.ts:126:1 › 10. заголовок страницы и панели брони — по шкале §6 (10.8s)
+  ✓  137 tests/ui/design-refresh.spec.ts:9:1 › финансы: деньги на первом экране, кнопки брони нет (5.0s)
+  ✓  138 tests/ui/design-refresh.spec.ts:32:1 › период «Финансов» и «Аналитики» на телефоне: подписанные поля и цели не меньше 44 px (4.0s)
+  ✓  139 tests/ui/design-refresh.spec.ts:76:1 › финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике» (3.7s)
+  ✘  136 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (23.5s)
+  ✓  140 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (16.6s)
+  ✘  141 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (21.6s)
+  ✓  143 tests/ui/design-system.spec.ts:22:1 › три темы на одной странице, у интерактивных компонентов восемь состояний (4.3s)
+  ✓  142 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (15.3s)
+  ✓  144 tests/ui/design-system.spec.ts:47:1 › переключатель тем сообщает выбранное состояние (3.0s)
+  ✓  146 tests/ui/design-system.spec.ts:61:1 › ошибка Field связана с невалидным полем (2.3s)
+  ✓  147 tests/ui/design-system.spec.ts:69:1 › повышенная контрастность проходит axe AA (6.8s)
+  ✓  145 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (17.0s)
+  ✓  149 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (16.4s)
+  ✓  150 tests/ui/desk-tasks.spec.ts:29:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря (5.6s)
+  ✘  148 tests/ui/design-system.spec.ts:84:3 › axe и эталонные снимки секций: light (28.3s)
+  ✓  151 tests/ui/desk-tasks.spec.ts:77:1 › ошибка словами у формы, введённое не теряется (1.6s)
+  ✘  152 tests/ui/desk-tasks.spec.ts:88:1 › «только чтение»: список виден, создавать и закрывать нельзя (19.0s)
+  ✓  154 tests/ui/desk-tasks.spec.ts:108:3 › снимки и доступность: light (3.4s)
+  ✓  155 tests/ui/desk-tasks.spec.ts:108:3 › снимки и доступность: dark (3.1s)
+  ✘  153 tests/ui/design-system.spec.ts:84:3 › axe и эталонные снимки секций: dark (28.3s)
+  ✓  157 tests/ui/design-system.spec.ts:111:1 › масштаб 200 %: нет горизонтальной прокрутки (2.5s)
+  ✓  158 tests/ui/design-system.spec.ts:132:1 › меню действий: стрелки, Enter, Escape возвращает фокус на кнопку (3.8s)
+  ✓  156 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (14.4s)
+  ✓  159 tests/ui/design-system.spec.ts:154:1 › окно подтверждения: фокус внутри, Escape — отказ, действие названо (4.4s)
+  ✓  160 tests/ui/desktop-compact.spec.ts:51:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (1.7s)
+  ✓  161 tests/ui/design-system.spec.ts:169:1 › уведомление появляется в живой области и закрывается (3.4s)
+  ✓  163 tests/ui/design-system.spec.ts:181:1 › подсказка открывается фокусом и закрывается Escape (3.5s)
+  ✓  162 tests/ui/desktop-compact.spec.ts:68:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (5.8s)
+  -  165 tests/ui/ds0b-capture.spec.ts:107:5 › снимки гостиницы light 1440
+  -  166 tests/ui/ds0b-capture.spec.ts:107:5 › снимки гостиницы light 390
+  -  167 tests/ui/ds0b-capture.spec.ts:107:5 › снимки гостиницы dark 1440
+  -  168 tests/ui/ds0b-capture.spec.ts:107:5 › снимки гостиницы dark 390
+  -  169 tests/ui/ds0b-capture.spec.ts:130:3 › вычисленные стили маршрутов гостиницы, 1440 light
+  -  170 tests/ui/ds0b-capture.spec.ts:130:3 › вычисленные стили маршрутов гостиницы, 390 light
+  -  171 tests/ui/ds0b-capture.spec.ts:130:3 › вычисленные стили маршрутов гостиницы, 1440 dark
+  -  172 tests/ui/ds0b-capture.spec.ts:201:1 › наведение на примитивы маршрутов гостиницы, 1440 светлая
+  -  173 tests/ui/ds1a-capture.spec.ts:34:5 › статусы гостиницы light 1440
+  -  174 tests/ui/ds1a-capture.spec.ts:34:5 › статусы гостиницы light 390
+  -  175 tests/ui/ds1a-capture.spec.ts:34:5 › статусы гостиницы dark 1440
+  -  176 tests/ui/ds1a-capture.spec.ts:34:5 › статусы гостиницы dark 390
+  ✓  164 tests/ui/design-system.spec.ts:194:1 › состояния: пусто говорит что сделать, загрузка помечена словом, сбой различает связь и адрес (2.7s)
+
+
+  1) tests/ui/chessboard-card.spec.ts:87:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('[data-number="20260916-DSG-BDC"] .board-stay-caption').locator('.board-stay-name-short')
+    Expected: "Гость Б."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('[data-number="20260916-DSG-BDC"] .board-stay-caption').locator('.board-stay-name-short') with timeout 15000ms
+      - waiting for locator('[data-number="20260916-DSG-BDC"] .board-stay-caption').locator('.board-stay-name-short')
+
+
+      104 |   // M04: однодневная «Гость Букинг»; в той же строке с 1-го числа — длинная бронь следующего месяца
+      105 |   const oneNight = page.locator('[data-number="20260916-DSG-BDC"] .board-stay-caption');
+    > 106 |   await expect(oneNight.locator('.board-stay-name-short')).toHaveText('Гость Б.');
+          |                                                            ^
+      107 |   await expect(oneNight.locator('.board-stay-name')).toBeHidden();
+      108 |   await expect(page.getByTestId('cell-due-dot').filter({ visible: true }).first()).toBeVisible();
+      109 |   // календарный месяц: колонка 24 px — инициалы
+        at /home/user/wetop.ai/tests/ui/chessboard-card.spec.ts:106:60
+
+    Error Context: test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-card.spec.ts:122:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.board-stay-caption').filter({ hasText: 'Гость Полный' }).first().locator('.board-stay-name')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.board-stay-caption').filter({ hasText: 'Гость Полный' }).first().locator('.board-stay-name') with timeout 15000ms
+      - waiting for locator('.board-stay-caption').filter({ hasText: 'Гость Полный' }).first().locator('.board-stay-name')
+
+
+      137 |   const long = page.locator('.board-stay-caption').filter({ hasText: 'Гость Полный' }).first();
+      138 |   const name = long.locator('.board-stay-name');
+    > 139 |   await expect(name).toBeVisible();
+          |                      ^
+      140 |   const colRight = (await page.locator('.board th.board__unit-head').boundingBox())!;
+      141 |   await page.locator('.board-wrap').evaluate((el) => {
+      142 |     el.scrollLeft = 400;
+        at /home/user/wetop.ai/tests/ui/chessboard-card.spec.ts:139:22
+
+    Error Context: test-results/chessboard-card-длинное-пр-31c03-ри-горизонтальной-прокрутке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-длинное-пр-31c03-ри-горизонтальной-прокрутке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-длинное-пр-31c03-ри-горизонтальной-прокрутке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-card.spec.ts:165:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('[data-testid="stay-cell"][data-number="20260913-NEW2"]').filter({ has: locator('.board-stay-caption') }).first().locator('.board-stay-name')
+    Expected: "Бронь со стойки"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('[data-testid="stay-cell"][data-number="20260913-NEW2"]').filter({ has: locator('.board-stay-caption') }).first().locator('.board-stay-name') with timeout 15000ms
+      - waiting for locator('[data-testid="stay-cell"][data-number="20260913-NEW2"]').filter({ has: locator('.board-stay-caption') }).first().locator('.board-stay-name')
+
+
+      179 |     .filter({ has: page.locator('.board-stay-caption') })
+      180 |     .first();
+    > 181 |   await expect(stay.locator('.board-stay-name')).toHaveText('Бронь со стойки');
+          |                                                  ^
+      182 |   await expect(stay).not.toContainText('a1b2c3');
+      183 |   await expect(stay.getByTestId('cell-channel')).toHaveCount(0);
+      184 |   await stay.scrollIntoViewIfNeeded();
+        at /home/user/wetop.ai/tests/ui/chessboard-card.spec.ts:181:50
+
+    Error Context: test-results/chessboard-card-служебный--a0ddd-вторяется-бронь-открывается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-служебный--a0ddd-вторяется-бронь-открывается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-служебный--a0ddd-вторяется-бронь-открывается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-filters.spec.ts:173:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 })
+    Expected substring: "20260913-NEW1"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 })
+
+
+      224 |       .getByRole('dialog', { name: 'Бронирование', exact: true })
+      225 |       .getByRole('heading', { level: 1 }),
+    > 226 |   ).toContainText(near);
+          |     ^
+      227 |   await page.keyboard.press('Escape');
+      228 |
+      229 |   // 30 дней: найденная далеко справа бронь прокручена в видимую часть сетки
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:226:5
+
+    Error Context: test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: dark ───────────────────────────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('stay-preview').getByTestId('preview-sums')
+    Expected substring: "₸"
+    Received string:    "Суммыне загрузились, откройте бронь"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('stay-preview').getByTestId('preview-sums') with timeout 15000ms
+      - waiting for getByTestId('stay-preview').getByTestId('preview-sums')
+        4 × locator resolved to <dl aria-live="polite" class="stay-preview__sums" data-testid="preview-sums">…</dl>
+          - unexpected value "СуммыЗагружаю…"
+        30 × locator resolved to <dl aria-live="polite" class="stay-preview__sums" data-testid="preview-sums">…</dl>
+           - unexpected value "Суммыне загрузились, откройте бронь"
+
+
+      65 |       .first()
+      66 |       .click();
+    > 67 |     await expect(preview.getByTestId('preview-sums')).toContainText('₸');
+         |                                                       ^
+      68 |     await page.screenshot({ caret: 'initial', path: `${DIR}/${theme}-preview-checked-in.png` });
+      69 |     await page.keyboard.press('Escape');
+      70 |
+        at /home/user/wetop.ai/tests/ui/chessboard-gate-pr3.spec.ts:67:55
+
+    Error Context: test-results/chessboard-gate-pr3-гейт-PR-3-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-gate-pr3-гейт-PR-3-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-gate-pr3-гейт-PR-3-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: light ──────────────────────────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('drag-error')
+    Expected substring: "Не удалось переселить"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('drag-error') with timeout 15000ms
+      - waiting for getByTestId('drag-error')
+
+
+      114 |     await expect(at('R07').getByTestId('drop-ghost')).toContainText('Сохраняем');
+      115 |     await page.screenshot({ caret: 'initial', path: `${DIR}/${theme}-saving.png` });
+    > 116 |     await expect(page.getByTestId('drag-error')).toContainText('Не удалось переселить');
+          |                                                  ^
+      117 |     await page.getByTestId('drag-error').scrollIntoViewIfNeeded();
+      118 |     await page.screenshot({ caret: 'initial', path: `${DIR}/${theme}-move-error.png` });
+      119 |     await request.post(`${fixture}/__test/control`, { data: { failPath: '', delayPath: '' } });
+        at /home/user/wetop.ai/tests/ui/chessboard-gate-pr4.spec.ts:116:50
+
+    Error Context: test-results/chessboard-gate-pr4-гейт-PR-4-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-gate-pr4-гейт-PR-4-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-gate-pr4-гейт-PR-4-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light ──────────────────────────────────
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.click: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByTestId('free-menu').getByRole('link', { name: 'Заблокировать', exact: true })
+
+
+       95 |     await moveTo(page, cellOf(page, 'R07', add(today, 3)));
+       96 |     await page.mouse.up();
+    >  97 |     await menu.getByRole('link', { name: 'Заблокировать', exact: true }).click();
+          |                                                                          ^
+       98 |     await expect(page.getByTestId('block-form').locator('[name="dateTo"]')).toHaveValue(
+       99 |       add(today, 4),
+      100 |     );
+        at /home/user/wetop.ai/tests/ui/chessboard-gate-pr5.spec.ts:97:74
+
+    Error Context: test-results/chessboard-gate-pr5-гейт-PR-5-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-gate-pr5-гейт-PR-5-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-gate-pr5-гейт-PR-5-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-inhouse')
+    Expected: "3"
+    Received: "5"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-inhouse') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-inhouse')
+        33 × locator resolved to <b data-testid="day-inhouse">5</b>
+           - unexpected value "5"
+
+
+      22 |     expect(panelBox!.height).toBeLessThanOrEqual(280);
+      23 |     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
+    > 24 |     await expect(panel.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+         |                                                    ^
+      25 |     const board = await (
+      26 |       await get(`${FIXTURE_API}/chessboard?from=${day.date}&to=${day.date}`)
+      27 |     ).json();
+        at /home/user/wetop.ai/tests/ui/chessboard-statistics.spec.ts:24:52
+
+    Error Context: test-results/chessboard-statistics-stat-1853e-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Брони без размещения' }).getByTestId('unassigned-done')
+    Expected: "✓ Бронь 20260913-NEW1 размещена: R05"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog', { name: 'Брони без размещения' }).getByTestId('unassigned-done') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Брони без размещения' }).getByTestId('unassigned-done')
+
+
+      102 |
+      103 |   // уведомление в углу закрыто модальным ящиком — итог назван строкой в самом ящике
+    > 104 |   await expect(drawerOf(page).getByTestId('unassigned-done')).toHaveText(
+          |                                                               ^
+      105 |     `✓ Бронь ${first} размещена: ${unit}`,
+      106 |   );
+      107 |   await expect(strip).toContainText('1 бронь без назначенного места');
+        at /home/user/wetop.ai/tests/ui/chessboard-unassigned.spec.ts:104:63
+
+    Error Context: test-results/chessboard-unassigned-две--9370a-анной-брони-назначение-§64-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-unassigned-две--9370a-анной-брони-назначение-§64-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-unassigned-две--9370a-анной-брони-назначение-§64-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/chessboard-unassigned.spec.ts:116:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Разместить бронь 20260913-NEW17 в M01?' })
+    Expected pattern: /Разница стоимости: [+−]|Стоимость не изменится/
+    Received string:  "Разместить бронь 20260913-NEW17 в M01?Третий ТестДвухместный номер → Мужской общий номер29 окт. → 30 окт., 1 ночьСумму посчитать не удалось — проверьте счёт после размещения.Бронь займёт M01 на весь срок.Оставить как естьРазместить"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Разместить бронь 20260913-NEW17 в M01?' }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Разместить бронь 20260913-NEW17 в M01?' })
+        33 × locator resolved to <dialog open="" class="confirm-dialog" aria-labelledby="_r_2_" aria-describedby="_r_3_" data-testid="confirm-dialog">…</dialog>
+           - unexpected value "Разместить бронь 20260913-NEW17 в M01?Третий ТестДвухместный номер → Мужской общий номер29 окт. → 30 окт., 1 ночьСумму посчитать не удалось — проверьте счёт после размещения.Бронь займёт M01 на весь срок.Оставить как естьРазместить"
+
+
+      149 |   await expect(confirm).toBeVisible();
+      150 |   await expect(confirm).toContainText('Двухместный номер → Мужской общий номер');
+    > 151 |   await expect(confirm).toContainText(/Разница стоимости: [+−]|Стоимость не изменится/);
+          |                         ^
+      152 |   await confirm.getByRole('button', { name: 'Разместить', exact: true }).click();
+      153 |   await expect(page.getByText(`Бронь ${number} размещена: ${unit}`)).toBeVisible();
+      154 |   await expect(page.getByRole('main').getByTestId('unassigned-stays')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/chessboard-unassigned.spec.ts:151:25
+
+    Error Context: test-results/chessboard-unassigned-нет--d9d64-й-стоимости-перед-переездом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-unassigned-нет--d9d64-й-стоимости-перед-переездом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-unassigned-нет--d9d64-й-стоимости-перед-переездом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light ────────────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected substring: "Финансы"
+    Received string:    "Обзор бизнеса"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Обзор бизнеса</h1>
+           - unexpected value "Обзор бизнеса"
+
+
+      47 |     // главная (в документе ментора — «служба приёма»)
+      48 |     await page.goto('/finance');
+    > 49 |     await expect(page.getByRole('heading', { level: 1 })).toContainText('Финансы');
+         |                                                           ^
+      50 |     await shot(page, 'today', theme);
+      51 |     await shot(page, 'today-full', theme, true);
+      52 |
+        at /home/user/wetop.ai/tests/ui/design-reference.spec.ts:49:59
+
+    Error Context: test-results/design-reference-экраны-для-дизайн-системы-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-экраны-для-дизайн-системы-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-экраны-для-дизайн-системы-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark ─────────────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected substring: "Финансы"
+    Received string:    "Обзор бизнеса"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Обзор бизнеса</h1>
+           - unexpected value "Обзор бизнеса"
+
+
+      47 |     // главная (в документе ментора — «служба приёма»)
+      48 |     await page.goto('/finance');
+    > 49 |     await expect(page.getByRole('heading', { level: 1 })).toContainText('Финансы');
+         |                                                           ^
+      50 |     await shot(page, 'today', theme);
+      51 |     await shot(page, 'today-full', theme, true);
+      52 |
+        at /home/user/wetop.ai/tests/ui/design-reference.spec.ts:49:59
+
+    Error Context: test-results/design-reference-экраны-для-дизайн-системы-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-экраны-для-дизайн-системы-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-экраны-для-дизайн-системы-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/design-system.spec.ts:84:3 › axe и эталонные снимки секций: light ───────────────────
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').first()
+      26299 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: tokens-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(tokens-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').first() with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').first()
+        - locator resolved to <section class="kit-component" data-component="tokens" aria-labelledby="kit-tokens">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 26299 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').first()
+        - locator resolved to <section class="kit-component" data-component="tokens" aria-labelledby="kit-tokens">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 26299 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(1)
+      Expected an image 1342px by 381px, received 1342px by 382px. 4216 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: icons-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(icons-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(1) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(1)
+        - locator resolved to <section class="kit-component" data-component="icons" aria-labelledby="kit-icons">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 381px, received 1342px by 382px. 4216 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(1)
+        - locator resolved to <section class="kit-component" data-component="icons" aria-labelledby="kit-icons">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 381px, received 1342px by 382px. 4216 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(2)
+      Expected an image 1342px by 552px, received 1342px by 551px. 13351 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: button-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(button-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(2) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(2)
+        - locator resolved to <section class="kit-component" data-component="button" data-interactive="true" aria-labelledby="kit-button">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 552px, received 1342px by 551px. 13351 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(2)
+        - locator resolved to <section class="kit-component" data-component="button" data-interactive="true" aria-labelledby="kit-button">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 552px, received 1342px by 551px. 13351 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(3)
+      16463 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: input-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(input-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(3) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(3)
+        - locator resolved to <section class="kit-component" data-component="input" data-interactive="true" aria-labelledby="kit-input">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 16463 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(3)
+        - locator resolved to <section class="kit-component" data-component="input" data-interactive="true" aria-labelledby="kit-input">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 16463 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(4)
+      Expected an image 1342px by 140px, received 1342px by 141px. 4495 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: badge-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(badge-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(4) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(4)
+        - locator resolved to <section class="kit-component" data-component="badge" aria-labelledby="kit-badge">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 140px, received 1342px by 141px. 4495 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(4)
+        - locator resolved to <section class="kit-component" data-component="badge" aria-labelledby="kit-badge">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 140px, received 1342px by 141px. 4495 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(5)
+      Expected an image 1342px by 141px, received 1342px by 140px. 4425 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: amount-chip-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(amount-chip-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(5) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(5)
+        - locator resolved to <section class="kit-component" data-component="amount-chip" aria-labelledby="kit-amount-chip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 141px, received 1342px by 140px. 4425 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(5)
+        - locator resolved to <section class="kit-component" data-component="amount-chip" aria-labelledby="kit-amount-chip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 141px, received 1342px by 140px. 4425 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(6)
+      18340 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: stat-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(stat-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(6) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(6)
+        - locator resolved to <section class="kit-component" data-component="stat" aria-labelledby="kit-stat">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 18340 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(6)
+        - locator resolved to <section class="kit-component" data-component="stat" aria-labelledby="kit-stat">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 18340 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(7)
+      5235 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: sharebar-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(sharebar-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(7) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(7)
+        - locator resolved to <section class="kit-component" data-component="sharebar" aria-labelledby="kit-sharebar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 5235 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(7)
+        - locator resolved to <section class="kit-component" data-component="sharebar" aria-labelledby="kit-sharebar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 5235 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(8)
+      Expected an image 1342px by 290px, received 1342px by 291px. 14189 pixels (ratio 0.04 of all image pixels) are different.
+
+      Snapshot: form-grid-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(form-grid-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(8) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(8)
+        - locator resolved to <section class="kit-component" data-component="form-grid" aria-labelledby="kit-form-grid">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 290px, received 1342px by 291px. 14189 pixels (ratio 0.04 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(8)
+        - locator resolved to <section class="kit-component" data-component="form-grid" aria-labelledby="kit-form-grid">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 290px, received 1342px by 291px. 14189 pixels (ratio 0.04 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(9)
+      9692 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: period-picker-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(period-picker-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(9) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(9)
+        - locator resolved to <section class="kit-component" data-component="period-picker" aria-labelledby="kit-period-picker">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 9692 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(9)
+        - locator resolved to <section class="kit-component" data-component="period-picker" aria-labelledby="kit-period-picker">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 9692 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(10)
+      5867 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: date-bar-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(date-bar-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(10) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(10)
+        - locator resolved to <section class="kit-component" data-component="date-bar" aria-labelledby="kit-date-bar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 5867 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(10)
+        - locator resolved to <section class="kit-component" data-component="date-bar" aria-labelledby="kit-date-bar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 5867 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(11)
+      8588 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: overlay-size-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(overlay-size-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(11) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(11)
+        - locator resolved to <section class="kit-component" data-component="overlay-size" aria-labelledby="kit-overlay-size">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 8588 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(11)
+        - locator resolved to <section class="kit-component" data-component="overlay-size" aria-labelledby="kit-overlay-size">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 8588 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(12)
+      5944 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: panel-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(panel-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(12) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(12)
+        - locator resolved to <section class="kit-component" data-component="panel" aria-labelledby="kit-panel">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 5944 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(12)
+        - locator resolved to <section class="kit-component" data-component="panel" aria-labelledby="kit-panel">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 5944 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(13)
+      19171 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: table-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(table-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(13) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(13)
+        - locator resolved to <section class="kit-component" data-component="table" data-interactive="true" aria-labelledby="kit-table">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 19171 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(13)
+        - locator resolved to <section class="kit-component" data-component="table" data-interactive="true" aria-labelledby="kit-table">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 19171 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(14)
+      10857 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: tabs-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(tabs-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(14) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(14)
+        - locator resolved to <section class="kit-component" data-component="tabs" data-interactive="true" aria-labelledby="kit-tabs">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 10857 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(14)
+        - locator resolved to <section class="kit-component" data-component="tabs" data-interactive="true" aria-labelledby="kit-tabs">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 10857 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(15)
+      10733 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: chip-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(chip-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(15) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(15)
+        - locator resolved to <section class="kit-component" data-component="chip" data-interactive="true" aria-labelledby="kit-chip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 10733 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(15)
+        - locator resolved to <section class="kit-component" data-component="chip" data-interactive="true" aria-labelledby="kit-chip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 10733 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(16)
+      8425 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: segmented-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(segmented-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(16) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(16)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="segmented" aria-labelledby="kit-segmented">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 8425 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(16)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="segmented" aria-labelledby="kit-segmented">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 8425 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(17)
+      6498 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: toolbar-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(toolbar-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(17) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(17)
+        - locator resolved to <section class="kit-component" data-component="toolbar" aria-labelledby="kit-toolbar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 6498 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(17)
+        - locator resolved to <section class="kit-component" data-component="toolbar" aria-labelledby="kit-toolbar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 6498 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(18)
+      7953 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: alert-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(alert-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(18) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(18)
+        - locator resolved to <section class="kit-component" data-component="alert" aria-labelledby="kit-alert">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 7953 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(18)
+        - locator resolved to <section class="kit-component" data-component="alert" aria-labelledby="kit-alert">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 7953 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(19)
+      Expected an image 1342px by 1005px, received 1342px by 1027px. 29857 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: states-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(states-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(19) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(19)
+        - locator resolved to <section class="kit-component" data-component="states" aria-labelledby="kit-states">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 1005px, received 1342px by 1027px. 29857 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(19)
+        - locator resolved to <section class="kit-component" data-component="states" aria-labelledby="kit-states">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 1005px, received 1342px by 1027px. 29857 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(20)
+      Expected an image 1342px by 668px, received 1342px by 681px. 11915 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: action-menu-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(action-menu-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(20) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(20)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="action-menu" aria-labelledby="kit-action-menu">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 668px, received 1342px by 681px. 11915 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(20)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="action-menu" aria-labelledby="kit-action-menu">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 668px, received 1342px by 681px. 11915 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(21)
+      Expected an image 1342px by 1111px, received 1342px by 1132px. 38786 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: confirm-dialog-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(confirm-dialog-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(21) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(21)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="confirm-dialog" aria-labelledby="kit-confirm-dialog">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 1111px, received 1342px by 1132px. 38786 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(21)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="confirm-dialog" aria-labelledby="kit-confirm-dialog">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 1111px, received 1342px by 1132px. 38786 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(22)
+      Expected an image 1342px by 818px, received 1342px by 838px. 21051 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: toast-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(toast-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(22) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(22)
+        - locator resolved to <section class="kit-component" data-component="toast" data-interactive="true" aria-labelledby="kit-toast">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 818px, received 1342px by 838px. 21051 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(22)
+        - locator resolved to <section class="kit-component" data-component="toast" data-interactive="true" aria-labelledby="kit-toast">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 818px, received 1342px by 838px. 21051 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(23)
+      Expected an image 1342px by 511px, received 1342px by 512px. 8832 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: date-field-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(date-field-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(23) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(23)
+        - locator resolved to <section class="kit-component" data-component="date-field" aria-labelledby="kit-date-field">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 511px, received 1342px by 512px. 8832 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(23)
+        - locator resolved to <section class="kit-component" data-component="date-field" aria-labelledby="kit-date-field">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 511px, received 1342px by 512px. 8832 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(24)
+      11816 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: tooltip-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(tooltip-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(24) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(24)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="tooltip" aria-labelledby="kit-tooltip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 11816 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(24)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="tooltip" aria-labelledby="kit-tooltip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 11816 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component]').nth(25)
+      3819 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: legend-light-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(legend-light-linux.png)" getByTestId('kit-light').locator('section[data-component]').nth(25) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(25)
+        - locator resolved to <section class="kit-component" data-component="legend" aria-labelledby="kit-legend">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 3819 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-light').locator('section[data-component]').nth(25)
+        - locator resolved to <section class="kit-component" data-component="legend" aria-labelledby="kit-legend">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 3819 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    attachment #1: tokens-light-linux (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/tokens-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/tokens-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/tokens-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: icons-light-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/icons-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/icons-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/icons-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: button-light-linux (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/button-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/button-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/button-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: input-light-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/input-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/input-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/input-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: badge-light-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/badge-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/badge-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/badge-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: amount-chip-light-linux (image/png) ─────────────────────────────────────────────
+    Expected: design/reference/kit/amount-chip-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/amount-chip-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/amount-chip-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: stat-light-linux (image/png) ────────────────────────────────────────────────────
+    Expected: design/reference/kit/stat-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/stat-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/stat-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: sharebar-light-linux (image/png) ────────────────────────────────────────────────
+    Expected: design/reference/kit/sharebar-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/sharebar-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/sharebar-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: form-grid-light-linux (image/png) ───────────────────────────────────────────────
+    Expected: design/reference/kit/form-grid-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/form-grid-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/form-grid-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: period-picker-light-linux (image/png) ──────────────────────────────────────────
+    Expected: design/reference/kit/period-picker-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/period-picker-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/period-picker-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: date-bar-light-linux (image/png) ───────────────────────────────────────────────
+    Expected: design/reference/kit/date-bar-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/date-bar-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/date-bar-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: overlay-size-light-linux (image/png) ───────────────────────────────────────────
+    Expected: design/reference/kit/overlay-size-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/overlay-size-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/overlay-size-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: panel-light-linux (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/panel-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/panel-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/panel-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: table-light-linux (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/table-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/table-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/table-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: tabs-light-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/tabs-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/tabs-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/tabs-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: chip-light-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/chip-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/chip-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/chip-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #17: segmented-light-linux (image/png) ──────────────────────────────────────────────
+    Expected: design/reference/kit/segmented-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/segmented-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/segmented-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #18: toolbar-light-linux (image/png) ────────────────────────────────────────────────
+    Expected: design/reference/kit/toolbar-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/toolbar-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/toolbar-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #19: alert-light-linux (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/alert-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/alert-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/alert-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #20: states-light-linux (image/png) ─────────────────────────────────────────────────
+    Expected: design/reference/kit/states-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/states-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/states-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #21: action-menu-light-linux (image/png) ────────────────────────────────────────────
+    Expected: design/reference/kit/action-menu-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/action-menu-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/action-menu-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #22: confirm-dialog-light-linux (image/png) ─────────────────────────────────────────
+    Expected: design/reference/kit/confirm-dialog-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/confirm-dialog-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/confirm-dialog-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #23: toast-light-linux (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/toast-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/toast-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/toast-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #24: date-field-light-linux (image/png) ─────────────────────────────────────────────
+    Expected: design/reference/kit/date-field-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/date-field-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/date-field-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #25: tooltip-light-linux (image/png) ────────────────────────────────────────────────
+    Expected: design/reference/kit/tooltip-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/tooltip-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/tooltip-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #26: legend-light-linux (image/png) ─────────────────────────────────────────────────
+    Expected: design/reference/kit/legend-light-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-light/legend-light-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-light/legend-light-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/design-system-axe-и-эталонные-снимки-секций-light/error-context.md
+
+    attachment #28: trace (application/zip) ────────────────────────────────────────────────────────
+    test-results/design-system-axe-и-эталонные-снимки-секций-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-axe-и-эталонные-снимки-секций-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/design-system.spec.ts:84:3 › axe и эталонные снимки секций: dark ────────────────────
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').first()
+      Expected an image 1342px by 813px, received 1342px by 814px. 30866 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: tokens-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(tokens-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').first() with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').first()
+        - locator resolved to <section class="kit-component" data-component="tokens" aria-labelledby="kit-tokens">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 813px, received 1342px by 814px. 30866 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').first()
+        - locator resolved to <section class="kit-component" data-component="tokens" aria-labelledby="kit-tokens">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 813px, received 1342px by 814px. 30866 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(1)
+      1989 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: icons-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(icons-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(1) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(1)
+        - locator resolved to <section class="kit-component" data-component="icons" aria-labelledby="kit-icons">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 1989 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(1)
+        - locator resolved to <section class="kit-component" data-component="icons" aria-labelledby="kit-icons">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 1989 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(2)
+      13210 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: button-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(button-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(2) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(2)
+        - locator resolved to <section class="kit-component" data-component="button" data-interactive="true" aria-labelledby="kit-button">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 13210 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(2)
+        - locator resolved to <section class="kit-component" data-component="button" data-interactive="true" aria-labelledby="kit-button">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 13210 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(3)
+      11228 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: input-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(input-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(3) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(3)
+        - locator resolved to <section class="kit-component" data-component="input" data-interactive="true" aria-labelledby="kit-input">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 11228 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(3)
+        - locator resolved to <section class="kit-component" data-component="input" data-interactive="true" aria-labelledby="kit-input">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 11228 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(4)
+      4305 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: badge-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(badge-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(4) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(4)
+        - locator resolved to <section class="kit-component" data-component="badge" aria-labelledby="kit-badge">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 4305 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(4)
+        - locator resolved to <section class="kit-component" data-component="badge" aria-labelledby="kit-badge">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 4305 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(5)
+      4504 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: amount-chip-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(amount-chip-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(5) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(5)
+        - locator resolved to <section class="kit-component" data-component="amount-chip" aria-labelledby="kit-amount-chip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 4504 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(5)
+        - locator resolved to <section class="kit-component" data-component="amount-chip" aria-labelledby="kit-amount-chip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 4504 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(6)
+      17335 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: stat-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(stat-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(6) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(6)
+        - locator resolved to <section class="kit-component" data-component="stat" aria-labelledby="kit-stat">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 17335 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(6)
+        - locator resolved to <section class="kit-component" data-component="stat" aria-labelledby="kit-stat">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 17335 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(7)
+      5322 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: sharebar-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(sharebar-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(7) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(7)
+        - locator resolved to <section class="kit-component" data-component="sharebar" aria-labelledby="kit-sharebar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 5322 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(7)
+        - locator resolved to <section class="kit-component" data-component="sharebar" aria-labelledby="kit-sharebar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 5322 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(8)
+      9974 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: form-grid-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(form-grid-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(8) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(8)
+        - locator resolved to <section class="kit-component" data-component="form-grid" aria-labelledby="kit-form-grid">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 9974 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(8)
+        - locator resolved to <section class="kit-component" data-component="form-grid" aria-labelledby="kit-form-grid">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 9974 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(9)
+      9105 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: period-picker-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(period-picker-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(9) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(9)
+        - locator resolved to <section class="kit-component" data-component="period-picker" aria-labelledby="kit-period-picker">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 9105 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(9)
+        - locator resolved to <section class="kit-component" data-component="period-picker" aria-labelledby="kit-period-picker">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 9105 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(10)
+      5899 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: date-bar-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(date-bar-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(10) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(10)
+        - locator resolved to <section class="kit-component" data-component="date-bar" aria-labelledby="kit-date-bar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 5899 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(10)
+        - locator resolved to <section class="kit-component" data-component="date-bar" aria-labelledby="kit-date-bar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 5899 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(11)
+      8128 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: overlay-size-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(overlay-size-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(11) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(11)
+        - locator resolved to <section class="kit-component" data-component="overlay-size" aria-labelledby="kit-overlay-size">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 8128 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(11)
+        - locator resolved to <section class="kit-component" data-component="overlay-size" aria-labelledby="kit-overlay-size">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 8128 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(12)
+      5800 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: panel-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(panel-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(12) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(12)
+        - locator resolved to <section class="kit-component" data-component="panel" aria-labelledby="kit-panel">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 5800 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(12)
+        - locator resolved to <section class="kit-component" data-component="panel" aria-labelledby="kit-panel">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 5800 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(13)
+      Expected an image 1342px by 839px, received 1342px by 840px. 22696 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: table-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(table-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(13) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(13)
+        - locator resolved to <section class="kit-component" data-component="table" data-interactive="true" aria-labelledby="kit-table">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 839px, received 1342px by 840px. 22696 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(13)
+        - locator resolved to <section class="kit-component" data-component="table" data-interactive="true" aria-labelledby="kit-table">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 839px, received 1342px by 840px. 22696 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(14)
+      11137 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: tabs-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(tabs-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(14) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(14)
+        - locator resolved to <section class="kit-component" data-component="tabs" data-interactive="true" aria-labelledby="kit-tabs">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 11137 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(14)
+        - locator resolved to <section class="kit-component" data-component="tabs" data-interactive="true" aria-labelledby="kit-tabs">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 11137 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(15)
+      Expected an image 1342px by 552px, received 1342px by 551px. 11538 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: chip-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(chip-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(15) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(15)
+        - locator resolved to <section class="kit-component" data-component="chip" data-interactive="true" aria-labelledby="kit-chip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 552px, received 1342px by 551px. 11538 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(15)
+        - locator resolved to <section class="kit-component" data-component="chip" data-interactive="true" aria-labelledby="kit-chip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 552px, received 1342px by 551px. 11538 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(16)
+      Expected an image 1342px by 531px, received 1342px by 532px. 10213 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: segmented-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(segmented-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(16) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(16)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="segmented" aria-labelledby="kit-segmented">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 531px, received 1342px by 532px. 10213 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(16)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="segmented" aria-labelledby="kit-segmented">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 531px, received 1342px by 532px. 10213 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(17)
+      10375 pixels (ratio 0.04 of all image pixels) are different.
+
+      Snapshot: toolbar-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(toolbar-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(17) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(17)
+        - locator resolved to <section class="kit-component" data-component="toolbar" aria-labelledby="kit-toolbar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 10375 pixels (ratio 0.04 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(17)
+        - locator resolved to <section class="kit-component" data-component="toolbar" aria-labelledby="kit-toolbar">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 10375 pixels (ratio 0.04 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(18)
+      10065 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: alert-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(alert-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(18) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(18)
+        - locator resolved to <section class="kit-component" data-component="alert" aria-labelledby="kit-alert">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 10065 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(18)
+        - locator resolved to <section class="kit-component" data-component="alert" aria-labelledby="kit-alert">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 10065 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(19)
+      Expected an image 1342px by 1005px, received 1342px by 1027px. 60392 pixels (ratio 0.05 of all image pixels) are different.
+
+      Snapshot: states-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(states-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(19) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(19)
+        - locator resolved to <section class="kit-component" data-component="states" aria-labelledby="kit-states">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 1005px, received 1342px by 1027px. 60392 pixels (ratio 0.05 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(19)
+        - locator resolved to <section class="kit-component" data-component="states" aria-labelledby="kit-states">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 1005px, received 1342px by 1027px. 60392 pixels (ratio 0.05 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(20)
+      Expected an image 1342px by 669px, received 1342px by 681px. 28113 pixels (ratio 0.04 of all image pixels) are different.
+
+      Snapshot: action-menu-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(action-menu-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(20) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(20)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="action-menu" aria-labelledby="kit-action-menu">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 669px, received 1342px by 681px. 28113 pixels (ratio 0.04 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(20)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="action-menu" aria-labelledby="kit-action-menu">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 669px, received 1342px by 681px. 28113 pixels (ratio 0.04 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(21)
+      Expected an image 1342px by 1111px, received 1342px by 1132px. 65179 pixels (ratio 0.05 of all image pixels) are different.
+
+      Snapshot: confirm-dialog-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(confirm-dialog-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(21) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(21)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="confirm-dialog" aria-labelledby="kit-confirm-dialog">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 1111px, received 1342px by 1132px. 65179 pixels (ratio 0.05 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(21)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="confirm-dialog" aria-labelledby="kit-confirm-dialog">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 1111px, received 1342px by 1132px. 65179 pixels (ratio 0.05 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(22)
+      Expected an image 1342px by 817px, received 1342px by 838px. 49773 pixels (ratio 0.05 of all image pixels) are different.
+
+      Snapshot: toast-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(toast-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(22) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(22)
+        - locator resolved to <section class="kit-component" data-component="toast" data-interactive="true" aria-labelledby="kit-toast">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - Expected an image 1342px by 817px, received 1342px by 838px. 49773 pixels (ratio 0.05 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(22)
+        - locator resolved to <section class="kit-component" data-component="toast" data-interactive="true" aria-labelledby="kit-toast">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - Expected an image 1342px by 817px, received 1342px by 838px. 49773 pixels (ratio 0.05 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(23)
+      8513 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: date-field-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(date-field-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(23) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(23)
+        - locator resolved to <section class="kit-component" data-component="date-field" aria-labelledby="kit-date-field">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 8513 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(23)
+        - locator resolved to <section class="kit-component" data-component="date-field" aria-labelledby="kit-date-field">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 8513 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(24)
+      12311 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: tooltip-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(tooltip-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(24) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(24)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="tooltip" aria-labelledby="kit-tooltip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 12311 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(24)
+        - locator resolved to <section class="kit-component" data-interactive="true" data-component="tooltip" aria-labelledby="kit-tooltip">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 12311 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    Error: expect(locator).toHaveScreenshot(expected) failed
+
+    Locator: getByTestId('kit-dark').locator('section[data-component]').nth(25)
+      3957 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: legend-dark-linux.png
+
+    Call log:
+      - Expect "soft toHaveScreenshot(legend-dark-linux.png)" getByTestId('kit-dark').locator('section[data-component]').nth(25) with timeout 15000ms
+        - verifying given screenshot expectation
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(25)
+        - locator resolved to <section class="kit-component" data-component="legend" aria-labelledby="kit-legend">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - 3957 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - waiting for getByTestId('kit-dark').locator('section[data-component]').nth(25)
+        - locator resolved to <section class="kit-component" data-component="legend" aria-labelledby="kit-legend">…</section>
+      - taking element screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+      - captured a stable screenshot
+      - 3957 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      101 |       await section.scrollIntoViewIfNeeded();
+      102 |       // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+    > 103 |       await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+          |                                  ^
+      104 |         animations: 'disabled',
+      105 |         maxDiffPixelRatio: 0.002,
+      106 |       });
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:103:34
+
+    attachment #1: tokens-dark-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/tokens-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/tokens-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/tokens-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: icons-dark-linux (image/png) ────────────────────────────────────────────────────
+    Expected: design/reference/kit/icons-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/icons-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/icons-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: button-dark-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/button-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/button-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/button-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: input-dark-linux (image/png) ────────────────────────────────────────────────────
+    Expected: design/reference/kit/input-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/input-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/input-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: badge-dark-linux (image/png) ────────────────────────────────────────────────────
+    Expected: design/reference/kit/badge-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/badge-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/badge-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: amount-chip-dark-linux (image/png) ──────────────────────────────────────────────
+    Expected: design/reference/kit/amount-chip-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/amount-chip-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/amount-chip-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: stat-dark-linux (image/png) ─────────────────────────────────────────────────────
+    Expected: design/reference/kit/stat-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/stat-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/stat-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: sharebar-dark-linux (image/png) ─────────────────────────────────────────────────
+    Expected: design/reference/kit/sharebar-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/sharebar-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/sharebar-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: form-grid-dark-linux (image/png) ────────────────────────────────────────────────
+    Expected: design/reference/kit/form-grid-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/form-grid-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/form-grid-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: period-picker-dark-linux (image/png) ───────────────────────────────────────────
+    Expected: design/reference/kit/period-picker-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/period-picker-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/period-picker-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: date-bar-dark-linux (image/png) ────────────────────────────────────────────────
+    Expected: design/reference/kit/date-bar-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/date-bar-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/date-bar-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: overlay-size-dark-linux (image/png) ────────────────────────────────────────────
+    Expected: design/reference/kit/overlay-size-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/overlay-size-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/overlay-size-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: panel-dark-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/panel-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/panel-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/panel-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: table-dark-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/table-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/table-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/table-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: tabs-dark-linux (image/png) ────────────────────────────────────────────────────
+    Expected: design/reference/kit/tabs-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/tabs-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/tabs-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: chip-dark-linux (image/png) ────────────────────────────────────────────────────
+    Expected: design/reference/kit/chip-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/chip-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/chip-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #17: segmented-dark-linux (image/png) ───────────────────────────────────────────────
+    Expected: design/reference/kit/segmented-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/segmented-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/segmented-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #18: toolbar-dark-linux (image/png) ─────────────────────────────────────────────────
+    Expected: design/reference/kit/toolbar-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/toolbar-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/toolbar-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #19: alert-dark-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/alert-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/alert-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/alert-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #20: states-dark-linux (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/states-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/states-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/states-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #21: action-menu-dark-linux (image/png) ─────────────────────────────────────────────
+    Expected: design/reference/kit/action-menu-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/action-menu-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/action-menu-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #22: confirm-dialog-dark-linux (image/png) ──────────────────────────────────────────
+    Expected: design/reference/kit/confirm-dialog-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/confirm-dialog-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/confirm-dialog-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #23: toast-dark-linux (image/png) ───────────────────────────────────────────────────
+    Expected: design/reference/kit/toast-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/toast-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/toast-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #24: date-field-dark-linux (image/png) ──────────────────────────────────────────────
+    Expected: design/reference/kit/date-field-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/date-field-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/date-field-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #25: tooltip-dark-linux (image/png) ─────────────────────────────────────────────────
+    Expected: design/reference/kit/tooltip-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/tooltip-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/tooltip-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #26: legend-dark-linux (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/legend-dark-linux.png
+    Received: test-results/design-system-axe-и-эталонные-снимки-секций-dark/legend-dark-linux-actual.png
+    Diff:     test-results/design-system-axe-и-эталонные-снимки-секций-dark/legend-dark-linux-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/design-system-axe-и-эталонные-снимки-секций-dark/error-context.md
+
+    attachment #28: trace (application/zip) ────────────────────────────────────────────────────────
+    test-results/design-system-axe-и-эталонные-снимки-секций-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-axe-и-эталонные-снимки-секций-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/desk-tasks.spec.ts:88:1 › «только чтение»: список виден, создавать и закрывать нельзя 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('task-row')
+    Expected substring: "Вымышленная задача"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('task-row') with timeout 15000ms
+      - waiting for getByTestId('task-row')
+
+
+      100 |   await page.waitForURL('**/finance');
+      101 |   await page.goto('/tasks');
+    > 102 |   await expect(page.getByTestId('task-row')).toContainText('Вымышленная задача');
+          |                                              ^
+      103 |   await expect(page.getByTestId('task-new')).toHaveCount(0);
+      104 |   await expect(page.getByRole('checkbox', { name: /Сделано/ })).toBeDisabled();
+      105 | });
+        at /home/user/wetop.ai/tests/ui/desk-tasks.spec.ts:102:46
+
+    Error Context: test-results/desk-tasks-«только-чтение»-28166-оздавать-и-закрывать-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-«только-чтение»-28166-оздавать-и-закрывать-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-«только-чтение»-28166-оздавать-и-закрывать-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15 failed
+    tests/ui/chessboard-card.spec.ts:87:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой 
+    tests/ui/chessboard-card.spec.ts:122:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке 
+    tests/ui/chessboard-card.spec.ts:165:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается 
+    tests/ui/chessboard-filters.spec.ts:173:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь 
+    tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: dark ────────────────────────────────────
+    tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: light ───────────────────────────────────
+    tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light ───────────────────────────────────
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+    tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) 
+    tests/ui/chessboard-unassigned.spec.ts:116:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом 
+    tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light ──────────────────────
+    tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark ───────────────────────
+    tests/ui/design-system.spec.ts:84:3 › axe и эталонные снимки секций: light ─────────────────────
+    tests/ui/design-system.spec.ts:84:3 › axe и эталонные снимки секций: dark ──────────────────────
+    tests/ui/desk-tasks.spec.ts:88:1 › «только чтение»: список виден, создавать и закрывать нельзя ─
+  12 skipped
+  149 passed (10.6m)
+
+# код выхода 1 · 10 мин 38 с

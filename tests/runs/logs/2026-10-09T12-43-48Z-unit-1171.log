@@ -1,0 +1,18 @@
+# Модульные (unit) · 09.10.2026 17:43 Алматы · vm
+# коммит d0eb1e6 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 26
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-43-48Z-unit-1171.json' 'apps/api/src/body-parsers.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/body-parsers.test.ts (5 tests) 420ms
+   ✓ разбор тела API (5)
+     ✓ скан накладной бара принимает фото в base64, а больше 12 МБ отклоняет 413 327ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  12:43:49
+   Duration  827ms (tests 62%, import 23%, transform 14%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-43-48Z-unit-1171.json
+
+# код выхода 0 · 2 с

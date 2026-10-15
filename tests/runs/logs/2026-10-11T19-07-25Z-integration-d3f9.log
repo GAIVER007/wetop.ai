@@ -1,0 +1,23 @@
+# Интеграционные (integration) · 12.10.2026 00:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2d3476c (claude/restaurant-vip-birthdays), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T19-07-25Z-integration-d3f9.json' 'tests/integration/restaurant-cash-database.test.ts' 'tests/integration/mv6-food-database.test.ts' 'tests/integration/mv6-food.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+[pms_test] миграций применено 1; данные на месте
+(node:39923) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv6-food.test.ts (19 tests) 1786ms
+   ✓ MV6 real PostgreSQL (19)
+     ✓ HTTP reload and every route enforce vertical, scope, permissions and READ_ONLY 353ms
+ ✓ |integration| tests/integration/mv6-food-database.test.ts (4 tests) 78ms
+ ✓ |integration| tests/integration/restaurant-cash-database.test.ts (2 tests) 41ms
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  12:07:26
+   Duration  3.92s (tests 59%, transform 23%, import 17%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T19-07-25Z-integration-d3f9.json
+
+# код выхода 0 · 5 с

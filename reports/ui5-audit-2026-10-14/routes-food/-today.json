@@ -1,0 +1,31 @@
+{
+ "/today": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Добрый день!",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Все брони 71x21",
+    "A:Все заказы 77x21"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Добрый день!",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Добрый день!",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

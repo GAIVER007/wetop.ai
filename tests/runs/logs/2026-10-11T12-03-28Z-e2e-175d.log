@@ -1,0 +1,72 @@
+# Сквозные (e2e) · 11.10.2026 17:03 Алматы · MacBook-Air-Urij.local
+# коммит 38e875e (codex/ai-seller-wizard-chat-20261011)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1' '--grep' 'ресторан: больше|гостиничное обучение'
+[WebServer] (node:81956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82098) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:82123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/branches-ui/today.spec.ts:173:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (14.9s)
+  ✘  2 tests/branches-ui/today.spec.ts:437:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет (12.4s)
+
+
+  1) tests/branches-ui/today.spec.ts:437:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog') with timeout 5000ms
+      - waiting for getByRole('dialog')
+        - waiting for "http://127.0.0.1:56221/finance" navigation to finish...
+        - navigated to "http://127.0.0.1:56221/finance"
+
+
+      442 |     await setScope(page, f.hotelScope);
+      443 |     await page.goto('/today');
+    > 444 |     await expect(page.getByRole('dialog')).toBeVisible();
+          |                                            ^
+      445 |     for (const [scope, testId] of [
+      446 |       [f.salon, 'beauty-today'],
+      447 |       [f.food, 'food-today'],
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/branches-ui/today.spec.ts:444:44
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-4d8a7-цы-у-салона-и-ресторана-нет/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-4d8a7-цы-у-салона-и-ресторана-нет/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-4d8a7-цы-у-салона-и-ресторана-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-4d8a7-цы-у-салона-и-ресторана-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/today.spec.ts:437:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет 
+  1 passed (1.1m)
+
+# код выхода 1 · 1 мин 12 с

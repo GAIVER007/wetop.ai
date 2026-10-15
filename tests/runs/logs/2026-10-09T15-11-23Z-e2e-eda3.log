@@ -1,0 +1,62 @@
+# Сквозные (e2e) · 09.10.2026 20:11 Алматы · vm
+# коммит c1fd258 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' '-g' 'открыть голову' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами (17.5s)
+
+
+  1) tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').visible().getByTestId('ed-bar').getByRole('tab')
+    Timeout: 15000ms
+    - Expected  - 7
+    + Received  + 1
+
+    - Array [
+    -   "Редактор",
+    -   "Страницы",
+    -   "Дизайн",
+    -   "Настройки",
+    -   "Просмотр",
+    - ]
+    + Array []
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByTestId('ed-bar').getByRole('tab') with timeout 15000ms
+      - waiting for getByRole('main').visible().getByTestId('ed-bar').getByRole('tab')
+        33 × locator resolved to 0 elements
+
+
+      44 |   await expect(m.getByTestId('ed-save')).toBeDisabled();
+      45 |   // раскладка по макету Marketing 2.0: вкладки в верхней полосе, «Опубликовать» ведёт на публикацию, назад к модулям
+    > 46 |   await expect(m.getByTestId('ed-bar').getByRole('tab')).toHaveText(['Редактор', 'Страницы', 'Дизайн', 'Настройки', 'Просмотр']);
+         |                                                          ^
+      47 |   await expect(m.getByTestId('editor-publication-link')).toHaveText('Опубликовать');
+      48 |   await expect(m.getByTestId('editor-publication-link')).toHaveAttribute('href', '/marketing/site');
+      49 |   await expect(m.getByRole('link', { name: 'Назад к модулям', exact: true })).toHaveAttribute('href', '/marketing');
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:46:58
+
+    Error Context: test-results/site-editor-открыть-голову-b87d0-ь-история-и-разница-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-открыть-голову-b87d0-ь-история-и-разница-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-открыть-голову-b87d0-ь-история-и-разница-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами 
+
+# код выхода 1 · 30 с

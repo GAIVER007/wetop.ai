@@ -10,7 +10,7 @@ import { expect, test, type Page, type Route } from '@playwright/test';
  * кука, тексты API), проверяет `apps/web/src/lib/site-auth.test.ts`.
  */
 const APP = 'https://app.wetop.ai';
-const SITE_ORIGIN = 'http://127.0.0.1:4320';
+const SITE_ORIGIN = `http://127.0.0.1:${process.env['SITE_CHECK_PORT'] ?? 4320}`;
 
 type Calls = { path: string; body: unknown; credentials: boolean }[];
 
@@ -133,7 +133,7 @@ test('стойка недоступна — окно говорит об это�
   );
 });
 
-test('«Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма', async ({
+test('«Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма', async ({
   page,
 }) => {
   const calls = await mockDesk(page, {
@@ -146,8 +146,8 @@ test('«Получить доступ» при открытой регистра
   });
   await page.goto('/');
   await page
-    .locator('.hero')
-    .getByRole('link', { name: /Получить доступ/ })
+    .locator('.public-intro')
+    .getByRole('link', { name: /Попробовать бесплатно/ })
     .click();
 
   const dialog = page.getByRole('dialog');
@@ -160,7 +160,7 @@ test('«Получить доступ» при открытой регистра
   await dialog.getByLabel('Имя').fill('Дана Тестова');
   await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
   // страна кода — явно: иначе она зависит от пояса и языка браузера, на котором гоняют тест
-  await dialog.getByLabel('Код страны').selectOption('KZ');
+  await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
   await dialog.getByLabel('Телефон').fill('701 555 44 33');
   await dialog.getByLabel('Почта').fill('dana@example.invalid');
   await dialog.getByLabel('Пароль', { exact: true }).fill('parol-dlya-testa');
@@ -187,6 +187,7 @@ test('«Получить доступ» при открытой регистра
     phoneCountry: 'KZ',
     phone: '701 555 44 33',
     privacyAccepted: true,
+    locale: 'ru',
   });
   // повтор письма — не чаще раза в минуту: сразу после отправки кнопка ждёт
   const resend = dialog.getByRole('button', { name: /Ещё раз — через \d+ с/ });
@@ -225,7 +226,7 @@ test('на телефоне окно открывается из меню и н�
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
   await page.goto('/');
   await page.getByRole('button', { name: 'Меню' }).click();
-  await page.locator('#mobile-menu-panel').getByRole('link', { name: 'Получить доступ' }).click();
+  await page.locator('#mobile-menu-panel').getByRole('link', { name: 'Регистрация' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
   const box = await dialog.boundingBox();
@@ -238,8 +239,10 @@ test('на телефоне окно открывается из меню и н�
 
 /** Снимки окна регистрации 29.09.2026 для визуального «да» владельца — `reports/registration-v2-2026-09-29/` */
 test('снимки окна регистрации: светлая и тёмная, 1440 и 390', async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
-  const report = 'reports/mv2-registration-2026-10-04/screenshots';
+  const report = 'reports/public-homepage-v2-business-copy-2026-10-07/test-screenshots';
   mkdirSync(report, { recursive: true });
   for (const theme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
@@ -250,7 +253,7 @@ test('снимки окна регистрации: светлая и тёмна
       await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
       await dialog.getByLabel('Имя').fill('Дана Тестова');
       await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
-      await dialog.getByLabel('Код страны').selectOption('KZ');
+      await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
       await dialog.getByLabel('Телефон').fill('701 555 44 33');
       await page.waitForTimeout(300);
       const axe = await new AxeBuilder({ page }).include('.auth-dialog').analyze();
@@ -293,29 +296,69 @@ test('снимки окна регистрации: светлая и тёмна
 });
 
 for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
-  test(`MV2 selector preselects ${vertical} without granting pilot access`, async ({ page }) => {
+  test(`${vertical} registers like a hotel: no invitation, «Проверьте почту» (ADR-172)`, async ({
+    page,
+  }) => {
     const calls = await mockDesk(page, {
       options: () => ({ status: 200, body: { registrationEnabled: true } }),
-      register: () => ({
-        status: 403,
-        body: { message: 'Направление пока доступно только участникам пилота' },
+      register: (body) => ({
+        status: 200,
+        body: { email: (body as { email: string }).email, sent: true },
       }),
     });
     await page.goto(`/?vertical=${vertical}#register`);
     const dialog = page.getByRole('dialog');
     await expect(dialog.locator(`input[name="vertical"][value="${vertical}"]`)).toBeChecked();
-    await expect(dialog.getByText('Подключение по приглашению', { exact: true })).toBeVisible();
+    await expect(dialog).not.toContainText(/приглашению|пилот/i);
+    await expect(dialog).toContainText('Затем настройте свой бизнес.');
     await dialog.getByLabel('Имя', { exact: true }).fill('Мария Тестова');
-    await dialog.getByLabel('Название бизнеса').fill('Тестовый пилот');
-    await dialog.getByLabel('Почта', { exact: true }).fill('pilot@example.invalid');
+    await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
+    await dialog.getByLabel('Почта', { exact: true }).fill('maria@example.invalid');
     await dialog.getByLabel('Пароль', { exact: true }).fill('synthetic-password-2026');
     await dialog.getByLabel('Телефон').fill('7015554433');
     await dialog.getByRole('checkbox').check();
     await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
-    await expect(dialog.getByRole('alert')).toContainText('только участникам пилота');
+    await expect(dialog.getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
     expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({
       vertical,
-      businessName: 'Тестовый пилот',
+      businessName: 'Тестовый бизнес',
     });
   });
 }
+
+test('registration: three countries, correct dial codes and English preference', async ({
+  page,
+}) => {
+  const calls = await mockDesk(page, {
+    options: () => ({ status: 200, body: { registrationEnabled: true } }),
+    register: () => ({ status: 200, body: { email: 'owner@example.invalid', sent: true } }),
+  });
+  await page.goto('/#register');
+  const dialog = page.getByRole('dialog');
+  const country = dialog.getByLabel('Страна', { exact: true });
+  await expect(country.locator('option')).toHaveText(['Казахстан', 'ОАЭ (Дубай)', 'Катар']);
+  for (const [code, dial] of [
+    ['KZ', '+7'],
+    ['AE', '+971'],
+    ['QA', '+974'],
+  ]) {
+    await country.selectOption(code!);
+    await expect(dialog.locator('.auth-phone__code')).toHaveText(dial!);
+  }
+  const language = dialog.getByLabel('Язык системы');
+  await expect(language.locator('option')).toHaveText(['Русский', 'English']);
+  await language.selectOption('en');
+  await dialog.getByLabel('Имя').fill('Тестовый владелец');
+  await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
+  await dialog.getByLabel('Телефон').fill('5550 1234');
+  await dialog.getByLabel('Почта').fill('owner@example.invalid');
+  await dialog.getByLabel('Пароль', { exact: true }).fill('test-password-123');
+  await dialog.getByRole('checkbox').check();
+  await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
+  await expect(dialog.getByTestId('auth-sent')).toBeVisible();
+  expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({
+    phoneCountry: 'QA',
+    phone: '5550 1234',
+    locale: 'en',
+  });
+});

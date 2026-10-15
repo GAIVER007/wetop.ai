@@ -1,0 +1,125 @@
+# Типы (typecheck) · 08.10.2026 20:47 Алматы · vm
+# коммит 1e27513 (claude/mv8-5-ds1b-primitives)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/marketing-site/assistant-history.ts(25,8): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient | Db'.
+  Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(59,24): error TS2724: '"/home/user/wetop.ai/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'SiteAiRunGetPayload'. Did you mean 'SiteDomainGetPayload'?
+apps/api/src/marketing-site/assistant.service.ts(110,33): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(113,20): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(143,30): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(150,28): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(180,17): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(198,17): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(233,12): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(235,45): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(235,75): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(237,24): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(258,23): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/generation.service.ts(271,26): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.worker.ts(189,31): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(196,20): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(254,35): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(255,32): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(348,22): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(658,41): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(699,29): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(714,28): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(729,32): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(737,16): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(747,26): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(759,27): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(122,39): error TS2322: Type '{ locationId: string; }' is not assignable to type 'MarketingSiteWhereUniqueInput'.
+  Type '{ locationId: string; }' is not assignable to type '{ id: string; trackedSiteId: string; } & { id?: string; trackedSiteId?: string; AND?: MarketingSiteWhereInput | MarketingSiteWhereInput[]; ... 20 more ...; domains?: SiteDomainListRelationFilter; }'.
+    Type '{ locationId: string; }' is missing the following properties from type '{ id: string; trackedSiteId: string; }': id, trackedSiteId
+apps/api/src/marketing-site/marketing-site.service.ts(122,103): error TS2353: Object literal may only specify known properties, and 'builderInstructions' does not exist in type 'MarketingSiteSelect<DefaultArgs>'.
+apps/api/src/marketing-site/marketing-site.service.ts(131,28): error TS2339: Property 'builderInstructions' does not exist on type '{ locationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; state: MarketingSiteState; slug: string; trackedSiteId: string | null; createdById: string | null; latestVersionId: string | null; publishedVersionId: string | null; archivedAt: Date | null; }'.
+apps/api/src/marketing-site/marketing-site.service.ts(165,64): error TS2322: Type '{ locationId: string; }' is not assignable to type 'MarketingSiteWhereUniqueInput'.
+  Type '{ locationId: string; }' is not assignable to type '{ id: string; trackedSiteId: string; } & { id?: string; trackedSiteId?: string; AND?: MarketingSiteWhereInput | MarketingSiteWhereInput[]; ... 20 more ...; domains?: SiteDomainListRelationFilter; }'.
+    Type '{ locationId: string; }' is missing the following properties from type '{ id: string; trackedSiteId: string; }': id, trackedSiteId
+apps/api/src/marketing-site/marketing-site.service.ts(199,19): error TS2353: Object literal may only specify known properties, and 'builderInstructions' does not exist in type 'MarketingSiteSelect<DefaultArgs>'.
+apps/api/src/marketing-site/marketing-site.service.ts(202,35): error TS2339: Property 'builderInstructions' does not exist on type '{ locationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; state: MarketingSiteState; slug: string; trackedSiteId: string | null; createdById: string | null; latestVersionId: string | null; publishedVersionId: string | null; archivedAt: Date | null; }'.
+apps/api/src/marketing-site/marketing-site.service.ts(230,32): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(231,33): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(234,20): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(235,20): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(252,29): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(327,30): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(332,40): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/marketing-site/marketing-site.service.ts(341,31): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/marketing-site/scope.ts(53,24): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'TransactionClient'.
+apps/api/src/platform/site-builder-licenses.ts(77,31): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/platform/site-builder-licenses.ts(82,16): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/licensed-site-builder.test.ts(173,36): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(326,23): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(686,29): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(698,23): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(716,29): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(727,31): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(733,31): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(890,23): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(893,23): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(900,23): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(620,16): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+tests/tools/site-builder.ts(16,14): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/marketing-site/assistant-history.ts(25,8): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient | Db'.
+  Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(59,24): error TS2724: '"/home/user/wetop.ai/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'SiteAiRunGetPayload'. Did you mean 'SiteDomainGetPayload'?
+apps/api/src/marketing-site/assistant.service.ts(110,33): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(113,20): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(143,30): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(150,28): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(180,17): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(198,17): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(233,12): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(235,45): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(235,75): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(237,24): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(258,23): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/generation.service.ts(271,26): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.worker.ts(189,31): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(196,20): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(254,35): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(255,32): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(348,22): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(658,41): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(699,29): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(714,28): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(729,32): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(737,16): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(747,26): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(759,27): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(122,39): error TS2322: Type '{ locationId: string; }' is not assignable to type 'MarketingSiteWhereUniqueInput'.
+  Type '{ locationId: string; }' is not assignable to type '{ id: string; trackedSiteId: string; } & { id?: string; trackedSiteId?: string; AND?: MarketingSiteWhereInput | MarketingSiteWhereInput[]; ... 20 more ...; domains?: SiteDomainListRelationFilter; }'.
+    Type '{ locationId: string; }' is missing the following properties from type '{ id: string; trackedSiteId: string; }': id, trackedSiteId
+apps/api/src/marketing-site/marketing-site.service.ts(122,103): error TS2353: Object literal may only specify known properties, and 'builderInstructions' does not exist in type 'MarketingSiteSelect<DefaultArgs>'.
+apps/api/src/marketing-site/marketing-site.service.ts(131,28): error TS2339: Property 'builderInstructions' does not exist on type '{ locationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; slug: string; state: MarketingSiteState; trackedSiteId: string | null; latestVersionId: string | null; publishedVersionId: string | null; createdById: string | null; archivedAt: Date | null; }'.
+apps/api/src/marketing-site/marketing-site.service.ts(165,64): error TS2322: Type '{ locationId: string; }' is not assignable to type 'MarketingSiteWhereUniqueInput'.
+  Type '{ locationId: string; }' is not assignable to type '{ id: string; trackedSiteId: string; } & { id?: string; trackedSiteId?: string; AND?: MarketingSiteWhereInput | MarketingSiteWhereInput[]; ... 20 more ...; domains?: SiteDomainListRelationFilter; }'.
+    Type '{ locationId: string; }' is missing the following properties from type '{ id: string; trackedSiteId: string; }': id, trackedSiteId
+apps/api/src/marketing-site/marketing-site.service.ts(199,19): error TS2353: Object literal may only specify known properties, and 'builderInstructions' does not exist in type 'MarketingSiteSelect<DefaultArgs>'.
+apps/api/src/marketing-site/marketing-site.service.ts(202,35): error TS2339: Property 'builderInstructions' does not exist on type '{ locationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; slug: string; state: MarketingSiteState; trackedSiteId: string | null; latestVersionId: string | null; publishedVersionId: string | null; createdById: string | null; archivedAt: Date | null; }'.
+apps/api/src/marketing-site/marketing-site.service.ts(230,32): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(231,33): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(234,20): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(235,20): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(252,29): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(327,30): error TS2551: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'. Did you mean 'marketingSiteVersion'?
+apps/api/src/marketing-site/marketing-site.service.ts(332,40): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/marketing-site/marketing-site.service.ts(341,31): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/marketing-site/scope.ts(53,24): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'TransactionClient'.
+apps/api/src/platform/site-builder-licenses.ts(77,31): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/platform/site-builder-licenses.ts(82,16): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 1 мин 34 с

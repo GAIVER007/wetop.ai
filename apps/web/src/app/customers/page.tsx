@@ -5,11 +5,13 @@ import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { beautyApi } from '../../lib/api';
-import { EmptyState, Table } from '../../components/ui';
+import { BeautyCustomersTable } from './beauty-table';
 import '../beauty/beauty.css';
+
+/** Клиенты салона по макету ТЗ (09.10.2026): сегменты, визиты и средний чек считает API по DONE */
 export default async function CustomersPage() {
-  const me = await requireVertical(['BEAUTY','FOOD_SERVICE']);
-  if(me.context?.vertical === 'FOOD_SERVICE') return <FoodCustomers/>;
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  if (me.context?.vertical === 'FOOD_SERVICE') return <FoodCustomers />;
   try {
     const { items } = await beautyApi.customers();
     return (
@@ -18,28 +20,7 @@ export default async function CustomersPage() {
         title="Клиенты"
         subtitle="Клиенты этого бизнеса. Новый клиент добавляется при создании записи."
       >
-        {items.length === 0 ? (
-          <EmptyState title="Клиенты появятся после первой записи" />
-        ) : (
-          <Table className="beauty-customers-table">
-            <thead>
-              <tr>
-                <th>Клиент</th>
-                <th>Телефон</th>
-                <th>Статус</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((c) => (
-                <tr key={c.id}>
-                  <td>{[c.firstName, c.lastName].filter(Boolean).join(' ')}</td>
-                  <td>{c.phone ?? 'Не указан'}</td>
-                  <td>{c.status === 'ACTIVE' ? 'Активен' : 'В архиве'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
+        <BeautyCustomersTable items={items} />
       </Page>
     );
   } catch (error) {

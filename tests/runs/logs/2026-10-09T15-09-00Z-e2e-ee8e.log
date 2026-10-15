@@ -1,0 +1,940 @@
+# Сквозные (e2e) · 09.10.2026 20:09 Алматы · vm
+# коммит c50af50 (claude/quirky-newton-qkhfgz)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/ds1b-capture.spec.ts' 'tests/ui/ds1b-primitives.spec.ts' 'tests/ui/ds1c-capture.spec.ts' 'tests/ui/ds1c-primitives.spec.ts' 'tests/ui/empty-base.spec.ts' 'tests/ui/finance-card-actions.spec.ts' 'tests/ui/finance-cash-first.spec.ts' 'tests/ui/finance-cash.spec.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/finance-f2.spec.ts' 'tests/ui/finance-home-merge.spec.ts' 'tests/ui/finance-services.spec.ts' 'tests/ui/finance-units-design.spec.ts' 'tests/ui/fiscal-receipt.spec.ts' 'tests/ui/fixture-isolation.spec.ts' 'tests/ui/flat-surfaces.spec.ts' 'tests/ui/form910.spec.ts' 'tests/ui/fund-workspace.spec.ts' 'tests/ui/guest-wizard.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/guests-design.spec.ts' 'tests/ui/housekeeping.spec.ts' 'tests/ui/incidents-design.spec.ts' 'tests/ui/integrations-channex.spec.ts' 'tests/ui/integrations.spec.ts' 'tests/ui/inventory-catalog.spec.ts' 'tests/ui/inventory-onboarding.spec.ts' 'tests/ui/invites.spec.ts' 'tests/ui/loading-performance.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/login-lock.spec.ts' '--config' 'tests/ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 207 tests using 2 workers
+
+  -    1 tests/ui/ds1b-capture.spec.ts:29:5 › примитивы DS1b light 1440
+  -    2 tests/ui/ds1b-capture.spec.ts:29:5 › примитивы DS1b light 390
+  -    3 tests/ui/ds1b-capture.spec.ts:29:5 › примитивы DS1b dark 1440
+  -    4 tests/ui/ds1b-capture.spec.ts:29:5 › примитивы DS1b dark 390
+  -    5 tests/ui/ds1c-capture.spec.ts:59:5 › представители DS1c light 1440
+  -    6 tests/ui/ds1c-capture.spec.ts:59:5 › представители DS1c light 390
+  -    7 tests/ui/ds1c-capture.spec.ts:59:5 › представители DS1c dark 1440
+  -    8 tests/ui/ds1c-capture.spec.ts:59:5 › представители DS1c dark 390
+  ✓    9 tests/ui/ds1c-primitives.spec.ts:16:1 › доля на «Сайт → Аналитика»: родной progress с именем и числом, без ширины строкой стиля (2.7s)
+  ✓   10 tests/ui/ds1b-primitives.spec.ts:20:1 › вкладки на странице: стрелки по кругу, Home, End, выбор сразу и фокус на вкладке (4.1s)
+  ✓   11 tests/ui/ds1c-primitives.spec.ts:33:1 › плитка: тон чертой слева, изменение словами, плитка-ссылка с фокусом (4.2s)
+  ✓   12 tests/ui/ds1b-primitives.spec.ts:48:1 › вкладки маршрутами: ссылки с aria-current, стрелки не перехватываются (3.9s)
+  ✓   13 tests/ui/ds1c-primitives.spec.ts:51:1 › день: предыдущий, следующий, «Сегодня» и поле «Дата» с подписью (3.7s)
+  ✓   15 tests/ui/ds1c-primitives.spec.ts:69:1 › период «Броней»: готовые отрезки ссылками, поля «С» и «По», применяет «Показать», адрес прежний (3.4s)
+  ✓   14 tests/ui/ds1b-primitives.spec.ts:67:1 › переключатель шахматки: ровно один выбран, стрелки и Home/End, выбор помнится (6.1s)
+  ✓   17 tests/ui/ds1b-primitives.spec.ts:96:1 › брони: чипы видов ссылками, полоса инструментов по порядку поиск, отбор, период, действия (1.9s)
+  ✓   16 tests/ui/ds1c-primitives.spec.ts:84:1 › размеры окон: «Новая задача» sm, новая бронь lg, Escape закрывает и возвращает фокус (4.9s)
+  ✓   18 tests/ui/ds1b-primitives.spec.ts:135:1 › чип: кнопка переключает aria-pressed, число читается в имени (3.1s)
+  ✓   19 tests/ui/ds1c-primitives.spec.ts:105:1 › поле: обязательное с родным required и знаком, необязательное словом (3.2s)
+  ✓   21 tests/ui/ds1c-primitives.spec.ts:122:1 › таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки (2.6s)
+  ✓   22 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (3.1s)
+  ✓   20 tests/ui/ds1b-primitives.spec.ts:154:3 › 390 px: экраны-представители без прокрутки вбок, цели не ниже 44 px, axe (light) (10.4s)
+  ✓   23 tests/ui/ds1c-primitives.spec.ts:174:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (light) (11.5s)
+  ✓   24 tests/ui/ds1b-primitives.spec.ts:154:3 › 390 px: экраны-представители без прокрутки вбок, цели не ниже 44 px, axe (dark) (9.7s)
+  ✓   26 tests/ui/empty-base.spec.ts:39:3 › пустая база: /chessboard открывается и объясняет пустоту (1.8s)
+  ✓   27 tests/ui/empty-base.spec.ts:39:3 › пустая база: /reservations открывается и объясняет пустоту (1.2s)
+  ✓   28 tests/ui/empty-base.spec.ts:39:3 › пустая база: /guests открывается и объясняет пустоту (1.7s)
+  ✓   29 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms открывается и объясняет пустоту (2.1s)
+  ✓   30 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/categories открывается и объясняет пустоту (1.8s)
+  ✓   31 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/availability открывается и объясняет пустоту (1.4s)
+  ✓   25 tests/ui/ds1c-primitives.spec.ts:174:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (dark) (11.6s)
+  ✓   32 tests/ui/empty-base.spec.ts:39:3 › пустая база: /finance открывается и объясняет пустоту (2.4s)
+  ✓   33 tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (2.3s)
+  ✓   34 tests/ui/empty-base.spec.ts:39:3 › пустая база: /management/analytics открывается и объясняет пустоту (1.9s)
+  ✓   36 tests/ui/empty-base.spec.ts:39:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту (2.1s)
+  ✓   37 tests/ui/empty-base.spec.ts:39:3 › пустая база: /journal открывается и объясняет пустоту (1.4s)
+  ✓   38 tests/ui/empty-base.spec.ts:39:3 › пустая база: /incidents открывается и объясняет пустоту (1.3s)
+  ✓   39 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels открывается и объясняет пустоту (2.1s)
+  ✓   40 tests/ui/empty-base.spec.ts:39:3 › пустая база: /connections открывается и объясняет пустоту (1.3s)
+  ✓   41 tests/ui/empty-base.spec.ts:39:3 › пустая база: /website открывается и объясняет пустоту (1.2s)
+  ✓   42 tests/ui/empty-base.spec.ts:39:3 › пустая база: /website/analytics открывается и объясняет пустоту (1.0s)
+  ✓   43 tests/ui/empty-base.spec.ts:39:3 › пустая база: /hotel-settings открывается и объясняет пустоту (963ms)
+  ✓   44 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels/mapping открывается и объясняет пустоту (1.0s)
+  ✓   45 tests/ui/empty-base.spec.ts:49:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.4s)
+  ✓   46 tests/ui/empty-base.spec.ts:60:1 › пустая база: финансы говорят про ноль словами, а не пустыми плитками (1.6s)
+  ✘   35 tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (17.4s)
+  ✓   47 tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (4.4s)
+  ✓   48 tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (3.2s)
+  ✓   50 tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (2.5s)
+  ✓   49 tests/ui/finance-cash-first.spec.ts:63:3 › касса: доступность и верстка 1440 (4.3s)
+  ✓   51 tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (4.1s)
+  ✓   52 tests/ui/finance-cash-first.spec.ts:63:3 › касса: доступность и верстка 390 (4.2s)
+  ✓   53 tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (2.8s)
+  ✓   54 tests/ui/finance-cash-first.spec.ts:63:3 › касса: доступность и верстка 360 (4.2s)
+  ✓   56 tests/ui/finance-cash-first.spec.ts:93:1 › касса: первый экран без лишних кнопок, действия внутри управления (3.4s)
+  ✓   57 tests/ui/finance-cash-first.spec.ts:113:1 › касса: визуальная иерархия итогов и спокойный сброс (2.5s)
+  ✓   58 tests/ui/finance-cash-first.spec.ts:132:1 › касса: тёмное оформление читается на телефоне (3.6s)
+  ✓   59 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (2.4s)
+  ✓   60 tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (3.7s)
+  ✓   61 tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (3.7s)
+  ✘   55 tests/ui/finance-card-actions.spec.ts:169:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (21.9s)
+  ✓   62 tests/ui/finance-cash.spec.ts:112:1 › статьи: стартовый набор, добавление и выключение; выключенная уходит из формы расхода (4.8s)
+  ✓   63 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (5.3s)
+  ✓   65 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (4.3s)
+  ✓   66 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (3.9s)
+  ✓   67 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (3.7s)
+  ✓   68 tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (4.1s)
+  ✘   64 tests/ui/finance-cash.spec.ts:133:1 › «только чтение»: кнопок кассы нет, остатки видны (20.2s)
+  ✓   69 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (2.2s)
+  ✓   70 tests/ui/finance-f1.spec.ts:99:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (3.2s)
+  ✓   71 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, light (4.0s)
+  ✓   72 tests/ui/finance-f1.spec.ts:149:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (2.1s)
+  ✓   73 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, dark (4.5s)
+  ✓   74 tests/ui/finance-f1.spec.ts:180:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (5.3s)
+  ✓   75 tests/ui/finance-cash.spec.ts:174:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента (4.6s)
+  ✓   76 tests/ui/finance-f1.spec.ts:222:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (5.0s)
+  ✓   77 tests/ui/finance-cash.spec.ts:202:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния (3.8s)
+  ✓   78 tests/ui/finance-f1.spec.ts:238:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (4.0s)
+  ✓   80 tests/ui/finance-f1.spec.ts:259:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (1.9s)
+  ✓   81 tests/ui/finance-f1.spec.ts:279:3 › F1, стоп-гейт: снимки для владельца, light (3.0s)
+  ✓   82 tests/ui/finance-f1.spec.ts:279:3 › F1, стоп-гейт: снимки для владельца, dark (3.0s)
+  ✓   83 tests/ui/finance-home-merge.spec.ts:19:1 › обзор бизнеса: плитки, блоки макета и деньги кассы без заглушек (2.1s)
+  ✓   84 tests/ui/finance-home-merge.spec.ts:102:1 › очередь «Требуют внимания» открывается из «Все задачи» (1.9s)
+  ✓   85 tests/ui/finance-home-merge.spec.ts:109:1 › /today гостиницы перенаправляет в финансы (2.3s)
+  ✘   79 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (17.5s)
+  ✓   86 tests/ui/finance-home-merge.spec.ts:117:1 › меню: «Финансы» первой вкладкой, «Главной» нет (1.7s)
+  ✓   87 tests/ui/finance-home-merge.spec.ts:125:1 › период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию (3.7s)
+  ✓   89 tests/ui/finance-home-merge.spec.ts:137:1 › телефон: показатели первым экраном, фильтры достижимы (2.2s)
+  ✓   88 tests/ui/finance-f2.spec.ts:67:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (5.5s)
+  ✓   90 tests/ui/finance-services.spec.ts:53:1 › вкладка «Услуги»: строки из API, «вручную» словами, «Итого» равно строке «Услуги» обзора (3.7s)
+  ✓   92 tests/ui/finance-services.spec.ts:100:1 › CSV услуг: кнопка на вкладке, файл со сводом и строкой «вручную» (2.7s)
+  ✘   91 tests/ui/finance-f2.spec.ts:86:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (7.1s)
+  ✓   93 tests/ui/finance-services.spec.ts:115:1 › хаб «Отчёты»: карточка услуг с суммой из сводки ведёт на вкладку (2.3s)
+  ✓   95 tests/ui/finance-services.spec.ts:131:1 › пустая база: вкладка честно говорит, что начислений нет (1.8s)
+  ✘   94 tests/ui/finance-f2.spec.ts:106:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (2.4s)
+  ✓   97 tests/ui/finance-f2.spec.ts:133:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (2.5s)
+  ✓   96 tests/ui/finance-services.spec.ts:139:3 › доступность и снимки, light (5.1s)
+  ✓   99 tests/ui/finance-services.spec.ts:139:3 › доступность и снимки, dark (4.8s)
+  ✓  100 tests/ui/finance-units-design.spec.ts:23:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (1440) (2.1s)
+  ✓  101 tests/ui/finance-units-design.spec.ts:23:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (телефон) (2.1s)
+  ✓  102 tests/ui/finance-units-design.spec.ts:67:1 › карточка ячейки: подзаголовок словами, даты проживаний в <time>, заголовок без скобок (2.2s)
+  ✓  103 tests/ui/fiscal-receipt.spec.ts:29:1 › гость попросил чек: номер из кассы ложится к платежу (3.8s)
+  ✘   98 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light (19.1s)
+  ✓  105 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, dark (6.2s)
+  ✓  106 tests/ui/finance-f2.spec.ts:186:1 › F2: «Аннулировать» у платежа в ленте — вопрос с суммой, статус «аннулирована», сумма ушла из «Оплачено» (2.9s)
+  ✓  107 tests/ui/fixture-isolation.spec.ts:7:1 › сброс после дизайн-сценария восстанавливает названия категорий и ячеек (27ms)
+  ✓  108 tests/ui/fixture-isolation.spec.ts:19:1 › сумма продления в подтверждении совпадает с подсказкой и записанным проживанием (19ms)
+  ✘  109 tests/ui/flat-surfaces.spec.ts:2:1 › flat shared surfaces across application routes in both themes (2.1s)
+  ✘  104 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: light, 1440px (17.6s)
+  ✓  110 tests/ui/form910.spec.ts:13:1 › хаб ведёт на полугодие; шесть месяцев и итог (2.9s)
+  ✓  112 tests/ui/form910.spec.ts:26:5 › доступность: light, 1440px (2.9s)
+  ✓  113 tests/ui/form910.spec.ts:26:5 › доступность: light, 390px (2.2s)
+  ✓  114 tests/ui/form910.spec.ts:26:5 › доступность: dark, 1440px (2.1s)
+  ✓  115 tests/ui/form910.spec.ts:26:5 › доступность: dark, 390px (2.1s)
+  ✓  116 tests/ui/fund-workspace.spec.ts:4:1 › category creation, rename, room creation and reload (6.2s)
+  ✘  111 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: light, 390px (18.9s)
+  ✓  118 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: dark, 1440px (5.3s)
+  ✓  117 tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design (10.0s)
+  ✓  120 tests/ui/fund-workspace.spec.ts:90:1 › guests filter categories by capacity; toggle shows all; tab renamed (2.3s)
+  ✓  121 tests/ui/fund-workspace.spec.ts:123:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (1.9s)
+  ✓  119 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: dark, 390px (5.4s)
+  ✓  123 tests/ui/guest-wizard.spec.ts:3:1 › гостевой мастер: ручной ввод, живое превью, восстановление после перезагрузки (2.3s)
+  ✓  124 tests/ui/guest-wizard.spec.ts:54:1 › отказ сохранения не теряет ввод и не показывает успешный результат (1.8s)
+  ✓  125 tests/ui/guest-wizard.spec.ts:79:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (1.1s)
+  ✓  122 tests/ui/fund-workspace.spec.ts:144:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (6.7s)
+  ✓  127 tests/ui/fund-workspace.spec.ts:225:1 › AV4: a category without places stays on screen with the nearest availability (3.8s)
+  ✓  128 tests/ui/fund-workspace.spec.ts:270:1 › dark categories and availability; invalid dates and empty onboarding (6.0s)
+  ✓  129 tests/ui/guests-design.spec.ts:23:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (3.2s)
+  ✓  130 tests/ui/guests-design.spec.ts:68:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (1.2s)
+  ✘  126 tests/ui/guests-birthdays.spec.ts:15:1 › календарь исключает дни рождения, отдельная страница раскрывает детали (19.2s)
+[WebServer] [browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+  ✓  132 tests/ui/guests-birthdays.spec.ts:55:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто (3.6s)
+  ✓  133 tests/ui/housekeeping.spec.ts:21:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (3.8s)
+  ✓  134 tests/ui/housekeeping.spec.ts:80:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (2.2s)
+  ✓  135 tests/ui/housekeeping.spec.ts:111:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (1.2s)
+  ✓  136 tests/ui/housekeeping.spec.ts:119:1 › карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку (3.9s)
+  ✓  137 tests/ui/housekeeping.spec.ts:159:1 › карточка брони: заселение в непроверенную ячейку предупреждает, но не запрещает (Q-156) (2.2s)
+  ✓  138 tests/ui/housekeeping.spec.ts:186:1 › выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155) (7.5s)
+  ✓  139 tests/ui/incidents-design.spec.ts:20:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами (1.2s)
+  ✓  140 tests/ui/incidents-design.spec.ts:61:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс (1.3s)
+  ✓  141 tests/ui/incidents-design.spec.ts:85:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку (1.1s)
+  ✓  142 tests/ui/incidents-design.spec.ts:100:1 › неисправности: телефон — карточка, цели 44 px, без прокрутки вбок, доступность (5.1s)
+  ✓  143 tests/ui/integrations-channex.spec.ts:36:1 › работает: соединение, сопоставление и webhook словами, ключей нет, вкладки модуля на месте (4.3s)
+  ✓  144 tests/ui/integrations-channex.spec.ts:77:1 › webhook не отвечает: причина словами и тот же вывод на карточке «Подключений» (1.4s)
+  ✓  145 tests/ui/integrations-channex.spec.ts:94:1 › устарело: очередь стоит, карточка «Подключений» зовёт в очередь (1.1s)
+  ✘  131 tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (45.6s)
+  ✓  146 tests/ui/integrations-channex.spec.ts:107:1 › интеграция у другой организации: проверить нельзя, это сказано словами (1.1s)
+  ✓  148 tests/ui/guests-design.spec.ts:167:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (6.9s)
+  ✓  149 tests/ui/guests-design.spec.ts:239:1 › гости: документы и финансовый свод гостя (G5) (4.6s)
+  ✓  150 tests/ui/guests-design.spec.ts:291:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (3.5s)
+  ✘  147 tests/ui/integrations-channex.spec.ts:118:1 › ключ не задан: так и сказано, кнопки настройки без ключа не работают (19.5s)
+  ✘  151 tests/ui/guests-design.spec.ts:337:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (5.0s)
+  ✓  152 tests/ui/integrations-channex.spec.ts:130:1 › телефон: страница без прокрутки вбок (1.2s)
+  ✓  154 tests/ui/integrations-channex.spec.ts:151:3 › /connections: пока соединение проверяется, заголовок тот же, что у страницы (687ms)
+  ✓  155 tests/ui/integrations-channex.spec.ts:151:3 › /connections/channex: пока соединение проверяется, заголовок тот же, что у страницы (1.3s)
+  ✓  156 tests/ui/integrations-channex.spec.ts:163:3 › снимки страницы настройки Channex для владельца, light (7.7s)
+  ✓  157 tests/ui/integrations-channex.spec.ts:163:3 › снимки страницы настройки Channex для владельца, dark (7.3s)
+  ✘  153 tests/ui/guests-design.spec.ts:420:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (17.1s)
+  ✓  159 tests/ui/guests-design.spec.ts:494:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) (3.5s)
+  ✓  160 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (3.2s)
+  ✓  161 tests/ui/inventory-catalog.spec.ts:32:1 › прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается (3.6s)
+  ✓  162 tests/ui/inventory-catalog.spec.ts:53:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (2.9s)
+  ✓  163 tests/ui/inventory-catalog.spec.ts:96:1 › пустой поиск объясняется, сброс возвращает фонд (1.4s)
+  ✘  158 tests/ui/integrations.spec.ts:33:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек (18.9s)
+  ✓  165 tests/ui/integrations.spec.ts:79:1 › требует внимания: причины словами и ссылки прямо к месту исправления (1.3s)
+  ✓  166 tests/ui/integrations.spec.ts:97:1 › интеграция у другой организации: «Подключённые» пусты, Channex — в «Доступных» без ложной кнопки (1.6s)
+  ✓  167 tests/ui/integrations.spec.ts:118:1 › ключ Channex не задан — не подключено, а не «работает» (1.2s)
+  ✓  168 tests/ui/integrations.spec.ts:126:1 › только чтение: список и состояние видны, подключение — после оплаты (3.7s)
+  ✓  164 tests/ui/inventory-catalog.spec.ts:107:3 › каталог адаптивен и доступен: light (13.5s)
+  ✓  170 tests/ui/inventory-catalog.spec.ts:107:3 › каталог адаптивен и доступен: dark (13.1s)
+  ✓  171 tests/ui/inventory-catalog.spec.ts:140:1 › пустой фонд отличается от пустого поиска (965ms)
+  ✓  172 tests/ui/inventory-catalog.spec.ts:148:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (2.2s)
+  ✘  169 tests/ui/integrations.spec.ts:136:1 › не владелец технических деталей не видит; администратору раздел закрыт (21.0s)
+  ✓  174 tests/ui/integrations.spec.ts:151:1 › телефон: карточка без прокрутки вбок (1.1s)
+  ✓  175 tests/ui/integrations.spec.ts:167:3 › INT1, стоп-гейт: снимки для владельца, light (7.6s)
+  ✘  173 tests/ui/inventory-catalog.spec.ts:170:1 › панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами (17.5s)
+  ✓  176 tests/ui/integrations.spec.ts:167:3 › INT1, стоп-гейт: снимки для владельца, dark (8.6s)
+  ✓  178 tests/ui/integrations.spec.ts:195:1 › подключения различают два тарифных плана и десять сопоставлений (3.8s)
+  ✓  179 tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu (3.3s)
+  ✓  180 tests/ui/inventory-onboarding.spec.ts:37:1 › location and operational filters intersect and survive reload (2.8s)
+  ✓  181 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (4.8s)
+  ✓  182 tests/ui/invites.spec.ts:49:1 › без сессии формы приглашения нет (225ms)
+  ✘  177 tests/ui/inventory-catalog.spec.ts:218:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат (18.0s)
+  ✓  183 tests/ui/invites.spec.ts:56:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (5.1s)
+  ✓  185 tests/ui/invites.spec.ts:75:1 › мёртвая ссылка — один текст и путь на форму входа (2.3s)
+  ✓  184 tests/ui/inventory-catalog.spec.ts:243:3 › панель места доступна: light (8.5s)
+  ✓  186 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (4.9s)
+  ✓  188 tests/ui/loading-performance.spec.ts:27:1 › «Финансы» показывают блоки, пока настройки гостиницы ещё загружаются (3.0s)
+  ✓  187 tests/ui/inventory-catalog.spec.ts:243:3 › панель места доступна: dark (9.2s)
+  ✓  190 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (1.9s)
+  ✓  189 tests/ui/loading-performance.spec.ts:47:1 › стойка и её шахматка запрашиваются параллельно (7.7s)
+  ✓  192 tests/ui/loading-performance.spec.ts:72:1 › мобильное меню использует уже загруженную свежесть без второго опроса (3.1s)
+  ✓  191 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (6.6s)
+  ✓  194 tests/ui/login-access.spec.ts:55:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (3.6s)
+TODAY_LOADING_MS [{"money":1227,"risks":1237,"heading":1245},{"heading":2315,"money":2315,"risks":2318},{"heading":1282,"money":1347,"risks":1358}]
+  ✓  193 tests/ui/loading-performance.spec.ts:96:1 › замер: блоки «Финансов» при задержке настроек 2000 мс (6.9s)
+  ✓  196 tests/ui/loading-performance.spec.ts:126:1 › фоновый опрос не перекрывается и восстанавливается после отказа (4.1s)
+  ✓  195 tests/ui/login-access.spec.ts:62:1 › сбой API сохраняет поля, повтор после восстановления работает (6.5s)
+  ✓  197 tests/ui/login-access.spec.ts:73:1 › клавиатура, показ пароля и блокировка повторной отправки (4.2s)
+  ✓  198 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — light (6.3s)
+  ✓  199 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — dark (6.2s)
+  ✓  200 tests/ui/login-access.spec.ts:124:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.4s)
+  ✓  201 tests/ui/login-access.spec.ts:135:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (5.5s)
+  ✘  202 tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение (45.3s)
+  ✓  203 tests/ui/login-access.spec.ts:160:1 › старая ссылка mode=register открывает регистрацию на главной (1.4s)
+  ✘  204 tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (18.4s)
+  ✓  205 tests/ui/login-access.spec.ts:178:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (708ms)
+  ✓  206 tests/ui/login-access.spec.ts:183:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.5s)
+  ✓  207 tests/ui/login-access.spec.ts:194:1 › занятая почта и короткий пароль не создают сессию (2.0s)
+
+
+  1) tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('folio-panel').first().getByText(/Возвраты:/)
+    Expected substring: "500 ₸"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('folio-panel').first().getByText(/Возвраты:/) with timeout 15000ms
+      - waiting for getByTestId('folio-panel').first().getByText(/Возвраты:/)
+
+
+      70 |   await form.getByLabel('Причина возврата').fill('ранний выезд');
+      71 |   await form.getByRole('button', { name: 'вернуть' }).click();
+    > 72 |   await expect(panel.getByText(/Возвраты:/)).toContainText('500 ₸');
+         |                                              ^
+      73 |   await expect(row.locator('td').nth(3)).toContainText('500 ₸');
+      74 |   await expect(panel.getByTestId('refund-form')).toHaveCount(0);
+      75 |   // после возврата платёж уже не меняется и не аннулируется: кнопок нет, «Вернуть» на остаток остаётся
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:72:46
+
+    Error Context: test-results/finance-card-actions-возвр-f8441-а-строка-и-баланс-обновлены/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-возвр-f8441-а-строка-и-баланс-обновлены/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-возвр-f8441-а-строка-и-баланс-обновлены/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-card-actions.spec.ts:169:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('folio-panel').first().getByTestId('refund-btn')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('folio-panel').first().getByTestId('refund-btn') with timeout 15000ms
+      - waiting for getByTestId('folio-panel').first().getByTestId('refund-btn')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      176 |   await expect(panel.getByTestId('payment-form')).toBeVisible();
+      177 |   for (const id of ['refund-btn', 'payment-edit', 'payment-void'])
+    > 178 |     await expect(panel.getByTestId(id)).toHaveCount(0);
+          |                                         ^
+      179 |   await expect(panel.getByTestId('charge-form').getByRole('option', { name: 'скидка' })).toHaveCount(0);
+      180 |
+      181 |   await asRole(request, 'MANAGER');
+        at /home/user/wetop.ai/tests/ui/finance-card-actions.spec.ts:178:41
+
+    Error Context: test-results/finance-card-actions-админ-2b9b6-дки-у-управляющего-они-есть/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-админ-2b9b6-дки-у-управляющего-они-есть/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-админ-2b9b6-дки-у-управляющего-они-есть/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/finance-cash.spec.ts:133:1 › «только чтение»: кнопок кассы нет, остатки видны ────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('cash-income-btn')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('cash-income-btn') with timeout 15000ms
+      - waiting for getByTestId('cash-income-btn')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      142 |   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
+      143 |   await expect(page.getByTestId('cash-tiles')).toBeVisible();
+    > 144 |   await expect(page.getByTestId('cash-income-btn')).toHaveCount(0);
+          |                                                     ^
+      145 |   await expect(page.getByTestId('cash-transfer-btn')).toHaveCount(0);
+      146 |   await expect(page.getByTestId('cash-categories-btn')).toHaveCount(0);
+      147 | });
+        at /home/user/wetop.ai/tests/ui/finance-cash.spec.ts:144:53
+
+    Error Context: test-results/finance-cash-«только-чтение»-кнопок-кассы-нет-остатки-видны/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-«только-чтение»-кнопок-кассы-нет-остатки-видны/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-«только-чтение»-кнопок-кассы-нет-остатки-видны/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('finance-operations').getByTestId('ops-table').getByRole('columnheader')
+    Timeout: 15000ms
+    - Expected  - 9
+    + Received  + 1
+
+    - Array [
+    -   "Дата и время",
+    -   "Тип",
+    -   "Бронь",
+    -   "Гость / статья",
+    -   "Способ",
+    -   "Сумма",
+    -   "Статус",
+    - ]
+    + Array []
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('finance-operations').getByTestId('ops-table').getByRole('columnheader') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('finance-operations').getByTestId('ops-table').getByRole('columnheader')
+        34 × locator resolved to 0 elements
+
+
+      31 |   const section = main.getByTestId('finance-operations');
+      32 |   await expect(section.getByRole('heading', { level: 2 })).toHaveText('Операции за период');
+    > 33 |   await expect(section.getByTestId('ops-table').getByRole('columnheader')).toHaveText([
+         |                                                                            ^
+      34 |     'Дата и время',
+      35 |     'Тип',
+      36 |     'Бронь',
+        at /home/user/wetop.ai/tests/ui/finance-f2.spec.ts:33:76
+
+    Error Context: test-results/finance-f2-F2-оплаты-и-воз-a95da-выми-плитки-ведут-к-деталям/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f2-F2-оплаты-и-воз-a95da-выми-плитки-ведут-к-деталям/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f2-F2-оплаты-и-воз-a95da-выми-плитки-ведут-к-деталям/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/finance-f2.spec.ts:86:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 20
+    Received:   9
+
+      101 |   await main.getByTestId('ops-more').click();
+      102 |   await expect(page).toHaveURL(/ops=all#operations$/);
+    > 103 |   expect(await main.getByTestId('op-row').count()).toBeGreaterThan(20);
+          |                                                    ^
+      104 | });
+      105 |
+      106 | test('F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами', async ({
+        at /home/user/wetop.ai/tests/ui/finance-f2.spec.ts:103:52
+
+    Error Context: test-results/finance-f2-F2-возврат-с-ми-45534-зать-все»-раскрывает-список/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f2-F2-возврат-с-ми-45534-зать-все»-раскрывает-список/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f2-F2-возврат-с-ми-45534-зать-все»-раскрывает-список/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/finance-f2.spec.ts:106:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 1
+    Received:   1
+
+      120 |   const lines = body.slice(1).split('\r\n');
+      121 |   expect(lines[0]).toBe('Дата;Время;Тип;Статус;Способ;Сумма, ₸;Бронь;Статья;Комментарий');
+    > 122 |   expect(lines.length).toBeGreaterThan(1);
+          |                        ^
+      123 |   for (const line of lines.slice(1)) expect(line).toMatch(/;Возврат;проведён;[^;]+;-\d+,\d\d;/);
+      124 |   expect(body).not.toMatch(/Гость|Посетитель|Клиент/);
+      125 |
+        at /home/user/wetop.ai/tests/ui/finance-f2.spec.ts:122:24
+
+    Error Context: test-results/finance-f2-F2-выгрузка-CSV-bd9ea-верные-даты-—-отказ-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f2-F2-выгрузка-CSV-bd9ea-верные-даты-—-отказ-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f2-F2-выгрузка-CSV-bd9ea-верные-даты-—-отказ-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light ───────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('finance-operations').getByTestId('op-row').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('finance-operations').getByTestId('op-row').first() with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('finance-operations').getByTestId('op-row').first()
+
+
+      161 |     await section.screenshot({ path: `${report}/${theme}-operations.png` });
+      162 |     await page.goto(`${url}&op=refund#operations`);
+    > 163 |     await expect(section.getByTestId('op-row').first()).toBeVisible();
+          |                                                         ^
+      164 |     await section.screenshot({ path: `${report}/${theme}-refunds.png` });
+      165 |     await page.goto(`${url}#operations`);
+      166 |     await page.screenshot({
+        at /home/user/wetop.ai/tests/ui/finance-f2.spec.ts:163:57
+
+    Error Context: test-results/finance-f2-F2-снимки-для-владельца-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f2-F2-снимки-для-владельца-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f2-F2-снимки-для-владельца-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: light, 1440px ────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByTestId('payment-requests').getByTestId('payment-request')
+    Expected: "PAID"
+    Received: "PENDING"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('payment-requests').getByTestId('payment-request') with timeout 15000ms
+      - waiting for getByTestId('payment-requests').getByTestId('payment-request')
+        34 × locator resolved to <div data-status="PENDING" class="stack stack--sm" data-testid="payment-request">…</div>
+           - unexpected value "PENDING"
+
+
+      23 |   await panel.getByTestId('payment-request-paid').click();
+      24 |   await page.getByRole('button', { name: 'Оплачено', exact: true }).last().click();
+    > 25 |   await expect(panel.getByTestId('payment-request')).toHaveAttribute('data-status', 'PAID');
+         |                                                      ^
+      26 |   return page.getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' });
+      27 | }
+      28 |
+        at paidBooking (/home/user/wetop.ai/tests/ui/fiscal-receipt.spec.ts:25:54)
+        at /home/user/wetop.ai/tests/ui/fiscal-receipt.spec.ts:43:19
+
+    Error Context: test-results/fiscal-receipt-доступность-cb1e1--колонкой-чека-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fiscal-receipt-доступность-cb1e1--колонкой-чека-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fiscal-receipt-доступность-cb1e1--колонкой-чека-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: light, 390px ─────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByTestId('payment-requests').getByTestId('payment-request')
+    Expected: "PAID"
+    Received: "PENDING"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('payment-requests').getByTestId('payment-request') with timeout 15000ms
+      - waiting for getByTestId('payment-requests').getByTestId('payment-request')
+        34 × locator resolved to <div data-status="PENDING" class="stack stack--sm" data-testid="payment-request">…</div>
+           - unexpected value "PENDING"
+
+
+      23 |   await panel.getByTestId('payment-request-paid').click();
+      24 |   await page.getByRole('button', { name: 'Оплачено', exact: true }).last().click();
+    > 25 |   await expect(panel.getByTestId('payment-request')).toHaveAttribute('data-status', 'PAID');
+         |                                                      ^
+      26 |   return page.getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' });
+      27 | }
+      28 |
+        at paidBooking (/home/user/wetop.ai/tests/ui/fiscal-receipt.spec.ts:25:54)
+        at /home/user/wetop.ai/tests/ui/fiscal-receipt.spec.ts:43:19
+
+    Error Context: test-results/fiscal-receipt-доступность-305a0-с-колонкой-чека-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fiscal-receipt-доступность-305a0-с-колонкой-чека-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fiscal-receipt-доступность-305a0-с-колонкой-чека-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/flat-surfaces.spec.ts:2:1 › flat shared surfaces across application routes in both themes 
+
+    Error: /finance
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "none"
+    Received: "rgb(148, 96, 11) 3px 0px 0px 0px inset"
+
+      14 |       expect(decor.before, route).toBe('none');
+      15 |       expect(decor.after, route).toBe('none');
+    > 16 |       for (const panel of decor.panels) { expect(panel.shadow, route).toBe('none'); expect(panel.image, route).toBe('none'); }
+         |                                                                       ^
+      17 |     }
+      18 |   }
+      19 | });
+        at /home/user/wetop.ai/tests/ui/flat-surfaces.spec.ts:16:71
+
+    Error Context: test-results/flat-surfaces-flat-shared--6c74c-ation-routes-in-both-themes/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/flat-surfaces-flat-shared--6c74c-ation-routes-in-both-themes/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/flat-surfaces-flat-shared--6c74c-ation-routes-in-both-themes/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/guests-birthdays.spec.ts:15:1 › календарь исключает дни рождения, отдельная страница раскрывает детали 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('region', { name: 'Сегодня' }).getByRole('link', { name: 'Гость Тестовый' })
+    Expected: "/guests/ui-guest"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('region', { name: 'Сегодня' }).getByRole('link', { name: 'Гость Тестовый' }) with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Сегодня' }).getByRole('link', { name: 'Гость Тестовый' })
+
+
+      40 |   await expect(page).toHaveURL(/\/guests\/birthdays$/);
+      41 |   const todaySection = page.getByRole('region', { name: 'Сегодня' });
+    > 42 |   await expect(todaySection.getByRole('link', { name: 'Гость Тестовый' })).toHaveAttribute(
+         |                                                                            ^
+      43 |     'href',
+      44 |     '/guests/ui-guest',
+      45 |   );
+        at /home/user/wetop.ai/tests/ui/guests-birthdays.spec.ts:42:76
+
+    Error Context: test-results/guests-birthdays-календарь-3d6b7--страница-раскрывает-детали/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-birthdays-календарь-3d6b7--страница-раскрывает-детали/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-birthdays-календарь-3d6b7--страница-раскрывает-детали/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Гость', exact: true }).getByRole('link', { name: 'Открыть гостя', exact: true })
+
+
+      160 |   // «Открыть гостя» — полная карточка с документами и историей
+      161 |   await main.getByRole('link', { name: /Отменившийся/ }).click();
+    > 162 |   await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
+          |                                                                          ^
+      163 |   await expect(page).toHaveURL(/\/guests\/ui-guest-GCCAN0$/);
+      164 |   await expect(main.getByTestId('guest-head')).toBeVisible();
+      165 | });
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:162:74
+
+    Error Context: test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/guests-design.spec.ts:337:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "ui-guest-GCRET0"
+    Received: undefined
+
+      374 |   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
+      375 |   const created = await lastCreate();
+    > 376 |   expect(created['guestId']).toBe('ui-guest-GCRET0');
+          |                              ^
+      377 |   expect(created).not.toHaveProperty('guest');
+      378 |   // у того же человека стало пять проживаний — новый гость не появился
+      379 |   await page.goto('/guests/ui-guest-GCRET0#guest-stays');
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:376:30
+
+    Error Context: test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/guests-design.spec.ts:420:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('guests-table')
+    Expected substring: "Отменившийся"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('guests-table') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('guests-table')
+
+
+      433 |   await none.click();
+      434 |   await expect(page).toHaveURL(/\/guests\?state=none$/);
+    > 435 |   await expect(table).toContainText('Отменившийся');
+          |                       ^
+      436 |   await expect(table).toContainText('Давний');
+      437 |   await expect(table).not.toContainText('Возвращающийся');
+      438 |
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:435:23
+
+    Error Context: test-results/guests-design-гости-отборы-5982d-ов-порядок-всё-в-адресе-G7-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-отборы-5982d-ов-порядок-всё-в-адресе-G7-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-отборы-5982d-ов-порядок-всё-в-адресе-G7-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/integrations-channex.spec.ts:118:1 › ключ не задан: так и сказано, кнопки настройки без ключа не работают 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('channel-connection')
+    Expected substring: "Не задан ключ менеджера каналов"
+    Received string:    "Менеджер каналовСоединение установленоСредаТестоваяОбъект в менеджере каналовui-propertyСопоставленокатегорий 3, тарифных планов 1, сопоставлений 3Последний webhook, по Алматы—Последний импорт, по Алматы—"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('channel-connection') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('channel-connection')
+        33 × locator resolved to <section class="panel" data-testid="channel-connection">…</section>
+           - unexpected value "Менеджер каналовСоединение установленоСредаТестоваяОбъект в менеджере каналовui-propertyСопоставленокатегорий 3, тарифных планов 1, сопоставлений 3Последний webhook, по Алматы—Последний импорт, по Алматы—"
+
+
+      121 |   await page.goto('/connections/channex');
+      122 |   const main = page.getByRole('main');
+    > 123 |   await expect(main.getByTestId('channel-connection')).toContainText(
+          |                                                        ^
+      124 |     'Не задан ключ менеджера каналов',
+      125 |   );
+      126 |   await expect(main.getByTestId('channel-setup')).toBeDisabled();
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:123:56
+
+    Error Context: test-results/integrations-channex-ключ--24d12-ройки-без-ключа-не-работают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-ключ--24d12-ройки-без-ключа-не-работают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-ключ--24d12-ройки-без-ключа-не-работают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/integrations.spec.ts:33:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByTestId('integration-channex').getByTestId('integration-health')
+    Expected: "Работает"
+    Received: "Требует внимания"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-channex').getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-channex').getByTestId('integration-health')
+        34 × locator resolved to <span class="badge badge--warn" data-testid="integration-health">Требует внимания</span>
+           - unexpected value "Требует внимания"
+
+
+      42 |   await expect(main).toContainText('Подключения внешних сервисов для Luxx Aparts.');
+      43 |   const card = main.getByTestId('integration-channex');
+    > 44 |   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
+         |                                                        ^
+      45 |   await expect(card.getByTestId('integration-issues')).toHaveCount(0);
+      46 |   await expect(card.getByTestId('integration-last-exchange')).toHaveText(/^[12] мин назад$/);
+      47 |   await expect(card).toContainText('3 категории, 1 тарифный план, 3 сопоставления');
+        at /home/user/wetop.ai/tests/ui/integrations.spec.ts:44:56
+
+    Error Context: test-results/integrations-работает-одна-0fe56-йта-и-списка-зелёных-плашек/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-работает-одна-0fe56-йта-и-списка-зелёных-плашек/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-работает-одна-0fe56-йта-и-списка-зелёных-плашек/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/integrations.spec.ts:136:1 › не владелец технических деталей не видит; администратору раздел закрыт 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByTestId('integration-channex').getByTestId('integration-health')
+    Expected: "Работает"
+    Received: "Требует внимания"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-channex').getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-channex').getByTestId('integration-health')
+        33 × locator resolved to <span class="badge badge--warn" data-testid="integration-health">Требует внимания</span>
+           - unexpected value "Требует внимания"
+
+
+      140 |   await page.goto('/connections');
+      141 |   const card = page.getByRole('main').getByTestId('integration-channex');
+    > 142 |   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
+          |                                                        ^
+      143 |   await expect(card.getByTestId('integration-tech')).toHaveCount(0);
+      144 |   await expect(card).not.toContainText('ui-property');
+      145 |   await control(page, { channex: 'ok' satisfies Mode, role: 'STAFF' });
+        at /home/user/wetop.ai/tests/ui/integrations.spec.ts:142:56
+
+    Error Context: test-results/integrations-не-владелец-т-5bce5-дминистратору-раздел-закрыт/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-не-владелец-т-5bce5-дминистратору-раздел-закрыт/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-не-владелец-т-5bce5-дминистратору-раздел-закрыт/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/inventory-catalog.spec.ts:170:1 › панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('dialog', { name: 'Номер R09' }).getByTestId('unit-hk')
+    Expected: "Требует уборки"
+    Received: "Проверено"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog', { name: 'Номер R09' }).getByTestId('unit-hk') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Номер R09' }).getByTestId('unit-hk')
+        34 × locator resolved to <div class="fact__value" data-testid="unit-hk">…</div>
+           - unexpected value "Проверено"
+
+
+      200 |   // уборка из панели — тем же блоком, что в карточке
+      201 |   await drawer.getByTestId('hk-DIRTY').click();
+    > 202 |   await expect(drawer.getByTestId('unit-hk')).toHaveText('Требует уборки');
+          |                                               ^
+      203 |   await page.keyboard.press('Escape');
+      204 |   await expect(page.locator('dialog[open]')).toHaveCount(0);
+      205 |   await expect(page).toHaveURL(/\/inventory\?kind=ROOM$/);
+        at /home/user/wetop.ai/tests/ui/inventory-catalog.spec.ts:202:47
+
+    Error Context: test-results/inventory-catalog-панель-м-55e27-возвращает-фонд-с-фильтрами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-catalog-панель-м-55e27-возвращает-фонд-с-фильтрами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-catalog-панель-м-55e27-возвращает-фонд-с-фильтрами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/inventory-catalog.spec.ts:218:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Номер R08' }).getByTestId('unit-now')
+    Expected substring: "живёт"
+    Received string:    "свободно"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Номер R08' }).getByTestId('unit-now') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Номер R08' }).getByTestId('unit-now')
+        34 × locator resolved to <div class="fact__value" data-testid="unit-now">свободно</div>
+           - unexpected value "свободно"
+
+
+      233 |   };
+      234 |   const living = await open('R08');
+    > 235 |   await expect(living.getByTestId('unit-now')).toContainText('живёт');
+          |                                                ^
+      236 |   await expect(living.getByTestId('unit-now')).toContainText('DSG-DESK');
+      237 |   await page.keyboard.press('Escape');
+      238 |   // как GET /units/:code — отменённые и незаезды в карточку места не попадают
+        at /home/user/wetop.ai/tests/ui/inventory-catalog.spec.ts:235:48
+
+    Error Context: test-results/inventory-catalog-панель-м-9ac95-ь-и-незаезд-место-не-держат/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-catalog-панель-м-9ac95-ь-и-незаезд-место-не-держат/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-catalog-панель-м-9ac95-ь-и-незаезд-место-не-держат/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('tab', { name: 'Получить доступ' })
+
+
+      150 | test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
+      151 |   await page.goto('/login');
+    > 152 |   await dialog(page).getByRole('tab', { name: 'Получить доступ' }).click();
+          |                                                                    ^
+      153 |   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      154 |   await expect(
+      155 |     dialog(page).getByRole('link', { name: 'политикой конфиденциальности' }),
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:152:68
+
+    Error Context: test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3100/finance"
+    Received: "http://127.0.0.1:3100/today"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/login/verify?token=<скрыто>"
+        30 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/today"
+
+
+      173 |   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
+      174 |   await page.goto('/login/verify?token=<скрыто>');
+    > 175 |   await expect(page).toHaveURL(APP + '/finance');
+          |                      ^
+      176 |   expect((await context.cookies(APP)).find((c) => c.name === 'wetop_session')?.httpOnly).toBe(true);
+      177 | });
+      178 | test('негодная ссылка подтверждения показывает отказ и возможность повтора', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:175:22
+
+    Error Context: test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21 failed
+    tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены 
+    tests/ui/finance-card-actions.spec.ts:169:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть 
+    tests/ui/finance-cash.spec.ts:133:1 › «только чтение»: кнопок кассы нет, остатки видны ─────────
+    tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям 
+    tests/ui/finance-f2.spec.ts:86:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список 
+    tests/ui/finance-f2.spec.ts:106:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами 
+    tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light ────────────────────────────
+    tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: light, 1440px ─────
+    tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: light, 390px ──────
+    tests/ui/flat-surfaces.spec.ts:2:1 › flat shared surfaces across application routes in both themes 
+    tests/ui/guests-birthdays.spec.ts:15:1 › календарь исключает дни рождения, отдельная страница раскрывает детали 
+    tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) 
+    tests/ui/guests-design.spec.ts:337:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) 
+    tests/ui/guests-design.spec.ts:420:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) 
+    tests/ui/integrations-channex.spec.ts:118:1 › ключ не задан: так и сказано, кнопки настройки без ключа не работают 
+    tests/ui/integrations.spec.ts:33:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек 
+    tests/ui/integrations.spec.ts:136:1 › не владелец технических деталей не видит; администратору раздел закрыт 
+    tests/ui/inventory-catalog.spec.ts:170:1 › панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами 
+    tests/ui/inventory-catalog.spec.ts:218:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат 
+    tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+    tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+  8 skipped
+  178 passed (9.8m)
+
+# код выхода 1 · 9 мин 47 с

@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 14.10.2026 16:40 Алматы · MacBook-Air-Urij.local
+# коммит 8e69022 (claude/site-photos-20261014), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'site-shots'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/branches-ui/site-shots.spec.ts:53:1 › день салона и план зала для лендингов (11.0s)
+
+
+  1) tests/branches-ui/site-shots.spec.ts:53:1 › день салона и план зала для лендингов ─────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByText('Стол 5').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByText('Стол 5').first() with timeout 5000ms
+      - waiting for getByRole('main').getByText('Стол 5').first()
+
+
+      236 |   await shoot(page, 'restaurant-floor', async () => {
+      237 |     await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
+    > 238 |     await expect(page.getByRole('main').getByText('Стол 5').first()).toBeVisible();
+          |                                                                      ^
+      239 |   });
+      240 | });
+      241 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/branches-ui/site-shots.spec.ts:238:70
+        at shoot (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/branches-ui/site-shots.spec.ts:35:5)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/branches-ui/site-shots.spec.ts:236:3
+
+    Error Context: test-results/site-shots-день-салона-и-план-зала-для-лендингов/error-context.md
+
+    Error Context: test-results/site-shots-день-салона-и-план-зала-для-лендингов/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-shots-день-салона-и-план-зала-для-лендингов/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-shots-день-салона-и-план-зала-для-лендингов/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/site-shots.spec.ts:53:1 › день салона и план зала для лендингов ──────────────
+
+# код выхода 1 · 20 с

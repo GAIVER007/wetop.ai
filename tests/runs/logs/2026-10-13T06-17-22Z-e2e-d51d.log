@@ -1,0 +1,131 @@
+# Сквозные (e2e) · 13.10.2026 11:17 Алматы · vm
+# коммит d96217c (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/side-nav.spec.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/staff.spec.ts' 'tests/ui/team.spec.ts' 'tests/ui/settings-simplification.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/accessibility.spec.ts' 'tests/ui/global-search-navigation.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 81 tests using 1 worker
+
+  ✓   1 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 1440px (2.4m)
+  ✓   2 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 1440px (1.9m)
+  ✓   3 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 390px (1.9m)
+  ✓   4 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 390px (1.8m)
+  ✓   5 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 1440px (11.9s)
+  ✓   6 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: dark, 1440px (10.0s)
+  ✓   7 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 390px (8.5s)
+  ✓   8 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: dark, 390px (9.2s)
+  ✓   9 tests/ui/beauty-branch.spec.ts:46:1 › салон заводится той же формой и открывается своим рабочим местом (13.8s)
+  ✓  10 tests/ui/beauty-branch.spec.ts:60:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (8.4s)
+  ✓  11 tests/ui/beauty-branch.spec.ts:91:1 › карточка объекта показывает имя салона, а не «объект не загружен» (7.6s)
+  ✓  12 tests/ui/beauty-branch.spec.ts:103:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (9.2s)
+  ✓  13 tests/ui/beauty-branch.spec.ts:117:3 › салон доступен и в светлой теме (10.8s)
+  ✓  14 tests/ui/beauty-branch.spec.ts:117:3 › салон доступен и в тёмной теме (10.8s)
+  ✓  15 tests/ui/global-search-navigation.spec.ts:8:1 › поиск гостиницы предлагает гостиничные разделы и открывает календарь (6.3s)
+  ✓  16 tests/ui/global-search-navigation.spec.ts:24:1 › поиск не предлагает закрытый роли журнал (6.2s)
+  ✓  17 tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (7.2s)
+  ✓  18 tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (3.5s)
+  ✓  19 tests/ui/navigation.spec.ts:122:1 › все пункты меню открывают существующие страницы (31.1s)
+  ✓  20 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (8.2s)
+  ✓  21 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (7.6s)
+  ✓  22 tests/ui/navigation.spec.ts:221:1 › «Гости и бронирования»: один пункт меню, список броней под той же вкладкой (3.1s)
+  ✓  23 tests/ui/platform-access.spec.ts:33:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (9.2s)
+  ✓  24 tests/ui/platform-access.spec.ts:73:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (5.1s)
+  ✓  25 tests/ui/platform-access.spec.ts:95:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (9.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  26 tests/ui/platform-access.spec.ts:134:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (8.9s)
+  ✓  27 tests/ui/platform-access.spec.ts:162:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (4.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  28 tests/ui/platform-access.spec.ts:182:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (8.3s)
+  ✓  29 tests/ui/platform-access.spec.ts:205:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (12.3s)
+  ✓  30 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, light, 1440px (19.4s)
+  ✓  31 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, dark, 1440px (19.4s)
+  ✓  32 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, light, 390px (19.2s)
+  ✓  33 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, dark, 390px (18.7s)
+  ✓  34 tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (5.2s)
+  ✓  35 tests/ui/roles.spec.ts:60:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (9.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  36 tests/ui/roles.spec.ts:97:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (6.4s)
+  ✓  37 tests/ui/roles.spec.ts:114:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (9.1s)
+  ✓  38 tests/ui/roles.spec.ts:152:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (11.4s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  39 tests/ui/roles.spec.ts:214:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (8.7s)
+  ✓  40 tests/ui/roles.spec.ts:270:1 › владелец: зовёт управляющего и администратора, меняет роль (4.4s)
+  ✓  41 tests/ui/roles.spec.ts:301:1 › администратор: сотрудниками ведают владелец и управляющий (2.9s)
+  ✓  42 tests/ui/roles.spec.ts:313:5 › доступность: сотрудники и отказ по роли, light, 1440px (8.9s)
+  ✓  43 tests/ui/roles.spec.ts:313:5 › доступность: сотрудники и отказ по роли, dark, 1440px (9.0s)
+  ✓  44 tests/ui/roles.spec.ts:313:5 › доступность: сотрудники и отказ по роли, light, 390px (7.7s)
+  ✓  45 tests/ui/roles.spec.ts:313:5 › доступность: сотрудники и отказ по роли, dark, 390px (8.8s)
+  ✓  46 tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (5.8s)
+  ✓  47 tests/ui/settings-simplification.spec.ts:42:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (11.5s)
+  ✓  48 tests/ui/settings-simplification.spec.ts:63:1 › поиск услуг работает без повторной загрузки каталога (2.0s)
+  ✓  49 tests/ui/settings-simplification.spec.ts:79:1 › ошибка каталога сохраняет навигацию и исправляется повтором (2.8s)
+  ✓  50 tests/ui/settings-simplification.spec.ts:93:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light (11.7s)
+  ✓  51 tests/ui/settings-simplification.spec.ts:93:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark (11.2s)
+  ✓  52 tests/ui/settings-simplification.spec.ts:160:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы (1.7s)
+  ✓  53 tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню (7.3s)
+  ✓  54 tests/ui/side-nav.spec.ts:100:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (5.1s)
+  ✓  55 tests/ui/side-nav.spec.ts:140:1 › вложенные адреса показывают свой раздел (10.2s)
+  ✓  56 tests/ui/side-nav.spec.ts:171:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (3.3s)
+  ✓  57 tests/ui/side-nav.spec.ts:183:3 › меню без прокрутки вбок и доступное: light (6.4s)
+  ✓  58 tests/ui/side-nav.spec.ts:183:3 › меню без прокрутки вбок и доступное: dark (6.5s)
+  ✓  59 tests/ui/side-nav.spec.ts:238:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (3.8s)
+  ✓  60 tests/ui/staff.spec.ts:12:1 › /staff ведёт на «Сотрудников»: старые ссылки живут (4.6s)
+  ✓  61 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (4.2s)
+  ✓  62 tests/ui/team.spec.ts:49:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (4.5s)
+  ✓  63 tests/ui/team.spec.ts:66:1 › ошибка приглашения — словами в панели, ввод не стирается (4.1s)
+  ✓  64 tests/ui/team.spec.ts:78:1 › «Отключить» — только после подтверждения с последствием (4.0s)
+  ✓  65 tests/ui/team.spec.ts:90:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке (6.1s)
+  ✓  66 tests/ui/team.spec.ts:111:1 › неверный телефон: словами в панели, введённое не стирается (4.8s)
+  ✓  67 tests/ui/team.spec.ts:125:1 › управляющий: роль не меняет, приглашает только администраторов (4.1s)
+  ✓  68 tests/ui/team.spec.ts:141:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (1.9s)
+  ✓  69 tests/ui/team.spec.ts:152:1 › администратору раздел закрыт: гейт и меню без пункта (3.8s)
+  ✓  70 tests/ui/team.spec.ts:161:3 › снимки TEAM1 и доступность: light (6.8s)
+  ✓  71 tests/ui/team.spec.ts:161:3 › снимки TEAM1 и доступность: dark (7.1s)
+  ✓  72 tests/ui/team.spec.ts:200:1 › «Сотрудники и доступ»: сводка по команде и должность выбором из двух вариантов (4.5s)
+  ✓  73 tests/ui/team.spec.ts:218:1 › «Роли и права»: вкладка только на чтение, права трёх ролей по таблице API (6.9s)
+  ✓  74 tests/ui/team.spec.ts:244:1 › «Роли и права»: администратору закрыто (3.5s)
+  ✓  75 tests/ui/team.spec.ts:252:1 › приглашение: «Отправить заново» отзывает старое и шлёт новое на ту же почту с той же ролью (4.0s)
+  ✓  76 tests/ui/team.spec.ts:267:1 › приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием (4.3s)
+  ✓  77 tests/ui/team.spec.ts:288:1 › приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора (5.2s)
+  ✓  78 tests/ui/team.spec.ts:304:1 › область доступа сотрудника: «Доступ» → выбранные филиалы с ролью по месту → подпись в таблице; очистка (6.0s)
+  ✓  79 tests/ui/team.spec.ts:329:1 › область доступа: пустой выбор при «Выбранные филиалы» не отправляется, словами (4.8s)
+  ✓  80 tests/ui/team.spec.ts:342:1 › приглашение с именем, телефоном и филиалами: уходит с областью, видно в ожидающих (5.5s)
+  ✓  81 tests/ui/team.spec.ts:360:1 › управляющий: «Доступ» только администраторам, в списке ролей один вариант (4.5s)
+
+  Slow test file: tests/ui/accessibility.spec.ts (8.7m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  81 passed (18.6m)
+
+# код выхода 0 · 18 мин 35 с

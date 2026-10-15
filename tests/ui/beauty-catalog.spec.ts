@@ -18,17 +18,15 @@ async function openSalon(page: Page, request: APIRequestContext) {
   await page.waitForURL('**/today');
   await page.goto('/branches');
   const main = page.getByRole('main');
-  await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
-  await main.getByRole('radio', { name: 'Салон красоты или студия' }).check();
-  await main.getByLabel('Название филиала').fill('Студия Айна');
-  await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
-  await expect(main.getByRole('status')).toContainText('Салон создан');
+  await main.getByRole('button', { name: 'Добавить', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
+  await creation.getByLabel('Новый бизнес или бренд').check();
+  await creation.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+  await creation.getByLabel('Название бизнеса', { exact: true }).fill('Студия Айна');
+  await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+  await expect(creation.getByRole('status')).toContainText('Салон создан');
   await page.reload();
-  await main
-    .locator('.branches-grid section')
-    .filter({ hasText: 'Студия Айна' })
-    .getByRole('button', { name: 'Открыть салон', exact: true })
-    .click();
+  await main.getByRole('button', { name: 'Открыть объект: Студия Айна', exact: true }).click();
   // MV8: открытый салон начинает с общего рабочего экрана дня
   await page.waitForURL('**/today');
   await page.goto('/calendar');
@@ -111,9 +109,14 @@ test('мастер добавляется, умения ставятся и сн
   await panel.getByRole('button', { name: 'Сохранить мастера', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('Мастер добавлен');
   await page.goto('/beauty/masters');
-  const row = main.getByRole('row').filter({ hasText: 'Дина' });
+  // карточки вместо таблицы (ТЗ салона 09.10.2026): умения и филиалы остаются на виду
+  const row = main.getByRole('listitem').filter({ hasText: 'Дина' });
   await expect(row).toContainText('Маникюр, Стрижка');
   await expect(row).toContainText('Студия Айна');
+  // у нового мастера нет графика на сегодня: карточка честно говорит «Выходной» и «0 записей»
+  await expect(row).toContainText('Выходной');
+  await expect(row).toContainText('0 записей сегодня');
+  await expect(row).toContainText('Сегодня не работает');
   await page.screenshot({ path: `${SNAPSHOTS}/masters-1440.png`, fullPage: true });
 
   // снятая галочка должна сниматься, а не копиться
@@ -124,8 +127,10 @@ test('мастер добавляется, умения ставятся и сн
   await edit.getByRole('button', { name: 'Сохранить мастера', exact: true }).click();
   await expect(edit.getByRole('status')).toContainText('Мастер сохранён');
   await page.goto('/beauty/masters');
-  await expect(main.getByRole('row').filter({ hasText: 'Дина' })).toContainText('Маникюр');
-  await expect(main.getByRole('row').filter({ hasText: 'Дина' })).not.toContainText('Стрижка');
+  await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).toContainText('Маникюр');
+  await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).not.toContainText(
+    'Стрижка',
+  );
 });
 
 test('каталог салона на телефоне: без прокрутки вбок', async ({ page, request }) => {

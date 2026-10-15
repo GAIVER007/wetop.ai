@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 14.10.2026 19:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1b16daa (codex/beauty-calendar-popularity)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/local-check.config.ts' '--workers=1' '--grep' 'Beauty onboarding'
+[WebServer] (node:75852) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75884) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75887) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75891) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75929) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:75950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/beauty.spec.ts:439:1 › Beauty onboarding completion opens Today and resumes there (32.7s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:439:1 › Beauty onboarding completion opens Today and resumes there 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('today-shift')
+    Expected: "0"
+    Received: "0 из 0"
+    Timeout:  30000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('today-shift') with timeout 30000ms
+      - waiting for getByTestId('today-shift')
+        63 × locator resolved to <div class="stat__value" data-testid="today-shift">0 из 0</div>
+           - unexpected value "0 из 0"
+
+
+      449 |   await expect(page).toHaveURL(/\/today$/);
+      450 |   await expect(page.getByTestId('beauty-today')).toBeVisible();
+    > 451 |   await expect(page.getByTestId('today-shift')).toHaveText('0');
+          |                                                 ^
+      452 |   await page.goto('/calendar');
+      453 |   await expectEmptyCalendar(page);
+      454 |   await page.goto('/register/setup');
+        at /Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/beauty-ui/beauty.spec.ts:451:49
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/error-context.md
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:439:1 › Beauty onboarding completion opens Today and resumes there 
+
+# код выхода 1 · 42 с

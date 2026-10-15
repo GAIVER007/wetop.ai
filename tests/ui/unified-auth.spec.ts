@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, openProfileMenu, test } from './fixtures';
 
 const SITE = 'http://127.0.0.1:3002';
 const APP = 'http://127.0.0.1:3102';
@@ -21,12 +21,14 @@ for (const path of ['/today', '/chessboard', '/reservations']) {
     await page.goto(path);
     await expect(page).toHaveURL(`${SITE}/?next=${encodeURIComponent(path)}#login`);
     await login(page);
-    await expect(page).toHaveURL(`${APP}${path}`);
+    // гостиничный /today с 09.10 ведёт в единые «Финансы» (plans/finance-home-merge-2026-10-09.md)
+    const landed = path === '/today' ? '/finance' : path;
+    await expect(page).toHaveURL(`${APP}${landed}`);
     const cookie = (await context.cookies(APP)).find((c) => c.name === 'wetop_session');
     expect(cookie?.httpOnly).toBe(true);
     expect(cookie?.sameSite).toBe('Lax');
     await page.reload();
-    await expect(page).toHaveURL(`${APP}${path}`);
+    await expect(page).toHaveURL(`${APP}${landed}`);
   });
 }
 test('старые адреса открывают только формы на главной', async ({ page }) => {
@@ -59,6 +61,22 @@ test('сессия работает в новой вкладке; выход в�
   await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
   await tab.close();
 });
+test('выход через меню снимает сессию и снова закрывает защищённые страницы', async ({
+  page,
+  context,
+}) => {
+  await page.goto('/login');
+  await login(page);
+  await expect(page).toHaveURL(`${APP}/today`);
+  await openProfileMenu(page);
+  await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти', exact: true }).click();
+  await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
+  expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
+  for (const path of ['/today', '/chessboard', '/reservations']) {
+    await page.goto(`${APP}${path}`);
+    await expect(page).toHaveURL(`${SITE}/?next=${encodeURIComponent(path)}#login`);
+  }
+});
 test('регистрация на главной → письмо → подтверждение → рабочее место', async ({
   page,
   context,
@@ -68,8 +86,8 @@ test('регистрация на главной → письмо → подтв
   await dialog.getByLabel('Почта').fill('new@example.invalid');
   await dialog.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
   await dialog.getByLabel('Название бизнеса').fill('Тестовый объект');
-  await dialog.getByLabel('Код страны').selectOption('KZ');
-  await dialog.getByLabel('Телефон', { exact: true }).fill('7015554433');
+  await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
+  await dialog.getByRole('textbox', { name: 'Телефон', exact: true }).fill('7015554433');
   await dialog.getByLabel('Пароль', { exact: true }).fill('synthetic-password');
   await dialog.getByRole('checkbox').check();
   await dialog.getByRole('button', { name: /Создать/ }).click();

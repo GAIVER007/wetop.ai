@@ -1,23 +1,28 @@
-import { FIXTURE_API, expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, sideNav, openSection } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
 // Контракт меню: основные разделы доступны ровно по разу, настройки объекта — во внутренних вкладках.
 // «ИИ-агенты» в «Продажах» всегда, доступ проверяет сам раздел (ADR-090); «Платформа» — только по
 // отметке главного администратора (ADR-083, tests/ui/platform-access.spec.ts).
-// С 02.10.2026 (ADR-134) на компьютере разделы стоят строкой вкладок в шапке (tests/ui/top-menu.spec.ts),
+// С 10.10.2026 (ADR-161) на компьютере разделы в левом меню с панелью (tests/ui/side-nav.spec.ts),
 // здесь: меню телефона и планшета «Навигация» из того же реестра и обход всех пунктов по страницам.
 const routes = [
-  '/ai-agents',
+  // «Главная» (ADR-180, 13.10.2026)
   '/today',
+  '/ai-agents',
   '/chessboard',
-  '/reservations',
+  // «Гости и бронирования» с 09.10.2026: один пункт на месте «Броней» и «Гостей», список броней открывается кнопкой
   '/guests',
   '/inventory',
+  '/sales',
   '/market',
   '/channels',
   // MKT2: вход в сайт через хаб «Маркетинг» (ADR-149)
   '/marketing',
+  // МКТ-В1/В2: «Бюджет» и «Аналитика» в группе «Маркетинг»
+  '/marketing/budget',
+  '/marketing/analytics',
   // «Показатели за период» (A1) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114): в меню их нет
   '/reports',
   '/finance',
@@ -31,17 +36,17 @@ const routes = [
   '/incidents',
 ];
 
+// «Главная» первой (ADR-180, 13.10.2026), дальше прежний порядок (plans/finance-home-merge-2026-10-09.md)
 const SECTIONS = [
+  // «Главная» первой (ADR-180, 13.10.2026), дальше порядок владельца 13.10 (#501)
   'Главная',
   'Календарь',
-  'Брони',
-  'Гости',
+  'Гости и бронирования',
+  'Номерной фонд',
   'Финансы',
-  'Бар',
   'Продажи',
   'Маркетинг',
   'Отчёты',
-  'Номерной фонд',
   'Настройки',
 ];
 
@@ -53,7 +58,7 @@ test.beforeEach(async ({ request }) => {
 test('меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно', async ({
   page,
 }) => {
-  await page.goto('/today');
+  await page.goto('/finance');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация', exact: true });
@@ -63,7 +68,8 @@ test('меню телефона: работа смены прямыми ссыл
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Главная');
+  // активная отметка на пункте группы «Финансы» (ADR-157)
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Оплаты и касса');
   // «Календарь» больше не спрятан в группе: прямая ссылка с подписью
   const board = menu.getByRole('link', { name: 'Календарь', exact: true });
   await expect(board.locator('span')).toBeVisible();
@@ -78,16 +84,18 @@ test('меню телефона: работа смены прямыми ссыл
   await page.keyboard.press('Space');
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await expect(menu.locator('.sidebar-section-toggle[aria-expanded="true"]')).toHaveCount(1);
-  await expect(menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).toBeVisible();
+  await expect(menu.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeVisible();
   await page.keyboard.press('Tab');
-  await expect(menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).toBeFocused();
+  await expect(menu.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(menu.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/market$/);
   await expect(menu).not.toBeVisible();
   // открыли снова: раздел текущей страницы раскрыт сам, пункт помечен
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
@@ -125,21 +133,14 @@ test('все пункты меню открывают существующие �
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
-  const menu = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
-  const tabs = menu.locator('.topmenu__tabs > *');
-  for (let i = 0; i < (await tabs.count()); i++) {
-    const tab = tabs.nth(i);
-    const toggle = tab.getByRole('button');
-    // раздел из одного пункта — сама вкладка и есть ссылка; группа — список под вкладкой
-    const grouped = (await toggle.count()) > 0;
-    const links = grouped ? tab.locator('a') : tab;
-    for (let j = 0; j < (await links.count()); j++) {
-      const link = links.nth(j);
+  const menu = sideNav(page);
+  for (const section of SECTIONS) {
+    const items = await openSection(page, section);
+    const count = await items.locator('a').count();
+    for (let j = 0; j < count; j++) {
+      // панель раздела: подразделы справа (ADR-161); после перехода панель закрыта, открываем снова
+      const link = (await openSection(page, section)).locator('a').nth(j);
       const href = await link.getAttribute('href');
-      if (grouped) {
-        await toggle.click();
-        await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-      }
       await link.click();
       await expect(page).toHaveURL(new RegExp(`${href}$`));
       await expect(
@@ -159,8 +160,11 @@ test('все пункты меню открывают существующие �
       await expect(page.getByRole('main').filter({ visible: true })).not.toContainText(
         'Не удалось загрузить данные',
       );
-      await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
-      await expect(link).toHaveAttribute('aria-current', 'page');
+      await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveCount(1);
+      await expect(menu.locator(`.sidenav__items a[href="${href}"]`)).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
     }
   }
 });
@@ -174,10 +178,10 @@ for (const theme of ['light', 'dark'] as const) {
     page.on('pageerror', (error) => {
       if (!devNoise.test(error.message)) errors.push(error.message);
     });
-    await page.goto('/today');
+    await page.goto('/finance');
     for (const width of [320, 390, 768, 960]) {
       await page.setViewportSize({ width, height: 844 });
-      await expect(page.locator('.topmenu')).toBeHidden();
+      await expect(page.locator('.sidenav')).toBeHidden();
       await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
       const menu = page.getByRole('dialog', { name: 'Навигация', exact: true });
       const groups = menu.locator('.sidebar-section-toggle');
@@ -218,3 +222,23 @@ for (const theme of ['light', 'dark'] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+// «Гости и бронирования» (поручение владельца 09.10.2026): в шапке один пункт, классический список броней
+// открывается кнопкой на экране и оставляет подсвеченным тот же пункт.
+test('«Гости и бронирования»: один пункт меню, список броней под той же вкладкой', async ({
+  page,
+}) => {
+  await page.goto('/guests');
+  const main = page.getByRole('main');
+  // подразделы левого меню (ADR-161): каждый адрес один раз, текущий помечен
+  const menu = page.locator('.sidenav__nav');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
+  await main.getByRole('link', { name: 'Список броней', exact: true }).click();
+  await expect(page).toHaveURL(/\/reservations$/);
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Брони');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
+  // обратно: кнопка на списке броней ведёт на экран гостей
+  await main.getByRole('link', { name: 'Гости', exact: true }).click();
+  await expect(page).toHaveURL(/\/guests$/);
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
+});

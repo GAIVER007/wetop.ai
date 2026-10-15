@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Icon } from '../../components/icon';
 
 /**
- * Компактный поиск гостей (ТЗ «Гости v2» §6): автопоиск с задержкой вместо кнопки «Найти».
+ * Компактный поиск гостей («Гости и бронирования»; ТЗ «Гости v2» §6): автопоиск с задержкой вместо кнопки «Найти».
  * Обычная GET-форма: Enter и работа без JavaScript сохраняются, адрес — источник состояния (§31).
  * Меньше двух символов не ищем (как у API); стирание до пустого возвращает полный список.
  */
@@ -33,7 +33,7 @@ export function GuestsSearch({
     router.replace(`/guests${tail ? `?${tail}` : ''}`, { scroll: false });
   };
   return (
-    <form method="get" role="search" className="guests-toolbar" action="/guests">
+    <form method="get" role="search" className="gb-search" action="/guests">
       {Object.entries(keep).map(([name, value]) => (
         <input key={name} type="hidden" name={name} value={value} />
       ))}
@@ -46,7 +46,7 @@ export function GuestsSearch({
           value={value}
           maxLength={120}
           aria-label="Поиск гостей"
-          placeholder="Имя, телефон, email или номер брони"
+          placeholder="Поиск по гостю, брони, номеру, телефону…"
           onChange={(e) => {
             const raw = e.currentTarget.value;
             setValue(raw);

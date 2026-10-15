@@ -20,7 +20,8 @@ export async function confirmDialog(page: Page, button: string, expectText?: str
   await expect(dialog, 'окно подтверждения не открылось').toHaveCount(1);
   if (expectText) await expect(dialog).toContainText(expectText);
   await dialog.getByRole('button', { name: button, exact: true }).click();
-  await expect(openDialog(page)).toHaveCount(0);
+  // Following confirmation (for example outstanding debt) may open immediately.
+  await expect(dialog.getByRole('button', { name: button, exact: true })).toHaveCount(0);
 }
 
 /** То же без проверки текста — для окон вне карточки (переселение в календаре, закрытие счёта). */
@@ -35,5 +36,5 @@ export async function declineAction(page: Page) {
 
 /** Самое частое: отмена брони с карточки — прибрать за собой в конце сценария. */
 export async function confirmCancelReservation(page: Page) {
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
 }

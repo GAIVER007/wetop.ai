@@ -82,3 +82,49 @@ describe('адрес «Аналитики → Загрузка»', () => {
     );
   });
 });
+
+describe('те же вкладки под оболочкой «Отчёты» (RPT2.2c-1)', () => {
+  const today = '2026-09-20';
+  it('адреса вкладок строятся от /reports, умолчания в адрес не пишутся', () => {
+    const o = parseAnalyticsQuery({}, today, 'overview', '/reports');
+    expect(analyticsHref(o)).toBe('/reports/overview');
+    expect(analyticsHref(o, { fund: 'rooms' })).toBe('/reports/overview?fund=rooms');
+    const l = parseAnalyticsQuery({}, today, 'occupancy', '/reports');
+    expect(analyticsHref(l)).toBe('/reports/occupancy');
+    expect(analyticsHref(l, { compare: false })).toBe('/reports/occupancy?compare=0');
+    expect(analyticsHref(parseAnalyticsQuery({}, today, 'units', '/reports'))).toBe(
+      '/reports/units',
+    );
+  });
+  it('без базы адреса прежние, вкладка «Аналитики» не уезжает', () => {
+    expect(analyticsHref(parseAnalyticsQuery({}, today, 'overview'))).toBe('/management/analytics');
+  });
+});
+
+describe('категория и детализация в адресе отчёта (RPT2.2c-3)', () => {
+  const today = '2026-09-20';
+  it('читаются из адреса, переживают смену периода и фонда, в умолчаниях не пишутся', () => {
+    const q = parseAnalyticsQuery({ category: 'LUX', by: 'week' }, today, 'overview', '/reports');
+    expect(q).toMatchObject({ category: 'LUX', granularity: 'week' });
+    expect(analyticsHref(q)).toBe('/reports/overview?category=LUX&by=week');
+    expect(analyticsHref(q, { fund: 'rooms' })).toBe(
+      '/reports/overview?fund=rooms&category=LUX&by=week',
+    );
+    const plain = parseAnalyticsQuery({}, today, 'overview', '/reports');
+    expect(plain.category).toBeUndefined();
+    expect(plain.granularity).toBeUndefined();
+    expect(analyticsHref(plain)).toBe('/reports/overview');
+  });
+  it('мусор отбрасывается: день не записывается, длинная или управляющая категория пропадает', () => {
+    const q = parseAnalyticsQuery({ category: 'x'.repeat(80), by: 'day' }, today, 'overview');
+    expect(q.category).toBeUndefined();
+    expect(q.granularity).toBeUndefined();
+    expect(
+      parseAnalyticsQuery({ category: 'a\u0001b', by: 'year' }, today).category,
+    ).toBeUndefined();
+  });
+  it('сброс: patch с undefined убирает значение из адреса', () => {
+    const q = parseAnalyticsQuery({ category: 'LUX' }, today, 'overview', '/reports');
+    expect(analyticsHref(q, { category: undefined })).toBe('/reports/overview');
+  });
+});

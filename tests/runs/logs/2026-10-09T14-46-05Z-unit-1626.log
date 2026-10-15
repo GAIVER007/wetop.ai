@@ -1,0 +1,74 @@
+# Модульные (unit) · 09.10.2026 19:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит d19b37d (claude/market-ai-collector), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T14-46-05Z-unit-1626.json' 'packages/domain/src/market/occupancy.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |unit| packages/domain/src/market/occupancy.test.ts (22 tests | 2 failed) 7ms
+   ✓ parseOccupancyPercent (3)
+     ✓ процент в базисные пункты: целый, с запятой и точкой, знак процента 1ms
+     ✓ пусто: значения нет 0ms
+     ✓ мимо 0…100, больше двух знаков после запятой и не число: отказ словами 0ms
+   ✓ formatOccupancy и demandLevel (2)
+     ✓ без лишних нулей, запятая 0ms
+     ✓ уровни спроса по порогам Q-258 0ms
+   ✓ parseCompetitorInput (3)
+     ✓ название обязательно при создании, поля чистятся 0ms
+     ✓ пустые необязательные поля при правке снимаются (null) 0ms
+     ✓ отрицательное расстояние, ноль номеров, адрес не http: отказ 0ms
+   ✓ marketDates (1)
+     ✓ окно подряд, через границу месяца 0ms
+   ✓ buildMarketBoard (8)
+     ✓ своя загрузка из календаря: занято от занято + свободно + блок 0ms
+     ✓ клетка конкурента: последний снимок не позже даты снимка и изменение к сравнению 0ms
+     ✓ конкуренты по расстоянию, без расстояния последними 0ms
+     ✓ средняя по рынку: простое среднее по конкурентам с данными; разница с вами 0ms
+     ✓ итог окна: рынок средним по дням, вы от суммы клеток, дни высокого спроса 0ms
+     ✓ подсказки: высокий спрос с отставанием, высокий спрос, слабый спрос, нет данных 0ms
+     ✓ ночи одного правила подряд склеиваются в отрезок, подсказок не больше пяти 0ms
+     ✓ пустой календарь (нет мест) и рынок без данных: прочерки, без деления на ноль 0ms
+   ✓ buildNightHistory (2)
+     ✓ по дням снимка: значение переносится до нового снимка, отмечено, был ли снимок в этот день; темп рынка 0ms
+     ✓ нет снимков: пустая история, темп неизвестен; дней не больше предела, свежие остаются 1ms
+   ✓ competitorPlatform (1)
+     ✓ площадка по ссылке конкурента: по ней ИИ-сборщик понимает, где смотреть свободные номера 0ms
+   ❯ estimateNightOccupancy (1)
+     × оценка загрузки ночи по странице площадки: распродано, сколько можно забронировать, неизвестно 2ms
+   ❯ platformNightUrl (1)
+     × адрес страницы соседа на одну ночь: даты заезда и выезда, двое взрослых 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > estimateNightOccupancy > оценка загрузки ночи по странице площадки: распродано, сколько можно забронировать, неизвестно
+TypeError: estimateNightOccupancy is not a function
+ ❯ packages/domain/src/market/occupancy.test.ts:298:12
+    296|   it('оценка загрузки ночи по странице площадки: распродано, сколько м…
+    297|     // распродано: 100 %
+    298|     expect(estimateNightOccupancy({ status: 'sold_out', roomsLeft: nul…
+       |            ^
+    299|     // свободно 10 из 40: 75 %
+    300|     expect(estimateNightOccupancy({ status: 'available', roomsLeft: 10…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > platformNightUrl > адрес страницы соседа на одну ночь: даты заезда и выезда, двое взрослых
+TypeError: platformNightUrl is not a function
+ ❯ packages/domain/src/market/occupancy.test.ts:315:23
+    313| describe('platformNightUrl', () => {
+    314|   it('адрес страницы соседа на одну ночь: даты заезда и выезда, двое в…
+    315|     const b = new URL(platformNightUrl('https://www.booking.com/hotel/…
+       |                       ^
+    316|     expect(b.hostname).toBe('www.booking.com');
+    317|     expect(b.searchParams.get('checkin')).toBe('2026-10-31');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 20 passed (22)
+   Start at  07:46:06
+   Duration  111ms (transform 51%, import 29%, tests 15%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T14-46-05Z-unit-1626.json
+
+# код выхода 1 · 1 с

@@ -20,17 +20,15 @@ async function openSalon(page: Page, request: APIRequestContext) {
 
   await page.goto('/branches');
   const main = page.getByRole('main');
-  await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
-  await main.getByRole('radio', { name: 'Салон красоты или студия' }).check();
-  await main.getByLabel('Название филиала').fill('Студия Айна');
-  await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
-  await expect(main.getByRole('status')).toContainText('Салон создан');
+  await main.getByRole('button', { name: 'Добавить', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
+  await creation.getByLabel('Новый бизнес или бренд').check();
+  await creation.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+  await creation.getByLabel('Название бизнеса', { exact: true }).fill('Студия Айна');
+  await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+  await expect(creation.getByRole('status')).toContainText('Салон создан');
   await page.reload();
-  await main
-    .locator('.branches-grid section')
-    .filter({ hasText: 'Студия Айна' })
-    .getByRole('button', { name: 'Открыть салон', exact: true })
-    .click();
+  await main.getByRole('button', { name: 'Открыть объект: Студия Айна', exact: true }).click();
   // MV8: открытый салон начинает с общего рабочего экрана дня
   await page.waitForURL('**/today');
   await page.goto('/calendar');
@@ -110,6 +108,44 @@ test('запись из пустой клетки появляется в сет
   await expect(tile).toContainText('Маникюр');
   await expect(main.getByTestId('beauty-grid')).toContainText('Айгуль');
   await page.screenshot({ path: `${SNAPSHOTS}/journal-1440.png`, fullPage: true });
+});
+
+test('неделя показывает запись и открывает её карточку, телефон без прокрутки вбок', async ({ page, request }) => {
+  test.setTimeout(120_000);
+  await readySalon(page, request);
+  await openDay(page);
+  await book(page, '10:00', 'Тестовый клиент недели');
+  await page.goto(`/calendar?date=${DAY}&view=week`);
+  const week = page.getByTestId('beauty-week');
+  await expect(week).toBeVisible();
+  await expect(week.getByRole('link', { name: 'Открыть день', exact: true })).toHaveCount(7);
+  await page.screenshot({ path: 'reports/beauty-continuation-2026-10-14/week-1440.png', fullPage: true });
+  await week.getByRole('link').filter({ hasText: 'Тестовый клиент недели' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.getByRole('dialog')).toContainText('Тестовый клиент недели');
+  await page.goto(`/calendar?date=${DAY}&view=week`);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: 'reports/beauty-continuation-2026-10-14/week-390.png', fullPage: true });
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto(`/calendar?date=${DAY}&view=week`);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: 'reports/beauty-continuation-2026-10-14/week-dark-390.png', fullPage: true });
+});
+
+test('перенос мышью меняет время записи через существующий API', async ({ page, request }) => {
+  test.setTimeout(240_000);
+  await readySalon(page, request);
+  await openDay(page);
+  await book(page, '10:00', 'Тестовый перенос');
+  await openDay(page);
+  const tile = page.getByTestId('beauty-grid').getByRole('button').filter({ hasText: 'Тестовый перенос' });
+  await expect(tile).toHaveAttribute('draggable', 'true');
+  await tile.dragTo(page.getByRole('button', { name: 'Дина, 12:00, свободно', exact: true }));
+  await expect(tile).toContainText('12:00');
+  await expect(page.getByRole('button', { name: 'Дина, 10:00, свободно', exact: true })).toBeVisible();
 });
 
 test('занятое время мастера не предлагается и отказ приходит словами', async ({

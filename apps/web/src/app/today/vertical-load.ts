@@ -41,6 +41,8 @@ export async function loadFoodToday(nowIso: string) {
     date,
     timezone: branch.timezone,
     branchName: branch.name,
+    /** Брони дня: метки VIP и дней рождения на «Главной» (§36) */
+    reservations: today,
     metrics: foodToday({
       areas,
       tables,

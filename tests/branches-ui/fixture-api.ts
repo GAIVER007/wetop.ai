@@ -174,6 +174,10 @@ app.use(
                 where: { business: { organizationId: org } },
                 data: { status: 'ARCHIVED' },
               });
+              await db.business.updateMany({
+                where: { organizationId: org },
+                data: { status: 'ARCHIVED' },
+              });
               await db.organization.update({ where: { id: org }, data: { status: 'ACTIVE' } });
               const b1 = await db.business.create({
                 data: {

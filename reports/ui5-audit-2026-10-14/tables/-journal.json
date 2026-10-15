@@ -1,0 +1,32 @@
+{
+ "/journal": {
+  "390": [
+   {
+    "cols": 4,
+    "noHead": false,
+    "rows": 4,
+    "rowHeights": [
+     42,
+     107,
+     108
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 4,
+    "noHead": false,
+    "rows": 4,
+    "rowHeights": [
+     38,
+     39,
+     42
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

@@ -12,18 +12,16 @@ import { expect, test } from './fixtures';
 test('календарь: заголовок, сводка дня и быстрые действия', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
-  // Сводка по образцу Lite PMS (владелец 06.10): слева движение гостей, справа фонд.
+  // Шесть плиток по эталону владельца 13.10.2026: занято, свободно, заезд, выезд, проживание, внимание.
   const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(stats).toBeVisible();
-  await expect(
-    stats.getByRole('heading', { name: /^Сегодня, \d+ \S+, \d\d:\d\d:\d\d$/ }),
-  ).toBeVisible();
-  for (const id of ['arrivals', 'departures', 'inhouse', 'free', 'occupied', 'occupancy'])
+  for (const id of ['occupancy', 'free', 'arrivals', 'departures', 'in-house', 'attention'])
     await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
-  await expect(stats.getByRole('link', { name: 'Проживания' })).toBeVisible();
+  // часов в сводке больше нет: образец их не показывает
+  await expect(stats.getByRole('heading')).toHaveCount(0);
   // владелец 06.10: «лишнее убери, в скобках убери» — дней рождения, задач, блокировок и разбивки нет
   await expect(stats.getByText('Дни рождения')).toHaveCount(0);
-  await expect(stats.getByText('Задачи')).toHaveCount(0);
+  // задачи входят в «Требует внимания» (образец владельца 09.10): отдельной карточки задач нет
   await expect(stats.getByText('Заблокировано')).toHaveCount(0);
   await expect(stats.getByText('Всего номеров')).toHaveCount(0);
   await expect(stats.getByText('(')).toHaveCount(0);
@@ -35,11 +33,13 @@ test('календарь: заголовок, сводка дня и быстр�
   const arrival = (await dateColumns.first().getAttribute('data-date'))!;
   const last = (await dateColumns.last().getAttribute('data-date'))!;
   const departure = new Date(Date.parse(`${last}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
-  await expect(page.getByRole('link', { name: 'Поиск свободных номеров' })).toHaveAttribute(
-    'href',
-    `/rooms/availability?arrival=${arrival}&departure=${departure}`,
-  );
-  await expect(page.getByRole('link', { name: 'Неоплаченные' })).toHaveAttribute(
+  // имя ссылки начинается с видимой подписи плитки (WCAG 2.5.3, мастер-проход UI, этап 4)
+  await expect(
+    page.getByRole('link', { name: /^Свободно .*Найти места$/ }),
+  ).toHaveAttribute('href', `/rooms/availability?arrival=${arrival}&departure=${departure}`);
+  await expect(
+    page.getByRole('link', { name: /^Требует внимания \d+ Долги и задачи$/ }),
+  ).toHaveAttribute(
     'href',
     '/chessboard?stays=debt',
   );

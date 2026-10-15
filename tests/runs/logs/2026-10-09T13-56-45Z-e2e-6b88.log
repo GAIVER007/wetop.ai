@@ -1,0 +1,98 @@
+# Сквозные (e2e) · 09.10.2026 18:56 Алматы · vm
+# коммит 3e67bf0 (claude/serene-newton-q453ps)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-compact-screen.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `ChessboardGrid`. It was passed a child from ChessboardPage. See https://react.dev/link/warning-keys for more information. 
+  ✘  1 tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (5.1s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `ChessboardGrid`. It was passed a child from ChessboardPage. See https://react.dev/link/warning-keys for more information. 
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `ChessboardGrid`. It was passed a child from ChessboardPage. See https://react.dev/link/warning-keys for more information. 
+  ✓  2 tests/ui/chessboard-compact-screen.spec.ts:62:1 › свёрнутые категории переживают перезагрузку и разворачиваются (5.4s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `ChessboardGrid`. It was passed a child from ChessboardPage. See https://react.dev/link/warning-keys for more information. 
+  ✘  3 tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Компактный», сохранённый «Обычный» и «Подробный» восстанавливаются (16.9s)
+
+
+  1) tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается 
+
+    Error: сетка должна доходить почти до низа окна
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 32
+    Received:    37
+
+      55 |   expect
+      56 |     .soft(m.bottomGap, 'сетка должна доходить почти до низа окна')
+    > 57 |     .toBeLessThanOrEqual(MAX_BOTTOM_GAP);
+         |      ^
+      58 |   expect.soft(m.visible, `видно строк мест: ${m.visible}`).toBeGreaterThanOrEqual(MIN_ROWS);
+      59 |   await page.screenshot({ path: 'reports/chessboard-compact-screen.png' });
+      60 | });
+        at /home/user/wetop.ai/tests/ui/chessboard-compact-screen.spec.ts:57:6
+
+    Error Context: test-results/chessboard-compact-screen--4838f--страница-не-прокручивается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-compact-screen--4838f--страница-не-прокручивается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-compact-screen--4838f--страница-не-прокручивается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Компактный», сохранённый «Обычный» и «Подробный» восстанавливаются 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('.board-wrap')
+    Expected: "compact"
+    Received: "normal"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.board-wrap') with timeout 15000ms
+      - waiting for locator('.board-wrap')
+        29 × locator resolved to <div tabindex="0" role="region" data-density="normal" class="tbl-wrap board-wrap" aria-label="Календарь по дням">…</div>
+           - unexpected value "normal"
+
+
+      78 |   await page.goto('/chessboard?from=2026-09-14&to=2026-09-20');
+      79 |   const wrap = page.locator('.board-wrap');
+    > 80 |   await expect(wrap).toHaveAttribute('data-density', 'compact');
+         |                      ^
+      81 |   for (const view of ['normal', 'detailed'] as const) {
+      82 |     await page.evaluate(([key, value]) => localStorage.setItem(key!, value!), [VIEW_KEY, view]);
+      83 |     await page.reload();
+        at /home/user/wetop.ai/tests/ui/chessboard-compact-screen.spec.ts:80:22
+
+    Error Context: test-results/chessboard-compact-screen--dad13-одробный»-восстанавливаются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-compact-screen--dad13-одробный»-восстанавливаются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-compact-screen--dad13-одробный»-восстанавливаются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается 
+    tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Компактный», сохранённый «Обычный» и «Подробный» восстанавливаются 
+  1 passed (40.9s)
+
+# код выхода 1 · 42 с

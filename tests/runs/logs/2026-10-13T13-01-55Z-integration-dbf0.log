@@ -1,0 +1,39 @@
+# Интеграционные (integration) · 13.10.2026 18:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 507efb0 (claude/bar-location-api), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-01-55Z-integration-dbf0.json' 'tests/integration/bar-restaurant-cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ❯ |integration| tests/integration/bar-restaurant-cash.test.ts (3 tests | 1 failed) 290ms
+   ❯ бар: деньги по направлению филиала (integration) (3)
+     × ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 131ms
+     ✓ салон: склад работает, продажа и оплата закрыты до кассы салона 45ms
+     ✓ филиал ресторана не видит бар салона и наоборот 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-restaurant-cash.test.ts > бар: деньги по направлению филиала (integration) > ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход
+AssertionError: expected 'COMPLETED' to be 'VOIDED' // Object.is equality
+
+Expected: "VOIDED"
+Received: "COMPLETED"
+
+ ❯ tests/integration/bar-restaurant-cash.test.ts:90:27
+     88|     expect(await as('FOOD_SERVICE', () => repo.reverseSale(barSale.id,…
+     89|     const voided = await prisma.db.restaurantCashOperation.findUniqueO…
+     90|     expect(voided.status).toBe('VOIDED');
+       |                           ^
+     91|   });
+     92|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  06:01:56
+   Duration  1.40s (transform 43%, tests 32%, import 25%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-01-55Z-integration-dbf0.json
+
+# код выхода 1 · 2 с

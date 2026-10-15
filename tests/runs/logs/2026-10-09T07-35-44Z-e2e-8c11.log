@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 09.10.2026 12:35 Алматы · vm
+# коммит 9b24111 (claude/mv8-5-ds1c-followup), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/ds1c-primitives.spec.ts' 'tests/ui/design-system.spec.ts' 'tests/ui/team.spec.ts' 'tests/ui/finance-card-actions.spec.ts' 'tests/ui/tasks.spec.ts' '--grep-invert' 'эталонные снимки секций' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 42 tests using 1 worker
+
+  ✓   1 tests/ui/design-system.spec.ts:22:1 › три темы на одной странице, у интерактивных компонентов восемь состояний (9.9s)
+  ✓   2 tests/ui/design-system.spec.ts:47:1 › переключатель тем сообщает выбранное состояние (3.6s)
+  ✓   3 tests/ui/design-system.spec.ts:61:1 › ошибка Field связана с невалидным полем (2.4s)
+  ✓   4 tests/ui/design-system.spec.ts:69:1 › повышенная контрастность проходит axe AA (9.5s)
+  ✓   5 tests/ui/design-system.spec.ts:111:1 › масштаб 200 %: нет горизонтальной прокрутки (2.4s)
+  ✓   6 tests/ui/design-system.spec.ts:132:1 › меню действий: стрелки, Enter, Escape возвращает фокус на кнопку (3.9s)
+  ✓   7 tests/ui/design-system.spec.ts:154:1 › окно подтверждения: фокус внутри, Escape — отказ, действие названо (4.9s)
+  ✓   8 tests/ui/design-system.spec.ts:169:1 › уведомление появляется в живой области и закрывается (3.8s)
+  ✓   9 tests/ui/design-system.spec.ts:181:1 › подсказка открывается фокусом и закрывается Escape (4.5s)
+  ✓  10 tests/ui/design-system.spec.ts:194:1 › состояния: пусто говорит что сделать, загрузка помечена словом, сбой различает связь и адрес (4.2s)
+  ✓  11 tests/ui/ds1c-primitives.spec.ts:16:1 › доля на «Сайт → Аналитика»: родной progress с именем и числом, без ширины строкой стиля (2.2s)
+  ✓  12 tests/ui/ds1c-primitives.spec.ts:33:1 › плитка: тон чертой слева, изменение словами, плитка-ссылка с фокусом (3.5s)
+  ✓  13 tests/ui/ds1c-primitives.spec.ts:51:1 › день: предыдущий, следующий, «Сегодня» и поле «Дата» с подписью (4.3s)
+  ✓  14 tests/ui/ds1c-primitives.spec.ts:69:1 › период «Броней»: готовые отрезки ссылками, поля «С» и «По», применяет «Показать», адрес прежний (3.7s)
+  ✓  15 tests/ui/ds1c-primitives.spec.ts:84:1 › размеры окон: «Новая задача» sm, новая бронь lg, Escape закрывает и возвращает фокус (4.4s)
+  ✓  16 tests/ui/ds1c-primitives.spec.ts:105:1 › поле: обязательное с родным required и знаком, необязательное словом (3.5s)
+  ✓  17 tests/ui/ds1c-primitives.spec.ts:122:1 › таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки (2.1s)
+  ✓  18 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (3.4s)
+  ✓  19 tests/ui/ds1c-primitives.spec.ts:171:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (light) (13.2s)
+  ✓  20 tests/ui/ds1c-primitives.spec.ts:171:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (dark) (12.7s)
+  ✓  21 tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (3.2s)
+  ✓  22 tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (2.5s)
+  ✓  23 tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (3.2s)
+  ✓  24 tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (2.5s)
+  ✓  25 tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (3.6s)
+  ✓  26 tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (2.5s)
+  ✓  27 tests/ui/finance-card-actions.spec.ts:169:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (6.8s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  28 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (4.8s)
+  ✓  29 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (4.2s)
+  ✓  30 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (4.8s)
+  ✓  31 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (4.1s)
+  ✓  32 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (3.0s)
+  ✓  33 tests/ui/team.spec.ts:54:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (3.6s)
+  ✓  34 tests/ui/team.spec.ts:71:1 › ошибка приглашения — словами в панели, ввод не стирается (3.4s)
+  ✓  35 tests/ui/team.spec.ts:83:1 › «Отключить» — только после подтверждения с последствием (3.0s)
+  ✓  36 tests/ui/team.spec.ts:95:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке (2.9s)
+  ✓  37 tests/ui/team.spec.ts:116:1 › неверный телефон: словами в панели, введённое не стирается (2.9s)
+  ✓  38 tests/ui/team.spec.ts:130:1 › управляющий: роль не меняет, приглашает только администраторов (2.2s)
+  ✓  39 tests/ui/team.spec.ts:143:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (1.1s)
+  ✓  40 tests/ui/team.spec.ts:154:1 › администратору раздел закрыт: гейт и меню без пункта (2.2s)
+  ✓  41 tests/ui/team.spec.ts:163:3 › снимки TEAM1 и доступность: light (4.8s)
+  ✓  42 tests/ui/team.spec.ts:163:3 › снимки TEAM1 и доступность: dark (4.8s)
+
+  42 passed (3.4m)
+
+# код выхода 0 · 3 мин 26 с

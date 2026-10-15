@@ -1,0 +1,1772 @@
+@layer sections {
+  /* ── Главная ресторана (макет ADR-159): плитки, график, последние заказы ── */
+  .rest-dash {
+    display: grid;
+    gap: var(--space-4);
+  }
+  /* плотность макета: заголовки блоков строкой с ссылкой справа, панели без лишних полей */
+  .rest-dash .stats {
+    margin-bottom: 0;
+  }
+  .rest-dash .panel {
+    padding: var(--space-4);
+    gap: var(--space-2);
+  }
+  .rest-dash .food-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .rest-dash .panel > h2,
+  .rest-dash .food-section-heading h2 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .rest-dash .rest-latest-row .rest-latest-sum {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .rest-dash .food-section-heading a {
+    font-size: var(--text-sm);
+  }
+  /* плитки дня по макету: подпись, число, изменение слева, без центровки общего `.stats` */
+  .rest-kpis .stat {
+    justify-content: flex-start;
+    text-align: left;
+    min-height: 0;
+  }
+  .rest-kpis .stat__label {
+    margin-bottom: var(--space-1);
+  }
+  .rest-kpis .stat__delta[data-direction='up'] {
+    color: var(--success);
+  }
+  .rest-now {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .rest-now strong {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-dash-main {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .rest-dash-side {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .rest-quick {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .rest-quick .btn {
+    border-color: transparent;
+    font-weight: var(--weight-semibold);
+    justify-content: flex-start;
+    gap: var(--space-2);
+    min-height: var(--space-12);
+  }
+  .rest-upcoming {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+  .rest-upcoming td,
+  .rest-upcoming th[scope='row'] {
+    padding: var(--space-2) var(--space-2);
+    border-top: 1px solid var(--border);
+    text-align: left;
+    font-weight: var(--weight-regular);
+    vertical-align: middle;
+  }
+  .rest-upcoming tbody tr:first-child > * {
+    border-top: 0;
+  }
+  .rest-upcoming th[scope='row'] {
+    font-weight: var(--weight-semibold);
+  }
+  .rest-upcoming td:first-child {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+    width: 1%;
+    white-space: nowrap;
+  }
+  .rest-upcoming td:last-child {
+    text-align: right;
+  }
+  @media (max-width: 960px) {
+    .rest-dash-main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .rest-upcoming td:nth-child(4) {
+      display: none;
+    }
+  }
+  .rest-dash-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .rest-latest {
+    display: grid;
+    gap: 0;
+  }
+  .rest-latest-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--border);
+  }
+  .rest-latest-row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .rest-latest-row strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .rest-latest-row .rest-latest-sum {
+    margin-left: auto;
+    display: grid;
+    justify-items: end;
+    gap: var(--space-1);
+  }
+  .rest-latest-row time,
+  .rest-latest-row small {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+
+  /* ── Кухня (KDS): четыре колонки по макету ── */
+  .rest-kds {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .rest-kds-col {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-muted);
+    min-height: 160px;
+    align-content: start;
+  }
+  .rest-kds-col > h2 {
+    margin: 0;
+    font-size: var(--text-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  /* шапки колонок тоном статуса, как на макете (экран 6): цвет поддержан словом заголовка */
+  .rest-kds-col {
+    padding: 0 0 var(--space-4);
+    overflow: hidden;
+    min-height: 60vh;
+    border: 0;
+    background: var(--surface-muted);
+  }
+  .rest-kds-col > :not(h2) {
+    margin: 0 var(--space-2);
+  }
+  .rest-kds-col > h2 {
+    padding: var(--space-4);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    background: var(--st-checked-out);
+    font-size: var(--text-sm);
+  }
+  .rest-kds-col[data-col='NEW'] > h2 {
+    background: var(--st-blocked);
+  }
+  .rest-kds-col[data-col='COOKING'] > h2 {
+    background: var(--st-tentative);
+  }
+  .rest-kds-col[data-col='READY'] > h2 {
+    background: var(--st-checked-in);
+  }
+  .rest-kds-col[data-col='DELAYED'] > h2 {
+    background: var(--st-confirmed);
+  }
+  .rest-kds-card {
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius);
+    box-shadow: none;
+  }
+  .rest-kds-col[data-col='NEW'] .rest-kds-card {
+    border-left-color: var(--danger);
+  }
+  .rest-kds-col[data-col='COOKING'] .rest-kds-card {
+    border-left-color: var(--warning);
+  }
+  .rest-kds-col[data-col='READY'] .rest-kds-card {
+    border-left-color: var(--success);
+  }
+  .rest-kds-col[data-col='NEW'] .rest-kds-head time {
+    color: var(--danger);
+  }
+  .rest-kds-col[data-col='COOKING'] .rest-kds-head time {
+    color: var(--warning);
+  }
+  .rest-kds-col[data-col='READY'] .rest-kds-head time {
+    color: var(--success);
+  }
+  .rest-kds-table {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .rest-kds-items li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .rest-kds-items li small {
+    display: block;
+    color: var(--text-2);
+  }
+  .rest-kds-head time {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-kds-head time[data-late] {
+    color: var(--danger);
+    font-weight: var(--weight-semibold);
+  }
+  .rest-kds-card .btn {
+    justify-self: start;
+  }
+  .rest-kds-card .btn.btn--primary,
+  .rest-kds-col[data-col='READY'] .rest-kds-card .btn {
+    justify-self: stretch;
+  }
+  .rest-kds-card {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-left-width: 3px;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    text-align: left;
+  }
+  .rest-kds-card[data-status='NEW'] {
+    border-left-color: var(--info);
+  }
+  .rest-kds-card[data-status='COOKING'] {
+    border-left-color: var(--warning);
+  }
+  .rest-kds-card[data-status='READY'] {
+    border-left-color: var(--success);
+  }
+  .rest-kds-card[data-delayed='true'] {
+    border-left-color: var(--danger);
+  }
+  .rest-kds-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .rest-kds-head small,
+  .rest-kds-card small {
+    color: var(--text-2);
+  }
+  .rest-kds-items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+  }
+  .rest-kds-card .btn {
+    justify-self: start;
+  }
+
+  /* ── Меню: таблица блюд по макету (экран 8) ── */
+  .rest-menu-list {
+    min-width: 0;
+  }
+  .rest-menu-name {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .rest-menu-name small {
+    display: block;
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .rest-menu-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  /* подпись переключателя только для программы чтения: щелчок по дорожке доходит до поля */
+  .rest-menu-status .switch__track,
+  .rest-hours .switch__track {
+    pointer-events: none;
+  }
+  .rest-menu-thumb {
+    overflow: hidden;
+    flex: 0 0 auto;
+    width: var(--space-10);
+    height: var(--space-10);
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-lg);
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+  }
+  /* Связь строки техкарты со складом (§38): на всю ширину строки под ингредиентом */
+  .rest-tech-grid .rest-tech-link {
+    grid-column: 1 / -1;
+  }
+  .rest-menu-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .rest-dish-photo {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .rest-dish-photo img {
+    width: 160px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+  }
+  .rest-menu-row .rest-menu-price {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .rest-menu-row .rest-menu-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+
+  /* ── Техкарта: строки состава и итоги ── */
+  .rest-tech-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 0.8fr 0.7fr 1fr 0.9fr auto;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .rest-tech-grid .field {
+    min-width: 0;
+  }
+  .rest-tech-head {
+    font-size: var(--text-xs);
+    color: var(--text-2);
+  }
+  .rest-tech-cost {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .rest-tech-totals {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-muted);
+  }
+  .rest-tech-totals div {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .rest-tech-totals small {
+    color: var(--text-2);
+  }
+  .rest-tech-totals strong {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Заказы: состав в ячейке и форма нового заказа ── */
+  .rest-order-dishes {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    overflow-wrap: anywhere;
+  }
+  .rest-order-items {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .rest-order-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .rest-order-item strong {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-weight: 500;
+  }
+  .rest-order-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .rest-order-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-top: 1px solid var(--border);
+    padding-top: var(--space-4);
+  }
+
+  /* ── Зарплата ── */
+  .rest-pay-model small {
+    color: var(--text-2);
+    display: block;
+  }
+
+  /* Оплата заказа и касса филиала (DATA_MODEL §35, ADR-165) */
+  .rest-pay {
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--border);
+  }
+  .rest-pay-sum {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+  }
+  .rest-pay-sum dd {
+    margin: 0;
+    text-align: right;
+    font-weight: 600;
+  }
+  .rest-pay-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rest-pay-list li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .rest-pay-list li strong {
+    margin-left: auto;
+  }
+  .rest-pay-list li[data-status='VOIDED'] {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+  .rest-pay-void {
+    display: flex;
+    gap: var(--space-2);
+    width: 100%;
+  }
+  /* Оценка гостя (§39): крупные звёзды под палец, цели не меньше 44 px */
+  .rest-rating {
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--border);
+  }
+  .rest-stars {
+    display: flex;
+    gap: var(--space-1);
+    color: var(--warning);
+    font-size: var(--text-xl);
+  }
+  .rest-star {
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-size: var(--text-xl);
+    cursor: pointer;
+  }
+  .rest-star[data-on='true'] {
+    color: var(--warning);
+  }
+  .rest-star:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+  }
+  /* QR-код ссылки на оценку (§40): светлый фон и в тёмной теме, тихая зона в самом SVG */
+  .rest-qr-box {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+  }
+  .rest-qr {
+    width: 200px;
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+  }
+  .rest-qr svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .rest-qr-link {
+    overflow-wrap: anywhere;
+    font-size: var(--text-sm);
+  }
+  .rest-cash-forms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-4);
+  }
+  @media (max-width: 960px) {
+    .rest-dash-grid {
+      grid-template-columns: 1fr;
+    }
+    .rest-kds {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .rest-kds {
+      grid-template-columns: 1fr;
+    }
+    .rest-tech-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+}
+
+@layer sections {
+  /* Таблица во вкладках прокручивается сама и не растягивает страницу на телефоне */
+  .food-workspace .tabs-local,
+  .food-workspace .tabs__panel {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@layer sections {
+  /* ── Календарь бронирований (макет, экран 3): столы строками, часы столбцами, бронь полосой ── */
+  .rest-tl {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .rest-tl__grid {
+    display: grid;
+    grid-template-columns: 160px minmax(calc(var(--tl-hours) * 72px), 1fr);
+    min-width: 0;
+  }
+  .rest-tl__corner,
+  .rest-tl__hours {
+    position: sticky;
+    top: 0;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    background: var(--surface-solid);
+  }
+  .rest-tl__corner {
+    padding-left: var(--space-4);
+  }
+  /* список столов закреплён слева (ТЗ §7.1): часы прокручиваются под ним */
+  .rest-tl__corner,
+  .rest-tl__table {
+    position: sticky;
+    left: 0;
+    z-index: var(--layer-sticky);
+    background: var(--surface-solid);
+    box-shadow: inset -1px 0 0 var(--border);
+  }
+  .rest-tl__hours {
+    display: grid;
+    grid-template-columns: repeat(var(--tl-hours), minmax(0, 1fr));
+  }
+  .rest-tl__hours span {
+    padding-left: var(--space-1);
+    border-left: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-tl__row {
+    display: contents;
+  }
+  .rest-tl__table {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0 var(--space-4);
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--text-sm);
+  }
+  .rest-tl__table small {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .rest-tl__track {
+    position: relative;
+    min-height: var(--space-10);
+    border-bottom: 1px solid var(--border);
+    background-image: linear-gradient(to right, var(--border) 1px, transparent 1px);
+    background-size: calc(100% / var(--tl-hours)) 100%;
+  }
+  .rest-tl__slot {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: transparent;
+    cursor: copy;
+  }
+  .rest-tl__slot:hover {
+    background: var(--primary-soft);
+  }
+  .rest-tl__slot:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+  }
+  .rest-tl__bar {
+    position: absolute;
+    top: var(--space-1);
+    bottom: var(--space-1);
+    min-width: var(--space-6);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--border);
+    border-left-width: 3px;
+    border-radius: var(--radius-control);
+    background: var(--st-checked-out);
+    color: var(--text);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    text-align: left;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .rest-tl__bar span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rest-tl__bar[data-status='BOOKED'] {
+    background: var(--st-tentative);
+    border-left-color: var(--warning);
+  }
+  .rest-tl__bar[data-status='CONFIRMED'] {
+    background: var(--st-confirmed);
+    border-left-color: var(--primary);
+  }
+  .rest-tl__bar[data-status='SEATED'] {
+    background: var(--st-checked-in);
+    border-left-color: var(--success);
+  }
+  .rest-tl__bar:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+  .rest-tl__now {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--danger);
+    pointer-events: none;
+  }
+  @media (max-width: 600px) {
+    .rest-tl__grid {
+      grid-template-columns: 96px minmax(calc(var(--tl-hours) * 56px), 1fr);
+    }
+    .rest-tl__table {
+      padding: var(--space-2);
+    }
+  }
+}
+
+@layer sections {
+  /* ── Заказ по макету POS (экран 5): плитки блюд слева, текущий заказ справа ── */
+  /* POS шире обычного окна: две колонки макета, на узком экране окно во всю ширину */
+  .rest-pos {
+    --overlay-w-lg: 1180px;
+  }
+  .rest-pos-side .food-form-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.6fr);
+    gap: var(--space-2);
+  }
+  .rest-pos-side .food-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .rest-pos-side .food-actions .btn:first-child {
+    order: 2;
+  }
+  .rest-pos-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .rest-pos-menu,
+  .rest-pos-side {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .rest-pos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--space-2);
+  }
+  .rest-pos-dish {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .rest-pos-dish:hover {
+    border-color: var(--primary);
+  }
+  .rest-pos-dish:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+  .rest-pos-dish img,
+  .rest-pos-dish__ph {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-control);
+    object-fit: cover;
+  }
+  .rest-pos-dish__ph {
+    display: grid;
+    place-items: center;
+    background: var(--surface-muted);
+    color: var(--text-2);
+  }
+  .rest-pos-dish__name {
+    font-size: var(--text-xs);
+    line-height: 1.25;
+  }
+  .rest-pos-dish strong {
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-pos-side .rest-order-items {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .rest-order-item--pos strong {
+    flex: 1;
+    font-weight: var(--weight-regular);
+  }
+  .rest-pos-side h3 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .rest-pos-side .rest-order-total strong {
+    font-size: var(--text-xl);
+  }
+  @media (max-width: 960px) {
+    .rest-pos-layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+@layer sections {
+  /* ── Карточка стола (макет, экран 2; ТЗ §5.4) ── */
+  .rest-table-panel {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .rest-table-panel__now {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-muted);
+    font-size: var(--text-sm);
+  }
+  .rest-table-panel__actions {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .rest-table-panel h3 {
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .rest-table-panel__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-1);
+  }
+  .rest-table-panel__list button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: var(--space-10);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-solid);
+    color: var(--text);
+    font-size: var(--text-sm);
+    text-align: left;
+    cursor: pointer;
+  }
+  .rest-table-panel__list button span:first-child {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+  }
+  .rest-table-panel__list .badge {
+    margin-left: auto;
+  }
+}
+
+@layer sections {
+  /* ── Панель экрана одной строкой (макет, экраны 2 и 3): вкладки слева, день и отборы справа ── */
+  .rest-ws {
+    gap: var(--space-4);
+  }
+  .rest-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    flex-wrap: wrap;
+  }
+  .rest-bar__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .rest-bar__controls .field {
+    gap: 0;
+    min-width: 0;
+  }
+  .rest-bar__controls .date-bar {
+    gap: var(--space-1);
+  }
+  .rest-icon-btn {
+    display: grid;
+    place-items: center;
+    width: var(--control-h);
+    height: var(--control-h);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-solid);
+    color: var(--text-2);
+    cursor: pointer;
+  }
+  .rest-icon-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+
+  /* ── План зала (макет, экран 2): зоны, полотно со столами, карточка стола ── */
+  .rest-fp {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .rest-fp[data-card='open'] {
+    grid-template-columns: 200px minmax(0, 1fr) 320px;
+  }
+  .rest-fp__zones {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .rest-fp__zones button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-height: var(--space-10);
+    padding: 0 var(--space-2);
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--text);
+    font-size: var(--text-sm);
+    text-align: left;
+    cursor: pointer;
+  }
+  .rest-fp__zones button:hover {
+    background: var(--surface-muted);
+  }
+  .rest-fp__zones button[aria-pressed='true'] {
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+  }
+  .rest-fp__zones button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+  }
+  .rest-fp__count {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+  }
+  /* «Сегодня», стрелки и дата на 390 px в строку не входят (DateBar на телефоне без переноса): кнопка своей строкой */
+  @media (max-width: 600px) {
+    .date-bar.rest-day-bar {
+      flex-wrap: wrap;
+    }
+    .date-bar.rest-day-bar > .btn:first-child:not([aria-label]) {
+      flex-basis: 100%;
+    }
+  }
+  /* Правила брони столов (§43): форма и список закрытых дней */
+  .rest-booking-rules {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+  .rest-closed-days {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rest-closed-days li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    align-items: center;
+  }
+  .rest-fp__canvas {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--surface-muted);
+    background-image:
+      linear-gradient(to right, var(--border-soft) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border-soft) 1px, transparent 1px);
+    background-size: var(--space-6) var(--space-6);
+  }
+  .rest-fp__area h2 {
+    margin: 0 0 var(--space-2);
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .rest-fp__tables {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-6);
+    align-items: flex-start;
+  }
+  /* Схема зала (§42): полотно зоны 16:10, стол стоит центром в своей точке */
+  .rest-fp__layout {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    min-height: 280px;
+  }
+  .rest-fp__layout[data-editing] {
+    border: 2px dashed var(--border-input);
+    border-radius: var(--radius-control);
+    touch-action: none;
+  }
+  .rest-fp__spot {
+    position: absolute;
+    left: var(--spot-x);
+    top: var(--spot-y);
+    transform: translate(-50%, -50%) scale(var(--spot-scale)) rotate(var(--spot-turn));
+  }
+  .rest-fp__layout[data-editing] .rest-fp-table__body {
+    cursor: grab;
+  }
+  .rest-fp__layout[data-editing] .rest-fp-table__body[data-dragging] {
+    cursor: grabbing;
+  }
+  .rest-fp-editor {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .rest-fp-editor__fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-4);
+  }
+  .rest-fp-editor__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .rest-fp-table {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-1);
+    width: 96px;
+  }
+  .rest-fp-table[data-shape='long'] {
+    width: 128px;
+  }
+  .rest-fp-table__body {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border: 2px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface-solid);
+    color: var(--text);
+    font-size: var(--text-md);
+    cursor: pointer;
+  }
+  .rest-fp-table[data-shape='round'] .rest-fp-table__body {
+    border-radius: 50%;
+  }
+  .rest-fp-table[data-shape='long'] .rest-fp-table__body {
+    width: 104px;
+  }
+  .rest-fp-table__body:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .rest-fp-table[data-selected] .rest-fp-table__body {
+    box-shadow:
+      0 0 0 3px var(--primary-soft),
+      0 0 0 5px var(--primary);
+  }
+  .rest-fp-table[data-kind='FREE'] .rest-fp-table__body {
+    background: var(--st-checked-in);
+    border-color: var(--success);
+  }
+  .rest-fp-table[data-kind='OCCUPIED'] .rest-fp-table__body {
+    background: var(--st-blocked);
+    border-color: var(--danger);
+  }
+  .rest-fp-table[data-kind='RESERVED'] .rest-fp-table__body {
+    background: var(--surface-solid);
+    border-color: var(--text);
+  }
+  .rest-fp-table[data-kind='CLEANING'] .rest-fp-table__body {
+    background: var(--surface-solid);
+    border-color: var(--warning);
+    border-style: dashed;
+  }
+  .rest-fp-table__caption {
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rest-fp-table .rest-chairs {
+    display: flex;
+    gap: var(--space-1);
+    min-height: var(--space-1);
+  }
+  .rest-fp-table .rest-chairs i {
+    width: var(--space-4);
+    height: var(--space-1);
+    border-radius: var(--radius-control);
+    background: var(--border);
+  }
+  .rest-fp__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .rest-fp__legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .rest-fp__legend strong {
+    color: var(--text);
+  }
+  .rest-fp__legend span[data-kind]::before {
+    content: '';
+    width: var(--space-2);
+    height: var(--space-2);
+    border: 2px solid var(--text);
+    border-radius: 50%;
+  }
+  .rest-fp__legend span[data-kind='FREE']::before {
+    background: var(--success);
+    border-color: var(--success);
+  }
+  .rest-fp__legend span[data-kind='OCCUPIED']::before {
+    background: var(--danger);
+    border-color: var(--danger);
+  }
+  .rest-fp__legend span[data-kind='CLEANING']::before {
+    border-color: var(--warning);
+  }
+  .rest-fp__unassigned {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .rest-table-panel {
+    position: sticky;
+    top: var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .rest-table-panel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .rest-table-panel__head h2 {
+    margin: 0;
+    font-size: var(--text-lg);
+  }
+  @media (max-width: 1279px) {
+    .rest-fp[data-card='open'] {
+      grid-template-columns: 200px minmax(0, 1fr);
+    }
+    /* карточка листом снизу: план не сжимается (ТЗ §21) */
+    .rest-table-panel {
+      position: fixed;
+      inset: auto 0 0 0;
+      z-index: var(--layer-sticky);
+      max-height: 70vh;
+      overflow-y: auto;
+      border-radius: var(--radius) var(--radius) 0 0;
+      box-shadow: var(--shadow-floating);
+    }
+  }
+  @media (max-width: 960px) {
+    .rest-fp,
+    .rest-fp[data-card='open'] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rest-fp__zones {
+      display: flex;
+      overflow-x: auto;
+    }
+    .rest-fp__zones button {
+      flex: none;
+    }
+  }
+  @media (max-width: 600px) {
+    .rest-fp__canvas {
+      padding: var(--space-2);
+    }
+    .rest-fp__tables {
+      gap: var(--space-2);
+    }
+    .rest-fp-table,
+    .rest-fp-table[data-shape='long'] {
+      width: 80px;
+    }
+    .rest-fp-table[data-shape='long'] .rest-fp-table__body {
+      width: 76px;
+    }
+  }
+}
+
+@layer sections {
+  /* ── Список в карточке по макету (экраны 8 и 9): поиск со значком над таблицей в одной рамке ── */
+  .rest-card {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .rest-card__tools {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  /* телефон: полоса дат и итога переносится, страница не тянется вбок (аудит UI5: перелив 45 px) */
+  @media (max-width: 600px) {
+    .rest-card__tools {
+      flex-wrap: wrap;
+    }
+  }
+  .rest-card__tools .field {
+    gap: 0;
+  }
+  /* растягивается только поиск; даты и списки отбора своей ширины, как на макете */
+  .rest-card__tools .field:has(.field-icon),
+  .rest-card__tools > .field-icon {
+    flex: 1;
+  }
+  .rest-card__tools input {
+    width: 100%;
+  }
+  .rest-card .table-scroll {
+    border: 0;
+  }
+}
+
+@layer sections {
+  .rest-actions-end {
+    justify-content: flex-end;
+  }
+  .rest-card__tools .field-icon {
+    flex: 1;
+  }
+  /* склад по макету (экран 9): строка ниже минимума подсвечена, число красным */
+  .rest-card tr[data-low] .rest-stock-qty {
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-weight: var(--weight-semibold);
+  }
+}
+
+@layer sections {
+  /* ── Новая бронь по макету (экран 4): поля слева, доступные столы карточками справа ── */
+  .food-form.rest-book {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--space-6);
+    row-gap: var(--space-4);
+    align-items: start;
+  }
+  .rest-book > * {
+    grid-column: 1;
+  }
+  .rest-book > .rest-book-tables {
+    grid-column: 2;
+    grid-row: 1 / span 12;
+  }
+  .rest-book-tables {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+  .rest-book-tables h3 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .rest-book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rest-book-grid li {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .rest-book-grid li[data-selected] {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+  .rest-book-grid small {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .rest-book-grid .btn {
+    margin-top: var(--space-1);
+  }
+  @media (max-width: 960px) {
+    .food-form.rest-book {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rest-book > .rest-book-tables {
+      grid-column: 1;
+      grid-row: auto;
+    }
+  }
+}
+
+@layer sections {
+  /* ── Вкладки с подчёркиванием по макету (экраны 8, 9, 11, 12): синий текст и черта у текущей ── */
+  .rest-utabs {
+    display: flex;
+    gap: var(--space-1);
+    border-bottom: 1px solid var(--border);
+  }
+  .rest-utabs > a,
+  .rest-utabs > button {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--space-10);
+    padding: 0 var(--space-4);
+    border: 0;
+    background: transparent;
+    color: var(--text-2);
+    font: inherit;
+    font-size: var(--text-sm);
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: inset 0 -2px 0 transparent;
+  }
+  /* телефон: вкладка — цель касания 44 px; полоса прокручивается сама и не тянет страницу (аудит UI5) */
+  @media (max-width: 600px) {
+    .rest-utabs {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+    .rest-utabs > a,
+    .rest-utabs > button {
+      flex: none;
+      min-height: var(--touch-target);
+    }
+  }
+
+  .rest-utabs > [aria-current='page'] {
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+    box-shadow: inset 0 -2px 0 var(--primary);
+  }
+  .rest-utabs > a:focus-visible,
+  .rest-utabs > button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+  }
+  .rest-finance-total {
+    margin-left: auto;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .rest-card td[data-negative] {
+    color: var(--danger);
+    font-weight: var(--weight-semibold);
+  }
+
+  /* ── Настройки ресторана (макет, экран 13): разделы слева, часы работы по дням справа ── */
+  .rest-settings {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .rest-settings__nav {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .rest-settings__nav a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--space-10);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-control);
+    color: var(--text);
+    font-size: var(--text-sm);
+    text-decoration: none;
+  }
+  /* телефон: пункт раздела настроек — цель касания 44 px (аудит UI5) */
+  @media (max-width: 600px) {
+    .rest-settings__nav a {
+      min-height: var(--touch-target);
+    }
+  }
+
+  .rest-settings__nav a:hover {
+    background: var(--surface-muted);
+  }
+  .rest-settings__nav a[aria-current='page'] {
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+  }
+  .rest-settings__nav svg {
+    width: var(--space-4);
+    height: var(--space-4);
+    flex: none;
+  }
+  .rest-settings__body {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .rest-settings__body h2 {
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-lg);
+  }
+  .rest-hours {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rest-hours li {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) auto auto auto auto;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--border);
+    font-size: var(--text-sm);
+  }
+  .rest-hours li:first-child {
+    border-top: 0;
+  }
+  .rest-hours li > small {
+    grid-column: 1 / -1;
+  }
+  .rest-hours li:not([data-on]) .rest-hours__day {
+    color: var(--text-2);
+  }
+  .rest-hours .field {
+    gap: 0;
+  }
+  @media (max-width: 960px) {
+    .rest-settings {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rest-settings__nav {
+      display: flex;
+      overflow-x: auto;
+    }
+    .rest-settings__nav a {
+      flex: none;
+    }
+  }
+  @media (max-width: 600px) {
+    .rest-hours li {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .rest-hours li > span[aria-hidden] {
+      display: none;
+    }
+  }
+}
+
+@layer sections {
+  /* ── Бар (макет, экран 7): текущие заказы слева, витрина напитков справа ── */
+  .rest-bar-screen {
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .rest-bar-orders,
+  .rest-bar-menu {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .rest-bar-orders h2 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .rest-bar-order {
+    width: 100%;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .rest-bar-order[data-status='NEW'],
+  .rest-bar-order[data-status='COOKING'] {
+    border-left-color: var(--danger);
+  }
+  .rest-bar-order[data-status='READY'] {
+    border-left-color: var(--success);
+  }
+  .rest-bar-order .badge {
+    justify-self: start;
+  }
+  .rest-bar-order:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+  @media (max-width: 960px) {
+    .rest-bar-screen {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+@layer sections {
+  /* сотрудник в таблице по макету (экран 11): круг с инициалами и имя */
+  .rest-person {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .rest-avatar {
+    display: grid;
+    place-items: center;
+    width: var(--space-8);
+    height: var(--space-8);
+    flex: none;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+}
+
+@layer sections {
+  /* главное действие POS зелёным, как на макете (экран 5): заказ уходит на кухню */
+  .btn.rest-btn-go {
+    border-color: var(--success);
+    background: var(--success);
+    color: var(--on-primary);
+  }
+  .btn.rest-btn-go:hover:not(:disabled) {
+    filter: brightness(0.95);
+  }
+  .rest-pos-menu .rest-utabs {
+    overflow-x: auto;
+  }
+}
+
+@layer sections {
+  /* вкладки склада с подчёркиванием, как на макете (экран 9); роль вкладок и клавиши у общего компонента */
+  .rest-tabs-line > .tabs {
+    gap: var(--space-1);
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+  }
+  .rest-tabs-line > .tabs > .tabs__item {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: inset 0 -2px 0 transparent;
+  }
+  .rest-tabs-line > .tabs > .tabs__item[aria-selected='true'] {
+    background: transparent;
+    color: var(--primary);
+    box-shadow: inset 0 -2px 0 var(--primary);
+  }
+}
+
+@layer sections {
+  /* полоса шагов новой брони по макету (экран 4): номер в круге, текущий шаг синим с чертой */
+  .rest-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    margin: 0;
+    padding: 0 0 var(--space-2);
+    border-bottom: 1px solid var(--border);
+    list-style: none;
+    font-size: var(--text-sm);
+    color: var(--text-2);
+  }
+  .rest-book > .rest-steps {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .rest-book > .rest-book-tables {
+    grid-row: 2 / span 12;
+  }
+  .rest-steps li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .rest-steps__n {
+    display: grid;
+    place-items: center;
+    width: var(--space-6);
+    height: var(--space-6);
+    border: 1px solid var(--border-input);
+    border-radius: 50%;
+    font-size: var(--text-xs);
+  }
+  .rest-steps li[data-done] .rest-steps__n {
+    border-color: var(--success);
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  .rest-steps li[aria-current='step'] {
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+  }
+  .rest-steps li[aria-current='step'] .rest-steps__n {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  @media (max-width: 960px) {
+    .rest-book > .rest-book-tables {
+      grid-row: auto;
+    }
+  }
+}
+
+@layer sections {
+  /* телефон: полоса дня во всю ширину, поле даты сжимается, «Сегодня» и стрелки не выталкивают страницу вбок */
+  @media (max-width: 600px) {
+    .rest-bar,
+    .rest-bar__controls {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .rest-bar__controls .date-bar {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+    .rest-bar__controls .date-bar .btn {
+      flex: none;
+      padding-inline: var(--space-2);
+    }
+    .rest-bar__controls .date-bar .field {
+      flex: 1;
+      min-width: 0;
+    }
+    .rest-bar__controls .date-bar input {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+}
+
+@layer sections {
+  /* полоса вкладок сотрудников над содержимым страницы, с отступом снизу */
+  .rest-staff-tabs {
+    margin-bottom: var(--space-4);
+  }
+}
+
+@layer sections {
+  /*
+   * UI4.5 по эталону владельца (`design/references/05_verticals/three_calendar_concepts.png`, зал ресторана;
+   * DESIGN.md §21): смены карточками с часами («Завтрак 08:00–11:00»), у зоны значок и «N столов»,
+   * подпись под заголовком. Схема зала и состояния столов прежние.
+   */
+  .rest-shifts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .rest-shift {
+    display: grid;
+    gap: 0;
+    min-width: 112px;
+    min-height: var(--control-h);
+    padding: var(--space-1) var(--space-4);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .rest-shift strong {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .rest-shift span {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-shift:hover {
+    background: var(--row-hover);
+  }
+  .rest-shift[aria-pressed='true'] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .rest-shift:focus-visible {
+    outline: var(--focus-ring-w) solid var(--focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .rest-fp__zones button {
+    justify-content: flex-start;
+    min-height: var(--space-12);
+  }
+  .rest-fp__zone-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+    color: var(--text-2);
+  }
+  .rest-fp__zones button[aria-pressed='true'] .rest-fp__zone-icon {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .rest-fp__zone-text {
+    display: grid;
+    min-width: 0;
+  }
+  .rest-fp__zone-text small {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+  }
+}

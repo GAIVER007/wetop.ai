@@ -1,0 +1,147 @@
+# Сквозные (e2e) · 14.10.2026 17:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 519326e (codex/beauty-calendar-popularity), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-customers.spec.ts' 'tests/ui/beauty-journal.spec.ts' '--workers=1' '--timeout=120000'
+[WebServer] (node:5668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5703) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5763) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+(node:5844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5910) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/beauty-customers.spec.ts:114:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE (1.3m)
+[WebServer] (node:6345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/beauty-customers.spec.ts:132:1 › поиск и сегмент отбирают строки, итог говорит сколько показано (48.3s)
+[WebServer] (node:6449) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/beauty-customers.spec.ts:155:1 › клиенты на телефоне: без прокрутки вбок (31.9s)
+[WebServer] (node:6504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/beauty-customers.spec.ts:164:3 › клиенты доступны в светлой теме (14.7s)
+[WebServer] (node:6526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/beauty-customers.spec.ts:164:3 › клиенты доступны в тёмной теме (19.1s)
+[WebServer] (node:6572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/beauty-journal.spec.ts:97:1 › запись из пустой клетки появляется в сетке и в списке дня (25.8s)
+[WebServer] (node:6662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/beauty-journal.spec.ts:113:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок (48.4s)
+[WebServer] (node:7138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/ui/beauty-journal.spec.ts:138:1 › перенос мышью меняет время записи через существующий API (2.1m)
+(node:7465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/beauty-journal.spec.ts:151:1 › занятое время мастера не предлагается и отказ приходит словами (1.9m)
+[WebServer] (node:7715) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/beauty-journal.spec.ts:164:1 › вне графика мастера клетки нерабочие (44.2s)
+[WebServer] (node:7814) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2854679997'
+[WebServer] }
+  ✓  11 tests/ui/beauty-journal.spec.ts:171:1 › состояния записи идут по жизни, из выполненной дороги нет (34.7s)
+[WebServer] (node:7937) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/beauty-journal.spec.ts:195:1 › отмена спрашивает и освобождает время мастера (16.0s)
+[WebServer] (node:7995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/ui/beauty-journal.spec.ts:217:1 › перенос меняет время записи (11.0s)
+[WebServer] (node:8029) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/beauty-journal.spec.ts:233:1 › журнал на телефоне: день списком, без прокрутки вбок (11.6s)
+[WebServer] (node:8045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  15 tests/ui/beauty-journal.spec.ts:248:3 › журнал доступен в светлой теме (1.5s)
+
+
+  1) tests/ui/beauty-journal.spec.ts:138:1 › перенос мышью меняет время записи через существующий API 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Добавить мастера', exact: true })
+        - locator resolved to <button class="btn" type="button">Добавить мастера</button>
+
+
+      60 |
+      61 |   await page.goto('/beauty/masters');
+    > 62 |   await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+         |                                                                             ^
+      63 |   panel = page.getByRole('dialog');
+      64 |   await panel.getByLabel('Имя мастера').fill('Дина');
+      65 |   await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
+        at readySalon (/Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-journal.spec.ts:62:77)
+        at /Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-journal.spec.ts:140:3
+
+    Error Context: test-results/beauty-journal-перенос-мыш-80e72-писи-через-существующий-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-перенос-мыш-80e72-писи-через-существующий-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-перенос-мыш-80e72-писи-через-существующий-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-journal.spec.ts:248:3 › журнал доступен в светлой теме ────────────────────────
+
+    Test was interrupted.
+
+    Error: page.waitForURL: Test ended.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      17 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      18 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 19 |   await page.waitForURL('**/today');
+         |              ^
+      20 |
+      21 |   await page.goto('/branches');
+      22 |   const main = page.getByRole('main');
+        at openSalon (/Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-journal.spec.ts:19:14)
+        at readySalon (/Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-journal.spec.ts:39:3)
+        at /Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-journal.spec.ts:252:5
+
+    Error Context: test-results/beauty-journal-журнал-доступен-в-светлой-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-журнал-доступен-в-светлой-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-журнал-доступен-в-светлой-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-journal.spec.ts:138:1 › перенос мышью меняет время записи через существующий API 
+  1 interrupted
+    tests/ui/beauty-journal.spec.ts:248:3 › журнал доступен в светлой теме ─────────────────────────
+  1 did not run
+  13 passed (11.0m)
+
+# код выхода 130 · 11 мин 2 с

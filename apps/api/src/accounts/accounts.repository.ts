@@ -1,4 +1,9 @@
-import type { MembershipRole, OrganizationStatus, UserStatus } from '@pms/domain';
+import type {
+  MembershipRole,
+  OrganizationStatus,
+  ScopeAssignment,
+  UserStatus,
+} from '@pms/domain';
 
 /** Пользователь и его организация — всё, что нужно для выдачи сессии (DATA_MODEL §13). */
 export interface AccountRecord {
@@ -56,6 +61,23 @@ export interface InviteRecord {
   createdAt: Date;
   /** С какой ролью войдёт приглашённый (§13.6 v1.14, ADR-107): `MANAGER` или `STAFF` */
   role: MembershipRole;
+  /** Что указал пригласивший (DATA_MODEL §31.3, Q-290): имя, фамилия, телефон +E.164, должность; не указано: null */
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+  position: string | null;
+  /** Назначения (§31.1); пусто: вся организация */
+  scopes: ScopeAssignment[];
+}
+
+/** Бизнесы и филиалы организации для назначений (DATA_MODEL §31.1): только действующие */
+export interface OrganizationStructure {
+  businesses: Array<{
+    id: string;
+    name: string;
+    vertical: string;
+    locations: Array<{ id: string; name: string }>;
+  }>;
 }
 
 /** Человек организации для списка «Сотрудники» (§16.1 v1.14): кто, с какой ролью и с какого дня */
@@ -70,6 +92,10 @@ export interface MemberRecord {
   /** Рабочий телефон и должность в этой организации (`memberships`, v2.10, Q-244): не указаны: null */
   phone: string | null;
   position: string | null;
+  /** Назначения по бизнесам и филиалам (DATA_MODEL §31.1); пусто: вся организация */
+  scopes: ScopeAssignment[];
+  /** Приостановлен ли доступ (DATA_MODEL §31.2, Q-289): приостановленный не входит и сессии не пускают */
+  suspended: boolean;
 }
 
 export interface AccountsRepository {
@@ -104,6 +130,11 @@ export interface AccountsRepository {
     expiresAt: Date;
     createdBy: string;
     role: MembershipRole;
+    firstName?: string | null;
+    lastName?: string | null;
+    phone?: string | null;
+    position?: string | null;
+    scopes?: ScopeAssignment[];
   }): Promise<InviteRecord>;
   /** Не принятые и не просроченные на момент `now`, новые сверху. */
   pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]>;
@@ -179,6 +210,33 @@ export interface AccountsRepository {
     position: string | null;
     by: string;
     roles: readonly MembershipRole[] | null;
+  }): Promise<MemberWrite>;
+  /** Действующие бизнесы и филиалы организации: из чего выбирают область доступа */
+  organizationStructure(organizationId: string): Promise<OrganizationStructure>;
+  /**
+   * Заменить назначения человека одним списком (DATA_MODEL §31.1) и записать в журнал организации
+   * (`membership.scope.updated`: было, стало) одной транзакцией. Пустой список возвращает работу на всю организацию.
+   * `memberships.role` ставится по старшей из назначенных ролей; при пустом списке роль остаётся. Роль человека
+   * сверяется с `roles` под блокировкой строки.
+   */
+  replaceMemberScopes(input: {
+    organizationId: string;
+    userId: string;
+    assignments: ScopeAssignment[];
+    by: string;
+    roles: readonly MembershipRole[];
+  }): Promise<MemberWrite>;
+  /**
+   * Приостановить или возобновить доступ (DATA_MODEL §31.2) и записать в журнал организации (`membership.suspended`,
+   * `membership.resumed`) одной транзакцией; при приостановке сессии человека в этой организации отзываются. Роль
+   * сверяется с `roles` под блокировкой строки, как у отключения.
+   */
+  setMemberSuspended(input: {
+    organizationId: string;
+    userId: string;
+    suspended: boolean;
+    by: string;
+    roles: readonly MembershipRole[];
   }): Promise<MemberWrite>;
   /**
    * Одноразовая ссылка «задайте пароль» для только что вступившего (ADR-053). Раньше принятие

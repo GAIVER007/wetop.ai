@@ -1,7 +1,16 @@
 import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '55814'}`;
-const day = '2026-10-12';
+// Ближайший понедельник после сегодняшнего дня по поясу филиала стенда (Asia/Almaty): тесты заводят мастеру
+// рабочий понедельник. Дата была зашита как 2026-10-12, и с полуночи 13.10 по Алматы отсутствие на этот день
+// стало прошедшим: список отсутствий показывает только идущие и будущие (`schedule.ts`, `dateTo >= сегодня`)
+const day = (() => {
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const d = new Date(`${today}T00:00:00Z`);
+  do d.setUTCDate(d.getUTCDate() + 1);
+  while (d.getUTCDay() !== 1);
+  return d.toISOString().slice(0, 10);
+})();
 const shots = 'reports/mv5-beauty-ui-2026-10-04/screenshots';
 type Fixture = { business: string; otherBusiness: string; locations: string[] };
 const pointer = (business: string, location: string) => `business=${business};location=${location}`;
@@ -21,6 +30,24 @@ async function reset(page: Page, request: APIRequestContext) {
   const f: Fixture = await response.json();
   await scope(page, f.business, f.locations[0]!);
   return f;
+}
+async function expectEmptyCalendar(page: Page) {
+  const grid = page.getByTestId('beauty-grid');
+  await expect(grid).toBeVisible();
+  await expect(grid.getByTestId('beauty-empty-timeline')).toBeVisible();
+  await expect(grid).toContainText('09:00');
+  await expect(grid).toContainText('17:30');
+  await expect(grid.locator('.beauty-tile, .beauty-slot-free')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+  const setup = page.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги' });
+  await expect(setup.getByRole('link', { name: 'Добавить услугу', exact: true })).toHaveAttribute(
+    'href',
+    '/services',
+  );
+  await expect(setup.getByRole('link', { name: 'Добавить мастера', exact: true })).toHaveAttribute(
+    'href',
+    '/employees',
+  );
 }
 async function seed(page: Page, request: APIRequestContext) {
   const f = await reset(page, request);
@@ -87,7 +114,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
 }) => {
   await reset(page, request);
   await page.goto('/calendar?vertical=HOSPITALITY');
-  await expect(page.getByRole('heading', { name: 'Пока нечего показывать' })).toBeVisible();
+  await expectEmptyCalendar(page);
   await page.goto('/services');
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   let panel = page.getByRole('dialog');
@@ -114,7 +141,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await expect(panel.getByRole('status')).toContainText('Мастер добавлен');
   await page.reload();
   await page
-    .getByRole('row')
+    .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
     .getByRole('button', { name: 'Открыть' })
     .click();
@@ -176,7 +203,7 @@ test('overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY', 
   );
   await scope(page, f.otherBusiness, f.locations[2]!);
   await page.goto(`/calendar?date=${day}`);
-  await expect(page.getByRole('heading', { name: 'Пока нечего показывать' })).toBeVisible();
+  await expectEmptyCalendar(page);
   await page.goto('/customers');
   await expect(page.getByRole('main')).not.toContainText('Тестовая клиентка');
   await scope(page, f.business, f.locations[1]!);
@@ -349,7 +376,7 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
   const f = await seed(page, request);
   await page.goto('/employees');
   await page
-    .getByRole('row')
+    .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
     .getByRole('button', { name: 'Открыть' })
     .click();
@@ -389,6 +416,26 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
   await expect(page.getByRole('table')).toContainText('Тестовая клиентка');
 });
 
+/**
+ * MV8.5 DS1c: день журнала на общем `DateBar` ведёт по тем же адресам, что прежние ссылки: `?date=` у
+ * пути, «Сегодня» без даты; поле даты держит прежний `data-testid`. Стоит до онбординга: тот пересоздаёт
+ * организацию стенда, и сброс после него не работает.
+ */
+test('DS1c: day navigation keeps the previous addresses', async ({ page, request }) => {
+  await reset(page, request);
+  await page.goto('/calendar?date=2026-10-12');
+  const bar = page.locator('.date-bar');
+  await expect(bar.getByTestId('beauty-day-date')).toHaveValue('2026-10-12');
+  await bar.getByRole('button', { name: 'Следующий день' }).click();
+  await expect(page).toHaveURL(/\/calendar\?date=2026-10-13$/);
+  await bar.getByRole('button', { name: 'Предыдущий день' }).click();
+  await expect(page).toHaveURL(/\/calendar\?date=2026-10-12$/);
+  await bar.getByLabel('Дата', { exact: true }).fill('2026-10-20');
+  await expect(page).toHaveURL(/\/calendar\?date=2026-10-20$/);
+  await bar.getByRole('button', { name: 'Сегодня', exact: true }).click();
+  await expect(page).toHaveURL(/\/calendar$/);
+});
+
 test('Beauty onboarding completion opens Today and resumes there', async ({ page, request }) => {
   await reset(page, request);
   await page.goto('/register/setup');
@@ -401,9 +448,9 @@ test('Beauty onboarding completion opens Today and resumes there', async ({ page
   // MV8: рабочий экран дня один на все направления
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByTestId('beauty-today')).toBeVisible();
-  await expect(page.getByTestId('today-masters')).toHaveText('0');
+  await expect(page.getByTestId('today-shift')).toHaveText('0 из 0');
   await page.goto('/calendar');
-  await expect(main.getByRole('heading', { name: 'Пока нечего показывать' })).toBeVisible();
+  await expectEmptyCalendar(page);
   await page.goto('/register/setup');
   await expect(page).toHaveURL(/\/today$/);
 });

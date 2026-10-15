@@ -1,0 +1,26 @@
+# Сквозные (e2e) · 08.10.2026 22:08 Алматы · vm
+# коммит d009c82 (claude/mv8-5-ds1c-primitives), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/ds1c-primitives.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/ui/ds1c-primitives.spec.ts:16:1 › доля на «Сайт → Аналитика»: родной progress с именем и числом, без ширины строкой стиля (3.5s)
+  ✓   2 tests/ui/ds1c-primitives.spec.ts:33:1 › плитка: тон чертой слева, изменение словами, плитка-ссылка с фокусом (6.2s)
+  ✓   3 tests/ui/ds1c-primitives.spec.ts:51:1 › день: предыдущий, следующий, «Сегодня» и поле «Дата» с подписью (5.6s)
+  ✓   4 tests/ui/ds1c-primitives.spec.ts:69:1 › период «Броней»: готовые отрезки ссылками, поля «С» и «По», применяет «Показать», адрес прежний (4.9s)
+  ✓   5 tests/ui/ds1c-primitives.spec.ts:84:1 › размеры окон: «Новая задача» sm, новая бронь lg, Escape закрывает и возвращает фокус (6.4s)
+  ✓   6 tests/ui/ds1c-primitives.spec.ts:105:1 › поле: обязательное с родным required и знаком, необязательное словом (3.5s)
+  ✓   7 tests/ui/ds1c-primitives.spec.ts:116:1 › таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки (3.3s)
+  ✓   8 tests/ui/ds1c-primitives.spec.ts:134:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (5.7s)
+  ✓   9 tests/ui/ds1c-primitives.spec.ts:165:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (light) (16.2s)
+  ✓  10 tests/ui/ds1c-primitives.spec.ts:165:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (dark) (16.2s)
+
+  10 passed (1.4m)
+
+# код выхода 0 · 1 мин 29 с

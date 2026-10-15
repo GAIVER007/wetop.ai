@@ -278,8 +278,8 @@
   }
   .fund-form {
     display: grid;
-    gap: var(--space-6);
-    padding: 24px;
+    gap: var(--space-4);
+    padding: var(--space-4);
   }
   .fund-form .field {
     min-width: 0;
@@ -298,7 +298,8 @@
     gap: var(--space-4);
   }
   .fund-form p {
-    line-height: 1.6;
+    margin: 0;
+    line-height: var(--leading-base);
   }
   .fund-availability summary {
     cursor: pointer;
@@ -422,6 +423,12 @@
     .fund-presets {
       padding-top: 0;
       flex-wrap: wrap;
+    }
+    /* цель касания 44 px у ссылок-пресетов (аудит UI5) */
+    .fund-presets a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
     }
     .fund-availability article {
       padding: 16px;

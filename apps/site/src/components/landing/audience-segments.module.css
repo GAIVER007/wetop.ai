@@ -1,0 +1,37 @@
+.card {
+  gap: 8px;
+  min-height: 0;
+}
+.card :global(.verticals__text) {
+  min-height: 0;
+  margin-top: 8px;
+}
+.card :global(.verticals__capabilities) {
+  margin-bottom: 0;
+}
+.titleLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  color: var(--public-text);
+  text-decoration: none;
+}
+.titleLink svg {
+  flex-shrink: 0;
+  transition: transform 180ms ease;
+}
+.titleLink:hover svg {
+  transform: translateX(4px);
+}
+.titleLink:focus-visible {
+  outline: 2px solid var(--public-accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+@media (prefers-reduced-motion: reduce) {
+  .titleLink svg {
+    transition: none;
+    transform: none;
+  }
+}

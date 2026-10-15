@@ -1,0 +1,15 @@
+# Сквозные (e2e) · 14.10.2026 16:29 Алматы · MacBook-Air-Urij.local
+# коммит 8e69022 (claude/site-photos-20261014), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'site-shots'
+[WebServer] /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/branches-ui/fixture-api.ts:28
+[WebServer]   throw new Error('Own local database required');
+[WebServer]         ^
+[WebServer] 
+[WebServer] Error: Own local database required
+[WebServer]     at <anonymous> (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/branches-ui/fixture-api.ts:28:9)
+[WebServer] 
+[WebServer] Node.js v24.15.0
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 6 с

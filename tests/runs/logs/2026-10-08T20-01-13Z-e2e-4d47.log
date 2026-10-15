@@ -1,0 +1,49 @@
+# Сквозные (e2e) · 09.10.2026 01:01 Алматы · vm
+# коммит e6dbd02 (claude/mv8-5-ds1c-primitives), незакоммиченных файлов набора: 24
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/premium.spec.ts' '-g' 'новые страницы и обе темы' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (3.1m)
+
+
+  1) tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: visible
+    Received: undefined
+
+
+      171 |   for (const route of routes) {
+      172 |     await page.goto(route);
+    > 173 |     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+          |                                                           ^
+      174 |     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+      175 |   }
+      176 |   expect(errors).toEqual([]);
+        at /home/user/wetop.ai/tests/ui/premium.spec.ts:173:59
+
+    Error Context: test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+
+# код выхода 1 · 3 мин 32 с

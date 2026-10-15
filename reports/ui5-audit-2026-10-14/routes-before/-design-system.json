@@ -1,0 +1,41 @@
+{
+ "/design-system": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Дизайн-система",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Неделя 66x36",
+    "A:14 дней 67x36",
+    "A:Месяц 60x36",
+    "INPUT: 13x13",
+    "A:Ақбота Әбдіғаппарова 103x38",
+    "A:Гость Стойка 92x17",
+    "A:Посетитель Отменённый 89x38",
+    "BUTTON:Закрыть уведомление 24x24",
+    "BUTTON:Предыдущий месяц 32x32",
+    "BUTTON:Следующий месяц 32x32",
+    "BUTTON:31 40x36",
+    "BUTTON:1 40x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Дизайн-система",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Дизайн-система",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

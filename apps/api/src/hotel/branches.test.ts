@@ -17,7 +17,7 @@ function setup(existing: unknown = null) {
     $executeRaw: vi.fn(async () => 1),
     property: { findFirst: vi.fn(async () => existing) },
     // срез B2: путь салона идёт по Location и своему бизнесу, объект в нём не участвует
-    location: { findFirst: vi.fn(async () => existing) },
+    location: { findFirst: vi.fn(async () => existing), create: vi.fn(async () => ({})) },
     business: { findFirst: vi.fn(async () => ({ id: 'business-test' })) },
     organization: { findUniqueOrThrow: vi.fn(async () => ({ name: 'Тестовая сеть' })) },
     auditLog: { create: vi.fn(async () => undefined) },
@@ -123,11 +123,33 @@ describe('вертикаль филиала', () => {
   });
 });
 
-it('Food is read-only for /branches creation contract', async () => {
-  const { service, transaction } = setup();
-  await expect(run(() => service.create({ ...input, vertical: 'FOOD_SERVICE' }))).rejects.toThrow(
-    'направление',
+it('владелец создаёт ресторан без гостиничного объекта', async () => {
+  const { service, tx } = setup();
+  const saved = { ...input, businessId: 'business-test', status: 'ACTIVE' };
+  tx.location.create = vi.fn(async () => saved);
+  const result = await run(() => service.create({ ...input, vertical: 'FOOD_SERVICE' }));
+  expect(result).toMatchObject({ vertical: 'FOOD_SERVICE', locationId: input.id });
+  expect(tx.property.findFirst).not.toHaveBeenCalled();
+  expect(tx.business.findFirst).toHaveBeenCalledWith(
+    expect.objectContaining({
+      where: { organizationId: 'org-test', vertical: 'FOOD_SERVICE', status: 'ACTIVE' },
+    }),
   );
+});
+
+it('повтор UUID не выдаёт филиал другого направления за ресторан', async () => {
+  const { service, tx } = setup({ ...input, businessId: 'salon-business' });
+  tx.business.findFirst.mockImplementation(async () => null as never);
+  await expect(run(() => service.create({ ...input, vertical: 'FOOD_SERVICE' }))).rejects.toThrow(
+    'направления',
+  );
+});
+
+it('сотрудник не создаёт ресторан', async () => {
+  const { service, transaction } = setup();
+  await expect(
+    run(() => service.create({ ...input, vertical: 'FOOD_SERVICE' }), 'STAFF'),
+  ).rejects.toThrow('владелец');
   expect(transaction).not.toHaveBeenCalled();
 });
 

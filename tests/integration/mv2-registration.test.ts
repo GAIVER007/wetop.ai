@@ -62,7 +62,6 @@ describe.skipIf(!process.env.DATABASE_URL)('MV2 real registration persistence', 
   function input(vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', suffix: string = vertical) {
     const email = `mv2-${randomUUID()}@example.invalid`;
     emails.push(email);
-    vi.stubEnv(`REGISTRATION_${vertical}_PILOT_EMAILS`, email.toUpperCase());
     return {
       email,
       vertical,
@@ -74,6 +73,22 @@ describe.skipIf(!process.env.DATABASE_URL)('MV2 real registration persistence', 
       privacyAccepted: true,
     };
   }
+  // Q-REG-1: страна организации и язык человека из окна регистрации лежат в базе (миграция …083)
+  it('stores organization country and user locale', async () => {
+    const body = { ...input('HOSPITALITY', 'locale'), phoneCountry: 'UZ', phone: '901234567', locale: 'en' };
+    await auth.register(body, now);
+    const business = await db.business.findFirstOrThrow({ where: { name: body.businessName } });
+    const org = await db.organization.findUniqueOrThrow({ where: { id: business.organizationId } });
+    expect(org.countryCode).toBe('UZ');
+    const user = await db.user.findUniqueOrThrow({ where: { email: body.email } });
+    expect(user.locale).toBe('en');
+    // база сама не примет чужой язык или страну не по ISO
+    await expect(db.user.update({ where: { id: user.id }, data: { locale: 'xx' } })).rejects.toThrow();
+    await expect(
+      db.organization.update({ where: { id: org.id }, data: { countryCode: 'uz' } }),
+    ).rejects.toThrow();
+  });
+
   it.each(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)(
     '%s persists through resend and confirmation',
     async (vertical) => {
@@ -120,13 +135,8 @@ describe.skipIf(!process.env.DATABASE_URL)('MV2 real registration persistence', 
     expect(await db.business.count({ where: { name: body.businessName } })).toBe(1);
     expect(await db.location.count({ where: { name: body.businessName } })).toBe(1);
   });
-  it('denied pilot and global closed gate create no orphan chain', async () => {
+  it('global closed gate creates no orphan chain; no allowlist is needed for Food (ADR-172)', async () => {
     const body = input('FOOD_SERVICE', 'denied');
-    vi.stubEnv('REGISTRATION_FOOD_SERVICE_PILOT_EMAILS', '');
-    await expect(auth.register(body, now)).rejects.toThrow(
-      'Направление пока доступно только участникам пилота',
-    );
-    vi.stubEnv('REGISTRATION_FOOD_SERVICE_PILOT_EMAILS', body.email);
     vi.stubEnv('REGISTRATION_OPEN', '0');
     await expect(auth.register(body, now)).rejects.toThrow();
     expect(await db.organization.count({ where: { name: body.businessName } })).toBe(0);

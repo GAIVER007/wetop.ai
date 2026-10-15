@@ -1,0 +1,24 @@
+# Модульные (unit) · 14.10.2026 17:45 Алматы · MacBook-Air-Urij.local
+# коммит 519326e (claude/food-fix-01-20261014), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-45-34Z-unit-520c.json' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01
+
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 9070ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1555ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 1630ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1572ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 1125ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 2131ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 1018ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  16:45:36
+   Duration  9.25s (tests 100%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-45-34Z-unit-520c.json
+
+# код выхода 0 · 11 с

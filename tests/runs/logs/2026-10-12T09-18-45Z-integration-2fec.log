@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 12.10.2026 14:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 351e87c (claude/kitchen-consumption), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-18-45Z-integration-2fec.json' 'tests/integration/kitchen-stock.test.ts' 'tests/integration/restaurant-cash-database.test.ts' 'tests/integration/mv6-food-database.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |integration| tests/integration/kitchen-stock.test.ts (5 tests) 157ms
+ ✓ |integration| tests/integration/mv6-food-database.test.ts (4 tests) 103ms
+ ✓ |integration| tests/integration/restaurant-cash-database.test.ts (2 tests) 56ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  02:18:46
+   Duration  1.89s (transform 41%, import 29%, tests 29%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-18-45Z-integration-2fec.json
+
+# код выхода 0 · 3 с

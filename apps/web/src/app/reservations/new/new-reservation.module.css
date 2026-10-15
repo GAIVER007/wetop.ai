@@ -1,0 +1,166 @@
+.screen:global(.page.booking-create) {
+  max-width: 900px;
+  margin-inline: auto;
+  min-height: 0;
+}
+.form:global(.booking-form) {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-solid);
+}
+.form :global(.booking-create__dates) {
+  padding: var(--space-4);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  gap: var(--space-4);
+}
+.form :global(.booking-create__quick) {
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.form :global(.booking-create__quick button) {
+  min-height: 36px;
+}
+/* телефон: быстрые даты — цель касания 44 px (модуль вне слоёв перебивал sections; аудит UI5) */
+@media (max-width: 600px) {
+  .form :global(.booking-create__quick button) {
+    height: auto;
+    min-height: var(--touch-target);
+  }
+}
+.form :global(.field) {
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  min-width: 0;
+}
+.form :global(.input),
+.form :global(.select) {
+  min-height: 46px;
+  font-size: var(--text-lg);
+  padding: var(--space-2) var(--space-4);
+}
+.form :global(.grid-auto) {
+  gap: var(--space-4);
+}
+.form :global(.form-section-title) {
+  margin: 0;
+  padding-top: var(--space-1);
+}
+.form :global(.form-section-title h2),
+.form :global(.booking-create__guest-title) {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+.form :global(.placement-fields) {
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.form :global(.booking-create__extras),
+.form :global(.booking-create__review) {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: var(--space-4) var(--space-4);
+}
+.form :global(details > summary) {
+  min-height: 24px;
+  font-weight: 600;
+  color: var(--text);
+}
+.form :global(.booking-footer) {
+  position: sticky;
+  bottom: 0;
+  margin: 0 calc(-1 * var(--space-6)) calc(-1 * var(--space-6));
+  padding: var(--space-4) var(--space-6);
+  background: var(--surface-solid);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: none;
+}
+.form :global(.booking-footer__digest) {
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  margin-bottom: var(--space-4);
+  color: var(--text-2);
+}
+.form :global(.booking-footer__actions) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.form :global(.booking-create__price) {
+  flex: 1 1 220px;
+  min-width: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+.buttons {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+.buttons button {
+  min-height: 46px;
+  padding-inline: var(--space-6);
+  white-space: nowrap;
+}
+.drawer:global(.ui-overlay.ui-drawer) {
+  width: min(940px, calc(100vw - 32px));
+  max-width: none;
+  background: var(--surface);
+  height: auto;
+  max-height: calc(100dvh - 24px);
+  margin: var(--space-4) var(--space-4) var(--space-4) auto;
+  border-radius: var(--radius-lg);
+}
+.drawer :global(.overlay-heading) {
+  padding: var(--space-6) var(--space-6);
+  background: var(--surface-solid);
+  border-bottom: 1px solid var(--border);
+}
+.drawer :global(.overlay-content) {
+  padding: var(--space-6);
+}
+@media (max-width: 600px) {
+  .form:global(.booking-form) {
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+  .form :global(.booking-create__dates),
+  .form :global(.placement-fields) {
+    padding: var(--space-4);
+  }
+  .form :global(.booking-footer) {
+    margin: 0 calc(-1 * var(--space-4)) calc(-1 * var(--space-4));
+    padding: var(--space-4) var(--space-4);
+  }
+  .buttons {
+    width: 100%;
+    margin: 0;
+  }
+  .buttons button {
+    flex: 1;
+    padding-inline: var(--space-4);
+  }
+  .drawer:global(.ui-overlay.ui-drawer) {
+    width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+    margin: var(--space-2) auto;
+  }
+  .drawer :global(.overlay-content) {
+    padding: var(--space-4);
+  }
+}
+
+@media (max-width: 600px) {
+  .form :global(.booking-footer) {
+    position: static;
+  }
+}

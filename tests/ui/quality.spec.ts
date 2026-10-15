@@ -22,7 +22,7 @@ test('короткий поиск гостей объясняет минимум
 
 test('повторяющиеся параметры поиска не обрушивают гости и журнал', async ({ page }) => {
   await page.goto('/guests?q=Тест&q=Другой');
-  await expect(page.getByRole('heading', { name: 'Гости', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Гости и бронирования', exact: true })).toBeVisible();
   await page.goto('/journal?q=TEST&q=OTHER');
   await expect(page.getByRole('heading', { name: 'Журнал операций', exact: true })).toBeVisible();
 });
@@ -62,13 +62,15 @@ test('отказ оплаты сохраняет введённую сумму, 
   await form.locator('[name=amount]').fill('3456.78');
   await form.locator('[name=method]').selectOption('KASPI');
   await form.locator('[name=note]').fill('Не терять при отказе');
-  await form.getByRole('button', { name: 'Принять оплату' }).click();
+  await form.getByRole('button', { name: 'Проверить оплату' }).click();
+  await form.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
   await expect(page.getByRole('main').getByRole('alert')).toBeVisible();
   await expect(form.locator('[name=amount]')).toHaveValue('3456.78');
   await expect(form.locator('[name=method]')).toHaveValue('KASPI');
   await expect(form.locator('[name=note]')).toHaveValue('Не терять при отказе');
   await request.post(`${fixture}/__test/control`, { data: {} });
-  await form.getByRole('button', { name: 'Принять оплату' }).click();
+  await form.getByRole('button', { name: 'Проверить оплату' }).click();
+  await form.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
   await expect(
     page.getByTestId('payment-row').filter({ hasText: 'Не терять при отказе' }),
   ).toHaveCount(1);
@@ -84,16 +86,17 @@ test('ошибочные даты шахматки оставляют форму
 });
 
 test('список гостей и вторая бронь открывают собственные карточки', async ({ page }) => {
-  await page.goto('/guests');
+  await page.goto('/guests?size=25');
   // столько же гостей, сколько броней в фикстуре: добавился «не заехал вовремя» (20260913-TEST8)
-  await expect(page.locator('.dir-guest')).toHaveCount(9);
-  const link = page.locator('.dir-guest').nth(1);
+  await expect(page.getByTestId('guest-row')).toHaveCount(9);
+  const link = page.getByTestId('guest-row').nth(1).locator('a.gb-guest');
   const label = await link.locator('strong').innerText();
-  // G3: щелчок по гостю — панель предпросмотра, полная карточка — из неё
+  // «Гости и бронирования» (09.10.2026): щелчок по гостю открывает панель справа, полная карточка из неё
   await link.click();
-  const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
-  await expect(drawer).toContainText(label);
-  await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
+  const panel = page.getByTestId('guest-panel');
+  await expect(panel).toContainText(label);
+  await panel.getByRole('tab', { name: 'История', exact: true }).click();
+  await panel.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText(label);
   await page.goto('/reservations/20260913-TEST1');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('20260913-TEST1');
@@ -115,7 +118,9 @@ test('медленная финансовая команда блокирует 
     const extra = page.getByTestId('early-check-in-ui-folio');
     await extra.click();
     await expect(extra).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Принять оплату', exact: true })).toBeDisabled();
+    await expect(
+      page.getByTestId('payment-form').getByRole('button', { name: 'Выполняется…', exact: true }),
+    ).toBeDisabled();
   } finally {
     release();
     await page.unrouteAll({ behavior: 'wait' });

@@ -1,15 +1,20 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { FormGrid } from '../../components/form-grid';
 import { Alert, Button, Field, Input, Select, Textarea } from '../../components/ui';
-import { foodStatusLabels, weekdays } from '../../lib/food-data';
 import type { FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { instantOf, localInput } from '../beauty/time';
 import { mutateFoodReservation } from './actions';
+import { foodStatus } from '../../lib/status/food';
+import { weekdays } from '../../lib/food-data';
+import { pluralRu } from '../../lib/plural';
+import { tableTitle } from './timeline-board';
 export function ReservationForm({
   data,
   walkIn = false,
   tableId = '',
+  time,
   reservation,
   created,
   onStale,
@@ -17,6 +22,8 @@ export function ReservationForm({
   data: FoodWorkspace;
   walkIn?: boolean;
   tableId?: string;
+  /** время начала новой брони (щелчок по шкале); по умолчанию время экрана */
+  time?: string;
   reservation?: RestaurantReservation;
   created: (r: RestaurantReservation) => void;
   onStale: () => void;
@@ -26,17 +33,47 @@ export function ReservationForm({
   const [error, setError] = useState('');
   const [key] = useState(() => crypto.randomUUID());
   const [mode, setMode] = useState(data.customers.length ? 'existing' : 'new');
+  // заполненность разделов для полосы шагов макета (экран 4): только отображение, форма одна
+  const [guestPicked, setGuestPicked] = useState('');
+  const [guestName, setGuestName] = useState('');
   const [party, setParty] = useState(reservation?.partySize ?? 2);
   const local = reservation
     ? localInput(reservation.startsAt, data.timezone)
-    : `${data.date}T${data.time}`;
+    : `${data.date}T${time ?? data.time}`;
   const periods = data.periods.filter((p) => p.active || p.id === reservation?.servicePeriodId);
   const tables = data.tables.filter(
     (t) => t.active && data.areas.some((a) => a.id === t.areaId && a.active),
   );
+  const [date, setDate] = useState(local.slice(0, 10));
+  const [clockValue, setClockValue] = useState(local.slice(11, 16));
+  const [period, setPeriod] = useState(
+    reservation?.servicePeriodId ??
+      periods.find((p) => p.weekday === new Date(`${data.date}T12:00:00Z`).getUTCDay())?.id ??
+      '',
+  );
+  const [table, setTable] = useState(tableId);
+  // подбор столов по макету (экран 4): вместимость и брони этого дня, что уже загружены экраном;
+  // окончательную проверку делает сервер при создании (ТЗ §8)
+  const duration = periods.find((p) => p.id === period)?.defaultDurationMinutes ?? 120;
+  const from = date && clockValue ? Date.parse(instantOf(`${date}T${clockValue}`, data.timezone)) : NaN;
+  const to = from + duration * 60_000;
+  const known = date === data.date;
+  const busy = (id: string) =>
+    known &&
+    data.reservations.some(
+      (r) =>
+        r.table?.id === id &&
+        ['BOOKED', 'CONFIRMED', 'SEATED'].includes(r.status) &&
+        Date.parse(r.startsAt) < to &&
+        from < Date.parse(r.endsAt),
+    );
+  const suitable = tables
+    .filter((t) => t.capacity >= party && !busy(t.id))
+    .sort((a, b) => a.capacity - b.capacity || a.sortOrder - b.sortOrder);
+  const areaName = (id: string) => data.areas.find((a) => a.id === id)?.name ?? '';
   return (
     <form
-      className="food-form"
+      className={reservation ? 'food-form' : 'food-form rest-book'}
       aria-busy={pending}
       onSubmit={(e) => {
         e.preventDefault();
@@ -98,6 +135,30 @@ export function ReservationForm({
       }}
     >
       {!reservation && (
+        <ol className="rest-steps" aria-label="Шаги брони">
+          {(
+            [
+              ['Основное', !!(date && clockValue && period)],
+              ['Гость', mode === 'existing' ? !!guestPicked : !!guestName.trim()],
+              ['Стол', !!table],
+              ['Подтверждение', false],
+            ] as const
+          ).map(([label, done], i, all) => {
+            // текущий шаг: первый незаполненный обязательный раздел; «Стол» необязателен
+            const current = i === [0, 1, 3].find((n) => !all[n]![1]);
+            return (
+              <li key={label} data-done={done || undefined} aria-current={current ? 'step' : undefined}>
+                <span className="rest-steps__n" aria-hidden="true">
+                  {i + 1}
+                </span>
+                {label}
+                {done && <span className="sr-only">, заполнено</span>}
+              </li>
+            );
+          })}
+        </ol>
+      )}
+      {!reservation && (
         <>
           <fieldset>
             <legend>Клиент</legend>
@@ -124,7 +185,12 @@ export function ReservationForm({
           </fieldset>
           {mode === 'existing' ? (
             <Field label="Выбор клиента">
-              <Select name="customerId" required defaultValue="">
+              <Select
+                name="customerId"
+                required
+                defaultValue=""
+                onChange={(e) => setGuestPicked(e.target.value)}
+              >
                 <option value="">Выберите клиента</option>
                 {data.customers.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -138,7 +204,12 @@ export function ReservationForm({
             <>
               <div className="food-form-row">
                 <Field label="Имя">
-                  <Input name="firstName" required maxLength={100} />
+                  <Input
+                    name="firstName"
+                    required
+                    maxLength={100}
+                    onChange={(e) => setGuestName(e.target.value)}
+                  />
                 </Field>
                 <Field label="Фамилия">
                   <Input name="lastName" maxLength={100} />
@@ -151,25 +222,28 @@ export function ReservationForm({
           )}
         </>
       )}
-      <div className="food-form-row">
-        <Field label="Дата">
-          <Input name="date" type="date" defaultValue={local.slice(0, 10)} required />
+      {/* общий FormGrid и обязательность словами Field (MV8.5 DS1c); остальные ряды формы: DS6 */}
+      <FormGrid columns={2}>
+        <Field label="Дата" required>
+          <Input name="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </Field>
-        <Field label="Время">
-          <Input name="time" type="time" defaultValue={local.slice(11, 16)} required />
+        <Field label="Время" required>
+          <Input
+            name="time"
+            type="time"
+            value={clockValue}
+            onChange={(e) => setClockValue(e.target.value)}
+          />
         </Field>
-      </div>
+      </FormGrid>
       <Field label="Период обслуживания">
         <Select
           name="period"
           aria-invalid={!!error && /период|врем|period|time/i.test(error)}
           aria-describedby={error ? 'food-form-error' : undefined}
           required
-          defaultValue={
-            reservation?.servicePeriodId ??
-            periods.find((p) => p.weekday === new Date(`${data.date}T12:00:00Z`).getUTCDay())?.id ??
-            ''
-          }
+          value={period}
+          onChange={(e) => setPeriod(e.target.value)}
         >
           <option value="">Выберите период</option>
           {periods.map((p) => (
@@ -193,18 +267,53 @@ export function ReservationForm({
         />
       </Field>
       {!reservation && (
+        <section className="rest-book-tables" aria-label="Доступные столы">
+          <h3>Доступные столы ({suitable.length})</h3>
+          <p className="muted">
+            Подходящие столы для {pluralRu(party, ['гостя', 'гостей', 'гостей'])}
+            {clockValue ? ` в ${clockValue}` : ''}
+            {known ? '' : ', занятость этого дня проверит сервер'}
+          </p>
+          {suitable.length === 0 ? (
+            <p className="muted">Свободных столов на это время нет</p>
+          ) : (
+            <ul className="rest-book-grid">
+              {suitable.map((t) => (
+                <li key={t.id} data-selected={table === t.id || undefined}>
+                  <strong>{tableTitle(t.name)}</strong>
+                  <small>{pluralRu(t.capacity, ['место', 'места', 'мест'])}</small>
+                  <small>{areaName(t.areaId)}</small>
+                  <Button
+                    type="button"
+                    size="sm"
+                    tone={table === t.id ? 'primary' : 'secondary'}
+                    aria-pressed={table === t.id}
+                    aria-label={`Выбрать: ${tableTitle(t.name)}`}
+                    onClick={() => setTable(table === t.id ? '' : t.id)}
+                  >
+                    {table === t.id ? 'Выбран' : 'Выбрать'}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+      {!reservation && (
         <Field label="Стол">
           <Select
             name="tableId"
             aria-invalid={!!error && /стол|вместим/i.test(error)}
             aria-describedby={error ? 'food-form-error' : undefined}
             required={walkIn}
-            defaultValue={tableId}
+            value={table}
+            onChange={(e) => setTable(e.target.value)}
           >
             <option value="">{walkIn ? 'Выберите стол' : 'Не назначать сейчас'}</option>
             {tables.map((t) => (
               <option key={t.id} value={t.id} disabled={t.capacity < party}>
-                {data.areas.find((a) => a.id === t.areaId)?.name}, {t.name}, {t.capacity} мест
+                {data.areas.find((a) => a.id === t.areaId)?.name}, {t.name},{' '}
+                {pluralRu(t.capacity, ['место', 'места', 'мест'])}
               </option>
             ))}
           </Select>
@@ -227,7 +336,7 @@ export function ReservationForm({
         {pending ? 'Сохраняем…' : reservation ? 'Сохранить' : walkIn ? 'Посадить' : 'Создать бронь'}
       </Button>
       {reservation && (
-        <p className="muted">Текущий статус: {foodStatusLabels[reservation.status]}</p>
+        <p className="muted">Текущий статус: {foodStatus[reservation.status].label}</p>
       )}
     </form>
   );

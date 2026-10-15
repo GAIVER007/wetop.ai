@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 13.10.2026 23:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит 764affa (codex/organizations-card-editor)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T18-11-38Z-integration-5cae.json' 'tests/integration/platform-p1-backfill.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests | 1 failed) 1509ms
+   ❯ Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) (3)
+     × каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business 955ms
+     ✓ reporting_currency организации совпадает с однозначной фактической валютой её объектов 250ms
+     ✓ вошедший получает тот же объект по цепочке, что и прежним путём; резолвер филиала его видит 151ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/platform-p1-backfill.test.ts > Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) > каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business
+AssertionError: expected 11 to be 7 // Object.is equality
+
+- Expected
++ Received
+
+- 7
++ 11
+
+ ❯ tests/integration/platform-p1-backfill.test.ts:64:39
+     62|     }
+     63|     // 1:1: Location ровно столько же, сколько объектов; Business — од…
+     64|     expect(await db.location.count()).toBe(properties.length);
+       |                                       ^
+     65|     const orgs = new Set(properties.map((p) => p.organizationId));
+     66|     expect(await db.business.count()).toBe(orgs.size);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  11:11:49
+   Duration  18.40s (transform 56%, import 25%, tests 19%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T18-11-38Z-integration-5cae.json
+
+# код выхода 1 · 30 с

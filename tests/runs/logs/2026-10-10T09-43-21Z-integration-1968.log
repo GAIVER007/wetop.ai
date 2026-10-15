@@ -1,0 +1,60 @@
+# Интеграционные (integration) · 10.10.2026 14:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 421bd69 (claude/market-ai-collector), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T09-43-21Z-integration-1968.json' 'tests/integration/market-occupancy.test.ts' 'tests/integration/competitor-availability-level.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |integration| tests/integration/market-occupancy.test.ts (4 tests | 1 failed) 2200ms
+   ❯ загрузка конкурентов: конкуренты и снимки (integration, DATA_MODEL §23) (4)
+     ✓ конкурент создаётся с журналом; имя уникально в объекте 156ms
+     × снимок за день заменяется, пустое снимает; вчерашний остаётся; архивный конкурент не пишется 516ms
+     ✓ база отвергает: снимок к конкуренту чужого объекта (составной ключ) и загрузку вне 0…100 % 310ms
+     ✓ сборщик (M2a): видит конкурентов всех объектов, пишет AI_AGENT в объект конкурента, ручной ввод дня не трогает 390ms
+ ✓ |integration| tests/integration/competitor-availability-level.test.ts (3 tests) 1789ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/market-occupancy.test.ts > загрузка конкурентов: конкуренты и снимки (integration, DATA_MODEL §23) > снимок за день заменяется, пустое снимает; вчерашний остаётся; архивный конкурент не пишется
+AssertionError: expected [ { …(6) }, { …(6) } ] to deeply equal [ { …(5) }, { …(5) } ]
+
+- Expected
++ Received
+
+@@ -1,15 +1,17 @@
+  [
+    {
+      "competitorId": "d02e4807-78f6-427c-a074-b3e7d2cf13dc",
++     "level": null,
+      "observedOn": "2031-06-01",
+      "occupancyBp": 7000,
+      "source": "MANUAL",
+      "stayDate": "2031-06-02",
+    },
+    {
+      "competitorId": "d02e4807-78f6-427c-a074-b3e7d2cf13dc",
++     "level": null,
+      "observedOn": "2031-06-02",
+      "occupancyBp": 8550,
+      "source": "MANUAL",
+      "stayDate": "2031-06-02",
+    },
+
+ ❯ tests/integration/market-occupancy.test.ts:78:75
+     76|     await repo.writeReadings(c!.id, '2031-06-02', [{ date: '2031-06-03…
+     77|     const rows = await repo.readings('2031-06-01', '2031-06-10', '2031…
+     78|     expect(rows.sort((a, b) => a.observedOn.localeCompare(b.observedOn…
+       |                                                                           ^
+     79|       { competitorId: c!.id, stayDate: '2031-06-02', observedOn: '2031…
+     80|       { competitorId: c!.id, stayDate: '2031-06-02', observedOn: '2031…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 6 passed (7)
+   Start at  02:43:24
+   Duration  24.04s (import 39%, transform 32%, tests 29%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T09-43-21Z-integration-1968.json
+
+# код выхода 1 · 27 с

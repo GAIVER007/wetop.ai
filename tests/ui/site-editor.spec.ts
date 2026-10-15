@@ -25,7 +25,7 @@ const tab = (page: Page, name: string) => main(page).getByRole('tab', { name, ex
 const pick = async (page: Page, sectionId: string) => frame(page).locator(`#${sectionId}`).click();
 /** Блок по списку во вкладке «Блоки» */
 const openBlock = async (page: Page, name: string) => {
-  await tab(page, 'Блоки').click();
+  await tab(page, 'Страницы').click();
   const back = main(page).getByTestId('ed-back');
   if (await back.isVisible()) await back.click();
   await structure(page).getByRole('button', { name, exact: true }).click();
@@ -42,11 +42,26 @@ test('открыть голову: щелчок по блоку на сайте,
   await expect(m.getByTestId('ed-revision')).toHaveText('версия 2');
   await expect(m.getByTestId('ed-dirty')).toHaveText('Все изменения сохранены');
   await expect(m.getByTestId('ed-save')).toBeDisabled();
-  // по умолчанию слева ИИ, справа живой сайт
-  await expect(tab(page, 'ИИ')).toHaveAttribute('aria-selected', 'true');
+  // раскладка по макету Marketing 2.0: вкладки в верхней полосе («Просмотр» только на узком экране), «Опубликовать» ведёт на публикацию, назад к модулям
+  await expect(m.getByTestId('ed-bar').getByRole('tab')).toHaveText(['Редактор', 'Страницы', 'Дизайн', 'Настройки']);
+  await expect(m.getByTestId('editor-publication-link')).toHaveText('Опубликовать');
+  await expect(m.getByTestId('editor-publication-link')).toHaveAttribute('href', '/marketing/site');
+  await expect(m.getByRole('link', { name: 'Назад к модулям', exact: true })).toHaveAttribute('href', '/marketing');
+  // по умолчанию слева разговор с ИИ тёмной панелью, справа живой сайт
+  await expect(tab(page, 'Редактор')).toHaveAttribute('aria-selected', 'true');
+  await expect(m.getByTestId('ed-chat')).toHaveAttribute('data-theme', 'dark');
+  await expect(m.getByTestId('ed-chat')).toContainText('Создайте сайт с помощью ИИ');
+  // «Дизайн»: оформление и логотип, без контактов; «Настройки» без оформления
+  await tab(page, 'Дизайн').click();
+  await expect(m.getByTestId('ed-design-form').getByTestId('ed-theme')).toBeVisible();
+  await expect(m.getByTestId('ed-contacts')).toHaveCount(0);
+  await tab(page, 'Настройки').click();
+  await expect(m.getByTestId('ed-contacts')).toBeVisible();
+  await expect(m.getByTestId('ed-theme')).toHaveCount(0);
+  await tab(page, 'Редактор').click();
   await expect(frame(page).locator('#sec-hero')).toContainText('Версия 2');
   await pick(page, 'sec-hero');
-  await expect(tab(page, 'Блоки')).toHaveAttribute('aria-selected', 'true');
+  await expect(tab(page, 'Страницы')).toHaveAttribute('aria-selected', 'true');
   await expect(heroHeading(page)).toHaveValue('Версия 2');
   await expect(frame(page).locator('#sec-hero')).toHaveAttribute('data-ed-selected', '');
   // JSON-редактора нет: только поля форм
@@ -80,7 +95,7 @@ test('просмотр: ссылка подвала на страницу сай
   await expect(frame(page).locator('#sec-rules')).toContainText('Правила проживания');
   await expect(m.locator('#ed-preview-page')).toHaveValue('page-rules');
   await expect(page).toHaveURL(/\/marketing\/site\/editor$/);
-  await tab(page, 'Блоки').click();
+  await tab(page, 'Страницы').click();
   await expect(structure(page).getByRole('button', { name: 'О гостинице: Правила проживания', exact: true })).toBeVisible();
   await m.locator('#ed-preview-page').selectOption({ label: 'Главная' });
   await expect(frame(page).locator('#sec-hero')).toBeVisible();
@@ -131,7 +146,7 @@ test('выбор картинки: только готовые нужного в
   await expect(m.getByTestId('ed-dirty')).toHaveText('Есть несохранённые изменения');
   await expect(m.locator('input[type="url"]')).toHaveCount(0);
 
-  await tab(page, 'Сайт').click();
+  await tab(page, 'Дизайн').click();
   await m.getByRole('button', { name: 'Заменить изображение' }).first().click();
   await expect(page.getByTestId('ed-asset-picker').getByTestId('ed-asset-option')).toHaveCount(1);
 });
@@ -168,7 +183,7 @@ test('ошибка проверки: ввод на месте, сводка ве
   await expect(heading).toHaveAttribute('aria-invalid', 'true');
   await expect(m.getByLabel('Абзацы: 1')).toHaveValue('Мой новый текст о гостинице');
   await expect(m.getByTestId('ed-revision')).toHaveText('версия 2');
-  await tab(page, 'Сайт').click();
+  await tab(page, 'Настройки').click();
   await m.getByTestId('ed-errors').getByRole('button').first().click();
   await expect(heading).toBeFocused();
 });
@@ -194,7 +209,7 @@ test('конфликт 409: правки остаются, сравнение, �
 test('удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны', async ({ page }) => {
   await page.goto('/marketing/site/editor');
   const m = main(page);
-  await tab(page, 'Блоки').click();
+  await tab(page, 'Страницы').click();
   await structure(page).getByRole('button', { name: 'Страница «Правила»: удалить' }).click();
   await expect(m.getByTestId('ed-blocked')).toContainText('Подвал: Правила');
   await expect(structure(page).getByTestId('ed-page')).toHaveCount(2);
@@ -204,7 +219,7 @@ test('удаление: страницу, на которую ссылается
 test('добавить секцию, переставить и сделать копию с клавиатуры', async ({ page }) => {
   await page.goto('/marketing/site/editor');
   const m = main(page);
-  await tab(page, 'Блоки').click();
+  await tab(page, 'Страницы').click();
   const sections = structure(page).getByTestId('ed-section');
   await expect(sections).toHaveCount(5);
   await structure(page).getByLabel('Новая секция').selectOption('faq');
@@ -228,7 +243,7 @@ test('уход со страницы с правками спрашивает; �
   const m = main(page);
   await pick(page, 'sec-hero');
   await heroHeading(page).fill('Не ушло');
-  await m.getByRole('link', { name: 'Публикация' }).first().click();
+  await m.getByRole('link', { name: 'Опубликовать' }).first().click();
   const dialog = page.getByRole('dialog').filter({ hasText: 'Уйти без сохранения?' });
   await expect(dialog).toBeVisible();
   await dialog.getByRole('button', { name: 'Остаться' }).click();
@@ -244,7 +259,7 @@ test('ИИ всего сайта: запрос в ленте, в очереди 
   await expect(ai.getByTestId('ed-ai-send')).toBeDisabled();
   await ai.getByLabel('Что изменить на сайте?').fill('Сделай первый экран короче');
   await ai.getByTestId('ed-ai-send').click();
-  await expect(ai.getByRole('list', { name: 'Запросы к ИИ' })).toContainText('Сделай первый экран короче');
+  await expect(ai.getByRole('list', { name: 'Разговор с ИИ' })).toContainText('Сделай первый экран короче');
   await expect(ai.getByLabel('Что изменить на сайте?')).toHaveValue('');
   await expect(m.getByTestId('ed-ai-state')).toContainText('Если сохранить изменения сейчас, результат ИИ не применится.');
   await expect(m.getByTestId('ed-ai-done')).toContainText('Готово: ИИ создал версию 3');
@@ -257,7 +272,7 @@ test('ИИ всего сайта: запрос в ленте, в очереди 
   await page.getByRole('dialog').getByRole('button', { name: 'Вернуть', exact: true }).click();
   await expect(m.getByTestId('ed-message')).toHaveText('Версия 2 восстановлена как черновик: версия 4');
   await expect(frame(page).locator('#sec-hero')).toContainText('Версия 2');
-  // лента живёт в браузере и переживает обновление вкладки
+  // MKT9.2: разговор хранится на сервере и виден после обновления вкладки
   await page.reload();
   await expect(main(page).getByTestId('ed-ai')).toContainText('Сделай первый экран короче');
 });
@@ -267,7 +282,7 @@ test('ИИ одного блока: щелчок по блоку на сайте
   const m = main(page);
   await pick(page, 'sec-about');
   await m.getByTestId('ed-ai-section').click();
-  await expect(tab(page, 'ИИ')).toHaveAttribute('aria-selected', 'true');
+  await expect(tab(page, 'Редактор')).toHaveAttribute('aria-selected', 'true');
   const ai = m.getByTestId('ed-ai');
   await expect(ai.getByTestId('ed-ai-target')).toContainText('Блок «О гостинице: О нас»');
   await expect(ai.getByLabel('Что изменить в этом блоке?')).toBeVisible();
@@ -286,7 +301,7 @@ test('ИИ с несохранёнными правками: «Сохранит�
   const m = main(page);
   await pick(page, 'sec-hero');
   await heroHeading(page).fill('Правка');
-  await tab(page, 'ИИ').click();
+  await tab(page, 'Редактор').click();
   const ai = m.getByTestId('ed-ai');
   await expect(ai.getByTestId('ed-ai-send')).toHaveText('Сохранить и отправить');
   await ai.getByLabel('Что изменить в этом блоке?').fill('Ярче');
@@ -297,37 +312,36 @@ test('ИИ с несохранёнными правками: «Сохранит�
   await expect(ai.getByLabel('Что изменить в этом блоке?')).toHaveValue('Ярче');
 });
 
-test('окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор', async ({ page, request }) => {
+test('первый экран MKT9.2: «Сайт для …», без названия, адреса и примеров; факты филиала; сайт создаётся и открывается редактор', async ({ page, request }) => {
   await control(request, { noSite: true });
   await page.goto('/marketing/site/editor');
   const m = main(page);
   const win = m.getByTestId('create-site');
-  await expect(win.getByRole('heading', { name: 'Какой сайт сделать?' })).toBeVisible();
-  await expect(win.getByLabel('Адрес сайта')).toHaveValue('luxx-aparts');
-  // Готовых примеров под полем нет (слово владельца 07.10): только строка ввода и «Создать сайт».
+  await expect(win.getByRole('heading', { name: 'Сайт для Luxx Aparts' })).toBeVisible();
+  // проект это филиал: ни названия, ни адреса сайта не спрашиваем, готовых примеров нет
+  await expect(win.getByLabel('Адрес сайта')).toHaveCount(0);
+  await expect(win.getByLabel('Название сайта')).toHaveCount(0);
   await expect(win.getByRole('list', { name: 'Примеры описаний' })).toHaveCount(0);
-  await expect(win.getByRole('button')).toHaveText(['Создать сайт']);
-  await win.getByLabel('Опишите сайт').fill('Спокойный сайт у вокзала');
-  await win.getByLabel('Адрес сайта').fill('busy-hotel');
+  await expect(win.getByRole('button')).toHaveText(['Показать варианты оформления', 'Создать сайт']);
+  await expect(win.getByTestId('create-site-facts')).toContainText('Номера: Стандарт, Койка в общем номере');
+  await expect(win.getByTestId('create-site-facts')).toContainText('Адрес: ул. Вымышленная, 1');
+  await win.getByLabel('Опишите, каким должен быть сайт').fill('Спокойный сайт у вокзала');
   await win.getByTestId('create-site-start').click();
-  await expect(win.getByText('Адрес «busy-hotel» уже занят: выберите другой')).toBeVisible();
-  await expect(win.getByLabel('Опишите сайт')).toHaveValue('Спокойный сайт у вокзала');
-  await win.getByLabel('Адрес сайта').fill('luxx-center');
-  await win.getByTestId('create-site-start').click();
-  await expect(win.getByTestId('create-site-steps')).toContainText('ИИ пишет сайт');
+  await expect(win.getByTestId('create-site-steps')).toContainText('Анализирую данные объекта');
   await expect(m.getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
   await expect(frame(page).locator('#sec-hero')).toContainText('Первая версия от ИИ');
+  await expect(m.getByTestId('ed-project')).toContainText('Luxx Aparts / Сайт филиала');
 });
 
-test('окно «Создать сайт»: сайт есть без версий, адреса нет; ошибка ИИ словами, текст на месте', async ({ page, request }) => {
+test('первый экран: сайт есть без версий; ошибка ИИ словами, текст на месте', async ({ page, request }) => {
   await control(request, { noVersions: true, aiFail: 'TIMEOUT' });
   await page.goto('/marketing/site/editor');
   const win = main(page).getByTestId('create-site');
   await expect(win.getByLabel('Адрес сайта')).toHaveCount(0);
-  await win.getByLabel('Опишите сайт').fill('Коротко и по делу');
-  await win.getByLabel('Опишите сайт').press('Control+Enter');
+  await win.getByLabel('Опишите, каким должен быть сайт').fill('Коротко и по делу');
+  await win.getByLabel('Опишите, каким должен быть сайт').press('Control+Enter');
   await expect(win.getByTestId('create-site-error')).toHaveText('ИИ не ответил вовремя');
-  await expect(win.getByLabel('Опишите сайт')).toHaveValue('Коротко и по делу');
+  await expect(win.getByLabel('Опишите, каким должен быть сайт')).toHaveValue('Коротко и по делу');
   await expect(win.getByTestId('create-site-start')).toBeEnabled();
 });
 
@@ -374,7 +388,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(main(page).getByTestId('ed-section-form')).toBeVisible();
     await audit();
     await page.screenshot({ path: `${SHOTS}/block-${theme}-1440.png` });
-    await tab(page, 'Сайт').click();
+    await tab(page, 'Настройки').click();
     await audit();
     if (theme === 'light') {
       await main(page).getByTestId('ed-history-open').click();
@@ -387,12 +401,14 @@ for (const theme of ['light', 'dark'] as const) {
       await page.screenshot({ path: `${SHOTS}/diff-${theme}-1440.png` });
       await page.keyboard.press('Escape');
       await page.keyboard.press('Escape');
+      // логотип на вкладке «Дизайн»
+      await tab(page, 'Дизайн').click();
       await main(page).getByRole('button', { name: 'Заменить изображение' }).first().click();
       await expect(page.getByTestId('ed-asset-picker')).toBeVisible();
       await audit();
       await page.screenshot({ path: `${SHOTS}/picker-${theme}-1440.png` });
       await page.keyboard.press('Escape');
-      await tab(page, 'ИИ').click();
+      await tab(page, 'Редактор').click();
       await main(page).getByTestId('ed-ai').getByRole('button', { name: 'Убрать блок: изменить весь сайт' }).click();
       await main(page).getByTestId('ed-ai').getByLabel('Что изменить на сайте?').fill('Сделай первый экран короче');
       await main(page).getByTestId('ed-ai-send').click();
@@ -423,7 +439,7 @@ for (const theme of ['light', 'dark'] as const) {
       const result = await axe(page);
       expect(result.violations).toEqual([]);
     };
-    await expect(tab(page, 'ИИ')).toHaveAttribute('aria-selected', 'true');
+    await expect(tab(page, 'Редактор')).toHaveAttribute('aria-selected', 'true');
     await expect(m.getByTestId('ed-ai')).toBeVisible();
     await expect(m.getByTestId('ed-preview-pane')).toBeHidden();
     expect(await wide()).toEqual([]);
@@ -434,7 +450,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.screenshot({ path: `${SHOTS}/mobile-preview-${theme}-390.png`, fullPage: true });
     await audit();
     await pick(page, 'sec-rooms');
-    await expect(tab(page, 'Блоки')).toHaveAttribute('aria-selected', 'true');
+    await expect(tab(page, 'Страницы')).toHaveAttribute('aria-selected', 'true');
     await expect(m.getByLabel('Категория гостиницы')).toHaveValue('std');
     await heroHeading(page).fill('Номера и цены');
     await expect(m.getByTestId('ed-bar')).toContainText('Есть несохранённые изменения');
@@ -447,8 +463,51 @@ for (const theme of ['light', 'dark'] as const) {
     expect(await wide()).toEqual([]);
     await page.screenshot({ path: `${SHOTS}/mobile-structure-${theme}-390.png`, fullPage: true });
     await audit();
-    await tab(page, 'Сайт').click();
+    await tab(page, 'Настройки').click();
     expect(await wide()).toEqual([]);
     await audit();
   });
 }
+
+test('MKT10.3: отмена и повтор несохранённой правки, кнопками и с клавиатуры, сервер не трогают', async ({ page }) => {
+  await page.goto('/marketing/site/editor');
+  const m = main(page);
+  const undo = m.getByRole('button', { name: 'Отменить', exact: true });
+  const redo = m.getByRole('button', { name: 'Повторить', exact: true });
+  await expect(undo).toBeDisabled();
+  await expect(redo).toBeDisabled();
+  const revision = await m.getByTestId('ed-revision').textContent();
+  await pick(page, 'sec-hero');
+  const before = await heroHeading(page).inputValue();
+  await heroHeading(page).fill('Первая правка');
+  await heroHeading(page).fill('Первая правка, дописанная');
+  await expect(m.getByTestId('ed-dirty')).toHaveText('Есть несохранённые изменения');
+  // ввод в одно поле подряд это один шаг: одна отмена возвращает исходный текст целиком
+  await undo.click();
+  await expect(heroHeading(page)).toHaveValue(before);
+  await expect(m.getByTestId('ed-dirty')).toHaveText('Все изменения сохранены');
+  await expect(undo).toBeDisabled();
+  await redo.click();
+  await expect(heroHeading(page)).toHaveValue('Первая правка, дописанная');
+  await expect(redo).toBeDisabled();
+  // с клавиатуры, когда фокус не в поле ввода (в поле работает родная отмена браузера)
+  await m.getByTestId('ed-dirty').click();
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(heroHeading(page)).toHaveValue(before);
+  await page.keyboard.press('ControlOrMeta+Shift+z');
+  await expect(heroHeading(page)).toHaveValue('Первая правка, дописанная');
+  // отмена живёт в браузере: новой версии на сервере не появилось
+  await expect(m.getByTestId('ed-revision')).toHaveText(revision!);
+});
+
+test('MKT10.3: просмотр на ширине планшета', async ({ page }) => {
+  await page.goto('/marketing/site/editor');
+  const m = main(page);
+  await expect(frame(page).locator('#sec-hero')).toBeVisible();
+  const tablet = m.getByRole('button', { name: 'Планшет', exact: true });
+  await tablet.click();
+  await expect(tablet).toHaveAttribute('aria-pressed', 'true');
+  await expect(m.getByRole('button', { name: 'Компьютер', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  const box = await m.getByTestId('ed-frame').boundingBox();
+  expect(Math.round(box!.width)).toBe(768);
+});

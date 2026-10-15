@@ -1,0 +1,676 @@
+# Интеграционные (integration) · 11.10.2026 13:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1fff2aa (claude/gate-integration-fix)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-10-00Z-integration-85d0.json'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin
+
+(node:66467) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/licensed-site-builder.test.ts (27 tests) 20358ms
+   ✓ MKT9.2 licensed site builder (27)
+     ✓ лицензия закрывает запись и ИИ, чтение открыто (3)
+       ✓ без лицензии: заведение сайта 403 SITE_BUILDER_NOT_ENABLED, сайт не появляется; чтение отвечает 761ms
+       ✓ лицензия выключена или срок вышел: каждая запись и каждый ИИ 403, чтение 200, пауза и архив не закрыты 2111ms
+     ✓ заведение сайта и знания проекта (3)
+       ✓ bootstrap одновременно: ровно одна строка; два филиала дают два разных сайта 401ms
+     ✓ разговор с ИИ: Чат, План, Оформление (5)
+       ✓ Чат: задача без версии, повтор ключа та же задача; боту уходят знания проекта и голова; разговор хранится на сервере 356ms
+       ✓ ответ, не прошедший проверку платформы, не сохраняется: повтор, затем FAILED SCHEMA_INVALID 676ms
+       ✓ План: вопросы, ответы, план; «Собрать по плану» ставит ровно одну сборку PATCH, повтор отдаёт её же 860ms
+       ✓ план устарел: голова сменилась после плана, сборка по нему 409 BASE_VERSION_CHANGED 890ms
+       ✓ Оформление: три направления; первая сборка с выбранным ставит тему платформой, модели уходит описание 781ms
+     ✓ разговор помнит контекст: история только этого сайта и ответы на вопросы плана (7)
+       ✓ три хода: на третьем (План) история это два прошлых хода по порядку; упавший ход и упавшая сборка не попадают, успешная сборка попадает 1274ms
+       ✓ граница: история только этого сайта; другой филиал, журнал и чужая организация в неё не попадают 2903ms
+       ✓ история ограничена 12 последними ходами 671ms
+       ✓ ответ на вопросы плана: следующий запрос несёт исходную просьбу, оба вопроса и оба ответа ровно по одному разу 399ms
+       ✓ отвечать можно только на успешные вопросы плана своего сайта; чужой филиал получает нейтральный 404 без вопросов 456ms
+     ✓ общие правила ИИ сайта по обеим таблицам (5)
+       ✓ одна активная задача ИИ на сайт: пока ждёт чат, сборка 409 AI_BUSY, и наоборот 382ms
+       ✓ предел часа общий: 10 запросов к ИИ сайта любым режимом, одиннадцатый 429 652ms
+       ✓ общий дневной пул: токены разговора уменьшают остаток сборки 539ms
+       ✓ воркер: лицензию выключили, пока задача ждала, и сборка, и разговор падают LICENSE_UNAVAILABLE без вызова модели 467ms
+     ✓ закладки версий (1)
+       ✓ поставить, переименовать, снять; в истории отдельным списком; чужая версия 404; не больше 20 2335ms
+     ✓ платформа: лицензию выдаёт только главный администратор (3)
+       ✓ список гостиничных филиалов со статусом; пробный, активировать, продлить, выключить; журнал было и стало 617ms
+(node:66862) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-publication.test.ts (15 tests) 2554ms
+   ✓ MKT7 публикация управляемого сайта (15)
+     ✓ §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 463ms
+stderr | tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §75: запись в хранилище не удалась: строки нет, 503; без права settings 403
+{"event":"site_assets.put_failed","assetId":"d6cf8b0d-e971-4b1e-88dc-316ea46ec885","kind":"IMAGE","byteSize":76}
+
+(node:66873) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-assets.test.ts (11 tests) 2702ms
+   ✓ MKT8 библиотека изображений сайта (10)
+     ✓ §38–§43, §84: картинка опубликованной версии удалена: библиотека её прячет, сайт и откат продолжают видеть 390ms
+     ✓ §104: больше 30 загрузок и импортов в час: 429 726ms
+(node:66889) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[Nest] 66889  - 10/11/2026, 1:11:19 AM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/raw-body/index.js:116:12)
+    at read (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/apps/api/src/body-parsers.ts:42:93)
+    at Layer.handleRequest (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/router/index.js:342:13)
+    at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/router/index.js:297:9
+    at processParams (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/router/index.js:582:12)
+    at next (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/router/index.js:291:5) {
+  expected: 382085,
+  length: 382085,
+  limit: 307200,
+  type: 'entity.too.large'
+}
+[Nest] 66889  - 10/11/2026, 1:11:20 AM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/raw-body/index.js:116:12)
+    at read (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/apps/api/src/body-parsers.ts:42:93)
+    at Layer.handleRequest (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/router/index.js:342:13)
+    at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/router/index.js:297:9
+    at processParams (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/router/index.js:582:12)
+    at next (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/router/index.js:291:5) {
+  expected: 153619,
+  length: 153619,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+ ✓ |integration| tests/integration/marketing-site.test.ts (37 tests) 5295ms
+   ✓ MKT3 marketing site core (37)
+     ✓ размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) (4)
+       ✓ документ больше 100 КБ и меньше 256 КБ доходит до проверки и сохраняется 496ms
+       ✓ тело больше транспортного предела 300 КБ: 413, версия не пишется 1059ms
+(node:66934) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-editor.test.ts (14 tests) 5405ms
+   ✓ MKT9 site editor (14)
+     ✓ история версий: до 100, новые сверху, без документа; чтение с документом; смысловая разница 2691ms
+     ✓ чужой филиал: версия, разница и восстановление неотличимы от несуществующих (404); чужая картинка не сохраняется 456ms
+(node:67168) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-generation.test.ts (16 tests) 12953ms
+   ✓ MKT6 site generation (16)
+     ✓ счастливый путь: бриф → задача → воркер → версия AI revision 1, публикация не тронута, журнал без документа 3899ms
+     ✓ постановка: только свой сайт, без версии, с текущим брифом, строгое тело, повтор ключа даёт ту же задачу 353ms
+     ✓ сайт с версией: 409, INITIAL не правка 354ms
+     ✓ BRIEF_CHANGED: данные филиала изменились после постановки, модель не вызывается 351ms
+     ✓ неверный вывод «больше 256 КБ»: задача ждёт повтора, версии нет 335ms
+     ✓ бюджет: расход дня считается по организации, исчерпан, модель не вызывается; соседняя организация не затронута 1532ms
+     ✓ неизвестный расход: потерянный ответ даёт USAGE_UNAVAILABLE и запрещает платные вызовы организации до следующих суток UTC 1264ms
+     ✓ неполный расход в ответе бота: известная часть записана, задача USAGE_UNAVAILABLE, версии нет 1553ms
+     ✓ повтор не переносит вчерашний run на сегодняшний бюджет: BUDGET_DAY_CHANGED без вызова 781ms
+     ✓ падение воркера: до отправки задача возвращается в очередь, после отправки расход неизвестен 343ms
+     ✓ очередь: два воркера не берут одну задачу; одна организация идёт по одной, разные параллельно 381ms
+(node:67306) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (7 tests) 1172ms
+   ✓ изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) (3)
+     ✓ чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит 716ms
+(node:67415) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/guest-directory.test.ts (2 tests) 2159ms
+   ✓ справочник гостей: отборы визита, число визитов, порядок (integration) (1)
+     ✓ раздел NONE, последний визит, число визитов, сортировки и числа чипов с отборами 1085ms
+   ✓ справочник гостей: основное проживание, плитки, виды, отборы (integration) (1)
+     ✓ счёт, источник, ячейка, виды «Сегодня/Выезды/Проблемные», плитки со вчерашним днём и отборы по основному проживанию 1011ms
+ ✓ |integration| tests/integration/site-brief.test.ts (11 tests) 2971ms
+   ✓ MKT5 site brief (11)
+     ✓ строгий scope: без филиала и с одним бизнесом 409, чужой, архивный, салон и ресторан 403, филиал гостиницы 200 548ms
+ ✓ |integration| tests/integration/mv4-beauty.test.ts (23 tests) 3814ms
+   ✓ MV4 Beauty acceptance on PostgreSQL (23)
+     ✓ real HTTP applies verified scope, vertical capabilities and permissions before Beauty handlers 600ms
+(node:67775) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv6-food.test.ts (19 tests) 4645ms
+   ✓ MV6 real PostgreSQL (19)
+     ✓ unassigned booking, assignment, move, confirm, seat, complete and persisted list 836ms
+     ✓ HTTP reload and every route enforce vertical, scope, permissions and READ_ONLY 757ms
+(node:67910) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/web-booking-exact-property.test.ts (9 tests) 1786ms
+(node:68039) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-directory-filters.test.ts (1 test) 1023ms
+   ✓ каталог броней: отбор на сервере (integration, rolled back) (1)
+     ✓ виды, даты, источник, оплата, размещение, категория и сортировка — по данным базы 976ms
+ ✓ |integration| tests/integration/licensed-site-builder-db.test.ts (11 tests) 1105ms
+ ✓ |integration| tests/integration/marketing-publication-db.test.ts (9 tests) 222ms
+ ✓ |integration| tests/integration/manager-role.test.ts (8 tests) 1249ms
+   ✓ роли управляющего и администратора (integration, DATABASE_URL required) (8)
+     ✓ в типе роли три значения — владелец, управляющий, администратор 474ms
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 861ms
+(node:68386) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/scope-hardening.test.ts (2 tests) 3587ms
+   ✓ SCOPE-HARDENING: Hospitality property follows the selected branch (1)
+     ✓ two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only 2491ms
+   ✓ SCOPE-HARDENING: /branches/overview is a Hospitality-only summary (1)
+     ✓ mixed Organization: 200, rows and totals only for Hospitality branches 888ms
+ ✓ |integration| tests/integration/generation-runs-db.test.ts (9 tests) 246ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 806ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 314ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 331ms
+ ✓ |integration| tests/integration/sites-runtime.test.ts (13 tests) 839ms
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ✓ |integration| tests/integration/bar-populated-rls.test.ts (24 tests) 376ms
+ ✓ |integration| tests/integration/bar-external-parent-ownership.test.ts (29 tests) 714ms
+ ✓ |integration| tests/integration/from-prices.test.ts (9 tests) 2617ms
+   ✓ цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) (9)
+     ✓ лимит запросов с одного адреса 426ms
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 4225ms
+   ✓ график мастера (integration, DATA_MODEL §19.1) (12)
+     ✓ неделя мастера сохраняется и читается по филиалу 592ms
+     ✓ отсутствие считает наложенные записи, но их не отменяет 381ms
+(node:68672) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-create-retry.test.ts (5 tests) 1537ms
+   ✓ manual booking concurrency on isolated local PostgreSQL (5)
+     ✓ concurrent duplicate and lost response replay persist one guest, booking, folio and allocation 335ms
+     ✓ same-day checkout restores availability counters, extended and moved: false 360ms
+ ✓ |integration| tests/integration/seller-scope-precheck.test.ts (9 tests) 3221ms
+   ✓ SA2.5: предпроверка миграции 035 (integration, DATABASE_URL required) (9)
+     ✓ чистая организация (профиль, агент id = организация, один филиал): все проверки нулевые, assert молчит 1280ms
+     ✓ backfill: рабочий агент-черновик с филиалом и принятым профилем становится активным; без принятого профиля, остаётся 717ms
+     ✓ seller_agent_bind_location: перенесённому агенту, единственный филиал; при двух, у агента SA2 и уже занятого, нет 397ms
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 1396ms
+ ✓ |integration| tests/integration/business-agent-identity.test.ts (13 tests) 479ms
+ ✓ |integration| tests/integration/beauty-domain.test.ts (11 tests) 666ms
+ ✓ |integration| tests/integration/bar-parent-concurrency.test.ts (200 tests) 7776ms
+   ✓ BAR parent mutation races preserve ownership (200)
+     ✓ wetop_app: payment cash, create, parent-first, parent READ COMMITTED, link READ COMMITTED 517ms
+     ✓ wetop_app: sale cash, create, link-first, parent REPEATABLE READ, link REPEATABLE READ 1190ms
+ ✓ |integration| tests/integration/platform-organization-create.test.ts (6 tests) 895ms
+ ✓ |integration| tests/integration/market-occupancy.test.ts (5 tests) 702ms
+ ✓ |integration| tests/integration/seller-agent-scope.test.ts (7 tests) 559ms
+ ✓ |integration| tests/integration/bar-ownership.test.ts (105 tests) 1883ms
+[Nest] 69412  - 10/11/2026, 1:14:35 AM    WARN [InboundBookingsService] ревизия role-q225-mv3jrw3u (BDC-role-q225-mv3jrw3u) отклонена: Комната 1 брони BDC-role-q225-mv3jrw3u: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+[Nest] 69412  - 10/11/2026, 1:14:35 AM    WARN [InboundBookingsService] ревизия role-q225-mv3jrw3u (BDC-role-q225-mv3jrw3u) отклонена: Комната 1 брони BDC-role-q225-mv3jrw3u: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+ ✓ |integration| tests/integration/integration-tables-role.test.ts (6 tests) 2573ms
+   ✓ данные интеграции: под запросом организации — служебной ролью (integration) (6)
+     ✓ канальный репозиторий: журнал, очередь, сводка, события — служебной ролью 1172ms
+ ✓ |integration| tests/integration/finance-debts.test.ts (2 tests) 1028ms
+ ✓ |integration| tests/integration/site-assets-db.test.ts (5 tests) 249ms
+ ✓ |integration| tests/integration/integration-tables-privileges.test.ts (17 tests) 183ms
+ ✓ |integration| tests/integration/mv6-food-database.test.ts (4 tests) 137ms
+ ✓ |integration| tests/integration/business-agents.test.ts (7 tests) 668ms
+(node:69509) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/derived-rates-booking.test.ts (1 test) 372ms
+   ✓ derived rate plans and promo codes in a booking (integration, rolled back) (1)
+     ✓ prices by parent rates with the larger of plan and promo discount, enforces rules, keeps promo on extend 344ms
+(node:69516) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 528ms
+ ✓ |integration| tests/integration/mv8-branches-contract.test.ts (2 tests) 2785ms
+   ✓ MV8 requires real branches contract to expose selected Food Location and current timezone 1805ms
+   ✓ real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned active Food locations 975ms
+ ↓ |integration| tests/integration/db-restore-prod.test.ts (2 tests | 2 skipped)
+ ✓ |integration| tests/integration/cash-operations.test.ts (4 tests) 2532ms
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 3345ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ дубль (property_id, external_id) отвергает база, а не только код; NULL у ручных броней различны 1364ms
+     ✓ платёж, разнесение и возврат на ноль и в минус отвергает база 920ms
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 645ms
+ ❯ |integration| tests/integration/platform-extensions.test.ts (8 tests | 1 failed) 1696ms
+   ❯ расширения организаций (integration, DATABASE_URL required) (8)
+     ✓ изменение и журнал — одной транзакцией: было, стало, кто 135ms
+     ✓ отказ базы — ни изменения, ни записи в журнале 285ms
+     × список организаций: люди, почты владельцев и расширение — без броней и гостей 47ms
+     ✓ название: меняется и пишется в журнал, было и стало 26ms
+     ✓ архив: статус SUSPENDED и журнал с прежним статусом; данные организации на месте 11ms
+     ✓ возврат из архива: прежний статус и строка журнала 9ms
+     ✓ второй архив и возврат берут статус из последней записи, а не из первой 134ms
+     ✓ записи об архиве нет: возврат в «только чтение», платный доступ сам не появляется 7ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (9 tests) 165ms
+ ✓ |integration| tests/integration/seller-agent-profiles.test.ts (7 tests) 604ms
+ ✓ |integration| tests/integration/finance-operations.test.ts (2 tests) 342ms
+ ✓ |integration| tests/integration/beauty-catalog.test.ts (9 tests) 474ms
+ ✓ |integration| tests/integration/member-scopes.test.ts (3 tests) 393ms
+ ✓ |integration| tests/integration/mv3-onboarding.test.ts (6 tests) 728ms
+ ✓ |integration| tests/integration/sales-summary.test.ts (4 tests) 676ms
+ ✓ |integration| tests/integration/access-extensions.test.ts (3 tests) 272ms
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 288ms
+(node:69876) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/payment-void.test.ts (4 tests) 1344ms
+   ✓ аннулирование платежа под блокировкой (integration) (4)
+     ✓ возврат и аннулирование наперегонки: проходит ровно одно 1040ms
+(node:69892) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 1125ms
+   ✓ шахматка: канал, долг и уборка из базы (integration, rolled back) (1)
+     ✓ клетка несёт канал и остаток по счёту, строка ячейки — статус уборки 1093ms
+ ❯ |integration| tests/integration/mv2-registration.test.ts (6 tests | 5 failed) 367ms
+   ❯ MV2 real registration persistence (6)
+     × stores organization country and user locale 174ms
+     × HOSPITALITY persists through resend and confirmation 31ms
+     × BEAUTY persists through resend and confirmation 29ms
+     × FOOD_SERVICE persists through resend and confirmation 28ms
+     × concurrent duplicate submission rolls back the losing chain 44ms
+     ✓ denied pilot and global closed gate create no orphan chain 21ms
+ ✓ |integration| tests/integration/rates-derived-api.test.ts (1 test) 1376ms
+   ✓ derived rate plans and promo codes API (1)
+     ✓ creates and edits a derived plan and a promo code with validation and audit 1375ms
+ ✓ |integration| tests/integration/category-rate-plan.test.ts (1 test) 680ms
+   ✓ category without a rate plan, rate plan linked later (1)
+     ✓ requires an explicit choice, creates without a link on «later», links existing and new plans once 679ms
+ ✓ |integration| tests/integration/owner-journal.test.ts (5 tests) 327ms
+ ✓ |integration| tests/integration/category-price.test.ts (1 test) 1253ms
+   ✓ category price and removal (1)
+     ✓ sets one price for a year and every occupancy, shows it, deletes empty and archives used 1251ms
+ ✓ |integration| tests/integration/membership-scopes-schema.test.ts (8 tests) 278ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 1670ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 1669ms
+ ✓ |integration| tests/integration/assistant-diagnostics.test.ts (4 tests) 269ms
+ ✓ |integration| tests/integration/seller-catalog.test.ts (6 tests) 247ms
+ ✓ |integration| tests/integration/category-photos.test.ts (1 test) 1220ms
+   ✓ category photos (1)
+     ✓ stores order, refuses foreign or non-image assets and over ten, trigger guards raw SQL 1217ms
+ ✓ |integration| tests/integration/rate-plan-penalty.test.ts (1 test) 496ms
+   ✓ rate plan cancellation rule (1)
+     ✓ counts reservations the rule can still affect and saves the rule with an audit row 494ms
+ ✓ |integration| tests/integration/bar-property-guard.test.ts (12 tests) 68ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 713ms
+ ✓ |integration| tests/integration/category-usage.test.ts (1 test) 476ms
+   ✓ category usage for safe editing (1)
+     ✓ counts distinct reservations in history and ahead, and the Channex mapping, per category 475ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 197ms
+ ✓ |integration| tests/integration/requester-context.test.ts (6 tests) 288ms
+ ✓ |integration| tests/integration/password-login-columns.test.ts (4 tests) 459ms
+ ✓ |integration| tests/integration/derived-rate-plans.test.ts (1 test) 351ms
+   ✓ derived rate plans and promo codes: database guards (1)
+     ✓ accepts a valid derived plan and rejects every broken shape 351ms
+(node:70109) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/booking-existing-guest.test.ts (1 test) 367ms
+   ✓ бронь существующему гостю (integration, rolled back) (1)
+     ✓ вторая бронь по guestId — тот же гость, новых строк в guests нет; чужой гость — 404 331ms
+ ✓ |integration| tests/integration/integration-scope.test.ts (4 tests) 297ms
+ ✓ |integration| tests/integration/finance-locks.test.ts (3 tests) 414ms
+ ✓ |integration| tests/integration/beauty-branch.test.ts (6 tests) 367ms
+ ✓ |integration| tests/integration/website-reservations.test.ts (1 test) 261ms
+ ✓ |integration| tests/integration/payment-requests.test.ts (3 tests) 267ms
+ ✓ |integration| tests/integration/property-chain.test.ts (3 tests) 136ms
+ ✓ |integration| tests/integration/rates-empty-batch-api.test.ts (1 test) 535ms
+   ✓ real API: authenticated empty rate batches return 400 without changing rates, restrictions, audit or outbox 534ms
+ ✓ |integration| tests/integration/seller-orgs.test.ts (3 tests) 230ms
+ ✓ |integration| tests/integration/inventory-room-ari.test.ts (1 test) 674ms
+   ✓ новые места уходят в Channex (1)
+     ✓ комната в сопоставленной категории ставит в очередь остаток, в несопоставленной — нет 672ms
+ ✓ |integration| tests/integration/seller-prompt-versions.test.ts (3 tests) 353ms
+ ✓ |integration| tests/integration/member-suspension.test.ts (1 test) 238ms
+ ✓ |integration| tests/integration/user-errors.test.ts (4 tests) 253ms
+ ✓ |integration| tests/integration/wizard-claim.test.ts (1 test) 412ms
+   ✓ claim is idempotent, owner-only and isolated across organizations 411ms
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 179ms
+ ↓ |integration| tests/integration/db-backup-restore.test.ts (2 tests | 2 skipped)
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 184ms
+ ✓ |integration| tests/integration/onboarding-without-property.test.ts (1 test) 728ms
+   ✓ онбординг организации без объекта (после сброса) (1)
+     ✓ status просит онбординг, provision создаёт объект в цепочке и номера под ним 725ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 303ms
+ ✓ |integration| tests/integration/refund-race.test.ts (3 tests) 271ms
+ ✓ |integration| tests/integration/seller-booking-intents.test.ts (7 tests) 468ms
+ ✓ |integration| tests/integration/document-dates-encrypted.test.ts (3 tests) 345ms
+ ✓ |integration| tests/integration/mv1-vertical-boundary.test.ts (7 tests) 730ms
+ ✓ |integration| tests/integration/chessboard-unassigned.test.ts (1 test) 184ms
+ ✓ |integration| tests/integration/guest-card.test.ts (2 tests) 192ms
+ ✓ |integration| tests/integration/fiscal-receipts.test.ts (3 tests) 275ms
+ ✓ |integration| tests/integration/request-scope.test.ts (1 test) 196ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 239ms
+ ✓ |integration| tests/integration/onboarding-concurrency.test.ts (1 test) 337ms
+   ✓ онбординг без объекта: два одновременных сохранения (1)
+     ✓ объект один, одно сохранение проходит, второе — «отель уже настроен» 336ms
+ ✓ |integration| tests/integration/branches-scope.test.ts (1 test) 480ms
+   ✓ GET /branches отдаёт человеку с областью только его филиалы 479ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 166ms
+ ✓ |integration| tests/integration/bar-overview.test.ts (1 test) 327ms
+   ✓ бар: данные обзора на базе (1)
+     ✓ последний проведённый приход даёт поставщика, закупку и дату; черновик их не меняет 325ms
+ ✓ |integration| tests/integration/desk-tasks.test.ts (3 tests) 337ms
+ ✓ |integration| tests/integration/competitor-availability-level.test.ts (3 tests) 216ms
+ ✓ |integration| tests/integration/wizard-rate-limit.test.ts (2 tests) 493ms
+   ✓ гостевой мастер: пределы по адресу и по сессии (2)
+     ✓ после 20 открытий сессии с одного адреса — отказ, другой адрес открывает как прежде 310ms
+ ✓ |integration| tests/integration/seller-agents-migrated.test.ts (3 tests) 230ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 239ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 234ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 268ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 215ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 447ms
+ ✓ |integration| tests/integration/outbox-enqueue.test.ts (2 tests) 193ms
+(node:70636) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/checkout-folio-lock.test.ts (1 test) 553ms
+   ✓ долг при выезде — под блокировкой счёта (integration, DATABASE_URL required) (1)
+     ✓ чтение долга для выезда ждёт начисление, которое пишется сейчас, и видит его 431ms
+[Nest] 70749  - 10/11/2026, 1:16:57 AM     LOG [WizardRetentionService] мастер: удалено истёкших сессий 1
+ ✓ |integration| tests/integration/wizard-retention.test.ts (1 test) 169ms
+ ✓ |integration| tests/integration/wizard-drafts.test.ts (1 test) 190ms
+ ✓ |integration| tests/integration/channex-multi-property.test.ts (1 test) 149ms
+ ✓ |integration| tests/integration/audit-guest-identity.test.ts (1 test) 128ms
+ ↓ |integration| tests/integration/wizard-survey.test.ts (1 test | 1 skipped)
+ ✓ |integration| tests/integration/reservation-lock.test.ts (1 test) 522ms
+   ✓ замок брони (integration, DATABASE_URL required) (1)
+     ✓ вторая транзакция по той же брони ждёт первую 408ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 100ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/mv2-registration.test.ts > MV2 real registration persistence > stores organization country and user locale
+PrismaClientValidationError: 
+Invalid `prisma.organization.create()` invocation:
+
+{
+  data: {
+    name: "MV2-c3441649-e3ef-4357-a3eb-0f0b32c4a8ce-locale",
+    status: "TRIAL",
+    trialEndsAt: new Date("2026-10-25T08:15:48.931Z"),
+    countryCode: "UZ",
+    ~~~~~~~~~~~
+?   id?: String,
+?   reportingCurrency?: String,
+?   createdAt?: DateTime,
+?   memberships?: MembershipCreateNestedManyWithoutOrganizationInput,
+?   membershipScopes?: MembershipScopeCreateNestedManyWithoutOrganizationInput,
+?   sessions?: SessionCreateNestedManyWithoutOrganizationInput,
+?   invites?: InviteCreateNestedManyWithoutOrganizationInput,
+?   properties?: PropertyCreateNestedManyWithoutOrganizationInput,
+?   businesses?: BusinessCreateNestedManyWithoutOrganizationInput,
+?   userErrors?: UserErrorCreateNestedManyWithoutOrganizationInput,
+?   sellerProfiles?: SellerProfileCreateNestedManyWithoutOrganizationInput,
+?   sellerPromptVersions?: SellerPromptVersionCreateNestedManyWithoutOrganizationInput,
+?   agents?: SellerAgentCreateNestedManyWithoutOrganizationInput,
+?   wizardDrafts?: WizardDraftCreateNestedManyWithoutOrganizationInput,
+?   extensions?: OrganizationExtensionCreateNestedManyWithoutOrganizationInput,
+?   guests?: GuestCreateNestedManyWithoutOrganizationInput,
+?   auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput,
+?   customers?: CustomerCreateNestedManyWithoutOrganizationInput,
+?   sellerBookingIntents?: SellerBookingIntentCreateNestedManyWithoutOrganizationInput
+  },
+  select: {
+    id: true
+  }
+}
+
+Unknown argument `countryCode`. Available options are marked with ?.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/auth/auth.service.ts:391:21
+    389|     try {
+    390|       created = await this.prisma.db.$transaction(async (tx) => {
+    391|         const org = await tx.organization.create({
+       |                     ^
+    392|           data: {
+    393|             name: organizationName,
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ AuthService.register apps/api/src/auth/auth.service.ts:390:17
+ ❯ tests/integration/mv2-registration.test.ts:80:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |integration| tests/integration/mv2-registration.test.ts > MV2 real registration persistence > HOSPITALITY persists through resend and confirmation
+PrismaClientValidationError: 
+Invalid `prisma.organization.create()` invocation:
+
+{
+  data: {
+    name: "MV2-c3441649-e3ef-4357-a3eb-0f0b32c4a8ce-HOSPITALITY",
+    status: "TRIAL",
+    trialEndsAt: new Date("2026-10-25T08:15:48.931Z"),
+    countryCode: "KZ",
+    ~~~~~~~~~~~
+?   id?: String,
+?   reportingCurrency?: String,
+?   createdAt?: DateTime,
+?   memberships?: MembershipCreateNestedManyWithoutOrganizationInput,
+?   membershipScopes?: MembershipScopeCreateNestedManyWithoutOrganizationInput,
+?   sessions?: SessionCreateNestedManyWithoutOrganizationInput,
+?   invites?: InviteCreateNestedManyWithoutOrganizationInput,
+?   properties?: PropertyCreateNestedManyWithoutOrganizationInput,
+?   businesses?: BusinessCreateNestedManyWithoutOrganizationInput,
+?   userErrors?: UserErrorCreateNestedManyWithoutOrganizationInput,
+?   sellerProfiles?: SellerProfileCreateNestedManyWithoutOrganizationInput,
+?   sellerPromptVersions?: SellerPromptVersionCreateNestedManyWithoutOrganizationInput,
+?   agents?: SellerAgentCreateNestedManyWithoutOrganizationInput,
+?   wizardDrafts?: WizardDraftCreateNestedManyWithoutOrganizationInput,
+?   extensions?: OrganizationExtensionCreateNestedManyWithoutOrganizationInput,
+?   guests?: GuestCreateNestedManyWithoutOrganizationInput,
+?   auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput,
+?   customers?: CustomerCreateNestedManyWithoutOrganizationInput,
+?   sellerBookingIntents?: SellerBookingIntentCreateNestedManyWithoutOrganizationInput
+  },
+  select: {
+    id: true
+  }
+}
+
+Unknown argument `countryCode`. Available options are marked with ?.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/auth/auth.service.ts:391:21
+    389|     try {
+    390|       created = await this.prisma.db.$transaction(async (tx) => {
+    391|         const org = await tx.organization.create({
+       |                     ^
+    392|           data: {
+    393|             name: organizationName,
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ AuthService.register apps/api/src/auth/auth.service.ts:390:17
+ ❯ tests/integration/mv2-registration.test.ts:97:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |integration| tests/integration/mv2-registration.test.ts > MV2 real registration persistence > BEAUTY persists through resend and confirmation
+PrismaClientValidationError: 
+Invalid `prisma.organization.create()` invocation:
+
+{
+  data: {
+    name: "MV2-c3441649-e3ef-4357-a3eb-0f0b32c4a8ce-BEAUTY",
+    status: "TRIAL",
+    trialEndsAt: new Date("2026-10-25T08:15:48.931Z"),
+    countryCode: "KZ",
+    ~~~~~~~~~~~
+?   id?: String,
+?   reportingCurrency?: String,
+?   createdAt?: DateTime,
+?   memberships?: MembershipCreateNestedManyWithoutOrganizationInput,
+?   membershipScopes?: MembershipScopeCreateNestedManyWithoutOrganizationInput,
+?   sessions?: SessionCreateNestedManyWithoutOrganizationInput,
+?   invites?: InviteCreateNestedManyWithoutOrganizationInput,
+?   properties?: PropertyCreateNestedManyWithoutOrganizationInput,
+?   businesses?: BusinessCreateNestedManyWithoutOrganizationInput,
+?   userErrors?: UserErrorCreateNestedManyWithoutOrganizationInput,
+?   sellerProfiles?: SellerProfileCreateNestedManyWithoutOrganizationInput,
+?   sellerPromptVersions?: SellerPromptVersionCreateNestedManyWithoutOrganizationInput,
+?   agents?: SellerAgentCreateNestedManyWithoutOrganizationInput,
+?   wizardDrafts?: WizardDraftCreateNestedManyWithoutOrganizationInput,
+?   extensions?: OrganizationExtensionCreateNestedManyWithoutOrganizationInput,
+?   guests?: GuestCreateNestedManyWithoutOrganizationInput,
+?   auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput,
+?   customers?: CustomerCreateNestedManyWithoutOrganizationInput,
+?   sellerBookingIntents?: SellerBookingIntentCreateNestedManyWithoutOrganizationInput
+  },
+  select: {
+    id: true
+  }
+}
+
+Unknown argument `countryCode`. Available options are marked with ?.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/auth/auth.service.ts:391:21
+    389|     try {
+    390|       created = await this.prisma.db.$transaction(async (tx) => {
+    391|         const org = await tx.organization.create({
+       |                     ^
+    392|           data: {
+    393|             name: organizationName,
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ AuthService.register apps/api/src/auth/auth.service.ts:390:17
+ ❯ tests/integration/mv2-registration.test.ts:97:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |integration| tests/integration/mv2-registration.test.ts > MV2 real registration persistence > FOOD_SERVICE persists through resend and confirmation
+PrismaClientValidationError: 
+Invalid `prisma.organization.create()` invocation:
+
+{
+  data: {
+    name: "MV2-c3441649-e3ef-4357-a3eb-0f0b32c4a8ce-FOOD_SERVICE",
+    status: "TRIAL",
+    trialEndsAt: new Date("2026-10-25T08:15:48.931Z"),
+    countryCode: "KZ",
+    ~~~~~~~~~~~
+?   id?: String,
+?   reportingCurrency?: String,
+?   createdAt?: DateTime,
+?   memberships?: MembershipCreateNestedManyWithoutOrganizationInput,
+?   membershipScopes?: MembershipScopeCreateNestedManyWithoutOrganizationInput,
+?   sessions?: SessionCreateNestedManyWithoutOrganizationInput,
+?   invites?: InviteCreateNestedManyWithoutOrganizationInput,
+?   properties?: PropertyCreateNestedManyWithoutOrganizationInput,
+?   businesses?: BusinessCreateNestedManyWithoutOrganizationInput,
+?   userErrors?: UserErrorCreateNestedManyWithoutOrganizationInput,
+?   sellerProfiles?: SellerProfileCreateNestedManyWithoutOrganizationInput,
+?   sellerPromptVersions?: SellerPromptVersionCreateNestedManyWithoutOrganizationInput,
+?   agents?: SellerAgentCreateNestedManyWithoutOrganizationInput,
+?   wizardDrafts?: WizardDraftCreateNestedManyWithoutOrganizationInput,
+?   extensions?: OrganizationExtensionCreateNestedManyWithoutOrganizationInput,
+?   guests?: GuestCreateNestedManyWithoutOrganizationInput,
+?   auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput,
+?   customers?: CustomerCreateNestedManyWithoutOrganizationInput,
+?   sellerBookingIntents?: SellerBookingIntentCreateNestedManyWithoutOrganizationInput
+  },
+  select: {
+    id: true
+  }
+}
+
+Unknown argument `countryCode`. Available options are marked with ?.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/auth/auth.service.ts:391:21
+    389|     try {
+    390|       created = await this.prisma.db.$transaction(async (tx) => {
+    391|         const org = await tx.organization.create({
+       |                     ^
+    392|           data: {
+    393|             name: organizationName,
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ AuthService.register apps/api/src/auth/auth.service.ts:390:17
+ ❯ tests/integration/mv2-registration.test.ts:97:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |integration| tests/integration/mv2-registration.test.ts > MV2 real registration persistence > concurrent duplicate submission rolls back the losing chain
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/integration/mv2-registration.test.ts:133:61
+    131|     const body = input('BEAUTY', 'race');
+    132|     const results = await Promise.allSettled([auth.register(body, now)…
+    133|     expect(results.filter((r) => r.status === 'fulfilled')).toHaveLeng…
+       |                                                             ^
+    134|     expect(results.filter((r) => r.status === 'rejected')).toHaveLengt…
+    135|     expect(await db.organization.count({ where: { name: body.businessN…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |integration| tests/integration/platform-extensions.test.ts > расширения организаций (integration, DATABASE_URL required) > список организаций: люди, почты владельцев и расширение — без броней и гостей
+AssertionError: expected [ 'aiSeller', 'createdAt', 'id', …(8) ] to deeply equal [ 'aiSeller', 'createdAt', 'id', …(6) ]
+
+- Expected
++ Received
+
+  [
+    "aiSeller",
+    "createdAt",
+    "id",
++   "locations",
+    "members",
+    "name",
+    "ownerPending",
+    "owners",
+    "status",
+    "trialEndsAt",
++   "verticals",
+  ]
+
+ ❯ tests/integration/platform-extensions.test.ts:130:41
+    128|     });
+    129|     expect(b).toMatchObject({ members: 0, owners: [], aiSeller: null }…
+    130|     expect(Object.keys(a ?? {}).sort()).toEqual(
+       |                                         ^
+    131|       ['aiSeller', 'createdAt', 'id', 'members', 'name', 'ownerPending…
+    132|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  2 failed | 122 passed | 3 skipped (127)
+      Tests  6 failed | 990 passed | 5 skipped (1001)
+   Start at  01:10:05
+   Duration  413.71s (tests 43%, import 42%, transform 14%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-10-00Z-integration-85d0.json
+
+# код выхода 1 · 7 мин

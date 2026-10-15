@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 09.10.2026 20:37 Алматы · vm
+# коммит 5c55002 (claude/serene-newton-q453ps), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-gate.spec.ts' 'tests/ui/chessboard-week.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (8.5s)
+  ✓   2 tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх (7.0s)
+  ✓   3 tests/ui/chessboard-gate.spec.ts:105:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (14.4s)
+  ✓   4 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (4.7s)
+  ✘   5 tests/ui/chessboard-week.spec.ts:31:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (45.4s)
+  ✓   6 tests/ui/chessboard-week.spec.ts:86:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (5.3s)
+  ✓   7 tests/ui/chessboard-week.spec.ts:118:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (8.2s)
+  ✓   8 tests/ui/chessboard-week.spec.ts:118:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (8.5s)
+  ✓   9 tests/ui/chessboard-week.spec.ts:118:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (7.9s)
+  ✓  10 tests/ui/chessboard-week.spec.ts:138:1 › в неделе работают бронь, категории и создание на воскресенье (9.7s)
+  ✓  11 tests/ui/chessboard-week.spec.ts:178:3 › неделя помещается на экране: light, обе панели и телефон (27.6s)
+  ✓  12 tests/ui/chessboard-week.spec.ts:178:3 › неделя помещается на экране: dark, обе панели и телефон (27.1s)
+  ✓  13 tests/ui/chessboard-week.spec.ts:217:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (4.4s)
+
+
+  1) tests/ui/chessboard-week.spec.ts:31:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px ───
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Фильтры календаря' }).getByRole('combobox', { name: 'Категория', exact: true })
+
+
+      68 |     await expect(viewButton).toBeVisible();
+      69 |     expect((await viewButton.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    > 70 |     await filters.getByRole('combobox', { name: 'Категория', exact: true }).selectOption('ROOM');
+         |                                                                             ^
+      71 |     await filters.getByRole('button', { name: 'Применить', exact: true }).click();
+      72 |     await expect(main.getByTestId('unit-row')).toHaveCount(16);
+      73 |     // заданная категория — чипом с крестиком: поля категории в строке на телефоне нет
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:70:77
+
+    Error Context: test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-week.spec.ts:31:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px ────
+  12 passed (3.2m)
+
+# код выхода 1 · 3 мин 16 с

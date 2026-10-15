@@ -1,0 +1,31 @@
+# Модульные (unit) · 09.10.2026 17:41 Алматы · vm
+# коммит d0eb1e6 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 20
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-41-26Z-unit-31f3.json' 'apps/api/src/bar/bar-scan.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/bar/bar-scan.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/bar/bar-scan.test.ts [ apps/api/src/bar/bar-scan.test.ts ]
+Error: Cannot find module './scan.bot' imported from /home/user/wetop.ai/apps/api/src/bar/bar-scan.test.ts
+ ❯ apps/api/src/bar/bar-scan.test.ts:9:1
+      7| import { BarModule } from './bar.module';
+      8| import { BAR_REPOSITORY, type BarRepository } from './bar.repository';
+      9| import { BAR_SCAN_BOT, type BarScanBotRequest } from './scan.bot';
+       | ^
+     10| import { SCAN_MEDIA_TYPES } from './bar-scan.service';
+     11| import { PrismaService } from '../database/prisma.provider';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  12:41:27
+   Duration  2.76s (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-41-26Z-unit-31f3.json
+
+# код выхода 1 · 4 с

@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 14.10.2026 17:37 Алматы · MacBook-Air-Urij.local
+# коммит 519326e (claude/food-fix-01-20261014), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-37-32Z-integration-2e7a.json' 'tests/integration/food-fix-01.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01
+
+ ✓ |integration| tests/integration/food-fix-01.test.ts (7 tests) 434ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  16:37:33
+   Duration  1.87s (transform 41%, tests 35%, import 24%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-37-32Z-integration-2e7a.json
+
+# код выхода 0 · 3 с

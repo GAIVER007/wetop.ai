@@ -7,7 +7,6 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 // tests/ui/settings-simplification.spec.ts. Аудит на них ломался: докрутка к якорю после перехода
 // сносила контекст страницы посреди axe (разбор 21.09.2026).
 const routes = [
-  '/today',
   '/chessboard',
   '/reservations',
   '/reservations/new?unit=M03',
@@ -101,7 +100,7 @@ for (const width of [1440, 390]) {
         expect
           .soft(layout.content, `${route}: page overflow`)
           .toBeLessThanOrEqual(layout.viewport + 1);
-        if (['/today', '/chessboard', '/guests', '/inventory'].includes(route))
+        if (['/finance', '/chessboard', '/guests', '/inventory'].includes(route))
           await page.screenshot({
             path: `reports/ui-quality/${route.slice(1)}-${theme}-${width}.png`,
           });

@@ -8,7 +8,8 @@ import { deltaPoints, formatInt, formatPercent } from '../../../../lib/dashboard
 import { displayDate } from '../../../../lib/display-date';
 import { pluralRu } from '../../../../lib/plural';
 import { analyticsHref, type AnalyticsQuery } from '../params';
-import { DeltaMark, NO_BASE, Tile, countDelta, pointsDelta } from '../tiles';
+import { OccupancyTiles } from '../occupancy-tiles';
+import { DeltaMark, NO_BASE, Tile, countDelta } from '../tiles';
 
 const addDays = (date: string, n: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
@@ -51,13 +52,12 @@ function OccupancyKpis({ c, p }: { c: DashboardPeriod; p: DashboardPeriod | null
       aria-label="Загрузка фонда"
       data-testid="pa-occupancy-kpis"
     >
-      <Tile
-        id="occupancy"
-        label="Загрузка"
-        value={formatPercent(o.percent)}
-        hint={`занято ${formatInt(o.occupiedNights)} из ${formatInt(o.unitNights)} ${unit} фонда`}
-        delta={pointsDelta(o.percent, prev.occupancy.percent, prev.occupancy.occupiedNights)}
-        compare={compare}
+      <OccupancyTiles
+        c={c}
+        p={p}
+        hint={(k) =>
+          `занято ${formatInt(k.occupiedNights)} из ${formatInt(k.sellableNights)} ${unit}, доступных к продаже`
+        }
       />
       <Tile
         id="occupied"
@@ -80,7 +80,7 @@ function OccupancyKpis({ c, p }: { c: DashboardPeriod; p: DashboardPeriod | null
         id="blocked"
         label="Заблокировано"
         value={formatInt(o.blockedNights)}
-        hint={`закрытые ${single ? 'места' : 'ночи'} остаются в фонде загрузки`}
+        hint={`закрыты для продажи, из загрузки вычтены`}
         delta={countDelta(o.blockedNights, prev.occupancy.blockedNights)}
         inverse
         compare={compare}
@@ -261,7 +261,7 @@ function CategoryComparison({ c }: { c: DashboardPeriod }) {
 /**
  * «Аналитика → Загрузка» v2 (ADR-114, срез AN2): бывшая «Статистика» на общем расчёте `GET /desk/dashboard` —
  * день или период, «Все / Номера / Койки», сравнение с отрезком той же длины. Знаменатель прежний:
- * заблокированные места входят в фонд (ADR-047, §32 ТЗ).
+ * с 09.10.2026 закрытые для продажи места вычтены из знаменателя (ADR-155, Q-286); до этого входили в фонд (ADR-047).
  */
 export async function Occupancy({ query }: { query: AnalyticsQuery }) {
   const { period, fund } = query;
@@ -310,8 +310,8 @@ export async function Occupancy({ query }: { query: AnalyticsQuery }) {
           ) : (
             <>
               Загрузка с <time dateTime={c.from}>{displayDate(c.from, 'numeric')}</time> по{' '}
-              <time dateTime={c.to}>{displayDate(c.to, 'numeric')}</time> по размещениям в календаре,
-              в ночах: место × ночь
+              <time dateTime={c.to}>{displayDate(c.to, 'numeric')}</time> по размещениям в
+              календаре, в ночах: место × ночь
             </>
           )}
         </span>
@@ -329,9 +329,10 @@ export async function Occupancy({ query }: { query: AnalyticsQuery }) {
         <CategoryComparison c={c} />
       </div>
       <Help title="Расчёт загрузки">
-        Загрузка = занятые места / весь фонд, включая заблокированные: закрытое место остаётся в
-        знаменателе. Номер считается одним местом, койка — одним. За период считаются ночи: место ×
-        ночь. Проживания без ячейки не занимают место в календаре и в загрузку не входят —{' '}
+        Загрузка = занятые места / места, доступные к продаже: закрытое для продажи место в
+        знаменателе не учитывается и показано отдельной строкой. Номер считается одним местом, койка
+        — одним. За период считаются ночи: место × ночь. Проживания без ячейки не занимают место в
+        календаре и в загрузку не входят —{' '}
         {c.unassigned > 0 ? `сейчас их ${formatInt(c.unassigned)}.` : 'сейчас таких нет.'}
       </Help>
     </>

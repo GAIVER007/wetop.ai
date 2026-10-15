@@ -163,14 +163,16 @@ describe('AuthorInterceptor — scope запроса (Platform P2, К1)', () => 
     expect(probe.seen()).toEqual({ scope: 'LOCATION', business: B, location: L });
   });
 
-  it('чужой указатель — тихо ORGANIZATION, обработчик выполняется', async () => {
+  it('чужой указатель — 403 (fail-closed, O4=A), обработчик не выполняется', async () => {
     const { prisma } = scopeDb();
     const probe = seenScope();
-    await new AuthorInterceptor(prisma).intercept(
-      context({ id: 'u-1', organizationId: 'org-other' }, { 'x-wetop-scope': `business=${B};location=${L}` }),
-      probe.next,
-    );
-    expect(probe.seen()).toEqual({ scope: 'ORGANIZATION', business: null, location: null });
+    await expect(
+      new AuthorInterceptor(prisma).intercept(
+        context({ id: 'u-1', organizationId: 'org-other' }, { 'x-wetop-scope': `business=${B};location=${L}` }),
+        probe.next,
+      ),
+    ).rejects.toThrow('Выберите филиал заново');
+    expect(probe.seen()).toBe('не спрашивали');
   });
 
   it('модуль без базы указатель не проверит — scope организации, не выбранный', async () => {

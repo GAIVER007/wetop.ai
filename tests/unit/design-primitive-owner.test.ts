@@ -21,6 +21,18 @@ export const PRIMITIVES = [
   'badge',
   'inp',
   'field',
+  // MV8.5 DS1b (DESIGN.md §8.1): вкладки, чипы и полоса инструментов; `.seg` выше: переключатель
+  'tabs',
+  'chip',
+  'toolbar',
+  // MV8.5 DS1c (DESIGN.md §8.2): доля, сетка формы, период и день
+  'share-bar',
+  'form-grid',
+  'period-picker',
+  'date-bar',
+  // ADR-156 (DESIGN.md §8.3): выключатель и поле со значком; чип-флажок живёт в `.chip--check`
+  'switch',
+  'field-icon',
 ];
 const ROOT = resolve(import.meta.dirname, '../..');
 const SRC = resolve(ROOT, 'apps/web/src');

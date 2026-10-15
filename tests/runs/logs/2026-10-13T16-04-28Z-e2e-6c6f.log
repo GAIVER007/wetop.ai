@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 13.10.2026 21:04 Алматы · MacBook-Air-Urij.local
+# коммит 7ca4b3f (claude/ui44-verticals-20261013), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' 'tests/food-ui/ref-capture.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/food-ui/ref-capture.spec.ts:15:1 › ресторан: зал на ширинах и темах (3.6s)
+
+  1 passed (12.6s)
+
+# код выхода 0 · 15 с

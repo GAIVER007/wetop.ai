@@ -1,0 +1,1246 @@
+# Сквозные (e2e) · 09.10.2026 19:24 Алматы · vm
+# коммит b97d5ce (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 29
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/finance-home-merge.spec.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' 'tests/ui/today-operations.spec.ts' 'tests/ui/today-attention.spec.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' 'tests/ui/design-refresh.spec.ts' 'tests/ui/loading-performance.spec.ts' 'tests/ui/finance-cash-first.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/empty-base.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/desktop-compact.spec.ts' 'tests/ui/requests.spec.ts' '--config' 'tests/ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 133 tests using 2 workers
+
+  ✓    2 tests/ui/dashboard-design.spec.ts:28:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (4.2s)
+  ✓    3 tests/ui/dashboard-design.spec.ts:68:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (1.2s)
+  ✓    4 tests/ui/dashboard-design.spec.ts:107:1 › финансы: «Требуют внимания» разбито по важности, сумма равна счётчику; быстрых действий нет (2.0s)
+  ✓    5 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (1.0s)
+  ✓    6 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (985ms)
+  ✓    7 tests/ui/dashboard-resilience.spec.ts:37:1 › «Финансы» открываются и с упавшими показателями периода: риски остаются доступны (1.6s)
+  ✘    1 tests/ui/dashboard-desk.spec.ts:19:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез (17.8s)
+  ✓    9 tests/ui/dashboard-desk.spec.ts:29:1 › 5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди (1.9s)
+  ✓   10 tests/ui/dashboard-desk.spec.ts:37:1 › 6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка (1.9s)
+  ✓   11 tests/ui/dashboard-desk.spec.ts:46:1 › 7. краткие подписи без декоративных разделителей (1.4s)
+  ✓   12 tests/ui/dashboard-desk.spec.ts:50:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (1.4s)
+  ✘    8 tests/ui/design-refresh.spec.ts:9:1 › финансы: деньги на первом экране, кнопки брони нет (16.7s)
+  ✓   14 tests/ui/design-refresh.spec.ts:28:1 › период «Финансов» и «Аналитики» на телефоне: подписанные поля и цели не меньше 44 px (4.3s)
+  ✘   13 tests/ui/dashboard-desk.spec.ts:84:1 › 9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки (16.4s)
+  ✘   15 tests/ui/design-refresh.spec.ts:72:1 › финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике» (16.6s)
+  ✓   16 tests/ui/dashboard-desk.spec.ts:126:1 › 10. заголовок страницы и панели брони — по шкале §6 (8.8s)
+  ✓   18 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (14.2s)
+  ✓   19 tests/ui/desktop-compact.spec.ts:51:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (1.6s)
+  ✓   17 tests/ui/design-refresh.spec.ts:101:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (18.7s)
+  ✓   20 tests/ui/desktop-compact.spec.ts:68:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (5.6s)
+  ✓   22 tests/ui/empty-base.spec.ts:39:3 › пустая база: /chessboard открывается и объясняет пустоту (1.4s)
+  ✓   23 tests/ui/empty-base.spec.ts:39:3 › пустая база: /reservations открывается и объясняет пустоту (1.5s)
+  ✓   24 tests/ui/empty-base.spec.ts:39:3 › пустая база: /guests открывается и объясняет пустоту (1.1s)
+  ✓   25 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms открывается и объясняет пустоту (1.1s)
+  ✓   26 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/categories открывается и объясняет пустоту (1.2s)
+  ✓   27 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/availability открывается и объясняет пустоту (1.2s)
+  ✓   28 tests/ui/empty-base.spec.ts:39:3 › пустая база: /finance открывается и объясняет пустоту (1.5s)
+  ✓   29 tests/ui/empty-base.spec.ts:39:3 › пустая база: /management/analytics открывается и объясняет пустоту (1.1s)
+  ✓   30 tests/ui/empty-base.spec.ts:39:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту (1.1s)
+  ✓   31 tests/ui/empty-base.spec.ts:39:3 › пустая база: /journal открывается и объясняет пустоту (1.6s)
+  ✓   32 tests/ui/empty-base.spec.ts:39:3 › пустая база: /incidents открывается и объясняет пустоту (938ms)
+  ✓   21 tests/ui/design-refresh.spec.ts:101:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (18.4s)
+  ✓   33 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels открывается и объясняет пустоту (1.3s)
+  ✓   35 tests/ui/empty-base.spec.ts:39:3 › пустая база: /connections открывается и объясняет пустоту (1.8s)
+  ✓   36 tests/ui/empty-base.spec.ts:39:3 › пустая база: /website открывается и объясняет пустоту (1.4s)
+  ✓   37 tests/ui/empty-base.spec.ts:39:3 › пустая база: /website/analytics открывается и объясняет пустоту (2.2s)
+  ✓   38 tests/ui/empty-base.spec.ts:39:3 › пустая база: /hotel-settings открывается и объясняет пустоту (2.1s)
+  ✓   39 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels/mapping открывается и объясняет пустоту (1.2s)
+  ✓   40 tests/ui/empty-base.spec.ts:49:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.7s)
+  ✓   41 tests/ui/empty-base.spec.ts:60:1 › пустая база: финансы говорят про ноль словами, а не пустыми плитками (1.8s)
+  ✓   34 tests/ui/design-refresh.spec.ts:101:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (16.8s)
+  ✘   42 tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (16.6s)
+  ✓   43 tests/ui/design-refresh.spec.ts:101:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (14.6s)
+  ✓   45 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (2.2s)
+  ✘   44 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 1440 (3.8s)
+  ✓   46 tests/ui/finance-f1.spec.ts:99:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (4.0s)
+  ✘   47 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 390 (4.0s)
+  ✓   48 tests/ui/finance-f1.spec.ts:149:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (2.1s)
+  ✓   49 tests/ui/finance-f1.spec.ts:180:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (3.5s)
+  ✘   50 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 (4.3s)
+  ✘   51 tests/ui/finance-f1.spec.ts:222:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (4.9s)
+  ✓   52 tests/ui/finance-cash-first.spec.ts:91:1 › касса: первый экран без лишних кнопок, действия внутри управления (3.6s)
+  ✓   54 tests/ui/finance-cash-first.spec.ts:111:1 › касса: визуальная иерархия итогов и спокойный сброс (3.1s)
+  ✘   55 tests/ui/finance-cash-first.spec.ts:130:1 › касса: тёмное оформление читается на телефоне (4.1s)
+  ✓   56 tests/ui/finance-home-merge.spec.ts:19:1 › обзор бизнеса: плитки, блоки макета и деньги кассы без заглушек (2.2s)
+  ✓   57 tests/ui/finance-home-merge.spec.ts:102:1 › очередь «Требуют внимания» открывается из «Все задачи» (1.9s)
+  ✓   58 tests/ui/finance-home-merge.spec.ts:109:1 › /today гостиницы перенаправляет в финансы (1.9s)
+  ✓   59 tests/ui/finance-home-merge.spec.ts:117:1 › меню: «Финансы» первой вкладкой, «Главной» нет (1.4s)
+  ✓   60 tests/ui/finance-home-merge.spec.ts:125:1 › период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию (2.1s)
+  ✓   61 tests/ui/finance-home-merge.spec.ts:137:1 › телефон: показатели первым экраном, фильтры достижимы (1.8s)
+  ✘   53 tests/ui/finance-f1.spec.ts:238:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (20.5s)
+  ✓   63 tests/ui/finance-f1.spec.ts:259:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (2.6s)
+  ✘   62 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (4.7s)
+  ✓   64 tests/ui/finance-f1.spec.ts:279:3 › F1, стоп-гейт: снимки для владельца, light (3.3s)
+  ✓   66 tests/ui/finance-f1.spec.ts:279:3 › F1, стоп-гейт: снимки для владельца, dark (3.1s)
+  ✓   67 tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (4.3s)
+  ✓   68 tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (2.0s)
+  ✘   65 tests/ui/loading-performance.spec.ts:27:1 › «Финансы» показывают блоки, пока настройки гостиницы ещё загружаются (17.6s)
+  ✓   70 tests/ui/loading-performance.spec.ts:47:1 › стойка и её шахматка запрашиваются параллельно (7.7s)
+  ✓   71 tests/ui/loading-performance.spec.ts:72:1 › мобильное меню использует уже загруженную свежесть без второго опроса (2.2s)
+  ✓   69 tests/ui/navigation.spec.ts:120:1 › все пункты меню открывают существующие страницы (20.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   73 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: light (5.5s)
+TODAY_LOADING_MS [{"heading":2143,"money":2144,"risks":2145},{"heading":2280,"money":2284,"risks":2304},{"heading":2252,"money":2256,"risks":2259}]
+  ✓   72 tests/ui/loading-performance.spec.ts:96:1 › замер: блоки «Финансов» при задержке настроек 2000 мс (9.6s)
+  ✓   75 tests/ui/loading-performance.spec.ts:126:1 › фоновый опрос не перекрывается и восстанавливается после отказа (2.4s)
+  ✓   74 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: dark (5.5s)
+  ✓   76 tests/ui/owner-dashboard-interactions.spec.ts:12:1 › forecast details expose availability and open the selected calendar day (3.0s)
+  ✓   77 tests/ui/owner-dashboard.spec.ts:11:1 › owner blocks: compact metrics and operational widgets on finance (2.5s)
+  ✓   78 tests/ui/owner-dashboard-interactions.spec.ts:39:1 › forecast can recover in place after a temporary API failure (2.9s)
+  ✓   79 tests/ui/owner-dashboard.spec.ts:38:1 › period changes through cash presets and mobile retains content (3.2s)
+  ✓   80 tests/ui/owner-dashboard-interactions.spec.ts:52:1 › unavailable inventory stays explicit and can be retried (3.0s)
+  ✓   81 tests/ui/owner-dashboard.spec.ts:49:1 › attention and cash stay available when dashboard API fails (1.7s)
+  ✓   82 tests/ui/owner-dashboard-interactions.spec.ts:62:1 › slow inventory keeps daily events usable and shows a stable loading card (8.6s)
+  ✓   83 tests/ui/owner-dashboard.spec.ts:59:1 › owner blocks dark desktop and mobile remain usable (12.3s)
+  ✓   84 tests/ui/owner-dashboard-interactions.spec.ts:90:3 › forecast drawer stays accessible at 320 px in light theme (5.2s)
+  ✓   85 tests/ui/owner-dashboard.spec.ts:90:1 › owner mobile summary fits the first screen and omits removed metrics (2.1s)
+  ✓   87 tests/ui/owner-dashboard.spec.ts:106:1 › owner summary stays usable at narrow widths and custom dates remain accessible (3.5s)
+  ✓   86 tests/ui/owner-dashboard-interactions.spec.ts:90:3 › forecast drawer stays accessible at 320 px in dark theme (4.5s)
+  ✓   88 tests/ui/owner-dashboard.spec.ts:125:1 › approved owner concept groups forecast with occupancy and matches attention count (2.8s)
+  ✓   89 tests/ui/owner-dashboard-interactions.spec.ts:114:1 › weekly outlook opens a calendar day directly (2.9s)
+  ✓   91 tests/ui/owner-dashboard-interactions.spec.ts:127:1 › compact owner summary fits a 360 by 800 phone first screen (2.3s)
+  ✓   90 tests/ui/requests.spec.ts:80:3 › экран /chessboard: данные берутся одним запросом на путь (2.6s)
+  ✘   93 tests/ui/requests.spec.ts:80:3 › экран /reservations: данные берутся одним запросом на путь (2.4s)
+  ✓   92 tests/ui/today-attention.spec.ts:77:1 › очередь: каждое событие дня с числом, важностью и одним действием; порядок Critical → Warning → Info (2.9s)
+  ✓   94 tests/ui/today-attention.spec.ts:118:1 › незаезд ведёт в бронь, долг — в счёт; брони строками с именем и номером (2.2s)
+  ✓   95 tests/ui/requests.spec.ts:80:3 › экран /guests: данные берутся одним запросом на путь (1.8s)
+  ✘   97 tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь (2.5s)
+  ✓   98 tests/ui/requests.spec.ts:80:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.6s)
+  ✓   99 tests/ui/requests.spec.ts:80:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.5s)
+  ✓  100 tests/ui/requests.spec.ts:80:3 › экран /management/analytics: данные берутся одним запросом на путь (1.4s)
+  ✓  101 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.4s)
+  ✓  102 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/units: данные берутся одним запросом на путь (2.3s)
+  ✓  103 tests/ui/requests.spec.ts:80:3 › экран /finance: данные берутся одним запросом на путь (1.9s)
+  ✓  104 tests/ui/requests.spec.ts:80:3 › экран /reports: данные берутся одним запросом на путь (1.4s)
+  ✓  105 tests/ui/requests.spec.ts:80:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (1.5s)
+  ✘   96 tests/ui/today-attention.spec.ts:137:1 › сторож не ответил — строк инцидентов нет, остальная очередь на месте (17.7s)
+  ✓  106 tests/ui/requests.spec.ts:80:3 › экран /channels: данные берутся одним запросом на путь (1.8s)
+  ✓  107 tests/ui/today-attention.spec.ts:151:1 › финансовый период в будущем не скрывает текущие задачи гостиницы (2.2s)
+  ✘  108 tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь (2.5s)
+  ✘  110 tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь (2.5s)
+  ✘  111 tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь (2.0s)
+  ✘  112 tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь (2.1s)
+  ✘  113 tests/ui/requests.spec.ts:80:3 › экран /marketing: данные берутся одним запросом на путь (1.9s)
+  ✓  109 tests/ui/today-attention.spec.ts:164:1 › снимки панелей единых «Финансов» (15.3s)
+  ✓  114 tests/ui/requests.spec.ts:80:3 › экран /website: данные берутся одним запросом на путь (1.6s)
+  ✓  115 tests/ui/today-operations.spec.ts:30:1 › операционные карточки убраны, а риски дня остались (2.0s)
+  ✘  116 tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь (2.7s)
+  ✓  117 tests/ui/today-operations.spec.ts:39:1 › события дня совпадают с /desk/today и не зависят от периода кассы (1.8s)
+  ✓  119 tests/ui/today-operations.spec.ts:56:1 › сбой сторожа не скрывает показатели и действия (2.3s)
+  ✘  118 tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь (2.3s)
+  ✓  120 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (3.2s)
+  ✓  121 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.2s)
+  ✘  123 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (2.1s)
+  ✓  124 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (2.0s)
+  ✓  122 tests/ui/top-menu.spec.ts:121:1 › вложенные адреса подсвечивают свою вкладку (7.0s)
+  ✓  125 tests/ui/requests.spec.ts:80:3 › экран /team: данные берутся одним запросом на путь (2.0s)
+  ✘  127 tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь (2.0s)
+  ✓  128 tests/ui/requests.spec.ts:80:3 › экран /ai-agents: данные берутся одним запросом на путь (1.6s)
+  ✓  126 tests/ui/top-menu.spec.ts:157:3 › шапка ровная, без прокрутки вбок и доступная: light (5.4s)
+  ✘  129 tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь (1.6s)
+  ✓  131 tests/ui/requests.spec.ts:80:3 › экран /incidents: данные берутся одним запросом на путь (1.7s)
+  ✓  130 tests/ui/top-menu.spec.ts:157:3 › шапка ровная, без прокрутки вбок и доступная: dark (5.3s)
+  ✓  132 tests/ui/requests.spec.ts:80:3 › экран /journal: данные берутся одним запросом на путь (1.6s)
+  ✓  133 tests/ui/requests.spec.ts:80:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.4s)
+
+
+  1) tests/ui/dashboard-desk.spec.ts:19:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Риски на сегодня' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Риски на сегодня' }) with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Риски на сегодня' })
+
+
+      21 | }) => {
+      22 |   await page.goto('/finance?from=2027-06-01&to=2027-06-30');
+    > 23 |   await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
+         |                                                                        ^
+      24 |   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
+      25 |   await expect(page.locator('#day-attention')).toHaveCount(1);
+      26 |   await expect(page.locator('#day-attention .attention-list')).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:23:72
+
+    Error Context: test-results/dashboard-desk-3-одна-очер-06996--не-меняет-сегодняшний-срез/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-3-одна-очер-06996--не-меняет-сегодняшний-срез/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-3-одна-очер-06996--не-меняет-сегодняшний-срез/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/dashboard-desk.spec.ts:84:1 › 9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('region', { name: 'Риски на сегодня' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('region', { name: 'Риски на сегодня' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('region', { name: 'Риски на сегодня' })
+
+
+      104 |     await page.goto('/finance');
+      105 |     const main = page.getByRole('main');
+    > 106 |     await expect(main.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
+          |                                                                          ^
+      107 |
+      108 |     // блоки владельца держат утверждённую шкалу; у сводки кассы своё утверждённое оформление 05.10
+      109 |     for (const block of ['.owner-load', '.biz-today', '.biz-attention'])
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:106:74
+
+    Error Context: test-results/dashboard-desk-9-размеры-ш-7a506-тверждённый-акцент-загрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-9-размеры-ш-7a506-тверждённый-акцент-загрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-9-размеры-ш-7a506-тверждённый-акцент-загрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/design-refresh.spec.ts:9:1 › финансы: деньги на первом экране, кнопки брони нет ──────
+
+    Error: expect(locator).toBeAttached() failed
+
+    Locator: getByRole('region', { name: 'Риски на сегодня' })
+    Expected: attached
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeAttached" getByRole('region', { name: 'Риски на сегодня' }) with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Риски на сегодня' })
+
+
+      14 |     await expect(page.getByTestId('biz-revenue')).toBeInViewport();
+      15 |     const risks = page.getByRole('region', { name: 'Риски на сегодня' });
+    > 16 |     await expect(risks).toBeAttached();
+         |                         ^
+      17 |     const attention = page
+      18 |       .getByTestId('owner-dashboard')
+      19 |       .getByRole('button', { name: 'Все задачи', exact: true });
+        at /home/user/wetop.ai/tests/ui/design-refresh.spec.ts:16:25
+
+    Error Context: test-results/design-refresh-финансы-ден-2c962-вом-экране-кнопки-брони-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-refresh-финансы-ден-2c962-вом-экране-кнопки-брони-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-refresh-финансы-ден-2c962-вом-экране-кнопки-брони-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/design-refresh.spec.ts:72:1 › финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике» 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Риски на сегодня' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Риски на сегодня' }) with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Риски на сегодня' })
+
+
+      81 |   ).toHaveAttribute('aria-current', 'page');
+      82 |   await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible();
+    > 83 |   await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
+         |                                                                        ^
+      84 |   await expect(page.getByTestId('period-caption')).toHaveCount(0);
+      85 |   // месячные показатели в «Аналитике → Обзор» (ADR-114), оплаты в «Оплатах», ADR и RevPAR у типа фонда.
+      86 |   // Четыре плитки сразу, ночи, средний чек и цена у типа фонда в свёрнутых «Подробностях» (01.10.2026)
+        at /home/user/wetop.ai/tests/ui/design-refresh.spec.ts:83:72
+
+    Error Context: test-results/design-refresh-финансы-за--16d0d-месяц-целиком-в-«Аналитике»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-refresh-финансы-за--16d0d-месяц-целиком-в-«Аналитике»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-refresh-финансы-за--16d0d-месяц-целиком-в-«Аналитике»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Финансы', exact: true, level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Финансы', exact: true, level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Финансы', exact: true, level: 1 })
+
+
+      14 | }) => {
+      15 |   await page.goto('/finance');
+    > 16 |   await expect(page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 })).toBeVisible();
+         |                                                                                       ^
+      17 |   await expect(page.getByTestId('cash-summary')).toBeVisible();
+      18 |   await expect(page.getByTestId('finance-operations')).not.toBeVisible();
+      19 |   await expect(page.getByTestId('finance-kpis')).not.toBeVisible();
+        at /home/user/wetop.ai/tests/ui/finance-cash-first.spec.ts:16:87
+
+    Error Context: test-results/finance-cash-first-касса-п-3b72e-яются-вместе-и-сбрасываются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-п-3b72e-яются-вместе-и-сбрасываются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-п-3b72e-яются-вместе-и-сбрасываются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 1440 ──────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 45
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "последние операции",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Последние операции\">",
+    +                 "target": Array [
+    +                   ".table-scroll[aria-label=\"Последние операции\"][role=\"region\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"biz-recent\" aria-labelledby=\"biz-recent-title\" data-testid=\"recent-ops\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".biz-recent",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      75 |     }
+      76 |     const axe = await new AxeBuilder({ page }).include('main').analyze();
+    > 77 |     expect(axe.violations).toEqual([]);
+         |                            ^
+      78 |     if (width < 600) {
+      79 |       for (const el of await page
+      80 |         .getByTestId('period-form')
+        at /home/user/wetop.ai/tests/ui/finance-cash-first.spec.ts:77:28
+
+    Error Context: test-results/finance-cash-first-касса-доступность-и-верстка-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-доступность-и-верстка-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-доступность-и-верстка-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 390 ───────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 45
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "последние операции",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Последние операции\">",
+    +                 "target": Array [
+    +                   ".table-scroll[aria-label=\"Последние операции\"][role=\"region\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"biz-recent\" aria-labelledby=\"biz-recent-title\" data-testid=\"recent-ops\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".biz-recent",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      75 |     }
+      76 |     const axe = await new AxeBuilder({ page }).include('main').analyze();
+    > 77 |     expect(axe.violations).toEqual([]);
+         |                            ^
+      78 |     if (width < 600) {
+      79 |       for (const el of await page
+      80 |         .getByTestId('period-form')
+        at /home/user/wetop.ai/tests/ui/finance-cash-first.spec.ts:77:28
+
+    Error Context: test-results/finance-cash-first-касса-доступность-и-верстка-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-доступность-и-верстка-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-доступность-и-верстка-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 ───────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 45
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "последние операции",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Последние операции\">",
+    +                 "target": Array [
+    +                   ".table-scroll[aria-label=\"Последние операции\"][role=\"region\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"biz-recent\" aria-labelledby=\"biz-recent-title\" data-testid=\"recent-ops\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".biz-recent",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      75 |     }
+      76 |     const axe = await new AxeBuilder({ page }).include('main').analyze();
+    > 77 |     expect(axe.violations).toEqual([]);
+         |                            ^
+      78 |     if (width < 600) {
+      79 |       for (const el of await page
+      80 |         .getByTestId('period-form')
+        at /home/user/wetop.ai/tests/ui/finance-cash-first.spec.ts:77:28
+
+    Error Context: test-results/finance-cash-first-касса-доступность-и-верстка-360/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-доступность-и-верстка-360/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-доступность-и-верстка-360/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/finance-cash-first.spec.ts:130:1 › касса: тёмное оформление читается на телефоне ─────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 45
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "последние операции",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Последние операции\">",
+    +                 "target": Array [
+    +                   ".table-scroll[aria-label=\"Последние операции\"][role=\"region\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"biz-recent\" aria-labelledby=\"biz-recent-title\" data-testid=\"recent-ops\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".biz-recent",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      133 |   await page.goto('/finance');
+      134 |   await expect(page.getByTestId('cash-summary')).toBeVisible();
+    > 135 |   expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+          |                                                                                 ^
+      136 |   await page.screenshot({ path: `${evidence}/390-dark.png`, fullPage: true });
+      137 | });
+      138 |
+        at /home/user/wetop.ai/tests/ui/finance-cash-first.spec.ts:135:81
+
+    Error Context: test-results/finance-cash-first-касса-т-a6289-мление-читается-на-телефоне/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-т-a6289-мление-читается-на-телефоне/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-т-a6289-мление-читается-на-телефоне/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/finance-f1.spec.ts:222:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:3100/finance?from=2026-10-04&to=2026-10-09#charges
+    Call log:
+      - navigating to "http://127.0.0.1:3100/finance?from=2026-10-04&to=2026-10-09#charges", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:111:30)
+        at /home/user/wetop.ai/tests/ui/finance-f1.spec.ts:228:14
+
+    Error Context: test-results/finance-f1-F1-«только-чтен-3477b--виден-«Принять-оплату»-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-«только-чтен-3477b--виден-«Принять-оплату»-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-«только-чтен-3477b--виден-«Принять-оплату»-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/finance-f1.spec.ts:238:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('finance-attention')
+    Expected substring: "За период проблем не найдено"
+    Received string:    "Требует внимания80 000 ₸ к сбору — 5 броней1 бронь с просроченным долгом — 16 000 ₸, время выезда прошло"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('finance-attention') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('finance-attention')
+        32 × locator resolved to <section class="finance-attention" data-testid="finance-attention" aria-labelledby="finance-attention-title">…</section>
+           - unexpected value "Требует внимания80 000 ₸ к сбору — 5 броней1 бронь с просроченным долгом — 16 000 ₸, время выезда прошло"
+
+
+      252 |   await page.goto(`${url}#charges`);
+      253 |   await page.reload();
+    > 254 |   await expect(main.getByTestId('finance-attention')).toContainText('За период проблем не найдено');
+          |                                                       ^
+      255 |   await expect(main.getByTestId('debts-empty')).toContainText('оплачены');
+      256 |   await expect(main.getByRole('navigation', { name: 'Отбор долгов' })).toHaveCount(0);
+      257 | });
+        at /home/user/wetop.ai/tests/ui/finance-f1.spec.ts:254:55
+
+    Error Context: test-results/finance-f1-F1-сбой-списка--07625-риод-—-«проблем-не-найдено»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-сбой-списка--07625-риод-—-«проблем-не-найдено»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-сбой-списка--07625-риод-—-«проблем-не-найдено»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('desk-error')
+    Expected: visible
+    Timeout: 2500ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('desk-error') with timeout 2500ms
+      - waiting for getByTestId('desk-error')
+
+
+      22 |   });
+      23 |   await page.goto('/finance', { waitUntil: 'commit' });
+    > 24 |   await expect(page.getByTestId('desk-error')).toBeVisible({ timeout: 2500 });
+         |                                                ^
+      25 | });
+      26 |
+      27 | test('«Финансы» показывают блоки, пока настройки гостиницы ещё загружаются', async ({
+        at /home/user/wetop.ai/tests/ui/loading-performance.spec.ts:24:48
+
+    Error Context: test-results/loading-performance-ошибка-11320--если-шахматка-ещё-грузится/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/loading-performance-ошибка-11320--если-шахматка-ещё-грузится/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/loading-performance-ошибка-11320--если-шахматка-ещё-грузится/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/loading-performance.spec.ts:27:1 › «Финансы» показывают блоки, пока настройки гостиницы ещё загружаются 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.workspace-header .workspace-property')
+    Expected substring: "Объект не загружен"
+    Received string:    "Luxx ApartsТестовый адрес, 1"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" locator('.workspace-header .workspace-property') with timeout 15000ms
+      - waiting for locator('.workspace-header .workspace-property')
+        33 × locator resolved to <div class="workspace-property">…</div>
+           - unexpected value "Luxx ApartsТестовый адрес, 1"
+
+
+      36 |     });
+      37 |     await expect(page.getByTestId('owner-risks')).toBeVisible({ timeout: 5000 });
+    > 38 |     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
+         |                                                                         ^
+      39 |       'Объект не загружен',
+      40 |     );
+      41 |   } finally {
+        at /home/user/wetop.ai/tests/ui/loading-performance.spec.ts:38:73
+
+    Error Context: test-results/loading-performance-«Финан-f3b2d-и-гостиницы-ещё-загружаются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/loading-performance-«Финан-f3b2d-и-гостиницы-ещё-загружаются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/loading-performance-«Финан-f3b2d-и-гостиницы-ещё-загружаются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/requests.spec.ts:80:3 › экран /reservations: данные берутся одним запросом на путь ──
+
+    Error: путь с данными запрошен повторно за один показ /reservations: {"GET /auth/me":2,"GET /hotel/settings":2,"GET /finance/report?from=2026-10-01&to=2026-10-31":1,"GET /finance/debts?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-10-01&limit=500&to=2026-10-31":1,"GET /finance/cash":1,"GET /finance/services-report?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-08-31&limit=1&to=2026-09-30":1,"GET /chessboard?from=2026-10-09&to=2026-10-09":1,"GET /desk/today?date=2026-10-09":1,"GET /desk/dashboard?from=2026-10-08&to=2026-10-08":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-09&to=2026-10-15":1,"GET /hotel/reservations?from=2026-10-09&page=1&q=&status=ALL&to=2026-10-09":1,"GET /inventory/categories":1,"GET /system/freshness":2}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+      91 |     // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-reservation-bd73c-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-reservation-bd73c-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-reservation-bd73c-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь ─────
+
+    Error: запросов на экран /inventory: {"GET /chessboard?from=2026-10-09&to=2026-10-09":1,"GET /desk/today?date=2026-10-09":1,"GET /desk/dashboard?from=2026-10-08&to=2026-10-08":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-09&to=2026-10-15":1,"GET /auth/me":1,"GET /hotel/settings":1,"GET /inventory/summary":1,"GET /inventory/units":1,"GET /inventory/categories":1,"GET /system/freshness":3}
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 10
+    Received:    13
+
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+      93 |     // каждый путь по-прежнему спрашивается один раз
+    > 94 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+         |                                                           ^
+      95 |       screen === '/finance' ? 15 : ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      96 |     );
+      97 |   });
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:94:59
+
+    Error Context: test-results/requests-экран-inventory-д-0f43d-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-inventory-д-0f43d-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-inventory-д-0f43d-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /connections/channex: {"GET /auth/me":2,"GET /hotel/settings":2,"GET /finance/report?from=2027-06-01&to=2027-06-30":1,"GET /finance/debts?from=2027-06-01&to=2027-06-30":1,"GET /finance/operations?from=2027-06-01&limit=500&to=2027-06-30":1,"GET /finance/cash":1,"GET /finance/services-report?from=2027-06-01&to=2027-06-30":1,"GET /finance/operations?from=2027-05-02&limit=1&to=2027-05-31":1,"GET /chessboard?from=2026-10-09&to=2026-10-09":1,"GET /desk/today?date=2026-10-09":1,"GET /desk/dashboard?from=2026-10-08&to=2026-10-08":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-09&to=2026-10-15":1,"GET /channels/channex/connection":1,"GET /channels/channex/webhook/status":1,"GET /system/freshness":3}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+      91 |     // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-connections-8df1f-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-connections-8df1f-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-connections-8df1f-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /channels/mapping: {"GET /auth/me":3,"GET /hotel/settings":3,"GET /channels/channex/mapping":1,"GET /inventory/summary":1,"GET /rates/options":1,"GET /channels/channex/content/names":1,"GET /finance/report?from=2026-10-01&to=2026-10-31":2,"GET /finance/debts?from=2026-10-01&to=2026-10-31":2,"GET /finance/operations?from=2026-10-01&limit=500&to=2026-10-31":2,"GET /finance/cash":2,"GET /finance/services-report?from=2026-10-01&to=2026-10-31":2,"GET /finance/operations?from=2026-08-31&limit=1&to=2026-09-30":2,"GET /chessboard?from=2026-10-09&to=2026-10-09":2,"GET /desk/today?date=2026-10-09":2,"GET /desk/dashboard?from=2026-10-08&to=2026-10-08":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-09&to=2026-10-15":1,"GET /system/freshness":3}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 38
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     3,
+    +   ],
+    +   Array [
+    +     "GET /finance/report?from=2026-10-01&to=2026-10-31",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /finance/debts?from=2026-10-01&to=2026-10-31",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /finance/operations?from=2026-10-01&limit=500&to=2026-10-31",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /finance/cash",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /finance/services-report?from=2026-10-01&to=2026-10-31",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /finance/operations?from=2026-08-31&limit=1&to=2026-09-30",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /chessboard?from=2026-10-09&to=2026-10-09",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /desk/today?date=2026-10-09",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+      91 |     // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-channels-ma-c9a54-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-channels-ma-c9a54-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-channels-ma-c9a54-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь ─
+
+    Error: путь с данными запрошен повторно за один показ /channels/sync: {"GET /auth/me":2,"GET /hotel/settings":2,"GET /channels/channex/outbox":1,"GET /channels/channex/outbox/rows?limit=50":1,"GET /channels/channex/connection":1,"GET /channels/channex/events?limit=1&offset=0&status=FAILED":1,"GET /inventory/summary":1,"GET /system/freshness":2,"GET /finance/report?from=2026-10-01&to=2026-10-31":1,"GET /finance/debts?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-10-01&limit=500&to=2026-10-31":1,"GET /finance/cash":1,"GET /finance/services-report?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-08-31&limit=1&to=2026-09-30":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+      91 |     // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-channels-sy-78efb-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-channels-sy-78efb-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-channels-sy-78efb-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /channels/events: {"GET /auth/me":2,"GET /hotel/settings":2,"GET /channels/channex/events?limit=20&offset=0":1,"GET /system/freshness":1,"GET /finance/report?from=2026-10-01&to=2026-10-31":1,"GET /finance/debts?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-10-01&limit=500&to=2026-10-31":1,"GET /finance/cash":1,"GET /finance/services-report?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-08-31&limit=1&to=2026-09-30":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+      91 |     // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-channels-ev-62b4b-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-channels-ev-62b4b-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-channels-ev-62b4b-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/ui/requests.spec.ts:80:3 › экран /marketing: данные берутся одним запросом на путь ─────
+
+    Error: путь с данными запрошен повторно за один показ /marketing: {"GET /auth/me":2,"GET /hotel/settings":2,"GET /system/freshness":2,"GET /finance/report?from=2026-10-01&to=2026-10-31":1,"GET /finance/debts?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-10-01&limit=500&to=2026-10-31":1,"GET /finance/cash":1,"GET /finance/services-report?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-08-31&limit=1&to=2026-09-30":1,"GET /chessboard?from=2026-10-09&to=2026-10-09":1,"GET /desk/today?date=2026-10-09":1,"GET /desk/dashboard?from=2026-10-08&to=2026-10-08":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-09&to=2026-10-15":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+      91 |     // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-marketing-д-ec5c0-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-marketing-д-ec5c0-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-marketing-д-ec5c0-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь 
+
+    Error: запросов на экран /website/booking: {"GET /desk/today":1,"GET /auth/me":1,"GET /system/freshness":1,"GET /hotel/settings":1,"GET /finance/report?from=2027-06-01&to=2027-06-30":1,"GET /finance/debts?from=2027-06-01&to=2027-06-30":1,"GET /finance/operations?from=2027-06-01&limit=500&to=2027-06-30":1,"GET /finance/cash":1,"GET /finance/services-report?from=2027-06-01&to=2027-06-30":1,"GET /finance/operations?from=2027-05-02&limit=1&to=2027-05-31":1,"GET /chessboard?from=2026-10-09&to=2026-10-09":1,"GET /desk/today?date=2026-10-09":1,"GET /desk/dashboard?from=2026-10-08&to=2026-10-08":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-09&to=2026-10-15":1}
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 10
+    Received:    15
+
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+      93 |     // каждый путь по-прежнему спрашивается один раз
+    > 94 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+         |                                                           ^
+      95 |       screen === '/finance' ? 15 : ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      96 |     );
+      97 |   });
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:94:59
+
+    Error Context: test-results/requests-экран-website-boo-2dad3-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-website-boo-2dad3-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-website-boo-2dad3-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь 
+
+    Error: запросов на экран /website/analytics: {"GET /chessboard?from=2026-10-09&to=2026-10-09":1,"GET /desk/today?date=2026-10-09":1,"GET /desk/dashboard?from=2026-10-08&to=2026-10-08":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-09&to=2026-10-15":1,"GET /analytics/sites":1,"GET /auth/me":1,"GET /analytics/sites/ui-site/report":1,"GET /hotel/settings":1,"GET /system/freshness":3}
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 10
+    Received:    12
+
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+      93 |     // каждый путь по-прежнему спрашивается один раз
+    > 94 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+         |                                                           ^
+      95 |       screen === '/finance' ? 15 : ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      96 |     );
+      97 |   });
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:94:59
+
+    Error Context: test-results/requests-экран-website-ana-a3c9c-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-website-ana-a3c9c-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-website-ana-a3c9c-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /hotel-settings/stay: {"GET /auth/me":3,"GET /hotel/settings":3,"GET /hotel/services":1,"GET /system/freshness":3,"GET /inventory/categories":1,"GET /inventory/units":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     3,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+      91 |     // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-hotel-setti-f23cb-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-hotel-setti-f23cb-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-hotel-setti-f23cb-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь ───
+
+    Error: путь с данными запрошен повторно за один показ /connections: {"GET /hotel/settings":2,"GET /auth/me":2,"GET /channels/channex/connection":1,"GET /channels/channex/webhook/status":1,"GET /channels/channex/outbox":1,"GET /channels/channex/mapping":1,"GET /inventory/summary":1,"GET /finance/report?from=2026-10-01&to=2026-10-31":1,"GET /finance/debts?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-10-01&limit=500&to=2026-10-31":1,"GET /finance/cash":1,"GET /finance/services-report?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-08-31&limit=1&to=2026-09-30":1,"GET /chessboard?from=2026-10-09&to=2026-10-09":1,"GET /desk/today?date=2026-10-09":1,"GET /desk/dashboard?from=2026-10-08&to=2026-10-08":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-09&to=2026-10-15":1,"GET /system/freshness":2}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+      91 |     // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-connections-a60a3-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-connections-a60a3-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-connections-a60a3-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь 
+
+    Error: запросов на экран /website/settings: {"GET /system/freshness":2,"GET /auth/me":1,"GET /hotel/settings":1,"GET /finance/report?from=2026-10-01&to=2026-10-31":1,"GET /finance/debts?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-10-01&limit=500&to=2026-10-31":1,"GET /finance/cash":1,"GET /finance/services-report?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-08-31&limit=1&to=2026-09-30":1,"GET /chessboard?from=2026-10-09&to=2026-10-09":1,"GET /desk/today?date=2026-10-09":1,"GET /desk/dashboard?from=2026-10-08&to=2026-10-08":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-09&to=2026-10-15":1}
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 10
+    Received:    15
+
+      92 |     // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+      93 |     // каждый путь по-прежнему спрашивается один раз
+    > 94 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+         |                                                           ^
+      95 |       screen === '/finance' ? 15 : ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      96 |     );
+      97 |   });
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:94:59
+
+    Error Context: test-results/requests-экран-website-set-855d1-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-website-set-855d1-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-website-set-855d1-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) tests/ui/today-attention.spec.ts:137:1 › сторож не ответил — строк инцидентов нет, остальная очередь на месте 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('region', { name: 'Требуют внимания' }).locator('[data-event="incidents"], [data-event="incidents-critical"]')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('region', { name: 'Требуют внимания' }).locator('[data-event="incidents"], [data-event="incidents-critical"]') with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Требуют внимания' }).locator('[data-event="incidents"], [data-event="incidents-critical"]')
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      145 |   await expect(
+      146 |     block.locator('[data-event="incidents"], [data-event="incidents-critical"]'),
+    > 147 |   ).toHaveCount(0);
+          |     ^
+      148 |   await expect(block.locator('[data-event="no-show"]')).toHaveCount(1);
+      149 | });
+      150 |
+        at /home/user/wetop.ai/tests/ui/today-attention.spec.ts:147:5
+
+    Error Context: test-results/today-attention-сторож-не--dfa73--остальная-очередь-на-месте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-attention-сторож-не--dfa73--остальная-очередь-на-месте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-attention-сторож-не--dfa73--остальная-очередь-на-месте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26 failed
+    tests/ui/dashboard-desk.spec.ts:19:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез 
+    tests/ui/dashboard-desk.spec.ts:84:1 › 9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки 
+    tests/ui/design-refresh.spec.ts:9:1 › финансы: деньги на первом экране, кнопки брони нет ───────
+    tests/ui/design-refresh.spec.ts:72:1 › финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике» 
+    tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются 
+    tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 1440 ───────────────────
+    tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 390 ────────────────────
+    tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 ────────────────────
+    tests/ui/finance-cash-first.spec.ts:130:1 › касса: тёмное оформление читается на телефоне ──────
+    tests/ui/finance-f1.spec.ts:222:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет 
+    tests/ui/finance-f1.spec.ts:238:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» 
+    tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится 
+    tests/ui/loading-performance.spec.ts:27:1 › «Финансы» показывают блоки, пока настройки гостиницы ещё загружаются 
+    tests/ui/requests.spec.ts:80:3 › экран /reservations: данные берутся одним запросом на путь ────
+    tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь ───────
+    tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь ───
+    tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь ─
+    tests/ui/requests.spec.ts:80:3 › экран /marketing: данные берутся одним запросом на путь ───────
+    tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь ─
+    tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь ─────
+    tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь 
+    tests/ui/today-attention.spec.ts:137:1 › сторож не ответил — строк инцидентов нет, остальная очередь на месте 
+  107 passed (5.3m)
+
+# код выхода 1 · 5 мин 18 с

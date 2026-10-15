@@ -2,16 +2,7 @@
 import { useActionState, useState } from 'react';
 import { parseBeautyServiceInput, parseLocationServiceInput } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
-import {
-  Alert,
-  Badge,
-  Button,
-  EmptyState,
-  Field,
-  Input,
-  Select,
-  Table,
-} from '../../../components/ui';
+import { Alert, Badge, Button, Field, Input, Select, Table } from '../../../components/ui';
 import { formatMoney } from '../../../lib/money';
 import type { BeautyServiceRow } from '../../../lib/api';
 import { saveBeautyService, saveLocationService } from '../actions';
@@ -53,11 +44,6 @@ export function ServicesBoard({
           </Button>
         )}
       </div>
-      {items.length === 0 && (
-        <EmptyState title="Добавьте первую услугу">
-          Укажите название, длительность и цену, затем включите услугу в филиале.
-        </EmptyState>
-      )}
       <Table className="beauty-operational-table">
         <thead>
           <tr>
@@ -66,6 +52,7 @@ export function ServicesBoard({
             <th className="beauty-col-wide">Длительность</th>
             <th>Цена каталога</th>
             <th>В этом филиале</th>
+            <th>Популярность за 30 дней</th>
             {canEdit && <th className="sr-only">Действия</th>}
           </tr>
         </thead>
@@ -89,6 +76,21 @@ export function ServicesBoard({
                   : row.effective.sellable
                     ? `${formatMoney(row.effective.priceMinor, row.effective.currency)}, ${row.effective.durationMinutes} мин${row.effective.overridden ? ' (своя цена филиала)' : ''}`
                     : (NOT_SELLABLE[row.effective.reason] ?? 'Не продаётся')}
+              </td>
+              <td data-label="Популярность за 30 дней">
+                {row.popularity ? row.popularity.totalCompletedVisits > 0 ? (
+                  <div className="beauty-popularity">
+                    <b>{new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
+                      row.popularity.completedVisits * 100 / row.popularity.totalCompletedVisits,
+                    )}%</b>
+                    <progress
+                      aria-label={`Доля завершённых визитов услуги ${row.name}`}
+                      value={row.popularity.completedVisits}
+                      max={row.popularity.totalCompletedVisits}
+                    />
+                    <small>{row.popularity.completedVisits} из {row.popularity.totalCompletedVisits} завершённых визитов</small>
+                  </div>
+                ) : 'Нет завершённых визитов' : locationCurrency ? 'Нет данных' : 'Выберите филиал'}
               </td>
               {canEdit && (
                 <td data-label="Действия">

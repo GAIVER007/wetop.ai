@@ -1,0 +1,51 @@
+# Сквозные (e2e) · 11.10.2026 11:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 907a513 (claude/kitchen-fs2-stock), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' 'tests/food-ui/stock.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (2.4s)
+  ✓  2 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (1.2s)
+  ✓  3 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается, излишек отклонён до решения Q-KITCHEN-9 (1.2s)
+  ✓  4 tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет (1.1s)
+  ✓  5 tests/food-ui/stock.spec.ts:136:1 › роли: администратор работает со складом, но не правит справочник; только чтение (720ms)
+  ✘  6 tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 (4.3s)
+
+
+  1) tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 ───────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      171 |       await settled(page);
+      172 |       await page.screenshot({ path: `${shots}/stock-${theme}-${width}.png`, fullPage: true });
+    > 173 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+          |                                                                                                    ^
+      174 |       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      175 |       await page.getByRole('button', { name: '+ Приход', exact: true }).click();
+      176 |       await expect(page.getByRole('dialog')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:173:100
+
+    Error Context: test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 ────────────────────
+  5 passed (17.5s)
+
+# код выхода 1 · 19 с

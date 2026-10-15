@@ -1,0 +1,116 @@
+# Сквозные (e2e) · 09.10.2026 19:39 Алматы · vm
+# коммит 95476bc (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (2.9s)
+  ✓  2 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (6.1s)
+  ✘  3 tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (17.0s)
+  ✓  4 tests/ui/marketing.spec.ts:163:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (6.7s)
+  ✓  5 tests/ui/marketing.spec.ts:221:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (6.7s)
+  ✘  6 tests/ui/marketing.spec.ts:243:3 › хаб на компьютере и телефоне, доступность: light (11.2s)
+  ✘  7 tests/ui/marketing.spec.ts:243:3 › хаб на компьютере и телефоне, доступность: dark (10.4s)
+  ✓  8 tests/ui/marketing.spec.ts:298:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (5.8s)
+
+
+  1) tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByRole('main').visible().getByTestId('marketing-ads')
+    Expected substring: not "Подключ"
+    Received string: "РекламаСкороЗапускайте рекламные кампании в Facebook и Instagram с помощью ИИ-таргетолога.Подключение рекламных кабинетовАвтоматическая настройка и оптимизацияПодробная аналитика и отчётыОткрыть"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "not toContainText" getByRole('main').visible().getByTestId('marketing-ads') with timeout 15000ms
+      - waiting for getByRole('main').visible().getByTestId('marketing-ads')
+        34 × locator resolved to <div data-testid="marketing-ads" class="marketing-module__body">…</div>
+           - unexpected value "РекламаСкороЗапускайте рекламные кампании в Facebook и Instagram с помощью ИИ-таргетолога.Подключение рекламных кабинетовАвтоматическая настройка и оптимизацияПодробная аналитика и отчётыОткрыть"
+
+
+      134 |     await expect(card.locator('a, button')).toHaveCount(1);
+      135 |     await expect(card.getByRole('link', { name: `Открыть: ${title}`, exact: true })).toHaveAttribute('href', href);
+    > 136 |     await expect(card).not.toContainText('Подключ');
+          |                            ^
+      137 |     await expect(card.getByRole('listitem')).toHaveCount(3);
+      138 |   }
+      139 |   // подсказка справа ведёт к сайту, а не «подключает всё»
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:136:28
+
+    Error Context: test-results/marketing-хаб-Marketing-2--96553-ел-ни-одного-запроса-данных/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-Marketing-2--96553-ел-ни-одного-запроса-данных/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-Marketing-2--96553-ел-ни-одного-запроса-данных/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing.spec.ts:243:3 › хаб на компьютере и телефоне, доступность: light ───────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      272 |         expect(
+      273 |           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+    > 274 |         ).toBe(true);
+          |           ^
+      275 |         const screenAudit = await new AxeBuilder({ page })
+      276 |           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      277 |           .analyze();
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:274:11
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/marketing.spec.ts:243:3 › хаб на компьютере и телефоне, доступность: dark ────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      272 |         expect(
+      273 |           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+    > 274 |         ).toBe(true);
+          |           ^
+      275 |         const screenAudit = await new AxeBuilder({ page })
+      276 |           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      277 |           .analyze();
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:274:11
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных 
+    tests/ui/marketing.spec.ts:243:3 › хаб на компьютере и телефоне, доступность: light ────────────
+    tests/ui/marketing.spec.ts:243:3 › хаб на компьютере и телефоне, доступность: dark ─────────────
+  5 passed (1.4m)
+
+# код выхода 1 · 1 мин 25 с

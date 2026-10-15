@@ -22,6 +22,7 @@ describe('бар: приходы (BAR2)', () => {
       };
     },
     async setProductActive(id, active) { return id.endsWith('001') ? { id, active } : null; },
+    async updateProduct(id, patch) { return id.endsWith('001') ? { id, ...patch, minimumStockUnits: patch.minimumStockUnits.toString() } : null; },
     async setProductPrice(id, salePriceMinor) { return id.endsWith('001') ? { id, salePrice: salePriceMinor.toString() } : null; },
     async suppliers() { return []; },
     async createSupplier(input) { return { id: '20000000-0000-4000-8000-000000000001', ...input }; },
@@ -114,6 +115,19 @@ describe('бар: приходы (BAR2)', () => {
     await request(app.getHttpServer()).patch(`/bar/suppliers/${supplier.body.id}/active`).send({ active: false }).expect(200);
   });
 
+  it('правит карточку товара: название, категорию, штрихкод, наценку и минимум, но не цену', async () => {
+    const id = '40000000-0000-4000-8000-000000000001';
+    const updated = await request(app.getHttpServer()).patch(`/bar/products/${id}`).send({
+      name: 'Cola 0,5 ж/б', categoryId: null, barcode: '4870001234567',
+      unitsPerPackage: 12, markupBasis: 3500, minimumStockUnits: '8',
+    }).expect(200);
+    expect(updated.body).toMatchObject({ name: 'Cola 0,5 ж/б', barcode: '4870001234567', minimumStockUnits: '8' });
+    // цена правится своим маршрутом с аудитом до и после: здесь её нет
+    expect((await request(app.getHttpServer()).patch(`/bar/products/${id}`).send({ name: 'x', salePriceMinor: '100', unitsPerPackage: 1, markupBasis: null, minimumStockUnits: '0', categoryId: null, barcode: null })).status).toBe(400);
+    expect((await request(app.getHttpServer()).patch(`/bar/products/${id}`).send({ name: '', categoryId: null, barcode: null, unitsPerPackage: 1, markupBasis: null, minimumStockUnits: '0' })).status).toBe(400);
+    expect((await request(app.getHttpServer()).patch('/bar/products/40000000-0000-4000-8000-000000000002').send({ name: 'Нет такого', categoryId: null, barcode: null, unitsPerPackage: 1, markupBasis: null, minimumStockUnits: '0' })).status).toBe(404);
+  });
+
   it('продает без брони и запрещает минусовой остаток', async () => {
     const body = { productId: '30000000-0000-4000-8000-000000000001', quantityUnits: '2', method: 'CASH', idempotencyKey: 'sale-1' };
     const sold = await request(app.getHttpServer()).post('/bar/sales/retail').send(body).expect(201);
@@ -152,5 +166,60 @@ describe('бар: приходы (BAR2)', () => {
     const adjusted = await request(app.getHttpServer()).post('/bar/inventory-counts').send({ productId, actualUnits: '10', reason: 'Пересчет смены' }).expect(201);
     expect(adjusted.body.differenceUnits).toBe('-2');
     await request(app.getHttpServer()).post('/bar/inventory-counts').send({ productId, actualUnits: '13', reason: 'Найден излишек' }).expect(409);
+  });
+});
+
+/** ADR-181: сторно продажи гасит деньги, поэтому право `refunds`; продажа и расходы остаются у смены. */
+describe('бар: права на сторно (FOOD-FIX-01)', () => {
+  let app: INestApplication;
+  const repo = {
+    async sellRetail() {
+      return { kind: 'posted', id: '60000000-0000-4000-8000-000000000001', status: 'POSTED', revenueMinor: '70000', costMinor: '15000' };
+    },
+    async reverseSale(id: string, restock: boolean, reason: string) {
+      return { kind: 'reversed', id, status: 'REVERSED', restocked: restock, reason };
+    },
+  } as unknown as BarRepository;
+
+  beforeAll(async () => {
+    const m = await Test.createTestingModule({ imports: [BarModule] })
+      .overrideProvider(BAR_REPOSITORY).useValue(repo)
+      .overrideProvider(PrismaService).useValue({})
+      .compile();
+    app = m.createNestApplication();
+    app.use(
+      (req: { user?: object; headers: Record<string, string> }, _res: unknown, next: () => void) => {
+        req.user = {
+          id: '00000000-0000-4000-8000-000000000001',
+          organizationId: '00000000-0000-4000-8000-000000000002',
+          role: req.headers['x-test-role'] === 'STAFF' ? 'STAFF' : 'OWNER',
+        };
+        next();
+      },
+    );
+    const { RoleGuard } = await import('../auth/role.guard');
+    const { Reflector } = await import('@nestjs/core');
+    app.useGlobalGuards(new RoleGuard(new Reflector()));
+    await app.init();
+  });
+  afterAll(async () => app.close());
+
+  const saleId = '60000000-0000-4000-8000-000000000001';
+
+  it('смене (STAFF) сторно закрыто, продажа открыта', async () => {
+    await request(app.getHttpServer())
+      .post(`/bar/sales/${saleId}/reverse`).set('x-test-role', 'STAFF').send({ restock: true, reason: 'Возврат гостя' })
+      .expect(403);
+    await request(app.getHttpServer())
+      .post('/bar/sales/retail').set('x-test-role', 'STAFF')
+      .send({ productId: '30000000-0000-4000-8000-000000000001', quantityUnits: '1', method: 'CASH', idempotencyKey: 'perm-sale-1' })
+      .expect(201);
+  });
+
+  it('владельцу с правом refunds сторно открыто', async () => {
+    const reversed = await request(app.getHttpServer())
+      .post(`/bar/sales/${saleId}/reverse`).send({ restock: true, reason: 'Возврат гостя' })
+      .expect(201);
+    expect(reversed.body.status).toBe('REVERSED');
   });
 });

@@ -1,0 +1,64 @@
+# Интеграционные (integration) · 11.10.2026 13:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит ff174db (claude/platform-integration-counts), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-32-50Z-integration-ec27.json' 'tests/integration/platform-extensions.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin
+
+ ❯ |integration| tests/integration/platform-extensions.test.ts (8 tests | 1 failed) 251ms
+   ❯ расширения организаций (integration, DATABASE_URL required) (8)
+     ✓ изменение и журнал — одной транзакцией: было, стало, кто 44ms
+     ✓ отказ базы — ни изменения, ни записи в журнале 6ms
+     × список организаций: люди, владельцы, направления и филиалы без броней и гостей 16ms
+     ✓ название: меняется и пишется в журнал, было и стало 12ms
+     ✓ архив: статус SUSPENDED и журнал с прежним статусом; данные организации на месте 6ms
+     ✓ возврат из архива: прежний статус и строка журнала 7ms
+     ✓ второй архив и возврат берут статус из последней записи, а не из первой 7ms
+     ✓ записи об архиве нет: возврат в «только чтение», платный доступ сам не появляется 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/platform-extensions.test.ts > расширения организаций (integration, DATABASE_URL required) > список организаций: люди, владельцы, направления и филиалы без броней и гостей
+AssertionError: expected { …(11) } to match object { …(6) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "aiSeller": {
+      "activeUntil": null,
+      "status": "ACTIVE",
+    },
+-   "locations": 3,
++   "locations": 0,
+    "members": 2,
+    "name": "Тест расширений mv3kff04",
+    "owners": [
+      "<email>",
+    ],
+-   "verticals": [
+-     "BEAUTY",
+-     "FOOD_SERVICE",
+-   ],
++   "verticals": [],
+  }
+
+ ❯ tests/integration/platform-extensions.test.ts:123:15
+    121|     const a = list.find((o) => o.id === orgA);
+    122|     const b = list.find((o) => o.id === orgB);
+    123|     expect(a).toMatchObject({
+       |               ^
+    124|       name: `Тест расширений ${mark}`,
+    125|       members: 2,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  01:32:51
+   Duration  1.38s (transform 42%, import 30%, tests 29%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-32-50Z-integration-ec27.json
+
+# код выхода 1 · 2 с

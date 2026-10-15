@@ -1,0 +1,89 @@
+# Интеграционные (integration) · 14.10.2026 19:58 Алматы · MacBook-Air-Urij.local
+# коммит ecd2127 (claude/food-fix-02-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T14-58-03Z-integration-0216.json' 'tests/integration/food-booking-rules-guard.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02
+
+ ❯ |integration| tests/integration/food-booking-rules-guard.test.ts (3 tests | 3 failed) 486ms
+   ❯ правила брони столов: стража и права (миграции 105 и 106) (3)
+     × ресторанному филиалу правила и закрытый день можно, гостиничному нельзя 44ms
+     × родительский филиал неизменяем у правил и закрытых дней 22ms
+     × права по операциям API: правила без DELETE, закрытые дни без UPDATE 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/food-booking-rules-guard.test.ts > правила брони столов: стража и права (миграции 105 и 106) > ресторанному филиалу правила и закрытый день можно, гостиничному нельзя
+AssertionError: promise resolved "{ …(5) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "bufferMinutes": 10,
++   "horizonDays": null,
++   "locationId": "55336ce1-177a-4a41-9172-d8d8b0afae8a",
++   "maxPartySize": null,
++   "updatedAt": 2026-10-14T14:58:07.562Z,
+  }
+
+ ❯ tests/integration/food-booking-rules-guard.test.ts:64:6
+     62|     await expect(
+     63|       db.foodBookingRules.create({ data: { locationId: hotelLocation, …
+     64|     ).rejects.toThrow(/Food location required/);
+       |      ^
+     65|     await expect(
+     66|       db.foodClosedDay.create({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/food-booking-rules-guard.test.ts > правила брони столов: стража и права (миграции 105 и 106) > родительский филиал неизменяем у правил и закрытых дней
+AssertionError: promise resolved "1" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+1
+
+ ❯ tests/integration/food-booking-rules-guard.test.ts:87:6
+     85|     await expect(
+     86|       db.$executeRaw`UPDATE food_booking_rules SET location_id=${foodL…
+     87|     ).rejects.toThrow(/Food parent is immutable/);
+       |      ^
+     88|     await expect(
+     89|       db.$executeRaw`UPDATE food_closed_days SET location_id=${foodLoc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/food-booking-rules-guard.test.ts > правила брони столов: стража и права (миграции 105 и 106) > права по операциям API: правила без DELETE, закрытые дни без UPDATE
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/integration/food-booking-rules-guard.test.ts:106:54
+    104|     expect(granted.get('food_booking_rules:INSERT')).toBe(true);
+    105|     expect(granted.get('food_booking_rules:UPDATE')).toBe(true);
+    106|     expect(granted.get('food_booking_rules:DELETE')).toBe(false);
+       |                                                      ^
+    107|     expect(granted.get('food_closed_days:SELECT')).toBe(true);
+    108|     expect(granted.get('food_closed_days:INSERT')).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  18:58:05
+   Duration  1.81s (tests 62%, transform 28%, import 10%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T14-58-03Z-integration-0216.json
+
+# код выхода 1 · 4 с

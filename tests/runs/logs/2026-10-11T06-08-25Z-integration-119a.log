@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 11.10.2026 11:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 907a513 (claude/kitchen-fs2-stock), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T06-08-25Z-integration-119a.json' 'tests/integration/kitchen-stock.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2
+
+ ✓ |integration| tests/integration/kitchen-stock.test.ts (5 tests) 37ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 257ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  23:08:26
+   Duration  1.39s (transform 46%, tests 33%, import 20%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T06-08-25Z-integration-119a.json
+
+# код выхода 0 · 2 с

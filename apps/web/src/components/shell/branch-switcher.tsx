@@ -2,6 +2,7 @@
 import { useEffect, useId, useRef, useState, useTransition, type ReactNode } from 'react';
 import { branchChoices, selectBranch } from '../../app/branches/actions';
 import { Icon } from '../icon';
+import styles from './branch-switcher.module.css';
 
 export function BranchSwitcher({
   children,
@@ -23,7 +24,7 @@ export function BranchSwitcher({
   const id = useId();
   const filtered =
     choices?.items?.filter((item) =>
-      `${item.name} ${item.address ?? ''}`
+      `${item.name} ${item.address ?? ''} ${item.vertical === 'FOOD_SERVICE' ? 'Ресторан' : item.vertical === 'BEAUTY' ? 'Салон' : 'Гостиница'}`
         .toLocaleLowerCase('ru')
         .includes(search.trim().toLocaleLowerCase('ru')),
     ) ?? [];
@@ -63,7 +64,7 @@ export function BranchSwitcher({
   }
   return (
     <div
-      className="branch-switcher"
+      className={`branch-switcher ${styles.switcher}`}
       ref={root}
       onBlur={(event) => {
         if (
@@ -105,7 +106,7 @@ export function BranchSwitcher({
           aria-busy={loading || switching}
         >
           <div className="branch-switcher__heading">
-            <strong>Выберите филиал</strong>
+            <strong>Бизнес и филиалы</strong>
             <span>{choices?.items?.length ?? ''}</span>
           </div>
           {loading ? (
@@ -122,26 +123,48 @@ export function BranchSwitcher({
                 />
               )}
               <div className="branch-switcher__options">
-                {filtered.map((item) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    disabled={switching}
-                    aria-pressed={item.id === choices.currentId}
-                    onClick={() =>
-                      item.id === choices.currentId ? setOpen(false) : choose(item.id)
-                    }
-                  >
-                    <strong>{item.name}</strong>
-                    {item.id === choices.currentId && <Icon name="check" width={16} />}
-                    <span title={item.address || undefined}>
-                      {item.address || 'Адрес не указан'}
-                    </span>
-                    {item.id === choices.currentId && (
-                      <small className="sr-only">Текущий филиал</small>
-                    )}
-                  </button>
-                ))}
+                {(
+                  [
+                    ['HOSPITALITY', 'Гостиницы'],
+                    ['BEAUTY', 'Салоны'],
+                    ['FOOD_SERVICE', 'Рестораны'],
+                  ] as const
+                ).map(([vertical, label]) => {
+                  const items = filtered.filter((item) => item.vertical === vertical);
+                  if (!items.length) return null;
+                  return (
+                    <div className={styles.group} key={vertical}>
+                      <p className={styles.groupTitle}>{label}</p>
+                      {items.map((item) => (
+                        <button
+                          type="button"
+                          key={item.id}
+                          disabled={switching}
+                          aria-pressed={item.id === choices.currentId}
+                          onClick={() =>
+                            item.id === choices.currentId ? setOpen(false) : choose(item.id)
+                          }
+                        >
+                          <strong>{item.name}</strong>
+                          <small>
+                            {item.vertical === 'FOOD_SERVICE'
+                              ? 'Кафе / ресторан'
+                              : item.vertical === 'BEAUTY'
+                                ? 'Салон / студия'
+                                : 'Гостиничный бизнес'}
+                          </small>
+                          {item.id === choices.currentId && <Icon name="check" width={16} />}
+                          <span title={item.address || undefined}>
+                            {item.address || 'Адрес не указан'}
+                          </span>
+                          {item.id === choices.currentId && (
+                            <small className="sr-only">Текущий филиал</small>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })}
                 {filtered.length === 0 && (
                   <p role="status">{search ? 'Филиалы не найдены' : 'Нет доступных филиалов.'}</p>
                 )}

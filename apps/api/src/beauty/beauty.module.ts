@@ -16,6 +16,8 @@ import {
 } from '@nestjs/common';
 import {
   effectiveService,
+  localDate,
+  zonedStartOfDay,
   parseBeautyServiceInput,
   parseEmployeeInput,
   parseLocationServiceInput,
@@ -51,7 +53,12 @@ export class BeautyCatalogService {
     return beautyScope(this.prisma);
   }
 
-  /** Organization owns the identity; CustomerBusiness grants visibility in this business. */
+  /**
+   * Organization owns the identity; CustomerBusiness grants visibility in this business.
+   * Визиты, последний визит и средний чек считаются по завершённым записям (DONE) этого бизнеса:
+   * деньги записи это её снимок цены (Q-252), новых таблиц нет. Средний чек идёт по валюте, в которой
+   * у клиента больше всего визитов (валюты не складываются, курсов нет); «всего визитов» по всем валютам.
+   */
   async customers() {
     this.may('desk');
     const scope = await this.scope();
@@ -60,7 +67,58 @@ export class BeautyCatalogService {
       orderBy: [{ firstName: 'asc' }, { id: 'asc' }],
       select: { id: true, firstName: true, lastName: true, phone: true, status: true },
     });
-    return { items };
+    const done = await this.prisma.db.appointment.groupBy({
+      by: ['customerId', 'currency'],
+      where: { status: 'DONE', location: { businessId: scope.businessId } },
+      _count: { _all: true },
+      _sum: { price: true },
+      _max: { startsAt: true },
+    });
+    // Для даты нужен пояс филиала самого визита, включая визиты в другом филиале сети.
+    const latest = await this.prisma.db.appointment.findMany({
+      where: { status: 'DONE', location: { businessId: scope.businessId } },
+      distinct: ['customerId'],
+      orderBy: [{ startsAt: 'desc' }, { id: 'asc' }],
+      select: { customerId: true, startsAt: true, location: { select: { timezone: true } } },
+    });
+    const visitDates = new Map(latest.map((visit) => [
+      visit.customerId, localDate(visit.startsAt, visit.location.timezone),
+    ]));
+    const byCustomer = new Map<
+      string,
+      { visits: number; lastVisitAt: Date; top: { count: number; sum: bigint; currency: string } }
+    >();
+    for (const row of done) {
+      const count = row._count._all;
+      const sum = row._sum.price ?? 0n;
+      const last = row._max.startsAt!;
+      const seen = byCustomer.get(row.customerId);
+      if (!seen) {
+        byCustomer.set(row.customerId, {
+          visits: count,
+          lastVisitAt: last,
+          top: { count, sum, currency: row.currency },
+        });
+        continue;
+      }
+      seen.visits += count;
+      if (last > seen.lastVisitAt) seen.lastVisitAt = last;
+      if (count > seen.top.count) seen.top = { count, sum, currency: row.currency };
+    }
+    return {
+      items: items.map((c) => {
+        const s = byCustomer.get(c.id);
+        return {
+          ...c,
+          visits: s?.visits ?? 0,
+          lastVisitAt: s ? s.lastVisitAt.toISOString() : null,
+          lastVisitLocalDate: visitDates.get(c.id) ?? null,
+          // целочисленное деление в тиынах: остаток отбрасывается, float не появляется (ADR-008)
+          avgCheckMinor: s ? (s.top.sum / BigInt(s.top.count)).toString() : null,
+          avgCheckCurrency: s ? s.top.currency : null,
+        };
+      }),
+    };
   }
 
   /** Услуги каталога с тем, что про них говорит филиал: действующая цена считается домéном */
@@ -86,10 +144,36 @@ export class BeautyCatalogService {
           : false,
       },
     });
+    let popularity: Map<string, number> | null = null;
+    let totalCompletedVisits = 0;
+    if (scope.locationId && scope.locationTimezone) {
+      const today = localDate(new Date(), scope.locationTimezone);
+      const start = new Date(`${today}T12:00:00Z`);
+      start.setUTCDate(start.getUTCDate() - 29);
+      const end = new Date(`${today}T12:00:00Z`);
+      end.setUTCDate(end.getUTCDate() + 1);
+      const counts = await this.prisma.db.appointment.groupBy({
+        by: ['serviceId'],
+        where: {
+          locationId: scope.locationId,
+          status: 'DONE',
+          startsAt: {
+            gte: zonedStartOfDay(start.toISOString().slice(0, 10), scope.locationTimezone),
+            lt: zonedStartOfDay(end.toISOString().slice(0, 10), scope.locationTimezone),
+          },
+        },
+        _count: { _all: true },
+      });
+      popularity = new Map(counts.map((row) => [row.serviceId, row._count._all]));
+      totalCompletedVisits = counts.reduce((sum, row) => sum + row._count._all, 0);
+    }
     return {
       locationId: scope.locationId,
       locationCurrency: scope.locationCurrency,
-      items: rows.map((row) => serviceView(row, scope.locationCurrency)),
+      items: rows.map((row) => ({
+        ...serviceView(row, scope.locationCurrency),
+        popularity: popularity ? { completedVisits: popularity.get(row.id) ?? 0, totalCompletedVisits } : null,
+      })),
     };
   }
 

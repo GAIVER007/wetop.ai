@@ -1,0 +1,21 @@
+# Модульные (unit) · 13.10.2026 19:52 Алматы · MacBook-Air-Urij.local
+# коммит c7c5983 (claude/ui42-chessboard-20261013), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T14-52-21Z-unit-ca1f.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/desk-glass.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/design-rules.test.ts' 'apps/web/src/components/date-range-popover.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract
+
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 9ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 104ms
+ ✓ |unit| tests/unit/desk-glass.test.ts (4 tests) 161ms
+ ✓ |unit| apps/web/src/components/date-range-popover.test.ts (3 tests) 22ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 361ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 5ms
+
+ Test Files  6 passed (6)
+      Tests  62 passed (62)
+   Start at  18:52:23
+   Duration  557ms (tests 42%, import 37%, transform 20%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T14-52-21Z-unit-ca1f.json
+
+# код выхода 0 · 2 с

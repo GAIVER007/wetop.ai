@@ -1,82 +1,58 @@
 import { Suspense } from 'react';
-import Link from 'next/link';
-import { resolvePeriod } from '@pms/domain';
-import { hotelToday } from '../../lib/hotel-api';
-import { displayDate } from '../../lib/display-date';
 import { Page } from '../../components/page';
-import { Alert } from '../../components/ui';
-import { OwnerFinance, OwnerOperations, OwnerLoad } from './owner-dashboard';
-import { DashboardRefresh } from './owner-controls';
-import './owner-dashboard.css';
-import { OwnerPlaceholder, AttentionPlaceholder } from './owner-loading';
+import { financeApi } from '../../lib/api';
+import { hotelToday } from '../../lib/hotel-api';
+import { periods } from '../../lib/report-periods';
+import { OwnerLoad } from '../finance/owner-dashboard';
+import { AttentionCard, TodayCard } from '../finance/overview';
+import { AttentionPlaceholder, OwnerPlaceholder } from '../finance/owner-loading';
+import '../finance/owner-dashboard.css';
+import '../finance/attention.css';
+import '../finance/overview.css';
 
-/** Главная гостиницы (экран владельца): прежняя страница `/today`, вынесена без изменений поведения (MV8) */
-export async function HospitalityToday({ sp }: { sp: Record<string, string | undefined> }) {
-  const today = await hotelToday();
-  const period = resolvePeriod(
-    {
-      preset: sp.period ?? (sp.from || sp.to || sp.date ? undefined : 'month'),
-      from: sp.from,
-      to: sp.to,
-      date: sp.date,
-    },
-    today,
-  );
+/**
+ * Главная гостиницы (решение владельца 13.10.2026, поверх ADR-152): «Финансы» по эталону стали чисто
+ * денежным экраном, а загрузка с прогнозом, события дня и «Что требует внимания» вернулись сюда.
+ * Блоки те же, что стояли на «Обзоре бизнеса», расчёты не менялись.
+ */
+export async function HospitalityToday() {
+  const cal = periods(await hotelToday());
+  const period = `/finance?from=${cal.month.from}&to=${cal.month.to}`;
+  const debts = await financeApi.debts(cal.month.from, cal.month.to).catch(() => null);
   return (
     <Page
       title="Главная"
-      subtitle={displayDate(today, 'full')}
+      subtitle="Загрузка, события дня и задачи объекта"
       width="full"
-      actions={<DashboardRefresh />}
     >
-      <div className="owner-dashboard" data-testid="owner-dashboard">
-        <Suspense
-          fallback={
-            <div className="owner-load owner-surface">
-              <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
-            </div>
-          }
-        >
-          <OwnerLoad date={today} />
-        </Suspense>
-        <section className="owner-finance owner-surface" aria-label="Финансы за выбранный период">
-          <header className="owner-section-head">
-            <h2>Деньги</h2>
-            <nav className="owner-period" aria-label="Период финансов">
-              {[
-                ['today', 'Сегодня'],
-                ['week', '7 дней'],
-                ['month', 'Месяц'],
-              ].map(([id, label]) => (
-                <Link
-                  key={id}
-                  href={`/today?period=${id}`}
-                  aria-current={period.preset === id ? 'page' : undefined}
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-          </header>
-          {period.error && <Alert>{period.error}</Alert>}
+      <div className="biz-overview" data-testid="owner-dashboard">
+        <div className="biz-row biz-row--two">
           <Suspense
-            key={`${period.from}|${period.to}`}
-            fallback={<OwnerPlaceholder variant="finance" label="Загружаем финансы…" />}
+            fallback={
+              <div className="owner-load owner-surface">
+                <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
+              </div>
+            }
           >
-            <OwnerFinance period={period} />
+            <OwnerLoad date={cal.today} />
           </Suspense>
-        </section>
-        <Suspense
-          fallback={
-            <>
-              <div className="owner-today owner-surface">
+          <Suspense
+            fallback={
+              <div className="biz-today owner-surface">
                 <OwnerPlaceholder variant="today" label="Загружаем события дня…" />
               </div>
-              <AttentionPlaceholder />
-            </>
-          }
-        >
-          <OwnerOperations date={today} />
+            }
+          >
+            <TodayCard
+              date={cal.today}
+              debts={debts}
+              period={period}
+              currency={debts?.currency ?? 'KZT'}
+            />
+          </Suspense>
+        </div>
+        <Suspense fallback={<AttentionPlaceholder />}>
+          <AttentionCard date={cal.today} debts={debts} period={period} />
         </Suspense>
       </div>
     </Page>

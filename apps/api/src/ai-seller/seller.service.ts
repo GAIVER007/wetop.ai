@@ -35,6 +35,9 @@ import {
   conversationQuery,
   conversationView,
   conversationsView,
+  handlingInput,
+  handlingView,
+  noteText,
   knowledgeFile,
   knowledgeView,
   list,
@@ -213,6 +216,10 @@ export interface SellerStatus {
   connection: 'not-configured' | 'ready';
   /** Может ли вошедший менять настройки: владелец или управляющий (ADR-107) и действующее расширение */
   canConfigure: boolean;
+}
+
+export interface SellerPromptVersionsView {
+  items: Array<{ id: string; length: number; preview: string; createdAt: string; author: string | null }>;
 }
 
 export interface SellerPromptView {
@@ -504,6 +511,38 @@ export class SellerService {
         now,
       ),
     );
+    return this.savedPrompt();
+  }
+
+  /** История инструкции (DATA_MODEL §33): последние 20, читать можно и после срока расширения */
+  async promptVersions(now: Date = new Date()): Promise<SellerPromptVersionsView> {
+    this.checkUse((await this.gate(now)).extension, 'read');
+    const rows = await this.profiles.promptVersions(workingSellerScope(this.profileOrganization()).agentId, 20);
+    return {
+      items: rows.map((r) => ({
+        id: r.id,
+        length: r.length,
+        preview: r.preview,
+        createdAt: r.createdAt.toISOString(),
+        author: r.author,
+      })),
+    };
+  }
+
+  /** Вернуть версию: её текст сохраняется обычной правкой и становится новой последней версией */
+  async restorePromptVersion(rawId: string, now: Date = new Date()): Promise<SellerPromptView> {
+    this.checkUse((await this.gate(now)).extension, 'configure');
+    const id = conversationId(rawId);
+    const scope = workingSellerScope(this.profileOrganization());
+    const text = await this.profiles.promptVersionText(scope.agentId, id);
+    if (text === null) throw new NotFoundException('Версия не найдена');
+    await this.saved(() => this.profiles.savePrompt(scope, text, currentUserId(), now));
+    await this.audit.record({
+      entityType: 'SellerProfile',
+      entityId: scope.agentId,
+      action: 'seller.prompt.restored',
+      after: { versionId: id, length: text.length },
+    });
     return this.savedPrompt();
   }
 
@@ -845,6 +884,54 @@ export class SellerService {
       after: result,
     });
     return result;
+  }
+
+  /** Ответственный и следующий шаг. «Ответственный я» берёт вошедшего сотрудника: подпись не присылается снаружи */
+  async setHandling(rawId: string, raw: unknown) {
+    const id = conversationId(rawId);
+    const input = handlingInput(raw);
+    const { client } = await this.bound('act');
+    const body: Record<string, unknown> = {};
+    if (input.nextStep !== undefined) body.next_step = input.nextStep;
+    if (input.assignee !== undefined) {
+      const userId = currentUserId();
+      if (input.assignee === 'me' && !userId) throw new BadRequestException('Не удалось определить, кто вы');
+      body.assignee_user_id = input.assignee === 'me' ? userId : null;
+      body.assignee_name = input.assignee === 'me' ? await this.who(userId!) : null;
+    }
+    const result = handlingView(await this.call(() => client.handling(id, body)));
+    // текст шага — рабочая запись о госте: в журнал платформы идёт, что менялось
+    await this.audit.record({
+      entityType: 'SellerConversation',
+      entityId: id,
+      action: 'seller.conversation.handling',
+      after: { changed: Object.keys(input), assignee: result.assignee?.name ?? null },
+    });
+    return result;
+  }
+
+  async addNote(rawId: string, rawText: unknown) {
+    const id = conversationId(rawId);
+    const text = noteText(rawText);
+    const userId = currentUserId();
+    if (!userId) throw new BadRequestException('Не удалось определить, кто вы');
+    const { client } = await this.bound('act');
+    const author = await this.who(userId);
+    const raw = await this.call(() =>
+      client.addNote(id, { body: text, author_user_id: userId, author_name: author }),
+    );
+    await this.audit.record({
+      entityType: 'SellerConversation',
+      entityId: id,
+      action: 'seller.conversation.note',
+      after: { length: text.length },
+    });
+    const n = obj(raw);
+    return { id: str(n.id) ?? '', author: str(n.author) ?? author, authorUserId: userId, text, at: str(n.at) };
+  }
+
+  private async who(userId: string): Promise<string> {
+    return (await this.orgs.userLabel(userId)) ?? 'Сотрудник';
   }
 
   async reply(rawId: string, rawText: unknown) {

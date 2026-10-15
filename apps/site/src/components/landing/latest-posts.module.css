@@ -1,0 +1,102 @@
+.section {
+  background: var(--public-bg);
+}
+
+.section :global(.section-heading__title) {
+  color: var(--public-text);
+  font-size: clamp(1.875rem, 3.5vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.grid:global(.post-grid) {
+  gap: 24px;
+  align-items: stretch;
+}
+
+.story {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--public-border);
+  border-radius: var(--public-radius);
+  background: var(--public-surface);
+}
+
+.cover {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: var(--public-radius) var(--public-radius) 0 0;
+}
+
+.story :global(.post-card) {
+  position: static;
+  flex: 1;
+  gap: 12px;
+  padding: 24px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.story :global(.post-card__date) {
+  margin: 0;
+  color: var(--public-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.story :global(.post-card__title) {
+  margin: 0;
+  font-size: 1.375rem;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+.story :global(.post-card__title a) {
+  color: var(--public-text);
+}
+
+.story :global(.post-card__title a::after) {
+  border-radius: var(--public-radius);
+}
+
+.story :global(.post-card__title a:focus-visible::after) {
+  outline-color: var(--public-accent);
+}
+
+.story :global(.post-card__text) {
+  margin: 0;
+  color: var(--public-muted);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.story:hover {
+  border-color: var(--public-accent);
+}
+
+.story:hover :global(.post-card__title a) {
+  color: var(--public-accent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .story {
+    transition: border-color var(--ease), transform var(--ease);
+  }
+
+  .story:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@media (max-width: 600px) {
+  .grid:global(.post-grid) {
+    gap: 16px;
+  }
+}

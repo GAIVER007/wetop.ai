@@ -18,6 +18,7 @@ import { AnalyticsModule } from '../../apps/api/src/analytics/analytics.module';
 import { SitesRuntimeService } from '../../apps/api/src/sites-runtime/sites-runtime.service';
 import { purgeAuditRows } from '../tools/audit-purge';
 import { seedSpecAssets } from '../tools/site-assets';
+import { grantSiteBuilder, purgeSiteBuilderRows } from '../tools/site-builder';
 import { isLocalDatabase } from '../tools/seed-local';
 
 /**
@@ -82,7 +83,7 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
     userB = randomUUID(),
     hotel = randomUUID(),
     hotelB = randomUUID();
-  const L = { main: randomUUID(), auto: randomUUID(), ambiguous: randomUUID(), rates: randomUUID(), checks: randomUUID(), race: randomUUID(), kept: randomUUID() };
+  const L = { main: randomUUID(), auto: randomUUID(), ambiguous: randomUUID(), rates: randomUUID(), checks: randomUUID(), race: randomUUID(), kept: randomUUID(), fresh: randomUUID() };
   const lb = randomUUID();
   const P: Record<keyof typeof L | 'b', string> = {} as never;
   const agent: Record<keyof typeof L, string> = {} as never;
@@ -122,9 +123,10 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
   }
   const tokenOf = (previewUrl: string) => new URL(previewUrl).searchParams.get('token')!;
   async function createSite(key: keyof typeof L) {
-    slugs[key] = `mkt7-${key}-${randomUUID().slice(0, 6)}`;
-    const res = await call('POST', '/marketing/site', { location: L[key], body: { name: `MKT7 ${key}`, slug: slugs[key] } });
-    expect(res.status).toBe(201);
+    // MKT9.2: сайт заводится пустым телом, имя и адрес из филиала (адрес с суффиксом, если занят)
+    const res = await call('POST', '/marketing/site/bootstrap', { location: L[key], body: {} });
+    expect(res.status, JSON.stringify(res.body)).toBe(201);
+    slugs[key] = res.body.site.slug;
   }
   async function save(key: keyof typeof L, revision: number, spec: Spec) {
     const res = await call('POST', '/marketing/site/versions', { location: L[key], body: { baseRevision: revision, spec } });
@@ -195,6 +197,8 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
         await db.sellerAgent.create({ data: { id: agent[key], organizationId, createdBy: user, name: `Продавец ${key}`, locationId } });
       }
     }
+    // MKT9.2: запись сайта только при действующей лицензии филиала
+    await grantSiteBuilder(db, [...Object.values(L), lb]);
     rate['mainB'] = (await db.ratePlan.create({ data: { propertyId: P.main, code: 'SITE', name: 'Сайт', currency: 'KZT' } })).id;
     rate['inactive'] = (await db.ratePlan.create({ data: { propertyId: P.rates, code: 'OLD', name: 'Старый', currency: 'KZT', active: false } })).id;
     const ts = (propertyId: string, name: string, ratePlanId: string | null) =>
@@ -239,6 +243,7 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
     vi.unstubAllEnvs();
     const orgs = [org, orgB];
     if (sql) {
+      await purgeSiteBuilderRows(sql, orgs);
       const siteIds = `SELECT s.id FROM marketing_sites s JOIN locations l ON l.id = s.location_id
         JOIN businesses b ON b.id = l.business_id WHERE b.organization_id = ANY($1::uuid[])`;
       await sql.query('BEGIN');
@@ -646,21 +651,26 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
   });
 
   it('§98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503', async () => {
-    // у основного филиала сайт в архиве: можно завести новый черновик
-    await createSite('main');
-    await save('main', 0, specFor('После архива', ['std'], 'NONE'));
-    const v1 = (await siteRow('main')).latestVersionId!;
+    // MKT9.2: один филиал, один сайт навсегда: у основного филиала сайт в архиве, второй не заводится
+    const again = await call('POST', '/marketing/site/bootstrap', { body: {} });
+    expect(again.status).toBe(409);
+    expect(again.body.code).toBe('SITE_ARCHIVED');
+    expect(await db.marketingSite.count({ where: { locationId: L.main } })).toBe(1);
+    await createSite('fresh');
+    await save('fresh', 0, specFor('Новый филиал', ['std'], 'NONE'));
+    const v1 = (await siteRow('fresh')).latestVersionId!;
+    const at = { location: L.fresh };
     for (const bad of ['', 'wetop.ai', 'sites.wetop.ai', 'https://sites.test']) {
       vi.stubEnv('SITES_BASE_DOMAIN', bad);
-      const pub = await call('POST', '/marketing/site/publish', { body: { expectedVersionId: v1 } });
+      const pub = await call('POST', '/marketing/site/publish', { ...at, body: { expectedVersionId: v1 } });
       expect(pub.status, bad).toBe(503);
-      expect((await call('POST', '/marketing/site/preview', { body: { versionId: v1 } })).status).toBe(503);
+      expect((await call('POST', '/marketing/site/preview', { ...at, body: { versionId: v1 } })).status).toBe(503);
     }
     vi.stubEnv('SITES_BASE_DOMAIN', BASE_DOMAIN);
-    expect((await siteRow('main')).state).toBe('DRAFT');
+    expect((await siteRow('fresh')).state).toBe('DRAFT');
     vi.stubEnv('SITE_PREVIEW_SECRET', 'short');
-    expect((await call('POST', '/marketing/site/preview', { body: { versionId: v1 } })).status).toBe(503);
+    expect((await call('POST', '/marketing/site/preview', { ...at, body: { versionId: v1 } })).status).toBe(503);
     vi.stubEnv('SITE_PREVIEW_SECRET', PREVIEW_SECRET);
-    expect((await call('POST', '/marketing/site/preview', { body: { versionId: v1 } })).status).toBe(200);
+    expect((await call('POST', '/marketing/site/preview', { ...at, body: { versionId: v1 } })).status).toBe(200);
   });
 });

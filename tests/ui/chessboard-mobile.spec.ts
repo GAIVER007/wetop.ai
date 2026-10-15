@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, chooseBoardPeriod, expect, test } from './fixtures';
 
 const add = (date: string, nights: number) => {
   const day = new Date(`${date}T12:00:00Z`);
@@ -137,7 +137,7 @@ for (const theme of ['light', 'dark'] as const) {
     const preview = page.getByTestId('stay-preview');
     await expect(preview).toBeVisible();
     expect((await preview.boundingBox())!.width).toBeGreaterThan(360);
-    await expect(preview.getByRole('link', { name: 'Открыть бронь', exact: true })).toBeVisible();
+    await expect(preview.getByRole('link', { name: 'Редактировать бронь', exact: true })).toBeVisible();
     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-390-preview.png` });
     await preview.getByRole('button', { name: 'Закрыть предпросмотр', exact: true }).tap();
     await page.getByLabel('Поиск в календаре').fill('');
@@ -193,14 +193,14 @@ for (const width of [360, 390, 430]) {
     await page.goto('/chessboard');
     const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
     await expect(stats).toBeVisible();
-    for (const id of ['arrivals', 'departures', 'inhouse', 'free', 'occupied', 'occupancy']) {
+    for (const id of ['arrivals', 'departures', 'free', 'occupied', 'occupancy', 'in-house', 'attention']) {
       await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
     }
     const day = await (
       await request.get(`${FIXTURE_API}/desk/today`, { headers: { 'x-wetop-test-client': '1' } })
     ).json();
     await expect(stats.getByTestId('day-arrivals')).toHaveText(String(day.counts.arrivals));
-    await expect(stats.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+    await expect(stats.getByTestId('day-departures')).toHaveText(String(day.counts.departures));
     await expect(stats.getByTestId('day-tasks')).toHaveCount(0);
     const grid = page.locator('.board-wrap');
     expect((await stats.boundingBox())!.y).toBeLessThan((await grid.boundingBox())!.y);
@@ -255,13 +255,16 @@ test('календарь возвращает обе позиции после �
   await page.goBack();
   await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBeCloseTo(position.x, 0);
   await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBeCloseTo(position.y, 0);
-  await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
+  await chooseBoardPeriod(page, 'Сегодня');
   await expect
     .poll(() =>
       wrap.evaluate((el) => {
         const today = el.querySelector('thead .is-today')!.getBoundingClientRect();
         const units = el.querySelector('thead th')!.getBoundingClientRect();
-        return Math.abs(today.left - units.right);
+        // день стоит у края колонки мест; если до него не дотянуться (сегодня у правого края сетки),
+        // прокрутка упирается в максимум, и этого достаточно
+        const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
+        return atEnd && today.left >= units.right - 2 ? 0 : Math.abs(today.left - units.right);
       }),
     )
     .toBeLessThanOrEqual(2);
@@ -313,11 +316,11 @@ for (const theme of ['light', 'dark'] as const) {
     await page.locator('[data-unit-code="R07"] .board__stay').first().click();
     const preview = page.getByTestId('stay-preview');
     await expect(preview.getByTestId('preview-dates')).toContainText('28 ночей');
-    await expect(preview.getByRole('link', { name: 'Открыть гостя', exact: true })).toBeVisible();
+    await expect(preview.getByRole('link', { name: 'Редактировать бронь', exact: true })).toBeVisible();
     expect(await preview.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
     const guest = preview.getByTestId('preview-guest');
     expect((await guest.boundingBox())!.width).toBeLessThan(320);
-    const actions = preview.getByRole('link', { name: 'Изменить даты', exact: true });
+    const actions = preview.getByRole('link', { name: 'Редактировать бронь', exact: true });
     await actions.scrollIntoViewIfNeeded();
     await expect(actions).toBeInViewport({ ratio: 0.99 });
     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-long-name.png` });

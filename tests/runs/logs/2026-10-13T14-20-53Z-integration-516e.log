@@ -1,0 +1,114 @@
+# Интеграционные (integration) · 13.10.2026 19:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит 637a111 (codex/organizations-card-editor), незакоммиченных файлов набора: 31
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T14-20-53Z-integration-516e.json' 'tests/integration/organization-feedback.test.ts' 'tests/integration/business-card-metadata.test.ts' 'tests/integration/platform-organization-create.test.ts' '--maxWorkers=1' '--testTimeout=15000'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+[pms_test] миграций применено 108; данные на месте
+ ❯ |integration| tests/integration/platform-organization-create.test.ts (6 tests | 1 failed) 236ms
+   ❯ создание организации главным администратором (integration, DATABASE_URL required) (6)
+     ✓ гостиница: организация, филиал, владелец без пароля, ссылка и журнал; токен только хешем 44ms
+     ✓ ссылка из письма ставит пароль и подтверждает почту; потом ownerPending false, а повторная ссылка 409 41ms
+     ✓ почта занята: 409, транзакция откатилась, организации и филиала нет 7ms
+     × название гостиницы занято (без учёта регистра): 409; остальным направлениям название не мешает 10ms
+     ✓ салон без списка пилота (ADR-172): бизнес и филиал без объекта 4ms
+     ✓ письмо не ушло: организация создана; ссылка ещё раз гасит прежнюю, чаще раза в пять минут нельзя 8ms
+ ✓ |integration| tests/integration/organization-feedback.test.ts (3 tests) 179ms
+ ❯ |integration| tests/integration/business-card-metadata.test.ts (5 tests | 2 failed) 105ms
+   ❯ business card database persistence and tenant isolation (5)
+     ✓ shows owner projects without locations while excluding another organization 7ms
+     ✓ edits a legacy business whose updated_at has PostgreSQL microseconds 7ms
+     × persists metadata, rolls back an audit failure, and rejects stale versions 8ms
+     ✓ rejects foreign business metadata and raw foreign image references 5ms
+     × persists a sanitized cover and removes its reference without deleting unrelated objects 5ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/platform-organization-create.test.ts > создание организации главным администратором (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `memberships_user_id_fkey`
+ ❯ vn.handleRequestError ../../../../Desktop/Проекты/WETOP/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError ../../../../Desktop/Проекты/WETOP/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request ../../../../Desktop/Проекты/WETOP/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a ../../../../Desktop/Проекты/WETOP/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/platform-organization-create.test.ts:76:5
+     74|     await db.business.deleteMany({ where: { organizationId: { in: orgs…
+     75|     await db.organization.deleteMany({ where: { id: { in: orgs } } });
+     76|     await db.user.deleteMany({ where: { id: { in: users } } });
+       |     ^
+     77|     await db.$disconnect();
+     78|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/business-card-metadata.test.ts > business card database persistence and tenant isolation > persists metadata, rolls back an audit failure, and rejects stale versions
+ConflictException: Карточка изменилась. Обновите страницу и повторите правки.
+ ❯ BusinessCardsService.save apps/api/src/hotel/business-cards.ts:168:13
+    166|     if (!existing) throw new NotFoundException('Бизнес недоступен');
+    167|     if (existing.revision !== input.revision)
+    168|       throw new ConflictException('Карточка изменилась. Обновите стран…
+       |             ^
+    169|     const buffer = file?.buffer?.length ? file.buffer : null;
+    170|     if (buffer && input.removeCover)
+ ❯ apps/api/src/auth/request-context.ts:61:41
+ ❯ tests/integration/business-card-metadata.test.ts:80:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| tests/integration/business-card-metadata.test.ts > business card database persistence and tenant isolation > persists a sanitized cover and removes its reference without deleting unrelated objects
+BadRequestException: Описание: не больше 1000 символов
+ ❯ inputOf apps/api/src/hotel/business-cards.ts:87:11
+     85|     (body.description !== undefined && typeof body.description !== 'st…
+     86|   )
+     87|     throw new BadRequestException('Описание: не больше 1000 символов');
+       |           ^
+     88|   if (
+     89|     typeof body.expectedUpdatedAt !== 'string' ||
+ ❯ BusinessCardsService.save apps/api/src/hotel/business-cards.ts:162:19
+ ❯ tests/integration/business-card-metadata.test.ts:181:15
+ ❯ apps/api/src/auth/request-context.ts:61:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:61:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:71:10
+ ❯ owner tests/integration/business-card-metadata.test.ts:29:3
+ ❯ tests/integration/business-card-metadata.test.ts:180:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| tests/integration/platform-organization-create.test.ts > создание организации главным администратором (integration, DATABASE_URL required) > название гостиницы занято (без учёта регистра): 409; остальным направлениям название не мешает
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "organizationId": "09c6c5fc-d023-44ff-aa82-d75830c99ace",
++   "ownerLinkSent": true,
+  }
+
+ ❯ tests/integration/platform-organization-create.test.ts:168:6
+    166|     await expect(
+    167|       creation.create({ name: `хостел занят ${mark}`, ownerEmail: emai…
+    168|     ).rejects.toThrow(new ConflictException(HOTEL_NAME_TAKEN));
+       |      ^
+    169|     expect(await db.organization.count({ where: { name: `хостел занят …
+    170|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  3 failed | 11 passed (14)
+   Start at  07:20:54
+   Duration  3.24s (import 50%, tests 27%, transform 22%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T14-20-53Z-integration-516e.json
+
+# код выхода 1 · 4 с

@@ -1,0 +1,19 @@
+# Модульные (unit) · 13.10.2026 16:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3bd01f4 (codex/organizations-card-editor), незакоммиченных файлов набора: 26
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T11-47-48Z-unit-2289.json' 'apps/web/src/app/branches/business-groups.test.ts' 'apps/api/src/hotel/business-cards.test.ts' 'apps/web/src/design-rules.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |unit| apps/web/src/app/branches/business-groups.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 302ms
+ ✓ |unit| apps/api/src/hotel/business-cards.test.ts (8 tests) 5ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 31ms
+
+ Test Files  4 passed (4)
+      Tests  31 passed (31)
+   Start at  04:47:49
+   Duration  1.85s (transform 51%, import 37%, tests 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T11-47-48Z-unit-2289.json
+
+# код выхода 0 · 3 с

@@ -1,56 +1,9 @@
 /*
- * «Гости v2» (27.09.2026, план plans/guests-v2-2026-09-27.md): плотный верх без большой карточки
- * поиска — чипы разделов со счётчиками, компактное поле с автопоиском, сразу таблица (ТЗ §47).
- * Чипы — общие `.chips` из globals.css, таблица — общий `.dir-table`; здесь только своё.
+ * Карточка гостя (G4, G5 «Гости v2», 27.09.2026): проживания, документы, финансы. Список гостей с 09.10.2026 другой
+ * экран («Гости и бронирования», `guests-bookings.css`), его стили и стили панели предпросмотра удалены вместе с ним.
  */
 @layer sections {
-  .guests-toolbar {
-    max-width: 480px;
-    margin-bottom: var(--space-4);
-  }
-  .guests-toolbar .inp {
-    width: 100%;
-  }
-  .guests-reset {
-    white-space: nowrap;
-  } /* G8 (§47): поиск и отборы одной строкой над таблицей; не помещаются — переносятся, а не сжимаются */
-  .guests-bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2) var(--space-4);
-    margin-bottom: var(--space-4);
-  }
-  .guests-bar .guests-toolbar {
-    flex: 1 1 280px;
-    max-width: 400px;
-    margin: 0;
-  } /* поле поиска — блок, а не строчный label: иначе лупа (absolute) считается от строки текста и съезжает */
-  .guests-bar .search-field {
-    display: block;
-  } /* G7: отборы — списки и «Показать», как вторая строка панели «Броней» (R2) */
-  .guests-filters {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2);
-    margin: 0;
-  }
-  .guests-filters .field {
-    margin: 0;
-    gap: var(--space-2);
-    min-width: 0;
-  }
-  .guests-filters .inp {
-    font-size: var(--text-sm);
-  } /* «С / По» нужны только периоду: видны, когда в «Последнем визите» выбран «период» */
-  .guests-period {
-    display: none;
-    gap: var(--space-2);
-  }
-  .guests-filters:has(select[name='last'] option[value='period']:checked) .guests-period {
-    display: inline-flex;
-  } /* вторая строка ячейки: почта под телефоном, «до 30 сент.» под ячейкой, категория под датой заезда */
+  /* вторая строка ячейки: почта под телефоном, «до 30 сент.» под ячейкой, категория под датой заезда */
   .dir-sub {
     display: block;
     margin-top: var(--space-1);
@@ -59,106 +12,7 @@
     font-weight: 400;
     white-space: nowrap;
   }
-  .dir-contacts .dir-sub,
-  .dir-now .dir-sub {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 220px;
-  }
-  @media (max-width: 600px) {
-    .guests-toolbar,
-    .guests-bar .guests-toolbar {
-      flex-basis: 100%;
-      max-width: none;
-    }
-    .guests-filters {
-      flex: 1 1 100%;
-    }
-    /* в карточке телефона визиты словом («3 визита»), число без подписи не читается */
-    .guests-visits__num {
-      display: none;
-    }
-    .dir-contacts .dir-sub,
-    .dir-now .dir-sub {
-      max-width: none;
-      white-space: normal;
-      overflow-wrap: anywhere;
-    }
-  } /*
- * Панель предпросмотра гостя (G3, ТЗ §17): быстрый ответ стойке поверх списка. Живёт в общей
- * панели 480 px (`route-drawer`), поэтому здесь только внутренний ритм: имя, контакты полосой
- * фактов, разделы «Сейчас / История / Финансы» и действия внизу.
- */
-  .guest-preview {
-    display: block;
-    /* стекло панели полупрозрачно (--glass), и приглушённые подписи на просвечивающем списке
-     не добирали контраст 4,5:1 (axe, прогон …17-04-16Z): текст живёт на плотной подложке —
-     §20.3 «плотные данные — на непрозрачном». Отступы свои: .booking-drawer обнуляет
-     overlay-content под карточку брони с её .page */
-    padding: var(--space-6) var(--space-6) var(--space-8);
-    background: var(--surface-solid);
-  } /* панель — не flex-колонка, и подложка содержимого кончалась под кнопками: ниже снова
-   просвечивало стекло. Плотной делается вся панель, пока в ней предпросмотр гостя */
-  .booking-drawer:has(.guest-preview) {
-    background: var(--surface-solid);
-  }
-  .guest-preview__name {
-    margin: 0 0 var(--space-4);
-    font-size: var(--text-2xl);
-    font-weight: var(--weight-bold);
-    overflow-wrap: anywhere;
-  }
-  .guest-preview__contacts {
-    margin-bottom: var(--space-4);
-  }
-  .guest-preview__now {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2) var(--space-4);
-    margin: 0 0 var(--space-2);
-  }
-  .guest-preview__now p {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--space-1) var(--space-4);
-    margin: 0;
-  }
-  .guest-preview__now .dir-sub {
-    margin-top: 0;
-  }
-  .guest-preview__facts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: var(--space-2) var(--space-4);
-    margin: 0;
-  }
-  .guest-preview__facts dt {
-    margin: 0 0 var(--space-1);
-    color: var(--muted);
-    font-size: var(--text-xs);
-  }
-  .guest-preview__facts dd {
-    margin: 0;
-    font-weight: var(--weight-semibold);
-    font-variant-numeric: tabular-nums;
-  } /* «бронь на … отменена» в узкой колонке переносится, а не уходит за край панели */
-  .guest-preview__facts .dir-sub {
-    margin-top: 0;
-    white-space: normal;
-  }
-  .guest-preview__finance {
-    margin: 0;
-  }
-  .guest-preview__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-top: var(--space-6);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--border-soft);
-  } /*
+  /*
  * Карточка гостя, G4 (ТЗ §19–§21): текущее и следующее проживание — строкой-рамкой на «Обзоре»:
  * когда, где, долг или слово о брони и «Открыть бронь». Рамка — общая `.panel`, здесь только ритм.
  */

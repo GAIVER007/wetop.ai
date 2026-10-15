@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 14.10.2026 17:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит 84a7397 (codex/market-runtime-readiness-20261014), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T12-45-02Z-integration-ba3b.json' 'tests/integration/market-occupancy.test.ts' 'tests/integration/competitor-availability-level.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-market-ready-20261014
+
+ ✓ |integration| tests/integration/market-occupancy.test.ts (5 tests) 256ms
+ ✓ |integration| tests/integration/competitor-availability-level.test.ts (3 tests) 127ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  05:45:02
+   Duration  1.85s (tests 34%, transform 33%, import 32%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T12-45-02Z-integration-ba3b.json
+
+# код выхода 0 · 3 с

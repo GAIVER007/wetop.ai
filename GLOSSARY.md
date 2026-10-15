@@ -53,6 +53,6 @@
 | **Partner / Партнёр** | Внешняя компания-клиент, подключённая к WETOP. В интерфейсе продукта — «Партнёр», для самого клиента — «Компания», в базе — `Organization`. Отдельной таблицы нет. |
 | **Business / Бизнес** | Направление или бренд внутри партнёра (Luxx Hotels, Luxx Beauty). Носитель вертикали: `Business.vertical`. |
 | **Location / Филиал** | Конкретный филиал бизнеса (Almaty, Marina). У Hospitality под ним живёт `Property`. |
-| **Vertical / Вертикаль** | Домен, который использует Business: `HOSPITALITY` или `BEAUTY`. Не путать с расширением. |
+| **Vertical / Вертикаль** | Домен, который использует Business: `HOSPITALITY`, `BEAUTY` или `FOOD_SERVICE` (MV1, 04.10.2026). Не путать с расширением. |
 | **Extension / Расширение** | Платная возможность поверх вертикали (`AI_SELLER`, …): entitlement на Organization (`organization_extensions`), позже — активация на Business/Location. |
 | **Platform Admin** | Главный администратор WETOP (`platform_admins`): раздел «Платформа», без доступа к броням и гостям партнёров (ADR-083). |

@@ -1,0 +1,22 @@
+# Модульные (unit) · 11.10.2026 11:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 907a513 (claude/kitchen-fs2-stock), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T06-10-49Z-unit-800f.json' 'apps/web/src/design-rules.test.ts' 'scripts/design/build-tokens.test.ts' 'scripts/design/dead-css.test.ts' 'tests/unit/design-guards.test.ts' 'tests/unit/design-primitive-owner.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2
+
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 6ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 24ms
+ ✓ |unit| scripts/design/dead-css.test.ts (2 tests) 30ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 55ms
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 134ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 5ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 328ms
+
+ Test Files  7 passed (7)
+      Tests  76 passed (76)
+   Start at  23:10:50
+   Duration  555ms (transform 37%, tests 36%, import 26%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T06-10-49Z-unit-800f.json
+
+# код выхода 0 · 2 с

@@ -1,0 +1,114 @@
+# Сквозные (e2e) · 12.10.2026 22:27 Алматы · vm
+# коммит 1853a26 (claude/stoic-darwin-hjb5x3), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/chessboard-card.spec.ts' 'tests/ui/date-field.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/design-reference.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 60 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-card.spec.ts:17:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (8.8s)
+  ✓   2 tests/ui/chessboard-card.spec.ts:45:1 › двойной клик открывает полную карточку брони (7.5s)
+  ✓   3 tests/ui/chessboard-card.spec.ts:51:1 › действия по статусу: подтверждённой: заселить, проживающему: выселить (5.1s)
+  ✓   4 tests/ui/chessboard-card.spec.ts:73:1 › повторный щелчок по той же плашке закрывает панель, по другой переключает её (5.8s)
+  ✓   5 tests/ui/chessboard-card.spec.ts:93:1 › панель брони не висит всегда: нет при загрузке, закрывается щелчком мимо и сменой периода (7.8s)
+  ✓   6 tests/ui/chessboard-card.spec.ts:127:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (11.9s)
+  ✓   7 tests/ui/chessboard-card.spec.ts:173:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (13.8s)
+  ✓   8 tests/ui/chessboard-card.spec.ts:208:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (10.5s)
+  ✓   9 tests/ui/chessboard-card.spec.ts:236:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (6.3s)
+  ✓  10 tests/ui/chessboard-card.spec.ts:252:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (11.3s)
+  ✓  11 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (6.7s)
+  ✓  12 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (5.3s)
+  ✓  13 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (5.2s)
+  ✓  14 tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (3.3s)
+  ✓  15 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (7.2s)
+  ✓  16 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (6.9s)
+  ✓  17 tests/ui/chessboard-mobile.spec.ts:160:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (2.6s)
+  ✓  18 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 360: виджеты дня перед календарём и вертикальная прокрутка (4.0s)
+  ✓  19 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 390: виджеты дня перед календарём и вертикальная прокрутка (4.1s)
+  ✓  20 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 430: виджеты дня перед календарём и вертикальная прокрутка (4.9s)
+  ✓  21 tests/ui/chessboard-mobile.spec.ts:222:1 › мобильная панель меняет заезд без закрытия и показывает выезд (4.3s)
+  ✓  22 tests/ui/chessboard-mobile.spec.ts:242:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (7.8s)
+  ✓  23 tests/ui/chessboard-mobile.spec.ts:274:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (2.0s)
+  ✓  24 tests/ui/chessboard-mobile.spec.ts:297:3 › телефон light: длинное имя и бронь на 28 ночей (4.8s)
+  ✓  25 tests/ui/chessboard-mobile.spec.ts:297:3 › телефон dark: длинное имя и бронь на 28 ночей (5.0s)
+  ✓  26 tests/ui/chessboard-mobile.spec.ts:330:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (9.1s)
+  ✓  27 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (7.8s)
+  ✓  28 tests/ui/chessboard-month.spec.ts:29:1 › все 31 день помещаются по ширине окна (9.6s)
+  ✓  29 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (13.8s)
+  ✓  30 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (15.7s)
+  ✓  31 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (14.5s)
+  ✓  32 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (11.7s)
+  ✓  33 tests/ui/chessboard-month.spec.ts:72:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (11.5s)
+  ✓  34 tests/ui/chessboard-month.spec.ts:94:1 › 30 дней: окно от сегодня, длина окна в раскрывашке, масштаб «День / Неделя / Месяц» в полосе (8.8s)
+  ✓  35 tests/ui/chessboard-month.spec.ts:132:1 › в месяце открываются брони, свободные даты и группы номеров (17.9s)
+  ✓  36 tests/ui/chessboard-month.spec.ts:176:3 › месячная сетка: light, читаемость и адаптивность (53.5s)
+  ✓  37 tests/ui/chessboard-month.spec.ts:176:3 › месячная сетка: dark, читаемость и адаптивность (50.7s)
+  ✓  38 tests/ui/chessboard-week.spec.ts:20:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (4.7s)
+  ✓  39 tests/ui/chessboard-week.spec.ts:39:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (11.1s)
+  ✓  40 tests/ui/chessboard-week.spec.ts:94:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (5.4s)
+  ✓  41 tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (10.0s)
+  ✓  42 tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (9.2s)
+  ✓  43 tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (8.8s)
+  ✓  44 tests/ui/chessboard-week.spec.ts:146:1 › в неделе работают бронь, категории и создание на воскресенье (8.4s)
+  ✓  45 tests/ui/chessboard-week.spec.ts:186:3 › неделя помещается на экране: light, обе панели и телефон (27.0s)
+  ✓  46 tests/ui/chessboard-week.spec.ts:186:3 › неделя помещается на экране: dark, обе панели и телефон (25.5s)
+  ✓  47 tests/ui/chessboard-week.spec.ts:225:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (4.0s)
+  ✓  48 tests/ui/date-field.spec.ts:24:1 › показатели за период: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает (3.6s)
+  ✓  49 tests/ui/date-field.spec.ts:56:1 › показатели за период: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности (4.4s)
+  ✓  50 tests/ui/date-field.spec.ts:87:1 › телефон: кнопки календаря нет, родное поле остаётся (2.0s)
+  ✓  51 tests/ui/date-field.spec.ts:96:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле (6.8s)
+  ✓  52 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (50.9s)
+  ✓  53 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (46.8s)
+  ✓  54 tests/ui/premium.spec.ts:17:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (10.6s)
+  ✓  55 tests/ui/premium.spec.ts:35:1 › shell: панель, меню профиля, поиск (4.0s)
+  ✓  56 tests/ui/premium.spec.ts:54:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (9.6s)
+  ✓  57 tests/ui/premium.spec.ts:91:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (20.8s)
+  ✘  58 tests/ui/premium.spec.ts:133:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (3.1m)
+  ✓  59 tests/ui/premium.spec.ts:191:1 › вход не пускает с чужой почтой и чужим паролем (1.5s)
+  ✓  60 tests/ui/premium.spec.ts:208:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (8.0s)
+
+
+  1) tests/ui/premium.spec.ts:133:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: visible
+    Received: undefined
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      165 |     for (const route of routes) {
+      166 |       await page.goto(route);
+    > 167 |       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+          |                                                             ^
+      168 |       if (width === 390 && route === '/finance')
+      169 |         await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-mobile.png` });
+      170 |       const overflow = await page.evaluate(() => {
+        at /home/user/wetop.ai/tests/ui/premium.spec.ts:167:61
+
+    Error Context: test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/premium.spec.ts:133:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+  59 passed (14.7m)
+
+# код выхода 1 · 14 мин 46 с

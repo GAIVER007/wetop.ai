@@ -1,0 +1,132 @@
+# Модульные (unit) · 08.10.2026 12:30 Алматы · vm
+# коммит 433fcc3 (claude/mv8-5-ds1a-status-registries), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T07-30-14Z-unit-a2ae.json' 'apps/web/src/lib/status/status.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/status/status.test.ts (13 tests | 3 failed) 39ms
+   ✓ гостиница (2)
+     ✓ каждое значение ReservationStatus имеет слово и тон 5ms
+     ✓ слова, группы и тона утверждены владельцем 1ms
+   ✓ уборка (2)
+     ✓ каждое значение HousekeepingStatus имеет слово и тон 1ms
+     ✓ слова и тона утверждены, пояснений в реестре нет 1ms
+   ✓ оплата (2)
+     ✓ шесть утверждённых состояний 0ms
+     ✓ у каждого тон из договора 1ms
+   ❯ салон и ресторан: слова без переименования, тоны по общей семантике (2)
+     × AppointmentStatus 11ms
+     × RestaurantReservationStatus 11ms
+   ❯ источники брони (3)
+     ✓ каждое значение ReservationSource имеет подпись и короткое имя 1ms
+     × подписи утверждены, короткие имена разных источников различаются 1ms
+     ✓ бренды не переименованы 0ms
+   ✓ помощники (2)
+     ✓ неизвестное значение показывается как есть 0ms
+     ✓ внутри фразы слово со строчной буквы, бренд не трогается 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/status/status.test.ts > салон и ресторан: слова без переименования, тоны по общей семантике > AppointmentStatus
+AssertionError: expected { BOOKED: [ 'Записан', …(2) ], …(4) } to deeply equal { BOOKED: [ 'Записан', …(2) ], …(4) }
+
+- Expected
++ Received
+
+@@ -1,10 +1,10 @@
+  {
+    "BOOKED": [
+      "Записан",
+      "Запланировано",
+-     "warning",
++     "info",
+    ],
+    "CANCELLED": [
+      "Отменена",
+      "Отменено",
+      "danger",
+@@ -15,11 +15,11 @@
+      "info",
+    ],
+    "DONE": [
+      "Завершена",
+      "Завершено",
+-     "neutral",
++     "success",
+    ],
+    "NO_SHOW": [
+      "Не пришёл",
+      "Не пришли",
+      "danger",
+
+ ❯ apps/web/src/lib/status/status.test.ts:94:7
+     92|         Object.entries(beautyStatus).map(([k, s]) => [k, [s.label, s.g…
+     93|       ),
+     94|     ).toEqual({
+       |       ^
+     95|       BOOKED: ['Записан', 'Запланировано', 'warning'],
+     96|       CONFIRMED: ['Подтверждена', 'Подтверждено', 'info'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/status/status.test.ts > салон и ресторан: слова без переименования, тоны по общей семантике > RestaurantReservationStatus
+AssertionError: expected { BOOKED: [ 'Бронь', …(2) ], …(5) } to deeply equal { BOOKED: [ 'Бронь', …(2) ], …(5) }
+
+- Expected
++ Received
+
+@@ -1,10 +1,10 @@
+  {
+    "BOOKED": [
+      "Бронь",
+      "Запланировано",
+-     "warning",
++     "info",
+    ],
+    "CANCELLED": [
+      "Отменено",
+      "Отменено",
+      "danger",
+
+ ❯ apps/web/src/lib/status/status.test.ts:108:7
+    106|         Object.entries(foodStatus).map(([k, s]) => [k, [s.label, s.gro…
+    107|       ),
+    108|     ).toEqual({
+       |       ^
+    109|       BOOKED: ['Бронь', 'Запланировано', 'warning'],
+    110|       CONFIRMED: ['Подтверждено', 'Подтверждено', 'info'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/status/status.test.ts > источники брони > подписи утверждены, короткие имена разных источников различаются
+AssertionError: expected [ 'Стойка', 'Стойка', 'OTA' ] to deeply equal [ 'Стойка', 'Без брони', 'OTA' ]
+
+- Expected
++ Received
+
+  [
+    "Стойка",
+-   "Без брони",
++   "Стойка",
+    "OTA",
+  ]
+
+ ❯ apps/web/src/lib/status/status.test.ts:127:91
+    125|     expect(sourceStatus.WALK_IN.label).toBe('Без предварительной брони…
+    126|     expect(sourceStatus.OTA.label).toBe('Канал продаж');
+    127|     expect([sourceStatus.DESK.short, sourceStatus.WALK_IN.short, sourc…
+       |                                                                                           ^
+    128|       'Стойка',
+    129|       'Без брони',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 10 passed (13)
+   Start at  07:30:16
+   Duration  508ms (transform 68%, tests 16%, import 14%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-08T07-30-14Z-unit-a2ae.json
+
+# код выхода 1 · 2 с

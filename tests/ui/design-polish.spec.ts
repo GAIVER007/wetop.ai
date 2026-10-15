@@ -13,14 +13,20 @@ for (const width of [1333, 390]) {
       const cards = await page.locator('.bar-kpi').evaluateAll((elements) => elements.map((card) => {
         const body = card.querySelector('.bar-kpi-body')!.getBoundingClientRect();
         const hint = card.querySelector('.bar-kpi-hint')?.getBoundingClientRect();
-        return { wide: body.width >= card.getBoundingClientRect().width - 32, separated: !hint || hint.top >= body.bottom - 1 };
+        const style = getComputedStyle(card);
+        const contentWidth = card.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+        const readable = Array.from(card.querySelectorAll('.bar-kpi-label, .bar-kpi-value')).every(
+          (element) => element.scrollWidth <= element.clientWidth + 1 && element.scrollHeight <= element.clientHeight + 1,
+        );
+        return { wide: Math.abs(body.width - contentWidth) <= 1, separated: !hint || hint.top >= body.bottom - 1, readable };
       }));
       expect(cards.length).toBeGreaterThan(0);
       for (const card of cards) {
         expect(card.wide).toBeTruthy();
         expect(card.separated).toBeTruthy();
+        expect(card.readable).toBeTruthy();
       }
-      await page.getByRole('link', { name: 'Добавить товар', exact: true }).click();
+      await page.locator('.bar-board-head').getByRole('button', { name: 'Добавить товар', exact: true }).click();
       await expect(page.locator('#bar-new-name')).toBeVisible();
       await page.getByRole('button', { name: 'Отмена', exact: true }).click();
       await expect(page.locator('#bar-new-name')).toBeHidden();

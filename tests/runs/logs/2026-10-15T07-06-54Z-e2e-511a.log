@@ -1,0 +1,13 @@
+# Сквозные (e2e) · 15.10.2026 12:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8aaaed3 (codex/bar-design-check-repair-20261014), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' '.design-only/workspace-repair.config.ts' '--grep' 'пустые ответы дают нули' '--workers=1'
+
+Running 1 test using 1 worker
+
+(node:96467) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/workspace.spec.ts:915:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (5.9s)
+
+  1 passed (7.6s)
+
+# код выхода 0 · 9 с

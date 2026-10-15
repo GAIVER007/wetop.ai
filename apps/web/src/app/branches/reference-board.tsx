@@ -103,16 +103,13 @@ export function ReferenceBoard({
       </div>
       <FinancialWidgets summary={financial} />
       {visible.length ? (
-        <div className="org-cards org-cards--workspace">
+        <div className="org-cards">
           {visible.map((group) => {
             const coverStyle = group.card.coverUrl
               ? { backgroundImage: `url(${JSON.stringify(group.card.coverUrl)})` }
               : undefined;
             return (
-              <article
-                key={group.id}
-                className={`org-card org-card--workspace org-card--${group.vertical}`}
-              >
+              <article key={group.id} className={`org-card org-card--${group.vertical} ${!group.card.coverUrl ? 'org-card--no-cover' : ''}`}>
                 {group.card.coverUrl && (
                   <div
                     className="org-cover org-cover--custom"
@@ -120,26 +117,15 @@ export function ReferenceBoard({
                   />
                 )}
                 <div className="org-card-body">
-                  <header className="org-project-header">
-                    <span className="org-business-icon">
-                      <Icon name={businessIcons[group.vertical]} />
-                    </span>
-                    <div className="org-project-title">
-                      <h2 title={group.card.name}>{group.card.name}</h2>
-                      <p className="org-muted org-business-kind">{businessLabels[group.vertical]}</p>
-                    </div>
-                    {group.card.canEdit && (
-                      <button
-                        type="button"
-                        className="org-edit"
-                        aria-label={`Редактировать: ${group.card.name}`}
-                        onClick={() => setEditing(group.card)}
-                      >
-                        <Icon name="edit" />
-                        <span>Редактировать</span>
-                      </button>
-                    )}
-                  </header>
+                  <span className="org-business-icon">
+                    <Icon name={businessIcons[group.vertical]} />
+                  </span>
+                  <h2 title={group.card.name}>{group.card.name}</h2>
+                  <p className="org-muted org-business-kind">{businessLabels[group.vertical]}</p>
+                  <p className="org-address">
+                    <Icon name="pin" />
+                    {group.branches[0]?.address || 'Адрес не указан'}
+                  </p>
                   {group.card.description && (
                     <p className="org-description" title={group.card.description}>
                       {group.card.description}
@@ -197,6 +183,26 @@ export function ReferenceBoard({
                         </button>
                       </form>
                     ))}
+                  </div>
+                  <div className="org-card-footer">
+                    {group.branches.length > 0 && (
+                      <form action={selectBranch}>
+                        <input type="hidden" name="id" value={group.branches[0]?.id} />
+                        <button type="submit" className="org-open">
+                          Открыть <Icon name="arrow" />
+                        </button>
+                      </form>
+                    )}
+                    {group.card.canEdit && (
+                      <button
+                        className="org-edit"
+                        aria-label={`Редактировать: ${group.card.name}`}
+                        onClick={() => setEditing(group.card)}
+                      >
+                        <Icon name="edit" />
+                        <span>Редактировать</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </article>

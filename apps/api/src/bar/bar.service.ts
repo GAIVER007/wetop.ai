@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { BAR_REPOSITORY, type BarCategoryInput, type BarProductInput, type BarReceiptInput, type BarRepository, type BarSupplierInput } from './bar.repository';
+import { BAR_SALE_METHODS, BAR_SUPPLIER_METHODS, FinanceRuleError, assertPaymentMethodEnabled, barPaymentMethods } from '@pms/domain';
 
 /** Бар салона (§45): продажи и оплаты откроются вместе с кассой салона, склад работает */
 const NO_SALON_CASH = 'Продажи и оплаты бара салона откроются вместе с кассой салона';
@@ -114,13 +115,30 @@ export class BarService {
   folios() { return this.repo.folios(); }
   movements() { return this.repo.movements(); }
   report() { return this.repo.report(); }
+  /** Списки форм бара (ADR-185): включённые объектом способы в его порядке, только те, что бар принимает */
+  async paymentMethods() {
+    const enabled = await this.repo.enabledPaymentMethods();
+    return { sale: barPaymentMethods(enabled, BAR_SALE_METHODS), supplier: barPaymentMethods(enabled, BAR_SUPPLIER_METHODS) };
+  }
+  /** Выключенный у объекта способ не принимает денег (У5 §21.6), теми же словами, что касса объекта; без объекта правила нет */
+  private async assertMethodEnabled(method: string): Promise<void> {
+    const enabled = await this.repo.enabledPaymentMethods();
+    if (!enabled) return;
+    try {
+      assertPaymentMethodEnabled(method, enabled);
+    } catch (error) {
+      if (error instanceof FinanceRuleError) throw new BadRequestException(error.message);
+      throw error;
+    }
+  }
   async sellRetail(raw: unknown) {
     const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
     const productId = typeof body.productId === 'string' ? body.productId : '';
     const method = typeof body.method === 'string' ? body.method : '';
     const idempotencyKey = optionalText(body.idempotencyKey);
     if (!uuid.test(productId)) throw new BadRequestException('Товар не выбран');
-    if (!['CASH', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'KASPI', 'HALYK'].includes(method)) throw new BadRequestException('Способ оплаты не поддерживается');
+    if (!(BAR_SALE_METHODS as readonly string[]).includes(method)) throw new BadRequestException('Способ оплаты не поддерживается');
+    await this.assertMethodEnabled(method);
     if (!idempotencyKey || idempotencyKey.length > 120) throw new BadRequestException('Нужен ключ повтора продажи');
     const result = await this.repo.sellRetail({ productId, quantityUnits: integer(body.quantityUnits, 'Количество'), method, idempotencyKey });
     if (result.kind === 'no_cash') throw new ConflictException(NO_SALON_CASH);
@@ -206,7 +224,8 @@ export class BarService {
   async payReceipt(id: string, raw: unknown) {
     const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
     const method = typeof body.method === 'string' ? body.method : '';
-    if (!['CASH', 'CARD_TERMINAL', 'BANK_TRANSFER_LEGAL', 'BANK_TRANSFER_PERSON', 'KASPI', 'HALYK'].includes(method)) throw new BadRequestException('Способ оплаты не поддерживается');
+    if (!(BAR_SUPPLIER_METHODS as readonly string[]).includes(method)) throw new BadRequestException('Способ оплаты не поддерживается');
+    await this.assertMethodEnabled(method);
     const result = await this.repo.payReceipt(id, { amountMinor: integer(body.amountMinor, 'Сумма'), method, note: optionalText(body.note) });
     if (result.kind === 'no_cash') throw new ConflictException(NO_SALON_CASH);
     if (result.kind === 'insufficient_cash') throw new ConflictException('В кассе по этому способу меньше этой суммы');

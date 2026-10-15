@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 15.10.2026 13:52 Алматы · vm
+# коммит 48e05c9 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T08-52-21Z-integration-5abc.json' 'tests/integration/bar-payment-methods.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/bar-payment-methods.test.ts (3 tests) 1045ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  08:52:22
+   Duration  8.35s (transform 64%, tests 20%, import 16%)
+
+JSON report written to /tmp/pms-test-2026-10-15T08-52-21Z-integration-5abc.json
+
+# код выхода 0 · 10 с

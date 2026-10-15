@@ -1,0 +1,80 @@
+# Интеграционные (integration) · 15.10.2026 13:47 Алматы · vm
+# коммит 48e05c9 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T08-47-54Z-integration-f42a.json' 'tests/integration/bar-payment-methods.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/bar-payment-methods.test.ts (3 tests | 3 failed) 2391ms
+   ❯ бар: способы оплаты объекта (integration, DATABASE_URL required) (3)
+     × GET /bar/payment-methods: порядок настройки, без выключенного Kaspi, только способы бара 58ms
+     × продажа выключенным способом: 400 словами настройки; включённым проходит до поиска товара (404) 211ms
+     × оплата поставщику выключенным способом: 400; включённым доходит до прихода (404) 62ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-payment-methods.test.ts > бар: способы оплаты объекта (integration, DATABASE_URL required) > GET /bar/payment-methods: порядок настройки, без выключенного Kaspi, только способы бара
+AssertionError: {"message":"Cannot GET /bar/payment-methods","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/integration/bar-payment-methods.test.ts:62:30
+     60|   it('GET /bar/payment-methods: порядок настройки, без выключенного Ka…
+     61|     const r = await call(base, 'owner', 'GET', '/bar/payment-methods',…
+     62|     expect(r.status, r.text).toBe(200);
+       |                              ^
+     63|     expect(r.json).toEqual({
+     64|       sale: ['HALYK', 'CASH', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/bar-payment-methods.test.ts > бар: способы оплаты объекта (integration, DATABASE_URL required) > продажа выключенным способом: 400 словами настройки; включённым проходит до поиска товара (404)
+AssertionError: {"message":"Товар не найден","error":"Not Found","statusCode":404}: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/integration/bar-payment-methods.test.ts:77:42
+     75|     });
+     76|     const refused = await call(base, 'owner', 'POST', '/bar/sales/reta…
+     77|     expect(refused.status, refused.text).toBe(400);
+       |                                          ^
+     78|     expect(refused.json).toMatchObject({ message: 'Способ оплаты «Kasp…
+     79|     const passed = await call(base, 'owner', 'POST', '/bar/sales/retai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/bar-payment-methods.test.ts > бар: способы оплаты объекта (integration, DATABASE_URL required) > оплата поставщику выключенным способом: 400; включённым доходит до прихода (404)
+AssertionError: {"message":"Приход не найден","error":"Not Found","statusCode":404}: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/integration/bar-payment-methods.test.ts:86:42
+     84|     const path = `/bar/receipts/${randomUUID()}/payments`;
+     85|     const refused = await call(base, 'owner', 'POST', path, scope(), {…
+     86|     expect(refused.status, refused.text).toBe(400);
+       |                                          ^
+     87|     const passed = await call(base, 'owner', 'POST', path, scope(), { …
+     88|     expect(passed.status, passed.text).toBe(404);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  08:47:56
+   Duration  10.56s (transform 46%, tests 34%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-15T08-47-54Z-integration-f42a.json
+
+# код выхода 1 · 12 с

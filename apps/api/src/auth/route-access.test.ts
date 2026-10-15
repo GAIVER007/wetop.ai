@@ -89,6 +89,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /bar/suppliers/:id/active': 'settings',
   'GET /bar/receipts': 'desk',
   'GET /bar/stock': 'desk',
+  'GET /bar/payment-methods': 'desk',
   'GET /bar/sales': 'desk',
   'GET /bar/folios': 'desk',
   'GET /bar/movements': 'desk',

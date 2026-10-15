@@ -81,7 +81,7 @@ export default async function BarPage({
   await requireVertical(['HOSPITALITY', 'BEAUTY']);
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
-  const [categories, stock, suppliers, folios, receipts, sales, movements, report, today] =
+  const [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods, today] =
     await Promise.all([
       settle(barApi.categories()),
       settle(barApi.stock()),
@@ -91,9 +91,10 @@ export default async function BarPage({
       settle(barApi.sales()),
       settle(barApi.movements()),
       settle(barApi.report()),
+      settle(barApi.paymentMethods()),
       hotelToday(),
     ]);
-  const failed = [categories, stock, suppliers, folios, receipts, sales, movements, report].find(
+  const failed = [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods].find(
     (result) => !result.ok,
   );
   if (failed && !failed.ok) throw failed.error;
@@ -105,7 +106,8 @@ export default async function BarPage({
     !receipts.ok ||
     !sales.ok ||
     !movements.ok ||
-    !report.ok
+    !report.ok ||
+    !paymentMethods.ok
   )
     return null;
   const r = report.value;
@@ -263,7 +265,7 @@ export default async function BarPage({
               {
                 id: 'bar-retail',
                 label: 'Продажа напрямую',
-                content: <SaleForm stock={stock.value} />,
+                content: <SaleForm stock={stock.value} methods={paymentMethods.value.sale} />,
               },
               {
                 id: 'bar-folio',

@@ -1,0 +1,88 @@
+# Модульные (unit) · 15.10.2026 13:47 Алматы · vm
+# коммит 48e05c9 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T08-47-43Z-unit-c211.json' 'packages/domain/src/bar/payment-methods.test.ts' 'apps/api/src/bar/bar-payment-methods.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/bar/payment-methods.test.ts (0 test)
+ ❯ |unit| apps/api/src/bar/bar-payment-methods.test.ts (5 tests | 3 failed) 47ms
+   ❯ бар: способ оплаты против настройки объекта (5)
+     × выключенный у объекта способ отказывает 400 словами кассы и до репозитория не доходит 31ms
+     ✓ включённый способ проходит дальше (здесь товар и приход не найдены, 404) 4ms
+     × бар без объекта: настройки нет, прежний список бара действует 4ms
+     ✓ способ вне списка бара отказывает как раньше, даже если объект его включил 2ms
+     × список форм: порядок настройки, только способы бара 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/bar/payment-methods.test.ts [ packages/domain/src/bar/payment-methods.test.ts ]
+Error: Cannot find module './payment-methods' imported from /home/user/wetop.ai/packages/domain/src/bar/payment-methods.test.ts
+ ❯ packages/domain/src/bar/payment-methods.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   BAR_METHOD_RU,
+      4|   BAR_SALE_METHODS,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/bar/bar-payment-methods.test.ts > бар: способ оплаты против настройки объекта > выключенный у объекта способ отказывает 400 словами кассы и до репозитория не доходит
+AssertionError: expected NotFoundException: Товар не найден { …(4) } to match object { …(2) }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- BadRequestException {
+-   "constructor": [Function BadRequestException],
+-   "message": "Способ оплаты «Kaspi» выключен в настройках объекта",
++ NotFoundException {
++   "message": "Товар не найден",
+  }
+
+ ❯ apps/api/src/bar/bar-payment-methods.test.ts:34:48
+     32|   it('выключенный у объекта способ отказывает 400 словами кассы и до р…
+     33|     const { svc, calls } = service(['CASH', 'HALYK']);
+     34|     await expect(svc.sellRetail(sale('KASPI'))).rejects.toMatchObject({
+       |                                                ^
+     35|       constructor: BadRequestException,
+     36|       message: 'Способ оплаты «Kaspi» выключен в настройках объекта',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/api/src/bar/bar-payment-methods.test.ts > бар: способ оплаты против настройки объекта > бар без объекта: настройки нет, прежний список бара действует
+TypeError: svc.paymentMethods is not a function
+ ❯ apps/api/src/bar/bar-payment-methods.test.ts:51:22
+     49|     await expect(svc.sellRetail(sale('KASPI'))).rejects.toBeInstanceOf…
+     50|     expect(calls).toEqual(['sale:KASPI']);
+     51|     expect(await svc.paymentMethods()).toEqual({
+       |                      ^
+     52|       sale: ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER…
+     53|       supplier: ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRAN…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/api/src/bar/bar-payment-methods.test.ts > бар: способ оплаты против настройки объекта > список форм: порядок настройки, только способы бара
+TypeError: svc.paymentMethods is not a function
+ ❯ apps/api/src/bar/bar-payment-methods.test.ts:64:22
+     62|   it('список форм: порядок настройки, только способы бара', async () =…
+     63|     const { svc } = service(['HALYK', 'DEPOSIT', 'BANK_TRANSFER_LEGAL'…
+     64|     expect(await svc.paymentMethods()).toEqual({
+       |                      ^
+     65|       sale: ['HALYK', 'CASH'],
+     66|       supplier: ['HALYK', 'BANK_TRANSFER_LEGAL', 'CASH'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 2 passed (5)
+   Start at  08:47:47
+   Duration  5.77s (transform 76%, import 22%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-15T08-47-43Z-unit-c211.json
+
+# код выхода 1 · 10 с

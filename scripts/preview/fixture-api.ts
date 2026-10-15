@@ -95,6 +95,9 @@ import {
   parsePriceInput,
   type MarketReading,
   assertPaymentMethodEnabled,
+  BAR_SALE_METHODS,
+  BAR_SUPPLIER_METHODS,
+  barPaymentMethods,
   enabledPaymentMethods,
   parsePaymentMethodSettings,
   resolvePaymentMethodSettings,
@@ -8465,6 +8468,26 @@ createServer(async (req, res) => {
       // Отель настроен — гейт больше не уводит на онбординг
       onboardingNeeded = false;
       return send(200, { ok: true, categories: cats.length, units });
+    }
+    // Способы оплаты бара по настройке объекта (ADR-185): тот же список, что у кассы объекта
+    if (path === '/bar/payment-methods' && req.method === 'GET') {
+      const enabled = enabledMethods();
+      return send(200, {
+        sale: barPaymentMethods(enabled, BAR_SALE_METHODS),
+        supplier: barPaymentMethods(enabled, BAR_SUPPLIER_METHODS),
+      });
+    }
+    if (
+      req.method === 'POST' &&
+      (path === '/bar/sales/retail' || /^\/bar\/receipts\/[^/]+\/payments$/.test(path))
+    ) {
+      const method = typeof body['method'] === 'string' ? body['method'] : '';
+      try {
+        assertPaymentMethodEnabled(method, enabledMethods());
+      } catch (error) {
+        if (error instanceof FinanceRuleError) return send(400, { message: error.message });
+        throw error;
+      }
     }
     // Бар (ADR-157): состояние в памяти со сканом накладной, scripts/preview/bar-fixture.ts
     {

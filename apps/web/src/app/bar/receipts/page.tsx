@@ -17,8 +17,9 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
 /** Приходы бара (ADR-157): журнал документов поставщиков, проведение черновиков, оплата и долги. */
 export default async function BarReceiptsPage() {
   await requireVertical(['HOSPITALITY', 'BEAUTY']);
-  const receipts = await settle(barApi.receipts());
+  const [receipts, methods] = await Promise.all([settle(barApi.receipts()), settle(barApi.paymentMethods())]);
   if (!receipts.ok) throw receipts.error;
+  if (!methods.ok) throw methods.error;
   return <Page width="wide" className="bar-subpage" title="Бар: приходы" subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={
     <Link className="btn" href="/bar/receipts/new" prefetch={false}>Новый приход</Link>
   }>
@@ -37,7 +38,7 @@ export default async function BarReceiptsPage() {
             <td>{receipt.status === 'DRAFT'
               ? <form action={postBarReceiptAction}><input type="hidden" name="id" value={receipt.id} /><Button size="xs" type="submit">Провести</Button></form>
               : BigInt(receipt.dueAmount) > 0n
-                ? <SupplierPaymentForm receiptId={receipt.id} dueAmount={receipt.dueAmount} />
+                ? <SupplierPaymentForm receiptId={receipt.id} dueAmount={receipt.dueAmount} methods={methods.value.supplier} />
                 : <Badge tone="ok">Оплачено</Badge>}</td>
           </tr>)}</tbody>
         </Table>}

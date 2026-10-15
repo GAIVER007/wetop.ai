@@ -2,7 +2,7 @@ import 'reflect-metadata';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
 import { randomUUID } from 'node:crypto';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { allocateFifo, foodCashBalances, foodLocal, LUXX_APARTS_PROPERTY, salePriceFromMarkup, zonedStartOfDay } from '@pms/domain';
+import { allocateFifo, enabledPaymentMethods, foodCashBalances, foodLocal, LUXX_APARTS_PROPERTY, resolvePaymentMethodSettings, salePriceFromMarkup, zonedStartOfDay } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyRef } from '../database/property-ref';
 import { currentLocationId, currentOrganizationId } from '../auth/request-context';
@@ -75,6 +75,8 @@ export interface BarRepository {
   folios(): Promise<unknown[]>;
   movements(): Promise<unknown[]>;
   report(): Promise<unknown>;
+  /** Включённые способы объекта бара в порядке настройки (§21.6); `null` у бара без объекта: настройки нет */
+  enabledPaymentMethods(): Promise<string[] | null>;
   sellRetail(input: BarRetailSaleInput): Promise<{ kind: 'not_found' | 'no_cash' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>;
   sellToFolio(input: BarFolioSaleInput): Promise<{ kind: 'folio_not_found' | 'product_not_found' | 'no_folio' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED'; chargeId: string; revenueMinor: string; costMinor: string }>;
   reverseSale(id: string, restock: boolean, reason: string): Promise<{ kind: 'not_found' | 'already_reversed' } | { kind: 'reversed'; id: string; status: 'REVERSED'; restocked: boolean }>;
@@ -107,6 +109,17 @@ export class PrismaBarRepository implements BarRepository {
     const ref = await propertyRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const property = await this.prisma.db.property.findUniqueOrThrow({ where: { id: ref.id }, select: { locationId: true, currency: true } });
     return { locationId: property.locationId, propertyId: ref.id, vertical: 'HOSPITALITY', timezone: ref.timezone, currency: property.currency };
+  }
+  /** Способы оплаты объекта (§21.6, ADR-185): у бара салона и ресторана объекта нет, настройка к ним не относится */
+  async enabledPaymentMethods(): Promise<string[] | null> {
+    const { propertyId } = await this.scope();
+    if (!propertyId) return null;
+    const rows = await this.prisma.db.paymentMethodSetting.findMany({
+      where: { propertyId },
+      orderBy: { sortOrder: 'asc' },
+      select: { method: true, enabled: true, sortOrder: true },
+    });
+    return enabledPaymentMethods(resolvePaymentMethodSettings(rows));
   }
   /** Остатки кассы ресторана по способам (§35, §45): тот же расчёт, что у самой кассы */
   private async restaurantBalances(tx: any, locationId: string) {

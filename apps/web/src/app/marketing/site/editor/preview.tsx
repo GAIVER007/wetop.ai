@@ -241,17 +241,31 @@ export function SitePreview({
           ))}
         </div>
         )}
-        {(!simple || pages.length > 1) && (
-        <Field label="Страница" controlId="ed-preview-page" className="ed-preview__field">
-          <Select value={shownPage ?? pageId ?? ''} onChange={(e) => handlers.current.onPage(e.currentTarget.value)}>
-            {pages.map((p) => (
-              <option key={String(p['id'])} value={String(p['id'])}>
-                {localizedText(p['title'], defaultLocale) || 'Без названия'}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        )}
+        {(!simple || pages.length > 1) &&
+          (simple ? (
+            <Select
+              aria-label="Страница"
+              className="ed-preview__page"
+              value={shownPage ?? pageId ?? ''}
+              onChange={(e) => handlers.current.onPage(e.currentTarget.value)}
+            >
+              {pages.map((p) => (
+                <option key={String(p['id'])} value={String(p['id'])}>
+                  {localizedText(p['title'], defaultLocale) || 'Без названия'}
+                </option>
+              ))}
+            </Select>
+          ) : (
+            <Field label="Страница" controlId="ed-preview-page" className="ed-preview__field">
+              <Select value={shownPage ?? pageId ?? ''} onChange={(e) => handlers.current.onPage(e.currentTarget.value)}>
+                {pages.map((p) => (
+                  <option key={String(p['id'])} value={String(p['id'])}>
+                    {localizedText(p['title'], defaultLocale) || 'Без названия'}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          ))}
         {!simple && locales.length > 1 && (
           <Field label="Язык" controlId="ed-preview-locale" className="ed-preview__field">
             <Select value={shownLocale} onChange={(e) => setLocale(e.currentTarget.value)}>
@@ -282,6 +296,7 @@ export function SitePreview({
           </Button>
         )}
       </div>
+      {!simple && (
       <p className="muted ed-preview__hint" data-testid="ed-preview-hint">
         {both
           ? 'Щёлкните текст на сайте, чтобы исправить его, или блок, чтобы попросить ИИ изменить именно его. Изменения сохраняются сами.'
@@ -289,6 +304,7 @@ export function SitePreview({
           ? 'Щёлкните текст на сайте и исправьте его. Enter сохраняет в черновике, Escape отменяет. Цены, контакты и ссылки так не меняются.'
           : 'Щёлкните блок на сайте, чтобы изменить его. Бронирование и цены работают только на опубликованном сайте.'}
       </p>
+      )}
       {broken && (
         <p className="ed-preview__broken" role="status" data-testid="ed-preview-broken">
           Сайт с этими правками пока не нарисовать: исправьте отмеченные поля. Показан последний удачный вид.

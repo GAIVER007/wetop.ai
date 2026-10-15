@@ -621,6 +621,212 @@
     background: var(--primary);
     color: var(--surface);
   }
+  /* Редактор как у Lovable (SITE-1, DESIGN.md §8): слева чат с ИИ во всю высоту, справа сайт; до 960 px сайт сверху,
+     чат под ним */
+  .lov-ed {
+    display: grid;
+    grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+    gap: var(--space-4);
+    height: calc(100dvh - var(--header-h) - var(--space-16));
+    min-height: 560px;
+  }
+  .lov-ed__chat {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: var(--space-2);
+    min-width: 0;
+    min-height: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .lov-ed__chat-head {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .lov-ed__project {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+  }
+  .lov-ed__status {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .lov-ed__status.is-error {
+    color: var(--danger);
+  }
+  .lov-ed__feed-wrap {
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .lov-ed__empty p {
+    margin: 0 0 var(--space-2);
+  }
+  .lov-ed__feed {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .lov-ed__turn {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .lov-ed__ask {
+    justify-self: end;
+    max-width: 88%;
+    margin: 0;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-lg);
+    background: var(--surface-muted);
+    white-space: pre-wrap;
+  }
+  .lov-ed__reply p,
+  .lov-ed__result p {
+    margin: 0;
+  }
+  .lov-ed__reply.is-error {
+    color: var(--danger);
+  }
+  .lov-ed__result {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-lg);
+  }
+  .lov-ed__chips {
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+    padding-bottom: var(--space-1);
+  }
+  .lov-ed__chips .chip {
+    flex: 0 0 auto;
+  }
+  .lov-ed__composer {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .lov-ed__composer:focus-within {
+    border-color: var(--primary);
+  }
+  .lov-ed__target {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+  .lov-ed__input {
+    width: 100%;
+    min-height: 72px;
+    padding: var(--space-2);
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    resize: none;
+  }
+  .lov-ed__input:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+  .lov-ed__tools,
+  .lov-ed__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .lov-ed__grow {
+    flex: 1 1 auto;
+  }
+  .lov-ed__stage {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: var(--space-2);
+    min-width: 0;
+    min-height: 0;
+  }
+  .lov-ed__stage > .ed-preview {
+    grid-row: 3;
+  }
+  .lov-ed__page {
+    width: auto;
+    min-width: 160px;
+  }
+  .lov-ed__tpl {
+    position: relative;
+  }
+  .lov-ed__tpl-list {
+    position: absolute;
+    z-index: var(--layer-sticky);
+    top: calc(100% + var(--space-1));
+    left: 0;
+    display: grid;
+    gap: var(--space-2);
+    width: min(360px, 90vw);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-floating);
+  }
+  .lov-ed__tpl-list p {
+    margin: 0;
+  }
+  .lov-ed .ed-preview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-height: 0;
+  }
+  .lov-ed .ed-preview__stage {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .lov-ed .ed-preview__page {
+    width: auto;
+    min-width: 160px;
+  }
+  .lov-ed .ed-preview__frame {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 480px;
+  }
+
+  @media (max-width: 960px) {
+    .lov-ed {
+      grid-template-columns: minmax(0, 1fr);
+      height: auto;
+    }
+    .lov-ed__stage {
+      order: -1;
+    }
+    .lov-ed .ed-preview__frame {
+      height: 70dvh;
+    }
+    .lov-ed__feed-wrap {
+      max-height: 50dvh;
+    }
+  }
   /* Простой редактор сайта (SITE-1, DESIGN.md §8): слева живой сайт, справа одна панель «Изменить с ИИ», «Шаблон», «Ещё».
      Без вкладок; до 960 px панель под сайтом */
   .simple-ed {

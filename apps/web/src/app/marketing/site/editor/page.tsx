@@ -167,6 +167,7 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
           published={site.published}
           locationName={locationName}
           assets={loaded.assets}
+          conversation={loaded.conversation}
           readOnly={readOnly}
         />
       </Page>

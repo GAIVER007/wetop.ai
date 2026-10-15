@@ -607,7 +607,7 @@ export interface RegistrationContext {
 export const authApi = {
   registrationContext: (token?: string) =>
     getJson<RegistrationContext | null>(
-      '/auth/registration-context',
+      '/auth/registration-context?unambiguous=1',
       token ? { authorization: `Bearer ${token}` } : {},
     ),
   options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),

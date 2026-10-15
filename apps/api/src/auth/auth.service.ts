@@ -220,6 +220,7 @@ export class AuthService {
   async registrationContext(
     organizationId: string,
     access?: { role: MembershipRole; scopes?: readonly ScopeAssignment[] },
+    options?: { unambiguous?: boolean },
   ) {
     const assignments = access?.scopes ?? [];
     if (access && isRestricted(access.role, assignments))
@@ -231,22 +232,28 @@ export class AuthService {
     });
     const vertical = parseBusinessVertical(business?.vertical);
     if (!business || !vertical) return null;
-    const otherBusiness = await this.prisma.db.business.findFirst({
-      where: { organizationId, status: 'ACTIVE', id: { not: business.id } },
-      select: { id: true },
-    });
-    if (otherBusiness && otherBusiness.id !== business.id) return null;
+    // Завершение регистрации (`unambiguous`): при нескольких бизнесах или филиалах «самый ранний» не выбираем, человек
+    // выбирает сам (/scope/resolve). Остальным вызовам прежнее правило: самый ранний (контроль core-security, A3/F6).
+    if (options?.unambiguous) {
+      const otherBusiness = await this.prisma.db.business.findFirst({
+        where: { organizationId, status: 'ACTIVE', id: { not: business.id } },
+        select: { id: true },
+      });
+      if (otherBusiness && otherBusiness.id !== business.id) return null;
+    }
     const location = await this.prisma.db.location.findFirst({
       where: { businessId: business.id, status: 'ACTIVE' },
       orderBy: { createdAt: 'asc' },
       select: { id: true, name: true },
     });
     if (!location) return null;
-    const otherLocation = await this.prisma.db.location.findFirst({
-      where: { businessId: business.id, status: 'ACTIVE', id: { not: location.id } },
-      select: { id: true },
-    });
-    if (otherLocation && otherLocation.id !== location.id) return null;
+    if (options?.unambiguous) {
+      const otherLocation = await this.prisma.db.location.findFirst({
+        where: { businessId: business.id, status: 'ACTIVE', id: { not: location.id } },
+        select: { id: true },
+      });
+      if (otherLocation && otherLocation.id !== location.id) return null;
+    }
     return {
       businessId: business.id,
       locationId: location.id,

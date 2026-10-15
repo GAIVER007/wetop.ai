@@ -27,7 +27,7 @@ it('first registration context is resolved only inside the signed-in organizatio
     auth as unknown as { registrationContext: (org: string) => Promise<unknown> }
   ).registrationContext('own');
   expect(calls[0]).toMatchObject({ where: { organizationId: 'own', status: 'ACTIVE' } });
-  expect(calls[2]).toMatchObject({ where: { businessId: 'b', status: 'ACTIVE' } });
+  expect(calls[1]).toMatchObject({ where: { businessId: 'b', status: 'ACTIVE' } });
   expect(result).toMatchObject({ businessId: 'b', locationId: 'l', vertical: 'FOOD_SERVICE' });
 });
 
@@ -54,7 +54,7 @@ it('does not choose the earliest business when verification is reopened with mul
     } as never,
     {} as never,
   );
-  expect(await auth.registrationContext('own')).toBeNull();
+  expect(await auth.registrationContext('own', undefined, { unambiguous: true })).toBeNull();
 });
 
 it('сотрудник с областью доступа получает первый назначенный ему филиал, а не самый ранний в организации (A3/F6)', async () => {
@@ -132,4 +132,22 @@ it('владелец и сотрудник без назначений полу�
   const free = await auth.registrationContext('own', { role: 'STAFF', scopes: [] });
   expect(owner).toMatchObject({ businessId: 'b', locationId: 'l' });
   expect(free).toMatchObject({ businessId: 'b', locationId: 'l' });
+});
+
+it('unambiguous: при нескольких филиалах одного бизнеса самый ранний не выбирается', async () => {
+  const auth = new AuthService(
+    {
+      db: {
+        business: { findFirst: async () => ({ id: 'b', vertical: 'BEAUTY', name: 'Салон' }) },
+        location: {
+          findFirst: async ({ where }: { where: { id?: unknown } }) =>
+            where.id ? { id: 'l2' } : { id: 'l1', name: 'Филиал 1' },
+        },
+      },
+    } as never,
+    {} as never,
+  );
+  // прежнее правило без флага: самый ранний; при завершении регистрации (unambiguous) человек выбирает сам
+  expect(await auth.registrationContext('own')).toMatchObject({ businessId: 'b', locationId: 'l1' });
+  expect(await auth.registrationContext('own', undefined, { unambiguous: true })).toBeNull();
 });

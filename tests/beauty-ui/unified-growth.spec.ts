@@ -15,7 +15,8 @@ const minus = (iso: string, n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-async function ok(res: Awaited<ReturnType<APIRequestContext['post']>>, what: string) {
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any -- json фикстуры, поля проверяет сам спек */
+async function ok(res: Awaited<ReturnType<APIRequestContext['post']>>, what: string): Promise<any> {
   expect(res.ok(), `${what}: ${res.status()} ${await res.text()}`).toBe(true);
   return res.json();
 }

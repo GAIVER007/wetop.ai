@@ -1,0 +1,179 @@
+# Сквозные (e2e) · 15.10.2026 12:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 19f069d (codex/release-gate-followup-20261015)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 44 tests using 1 worker
+
+[WebServer] (node:70655) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘   1 tests/beauty-ui/beauty.spec.ts:111:1 › empty setup through real UI, persisted appointment, move, confirm, complete (1.5m)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:200:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (5.5s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:237:1 › existing customer can be selected for another appointment without duplication (1.8s)
+  ✓   4 tests/beauty-ui/beauty.spec.ts:265:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (6.8s)
+  ✓   5 tests/beauty-ui/beauty.spec.ts:265:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (5.8s)
+  ✓   6 tests/beauty-ui/beauty.spec.ts:265:5 › calendar and drawer 390 light, keyboard, axe, no overflow (5.4s)
+  ✓   7 tests/beauty-ui/beauty.spec.ts:265:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (5.8s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:346:1 › archived service and employee preserve historical calendar appointments (2.3s)
+  ✓   9 tests/beauty-ui/beauty.spec.ts:380:1 › TimeOff from employee drawer, server denial and timezone persisted (3.9s)
+  ✓  10 tests/beauty-ui/beauty.spec.ts:432:1 › DS1c: day navigation keeps the previous addresses (1.3s)
+  ✓  11 tests/beauty-ui/beauty.spec.ts:447:1 › Beauty onboarding v2 completes a ready branch and resumes Today (3.7s)
+  -  12 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -  13 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -  14 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -  15 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+  ✓  16 tests/beauty-ui/employee-workspace.spec.ts:69:1 › minimal create, saved ID, reload and actual desktop/mobile themes (4.1s)
+  ✓  17 tests/beauty-ui/employee-workspace.spec.ts:106:1 › two stale forms keep the second draft and show the current profile (1.8s)
+  ✓  18 tests/beauty-ui/employee-workspace.spec.ts:134:1 › dirty stay, discard and save before tabs/close; failed save keeps draft (2.2s)
+  ✓  19 tests/beauty-ui/employee-workspace.spec.ts:178:1 › Back/Forward and keyboard tabs retain a consistent employee URL (1.1s)
+  ✓  20 tests/beauty-ui/employee-workspace.spec.ts:209:1 › inaccessible deep link is neutral and old Beauty entry remains compatible (1.2s)
+  ✓  21 tests/beauty-ui/employee-workspace.spec.ts:221:1 › lost create response is recovered on reload using one persistent operation (1.7s)
+  ✓  22 tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee (1.7s)
+  ✓  23 tests/beauty-ui/employee-workspace.spec.ts:333:1 › a scope-switch event invalidates an in-flight profile response (1.9s)
+  ✓  24 tests/beauty-ui/employee-workspace.spec.ts:380:1 › services cannot restore a stale name and profile cannot restore stale services (2.9s)
+  ✓  25 tests/beauty-ui/employee-workspace.spec.ts:424:1 › native beforeunload protects reload and preserves draft when dismissed (3.1s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  26 tests/beauty-ui/employee-workspace.spec.ts:449:1 › dirty internal navigation asks before leaving and stays on failure (2.8s)
+  ✓  27 tests/beauty-ui/employee-workspace.spec.ts:469:1 › profile fields, keyboard focus and contrast pass an axe audit (3.3s)
+  ✓  28 tests/beauty-ui/employee-workspace.spec.ts:486:1 › pending services save cannot mark a later checkbox edit as saved (2.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2760324338'
+[WebServer] }
+  ✓  29 tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card (3.5s)
+  ✓  30 tests/beauty-ui/employee-workspace.spec.ts:553:1 › a later week edit stays dirty after the submitted week is saved (3.5s)
+  -  31 tests/beauty-ui/ref-capture.spec.ts:14:1 › салон: календарь на ширинах и темах
+  -  32 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /today
+  -  33 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /beauty/schedule
+  -  34 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /appointments
+  -  35 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /services
+  -  36 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees
+  -  37 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts
+  -  38 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /customers
+  -  39 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /finance
+  -  40 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /team
+  -  41 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /help
+  -  42 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /branches
+  -  43 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports
+  ✘  44 tests/beauty-ui/unified-growth.spec.ts:129:1 › салон: продажи, финансы и маркетинг на данных филиала (10.1s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:111:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('row').filter({ hasText: 'Тестовая стрижка' }).getByRole('button', { name: 'Изменить' })
+        - locator resolved to <button type="button" class="btn btn--secondary btn--sm">Изменить</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - performing click action
+        - <form class="beauty-form" action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')">…</form> from <dialog open="" class="ui-overlay ui-drawer  " aria-labelledby="_R_tpbn5rdlelb_">…</dialog> subtree intercepts pointer events
+      - retrying click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <form class="beauty-form" action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')">…</form> from <dialog open="" class="ui-overlay ui-drawer  " aria-labelledby="_R_tpbn5rdlelb_">…</dialog> subtree intercepts pointer events
+      - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <form class="beauty-form" action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')">…</form> from <dialog open="" class="ui-overlay ui-drawer  " aria-labelledby="_R_tpbn5rdlelb_">…</dialog> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        168 × waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <form class="beauty-form" action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')">…</form> from <dialog open="" class="ui-overlay ui-drawer  " aria-labelledby="_R_tpbn5rdlelb_">…</dialog> subtree intercepts pointer events
+          - retrying click action
+            - waiting 500ms
+
+
+      131 |     .filter({ hasText: 'Тестовая стрижка' })
+      132 |     .getByRole('button', { name: 'Изменить' })
+    > 133 |     .click();
+          |      ^
+      134 |   panel = page.getByRole('dialog');
+      135 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      136 |   await panel.getByRole('button', { name: 'Сохранить для филиала' }).click();
+        at /private/tmp/wetop-pr532-repair/tests/beauty-ui/beauty.spec.ts:133:6
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/unified-growth.spec.ts:129:1 › салон: продажи, финансы и маркетинг на данных филиала 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('beauty-finance')
+    Expected: visible
+    Error: strict mode violation: getByTestId('beauty-finance') resolved to 2 elements:
+        1) <div data-testid="beauty-finance">…</div> aka getByRole('main').getByTestId('beauty-finance')
+        2) <div data-testid="beauty-finance">…</div> aka getByTestId('beauty-finance').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('beauty-finance') with timeout 5000ms
+      - waiting for getByTestId('beauty-finance')
+
+
+      146 |
+      147 |   await page.goto('/finance');
+    > 148 |   await expect(page.getByTestId('beauty-finance')).toBeVisible();
+          |                                                    ^
+      149 |   await expect(page.getByTestId('beauty-revenue')).toContainText('95');
+      150 |   await expect(page.getByTestId('beauty-lost')).toContainText('20 000');
+      151 |   await page.screenshot({ path: `${shots}/beauty-finance.png`, fullPage: true });
+        at /private/tmp/wetop-pr532-repair/tests/beauty-ui/unified-growth.spec.ts:148:52
+
+    Error Context: test-results/unified-growth-салон-прода-510cd-маркетинг-на-данных-филиала/error-context.md
+
+    Error Context: test-results/unified-growth-салон-прода-510cd-маркетинг-на-данных-филиала/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-growth-салон-прода-510cd-маркетинг-на-данных-филиала/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-growth-салон-прода-510cd-маркетинг-на-данных-филиала/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/beauty-ui/beauty.spec.ts:111:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+    tests/beauty-ui/unified-growth.spec.ts:129:1 › салон: продажи, финансы и маркетинг на данных филиала 
+  17 skipped
+  25 passed (3.1m)
+
+# код выхода 1 · 3 мин 8 с

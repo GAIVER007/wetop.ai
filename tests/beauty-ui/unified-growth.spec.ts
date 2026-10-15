@@ -1,4 +1,5 @@
-import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
+import { test, expect } from '../ui/fixtures';
+import type { Page, APIRequestContext } from '@playwright/test';
 import type { BeautyDay } from '../../apps/web/src/lib/api';
 
 type Fixture = { business: string; locations: string[] };

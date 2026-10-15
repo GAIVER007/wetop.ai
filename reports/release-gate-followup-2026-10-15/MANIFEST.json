@@ -1,0 +1,234 @@
+{
+  "scope": "Two Beauty UI test files only; no production changes",
+  "runs": [
+    {
+      "id": "2026-10-15T07-35-03Z-integration-845e",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 1293,
+        "passed": 1279,
+        "failed": 0,
+        "skipped": 14,
+        "flaky": 0
+      },
+      "status": "passed",
+      "fingerprint": "5d47f0b4f220adbb686a5a4598b26f55ae1755cb805068ee807206f17f5c807a",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T07-35-03Z-integration-845e.log",
+      "entrySha256": "2a817c2baae6400d51e9fd8d5cda43aefbce07ae1aadbc92607dbd18b9766e72"
+    },
+    {
+      "id": "2026-10-15T07-37-10Z-e2e-6711",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "status": "passed",
+      "fingerprint": "0adc51cd296814e47da8356581b975febafd71a23b369ce6cbd19f704d635218",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T07-37-10Z-e2e-6711.log",
+      "entrySha256": "5161b0c8f13b0fe9ee12d6684c74e44613b5ac85decfb7db80af37517dd55d11"
+    },
+    {
+      "id": "2026-10-15T07-37-38Z-e2e-fb0b",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 44,
+        "passed": 25,
+        "failed": 2,
+        "skipped": 17,
+        "flaky": 0
+      },
+      "status": "failed",
+      "fingerprint": "0adc51cd296814e47da8356581b975febafd71a23b369ce6cbd19f704d635218",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T07-37-38Z-e2e-fb0b.log",
+      "entrySha256": "4cd72f6a4dd2a2559b0e776c20cf40450a3988e292b83ec08438a3c4b3295949"
+    },
+    {
+      "id": "2026-10-15T08-29-38Z-e2e-ad8e",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "status": "passed",
+      "fingerprint": "0adc51cd296814e47da8356581b975febafd71a23b369ce6cbd19f704d635218",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-29-38Z-e2e-ad8e.log",
+      "entrySha256": "ce3fb6702a565a8393f6ccb9a49c50920d9512179afb9a2395ce8e769eee7466"
+    },
+    {
+      "id": "2026-10-15T08-30-27Z-e2e-1b6b",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 44,
+        "passed": 27,
+        "failed": 0,
+        "skipped": 17,
+        "flaky": 0
+      },
+      "status": "passed",
+      "fingerprint": "0adc51cd296814e47da8356581b975febafd71a23b369ce6cbd19f704d635218",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-30-27Z-e2e-1b6b.log",
+      "entrySha256": "439807f8118a7e00eedb060681b60dafe4e42e7d5010511ecfd8f030c47d92c8"
+    },
+    {
+      "id": "2026-10-15T08-32-25Z-e2e-b4bf",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "status": "passed",
+      "fingerprint": "0adc51cd296814e47da8356581b975febafd71a23b369ce6cbd19f704d635218",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-32-25Z-e2e-b4bf.log",
+      "entrySha256": "07bc5f8e9cf04047f552524ee6723bd6cf04aaafc5e37921a3d1bf985684fe61"
+    },
+    {
+      "id": "2026-10-15T08-33-12Z-unit-d45e",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 4856,
+        "passed": 4846,
+        "failed": 6,
+        "skipped": 4,
+        "flaky": 0
+      },
+      "status": "failed",
+      "fingerprint": "1e703ba120b806c129c76e9b2d0674747129521601df973b279f850c060730ba",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-33-12Z-unit-d45e.log",
+      "entrySha256": "6e69dd4063d4abe450c4ee1e076ef7a788d2d14e30ebb1c2d39706e7528e6288"
+    },
+    {
+      "id": "2026-10-15T08-36-05Z-unit-c08e",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 126,
+        "passed": 125,
+        "failed": 0,
+        "skipped": 1,
+        "flaky": 0
+      },
+      "status": "passed",
+      "fingerprint": "1e703ba120b806c129c76e9b2d0674747129521601df973b279f850c060730ba",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-36-05Z-unit-c08e.log",
+      "entrySha256": "0b067c5ada041229d90f3d5662c7da6054dbf973b357b1d97b600c2eccbe3697"
+    },
+    {
+      "id": "2026-10-15T08-36-36Z-e2e-32b7",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "status": "failed",
+      "fingerprint": "0adc51cd296814e47da8356581b975febafd71a23b369ce6cbd19f704d635218",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-36-36Z-e2e-32b7.log",
+      "entrySha256": "721f225682118d00611038f9d601a44889825f74810c6e9d9edcb331ffc2d97c"
+    },
+    {
+      "id": "2026-10-15T08-37-19Z-e2e-8317",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 12,
+        "passed": 12,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "status": "passed",
+      "fingerprint": "76a4c60b0bed2f3cb11984f2fcca4d93403d0ede9854e75d21d650855f3fad98",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-37-19Z-e2e-8317.log",
+      "entrySha256": "d19aefe4460caf06837e948bac770125984f3b4da27bfa3427f95f31bfd5fd21"
+    },
+    {
+      "id": "2026-10-15T08-38-25Z-unit-0724",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": {
+        "total": 4856,
+        "passed": 4852,
+        "failed": 0,
+        "skipped": 4,
+        "flaky": 0
+      },
+      "status": "passed",
+      "fingerprint": "1e703ba120b806c129c76e9b2d0674747129521601df973b279f850c060730ba",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-38-25Z-unit-0724.log",
+      "entrySha256": "ad6beb680dd4a607a6d4a96897d9421f7a3893473f9c7415713c7b11c2c696dc"
+    },
+    {
+      "id": "2026-10-15T08-40-49Z-typecheck-4019",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": null,
+      "status": "passed",
+      "fingerprint": "ceab792a222a9c576236fa0d6fc15770d75b69c83de8e543393f7e47697d8abf",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-40-49Z-typecheck-4019.log",
+      "entrySha256": "d4d5e55c697f3f9e2b1c0a02897037820587b475db5fc396ca3b9be97df7b0c8"
+    },
+    {
+      "id": "2026-10-15T08-41-14Z-lint-c9cd",
+      "commit": "19f069d7272a07dfce79f431466891b12439f145",
+      "counts": null,
+      "status": "passed",
+      "fingerprint": "26914d90326ec12fa6b1cdf0203b01127c46200fe0c59ef055cc7d86aca7dd8b",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-41-14Z-lint-c9cd.log",
+      "entrySha256": "1c0d06a0a9c95182f0154c1b061f564915e53d0f91a5c7c58e7f9ee77747f770"
+    },
+    {
+      "id": "2026-10-15T08-42-02Z-e2e-5e5b",
+      "commit": "48e05c9152f226536ecc5e5a5b0981b7c1c6b681",
+      "counts": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "status": "failed",
+      "fingerprint": "2396d63cd8bddc6807db34e74f385051dbfe82ed133d0e2b6e9964bcc69f3515",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-42-02Z-e2e-5e5b.log",
+      "entrySha256": "852d74c014db9ce160554e5b0389aff28a6f4859293f0b4bd16031dc33354cdd"
+    },
+    {
+      "id": "2026-10-15T08-42-51Z-e2e-86a5",
+      "commit": "48e05c9152f226536ecc5e5a5b0981b7c1c6b681",
+      "counts": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "status": "passed",
+      "fingerprint": "2396d63cd8bddc6807db34e74f385051dbfe82ed133d0e2b6e9964bcc69f3515",
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-15T08-42-51Z-e2e-86a5.log",
+      "entrySha256": "355a01f096c88c2e7f9ab79b568cd44cc6cc05b3027cf94a32e28b4af2a74d64"
+    }
+  ],
+  "integrationBase": "48e05c9152f226536ecc5e5a5b0981b7c1c6b681"
+}

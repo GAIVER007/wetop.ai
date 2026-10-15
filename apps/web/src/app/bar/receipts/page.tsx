@@ -16,7 +16,7 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
 
 /** Приходы бара (ADR-157): журнал документов поставщиков, проведение черновиков, оплата и долги. */
 export default async function BarReceiptsPage() {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY']);
   const receipts = await settle(barApi.receipts());
   if (!receipts.ok) throw receipts.error;
   return <Page width="wide" className="bar-subpage" title="Бар: приходы" subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={

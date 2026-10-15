@@ -78,7 +78,7 @@ export default async function BarPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY']);
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
   const [categories, stock, suppliers, folios, receipts, sales, movements, report, today] =

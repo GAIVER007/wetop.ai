@@ -1,0 +1,156 @@
+# Модульные (unit) · 01.10.2026 00:22 Алматы · vm
+# коммит 65e8d67 (claude/security-audit-vibe-coding-k3xakb), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T19-22-52Z-unit-b196.json' 'tests/unit/deploy-server.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/deploy-server.test.ts (37 tests | 1 failed) 98ms
+   ✓ deploy/Dockerfile (6)
+     ✓ копирует манифест каждого рабочего пакета — иначе npm ci в образе не сойдётся 3ms
+     ✓ копирует схему базы и prisma.config.ts до npm ci: клиент Prisma генерируется на postinstall 1ms
+     ✓ ставит и devDependencies: API и скрипты идут через tsx, стойка собирается next-ом 0ms
+     ✓ собирает стойку: next start без сборки не поднимется 0ms
+     ✓ ставит пояс объекта 0ms
+     ✓ не запускается от root и держит PID 1 за tini 1ms
+   ❯ deploy/compose.yml (24)
+     ✓ поднимает три службы: API, стойка, туннель 0ms
+     ✓ службы синхронизации с Legacy нет: Legacy перестал быть источником (ADR-052, 19.09.2026) 1ms
+     ✓ API и стойка идут из одного образа — иначе сборка стойки и клиент базы разъезжаются 1ms
+     ✓ туннель ровно один и никогда не масштабируется 1ms
+     ✓ живость меряется маршрутами, которые отвечают и с включённым замком 1ms
+     ✓ API в контейнере слушает 0.0.0.0 — иначе до него не достучится никто, даже стойка 0ms
+     ✓ API запускается из своей папки: из корня tsx берёт tsconfig без декораторов и Nest падает 0ms
+     × пул и замки решает серверный .env, а не подстановка compose: умолчания держит код (пул 5, замки включены) 11ms
+     ✓ стойка поднимается своей командой: npm run start -w apps/web прибит к 127.0.0.1 1ms
+     ✓ стойка ходит в API по имени службы, а не в собственный контейнер 0ms
+     ✓ стойка получает только свои переменные (INFRA-ENV) (3)
+       ✓ всё, что стойка читает в production, названо в команде — иначе на сервере переменная молча пустая 38ms
+       ✓ лишнего в процесс стойки не уходит: ни ключей API, ни строки базы, ни того, что код не читает 22ms
+       ✓ стойка по-прежнему поднимается next start на 0.0.0.0 из одного `.env` с API 0ms
+     ✓ проверки синхронизации из Legacy у сторожа больше нет — и выключателя для неё в compose тоже (ADR-073) 0ms
+     ✓ выключателя GUARD_LOCAL_FILES в compose больше нет: возраст файлов сторож судит сам 0ms
+     ✓ API и туннель в общей сети с ботом (ADR-081): сеть заводит сама платформа, без выхода наружу, стойки в ней нет 0ms
+     ✓ сторож проверяет стойку по имени службы, а не собственный контейнер 0ms
+     ✓ порты наружу не публикуются: 0.0.0.0 виден только внутри сети compose 0ms
+     ✓ выключатель ARI подхватывается файлом и не обязателен 0ms
+     ✓ секреты приходят снаружи, а не из файла compose, и .env лежит в корне репозитория 0ms
+     ✓ боевой миграции в службах нет: её делает владелец руками (AGENTS.md §15) 0ms
+     ✓ команды служб зовут то, что есть в репозитории 0ms
+     ✓ ключ туннеля монтируется только на чтение 0ms
+     ✓ сторож видит статус ночной копии, но не сами копии: смонтирована только папка статуса и только на чтение 0ms
+   ✓ контекст сборки (7)
+     ✓ runtime multer не содержит известные multipart DoS из версий до 2.3.0 4ms
+     ✓ Docker читает исключения из корня context, а не произвольного файла рядом с Dockerfile 0ms
+     ✓ секреты в образ не попадают 0ms
+     ✓ папка с ключом туннеля не едет в git 1ms
+     ✓ образец конфига туннеля ходит в службы по именам, а не на 127.0.0.1 1ms
+     ✓ помощник наружу — только чат и живость (ADR-081): панель бота и /internal/* туннель не пропускает 1ms
+     ✓ продавец наружу — только вебхук WhatsApp гостиницы (С3, SECURITY.md §11): чат, панель и /internal/* — нет 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/deploy-server.test.ts > deploy/compose.yml > пул и замки решает серверный .env, а не подстановка compose: умолчания держит код (пул 5, замки включены)
+AssertionError: expected 'name: pms-lux\n\nx-app: &app\n  build…' not to match /(^|[^$])\$\{/m
+
+- Expected:
+/(^|[^$])\$\{/m
+
++ Received:
+"name: pms-lux
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  image: pms-lux:latest
+  restart: unless-stopped
+  env_file:
+    - path: ../.env
+      required: true
+    - path: ari.env
+      required: false
+  security_opt: ['no-new-privileges:true']
+
+networks:
+  wetop-internal:
+    name: wetop-internal
+    internal: true
+
+services:
+  api:
+    <<: *app
+    working_dir: /app/apps/api
+    command: ['node', '--import', 'tsx', 'src/main.ts']
+    environment:
+      API_HOST: '0.0.0.0'
+      API_PORT: '3001'
+      AUTH_REQUIRED: '${AUTH_REQUIRED:-1}'
+      DATABASE_POOL_MAX: '${DATABASE_POOL_MAX:-5}'
+      GUARD_WEB_URL: http://web:3000
+      GUARD_BACKUP_STATUS: /backup-status/last.json
+    volumes: ['/root/backups/status:/backup-status:ro']
+    expose: ['3001']
+    networks: [default, wetop-internal]
+    healthcheck:
+      test: ['CMD', 'node', '-e', \"fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  web:
+    <<: *app
+    working_dir: /app/apps/web
+    command:
+      - sh
+      - -c
+      - >-
+        exec env -i
+        PATH=\"$$PATH\" HOME=\"$$HOME\" TZ=\"$$TZ\" NODE_ENV=\"$$NODE_ENV\"
+        APP_API_URL=\"$$APP_API_URL\" APP_AUTH_REQUIRED=\"$$APP_AUTH_REQUIRED\"
+        APP_URL=\"$${APP_URL:-}\" SITE_ORIGINS=\"$${SITE_ORIGINS:-}\" ASSISTANT_URL=\"$${ASSISTANT_URL:-}\"
+        npx next start --port 3000 --hostname 0.0.0.0
+    environment:
+      APP_API_URL: http://api:3001
+      APP_AUTH_REQUIRED: '${APP_AUTH_REQUIRED:-1}'
+    expose: ['3000']
+    depends_on:
+      api: { condition: service_healthy }
+    healthcheck:
+      test: ['CMD', 'node', '-e', \"fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: ['tunnel', '--no-autoupdate', '--config', '/etc/cloudflared/wetop.yml', 'run']
+    volumes: ['./cloudflared:/etc/cloudflared:ro']
+    networks: [default, wetop-internal]
+    depends_on:
+      api: { condition: service_healthy }
+      web: { condition: service_healthy }
+
+"
+
+ ❯ tests/unit/deploy-server.test.ts:164:42
+    162|     // AUTH_REQUIRED=0 из серверного .env контейнеры не видели. Подста…
+    163|     // их источник — .env каталога compose-файла, а не ../.env; `$${…}…
+    164|     expect(withoutComments(COMPOSE)).not.toMatch(/(^|[^$])\$\{/m);
+       |                                          ^
+    165|     expect(withoutComments(service('api'))).not.toMatch(/DATABASE_POOL…
+    166|     expect(withoutComments(service('web'))).not.toMatch(/APP_AUTH_REQU…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 36 passed (37)
+   Start at  19:22:53
+   Duration  441ms (tests 48%, transform 38%, import 11%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-30T19-22-52Z-unit-b196.json
+
+# код выхода 1 · 2 с

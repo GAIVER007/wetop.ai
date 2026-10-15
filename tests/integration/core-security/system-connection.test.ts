@@ -96,11 +96,18 @@ describe.skipIf(!url)('A2: /system/connection уважает область за
 
   afterAll(async () => {
     await app?.close();
-    // объект назван именем установки: после теста снимаем имя, чтобы поиск по имени в соседних тестах его не находил
-    if (admin && h1)
+    // объект назван именем установки: после теста снимаем имя, чтобы поиск по имени в соседних тестах его не находил.
+    // Имя снимается и у филиала: platform-p1-backfill сверяет, что филиал каждого объекта назван именем объекта,
+    // и объект «CSF retired …» с филиалом «Luxx Aparts» ронял его в общем прогоне (15.10.2026)
+    if (admin && h1) {
+      const retired = `CSF retired ${h1.propertyId}`;
       await admin.property
-        .update({ where: { id: h1.propertyId }, data: { name: `CSF retired ${h1.propertyId}` } })
+        .update({ where: { id: h1.propertyId }, data: { name: retired } })
         .catch(() => undefined);
+      await admin.location
+        .update({ where: { id: h1.locationId }, data: { name: retired } })
+        .catch(() => undefined);
+    }
     forgetPropertyRef();
     await tenant?.$disconnect();
     await admin?.$disconnect();

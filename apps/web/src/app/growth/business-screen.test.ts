@@ -3,43 +3,76 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import { BusinessGrowthScreen } from './business-screen';
-const { requireVertical, hotelToday } = vi.hoisted(() => ({
+const { requireVertical, hotelToday, loadBusinessSales, budgetView } = vi.hoisted(() => ({
   requireVertical: vi.fn(),
   hotelToday: vi.fn(),
+  loadBusinessSales: vi.fn(),
+  budgetView: vi.fn(),
 }));
 vi.mock('../../lib/vertical-guard', () => ({ requireVertical }));
+vi.mock('./business-sales', () => ({ loadBusinessSales }));
+vi.mock('../../lib/api', async (orig) => ({
+  ...(await orig<typeof import('../../lib/api')>()),
+  marketingBudgetApi: { view: budgetView },
+}));
 vi.mock('../../lib/hotel-api', () => ({ hotelToday }));
 vi.mock('next/navigation', () => ({ unstable_rethrow: vi.fn() }));
 import SalesPage from '../sales/page';
 import MarketingPage from '../marketing/page';
 
 describe('Разделы роста по направлению бизнеса', () => {
-  it('маркетинг салона сохраняет композицию модулей и результатов; бюджет у салона «Скоро»', () => {
+  it('маркетинг салона: бюджет доступен, сайт «Скоро» без ссылки, тексты про клиентов салона', () => {
     const html = renderToStaticMarkup(
       createElement(BusinessGrowthScreen, { vertical: 'BEAUTY', mode: 'marketing' }),
     );
     expect(html).toContain('marketing-hub__modules');
     expect(html).toContain('Сайт и SEO');
-    expect(html).toContain('Результаты за 30 дней');
-    // МКТ-В1/В2: четвёртым модулем «Бюджет»; его экраны пока только у гостиницы, салону ссылки не дают
     expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(4);
-    expect(html).toMatch(/data-testid="marketing-budget-status"[^>]*>Скоро</);
-    expect(html).not.toContain('href="/marketing/budget"');
-    expect(html).not.toContain('>Подключен<');
+    // единая система: бюджет ведётся по филиалу любого направления
+    expect(html).toMatch(/data-testid="marketing-budget-status"[^>]*>Доступно</);
+    expect(html).toContain('href="/marketing/budget"');
+    // конструктор сайта API принимает только у гостиницы: у салона без ссылки
+    expect(html).toMatch(/data-testid="marketing-site-status"[^>]*>Скоро</);
+    expect(html).not.toContain('href="/marketing/site/editor"');
+    expect(html).toContain('сайт салона');
+    expect(html).toContain('Онлайн-запись');
+    expect(html).not.toMatch(/гостиниц/);
   });
-  it('продажи ресторана показывают хаб с показателями и честной доступностью модулей', () => {
+  it('продажи ресторана: реальные плитки, лучшие блюда и официанты, без анализа конкурентов', () => {
     const html = renderToStaticMarkup(
-      createElement(BusinessGrowthScreen, { vertical: 'FOOD_SERVICE', mode: 'sales' }),
+      createElement(BusinessGrowthScreen, {
+        vertical: 'FOOD_SERVICE',
+        mode: 'sales',
+        data: {
+          period: { from: '2026-10-08', to: '2026-10-14', preset: '7' },
+          currency: 'KZT',
+          revenueMinor: '1250000',
+          averageCheckMinor: '625000',
+          sold: 2,
+          bookings: 3,
+          lost: 1,
+          guests: 5,
+          top: [{ name: 'Плов', count: 4, revenueMinor: '800000' }],
+          team: [{ name: 'Айгерим', count: 2, revenueMinor: '1250000' }],
+          seller: null,
+          error: null,
+        },
+      }),
     );
     expect(html).toContain('sales-kpis');
-    expect(html).toContain('Анализ конкурентов');
+    expect(html).toContain('Лучшие блюда');
+    expect(html).toContain('Плов');
+    expect(html).toContain('Официанты');
+    expect(html).toContain('Айгерим');
     expect(html).toContain('ИИ-продавец');
     expect(html).not.toContain('href="/market"');
+    expect(html).not.toContain('Нет данных рынка');
   });
 
   for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const) {
     it(`${vertical}: продажи не запрашивают гостиничные данные`, async () => {
       requireVertical.mockResolvedValue({ context: { vertical } });
+      loadBusinessSales.mockResolvedValue(null);
       hotelToday.mockClear();
       const html = renderToStaticMarkup(await SalesPage({ searchParams: Promise.resolve({}) }));
       expect(html).toContain('data-testid="business-sales"');
@@ -49,6 +82,7 @@ describe('Разделы роста по направлению бизнеса',
     });
     it(`${vertical}: маркетинг открывает общие модули без ссылки на гостиничный сайт`, async () => {
       requireVertical.mockResolvedValue({ context: { vertical } });
+      budgetView.mockRejectedValue(new Error('нет филиала'));
       const html = renderToStaticMarkup(await MarketingPage());
       expect(html).toContain('data-testid="business-marketing"');
       expect(html).toContain('href="/marketing/ads"');

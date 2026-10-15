@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseScopePointer, resolveScope } from './scope';
+import { hasScopePointer, parseScopePointer, resolveScope } from './scope';
 
 /**
  * Platform P2, К1 (план `plans/platform-p2-request-context-2026-09-27.md` §4–§5, ADR-120): указатель выбора —
@@ -70,6 +70,25 @@ describe('parseScopePointer — указатель X-Wetop-Scope', () => {
     expect(parseScopePointer('business=1; DROP TABLE')).toEqual({});
     expect(parseScopePointer(`business=${B_OWN};org=other`)).toEqual({});
     expect(parseScopePointer(`business=${B_OWN};business=${B_OTHER_OWN}`)).toEqual({});
+  });
+});
+
+describe('hasScopePointer — «указателя нет» отличается от «указатель отклонён» (O4=A)', () => {
+  it('нет заголовка, пустой и из пробелов — указателя нет вообще', () => {
+    expect(hasScopePointer(undefined)).toBe(false);
+    expect(hasScopePointer('')).toBe(false);
+    expect(hasScopePointer('   ')).toBe(false);
+    expect(hasScopePointer([])).toBe(false);
+  });
+
+  it('любое непустое значение — указатель прислан, даже если он битый или разобрался в пустоту', () => {
+    expect(hasScopePointer('garbage')).toBe(true);
+    expect(hasScopePointer(`business=${B_OWN};business=${B_OTHER_OWN}`)).toBe(true);
+    expect(hasScopePointer(`location=${L_OWN}`)).toBe(true);
+    expect(hasScopePointer(['a', 'b'])).toBe(true);
+    // и именно такие значения parseScopePointer сводит к пустому указателю
+    expect(parseScopePointer('garbage')).toEqual({});
+    expect(parseScopePointer(['a', 'b'])).toEqual({});
   });
 });
 

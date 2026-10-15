@@ -27,7 +27,7 @@ export default async function BudgetExpensesPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const sp = await searchParams;
   const [loaded, shell] = await Promise.all([loadBudget(sp), deskShell()]);
   const role = shell.access.role;

@@ -988,3 +988,18 @@
     gap: var(--space-2);
   }
 }
+
+@layer sections {
+  /* «Финансы» салона: пять плиток в ряд на широком экране, дальше общая сетка `.kpi-row` */
+  @media (min-width: 1280px) {
+    [data-testid='beauty-finance'] .kpi-row {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+  [data-testid='beauty-finance'] .kpi-row {
+    margin-bottom: var(--space-6);
+  }
+  .beauty-finance__note {
+    margin-top: var(--space-4);
+  }
+}

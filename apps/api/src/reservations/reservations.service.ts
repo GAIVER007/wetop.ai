@@ -13,6 +13,7 @@ import {
   RATE_PLAN_CHANGE_MESSAGE,
   RATE_PLAN_SOFT_MESSAGE,
   RESERVATION_SOURCES,
+  RESTRICTED_GUESTS_MESSAGE,
   ReservationRuleError,
   RestrictionViolationError,
   assertCanAssign,
@@ -41,7 +42,7 @@ import {
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
 import { deskGuestForStorage, freeTextForStorage } from '@pms/shared';
-import { actorMay } from '../auth/request-context';
+import { actorIsRestricted, actorMay } from '../auth/request-context';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import { cardStays, stayDelta } from '../channels/ari-ranges';
 import type { ReservationCard } from './reservation-card';
@@ -350,6 +351,9 @@ function existingGuest(
     throw new BadRequestException(
       'Укажите либо guestId существующего гостя, либо поля guest нового — не оба сразу',
     );
+  // гости организационные (O3=A): ограниченный сотрудник не прикрепляет к брони гостя по идентификатору, то есть не читает
+  // гостей других филиалов через свою бронь; нового гостя он заводит как раньше
+  if (actorIsRestricted()) throw new ForbiddenException(RESTRICTED_GUESTS_MESSAGE);
   const id = dto.guestId.trim();
   if (!UUID.test(id)) throw new NotFoundException(GUEST_NOT_FOUND);
   return id;

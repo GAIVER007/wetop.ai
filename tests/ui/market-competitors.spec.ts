@@ -128,14 +128,15 @@ test('карточка: район, тип и настройки монитор�
   // две вкладки по макету; «AI-поиск» честно говорит, что источника пока нет, и поле выключено
   await page.getByRole('tab', { name: 'AI-поиск' }).click();
   const ai = page.getByTestId('market-ai-search');
-  await expect(ai).toContainText('когда подключён разрешённый источник данных');
+  await expect(ai).toContainText('Автоматический поиск новых соседей пока не подключён');
   await expect(ai.getByRole('textbox')).toBeDisabled();
   await page.getByRole('tab', { name: 'Ручной выбор' }).click();
   await page.getByTestId('market-name').fill('Almaty Residence');
+  await page.getByText('Дополнительные сведения', { exact: true }).click();
   await page.getByTestId('market-district').fill('Бостандык');
   await page.getByTestId('market-category').fill('Апартаменты');
   await page.getByTestId('market-monitoring-kind').selectOption('PRICE');
-  await expect(page.getByTestId('market-auto-note')).toContainText('когда подключён разрешённый источник');
+  await expect(page.getByTestId('market-auto-note')).toContainText('Автоматический сбор цен пока не подключён');
   await page.getByTestId('market-save').click();
   await expect(page.getByTestId('market-competitor-form')).toHaveCount(0);
   const row = page.locator('[data-testid^="market-list-row-"]', { hasText: 'Almaty Residence' });

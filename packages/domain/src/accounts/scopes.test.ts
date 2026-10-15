@@ -185,6 +185,17 @@ describe('canAt: право в месте', () => {
       expect(canAt('MANAGER', mgrAtL1, p, { businessId: B1, locationId: L1 })).toBe(false);
   });
 
+  it('ИИ-продавец организационный (O2=A): ни управляющий, ни администратор филиала не получают ни настройки, ни диалоги', () => {
+    for (const p of ['seller', 'dialogs'] as const) {
+      expect(canAt('MANAGER', mgrAtL1, p, { businessId: B1, locationId: L1 })).toBe(false);
+      expect(canAt('STAFF', staffAtL1, p, { businessId: B1, locationId: L1 })).toBe(false);
+      // без ограничения права ролей прежние
+      expect(canAt('MANAGER', [], p, { businessId: B1, locationId: L1 })).toBe(true);
+    }
+    expect(canAt('STAFF', [], 'dialogs', { businessId: B1, locationId: L1 })).toBe(true);
+    expect(canAt('STAFF', [], 'seller', { businessId: B1, locationId: L1 })).toBe(false);
+  });
+
   it('без выбранного места открыто только своё', () => {
     expect(canAt('STAFF', staffAtL1, 'self')).toBe(true);
     expect(canAt('STAFF', staffAtL1, 'desk')).toBe(false);

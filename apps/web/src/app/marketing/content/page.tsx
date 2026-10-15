@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { requireVertical } from '../../../lib/vertical-guard';
+import { verticalCopy, type VerticalCopy } from '../../../lib/vertical-copy';
 import '../marketing.css';
 import { Icon, type IconName } from '../../../components/icon';
 import { Page } from '../../../components/page';
@@ -13,19 +14,19 @@ import { BackToModules, ModuleSoon, WeekPlan } from '../parts';
  * форматы и пустую неделю, без выдуманных постов. Живое здесь одно: медиатека ведёт в изображения сайта (MKT8).
  * Своих запросов к API у страницы нет, право `settings` как у хаба.
  */
-const FORMATS: Array<{ title: string; text: string; icon: IconName }> = [
-  { title: 'Фото номера', text: 'Снимок в нужном стиле', icon: 'bed' },
+const formats = (c: VerticalCopy): Array<{ title: string; text: string; icon: IconName }> => [
+  { title: `Фото ${c.photoSubject}`, text: 'Снимок в нужном стиле', icon: c.photoIcon },
   { title: 'Видео-тур', text: 'Ролик до 30 секунд', icon: 'board' },
   { title: 'Пост для Instagram', text: 'Текст и картинка', icon: 'send' },
   { title: 'История (Stories)', text: 'Вертикальный кадр', icon: 'journal' },
-  { title: 'Пост с отзывом', text: 'Из отзывов гостей', icon: 'chat' },
+  { title: 'Пост с отзывом', text: `Из отзывов ${c.clientsOf}`, icon: 'chat' },
   { title: 'Reels', text: 'Короткое видео', icon: 'refresh' },
   { title: 'Баннер для рекламы', text: 'Для модуля «Реклама»', icon: 'channels' },
 ];
 const KINDS = ['Фото', 'Видео', 'Посты', 'Stories', 'Reels', 'Email'];
 const SOON = 'marketing-content-soon';
 
-function Ideas() {
+function Ideas({ copy }: { copy: VerticalCopy }) {
   return (
     <div className="marketing-screen__stack">
       <ul className="marketing-kinds" aria-label="Форматы">
@@ -37,9 +38,9 @@ function Ideas() {
         <li className="marketing-format marketing-format--create">
           <Icon name="plus" aria-hidden="true" />
           <strong>Создать с ИИ</strong>
-          <span>Опишите, что нужно, например: фото номера в стиле «уют и минимализм».</span>
+          <span>Опишите, что нужно, например: фото {copy.photoSubject} в стиле «уют и минимализм».</span>
         </li>
-        {FORMATS.map((f) => (
+        {formats(copy).map((f) => (
           <li key={f.title} className="marketing-format">
             <span className="marketing-format__art" aria-hidden="true">
               <Icon name={f.icon} />
@@ -60,7 +61,8 @@ function Ideas() {
 }
 
 export default async function MarketingContentPage() {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const copy = verticalCopy(me.context?.vertical);
   return (
     <Page
       crumbs={<BackToModules />}
@@ -81,7 +83,7 @@ export default async function MarketingContentPage() {
         <Tabs
           label="Разделы контента"
           panels={[
-            { id: 'ideas', label: 'Идеи', content: <Ideas /> },
+            { id: 'ideas', label: 'Идеи', content: <Ideas copy={copy} /> },
             {
               id: 'generate',
               label: 'Генерация',

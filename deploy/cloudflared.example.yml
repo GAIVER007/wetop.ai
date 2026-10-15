@@ -35,7 +35,12 @@ ingress:
     path: ^/a/(pms\.js|hit)$
     service: http://api:3001
   - hostname: api.wetop.ai
-    path: ^/w/(widget\.js|config|availability|book)$
+    path: ^/w/(widget\.js|config|availability|book|from-prices|lead|beauty/slots|beauty/book|food/reserve)$
+    service: http://api:3001
+  # Сайты клиентов (SITE-1, ADR-185): Worker wetop-sites-production на *.wetop.site берёт опубликованный сайт и превью
+  # по ключу рантайма; остальные пути API наружу по-прежнему закрыты
+  - hostname: api.wetop.ai
+    path: ^/sites-runtime/(current|preview)$
     service: http://api:3001
   - hostname: api.wetop.ai
     path: ^/channels/channex/webhook$

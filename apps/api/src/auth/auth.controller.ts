@@ -11,6 +11,7 @@ import {
   Inject,
   Ip,
   Post,
+  Query,
   UnauthorizedException,
 } from '@nestjs/common';
 import { deviceFromUserAgent, isRestricted, roleAt } from '@pms/domain';
@@ -213,15 +214,22 @@ export class AuthController {
 
   @Access('self')
   @Get('registration-context')
-  async registrationContext(@Headers() headers: Record<string, string>) {
+  async registrationContext(
+    @Headers() headers: Record<string, string>,
+    @Query('unambiguous') unambiguous?: string,
+  ) {
     const token = tokenFromHeaders(headers);
     const signedIn = token ? await this.auth.whoami(token) : null;
     if (!signedIn) throw new UnauthorizedException();
     // человеку с областью доступа называем только назначенные бизнес и филиал, а не самые ранние в организации (A3/F6)
-    return this.auth.registrationContext(signedIn.user.organizationId, {
-      role: signedIn.user.role,
-      ...(signedIn.user.scopes ? { scopes: signedIn.user.scopes } : {}),
-    });
+    return this.auth.registrationContext(
+      signedIn.user.organizationId,
+      {
+        role: signedIn.user.role,
+        ...(signedIn.user.scopes ? { scopes: signedIn.user.scopes } : {}),
+      },
+      { unambiguous: unambiguous === '1' },
+    );
   }
 
   @Public()

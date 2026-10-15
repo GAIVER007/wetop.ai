@@ -1,6 +1,7 @@
 import { pagePath, sectionVisible, type RenderContext } from './render/context';
 import { esc, tx } from './render/text';
-import type { LocalizedText, Page, PublicFacts, SiteSpec } from './types';
+import { moneyDecimal } from './render/price-format';
+import type { LocalizedText, Page, PublicFacts, Section, SiteSpec } from './types';
 
 /**
  * SEO рантайма (план MKT4 §9). Индексация разрешена только в окружении `production` **и** при основном хосте
@@ -44,7 +45,66 @@ const SCHEMA_TYPE: Record<string, string> = {
   HOSTEL: 'Hostel',
   APARTMENT: 'Apartment',
   LODGING: 'LodgingBusiness',
+  // SITE-2: салон и ресторан
+  BEAUTY_SALON: 'BeautySalon',
+  RESTAURANT: 'Restaurant',
+  CAFE: 'CafeOrCoffeeShop',
 };
+
+const DAY_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+type Rec = Record<string, unknown>;
+const items = (v: unknown): Rec[] => (Array.isArray(v) ? (v as Rec[]) : []);
+
+/** Часы работы из первой видимой секции `hours` сайта: `OpeningHoursSpecification` по каждому дню */
+function openingHours(spec: SiteSpec): unknown[] {
+  const section = spec.pages.flatMap((p) => p.sections).find((s) => s.type === 'hours');
+  return items(section?.['days'])
+    .filter((d) => typeof d['weekday'] === 'number' && DAY_OF_WEEK[d['weekday'] as number])
+    .map((d) => ({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: `https://schema.org/${DAY_OF_WEEK[d['weekday'] as number]}`,
+      opens: d['open'],
+      closes: d['close'],
+    }));
+}
+
+function offer(money: unknown): Rec | null {
+  const m = moneyDecimal(money);
+  return m ? { '@type': 'Offer', price: m.price, priceCurrency: m.currency } : null;
+}
+
+/** Ресторан: меню целиком в `hasMenu` (Menu → MenuSection → MenuItem с ценой из снимка документа) */
+function menuOf(sections: Section[], locale: Parameters<typeof tx>[1]): Rec | null {
+  const menus = sections.filter((s) => s.type === 'menu');
+  const hasMenuSection = menus.flatMap((m) =>
+    items(m['categories']).map((c) => ({
+      '@type': 'MenuSection',
+      name: tx(c['title'] as LocalizedText, locale),
+      hasMenuItem: items(c['items']).map((i) => {
+        const item: Rec = { '@type': 'MenuItem', name: tx(i['title'] as LocalizedText, locale) };
+        const description = tx(i['description'] as LocalizedText | undefined, locale);
+        if (description) item['description'] = description;
+        const o = offer(i['price']);
+        if (o) item['offers'] = o;
+        return item;
+      }),
+    })),
+  );
+  return hasMenuSection.length ? { '@type': 'Menu', hasMenuSection } : null;
+}
+
+/** Салон: услуги с ценой из снимка документа в `hasOfferCatalog` */
+function servicesOf(sections: Section[], locale: Parameters<typeof tx>[1]): Rec | null {
+  const list = sections
+    .filter((s) => s.type === 'services')
+    .flatMap((s) => items(s['items']))
+    .map((i) => {
+      const o: Rec = offer(i['price']) ?? { '@type': 'Offer' };
+      o['itemOffered'] = { '@type': 'Service', name: tx(i['title'] as LocalizedText, locale) };
+      return o;
+    });
+  return list.length ? { '@type': 'OfferCatalog', name: 'Services', itemListElement: list } : null;
+}
 
 export function structuredData(ctx: RenderContext, seo: SeoSettings): unknown[] {
   const { spec, locale, page } = ctx;
@@ -73,9 +133,25 @@ export function structuredData(ctx: RenderContext, seo: SeoSettings): unknown[] 
       .flatMap((s) => (Array.isArray(s['items']) ? (s['items'] as Array<{ label: LocalizedText }>) : []))
       .map((i) => ({ '@type': 'LocationFeatureSpecification', name: tx(i.label, locale), value: true }));
     if (amenities.length) business['amenityFeature'] = amenities;
-    const facts: PublicFacts | null = ctx.facts;
-    if (facts?.checkInTime) business['checkinTime'] = facts.checkInTime;
-    if (facts?.checkOutTime) business['checkoutTime'] = facts.checkOutTime;
+    const vertical = spec.site.vertical;
+    if (vertical === 'HOSPITALITY') {
+      const facts: PublicFacts | null = ctx.facts;
+      if (facts?.checkInTime) business['checkinTime'] = facts.checkInTime;
+      if (facts?.checkOutTime) business['checkoutTime'] = facts.checkOutTime;
+    } else {
+      // SITE-2: часы, меню и услуги только из снимка документа, который собран из данных филиала
+      const all = spec.pages.flatMap((p) => p.sections).filter((s) => sectionVisible(s, ctx));
+      const hours = openingHours(spec);
+      if (hours.length) business['openingHoursSpecification'] = hours;
+      if (vertical === 'FOOD_SERVICE') {
+        const menu = menuOf(all, locale);
+        if (menu) business['hasMenu'] = menu;
+      }
+      if (vertical === 'BEAUTY') {
+        const catalog = servicesOf(all, locale);
+        if (catalog) business['hasOfferCatalog'] = catalog;
+      }
+    }
     out.push(business);
   }
   const faqs = page.sections.filter((s) => s.type === 'faq' && s['emitStructuredData'] === true && sectionVisible(s, ctx));

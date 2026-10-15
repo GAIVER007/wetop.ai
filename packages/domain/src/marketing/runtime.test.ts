@@ -58,9 +58,9 @@ describe('MKT4: коды категорий опубликованной вер�
 });
 
 describe('MKT4: реестр секций валидатора отдаётся наружу', () => {
-  it('11 секций Hospitality с вариантами', () => {
+  it('11 секций Hospitality и 5 секций SITE-2 (салон, ресторан, часы, форма заявки) с вариантами', () => {
     expect(Object.keys(SITE_SPEC_SECTIONS).sort()).toEqual(
-      ['about', 'accommodations', 'amenities', 'booking', 'contacts', 'cta', 'faq', 'features', 'gallery', 'hero', 'pricing'],
+      ['about', 'accommodations', 'amenities', 'booking', 'contacts', 'cta', 'faq', 'features', 'gallery', 'hero', 'hours', 'leadForm', 'menu', 'pricing', 'services', 'staff'],
     );
     expect(SITE_SPEC_SECTIONS.hero).toEqual(['IMAGE_FULL', 'IMAGE_SIDE', 'TEXT_ONLY']);
   });

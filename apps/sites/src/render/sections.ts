@@ -1,6 +1,8 @@
 import type { Cta, LocalizedText, Section } from '../types';
+import { SITE_LEAD_ENDPOINTS } from '../../../../packages/domain/src/marketing/site-lead';
 import {
   actionHref,
+  leadLive,
   pricingRows,
   RenderError,
   resolvedImages,
@@ -9,6 +11,7 @@ import {
   type RenderContext,
 } from './context';
 import { icon } from './icons';
+import { formatMoney } from './price-format';
 import { esc, mailHref, phoneHref, tx, ui, whatsappHref } from './text';
 
 type Renderer = (section: Section, ctx: RenderContext, opts: { h1: boolean }) => string;
@@ -179,6 +182,204 @@ const cta: Renderer = (s, ctx, { h1 }) => {
   return `${open(s, ' class="cta-band"')}${heading(s, ctx, h1)}${text}${action ? `<div class="actions">${action}</div>` : ''}${image(s['image'], ctx)}${close}`;
 };
 
+
+// ---------- SITE-2: салон, ресторан, часы, форма заявки ----------
+
+/** Подпись кнопки заявки по направлению и режиму формы документа */
+export function leadLabel(ctx: RenderContext): string {
+  const strings = ui(ctx.locale);
+  const form = ctx.spec.pages.flatMap((p) => p.sections).find((s) => s.type === 'leadForm');
+  const mode = form?.['mode'];
+  if (mode === 'BEAUTY_APPOINTMENT') return strings.appoint;
+  if (mode === 'TABLE_RESERVATION') return strings.bookTable;
+  if (mode === 'CALLBACK') return strings.callback;
+  return strings.book;
+}
+
+const bookCta = (ctx: RenderContext): Cta => ({ label: { [ctx.locale]: leadLabel(ctx) }, action: { kind: 'BOOK' } });
+
+/** Цена снимком из данных: точная или «от»; нет или битая: строки цены нет */
+function priceText(money: unknown, from: boolean, ctx: RenderContext): string {
+  const formatted = formatMoney(money, ctx.locale);
+  if (!formatted) return '';
+  return esc(from ? ui(ctx.locale).priceFrom(formatted) : formatted);
+}
+
+const priceTag = (money: unknown, from: boolean, ctx: RenderContext) => {
+  const text = priceText(money, from, ctx);
+  return text ? `<strong class="price">${text}</strong>` : '';
+};
+
+const services: Renderer = (s, ctx, { h1 }) => {
+  const strings = ui(ctx.locale);
+  const items = list<Record<string, unknown>>(s['items']);
+  const action = ctaLink((s['itemAction'] as Cta | undefined) ?? bookCta(ctx), ctx, true);
+  const item = (i: Record<string, unknown>) => {
+    const meta = [
+      s['showDuration'] === true && typeof i['durationMin'] === 'number' ? `<span>${esc(strings.minutes(i['durationMin']))}</span>` : '',
+      s['showPrices'] === true ? priceTag(i['price'], i['priceFrom'] === true, ctx) : '',
+    ].filter(Boolean);
+    const desc = i['description'] ? `<p class="muted">${t(i['description'], ctx)}</p>` : '';
+    const body = `<div><h3>${t(i['title'], ctx)}</h3>${desc}</div><div class="item-side">${meta.length ? `<p class="item-meta">${meta.join('')}</p>` : ''}${action}</div>`;
+    return s.variant === 'CARDS' ? `<li class="card catalog-item">${body}</li>` : `<li class="row catalog-item">${body}</li>`;
+  };
+  const cls = s.variant === 'CARDS' ? 'list grid' : 'list';
+  let body: string;
+  if (s['groupByCategory'] === true) {
+    const groups: Array<{ title: unknown; items: Array<Record<string, unknown>> }> = [];
+    for (const i of items) {
+      const key = tx(i['category'] as LocalizedText | undefined, ctx.locale);
+      let g = groups.find((x) => tx(x.title as LocalizedText | undefined, ctx.locale) === key);
+      if (!g) groups.push((g = { title: i['category'], items: [] }));
+      g.items.push(i);
+    }
+    body = groups
+      .map((g) => `${g.title ? `<h3 class="group-title">${t(g.title, ctx)}</h3>` : ''}<ul class="${cls}">${g.items.map(item).join('')}</ul>`)
+      .join('');
+  } else body = `<ul class="${cls}">${items.map(item).join('')}</ul>`;
+  return `${open(s, ' class="catalog"')}${heading(s, ctx, h1)}${body}${close}`;
+};
+
+const staff: Renderer = (s, ctx, { h1 }) => {
+  const cards = list<Record<string, unknown>>(s['items'])
+    .map((i) => {
+      const spec = i['specialization'] ? `<p class="muted">${t(i['specialization'], ctx)}</p>` : '';
+      const body = `${image(i['image'], ctx)}<h3>${t(i['name'], ctx)}</h3>${spec}`;
+      return s.variant === 'CARDS' ? `<li class="card person">${body}</li>` : `<li class="row person">${body}</li>`;
+    })
+    .join('');
+  return `${open(s)}${heading(s, ctx, h1)}<ul class="${s.variant === 'CARDS' ? 'list grid' : 'list'}">${cards}</ul>${close}`;
+};
+
+const menu: Renderer = (s, ctx, { h1 }) => {
+  const strings = ui(ctx.locale);
+  const photos = s['showPhotos'] === true;
+  const cats = list<Record<string, unknown>>(s['categories'])
+    .map((c) => {
+      const items = list<Record<string, unknown>>(c['items'])
+        .map((i) => {
+          const weight = typeof i['weightGrams'] === 'number' ? `<span class="muted">${esc(strings.grams(i['weightGrams']))}</span>` : '';
+          const price = priceText(i['price'], false, ctx);
+          const desc = i['description'] ? `<p class="muted">${t(i['description'], ctx)}</p>` : '';
+          const pic = photos ? image(i['image'], ctx) : '';
+          const cls = s.variant === 'CARDS' ? 'card dish' : 'row dish';
+          return `<li class="${cls}">${pic}<div><h4>${t(i['title'], ctx)}</h4>${desc}${weight}</div>${price ? `<strong class="price">${price}</strong>` : ''}</li>`;
+        })
+        .join('');
+      return `<h3 class="group-title">${t(c['title'], ctx)}</h3><ul class="${s.variant === 'CARDS' ? 'list grid' : 'list'}">${items}</ul>`;
+    })
+    .join('');
+  return `${open(s, ' class="catalog"')}${heading(s, ctx, h1)}${cats}${close}`;
+};
+
+/** Дни с понедельника, как читают расписание; дней нет в документе: строки нет (о выходных ничего не утверждаем) */
+const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
+const hours: Renderer = (s, ctx, { h1 }) => {
+  const strings = ui(ctx.locale);
+  const days = list<{ weekday: number; open: string; close: string }>(s['days']);
+  const byDay = new Map(days.map((d) => [d.weekday, d]));
+  const span = (d: { open: string; close: string }) => `${esc(d.open)}–${esc(d.close)}`;
+  let body: string;
+  if (s.variant === 'COMPACT') {
+    const runs: Array<{ from: number; to: number; text: string }> = [];
+    for (const w of WEEK_ORDER) {
+      const d = byDay.get(w);
+      if (!d) continue;
+      const text = span(d);
+      const last = runs.at(-1);
+      if (last && last.text === text && WEEK_ORDER.indexOf(last.to) === WEEK_ORDER.indexOf(w) - 1) last.to = w;
+      else runs.push({ from: w, to: w, text });
+    }
+    body = `<ul class="hours-compact">${runs
+      .map((r) => `<li><b>${esc(strings.weekdaysShort[r.from]!)}${r.to !== r.from ? `–${esc(strings.weekdaysShort[r.to]!)}` : ''}</b> ${r.text}</li>`)
+      .join('')}</ul>`;
+  } else
+    body = `<table class="hours"><tbody>${WEEK_ORDER.filter((w) => byDay.has(w))
+      .map((w) => `<tr><th scope="row">${esc(strings.weekdays[w]!)}</th><td>${span(byDay.get(w)!)}</td></tr>`)
+      .join('')}</tbody></table>`;
+  const note = s['note'] ? `<p class="muted">${t(s['note'], ctx)}</p>` : '';
+  return `${open(s)}${heading(s, ctx, h1)}${body}${note}${close}`;
+};
+
+function field(id: string, label: string, control: string): string {
+  return `<p class="field"><label for="${esc(id)}">${esc(label)}</label>${control}</p>`;
+}
+
+/** Запасной путь без скрипта: позвонить или написать; без контактов строки нет */
+function leadFallback(ctx: RenderContext, formId: string, visible: boolean): string {
+  const c = ctx.spec.site.contacts ?? {};
+  const strings = ui(ctx.locale);
+  const phone = phoneHref(c.phone);
+  const wa = whatsappHref(c.whatsapp);
+  const links = [
+    phone ? `<a class="btn" href="${esc(phone)}">${esc(strings.callUs)}</a>` : '',
+    wa ? `<a class="btn btn--ghost" href="${esc(wa)}" rel="noopener noreferrer">${esc(strings.writeWhatsapp)}</a>` : '',
+  ].filter(Boolean);
+  if (!links.length) return '';
+  return `<div class="actions" data-lead-fallback="${esc(formId)}"${visible ? '' : ' hidden'}>${links.join('')}</div>`;
+}
+
+const leadForm: Renderer = (s, ctx, { h1 }) => {
+  const strings = ui(ctx.locale);
+  const mode = String(s['mode']);
+  const note = s['note'] ? `<p class="booking-note">${t(s['note'], ctx)}</p>` : '';
+  const formId = `${s.id}-form`;
+  if (mode === 'HOTEL_BOOKING') {
+    // гостиница: тот же виджет `/w/book`, что у секции `booking`
+    const body = ctx.bookingLive ? '<div id="pms-booking"></div>' : `<p>${esc(strings.bookingUnavailable)}</p>${leadFallback(ctx, formId, true)}`;
+    return `${open(s)}${heading(s, ctx, h1)}${note}${body}${close}`;
+  }
+  const live = leadLive(ctx);
+  const id = (name: string) => `${s.id}-${name}`;
+  const controls: string[] = [];
+  if (mode === 'BEAUTY_APPOINTMENT') {
+    const all = ctx.spec.pages.flatMap((p) => p.sections);
+    const serviceOptions = all
+      .filter((x) => x.type === 'services')
+      .flatMap((x) => list<Record<string, unknown>>(x['items']))
+      .map((i) => `<option value="${esc(String(i['serviceCode']))}">${t(i['title'], ctx)}</option>`)
+      .join('');
+    const staffOptions = all
+      .filter((x) => x.type === 'staff')
+      .flatMap((x) => list<Record<string, unknown>>(x['items']))
+      .map((i) => `<option value="${esc(String(i['employeeId']))}">${t(i['name'], ctx)}</option>`)
+      .join('');
+    controls.push(field(id('service'), strings.formService, `<select id="${esc(id('service'))}" name="serviceCode" required>${serviceOptions}</select>`));
+    if (staffOptions)
+      controls.push(field(id('master'), strings.formMaster, `<select id="${esc(id('master'))}" name="employeeId"><option value="">${esc(strings.formAnyMaster)}</option>${staffOptions}</select>`));
+  }
+  if (mode === 'BEAUTY_APPOINTMENT' || mode === 'TABLE_RESERVATION') {
+    controls.push(field(id('date'), strings.formDate, `<input id="${esc(id('date'))}" name="date" type="date" required>`));
+    controls.push(field(id('time'), strings.formTime, `<input id="${esc(id('time'))}" name="time" type="time" step="900" required>`));
+  }
+  if (mode === 'TABLE_RESERVATION')
+    controls.push(field(id('party'), strings.formParty, `<input id="${esc(id('party'))}" name="partySize" type="number" min="1" max="50" value="2" inputmode="numeric" required>`));
+  controls.push(field(id('name'), strings.formName, `<input id="${esc(id('name'))}" name="name" type="text" maxlength="120" autocomplete="name" required>`));
+  controls.push(field(id('phone'), strings.formPhone, `<input id="${esc(id('phone'))}" name="phone" type="tel" maxlength="32" autocomplete="tel" inputmode="tel" required>`));
+  if (s['showComment'] === true)
+    controls.push(field(id('comment'), strings.formComment, `<textarea id="${esc(id('comment'))}" name="comment" rows="3" maxlength="1000"></textarea>`));
+  // ловушка для ботов: человек её не видит и не достаёт табом
+  controls.push('<p class="hp" aria-hidden="true"><input name="website" type="text" tabindex="-1" autocomplete="off"></p>');
+  const submit = s['submitLabel'] ? t(s['submitLabel'], ctx) : esc(strings.formSend);
+  const endpoint = SITE_LEAD_ENDPOINTS[mode as keyof typeof SITE_LEAD_ENDPOINTS] ?? '';
+  const attrs = [
+    `id="${esc(formId)}"`,
+    'class="lead-form"',
+    'data-lead-form',
+    `data-mode="${esc(mode)}"`,
+    `data-endpoint="${esc(endpoint)}"`,
+    `data-sending="${esc(strings.formSending)}"`,
+    `data-done="${esc(strings.formDone)}"`,
+    `data-error="${esc(strings.formError)}"`,
+    // форму показывает скрипт; без скрипта видна запасная строка с телефоном. Превью и сайт без ключа: форма видна,
+    // но выключена, чтобы было видно, как она выглядит
+    live ? 'hidden' : '',
+  ].filter(Boolean);
+  const inner = `${controls.join('')}<div data-lead-captcha></div><p><button class="btn" type="submit">${submit}</button></p><p class="lead-status" role="status" aria-live="polite" data-lead-status></p>`;
+  const form = `<form ${attrs.join(' ')}>${live ? inner : `<fieldset disabled>${inner}</fieldset>`}</form>`;
+  return `${open(s, s.variant === 'CARD' ? ' class="lead lead--card"' : ' class="lead"')}${heading(s, ctx, h1)}${note}${form}${leadFallback(ctx, formId, live)}${close}`;
+};
+
 /**
  * Явный реестр рендереров: тип → вариант → функция. Ни `eval`, ни импорта по строке из документа. Тест сверяет реестр
  * с реестром валидатора `SITE_SPEC_SECTIONS`; незнакомый тип или вариант это `RenderError`, то есть 503.
@@ -195,6 +396,11 @@ export const SECTION_RENDERERS: Readonly<Record<string, Readonly<Record<string, 
   contacts: { PLAIN: contacts, WITH_MAP: contacts },
   faq: { ACCORDION: faq, LIST: faq },
   cta: { BANNER: cta, SPLIT: cta },
+  services: { LIST: services, CARDS: services },
+  staff: { CARDS: staff, LIST: staff },
+  menu: { LIST: menu, CARDS: menu },
+  hours: { TABLE: hours, COMPACT: hours },
+  leadForm: { INLINE: leadForm, CARD: leadForm },
 };
 
 /** Тело страницы: H1 у первой секции `hero`, иначе отдельный H1 из заголовка страницы */

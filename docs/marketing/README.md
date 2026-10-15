@@ -4,6 +4,8 @@
 Модель: `DATA_MODEL.md` §29 (утверждена владельцем 06.10.2026 как целевая архитектура, Q-272; с MKT3 в базе
 `marketing_sites` и `marketing_site_versions`, план `plans/mkt3-marketing-site-core-2026-10-06.md`). Формат содержимого: [`sitespec-v0.md`](sitespec-v0.md) и
 [`sitespec-v0.example.json`](sitespec-v0.example.json). Исправления публичной брони: `plans/mkt1b-booking-hardening-2026-10-06.md`.
+Салон и ресторан (SITE-2, 15.10.2026): секции [`sitespec-v1-verticals.md`](sitespec-v1-verticals.md), заявки с сайта
+[`site-leads-v0.md`](site-leads-v0.md), факты филиала и заготовка сайта [`site-facts-v0.md`](site-facts-v0.md).
 Порядок этапов: `plans/mkt-roadmap-2026-10-06.md`. Основание: аудит MKT0 на `origin/main` `901eb08e`, проверено
 повторно на `dcf3145c`.
 

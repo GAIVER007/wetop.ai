@@ -155,7 +155,8 @@ export function checkGeneratedSpec(spec: unknown, input: SiteBriefInput, targetL
   const fail = (path: string, code: string, message: string) => errors.push({ path, code, message });
   const site = isRec(spec['site']) ? spec['site'] : {};
 
-  if (site['vertical'] !== 'HOSPITALITY') fail('site.vertical', 'vertical_mismatch', 'Только гостиница');
+  const vertical = input.vertical ?? 'HOSPITALITY';
+  if (site['vertical'] !== vertical) fail('site.vertical', 'vertical_mismatch', `Направление сайта: ${vertical}`);
   const locales = site['locales'];
   if (
     !Array.isArray(locales) ||
@@ -181,6 +182,8 @@ export function checkGeneratedSpec(spec: unknown, input: SiteBriefInput, targetL
     if (rec['kind'] === 'EXTERNAL' && (website === null || rec['url'] !== website))
       fail(`${path}.url`, 'invented_link', 'Внешняя ссылка только на сайт гостиницы из брифа');
   });
+
+  for (const e of catalogFactErrors(spec, input)) errors.push(e);
 
   const contacts = isRec(site['contacts']) ? site['contacts'] : null;
   if (contacts) {
@@ -210,6 +213,96 @@ export function checkGeneratedSpec(spec: unknown, input: SiteBriefInput, targetL
   }
 
   return errors.length > 0 ? { ok: false, errors } : base;
+}
+
+/**
+ * SITE-2: факты каталога в документе только из брифа. Код услуги, блюда и id мастера есть в брифе; цена, длительность и
+ * выход блюда ровно как в брифе или их нет; часы работы ровно дни брифа. ИИ эти числа не пишет: их ставит
+ * `bindCatalogFacts` до проверки, а правило ловит всё, что поставлено мимо.
+ */
+export function catalogFactErrors(spec: unknown, input: SiteBriefInput, root = ''): SiteSpecError[] {
+  const errors: SiteSpecError[] = [];
+  const fail = (path: string, code: string, message: string) => errors.push({ path, code, message });
+  const services = new Map((input.services ?? []).map((s) => [s.code, s]));
+  const dishes = new Map((input.menu ?? []).flatMap((c) => c.items).map((i) => [i.code, i]));
+  const staff = new Set((input.staff ?? []).map((s) => s.id.toLowerCase()));
+  const hours = new Set((input.hours ?? []).map((h) => `${h.weekday} ${h.open} ${h.close}`));
+  const samePrice = (value: unknown, fact: { priceMinor: string; currency: string }) =>
+    isRec(value) && value['minor'] === fact.priceMinor && value['currency'] === fact.currency;
+  walk(spec, root, (rec, path) => {
+    const at = (key: string) => (path ? `${path}.${key}` : key);
+    if (rec['type'] === 'services')
+      list(rec['items']).forEach((item, i) => {
+        if (!isRec(item)) return;
+        const ip = `${at('items')}[${i}]`;
+        const fact = typeof item['serviceCode'] === 'string' ? services.get(item['serviceCode']) : undefined;
+        if (!fact) return fail(`${ip}.serviceCode`, 'unknown_service', 'Услуги нет в данных салона');
+        if (item['price'] !== undefined && !samePrice(item['price'], fact)) fail(`${ip}.price`, 'invented_price', 'Цена только из данных салона');
+        if (item['durationMin'] !== undefined && item['durationMin'] !== fact.durationMin)
+          fail(`${ip}.durationMin`, 'invented_fact', 'Длительность только из данных салона');
+      });
+    if (rec['type'] === 'staff')
+      list(rec['items']).forEach((item, i) => {
+        if (isRec(item) && (typeof item['employeeId'] !== 'string' || !staff.has(item['employeeId'].toLowerCase())))
+          fail(`${at('items')}[${i}].employeeId`, 'unknown_employee', 'Мастера нет в данных салона');
+      });
+    if (rec['type'] === 'menu')
+      list(rec['categories']).forEach((cat, c) =>
+        list(isRec(cat) ? cat['items'] : null).forEach((item, i) => {
+          if (!isRec(item)) return;
+          const ip = `${at('categories')}[${c}].items[${i}]`;
+          const fact = typeof item['itemCode'] === 'string' ? dishes.get(item['itemCode']) : undefined;
+          if (!fact) return fail(`${ip}.itemCode`, 'unknown_menu_item', 'Блюда нет в меню ресторана');
+          if (item['price'] !== undefined && !samePrice(item['price'], fact)) fail(`${ip}.price`, 'invented_price', 'Цена только из меню ресторана');
+          if (item['weightGrams'] !== undefined && item['weightGrams'] !== fact.weightGrams)
+            fail(`${ip}.weightGrams`, 'invented_fact', 'Выход блюда только из меню ресторана');
+        }),
+      );
+    if (rec['type'] === 'hours')
+      list(rec['days']).forEach((d, i) => {
+        if (isRec(d) && !hours.has(`${String(d['weekday'])} ${String(d['open'])} ${String(d['close'])}`))
+          fail(`${at('days')}[${i}]`, 'invented_hours', 'Часы работы только из данных филиала');
+      });
+  });
+  return errors;
+}
+
+const list = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
+
+/**
+ * SITE-2: платформа ставит факты каталога сама, поверх ответа модели и до проверки: цену, длительность и выход по коду
+ * из брифа (нет в брифе: поле снимается), часы работы целиком из брифа. Неизвестные коды не трогаются: их отвергнет
+ * `catalogFactErrors`. Документ не меняется на месте
+ */
+export function bindCatalogFacts(spec: unknown, input: SiteBriefInput): unknown {
+  if (!isRec(spec)) return spec;
+  const out = structuredClone(spec);
+  const services = new Map((input.services ?? []).map((s) => [s.code, s]));
+  const dishes = new Map((input.menu ?? []).flatMap((c) => c.items).map((i) => [i.code, i]));
+  const set = (rec: Rec, key: string, value: unknown) => {
+    if (value === undefined || value === null) delete rec[key];
+    else rec[key] = value;
+  };
+  walk(out, '', (rec) => {
+    if (rec['type'] === 'services')
+      for (const item of list(rec['items'])) {
+        const fact = isRec(item) && typeof item['serviceCode'] === 'string' ? services.get(item['serviceCode']) : undefined;
+        if (!isRec(item) || !fact) continue;
+        set(item, 'price', { minor: fact.priceMinor, currency: fact.currency });
+        set(item, 'durationMin', fact.durationMin);
+      }
+    if (rec['type'] === 'menu')
+      for (const cat of list(rec['categories']))
+        for (const item of list(isRec(cat) ? cat['items'] : null)) {
+          const fact = isRec(item) && typeof item['itemCode'] === 'string' ? dishes.get(item['itemCode']) : undefined;
+          if (!isRec(item) || !fact) continue;
+          set(item, 'price', { minor: fact.priceMinor, currency: fact.currency });
+          set(item, 'weightGrams', fact.weightGrams);
+        }
+    if (rec['type'] === 'hours' && (input.hours ?? []).length)
+      rec['days'] = (input.hours ?? []).map((h) => ({ weekday: h.weekday, open: h.open, close: h.close }));
+  });
+  return out;
 }
 
 const PATH_RE = /^[A-Za-z0-9_.[\]-]{0,160}$/;

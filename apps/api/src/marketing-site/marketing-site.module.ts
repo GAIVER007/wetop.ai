@@ -32,6 +32,8 @@ import { SitePublicationService } from './publication.service';
 import { ASSET_FETCH_DEPS, SiteAssetsService } from './site-assets.service';
 import { SITE_ASSET_STORAGE, siteAssetStorageFromEnv } from './asset-storage';
 import { SiteAssistantService } from './assistant.service';
+import { SiteFactsService } from './site-facts.service';
+import { ScopeAware } from '../auth/scope-aware.decorator';
 
 /**
  * «Маркетинг → Сайт и SEO», ядро (MKT3): сайт выбранного филиала и сохранение версий. Право `settings`, как у
@@ -48,7 +50,28 @@ export class MarketingSiteController {
     @Inject(SitePublicationService) private readonly publication: SitePublicationService,
     @Inject(SiteAssetsService) private readonly assets: SiteAssetsService,
     @Inject(SiteAssistantService) private readonly assistant: SiteAssistantService,
+    @Inject(SiteFactsService) private readonly siteFacts: SiteFactsService,
   ) {}
+
+  /**
+   * SITE-2: филиалы организации, где человек может вести сайт, с направлением и статусом сайта. Вызывается до выбора
+   * филиала, поэтому `@ScopeAware`: ответ сам отфильтрован по области доступа и праву `settings` в каждом месте
+   */
+  @Get('locations')
+  @ScopeAware()
+  locations() {
+    return this.siteFacts.locations();
+  }
+
+  /**
+   * SITE-2: «Что WETOP знает о филиале» для всех трёх направлений: только данные, без ИИ. Филиал параметром
+   * `locationId` (выбор на экране «Сайт и SEO»), право `settings` проверяется в этом месте
+   */
+  @Get('facts')
+  @ScopeAware()
+  facts(@Query('locationId') locationId?: string) {
+    return this.siteFacts.facts(locationId);
+  }
 
   @Get()
   current(@Headers(SCOPE_HEADER) pointer?: string) {
@@ -309,6 +332,7 @@ export class MarketingSiteController {
     SitePublicationService,
     SiteAssetsService,
     SiteAssistantService,
+    SiteFactsService,
     { provide: BRIEF_CHANNEX_READER, useFactory: contentReaderFromEnv },
     { provide: SITE_ASSET_STORAGE, useFactory: () => siteAssetStorageFromEnv() },
     // null: настоящий загрузчик с DNS и HTTPS (asset-fetch.ts); тесты подставляют свой

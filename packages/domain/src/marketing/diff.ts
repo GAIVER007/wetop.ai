@@ -29,7 +29,7 @@ export interface SiteSpecChange {
   /** Вариант секции или картинка: было и стало */
   from?: string;
   to?: string;
-  /** Место картинки: logo, favicon, page:<id>:og, section:<id>:image, section:<id>:images, section:<id>:items */
+  /** Место картинки: logo, favicon, page:<id>:og, section:<id>:image, section:<id>:images, section:<id>:items, section:<id>:categories (меню) */
   slot?: string;
 }
 
@@ -112,7 +112,7 @@ function slotsOf(spec: Rec): Map<string, string[]> {
     if (ref.path.startsWith('site.brand.logo')) slot = 'logo';
     else if (ref.path === 'site.brand.faviconAssetId') slot = 'favicon';
     else {
-      const m = /^pages\[(\d+)\](?:\.sections\[(\d+)\]\.(images|image|items)\b)?/.exec(ref.path);
+      const m = /^pages\[(\d+)\](?:\.sections\[(\d+)\]\.(images|image|items|categories)\b)?/.exec(ref.path);
       const page = m ? (pages[Number(m[1])] as Rec | undefined) : undefined;
       if (!m || !page) continue;
       if (!m[2]) slot = `page:${String(page['id'])}:og`;

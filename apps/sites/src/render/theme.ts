@@ -124,5 +124,33 @@ main section.cta-band{background:var(--accent)}
 .from-price{font-weight:700;font-size:19px;color:var(--text);margin:8px 0 0}
 .pricing .row{align-items:center}
 .page-title{padding-top:48px;margin-bottom:0}
-.not-found{padding:96px 0}`,
+.not-found{padding:96px 0}
+.group-title{margin-top:32px}
+.catalog-item{display:grid;gap:8px 24px;align-items:center}
+@media (min-width:800px){.catalog .row.catalog-item{grid-template-columns:2fr 1fr}}
+.item-side{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}
+.item-meta{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0;color:var(--muted)}
+.price{font-weight:700;color:var(--text);white-space:nowrap}
+.dish{display:grid;grid-template-columns:1fr auto;gap:8px 16px;align-items:start}
+.dish img{grid-column:1/-1;border-radius:var(--radius);aspect-ratio:4/3;object-fit:cover;width:100%}
+.dish h4{margin:0 0 4px;font-size:18px}
+.person img{border-radius:var(--radius);aspect-ratio:1;object-fit:cover;width:100%;margin-bottom:12px}
+.hours{border-collapse:collapse;margin-top:24px;min-width:min(100%,360px)}
+.hours th,.hours td{text-align:left;padding:10px 24px 10px 0;border-top:1px solid var(--border);font-weight:400}
+.hours th{color:var(--muted)}
+.hours-compact{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:8px}
+.lead-form{margin-top:24px;max-width:560px;display:grid;gap:4px}
+.lead-form fieldset{border:0;margin:0;padding:0;display:grid;gap:4px;min-width:0}
+.lead--card .lead-form{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+.field{display:grid;gap:6px;margin:0 0 12px}
+.field label{font-weight:600}
+.field input,.field select,.field textarea{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);min-height:48px;padding:10px 14px;width:100%}
+.field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.lead-form button[disabled]{opacity:.6;cursor:progress}
+.lead-status{min-height:1.6em;margin:8px 0 0}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.mobile-bar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--border)}
+.mobile-bar .btn{flex:1}
+body.has-mobile-bar{padding-bottom:80px}
+@media (min-width:800px){.mobile-bar{display:none}body.has-mobile-bar{padding-bottom:0}}`,
 ].join('\n');

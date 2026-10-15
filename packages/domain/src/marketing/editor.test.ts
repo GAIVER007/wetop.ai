@@ -18,6 +18,7 @@ import {
   removeLocale,
   sectionReferences,
   siteSpecSectionFields,
+  SITE_SPEC_SECTIONS_BY_VERTICAL,
   specIds,
   validateSiteSpec,
 } from './index';
@@ -27,9 +28,9 @@ const EXAMPLE = JSON.parse(readFileSync(resolve(__dirname, '../../../../docs/mar
 const spec = (): Record<string, any> => structuredClone(EXAMPLE);
 
 describe('реестр редактора и валидатор', () => {
-  it('те же 11 типов секций и те же варианты, что у валидатора', () => {
+  it('те же 16 типов секций (11 гостиничных и 5 SITE-2) и те же варианты, что у валидатора', () => {
     expect(Object.keys(SITE_EDITOR_SECTIONS).sort()).toEqual(Object.keys(SITE_SPEC_SECTIONS).sort());
-    expect(Object.keys(SITE_EDITOR_SECTIONS)).toHaveLength(11);
+    expect(Object.keys(SITE_EDITOR_SECTIONS)).toHaveLength(16);
     for (const [type, shape] of Object.entries(SITE_EDITOR_SECTIONS))
       expect(shape.variants.map((v) => v.value), type).toEqual([...SITE_SPEC_SECTIONS[type]!]);
   });
@@ -49,8 +50,8 @@ describe('шаблоны и идентификаторы', () => {
     expect(newSpecId('Page Новая', new Set())).toBe('page-1');
   });
 
-  it('новая секция каждого типа получает свой id и проходит проверку в документе (галерее нужны фото)', () => {
-    for (const type of Object.keys(SITE_EDITOR_SECTIONS)) {
+  it('новая секция каждого типа гостиницы получает свой id и проходит проверку в документе (галерее нужны фото)', () => {
+    for (const type of SITE_SPEC_SECTIONS_BY_VERTICAL.HOSPITALITY) {
       const s = spec();
       const taken = specIds(s);
       const section = newSection(type, { locale: 'ru', taken, categories: ['standard-double'], cardCodes: accommodationCardCodes(s) });

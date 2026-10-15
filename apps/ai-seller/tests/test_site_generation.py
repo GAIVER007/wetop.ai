@@ -224,6 +224,19 @@ def test_business_data_is_separated_from_rules_and_injection_stays_data() -> Non
     assert "pages[0].sections[1].variant: enum" in user["content"]
 
 
+def test_salon_and_restaurant_rules_and_vertical_in_task() -> None:
+    """SITE-2: правила салона и ресторана в системе; направление из данных в задании, а не в правилах."""
+    for rule in ("BEAUTY_APPOINTMENT", "TABLE_RESERVATION", "BEAUTY_SALON", "RESTAURANT", "serviceCode", "itemCode", "employeeId"):
+        assert rule in SYSTEM_PROMPT
+    assert "\u2014" not in SYSTEM_PROMPT
+    data = body().briefInput | {"vertical": "BEAUTY", "services": [{"code": "svc-1", "name": "Маникюр"}]}
+    system, user = build_messages(body(briefInput=data))
+    assert "(BEAUTY)" in user["content"]
+    assert "Маникюр" in user["content"] and "Маникюр" not in system["content"]
+    _system, hotel = build_messages(body())
+    assert "(HOSPITALITY)" in hotel["content"]
+
+
 def test_request_contract_rejects_keys_models_and_organizations() -> None:
     for extra in ({"apiKey": "sk-x"}, {"model": "x/y"}, {"organizationId": str(uuid.uuid4())}):
         with pytest.raises(ValueError):

@@ -29,6 +29,13 @@ export const BRIEF_TEXT_LIMITS = {
   facilityCategory: 60,
   photoDescriptions: 20,
   photoDescription: 200,
+  /** SITE-2: пределы каталога, чтобы бриф ресторана с большим меню не раздувал промпт */
+  services: 60,
+  staff: 30,
+  menuCategories: 30,
+  menuItems: 300,
+  catalogName: 200,
+  catalogCategory: 100,
 } as const;
 
 export type BriefSource = 'PLATFORM' | 'SELLER_PROFILE' | 'CHANNEX';
@@ -106,11 +113,64 @@ export interface BriefChannexContent {
   photos: Array<{ url?: string; description: string | null; forRoomType: boolean }>;
 }
 
+/** SITE-2: услуга салона в этом филиале, с действующими ценой и длительностью филиала (`effectiveService`) */
+export interface BriefServiceFacts {
+  /** Код услуги для сайта: id услуги каталога WETOP (секция `services` ссылается на него) */
+  code: string;
+  name: string;
+  category: string | null;
+  durationMin: number;
+  /** Цена в minor units строкой (ADR-008) */
+  priceMinor: string;
+  currency: string;
+}
+
+/** SITE-2: мастер филиала; специализация это названия его услуг в этом филиале, своего поля «должность» у мастера нет */
+export interface BriefStaffFacts {
+  id: string;
+  name: string;
+  specialization: string | null;
+}
+
+export interface BriefMenuItemFacts {
+  /** Код блюда для сайта: id блюда WETOP */
+  code: string;
+  name: string;
+  weightGrams: number | null;
+  priceMinor: string;
+  currency: string;
+  hasPhoto: boolean;
+}
+
+export interface BriefMenuCategoryFacts {
+  title: string;
+  /** Порядок как в меню ресторана (`sort_order`, затем имя): сборщик отдаёт уже упорядоченным */
+  items: BriefMenuItemFacts[];
+}
+
+/** Часы работы по дням недели: `weekday` 0 воскресенье, время `ЧЧ:ММ` по часовому поясу филиала */
+export interface BriefHoursDay {
+  weekday: number;
+  open: string;
+  close: string;
+}
+
+/** SITE-2: факты салона или ресторана; у гостиницы их нет */
+export interface BriefVerticalFacts {
+  vertical: 'BEAUTY' | 'FOOD_SERVICE';
+  services: BriefServiceFacts[];
+  staff: BriefStaffFacts[];
+  menu: BriefMenuCategoryFacts[];
+  hours: BriefHoursDay[];
+}
+
 export interface SiteBriefSnapshot {
   platform: {
     location: BriefLocationFacts;
     property: BriefPropertyFacts | null;
     categories: BriefCategoryFacts[];
+    /** SITE-2: только у салона и ресторана; нет поля: гостиница, бриф как прежде */
+    vertical?: BriefVerticalFacts;
   };
   seller: { state: 'READY'; profile: BriefSellerFacts } | { state: 'MISSING'; reason: 'NO_AGENT' | 'NO_PROFILE' };
   channex: { state: ChannexSourceState; checkedAt: string | null; content: BriefChannexContent | null };
@@ -139,8 +199,18 @@ export interface SiteBriefInput {
   stay: { checkInTime: string | null; checkOutTime: string | null };
   /** `activeUnits` это вместимость фонда, а не свободные места сейчас */
   accommodations: Array<{ categoryCode: string; name: string; kind: string; capacityAdults: number; activeUnits: number }>;
-  /** Способность гостиницы, а не обещание: бронь конкретного сайта связывает MKT7, цена «от» живая (`B-FROMPRICE`) */
-  capabilities: { booking: true; fromPrice: true };
+  /**
+   * Способность гостиницы, а не обещание: бронь конкретного сайта связывает MKT7, цена «от» живая (`B-FROMPRICE`). У
+   * салона и ресторана оба `false`: виджета `/w/*` и живой цены у них нет, заявка идёт формой (`leadForm`)
+   */
+  capabilities: { booking: boolean; fromPrice: boolean };
+  /** SITE-2: направление салона или ресторана; нет поля: гостиница (хэш брифа гостиницы не меняется) */
+  vertical?: 'BEAUTY' | 'FOOD_SERVICE';
+  /** SITE-2: услуги салона с ценами из данных; ИИ цену не пишет, её ставит платформа по `code` */
+  services?: BriefServiceFacts[];
+  staff?: BriefStaffFacts[];
+  menu?: BriefMenuCategoryFacts[];
+  hours?: BriefHoursDay[];
   sellerContent: {
     siteLocaleHints: string[];
     includedInPrice: string | null;
@@ -251,6 +321,7 @@ export function buildSiteBrief(snapshot: SiteBriefSnapshot, collectedAt: string)
   };
 
   const { location, property, categories } = snapshot.platform;
+  const vf = snapshot.platform.vertical ?? null;
   const L = BRIEF_TEXT_LIMITS;
 
   // --- Channex: только белый список, адресов фото нет ---
@@ -381,9 +452,10 @@ export function buildSiteBrief(snapshot: SiteBriefSnapshot, collectedAt: string)
         capacityAdults: c.capacityAdults,
         activeUnits: c.activeUnits,
       })),
-    capabilities: { booking: true, fromPrice: true },
+    capabilities: vf ? { booking: false, fromPrice: false } : { booking: true, fromPrice: true },
     sellerContent,
     channelContent,
+    ...(vf ? verticalInput(vf, bounded, truncations) : {}),
   };
 
   // --- расхождения: значение платформы остаётся, Channex рядом ---
@@ -421,6 +493,10 @@ export function buildSiteBrief(snapshot: SiteBriefSnapshot, collectedAt: string)
   add(phoneSource === 'PLATFORM' || emailSource === 'PLATFORM', 'platform.contacts', 'PLATFORM');
   add(property, 'platform.stay_times', 'PLATFORM');
   add(input.accommodations.length > 0, 'platform.accommodations', 'PLATFORM');
+  add(input.services?.length, 'platform.services', 'PLATFORM');
+  add(input.staff?.length, 'platform.staff', 'PLATFORM');
+  add(input.menu?.length, 'platform.menu', 'PLATFORM');
+  add(input.hours?.length, 'platform.hours', 'PLATFORM');
   if (sellerContent) {
     add(sellerContent.siteLocaleHints.length > 0, 'seller.languages', 'SELLER_PROFILE');
     add(sellerContent.includedInPrice, 'seller.included_in_price', 'SELLER_PROFILE');
@@ -450,7 +526,13 @@ export function buildSiteBrief(snapshot: SiteBriefSnapshot, collectedAt: string)
   const miss = (cond: boolean, code: string, dependsOnChannex: boolean) => {
     if (cond && (!dependsOnChannex || channexKnown)) missing.push({ code });
   };
-  miss(input.accommodations.length === 0, 'accommodations', false);
+  if (!vf) miss(input.accommodations.length === 0, 'accommodations', false);
+  if (vf?.vertical === 'BEAUTY') {
+    miss(!input.services?.length, 'services', false);
+    miss(!input.staff?.length, 'staff', false);
+  }
+  if (vf?.vertical === 'FOOD_SERVICE') miss(!input.menu?.length, 'menu', false);
+  if (vf) miss(!input.hours?.length, 'hours', false);
   miss(!address, 'public.address', true);
   miss(!city, 'public.city', true);
   miss(!countryCode, 'public.country', true);
@@ -468,19 +550,6 @@ export function buildSiteBrief(snapshot: SiteBriefSnapshot, collectedAt: string)
   const evidence = (...candidates: string[]) => candidates.filter(has).sort(byCode);
   const suggest = (type: string, reason: string, ev: string[], extra: Partial<SiteBriefSection> = {}) =>
     sections.push({ type, reasonCodes: [reason], evidenceCodes: ev, ...extra });
-  suggest('hero', 'always', ['platform.identity']);
-  const about = evidence('channex.description', 'channex.important_information');
-  if (about.length) suggest('about', 'channex_description', about);
-  if (has('platform.accommodations')) {
-    suggest('accommodations', 'active_categories', ['platform.accommodations']);
-    suggest('pricing', 'live_from_price', ['platform.accommodations'], { bindings: ['B-FROMPRICE'] });
-  }
-  const amenities = evidence('channex.facilities', 'seller.included_in_price');
-  if (amenities.length) suggest('amenities', 'facilities_or_included', amenities);
-  if (has('channex.photos'))
-    suggest('gallery', 'channex_photos', ['channex.photos'], { requires: ['MKT8_MEDIA_IMPORT'] });
-  if (has('seller.faq')) suggest('faq', 'seller_faq', ['seller.faq']);
-  suggest('booking', 'hospitality_booking_capability', ['platform.identity'], { requires: ['MKT7_TRACKED_SITE'] });
   const contacts = [
     ...new Set(
       [
@@ -490,8 +559,34 @@ export function buildSiteBrief(snapshot: SiteBriefSnapshot, collectedAt: string)
       ].filter((c): c is string => c !== null),
     ),
   ].sort(byCode);
-  if (contacts.length) suggest('contacts', 'public_contacts', contacts);
-  suggest('cta', 'always', ['platform.identity']);
+  suggest('hero', 'always', ['platform.identity']);
+  if (vf) {
+    // SITE-2, план §1 шаг 4: сайт для заявок салона или ресторана; порядок блоков тот же, что у заготовки
+    if (has('platform.services')) suggest('services', 'active_services', ['platform.services']);
+    if (has('platform.staff')) suggest('staff', 'active_staff', ['platform.staff']);
+    if (has('platform.menu')) suggest('menu', 'active_menu', ['platform.menu']);
+    const mode = vf.vertical === 'BEAUTY' ? (has('platform.services') ? 'appointment' : 'callback') : 'table';
+    suggest('leadForm', `lead_${mode}`, ['platform.identity'], { requires: [mode === 'callback' ? 'SITE5_LEADS' : 'SITE4_CALENDAR'] });
+    if (has('seller.faq')) suggest('faq', 'seller_faq', ['seller.faq']);
+    if (has('platform.hours')) suggest('hours', 'opening_hours', ['platform.hours']);
+    if (contacts.length) suggest('contacts', 'public_contacts', contacts);
+    suggest('cta', 'always', ['platform.identity']);
+  } else {
+    const about = evidence('channex.description', 'channex.important_information');
+    if (about.length) suggest('about', 'channex_description', about);
+    if (has('platform.accommodations')) {
+      suggest('accommodations', 'active_categories', ['platform.accommodations']);
+      suggest('pricing', 'live_from_price', ['platform.accommodations'], { bindings: ['B-FROMPRICE'] });
+    }
+    const amenities = evidence('channex.facilities', 'seller.included_in_price');
+    if (amenities.length) suggest('amenities', 'facilities_or_included', amenities);
+    if (has('channex.photos'))
+      suggest('gallery', 'channex_photos', ['channex.photos'], { requires: ['MKT8_MEDIA_IMPORT'] });
+    if (has('seller.faq')) suggest('faq', 'seller_faq', ['seller.faq']);
+    suggest('booking', 'hospitality_booking_capability', ['platform.identity'], { requires: ['MKT7_TRACKED_SITE'] });
+    if (contacts.length) suggest('contacts', 'public_contacts', contacts);
+    suggest('cta', 'always', ['platform.identity']);
+  }
   const proposedStructure: SiteBriefStructure = { pages: [{ kind: 'HOME', sections }] };
 
   truncations.sort((a, b) => byCode(a.source, b.source) || byCode(a.field, b.field));
@@ -523,4 +618,78 @@ export function buildSiteBrief(snapshot: SiteBriefSnapshot, collectedAt: string)
     truncations,
     proposedStructure,
   };
+}
+
+type Bounded = (value: unknown, max: number, source: BriefSource, field: string) => string | null;
+
+const MINOR_RE = /^(?:0|[1-9][0-9]{0,14})$/;
+const CLOCK_RE = /^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/;
+
+/**
+ * SITE-2: факты салона или ресторана в бриф. Только белый список полей, тексты в пределах, цена как есть строкой
+ * minor units (неверная строка: позиция не попадает), порядок детерминирован: услуги по группе, имени и коду, мастера
+ * по имени и id, меню в порядке ресторана, часы по дню недели и времени открытия. Лишнее сверх предела отрезается и
+ * пишется в усечения.
+ */
+function verticalInput(vf: BriefVerticalFacts, bounded: Bounded, truncations: SiteBriefTruncation[]) {
+  const L = BRIEF_TEXT_LIMITS;
+  const cap = <T>(items: T[], max: number, field: string): T[] => {
+    if (items.length > max) truncations.push({ source: 'PLATFORM', field, originalLength: items.length });
+    return items.slice(0, max);
+  };
+  const services = cap(
+    vf.services
+      .map((sv, i) => ({
+        code: sv.code,
+        name: bounded(sv.name, L.catalogName, 'PLATFORM', `services[${i}].name`),
+        category: bounded(sv.category, L.catalogCategory, 'PLATFORM', `services[${i}].category`),
+        durationMin: sv.durationMin,
+        priceMinor: sv.priceMinor,
+        currency: sv.currency,
+      }))
+      .filter(
+        (sv): sv is BriefServiceFacts =>
+          sv.name !== null && MINOR_RE.test(sv.priceMinor) && Number.isInteger(sv.durationMin) && sv.durationMin > 0,
+      )
+      .sort((a, b) => byCode(a.category ?? '', b.category ?? '') || byCode(a.name, b.name) || byCode(a.code, b.code)),
+    L.services,
+    'services',
+  );
+  const staff = cap(
+    vf.staff
+      .map((st, i) => ({
+        id: st.id,
+        name: bounded(st.name, L.catalogName, 'PLATFORM', `staff[${i}].name`),
+        specialization: bounded(st.specialization, L.catalogName, 'PLATFORM', `staff[${i}].specialization`),
+      }))
+      .filter((st): st is BriefStaffFacts => st.name !== null)
+      .sort((a, b) => byCode(a.name, b.name) || byCode(a.id, b.id)),
+    L.staff,
+    'staff',
+  );
+  let left = L.menuItems;
+  const allItems = vf.menu.reduce((n, cat) => n + cat.items.length, 0);
+  if (allItems > L.menuItems) truncations.push({ source: 'PLATFORM', field: 'menu.items', originalLength: allItems });
+  const menu = cap(vf.menu, L.menuCategories, 'menu')
+    .map((cat, c) => {
+      const items = cat.items
+        .map((it, i) => ({
+          code: it.code,
+          name: bounded(it.name, L.catalogName, 'PLATFORM', `menu[${c}].items[${i}].name`),
+          weightGrams: typeof it.weightGrams === 'number' && Number.isInteger(it.weightGrams) && it.weightGrams > 0 ? it.weightGrams : null,
+          priceMinor: it.priceMinor,
+          currency: it.currency,
+          hasPhoto: it.hasPhoto === true,
+        }))
+        .filter((it): it is BriefMenuItemFacts => it.name !== null && MINOR_RE.test(it.priceMinor));
+      const kept = items.slice(0, Math.max(0, left));
+      left -= kept.length;
+      return { title: bounded(cat.title, L.catalogCategory, 'PLATFORM', `menu[${c}].title`), items: kept };
+    })
+    .filter((cat): cat is BriefMenuCategoryFacts => cat.title !== null && cat.items.length > 0);
+  const hours = vf.hours
+    .filter((h) => Number.isInteger(h.weekday) && h.weekday >= 0 && h.weekday <= 6 && CLOCK_RE.test(h.open) && CLOCK_RE.test(h.close))
+    .map((h) => ({ weekday: h.weekday, open: h.open, close: h.close }))
+    .sort((a, b) => a.weekday - b.weekday || byCode(a.open, b.open));
+  return { vertical: vf.vertical, services, staff, menu, hours };
 }

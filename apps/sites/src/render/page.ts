@@ -1,11 +1,22 @@
-import { PRICES_PATH } from '../assets';
+import { LEAD_PATH, PRICES_PATH } from '../assets';
 import { renderHead, type SeoSettings } from '../seo';
 import type { Cta } from '../types';
-import { localHref, pagePath, resolvedImages, sectionVisible, targetHref, type RenderContext } from './context';
+import {
+  bookingHref,
+  leadLive,
+  localHref,
+  pagePath,
+  resolvedImages,
+  sectionVisible,
+  targetHref,
+  usesHotelWidget,
+  usesLeadScript,
+  type RenderContext,
+} from './context';
 import { INTL_LOCALE, PRICE_LABEL } from './price-format';
-import { ctaLink, renderSections } from './sections';
+import { ctaLink, leadLabel, renderSections } from './sections';
 import { themeClasses } from './theme';
-import { esc, tx, ui } from './text';
+import { esc, tx, ui, whatsappHref } from './text';
 
 /**
  * Страница целиком: `SiteSpec + publicFacts + решение рантайма → HTML`. Чистая функция без сети и времени. Скрипты в
@@ -62,7 +73,30 @@ function documentHtml(ctx: RenderContext, seo: SeoSettings, cssHref: string, mai
   const [logo] = resolvedImages(spec.site.brand?.logo ? [spec.site.brand.logo] : [], ctx.assets);
   const logoImg = logo ? `<img class="brand__logo" src="${esc(logo.src)}" alt="" decoding="async">` : '';
   const header = `<header class="site-header"><div class="wrap"><a class="brand" href="${esc(localHref('/', ctx))}">${logoImg}${name}</a>${nav ? `<nav class="nav" aria-label="${esc(strings.menu)}">${nav}</nav>` : ''}${headerCta}</div></header>`;
-  return `<!doctype html><html lang="${esc(locale)}"><head>${renderHead(ctx, seo, cssHref)}</head><body class="${themeClasses(spec.theme as unknown as Record<string, unknown>)}"><a class="skip" href="#main">${esc(strings.skip)}</a>${header}<main id="main">${main}</main>${footer}${scripts(ctx)}</body></html>`;
+  const bar = mobileBar(ctx);
+  const bodyClass = `${themeClasses(spec.theme as unknown as Record<string, unknown>)}${bar ? ' has-mobile-bar' : ''}`;
+  return `<!doctype html><html lang="${esc(locale)}"><head>${renderHead(ctx, seo, cssHref)}</head><body class="${bodyClass}"><a class="skip" href="#main">${esc(strings.skip)}</a>${header}<main id="main">${main}</main>${footer}${bar}${scripts(ctx)}</body></html>`;
+}
+
+/**
+ * SITE-2: закреплённая внизу экрана на телефоне кнопка заявки и WhatsApp (план §1 шаг 4, п. 9). Только ссылки, без
+ * скрипта; на широком экране скрыта стилем. Кнопка заявки ведёт к форме или виджету брони; WhatsApp только с номером
+ */
+function mobileBar(ctx: RenderContext): string {
+  const bar = ctx.spec.navigation.mobileBar;
+  if (!bar) return '';
+  const strings = ui(ctx.locale);
+  const links: string[] = [];
+  const book = bar.book ? bookingHref(ctx) : null;
+  if (book) links.push(`<a class="btn" href="${esc(book)}">${esc(leadLabel(ctx))}</a>`);
+  const wa = bar.whatsapp ? whatsappHref(ctx.spec.site.contacts?.whatsapp) : null;
+  if (wa) links.push(`<a class="btn btn--ghost" href="${esc(wa)}" rel="noopener noreferrer">${esc(strings.writeWhatsapp)}</a>`);
+  return links.length ? `<nav class="mobile-bar" aria-label="${esc(strings.quickActions)}">${links.join('')}</nav>` : '';
+}
+
+/** На странице форма заявки салона, ресторана или «перезвоните», и сайт может её отправить */
+export function pageNeedsLead(ctx: RenderContext): boolean {
+  return leadLive(ctx) && ctx.page.sections.some((s) => usesLeadScript(s) && sectionVisible(s, ctx));
 }
 
 /** На странице есть место под живую цену «от»: карточки с `showFromPrice` или видимая секция цен (Q-276) */
@@ -86,8 +120,10 @@ function scripts(ctx: RenderContext): string {
     const consent = analytics.consent === 'WAIT_FOR_CONSENT' ? ' data-consent="wait"' : '';
     parts.push(`<script async src="${api}/a/pms.js" data-site="${key}"${consent}></script>`);
   }
-  const bookingOnPage = ctx.page.sections.some((s) => s.type === 'booking');
+  const bookingOnPage = ctx.page.sections.some(usesHotelWidget);
   if (ctx.bookingLive && bookingOnPage) parts.push(`<script async src="${api}/w/widget.js" data-site="${key}"></script>`);
+  if (pageNeedsLead(ctx))
+    parts.push(`<script defer src="${LEAD_PATH}" data-api="${api}" data-site="${key}" data-locale="${esc(ctx.locale)}"></script>`);
   if (pageNeedsPrices(ctx))
     parts.push(
       `<script defer src="${PRICES_PATH}" data-api="${api}" data-site="${key}" data-locale="${INTL_LOCALE[ctx.locale]}" data-label="${esc(PRICE_LABEL[ctx.locale])}"></script>`,

@@ -67,6 +67,18 @@ export function siteSpecAssetRefs(spec: unknown): SiteSpecAssetRef[] {
         list(section['items']).forEach((item, i) => {
           if (isRec(item)) images(item['images'], `${at}.items[${i}].images`);
         });
+      // SITE-2: фото мастера и фото блюда, по одной картинке на элемент
+      else if (type === 'staff')
+        list(section['items']).forEach((item, i) => {
+          if (isRec(item)) image(item['image'], `${at}.items[${i}].image`);
+        });
+      else if (type === 'menu')
+        list(section['categories']).forEach((cat, c) => {
+          if (isRec(cat))
+            list(cat['items']).forEach((item, i) => {
+              if (isRec(item)) image(item['image'], `${at}.categories[${c}].items[${i}].image`);
+            });
+        });
     });
   });
   return refs;

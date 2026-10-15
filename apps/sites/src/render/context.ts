@@ -74,6 +74,12 @@ export function sectionVisible(
       return ctx.bookingLive && pricingRows(section, ctx).length > 0;
     case 'accommodations':
       return visibleCards(section, ctx.facts).length > 0;
+    // SITE-2: пустой каталог не рисуется (валидатор и так требует от одного элемента)
+    case 'services':
+    case 'staff':
+      return Array.isArray(section['items']) && section['items'].length > 0;
+    case 'menu':
+      return Array.isArray(section['categories']) && section['categories'].length > 0;
     default:
       return true;
   }
@@ -123,12 +129,28 @@ export function targetHref(target: Target, ctx: RenderContext): { href: string; 
   };
 }
 
-/** Куда ведёт кнопка `BOOK`: секция брони этой страницы, иначе главной; брони нет вовсе, кнопки нет */
-function bookingHref(ctx: RenderContext): string | null {
-  const here = ctx.page.sections.find((s) => s.type === 'booking');
+/** Секция, куда ведёт кнопка заявки: виджет брони гостиницы или форма заявки (SITE-2) */
+export const isBookingTarget = (s: Section) => s.type === 'booking' || s.type === 'leadForm';
+
+/** Форма гостиницы в `leadForm` это тот же виджет брони `/w/book`; страница с ним грузит скрипт виджета */
+export const usesHotelWidget = (s: Section) => s.type === 'booking' || (s.type === 'leadForm' && s['mode'] === 'HOTEL_BOOKING');
+
+/** Форма заявки салона, ресторана или «перезвоните» на странице: ей нужен скрипт формы */
+export const usesLeadScript = (s: Section) => s.type === 'leadForm' && s['mode'] !== 'HOTEL_BOOKING';
+
+/**
+ * Форма заявки работает: у сайта есть ключ счётчика и адрес API, это не превью. Примут ли адрес `/w/beauty/book` и
+ * `/w/food/reserve`, решает API (срез SITE-4): до него ответ ошибкой, форма покажет текст и телефон
+ */
+export const leadLive = (ctx: Pick<RenderContext, 'publicKey' | 'apiOrigin' | 'previewToken'>) =>
+  !!ctx.publicKey && !!ctx.apiOrigin && !ctx.previewToken;
+
+/** Куда ведёт кнопка `BOOK`: секция брони или формы этой страницы, иначе главной; нет ни там, ни там: кнопки нет */
+export function bookingHref(ctx: RenderContext): string | null {
+  const here = ctx.page.sections.find(isBookingTarget);
   if (here) return `#${here.id}`;
   const home = ctx.spec.pages.find((p) => p.isHome);
-  const there = home?.sections.find((s) => s.type === 'booking');
+  const there = home?.sections.find(isBookingTarget);
   return home && there ? localHref(`/#${there.id}`, ctx) : null;
 }
 

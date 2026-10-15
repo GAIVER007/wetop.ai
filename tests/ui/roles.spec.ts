@@ -46,8 +46,9 @@ test('администратор: в меню — работа с гостями
       '/finance',
       '/bar',
       '/sales',
-      '/market',
       '/ai-agents',
+      // «Конкуренты» в группе «Продвижение», не в «Продажах» (PROMO-1, ADR-184)
+      '/market',
       '/reports',
       '/management/analytics',
       '/incidents',

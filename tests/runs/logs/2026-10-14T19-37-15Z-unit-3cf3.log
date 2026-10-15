@@ -1,0 +1,16 @@
+# Модульные (unit) · 15.10.2026 00:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0997dbc (codex/bar-fixture-address-fix-20261014)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T19-37-15Z-unit-3cf3.json' '--project' 'unit' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/bar-indicators-sale/WETOP
+
+ ✓ |unit| tests/unit/ui-fixture-address.test.ts (2 tests) 174ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  12:37:20
+   Duration  494ms (tests 67%, transform 24%, import 7%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T19-37-15Z-unit-3cf3.json
+
+# код выхода 0 · 6 с

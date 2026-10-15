@@ -74,7 +74,9 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await expect(page.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
     await expect(page.locator('.org-card--HOSPITALITY')).toHaveCount(1);
     await expect(page.locator('.org-card--BEAUTY')).toHaveCount(1);
-    await expect(page.locator('.org-card--BEAUTY')).toContainText('Учёт оплат не подключён');
+    await expect(page.locator('.org-card--BEAUTY h2')).toHaveText('Тестовый салон');
+    await expect(page.locator('.org-card--BEAUTY .org-branch-rows')).toContainText('Тестовый салон');
+    await expect(page.locator('.org-card--BEAUTY')).not.toContainText('Учёт оплат не подключён');
     await expect(page.locator('.org-card--HOSPITALITY .org-branch-rows')).toContainText(
       'Тестовый отель',
     );

@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { settleStreaming } from '../ui/fixtures';
 import { createPrismaClient } from '@pms/database';
 import { randomUUID } from 'node:crypto';
 const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '26864'}`;
@@ -51,6 +52,7 @@ for (const vertical of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']) {
           await page.getByRole('button', { name: 'Сохранить инструкцию', exact: true }).click();
           await expect(page.getByRole('status').filter({ hasText: 'Инструкция сохранена у этого агента.' })).toHaveText('Инструкция сохранена у этого агента.');
           await page.reload();
+          await settleStreaming(page);
           await expect(page.getByRole('textbox', { name: 'Как агент должен отвечать', exact: true })).toHaveValue(text);
         }
       }

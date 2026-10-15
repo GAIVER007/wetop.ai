@@ -67,15 +67,22 @@ export function PaymentRequestsPanel({
   propertyName,
   requests,
   folios,
+  paymentMethods,
 }: {
   number: string;
   propertyName: string;
   requests: PaymentRequest[] | null;
+  /** включённые способы объекта (DATA_MODEL §21.6); нет поля, значит старый API: все четыре */
+  paymentMethods?: string[] | undefined;
   folios: FinanceFolio[];
 }) {
   const openFolios = folios.filter((f) => f.status === 'OPEN');
   const [folioId, setFolioId] = useState(openFolios[0]?.id ?? '');
-  const [method, setMethod] = useState<PaymentRequest['method']>('KASPI');
+  // способы запроса, которые объект принимает (§21.6); выключенный не предлагается
+  const methods = paymentMethods
+    ? METHODS.filter(([code]) => paymentMethods.includes(code))
+    : METHODS;
+  const [method, setMethod] = useState<PaymentRequest['method']>(methods[0]?.[0] ?? 'KASPI');
   const [lang, setLang] = useState<MessageLang>('ru');
   const folio = openFolios.find((f) => f.id === folioId);
   const due = folio && BigInt(folio.balanceMinor) > 0n ? minorToDecimal(folio.balanceMinor) : '';
@@ -251,7 +258,7 @@ export function PaymentRequestsPanel({
                 onChange={(e) => setMethod(e.target.value as PaymentRequest['method'])}
                 data-testid="payment-request-method"
               >
-                {METHODS.map(([code, label]) => (
+                {methods.map(([code, label]) => (
                   <option key={code} value={code}>
                     {label}
                   </option>

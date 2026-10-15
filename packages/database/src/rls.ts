@@ -65,6 +65,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'cash_reconciliations',
   // Задачи стойки (DATA_MODEL §22): политика — в миграции 20261003000049_desk_tasks
   'desk_tasks',
+  // Способы оплаты объекта (DATA_MODEL §21.6, ADR-185): политика в миграции 20261015000107_payment_method_settings
+  'payment_method_settings',
   // Запросы оплаты (DATA_MODEL §24, ADR-144): политика — в миграции 20261003000046_payment_requests
   'payment_requests',
   // Фискальные чеки по запросу (DATA_MODEL §26): политика — в миграции 20261003000048_fiscal_receipts

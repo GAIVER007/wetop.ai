@@ -1,0 +1,16 @@
+# Модульные (unit) · 07.10.2026 15:30 Алматы · vm
+# коммит fb520a3 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-30-29Z-unit-d972.json' 'packages/domain/src/finance/cash.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/finance/cash.test.ts (12 tests) 21ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  10:30:30
+   Duration  388ms (transform 71%, import 15%, tests 11%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-30-29Z-unit-d972.json
+
+# код выхода 0 · 1 с

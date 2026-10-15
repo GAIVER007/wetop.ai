@@ -1,0 +1,39 @@
+# Интеграционные (integration) · 15.10.2026 12:07 Алматы · vm
+# коммит de31953 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T07-07-05Z-integration-fcdb.json' 'tests/integration/platform-p1-backfill.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests | 1 failed) 442ms
+   ❯ Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) (3)
+     × каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business 271ms
+     ✓ reporting_currency организации совпадает с однозначной фактической валютой её объектов 24ms
+     ✓ вошедший получает тот же объект по цепочке, что и прежним путём; резолвер филиала его видит 38ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/platform-p1-backfill.test.ts > Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) > каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business
+AssertionError: expected 'Luxx Aparts' to be 'CSF retired bed52920-1049-497a-81ec-4…' // Object.is equality
+
+Expected: "CSF retired bed52920-1049-497a-81ec-44161f0b2fbc"
+Received: "Luxx Aparts"
+
+ ❯ tests/integration/platform-p1-backfill.test.ts:67:26
+     65|         expect(p.locationId, `объект ${p.name} без location_id`).not.t…
+     66|         const loc = p.location!;
+     67|         expect(loc.name).toBe(p.name);
+       |                          ^
+     68|         expect(loc.timezone).toBe(p.timezone);
+     69|         expect(loc.currency).toBe(p.currency);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  07:07:06
+   Duration  7.42s (transform 70%, import 18%, tests 12%)
+
+JSON report written to /tmp/pms-test-2026-10-15T07-07-05Z-integration-fcdb.json
+
+# код выхода 1 · 9 с

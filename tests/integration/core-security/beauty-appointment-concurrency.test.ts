@@ -91,8 +91,11 @@ describe.skipIf(!url)('U3-b: гонка нового телефона и дво�
 
   // ───────── гонка нового телефона ─────────
 
-  it('U3-b: два одновременных запроса с одним новым телефоном (разные мастера, то же время): 201 и 409, не 500', async () => {
-    const tally: string[] = [];
+  it('U3-b: два одновременных запроса с одним новым телефоном (разные мастера, то же время): без 500, клиент один', async () => {
+    // PR 532: beautyTransaction берёт строки бизнеса и филиала FOR UPDATE, поэтому записи Beauty одного филиала идут
+    // по очереди: второй запрос находит клиента по телефону и проходит (201 и 201). Прежний исход 201 и 409 (проигравший
+    // падал на уникальном индексе телефона) тоже допустим, если блокировку когда-нибудь снимут. Недопустим 500, второй
+    // клиент и «сирота» после отката.
     for (let i = 0; i < 5; i++) {
       const day = nextMonday(week++);
       const p = phone();
@@ -100,21 +103,20 @@ describe.skipIf(!url)('U3-b: гонка нового телефона и дво�
         book('staffBl1', day, '10:00', w.ids.eBl1!, { firstName: 'Race', phone: p }),
         book('staffBl1', day, '10:00', w.ids.eBl1b!, { firstName: 'Race', phone: p }),
       ]);
-      tally.push(sorted(a, b).join('+'));
+      const outcome = sorted(a, b).join('+');
+      expect(['201+201', '201+409'], `${i}: ${a.text} | ${b.text}`).toContain(outcome);
       const loser = [a, b].find((r) => r.status !== 201);
-      expect(sorted(a, b), `${i}: ${a.text} | ${b.text}`).toEqual([201, 409]);
-      expect(typeof loser?.json?.message).toBe('string');
-      // проигравший откатился целиком: клиент один, запись одна, связь с бизнесом одна
+      if (loser) expect(typeof loser.json?.message).toBe('string');
+      // клиент один; записей столько, сколько вернули 201 (проигравший откатился целиком); связь с бизнесом одна
       const rows = await customersWith(p);
       expect(rows).toHaveLength(1);
-      expect(await appointmentsOf(rows[0]!.id)).toBe(1);
+      expect(await appointmentsOf(rows[0]!.id)).toBe(outcome === '201+201' ? 2 : 1);
       expect(
         await admin.customerBusiness.count({
           where: { customerId: rows[0]!.id, businessId: w.ids.bz! },
         }),
       ).toBe(1);
     }
-    expect(new Set(tally)).toEqual(new Set(['201+409']));
   }, 120_000);
 
   it('U5: двойная отправка формы (два одинаковых запроса одновременно, новый клиент с телефоном): 201 и 409, не 500', async () => {
@@ -146,20 +148,23 @@ describe.skipIf(!url)('U3-b: гонка нового телефона и дво�
     expect(await appointmentsOf(rows[0]!.id)).toBe(1);
   });
 
-  it('после проигранной гонки повтор проигравшего проходит и находит того же клиента по телефону', async () => {
+  it('после гонки за нового клиента повтор второго запроса (если он проиграл) проходит и находит того же клиента', async () => {
     const day = nextMonday(week++);
     const p = phone();
     const [a, b] = await Promise.all([
       book('staffBl1', day, '13:00', w.ids.eBl1!, { firstName: 'Loser', phone: p }),
       book('staffBl1', day, '13:00', w.ids.eBl1b!, { firstName: 'Loser', phone: p }),
     ]);
-    expect(sorted(a, b)).toEqual([201, 409]);
-    const loserMaster = a.status === 201 ? w.ids.eBl1b! : w.ids.eBl1!;
-    const again = await book('staffBl1', day, '13:00', loserMaster, {
-      firstName: 'Loser',
-      phone: p,
-    });
-    expect(again.status, again.text).toBe(201);
+    expect(['201+201', '201+409'], `${a.text} | ${b.text}`).toContain(sorted(a, b).join('+'));
+    const lostAny = a.status !== 201 || b.status !== 201;
+    if (lostAny) {
+      const loserMaster = a.status === 201 ? w.ids.eBl1b! : w.ids.eBl1!;
+      const again = await book('staffBl1', day, '13:00', loserMaster, {
+        firstName: 'Loser',
+        phone: p,
+      });
+      expect(again.status, again.text).toBe(201);
+    }
     const rows = await customersWith(p);
     expect(rows).toHaveLength(1);
     expect(await appointmentsOf(rows[0]!.id)).toBe(2);

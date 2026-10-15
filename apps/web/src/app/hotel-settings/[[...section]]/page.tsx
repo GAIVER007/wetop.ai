@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { can, parseMembershipRole } from '@pms/domain';
 import { notFound, redirect, unstable_rethrow } from 'next/navigation';
-import { serviceCatalogApi } from '../../../lib/api';
+import { financeApi, paymentMethodsApi, serviceCatalogApi } from '../../../lib/api';
 import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
 import { propertyMediaApi } from '../../../lib/api';
 import { Page } from '../../../components/page';
@@ -13,6 +13,7 @@ import { Tabs } from '../../../components/tabs';
 import { loadErrorProps } from '../../../lib/load-error';
 import { Notice, Panel } from '../../../components/ui';
 import { AddServiceButton, ServiceEditor, ServicesCatalog } from '../catalogs';
+import { CashCategoriesEditor, PaymentMethodsForm } from '../directories';
 import { GeneralSettingsForm, StaySettingsForm } from '../settings-form';
 import { PreviewButton } from '../object-preview';
 import { ContractBlock, PhotosBlock } from '../media-blocks';
@@ -23,8 +24,8 @@ import { currentMe, deskShell } from '../../../lib/desk-shell';
 import '../settings.css';
 
 /**
- * «Настройки объекта» (ТЗ «Настройки объекта» v2, срез SET1, ADR-115): один заголовок на пять вкладок (три прежние и
- * «Продажи и каналы», «Документы» по верстке владельца, ADR-158). Правила отмены
+ * «Настройки объекта» (ТЗ «Настройки объекта» v2, срез SET1, ADR-115): один заголовок на шесть вкладок (три прежние,
+ * «Продажи и каналы» и «Документы» по верстке владельца, ADR-158, «Справочники» ADR-185). Правила отмены
  * ушли к тарифам — это свойство тарифного плана (SET4); старый адрес ведёт на «Цены и ограничения».
  */
 const tabs = [
@@ -33,6 +34,7 @@ const tabs = [
   { view: 'services', href: '/hotel-settings/services', label: 'Услуги' },
   { view: 'sales', href: '/hotel-settings/sales', label: 'Продажи и каналы' },
   { view: 'documents', href: '/hotel-settings/documents', label: 'Документы' },
+  { view: 'directories', href: '/hotel-settings/directories', label: 'Справочники' },
 ] as const;
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
@@ -89,6 +91,9 @@ export default async function HotelSettingsPage({
         <PreviewButton initial={previewValues(loaded.value.property)} photos={previewPhotos} />
         {editable && <SaveAction />}
       </>
+    ) : view === 'directories' && editable ? (
+      // «Справочники» (ADR-185): способы оплаты сохраняются той же кнопкой шапки, предпросмотра у них нет
+      <SaveAction />
     ) : undefined;
   const organization = me.ok ? (me.value.user?.organization?.name ?? null) : null;
   const platformAdmin = me.ok && me.value.user?.platformAdmin === true;
@@ -137,6 +142,16 @@ export default async function HotelSettingsPage({
               }
             >
               <Services editable={mayEdit} />
+            </Suspense>
+          ) : view === 'directories' ? (
+            <Suspense
+              fallback={
+                <Panel data-testid="settings-loading" role="status">
+                  Читаем справочники объекта…
+                </Panel>
+              }
+            >
+              <Directories editable={mayEdit} />
             </Suspense>
           ) : !loaded.ok ? (
             <LoadError testId="settings-error" {...loadErrorProps(loaded.error)} />
@@ -210,5 +225,42 @@ async function Services({ editable }: { editable: boolean }) {
         </Link>
       </Panel>
     </>
+  );
+}
+
+/** «Справочники» (ADR-185): способы оплаты объекта и статьи кассы; по одному запросу на каждый */
+async function Directories({ editable }: { editable: boolean }) {
+  const loaded = await settle(Promise.all([paymentMethodsApi.get(), financeApi.cashCategories()]));
+  if (!loaded.ok)
+    return <LoadError testId="directories-error" {...loadErrorProps(loaded.error)} />;
+  const [methods, categories] = loaded.value;
+  return (
+    <div className="settings-stack">
+      <Panel
+        className="settings-block"
+        aria-labelledby="settings-payment-methods"
+        data-testid="payment-methods"
+      >
+        <h2 id="settings-payment-methods">Способы оплаты</h2>
+        <p className="settings-note">
+          Какие способы стойка предлагает при приёме денег и в каком порядке.
+        </p>
+        <PaymentMethodsForm stored={methods.methods} editable={editable} />
+      </Panel>
+      <Panel
+        className="settings-block"
+        id="cash-categories"
+        aria-labelledby="settings-cash-categories"
+        data-testid="cash-categories"
+      >
+        <h2 id="settings-cash-categories">Статьи кассы</h2>
+        <p className="settings-note">
+          Статьи поступлений и расходов кассы. Удаления нет: статья выключается, прошлые операции
+          хранят её.
+        </p>
+        <CashCategoriesEditor categories={categories} editable={editable} />
+      </Panel>
+      {!editable && <Notice tone="muted">{OWNER_ONLY}</Notice>}
+    </div>
   );
 }

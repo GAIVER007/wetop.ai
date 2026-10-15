@@ -397,7 +397,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Настройки объекта',
         shortLabel: 'Объект',
         icon: 'settings',
-        description: 'Сведения об объекте, часы заезда и выезда, услуги.',
+        description: 'Сведения об объекте, часы заезда и выезда, услуги, способы оплаты и статьи кассы.',
         // правила отмены — свойство тарифа, их место в «Тарифах» (ADR-115)
         children: [
           {
@@ -413,6 +413,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             label: 'Услуги',
             icon: 'plus',
             description: 'Каталог дополнительных услуг и цены.',
+          },
+          {
+            href: '/hotel-settings/directories',
+            requires: 'settings',
+            label: 'Справочники',
+            icon: 'card',
+            description: 'Способы оплаты и статьи кассы.',
           },
         ],
       },

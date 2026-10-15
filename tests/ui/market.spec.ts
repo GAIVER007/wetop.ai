@@ -95,7 +95,7 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   await expect(main.getByTestId('market-form')).toBeVisible();
   // ссылка на площадку: метка честно говорит, что сбора нет
   await main.getByRole('button', { name: 'Изменить: Отель Тестовый' }).click();
-  await expect(page.getByLabel('Страница соседа на площадке (для будущего сбора)')).toBeVisible();
+  await expect(page.getByLabel('Ссылка на площадку')).toBeVisible();
   await page.getByTestId('market-url').fill('https://www.booking.com/hotel/kz/test.ru.html');
   await page.getByTestId('market-save').click();
   await expect(row).toContainText('Сбор не подключён');
@@ -351,3 +351,25 @@ test('снимок сборщика только уровнем: ячейка с
   await expect(grid.getByRole('row', { name: /Хостел Свободный/ })).toContainText('Есть места');
   await expect(grid.getByTestId('market-row-market')).toContainText('почти полны 1 из 2');
 });
+
+for (const width of [390, 1440]) {
+  test(`форма конкурента: подписи слева и детали свёрнуты (${width})`, async ({ page, request }) => {
+    await request.post(`${API}/__test/market`, { data: {} });
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/market');
+    await page.getByTestId('market-add').click();
+    const form = page.getByTestId('market-competitor-form');
+    await expect(form).toBeVisible();
+    expect(await form.evaluate((el) => getComputedStyle(el).textAlign)).toBe('left');
+    await expect(form.getByLabel('Район', { exact: true })).not.toBeVisible();
+    await form.getByText('Дополнительные сведения', { exact: true }).click();
+    await expect(form.getByLabel('Район', { exact: true })).toBeVisible();
+    await form.getByText('Дополнительные сведения', { exact: true }).click();
+    const grid = form.locator('.market-form-grid').first();
+    expect(await grid.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await form.evaluate((el) => { const scroller = el.closest('.overlay-content'); if (scroller) scroller.scrollTop = 0; });
+    await page.screenshot({ path: `${SHOTS}/competitor-form-${width}.png` });
+    await form.getByRole('button', { name: 'Отмена', exact: true }).click();
+    await expect(form).not.toBeVisible();
+  });
+}

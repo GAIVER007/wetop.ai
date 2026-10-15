@@ -30,8 +30,9 @@ describe('currentPlace', () => {
     ['/beauty/masters', 'Мастера'],
     ['/beauty/schedule', 'График'],
     ['/beauty/services', 'Услуги'],
-    ['/team', 'Сотрудники и доступ'],
-    ['/team/roles', 'Сотрудники и доступ'],
+    // единое меню направлений (14.10.2026): у салона, как у ресторана, группа «Команда»
+    ['/team', 'Команда'],
+    ['/team/roles', 'Команда'],
   ])('салон %s → %s', (path, expected) => expect(label('BEAUTY', path)).toBe(expected));
 
   it.each([

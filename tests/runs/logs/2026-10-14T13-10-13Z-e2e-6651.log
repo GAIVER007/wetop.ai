@@ -1,0 +1,89 @@
+# Сквозные (e2e) · 14.10.2026 18:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит fa9afdb (codex/market-runtime-readiness-20261014), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/market.spec.ts' '-g' 'форма конкурента' '--workers=1'
+[WebServer] (node:18185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18209) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18303) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18321) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:18338) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/market.spec.ts:356:3 › форма конкурента: подписи слева и детали свёрнуты (390) (6.8s)
+(node:18398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/market.spec.ts:356:3 › форма конкурента: подписи слева и детали свёрнуты (1440) (1.6s)
+
+
+  1) tests/ui/market.spec.ts:356:3 › форма конкурента: подписи слева и детали свёрнуты (390) ───────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "left"
+    Received: "center"
+
+      361 |     const form = page.getByTestId('market-competitor-form');
+      362 |     await expect(form).toBeVisible();
+    > 363 |     expect(await form.evaluate((el) => getComputedStyle(el).textAlign)).toBe('left');
+          |                                                                         ^
+      364 |     await expect(form.getByLabel('Район', { exact: true })).not.toBeVisible();
+      365 |     await form.getByText('Дополнительные сведения', { exact: true }).click();
+      366 |     await expect(form.getByLabel('Район', { exact: true })).toBeVisible();
+        at /private/tmp/wetop-market-ready-20261014/tests/ui/market.spec.ts:363:73
+
+    Error Context: test-results/market-форма-конкурента-подписи-слева-и-детали-свёрнуты-390-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-форма-конкурента-подписи-слева-и-детали-свёрнуты-390-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-форма-конкурента-подписи-слева-и-детали-свёрнуты-390-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/market.spec.ts:356:3 › форма конкурента: подписи слева и детали свёрнуты (1440) ──────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "left"
+    Received: "center"
+
+      361 |     const form = page.getByTestId('market-competitor-form');
+      362 |     await expect(form).toBeVisible();
+    > 363 |     expect(await form.evaluate((el) => getComputedStyle(el).textAlign)).toBe('left');
+          |                                                                         ^
+      364 |     await expect(form.getByLabel('Район', { exact: true })).not.toBeVisible();
+      365 |     await form.getByText('Дополнительные сведения', { exact: true }).click();
+      366 |     await expect(form.getByLabel('Район', { exact: true })).toBeVisible();
+        at /private/tmp/wetop-market-ready-20261014/tests/ui/market.spec.ts:363:73
+
+    Error Context: test-results/market-форма-конкурента-по-c803c-ева-и-детали-свёрнуты-1440-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-форма-конкурента-по-c803c-ева-и-детали-свёрнуты-1440-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-форма-конкурента-по-c803c-ева-и-детали-свёрнуты-1440-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/market.spec.ts:356:3 › форма конкурента: подписи слева и детали свёрнуты (390) ────────
+    tests/ui/market.spec.ts:356:3 › форма конкурента: подписи слева и детали свёрнуты (1440) ───────
+
+# код выхода 1 · 19 с

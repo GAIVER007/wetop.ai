@@ -15,7 +15,7 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
 
 /** Товары бара (ADR-157): каталог с остатками, ценой и минимумом; новый товар и категории здесь же. */
 export default async function BarProductsPage() {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const [categories, stock] = await Promise.all([settle(barApi.categories()), settle(barApi.stock())]);
   const failed = [categories, stock].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;

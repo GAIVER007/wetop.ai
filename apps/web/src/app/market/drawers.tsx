@@ -79,7 +79,7 @@ export function CompetitorButton({
         <Overlay
           open
           drawer
-          className="settings-service-drawer"
+          className="settings-service-drawer market-competitor-drawer"
           title={competitor ? competitor.name : 'Новый конкурент'}
           onClose={() => setOpen(false)}
         >
@@ -132,13 +132,10 @@ function CompetitorForm({
     state.values?.[name] ?? (fallback === null || fallback === undefined ? '' : String(fallback));
   return (
     <>
-      <form action={action} className="settings-service-form" data-testid="market-competitor-form">
+      <form action={action} className="settings-service-form market-competitor-form" data-testid="market-competitor-form">
         {error && <Alert boxed>{error}</Alert>}
         {competitor && <input type="hidden" name="id" value={competitor.id} />}
-        <p className="settings-note">
-          Обязательно только название. Ссылка на страницу соседа на площадке необязательна: по ней
-          удобно открыть отель и сверить загрузку.
-        </p>
+        <p className="settings-note">Добавьте название и ссылку. Остальные поля можно заполнить позже.</p>
         <Field label="Название отеля">
           <Input
             name="name"
@@ -149,9 +146,7 @@ function CompetitorForm({
             data-testid="market-name"
           />
         </Field>
-        <Field label="Район">
-          <Input name="district" maxLength={80} defaultValue={v('district', competitor?.district)} data-testid="market-district" />
-        </Field>
+        <div className="market-form-grid">
         <Field label="Тип объекта">
           <Input
             name="category"
@@ -167,11 +162,11 @@ function CompetitorForm({
             ))}
           </datalist>
         </Field>
-        <Field label="Адрес">
+        <Field className="market-form-wide" label="Адрес">
           <Input name="address" maxLength={200} defaultValue={v('address', competitor?.address)} />
         </Field>
-        <Field label="Страница соседа на площадке (для будущего сбора)" controlId="market-url" hint="Необязательно. Например, адрес отеля на Booking.com">
-          <Input name="url" type="url" defaultValue={v('url', competitor?.url)} placeholder="https://www.booking.com/hotel/…" data-testid="market-url" />
+        <Field className="market-form-wide" label="Ссылка на площадку" controlId="market-url" hint="Страница конкурента на Ostrovok или другой площадке">
+          <Input name="url" type="url" defaultValue={v('url', competitor?.url)} placeholder="https://ostrovok.ru/hotel/…" data-testid="market-url" />
         </Field>
         <Field label="Номеров у соседа" controlId="market-units" hint="Сколько номеров он продаёт всего">
           <Input name="unitsTotal" inputMode="numeric" defaultValue={v('unitsTotal', competitor?.unitsTotal)} />
@@ -179,9 +174,18 @@ function CompetitorForm({
         <Field label="Расстояние, метров" controlId="market-distance" hint="Список идёт от ближайших">
           <Input name="distanceM" inputMode="numeric" defaultValue={v('distanceM', competitor?.distanceM)} data-testid="market-distance" />
         </Field>
+        </div>
+        <details className="market-form-details">
+          <summary>Дополнительные сведения</summary>
+          <div className="market-form-grid">
+        <Field label="Район">
+          <Input name="district" maxLength={80} defaultValue={v('district', competitor?.district)} data-testid="market-district" />
+        </Field>
         <Field label="Заметка">
           <Textarea name="note" rows={2} maxLength={500} defaultValue={v('note', competitor?.note)} />
         </Field>
+          </div>
+        </details>
         <fieldset className="market-monitoring" data-testid="market-monitoring">
           <legend>Мониторинг</legend>
           <Field label="Что отслеживать">

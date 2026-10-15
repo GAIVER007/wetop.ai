@@ -26,7 +26,8 @@ const echo = (fd: FormData): Record<string, string> => {
 const done = (message: string): BudgetActionResult => {
   revalidatePath('/marketing/budget');
   revalidatePath('/marketing/budget/expenses');
-  revalidatePath('/marketing/budget/analytics');
+  revalidatePath('/marketing/analytics');
+  revalidatePath('/marketing');
   return { error: null, ok: Date.now(), message };
 };
 

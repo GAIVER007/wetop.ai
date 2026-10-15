@@ -51,7 +51,7 @@ export default async function GuestsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE']);
   const sp = normalizeSearchParams(await searchParams);
   const { f, error } = parseGuestFilters(sp);
   // Форма и ссылки шлют пустые поля и умолчания: такой адрес чистится одним переходом, им можно делиться

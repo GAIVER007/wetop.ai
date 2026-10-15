@@ -1,0 +1,125 @@
+# Модульные (unit) · 15.10.2026 00:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6a9aa68 (codex/release-gate-market-20261014)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T19-37-46Z-unit-a4a4.json' 'scripts/design/build-tokens.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-release-gate-market-20261014
+
+ ❯ |unit| tests/unit/ui-fixture-address.test.ts (2 tests | 1 failed) 206ms
+   ❯ адрес подставного API в наборе UI (2)
+     × ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API 201ms
+     ✓ FIXTURE_API берёт адрес из UI_FIXTURE_API, а 4311 оставляет умолчанием 3ms
+ ❯ |unit| scripts/design/build-tokens.test.ts (15 tests | 1 failed) 392ms
+   ❯ tokens.css генерируется из design/tokens.json (4)
+     ✓ контрастная тема задаёт светлый фон даже внутри тёмной темы 8ms
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 2ms
+     ✓ design/contrast.md совпадает с расчётом 3ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 369ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 2ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 1ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 0ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 0ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 0ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 0ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+ ❯ |unit| tests/unit/design-slop.test.ts (18 tests | 2 failed) 23ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (18)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 7ms
+     ✓ space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 1ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 0ms
+     ✓ shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 0ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     ✓ dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 0ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     ✓ radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 0ms
+     × z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 8ms
+     ✓ font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a) 0ms
+     ✓ space-literal-not-var: отступ литералом вместо --space-*, даже на шкале (DESIGN.md §4.1, MV8.5 DS0a) 0ms
+     ✓ inline-style: style={…} в TSX: только геометрия из данных и только с `slop-allow: inline-style <причина>` (MV8.5 DS0a) 0ms
+     ✓ important: !important в CSS: каскад решают слои и порядок, исключение только с `slop-allow: important <причина>` (MV8.5 DS0b) 0ms
+     × breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1) 2ms
+     ✓ layer-name: @layer вне договора reset, tokens, base, components, sections, utilities (DESIGN.md §20.6) 0ms
+     ✓ orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a) 0ms
+     ✓ снимок покрывает все правила 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--space-3' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--space-3",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:121:21
+    119|     ]);
+    120|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+    121|     expect(missing).toEqual([]);
+       |                     ^
+    122|   });
+    123| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13)
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/market/market.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| tests/unit/ui-fixture-address.test.ts > адрес подставного API в наборе UI > ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API
+AssertionError: expected [ 'bar-reference.spec.ts' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "bar-reference.spec.ts",
++ ]
+
+ ❯ tests/unit/ui-fixture-address.test.ts:30:41
+     28| describe('адрес подставного API в наборе UI', () => {
+     29|   it('ни один спек не зашивает адрес стенда: он приходит из FIXTURE_AP…
+     30|     expect(specsWithHardcodedAddress()).toEqual([]);
+       |                                         ^
+     31|   });
+     32|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  4 failed | 31 passed (35)
+   Start at  12:37:52
+   Duration  1.16s (import 49%, tests 37%, transform 13%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T19-37-46Z-unit-a4a4.json
+
+# код выхода 1 · 8 с

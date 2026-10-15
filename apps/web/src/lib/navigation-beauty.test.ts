@@ -25,8 +25,6 @@ describe('меню салона', () => {
       '/channels',
       '/hotel-settings',
       '/website',
-      '/finance',
-      '/bar',
     ]) {
       expect(items, href).not.toContain(href);
     }
@@ -43,11 +41,19 @@ describe('меню салона', () => {
       // «График» мастеров своей вкладкой: решение владельца №1 по плану DS2 (09.10.2026), мастер-проход 11.10
       '/beauty/schedule',
       '/services',
+      '/finance',
+      '/bar',
       '/team',
       '/sales',
+      '/ai-agents',
       '/marketing',
+      '/marketing/budget',
+      '/marketing/analytics',
+      '/reports',
       '/management/analytics',
+      '/connections',
       '/journal',
+      '/incidents',
       '/help',
       '/profile',
     ]);

@@ -1,4 +1,5 @@
 import { requireVertical } from '../../../lib/vertical-guard';
+import { verticalCopy, type VerticalCopy } from '../../../lib/vertical-copy';
 import '../marketing.css';
 import { Icon } from '../../../components/icon';
 import { Page } from '../../../components/page';
@@ -15,7 +16,7 @@ import { BackToModules, ModuleSoon } from '../parts';
 const METRICS = ['Потрачено', 'Заявки', 'Стоимость заявки', 'Доход с рекламы'];
 const SOON = 'marketing-ads-soon';
 
-function Campaigns() {
+function Campaigns({ copy }: { copy: VerticalCopy }) {
   return (
     <div className="marketing-screen__stack">
       <Stats min={160} data-testid="marketing-ads-metrics">
@@ -60,7 +61,7 @@ function Campaigns() {
             <h2 id="marketing-ads-assistant">ИИ-помощник</h2>
           </div>
           <p>
-            Изучит аудиторию гостиницы и предложит кампанию: кому показывать, какой текст и бюджет. Запуск только после
+            Изучит аудиторию {copy.businessOf} и предложит кампанию: кому показывать, какой текст и бюджет. Запуск только после
             вашего подтверждения.
           </p>
         </section>
@@ -89,7 +90,8 @@ function Campaigns() {
 const empty = (text: string) => <EmptyState title="Пока пусто">{text}</EmptyState>;
 
 export default async function MarketingAdsPage() {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const copy = verticalCopy(me.context?.vertical);
   return (
     <Page
       crumbs={<BackToModules />}
@@ -109,10 +111,10 @@ export default async function MarketingAdsPage() {
         <Tabs
           label="Разделы рекламы"
           panels={[
-            { id: 'campaigns', label: 'Кампании', content: <Campaigns /> },
-            { id: 'audiences', label: 'Аудитории', content: empty('Аудитории ИИ соберёт из гостей и посетителей сайта.') },
+            { id: 'campaigns', label: 'Кампании', content: <Campaigns copy={copy} /> },
+            { id: 'audiences', label: 'Аудитории', content: empty(`Аудитории ИИ соберёт из ${copy.clientsOf} и посетителей сайта.`) },
             { id: 'creatives', label: 'Креативы', content: empty('Картинки и тексты объявлений придут из модуля «Контент».') },
-            { id: 'analytics', label: 'Аналитика', content: empty('Расходы, заявки и брони по кампаниям появятся после первых запусков.') },
+            { id: 'analytics', label: 'Аналитика', content: empty(`Расходы, заявки и ${copy.conversionTo === 'в бронь' ? 'брони' : copy.conversionTo === 'в запись' ? 'записи' : 'заказы'} по кампаниям появятся после первых запусков.`) },
             { id: 'settings', label: 'Настройки', content: empty('Рекламный кабинет, лимиты бюджета и уведомления.') },
           ]}
         />

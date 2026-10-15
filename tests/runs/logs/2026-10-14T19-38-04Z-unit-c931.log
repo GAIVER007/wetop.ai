@@ -1,0 +1,18 @@
+# Модульные (unit) · 15.10.2026 00:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6a9aa68 (codex/release-gate-market-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T19-38-04Z-unit-c931.json' 'scripts/design/build-tokens.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-release-gate-market-20261014
+
+ ✓ |unit| tests/unit/ui-fixture-address.test.ts (2 tests) 66ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 80ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 4ms
+
+ Test Files  3 passed (3)
+      Tests  35 passed (35)
+   Start at  12:38:05
+   Duration  414ms (import 52%, tests 26%, transform 20%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T19-38-04Z-unit-c931.json
+
+# код выхода 0 · 2 с

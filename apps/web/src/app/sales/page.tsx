@@ -1,4 +1,5 @@
 import { BusinessGrowthScreen } from '../growth/business-screen';
+import { loadBusinessSales } from '../growth/business-sales';
 import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { formatOccupancy, formatPoints } from '@pms/domain';
@@ -45,8 +46,10 @@ const minusDays = (iso: string, n: number) =>
 
 export default async function SalesHubPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
-  if (me.context?.vertical === 'BEAUTY' || me.context?.vertical === 'FOOD_SERVICE')
-    return <BusinessGrowthScreen vertical={me.context.vertical} mode="sales" />;
+  if (me.context?.vertical === 'BEAUTY' || me.context?.vertical === 'FOOD_SERVICE') {
+    const data = await loadBusinessSales(normalizeSearchParams(await searchParams));
+    return <BusinessGrowthScreen vertical={me.context.vertical} mode="sales" data={data} />;
+  }
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const period = salesPeriod({ days: sp.days, from: sp.from, to: sp.to }, today);

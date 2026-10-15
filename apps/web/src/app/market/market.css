@@ -10,16 +10,16 @@
   .market-competitor-form .settings-note { text-align: left; font-size: var(--text-sm); }
   .market-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
   .market-form-wide { grid-column: 1 / -1; }
-  .market-competitor-form .market-monitoring { margin-top: 0; display: grid; gap: calc(var(--space-2) + var(--space-1)); }
-  .market-form-details { border-top: 1px solid var(--border-soft); padding-top: calc(var(--space-2) + var(--space-1)); }
+  .market-competitor-form .market-monitoring { margin-top: 0; display: grid; gap: var(--space-4); }
+  .market-form-details { border-top: 1px solid var(--border-soft); padding-top: var(--space-4); }
   .market-form-details summary { cursor: pointer; min-height: 44px; display: list-item; font-weight: var(--weight-medium); }
   .market-form-details[open] .market-form-grid { margin-top: var(--space-2); }
   .market-competitor-form .settings-service-actions {
     position: sticky; bottom: 0; z-index: var(--layer-base); background: var(--surface);
-    border-top: 1px solid var(--border-soft); padding: calc(var(--space-2) + var(--space-1)) 0;
+    border-top: 1px solid var(--border-soft); padding: var(--space-4) 0;
   }
   @media (max-width: 600px) {
-    .market-form-grid { grid-template-columns: minmax(0, 1fr); gap: calc(var(--space-2) + var(--space-1)); }
+    .market-form-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
     .market-competitor-form .settings-service-actions > button { flex: 1; min-height: 44px; }
   }
 

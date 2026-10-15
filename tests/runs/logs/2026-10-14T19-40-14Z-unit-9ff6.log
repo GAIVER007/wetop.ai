@@ -1,0 +1,16 @@
+# Модульные (unit) · 15.10.2026 00:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6a9aa68 (codex/release-gate-market-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T19-40-14Z-unit-9ff6.json' 'apps/api/src/platform/support.controller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-release-gate-market-20261014
+
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 96ms
+
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+   Start at  12:40:16
+   Duration  1.27s (transform 48%, import 44%, tests 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T19-40-14Z-unit-9ff6.json
+
+# код выхода 0 · 3 с

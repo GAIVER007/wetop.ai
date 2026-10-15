@@ -25,7 +25,7 @@ import { ExpenseButton, PlanButton } from './drawers';
  * Право `settings`, как у всего раздела; филиал строго из scope (409: «Выберите филиал»).
  */
 export default async function BudgetPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const [loaded, shell] = await Promise.all([loadBudget(await searchParams), deskShell()]);
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'settings'));

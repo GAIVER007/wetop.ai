@@ -4,6 +4,9 @@ import { ActionMenu } from '../../components/action-menu';
 import { Icon, type IconName } from '../../components/icon';
 import { Page } from '../../components/page';
 import { Badge } from '../../components/ui';
+import { formatMoney } from '../../lib/money';
+import { verticalCopy, type VerticalCopy } from '../../lib/vertical-copy';
+import type { WebVertical } from '../../lib/vertical-landing';
 
 /**
  * Хаб «Маркетинг» (MKT2, ADR-149; макет Marketing 2.0 владельца 09.10.2026, plans/mkt10-marketing-2-audit-2026-10-09.md):
@@ -23,15 +26,15 @@ interface Module {
   caps: string[];
 }
 
-const MODULES: Module[] = [
+const modules = (c: VerticalCopy): Module[] => [
   {
     key: 'site',
     testId: 'marketing-site',
     title: 'Сайт и SEO',
     icon: 'analytics',
     href: '/marketing/site/editor',
-    text: 'Создайте сайт гостиницы с помощью ИИ, подключите онлайн-бронирование и продвигайте его в поиске.',
-    caps: ['ИИ-конструктор сайта', 'Онлайн-бронирование', 'SEO-оптимизация'],
+    text: `Создайте сайт ${c.businessOf} с помощью ИИ, подключите ${c.onlineAction.toLowerCase()} и продвигайте его в поиске.`,
+    caps: ['ИИ-конструктор сайта', c.onlineAction, 'SEO-оптимизация'],
   },
   {
     // МКТ-В1/В2 (ADR-MKT-B1): учёт бюджета и расходов работает с базой
@@ -67,12 +70,24 @@ const MODULES: Module[] = [
   },
 ];
 
-const RESULTS = [
-  { label: 'Переходы на сайт', icon: 'system' },
-  { label: 'Заявки на бронирование', icon: 'guests' },
-  { label: 'Потрачено на рекламу', icon: 'money' },
-  { label: 'Доход с рекламы', icon: 'analytics' },
-] satisfies { label: string; icon: IconName }[];
+/** Сводка бюджета филиала за текущий месяц: читает страница хаба, у хаба своих запросов нет */
+export interface HubSpend {
+  month: string;
+  spentMinor: string;
+  planMinor: string | null;
+  currency: string;
+}
+
+type ResultKey = 'visits' | 'requests' | 'spent' | 'income';
+const results = (c: VerticalCopy): { key: ResultKey; label: string; icon: IconName }[] => [
+  { key: 'visits', label: 'Переходы на сайт', icon: 'system' },
+  { key: 'requests', label: c.requests, icon: 'guests' },
+  { key: 'spent', label: 'Потрачено на рекламу', icon: 'money' },
+  { key: 'income', label: 'Доход с рекламы', icon: 'analytics' },
+];
+
+const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+const monthWord = (month: string) => MONTHS[Number(month.slice(5, 7)) - 1] ?? month;
 
 const SITE_MENU = [
   { label: 'Публикация', href: '/marketing/site' },
@@ -85,12 +100,16 @@ const BUDGET_MENU = [
   { label: 'Аналитика маркетинга', href: '/marketing/analytics' },
 ];
 
-/** Живые модули гостиницы; у салона и ресторана они пока «Скоро» (экраны закрыты `requireVertical`) */
-const LIVE = new Set<Module['key']>(['site', 'budget']);
+/**
+ * Живые модули по направлению. Бюджет ведётся по филиалу любого направления (API `/marketing/budget` от вертикали не
+ * зависит). Конструктор сайта API пока принимает только у гостиницы (`marketing-site/scope.ts`), поэтому у салона и
+ * ресторана он «Скоро» без ссылки, а не открытый экран с ошибкой 403.
+ */
+export function liveModules(vertical: WebVertical): Set<Module['key']> {
+  return new Set<Module['key']>(vertical === 'HOSPITALITY' ? ['site', 'budget'] : ['budget']);
+}
 
-function ModuleCard({ module, hospitality }: { module: Module; hospitality: boolean }) {
-  const live = LIVE.has(module.key) && hospitality;
-  const soonForVertical = LIVE.has(module.key) && !hospitality;
+function ModuleCard({ module, live, soonForVertical }: { module: Module; live: boolean; soonForVertical: boolean }) {
   const headingId = `${module.testId}-title`;
   return (
     <section
@@ -109,11 +128,9 @@ function ModuleCard({ module, hospitality }: { module: Module; hospitality: bool
           </Badge>
         </div>
         <p className="marketing-module__text">
-          {module.key === 'site' && !hospitality
-            ? 'Сайт вашего бизнеса, онлайн-запись и продвижение в поиске. Модуль готовится к подключению.'
-            : module.key === 'budget' && !hospitality
-              ? 'План рекламного бюджета и расходы по каналам. Модуль готовится к подключению.'
-              : module.text}
+          {soonForVertical
+            ? `${module.text} Для этого направления модуль готовится к подключению.`
+            : module.text}
         </p>
         <ul className="marketing-module__caps">
           {module.caps.map((cap) => (
@@ -147,26 +164,38 @@ function ModuleCard({ module, hospitality }: { module: Module; hospitality: bool
 
 export function MarketingHub({
   vertical,
+  spend = null,
 }: {
-  vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
+  vertical: WebVertical;
+  /** расходы месяца из бюджета филиала; null: бюджет не прочитан (нет филиала или ошибка) */
+  spend?: HubSpend | null;
 }) {
   const hospitality = vertical === 'HOSPITALITY';
+  const copy = verticalCopy(vertical);
+  const live = liveModules(vertical);
+  // Реклама и контент пока «Скоро» у всех направлений; ссылка на экран-превью есть, кнопок действий нет
+  const PREVIEW = new Set<Module['key']>(['ads', 'content']);
+  const value = (key: ResultKey) => {
+    if (key === 'spent' && spend) return formatMoney(spend.spentMinor, spend.currency);
+    return 'Нет данных';
+  };
   return (
     <Page
       title="Маркетинг"
-      subtitle={
-        hospitality
-          ? 'Привлекайте гостей, автоматизируйте рекламу и развивайте бренд с помощью ИИ.'
-          : 'Привлекайте клиентов и развивайте бренд вашего бизнеса с помощью ИИ.'
-      }
+      subtitle={`Привлекайте ${copy.clientsAcc}, ведите рекламный бюджет и развивайте бренд ${copy.businessOf} с помощью ИИ.`}
     >
       <div
         className="marketing-hub"
         data-testid={hospitality ? 'marketing-hub' : 'business-marketing'}
       >
         <div className="marketing-hub__modules">
-          {MODULES.map((m) => (
-            <ModuleCard key={m.key} module={m} hospitality={hospitality} />
+          {modules(copy).map((m) => (
+            <ModuleCard
+              key={m.key}
+              module={m}
+              live={live.has(m.key)}
+              soonForVertical={!live.has(m.key) && !PREVIEW.has(m.key)}
+            />
           ))}
         </div>
         <aside className="marketing-hub__aside">
@@ -175,26 +204,28 @@ export function MarketingHub({
             aria-labelledby="marketing-results-title"
             data-testid="marketing-results"
           >
-            <h2 id="marketing-results-title">Результаты за 30 дней</h2>
+            <h2 id="marketing-results-title">
+              {spend ? `Результаты за ${monthWord(spend.month)}` : 'Результаты за месяц'}
+            </h2>
             <dl className="marketing-results__list">
-              {RESULTS.map(({ label: originalLabel, icon }) => (
-                <div
-                  key={originalLabel}
-                  className="marketing-results__row"
-                  data-testid="marketing-result"
-                >
+              {results(copy).map(({ key, label, icon }) => (
+                <div key={key} className="marketing-results__row" data-testid="marketing-result">
                   <span className="marketing-results__mark" aria-hidden="true">
                     <Icon name={icon} width={18} />
                   </span>
-                  <dt>
-                    {!hospitality && originalLabel === 'Заявки на бронирование'
-                      ? 'Заявки клиентов'
-                      : originalLabel}
-                  </dt>
-                  <dd>Нет данных</dd>
+                  <dt>{label}</dt>
+                  <dd data-testid={`marketing-result-${key}`} className={value(key) === 'Нет данных' ? 'muted' : undefined}>
+                    {value(key)}
+                  </dd>
                 </div>
               ))}
             </dl>
+            {spend?.planMinor && (
+              <p className="marketing-results__note" data-testid="marketing-plan">
+                План месяца: {formatMoney(spend.planMinor, spend.currency)}.{' '}
+                <Link href="/marketing/budget">Открыть бюджет</Link>
+              </p>
+            )}
             <p className="marketing-results__note">
               {hospitality ? (
                 <>
@@ -205,7 +236,7 @@ export function MarketingHub({
                   Показатели филиала: <Link href="/management/analytics">Аналитика</Link>.
                 </>
               )}{' '}
-              Расходы и доход появятся после подключения рекламы.
+              Переходы и доход с рекламы появятся после подключения рекламных кабинетов.
             </p>
           </section>
           <section className="panel marketing-start" aria-labelledby="marketing-start-title">
@@ -214,25 +245,20 @@ export function MarketingHub({
                 <Icon name="send" />
               </span>
               <div className="marketing-start__body">
-                <h2 id="marketing-start-title">Больше гостей, меньше рутины</h2>
+                <h2 id="marketing-start-title">Больше {copy.clientsAcc}, меньше рутины</h2>
                 <p>
-                  Сайт, реклама и контент в одном рабочем пространстве. Доступность указана в каждом
-                  модуле.
+                  {hospitality
+                    ? 'Сайт, реклама и контент в одном рабочем пространстве. Доступность указана в каждом модуле.'
+                    : 'Начните с бюджета: внесите план месяца и расходы по каналам, аналитика посчитает остальное.'}
                 </p>
               </div>
             </div>
-            {hospitality ? (
-              <Link
-                className="btn btn--secondary marketing-start__cta"
-                href="/marketing/site/editor"
-              >
-                Начать с сайта
-              </Link>
-            ) : (
-              <Link className="btn btn--secondary marketing-start__cta" href="/customers">
-                Открыть клиентов
-              </Link>
-            )}
+            <Link
+              className="btn btn--secondary marketing-start__cta"
+              href={hospitality ? '/marketing/site/editor' : '/marketing/budget'}
+            >
+              {hospitality ? 'Начать с сайта' : 'Открыть бюджет'}
+            </Link>
           </section>
         </aside>
       </div>

@@ -168,9 +168,6 @@ export default async function RootLayout({
           <Suspense fallback={null}>
             <ScopeGate />
           </Suspense>
-          <Suspense fallback={null}>
-            <OnboardingGate />
-          </Suspense>
           <ThemeProvider>
             <PropertyTimeProvider timezone={timezone}>
               {/* кто вошёл — кнопкам и закрытым по роли страницам (ADR-107): то же обещание, что у меню */}
@@ -199,6 +196,10 @@ export default async function RootLayout({
                       ),
                     }}
                   >
+                    {/* под шапкой, а не до неё: ссылка «К содержимому» остаётся первой (axe region) */}
+                    <Suspense fallback={null}>
+                      <OnboardingGate />
+                    </Suspense>
                     <AccessGate>{children}</AccessGate>
                   </TopNav>
                   {drawer}

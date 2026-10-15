@@ -46,7 +46,7 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await panel.getByLabel(/Длительность, минут/).fill('60');
   await panel.getByLabel(/Цена каталога, тиын/).fill('800000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуга добавлена');
+  await expect(panel.getByRole('status')).toContainText('Услуга создана');
   await page.goto('/beauty/services');
   await main
     .getByRole('row')

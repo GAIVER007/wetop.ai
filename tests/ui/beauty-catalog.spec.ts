@@ -41,7 +41,7 @@ async function addService(page: Page, name: string, minutes: string, priceMinor:
   await panel.getByLabel(/Длительность, минут/).fill(minutes);
   await panel.getByLabel(/Цена каталога, тиын/).fill(priceMinor);
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуга добавлена');
+  await expect(panel.getByRole('status')).toContainText('Услуга создана');
 }
 
 test('услуга каталога добавляется и видна в списке', async ({ page, request }) => {

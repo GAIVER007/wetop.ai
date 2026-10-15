@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 15.10.2026 15:30 Алматы · vm
+# коммит 9c351db (claude/release-ui-shards-20261015), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/beauty-customers.spec.ts' 'tests/ui/beauty-journal.spec.ts' 'tests/ui/a28-ui-transitions.spec.ts' 'tests/ui/onboarding.spec.ts' 'tests/ui/a11y.spec.ts' '--workers=2'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 32 tests using 2 workers
+
+  ✓   2 [main-ui-1] › ../.wetop-main-ui-4R5xgm/worker-1/tests/ui/a28-ui-transitions.spec.ts:36:1 › A28 cash: hydration preserves a native date edited before client scripts load (6.6s)
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-catalog.spec.ts:47:1 › услуга каталога добавляется и видна в списке (15.7s)
+  ✓   3 [main-ui-1] › ../.wetop-main-ui-4R5xgm/worker-1/tests/ui/a28-ui-transitions.spec.ts:71:1 › A28 cash: valid invalid valid periods and history preserve applied values (11.7s)
+  ✓   5 [main-ui-1] › ../.wetop-main-ui-4R5xgm/worker-1/tests/ui/a28-ui-transitions.spec.ts:103:1 › A28 channels: delayed synthetic API keeps the current page heading through refresh (7.6s)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-catalog.spec.ts:60:1 › филиал включает услугу и ставит свою цену (13.4s)
+  ✓   7 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-catalog.spec.ts:83:1 › ошибки услуги словами, введённое не стирается (8.7s)
+  ✓   8 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-catalog.spec.ts:98:1 › мастер добавляется, умения ставятся и снимаются (19.8s)
+  ✓   6 [main-ui-1] › ../.wetop-main-ui-4R5xgm/worker-1/tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE (37.1s)
+  ✓   9 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-catalog.spec.ts:138:1 › каталог салона на телефоне: без прокрутки вбок (11.2s)
+  ✓  11 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-catalog.spec.ts:157:3 › каталог салона доступен в светлой теме (13.3s)
+  ✓  10 [main-ui-1] › ../.wetop-main-ui-4R5xgm/worker-1/tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано (31.4s)
+  ✓  12 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-catalog.spec.ts:157:3 › каталог салона доступен в тёмной теме (14.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:99:1 › запись из пустой клетки появляется в сетке и в списке дня (24.0s)
+  ✓  13 [main-ui-1] › ../.wetop-main-ui-4R5xgm/worker-1/tests/ui/beauty-customers.spec.ts:157:1 › клиенты на телефоне: без прокрутки вбок (31.1s)
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:115:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок (28.6s)
+  ✓  16 [main-ui-1] › ../.wetop-main-ui-4R5xgm/worker-1/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме (33.4s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:140:1 › перенос мышью меняет время записи через существующий API (20.9s)
+  ✓  18 [main-ui-1] › ../.wetop-main-ui-4R5xgm/worker-1/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме (32.2s)
+  ✓  19 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:153:1 › занятое время мастера не предлагается и отказ приходит словами (22.0s)
+  ✓  20 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:166:1 › вне графика мастера клетки нерабочие (15.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  21 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:173:1 › состояния записи идут по жизни, из выполненной дороги нет (20.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  22 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:197:1 › отмена спрашивает и освобождает время мастера (18.8s)
+  ✓  23 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:219:1 › перенос меняет время записи (18.2s)
+  ✓  24 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:235:1 › журнал на телефоне: день списком, без прокрутки вбок (16.8s)
+  ✓  25 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:250:3 › журнал доступен в светлой теме (18.2s)
+  ✓  26 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/beauty-journal.spec.ts:250:3 › журнал доступен в тёмной теме (17.4s)
+  ✓  27 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/onboarding.spec.ts:20:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (4.3s)
+  ✓  28 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) (3.9s)
+  ✓  29 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/onboarding.spec.ts:67:1 › пустая категория без цены — форма просит добавить, отель не создаётся (1.7s)
+  ✓  30 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/onboarding.spec.ts:80:1 › после запуска отеля «Финансы» без «Первых шагов» и без кнопки брони (3.6s)
+  ✓  31 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/onboarding.spec.ts:103:1 › у работающего отеля с бронями «Первых шагов» нет (1.6s)
+  ✓  32 [main-ui-0] › ../.wetop-main-ui-4R5xgm/worker-0/tests/ui/onboarding.spec.ts:114:1 › «Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу (5.7s)
+
+  32 passed (6.3m)
+
+# код выхода 0 · 6 мин 22 с

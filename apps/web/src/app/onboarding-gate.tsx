@@ -24,18 +24,19 @@ export async function OnboardingGate() {
       const state = await sharedOnboardingApi.status();
       if (state.completedAt && !state.readiness?.ready)
         return (
-          <aside className="alert" role="status">
-            <p>Настройка салона требует проверки. Рабочее пространство доступно.</p>
+          // выводится до шапки, вне ориентиров страницы: свой именованный раздел, иначе axe `region`
+          <section className="alert" aria-label="Готовность салона">
+            <p role="status">Настройка салона требует проверки. Рабочее пространство доступно.</p>
             <a href="/register/setup">Проверить услуги, мастеров и график</a>
-          </aside>
+          </section>
         );
     } catch (error) {
       if (!(error instanceof ApiError)) throw error;
       return (
-        <aside className="alert" role="status">
-          <p>Не удалось проверить готовность салона.</p>
+        <section className="alert" aria-label="Готовность салона">
+          <p role="status">Не удалось проверить готовность салона.</p>
           <a href="/register/setup">Повторить проверку</a>
-        </aside>
+        </section>
       );
     }
     return null;

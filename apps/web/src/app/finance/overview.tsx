@@ -355,11 +355,13 @@ export function PaymentMethods({
 }
 
 export async function TodayCard({
+  showDebts = true,
   date,
   debts,
   period,
   currency,
 }: {
+  showDebts?: boolean;
   date: string;
   debts: PeriodDebts | null;
   period: string;
@@ -405,7 +407,7 @@ export async function TodayCard({
           </Link>
         ))}
       </div>
-      {debts && debts.count > 0 && (
+      {showDebts && debts && debts.count > 0 && (
         <Link href={`${period}#debts`} className="biz-today__debts">
           <span className="biz-today__icon" aria-hidden="true">
             <Icon name="card" />

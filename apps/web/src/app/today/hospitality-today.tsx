@@ -9,6 +9,7 @@ import { AttentionPlaceholder, OwnerPlaceholder } from '../finance/owner-loading
 import '../finance/owner-dashboard.css';
 import '../finance/attention.css';
 import '../finance/overview.css';
+import './hospitality-home.css';
 
 /**
  * Главная гостиницы (решение владельца 13.10.2026, поверх ADR-152): «Финансы» по эталону стали чисто
@@ -25,7 +26,7 @@ export async function HospitalityToday() {
       subtitle="Загрузка, события дня и задачи объекта"
       width="full"
     >
-      <div className="biz-overview" data-testid="owner-dashboard">
+      <div className="biz-overview hospitality-home" data-testid="owner-dashboard">
         <div className="biz-row biz-row--two">
           <Suspense
             fallback={
@@ -45,6 +46,7 @@ export async function HospitalityToday() {
           >
             <TodayCard
               date={cal.today}
+              showDebts={false}
               debts={debts}
               period={period}
               currency={debts?.currency ?? 'KZT'}

@@ -3,7 +3,7 @@ import { landingForVertical } from '../../lib/vertical-landing';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { branchesApi, ApiError, authApi } from '../../lib/api';
-import { branchDestination } from '../../lib/branch-destination';
+import { SHARED_BRANCH_DESTINATIONS, branchDestination } from '../../lib/branch-destination';
 import { setScopeCookie } from '../../lib/session';
 
 export async function selectBranch(form: FormData) {
@@ -16,12 +16,12 @@ export async function selectBranch(form: FormData) {
   if (branch.vertical !== 'HOSPITALITY') {
     const destination = branchDestination(String(form.get('returnTo') ?? ''));
     redirect(
-      destination === '/management/analytics' ? destination : landingForVertical(branch.vertical),
+      SHARED_BRANCH_DESTINATIONS.has(destination) ? destination : landingForVertical(branch.vertical),
     );
   }
   const destination = branchDestination(String(form.get('returnTo') ?? ''));
   redirect(
-    branch._count.inventoryUnits || destination === '/hotel-settings'
+    branch._count.inventoryUnits || destination === '/hotel-settings' || destination === '/marketing/site/editor'
       ? destination
       : '/onboarding',
   );

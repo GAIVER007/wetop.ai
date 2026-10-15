@@ -3,6 +3,7 @@ import { registrationBusiness } from '../../apps/api/src/auth/registration-contr
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { barFixture, resetBarFixture } from './bar-fixture';
 import {
+  fixtureSiteStatus,
   marketingSiteFixture,
   platformSiteBuilderFixture,
   resetMarketingSiteFixture,
@@ -5437,6 +5438,90 @@ interface FixtureTimeOff {
 }
 const fixtureBeautyServices: FixtureBeautyService[] = [];
 const fixtureBeautyEmployees: FixtureBeautyEmployee[] = [];
+
+/**
+ * Факты филиала для первого экрана «Сайт и SEO» (SITE-1, контракт `apps/web/src/lib/site-facts.ts`): гостиница из
+ * брифа стенда, салон из услуг и мастеров стенда, ресторан из вымышленного меню (ADR-010)
+ */
+function siteFactsFixture(branch: Record<string, unknown>, vertical: string) {
+  const location = {
+    id: String(branch['locationId']),
+    name: vertical === 'HOSPITALITY' ? 'Luxx Aparts' : String(branch['name']),
+    address: vertical === 'HOSPITALITY' ? 'ул. Вымышленная, 1' : ((branch['address'] as string | null) ?? null),
+    phone: vertical === 'HOSPITALITY' ? '+77000000000' : null,
+    whatsapp: null,
+    city: 'Алматы',
+  };
+  if (vertical === 'BEAUTY') {
+    const items = fixtureBeautyServices
+      .filter((s) => s.active && s.location?.enabled)
+      .map((s) => ({
+        name: s.name,
+        price: s.location?.priceOverrideMinor ?? s.priceMinor,
+        durationMin: s.location?.durationOverrideMinutes ?? s.durationMinutes,
+        ...(s.category ? { category: s.category } : {}),
+      }));
+    const staff = fixtureBeautyEmployees.filter((e) => e.active && e.locationIds.includes(location.id)).map((e) => ({ name: e.name }));
+    return {
+      vertical,
+      location,
+      catalog: { kind: 'services', items },
+      staff,
+      hours: ['Пн 10:00–20:00', 'Вт 10:00–20:00', 'Ср 10:00–20:00', 'Чт 10:00–20:00', 'Пт 10:00–20:00', 'Сб 11:00–18:00'],
+      photosCount: 0,
+      reviews: null,
+      gaps: [
+        { key: 'phone', label: 'Нет телефона: посетитель не сможет позвонить', href: '/branches' },
+        ...(items.length ? [] : [{ key: 'catalog', label: 'Нет услуг с ценой в этом филиале', href: '/services' }]),
+        ...(staff.length ? [] : [{ key: 'staff', label: 'Нет мастеров: блок «Мастера» не появится', href: '/employees' }]),
+        { key: 'photos', label: 'Нет фото: сайт соберётся без галереи', href: '/marketing/site/assets' },
+      ],
+    };
+  }
+  if (vertical === 'FOOD_SERVICE')
+    return {
+      vertical,
+      location,
+      catalog: {
+        kind: 'menu',
+        items: [
+          { name: 'Бешбармак', price: 450000, category: 'Горячее' },
+          { name: 'Лагман', price: 320000, category: 'Горячее' },
+          { name: 'Баурсаки', price: 90000, category: 'К чаю' },
+          { name: 'Бизнес-ланч', price: 280000, category: 'Обед' },
+        ],
+      },
+      staff: [],
+      hours: ['Пн–Пт 12:00–23:00', 'Сб–Вс 11:00–00:00'],
+      photosCount: 0,
+      reviews: null,
+      gaps: [
+        { key: 'phone', label: 'Нет телефона: посетитель не сможет позвонить', href: '/branches' },
+        { key: 'photos', label: 'Нет фото: сайт соберётся без галереи', href: '/menu' },
+      ],
+    };
+  return {
+    vertical: 'HOSPITALITY',
+    location,
+    catalog: {
+      kind: 'rooms',
+      items: [
+        { name: 'Стандарт', priceFrom: 1850000 },
+        { name: 'Койка в общем номере', priceFrom: 650000 },
+        { name: 'Семейный', priceFrom: 2900000 },
+        { name: 'Люкс', priceFrom: 4200000 },
+        { name: 'Двухместный эконом', priceFrom: 1400000 },
+        { name: 'Апартаменты', priceFrom: 3600000 },
+        { name: 'Четырёхместный', priceFrom: 2400000 },
+      ],
+    },
+    staff: [],
+    hours: 'Заезд с 14:00, выезд до 12:00',
+    photosCount: 3,
+    reviews: { avg: 4.7, count: 128 },
+    gaps: [{ key: 'whatsapp', label: 'Нет WhatsApp: кнопки «Написать» на сайте не будет', href: '/hotel-settings' }],
+  };
+}
 const fixtureBeautyHours: FixtureWorkingInterval[] = [];
 function clockMin(value: string): number {
   const [hh, mm] = value.split(':');
@@ -5534,8 +5619,33 @@ createServer(async (req, res) => {
     }
     const assetsResponse = siteAssetsFixture(path, req.method ?? 'GET', body, raw);
     if (assetsResponse) return send(assetsResponse.status, assetsResponse.data);
-    const siteResponse = marketingSiteFixture(path, req.method ?? 'GET', body, url.searchParams);
-    if (siteResponse) return send(siteResponse.status, siteResponse.data);
+    // SITE-1: филиал запроса по указателю, как у настоящего scope; без указателя стенд отвечает за гостиницу
+    const sitePointer = String(req.headers['x-wetop-scope'] ?? '');
+    const siteBranch =
+      [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches].find((b) => sitePointer.endsWith(`location=${String(b.locationId)}`)) ??
+      DEFAULT_FIXTURE_BRANCH;
+    const siteVertical = String((siteBranch as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY');
+    const siteRoute = marketingSiteFixture(path, req.method ?? 'GET', body, url.searchParams, siteVertical);
+    if (siteRoute) return send(siteRoute.status, siteRoute.data);
+    if (req.method === 'GET' && path === '/marketing/site/locations')
+      return send(
+        200,
+        [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches]
+          .filter((b) => !fixtureArchivedLocations.has(String(b.locationId)))
+          .map((b) => ({
+            id: String(b.locationId),
+            name: String(b.name),
+            vertical: String(b.vertical ?? 'HOSPITALITY'),
+            // сайт стенда один и гостиничный: у остальных филиалов сайта нет
+            siteStatus: b === DEFAULT_FIXTURE_BRANCH ? fixtureSiteStatus() : 'NONE',
+          })),
+      );
+    if (req.method === 'GET' && path === '/marketing/site/facts') {
+      const asked = url.searchParams.get('locationId');
+      if (asked && asked !== String(siteBranch.locationId))
+        return send(403, { message: 'Факты доступны только выбранного филиала: выберите филиал заново' });
+      return send(200, siteFactsFixture(siteBranch as Record<string, unknown>, siteVertical));
+    }
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (marketResponse) return send(marketResponse[0], marketResponse[1]);
     const budgetResponse = marketingBudgetRoute(path, req.method ?? 'GET', url.searchParams, body);

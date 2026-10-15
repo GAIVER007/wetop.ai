@@ -27,6 +27,7 @@ import { SiteBriefService } from './brief.service';
 import { GENERATION_BOT, type GenerationBot } from './generation.bot';
 import { assertSiteBuilderWrite, siteScope, siteTransaction, type SiteScope } from './scope';
 import { assertHourlyLimit, assertNoActiveSiteAi, assertUsageKnown } from './ai-guards';
+import { designAudit, parseDesignChoice, type DesignChoice } from './design-choice';
 
 /**
  * Постановка и статус генерации сайта ИИ (MKT6, `docs/marketing/site-generation-v0.md`). Запрос человека только ставит
@@ -88,8 +89,11 @@ export interface BuildParams {
   baseVersionId: string | null;
   instruction: string | null;
   target: { pageId: string; sectionId: string } | null;
-  /** INITIAL: выбранное направление оформления из разговора (id задачи DESIGN и id направления) */
-  design?: { runId: string; directionId: string } | null;
+  /**
+   * INITIAL: выбранное направление оформления: из разговора (id задачи DESIGN и id направления) или готовое из набора
+   * домена (SITE-1, `designPresetId`)
+   */
+  design?: DesignChoice | null;
   /** Одобрение плана: задача сборки ставится по плану, база должна совпасть с базой плана */
   planBaseVersionId?: string | null;
 }
@@ -129,7 +133,7 @@ export class SiteGenerationService {
     const input = strictBody(
       body,
       type === 'INITIAL'
-        ? ['requestKey', 'expectedBriefHash', 'type', 'instruction', 'designRunId', 'designId']
+        ? ['requestKey', 'expectedBriefHash', 'type', 'instruction', 'designRunId', 'designId', 'designPresetId']
         : type === 'PATCH'
           ? ['requestKey', 'type', 'baseVersionId', 'instruction']
           : ['requestKey', 'type', 'baseVersionId', 'pageId', 'sectionId', 'instruction'],
@@ -140,7 +144,7 @@ export class SiteGenerationService {
     let baseVersionId: string | null = null;
     let instruction: string | null;
     let target: { pageId: string; sectionId: string } | null = null;
-    let design: { runId: string; directionId: string } | null = null;
+    let design: DesignChoice | null = null;
     if (type === 'INITIAL') {
       if (typeof input['expectedBriefHash'] !== 'string' || !HASH_RE.test(input['expectedBriefHash']))
         throw new BadRequestException('expectedBriefHash: sha256 в нижнем регистре');
@@ -149,12 +153,9 @@ export class SiteGenerationService {
       const wishes = parseEditInstruction(input['instruction'], PATCH_INSTRUCTION_MAX, true);
       if (!wishes.ok) throw new BadRequestException(wishes.message);
       instruction = wishes.text;
-      // MKT9.2: выбранное направление оформления берётся из ответа ИИ на сервере, браузер передаёт только id
-      if (input['designRunId'] !== undefined || input['designId'] !== undefined) {
-        if (typeof input['designRunId'] !== 'string' || !UUID_RE.test(input['designRunId']) || typeof input['designId'] !== 'string' || !/^[a-z0-9][a-z0-9-]{0,47}$/.test(input['designId']))
-          throw new BadRequestException('designRunId и designId: выбранное оформление');
-        design = { runId: input['designRunId'].toLowerCase(), directionId: input['designId'] };
-      }
+      // MKT9.2 и SITE-1: направление оформления берётся на сервере (из ответа ИИ или из набора домена), браузер
+      // передаёт только id
+      design = parseDesignChoice(input);
     } else {
       if (typeof input['baseVersionId'] !== 'string' || !UUID_RE.test(input['baseVersionId']))
         throw new BadRequestException('baseVersionId: id версии');
@@ -223,7 +224,8 @@ export class SiteGenerationService {
           throw new ConflictException({ code: 'UNKNOWN_SECTION', message: 'Такой секции на этой странице нет' });
       }
       let instruction = p.instruction;
-      if (p.design) instruction = await this.designEnvelope(tx, site.id, p.design, p.instruction);
+      if (p.design)
+        instruction = 'preset' in p.design ? encodeDesignInstruction(p.design.preset, p.instruction) : await this.designEnvelope(tx, site.id, p.design, p.instruction);
       await assertNoActiveSiteAi(tx, site.id);
       const userId = currentUserId();
       const now = new Date();
@@ -257,7 +259,7 @@ export class SiteGenerationService {
             briefHash: brief.briefHash,
             ...(p.baseVersionId ? { baseVersionId: p.baseVersionId } : {}),
             ...(p.target ? { pageId: p.target.pageId, sectionId: p.target.sectionId } : {}),
-            ...(p.design ? { designRunId: p.design.runId, designId: p.design.directionId } : {}),
+            ...designAudit(p.design),
             ...(p.planBaseVersionId !== undefined ? { fromPlan: true } : {}),
           },
         },

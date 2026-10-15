@@ -2197,6 +2197,10 @@ export const marketingSiteApi = {
     sendJson<{ site: { id: string; state: 'ARCHIVED' } }>('POST', '/marketing/site/archive', {}),
   setBookingSource: (trackedSiteId: string | null) =>
     sendJson<BookingSourceView>('PUT', '/marketing/site/booking-source', { trackedSiteId }),
+  /** SITE-1: факты филиала и филиалы со статусом сайта (контракт `lib/site-facts.ts`); 404 до выкладки API */
+  facts: (locationId: string) =>
+    getJson<import('./site-facts').SiteFacts>(`/marketing/site/facts?locationId=${encodeURIComponent(locationId)}`),
+  locations: () => getJson<import('./site-facts').SiteLocation[]>('/marketing/site/locations'),
 };
 
 /** MKT8: изображение библиотеки сайта; ключа объекта и адреса бакета нет, только подписанный адрес на срок */

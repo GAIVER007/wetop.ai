@@ -1033,43 +1033,135 @@
   .ed-diff,
   .ed-history {
     padding: var(--space-4);
-  } /* Окно «Какой сайт сделать?» (MKT9): одна крупная строка ввода по центру, примеры чипами, шаги создания */
-  .create-site {
+  } /* Первый экран «Сайт и SEO» (SITE-1, как Lovable): слева филиал и чат, справа факты филиала, ниже три дизайна.
+   На телефоне одна колонка: филиал, чат, факты, дизайны */
+  .site-start {
     display: grid;
     gap: var(--space-4);
-    max-width: 960px;
-    margin: var(--space-8) auto;
-    text-align: center;
   }
-  .create-site__title {
+  .site-start__head {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .site-start__head p {
+    margin: 0;
+  }
+  .site-start__title {
     margin: 0;
     font-size: var(--text-3xl);
   }
-  .create-site__lead {
-    margin: 0;
-    color: var(--text-2);
+  .site-start__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      'locations facts'
+      'chat facts'
+      'designs designs';
+    gap: var(--space-4);
+    align-items: start;
   }
-  .create-site__box {
+  .site-start__locations {
+    grid-area: locations;
+  }
+  .site-chat {
+    grid-area: chat;
+  }
+  .site-facts {
+    grid-area: facts;
+  }
+  .site-start__designs {
+    grid-area: designs;
+  }
+  .site-start__step {
+    margin: 0 0 var(--space-2);
+    padding: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+  }
+  .site-locations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .site-location {
+    display: grid;
+    gap: var(--space-1);
+    min-height: var(--touch-target);
+    min-width: 200px;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .site-location:hover {
+    background: var(--row-hover);
+  }
+  .site-location:focus-visible {
+    outline: var(--focus-ring-w) solid var(--focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .site-location:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .site-location.is-current {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  .site-location__name {
+    font-weight: var(--weight-semibold);
+  }
+  .site-location__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .site-location__current {
+    color: var(--primary);
+    font-weight: var(--weight-medium);
+  }
+  .site-chat {
     display: grid;
     gap: var(--space-2);
     padding: var(--space-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--surface);
-    text-align: left;
   }
-  .create-site__box:focus-within {
+  .site-chat:focus-within {
     border-color: var(--primary);
   }
-  .create-site__text {
+  .site-chat__text {
     width: 100%;
-    min-height: 120px;
-    border: 0;
-    background: transparent;
+    min-height: 140px;
+    padding: var(--space-2);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
     font-size: var(--text-lg);
     resize: vertical;
   }
-  .create-site__bar {
+  .site-chat__text:focus-visible {
+    border-color: var(--primary);
+    outline: var(--focus-ring-w) solid var(--focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .site-chat__chips .chip {
+    min-height: var(--touch-target);
+  }
+  .site-chat__bar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -1077,22 +1169,205 @@
     gap: var(--space-2);
     font-size: var(--text-sm);
   }
-  .create-site__label {
-    font-weight: 600;
-    text-align: left;
+  .site-chat__voice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
   }
-  .create-site__facts {
-    max-width: 640px;
-    margin: 0 auto;
-    text-align: left;
+  .site-chat__voice .btn,
+  .site-chat__lang {
+    min-height: var(--touch-target);
+  }
+  .site-chat__lang {
+    width: auto;
+  }
+  .site-facts {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4);
     font-size: var(--text-sm);
   }
-  .create-site__facts ul {
+  .site-facts__title {
+    margin: 0;
+    font-size: var(--text-lg);
+  }
+  .site-facts__block {
     display: grid;
     gap: var(--space-1);
-    margin: var(--space-1) 0 0;
+  }
+  .site-facts__block h4 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .site-facts__block p {
+    margin: 0;
+  }
+  .site-facts__list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+  }
+  .site-facts__row {
+    display: grid;
+    grid-template-columns: minmax(96px, 1fr) minmax(0, 2fr);
+    gap: var(--space-2);
+  }
+  .site-facts__row dt {
+    color: var(--text-2);
+  }
+  .site-facts__row dd {
+    display: grid;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .site-facts__items,
+  .site-facts__gaps ul {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
     padding: 0;
     list-style: none;
+  }
+  .site-facts__items li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-1) 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .site-facts__price {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .site-facts__gaps li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .site-facts__gaps .btn {
+    min-height: var(--touch-target);
+  }
+  .site-start__designs {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .site-start__designs > p {
+    margin: 0;
+  }
+  .site-design__cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .site-design {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    cursor: pointer;
+  }
+  .site-design:hover {
+    background: var(--row-hover);
+  }
+  .site-design.is-on {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+  .site-design.is-off {
+    cursor: not-allowed;
+  }
+  .site-design:focus-within {
+    outline: var(--focus-ring-w) solid var(--focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .site-design__radio {
+    position: absolute;
+    opacity: 0;
+  }
+  /* превью: документ сайта шириной в 2,5 карточки, уменьшенный в 2,5 раза; щелчки идут в карточку */
+  .site-design__shot {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .site-design__frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 250%;
+    height: 250%;
+    border: 0;
+    transform: scale(0.4);
+    transform-origin: 0 0;
+    pointer-events: none;
+  }
+  .site-design__frame--empty {
+    width: 100%;
+    height: 100%;
+    transform: none;
+  }
+  .site-design__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--weight-semibold);
+  }
+  .site-design__text {
+    font-size: var(--text-sm);
+  }
+  .site-start__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+  .site-start__actions .btn {
+    min-height: var(--touch-target);
+  }
+  @media (max-width: 960px) {
+    .site-start__grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: none;
+      grid-template-areas:
+        'locations'
+        'chat'
+        'facts'
+        'designs';
+    }
+    .site-design__cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .site-location {
+      width: 100%;
+    }
+    .site-locations li {
+      flex: 1 1 100%;
+    }
+    .site-start__actions {
+      justify-content: stretch;
+    }
+    .site-start__actions .btn {
+      flex: 1 1 100%;
+    }
   }
 
   /* MKT9.2: полоса проекта, лицензия, режимы ИИ, ход сборки, план, оформление, «Выбор / Текст», закладки */

@@ -521,6 +521,33 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
       const talk = await call(w, 'GET', '/marketing/site/conversation');
       expect(talk.body.items.find((i: { kind: string }) => i.kind === 'BUILD').userText).toBe('Акцент на тишину');
     });
+
+    it('SITE-1: готовое оформление по id без ИИ; неизвестный id и смешение с ответом ИИ: 400', async () => {
+      const w = await world();
+      expect((await call(w, 'POST', '/marketing/site/bootstrap', {})).status).toBe(201);
+      const b = await brief(w);
+      const unknown = await call(w, 'POST', '/marketing/site/generations', { requestKey: randomUUID(), expectedBriefHash: b.briefHash, designPresetId: 'nope' });
+      expect(unknown.status).toBe(400);
+      const mixed = await call(w, 'POST', '/marketing/site/generations', {
+        requestKey: randomUUID(),
+        expectedBriefHash: b.briefHash,
+        designPresetId: 'deep-premium',
+        designRunId: randomUUID(),
+        designId: 'night',
+      });
+      expect(mixed.status).toBe(400);
+      const r = await call(w, 'POST', '/marketing/site/generations', { requestKey: randomUUID(), expectedBriefHash: b.briefHash, instruction: 'Тише', designPresetId: 'deep-premium' });
+      expect(r.status, r.text).toBe(202);
+      fake.state.replies.push({ status: 'ok', spec: specFor(b.input), model: 'openai/a', usage: usage(1000, 300) });
+      await worker.tick();
+      expect(fake.state.generate[0]!['instruction']).toMatch(/Тише[\s\S]*Глубокий премиум/);
+      const done = await genRun(r.body.run.id);
+      expect(done.status).toBe('SUCCEEDED');
+      const v = await db.marketingSiteVersion.findUniqueOrThrow({ where: { id: done.outputVersionId! } });
+      expect((v.spec as Spec).theme).toMatchObject({ preset: 'NIGHT', accent: 'GRAPHITE', typography: 'CLASSIC', radius: 'SHARP' });
+      const audit = await db.auditLog.findFirstOrThrow({ where: { entityType: 'marketing_site', action: 'marketing.site.generation.requested', after: { path: ['runId'], equals: r.body.run.id } } });
+      expect(audit.after).toMatchObject({ designPresetId: 'deep-premium' });
+    });
   });
 
   describe('разговор помнит контекст: история только этого сайта и ответы на вопросы плана', () => {

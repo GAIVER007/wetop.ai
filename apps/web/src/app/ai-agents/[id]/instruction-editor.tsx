@@ -1,10 +1,16 @@
 'use client';
+<<<<<<< HEAD
 import type { BusinessVertical } from '@pms/domain';
 import { useEffect, useRef, useState, useTransition } from 'react';
+=======
+import { useEffect, useState, useTransition } from 'react';
+>>>>>>> wt/site-ui
 import { Alert, Button, Field, Notice, Panel, Row, Stack, Textarea } from '../../../components/ui';
 import type { AgentInstructionPreview, AgentInstructionView } from '../../../lib/api';
+import { appendDictated, useDictation } from '../../../lib/use-dictation';
 import { generateAgentInstruction, saveAgentInstruction } from './actions';
 
+<<<<<<< HEAD
 type Recognition = {
   lang: string; continuous: boolean; interimResults: boolean;
   start(): void; stop(): void; abort(): void;
@@ -17,6 +23,10 @@ export function InstructionEditor({id, initial, readOnly = false, vertical = nul
   const hospitality = vertical === 'HOSPITALITY';
   const placeholder = hospitality ? 'Назови бота Ася. Отвечай дружелюбно и коротко. Рассказывай о правилах отеля и помогай выбрать размещение…' : vertical === 'BEAUTY' ? 'Назови бота Ася. Рассказывай об услугах салона, ценах каталога и длительности. Для записи приглашай администратора.' : vertical === 'FOOD_SERVICE' ? 'Назови бота Ася. Рассказывай о периодах обслуживания ресторана. Для бронирования приглашай администратора.' : 'Опишите стиль общения и когда приглашать сотрудника.';
   const [step, setStep] = useState(initial.saved || !hospitality ? 2 : 1);
+=======
+export function InstructionEditor({id, initial, readOnly = false}: {id: string; initial: AgentInstructionView; readOnly?: boolean}) {
+  const [step, setStep] = useState(initial.saved ? 2 : 1);
+>>>>>>> wt/site-ui
   const [story, setStory] = useState('');
   const [text, setText] = useState(initial.text);
   const [saved, setSaved] = useState(initial.text);
@@ -24,10 +34,13 @@ export function InstructionEditor({id, initial, readOnly = false, vertical = nul
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [pending, startTransition] = useTransition();
-  const [listening, setListening] = useState(false);
-  const recognition = useRef<Recognition | null>(null);
+  // диктовка общим хуком стойки (SITE-1): тот же сервис браузера, что в чате первого экрана сайта
+  const dictation = useDictation({
+    onText: (phrase) => setStory((previous) => appendDictated(previous, phrase, 4000)),
+    onError: setError,
+  });
+  const listening = dictation.listening;
   const dirty = text !== saved;
-  useEffect(() => () => { if (recognition.current) { recognition.current.onend = null; recognition.current.onresult = null; recognition.current.onerror = null; recognition.current.abort(); } }, []);
   useEffect(() => {
     if (!dirty && !story && !preview) return;
     const protect = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
@@ -36,30 +49,12 @@ export function InstructionEditor({id, initial, readOnly = false, vertical = nul
   }, [dirty, story, preview]);
 
   function changeStep(next: number) {
-    if (next !== 1 && listening) {
-      recognition.current?.stop();
-      setListening(false);
-    }
+    if (next !== 1 && listening) dictation.stop();
     setStep(next);
   }
   function dictate() {
-    if (recognition.current && listening) { recognition.current.stop(); return; }
-    const browser = window as typeof window & { SpeechRecognition?: new () => Recognition; webkitSpeechRecognition?: new () => Recognition };
-    const Constructor = browser.SpeechRecognition ?? browser.webkitSpeechRecognition;
-    if (!Constructor) { setError('В этом браузере диктовка недоступна. Введите рассказ текстом или воспользуйтесь системной диктовкой.'); return; }
-    setError('');
-    const recorder = new Constructor(); recognition.current = recorder;
-    recorder.lang = 'ru-RU'; recorder.continuous = true; recorder.interimResults = false;
-    recorder.onresult = (event) => {
-      const parts: string[] = [];
-      for (let index = event.resultIndex; index < event.results.length; index++) {
-        const result = event.results[index]; if (result?.isFinal) parts.push(result[0].transcript);
-      }
-      if (parts.length) setStory(previous => `${previous}${previous ? ' ' : ''}${parts.join(' ')}`.slice(0, 4000));
-    };
-    recorder.onerror = (event) => { setListening(false); setError(event.error === 'not-allowed' ? 'Доступ к микрофону не разрешён. Разрешите его в браузере или введите текст.' : 'Не удалось распознать речь. Проверьте микрофон или продолжите текстом.'); };
-    recorder.onend = () => setListening(false);
-    try { recorder.start(); setListening(true); } catch { setError('Не удалось начать диктовку. Попробуйте ещё раз или введите текст.'); }
+    if (!listening) setError('');
+    dictation.toggle();
   }
   function generate() {
     if (!hospitality) return;

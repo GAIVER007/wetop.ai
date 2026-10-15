@@ -155,7 +155,8 @@ test('салон: продажи, финансы и маркетинг на да
   const marketing = page.getByTestId('business-marketing');
   await expect(marketing).toBeVisible();
   await expect(page.getByTestId('marketing-budget-status')).toHaveText('Доступно');
-  await expect(page.getByTestId('marketing-site-status')).toHaveText('Скоро');
+  // SITE-1: «Сайт и SEO» открыт всем направлениям
+  await expect(page.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(marketing).toContainText('сайт салона');
   await expect(page.getByTestId('marketing-result-spent')).toContainText('63 000');
   await expect(page.getByTestId('marketing-plan')).toContainText('150 000');

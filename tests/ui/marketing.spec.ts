@@ -350,15 +350,15 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await expect(page).toHaveURL(/\/marketing$/);
   const hub = main(page).getByTestId('business-marketing');
   await expect(hub).toBeVisible();
-  // единая система (14.10.2026): бюджет ведётся по филиалу любого направления; конструктор сайта API пока
-  // принимает только у гостиницы, поэтому у салона он «Скоро» без ссылки
+  // единая система (14.10.2026): бюджет ведётся по филиалу любого направления; SITE-1: «Сайт и SEO» открыт всем,
+  // гостиничные экраны сайта (публикация, изображения, бронирование) салону не предлагаются
   await expect(hub.getByTestId('marketing-module')).toHaveCount(5);
-  await expect(hub.getByTestId('marketing-site-status')).toHaveText('Скоро');
+  await expect(hub.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   await expect(
-    hub.getByTestId('marketing-site').getByRole('button', { name: 'Скоро' }),
-  ).toBeDisabled();
-  await expect(hub.locator('a[href^="/website"], a[href^="/marketing/site"]')).toHaveCount(0);
+    hub.getByTestId('marketing-site').getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true }),
+  ).toHaveAttribute('href', '/marketing/site/editor');
+  await expect(hub.locator('a[href^="/website"], a[href="/marketing/site"], a[href^="/marketing/site/assets"]')).toHaveCount(0);
   await expect(
     hub.getByTestId('marketing-budget').getByRole('link', { name: 'Открыть: Бюджет', exact: true }),
   ).toHaveAttribute('href', '/marketing/budget');

@@ -100,3 +100,17 @@ it('opens settings of an empty hotel branch without forcing inventory onboarding
   await expect(selectBranch(form)).rejects.toThrow('redirect:/hotel-settings');
   expect(state.set).toHaveBeenCalledOnce();
 });
+
+it.each(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'])(
+  'SITE-1: выбор филиала %s на экране «Сайт и SEO» остаётся на экране',
+  async (vertical) => {
+    state.list.mockResolvedValue({
+      items: [{ id: 'own', vertical, locationId: 'location', location: { businessId: 'business' }, _count: { inventoryUnits: 0 } }],
+    });
+    const form = new FormData();
+    form.set('id', 'own');
+    form.set('returnTo', '/marketing/site/editor');
+    await expect(selectBranch(form)).rejects.toThrow('redirect:/marketing/site/editor');
+    expect(state.set).toHaveBeenCalledWith('wetop_scope', 'business=business;location=location', expect.anything());
+  },
+);

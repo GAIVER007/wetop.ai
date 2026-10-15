@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmAction, confirmDialog } from './confirm';
+import { confirmAction } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -111,10 +111,16 @@ test('групповая бронь на 2 койки → две клетки ш
   await expect(panel.getByTestId('payment-form')).toHaveCount(0);
   await page.screenshot({ path: 'reports/screenshots/desk-edit-folio-closed.png', fullPage: true });
 
-  // прибрать за собой: бронь отменяется, койки освобождаются
+  // A closed folio rejects cancellation; globalTeardown clears synthetic reservations.
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Подтвердить отмену');
+  const cancellation = page.locator('dialog[open][data-testid="confirm-dialog"]');
+  await cancellation.getByRole('button', { name: 'Подтвердить отмену', exact: true }).click();
+  await expect(cancellation.getByRole('alert')).toContainText(/Счёт .+ закрыт/);
+  await cancellation.getByRole('button', { name: 'Оставить', exact: true }).click();
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Отменена');
+  await expect(rows).toHaveCount(2);
+  await expect(rows).not.toContainText(['Отменена']);
+  await cardTab(page, 'Счета');
+  await expect(panel.getByTestId('folio-closed')).toBeVisible();
 });

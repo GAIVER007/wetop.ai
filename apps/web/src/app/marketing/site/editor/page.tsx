@@ -23,6 +23,7 @@ import { BackToModules } from '../../parts';
 import { SiteEditor } from './editor';
 import { CreateSite } from './create-site';
 import { SimpleSiteEditor } from './simple-editor';
+import { SimpleSiteSetup } from './simple-setup';
 import '../../marketing.css';
 
 /**
@@ -52,9 +53,11 @@ function siteStatusOf(current: MarketingSiteCurrent): SiteStatus {
   return current.site.published ? 'PUBLISHED' : 'DRAFT';
 }
 
-export default async function SiteEditorPage({ searchParams }: { searchParams?: Promise<{ full?: string }> }) {
-  // SITE-1: по умолчанию простой редактор; полный (страницы, блоки, SEO, история) по «Расширенному режиму»
-  const full = (await searchParams)?.full === '1';
+export default async function SiteEditorPage({ searchParams }: { searchParams?: Promise<{ full?: string; chat?: string }> }) {
+  // SITE-1: по умолчанию простой экран из пяти шагов; чат с ИИ (`?chat=1`) и полный редактор (`?full=1`) для своих
+  const params = await searchParams;
+  const full = params?.full === '1';
+  const chat = params?.chat === '1';
   const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const vertical: WebVertical = me.context?.vertical ?? 'HOSPITALITY';
   const locationId = me.context?.locationId ?? null;
@@ -147,6 +150,29 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
           briefHash={loaded.brief?.briefHash ?? null}
           facts={facts}
           locations={locations}
+          readOnly={readOnly}
+        />
+      </Page>
+    );
+  }
+  if (!full && !chat) {
+    const facts = await loadSiteFacts(locationId ?? '', vertical, siteFactsSource(locationId));
+    return (
+      <Page crumbs={<BackToModules />} title="Сайт и SEO" width="full">
+        {!licensed && (
+          <Alert boxed data-testid="ed-license-off">
+            <b>Конструктор сайта не активен для этого филиала.</b> Сайт виден, но менять и публиковать его нельзя. Подключить конструктор может
+            главный администратор WETOP.
+          </Alert>
+        )}
+        <SimpleSiteSetup
+          vertical={vertical}
+          base={{ id: site.latest.id, revision: site.latest.revision, spec: loaded.draft.version.spec }}
+          published={site.published}
+          siteUrl={site.url ?? null}
+          locationName={facts.ok ? facts.data.location.name : locationName}
+          facts={facts.ok ? facts.data : null}
+          assets={loaded.assets}
           readOnly={readOnly}
         />
       </Page>

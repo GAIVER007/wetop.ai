@@ -1,7 +1,7 @@
 'use server';
 import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
-import { ApiError, branchesApi, marketingSiteApi, siteEditorApi, type EditorReply } from '../../../../lib/api';
+import { ApiError, branchesApi, marketingSiteApi, siteAssetsApi, siteEditorApi, type EditorReply, type SiteAssetView } from '../../../../lib/api';
 import { selectBranch } from '../../../branches/actions';
 
 /**
@@ -209,4 +209,47 @@ export async function bookmarkAction(id: string, label: string | null) {
 
 export async function runAction(id: string) {
   return safe(() => siteEditorApi.run(id));
+}
+
+/**
+ * SITE-1, простой экран: фото загружается прямо с экрана в библиотеку филиала (та же проверка API: тип по содержимому,
+ * EXIF снимается) и сразу возвращается готовым ассетом для вставки в сайт. Отказ словами, без трассировки
+ */
+export async function uploadSitePhotoAction(form: FormData): Promise<{ ok: true; asset: SiteAssetView } | { ok: false; message: string }> {
+  const file = form.get('file');
+  if (!(file instanceof File) || file.size === 0) return { ok: false, message: 'Выберите фото: JPEG, PNG или WebP' };
+  if (file.size > 10 * 1024 * 1024) return { ok: false, message: 'Фото больше 10 МБ' };
+  try {
+    const { asset } = await siteAssetsApi.upload(file, 'IMAGE');
+    revalidatePath('/marketing/site/assets');
+    return { ok: true, asset };
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 413) return { ok: false, message: 'Фото больше 10 МБ' };
+    if (e instanceof ApiError && e.status === 429) return { ok: false, message: 'Лимит загрузок за час исчерпан, попробуйте позже' };
+    if (e instanceof ApiError && e.status < 500) return { ok: false, message: e.message };
+    return { ok: false, message: 'Не удалось загрузить фото, попробуйте ещё раз' };
+  }
+}
+
+/** SITE-1, простой экран: шаблон сайта по свежим данным филиала (для включения блоков из шаблона) */
+export async function templateFactsAction(locationId: string) {
+  try {
+    return { ok: true as const, facts: await marketingSiteApi.facts(locationId) };
+  } catch (e) {
+    return { ok: false as const, message: e instanceof Error ? e.message : 'Нет данных филиала' };
+  }
+}
+
+/** SITE-1, простой экран: публикация одной кнопкой; тариф брони гостиницы сервер берёт сам, если он уже известен */
+export async function publishSimpleAction(expectedVersionId: string): Promise<{ ok: true; url: string | null } | { ok: false; message: string; needsSetup: boolean }> {
+  try {
+    const r = await marketingSiteApi.publish(expectedVersionId);
+    revalidatePath('/marketing/site');
+    revalidatePath('/marketing/site/editor');
+    return { ok: true, url: r.site.url };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Не удалось опубликовать';
+    const needsSetup = e instanceof ApiError && e.status === 409 && /тариф/i.test(message);
+    return { ok: false, message, needsSetup };
+  }
 }

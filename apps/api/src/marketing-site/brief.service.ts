@@ -11,6 +11,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { readChannexContent, type ContentReader } from '../channels/content';
 import { PROVIDER } from '../channels/ari-publisher';
 import { siteScope, siteTransaction, type SiteScope } from './scope';
+import { readVerticalFacts } from './site-facts.service';
 
 /**
  * Бриф сайта (MKT5, `docs/marketing/site-brief-v0.md`). Только чтение: одна транзакция базы на снимок филиала, затем,
@@ -36,6 +37,12 @@ export async function readBriefSnapshot(tx: DbTx, scope: SiteScope): Promise<Pla
     where: { id: scope.locationId, businessId: scope.businessId },
     select: { name: true, address: true, phone: true, email: true, timezone: true, currency: true },
   });
+  // SITE-2: салон и ресторан получают свой каталог, мастеров и часы тем же сборщиком, что карточка филиала
+  const business = await tx.business.findFirstOrThrow({ where: { id: scope.businessId }, select: { vertical: true } });
+  const vertical =
+    business.vertical === 'BEAUTY' || business.vertical === 'FOOD_SERVICE'
+      ? await readVerticalFacts(tx, business.vertical, scope.businessId, scope.locationId, location.currency)
+      : undefined;
   const property = await tx.property.findFirst({
     where: { locationId: scope.locationId, organizationId: scope.organizationId },
     select: {
@@ -130,7 +137,7 @@ export async function readBriefSnapshot(tx: DbTx, scope: SiteScope): Promise<Pla
     checkOutTime: property.checkOutTime,
   };
   return {
-    platform: { location, property: propertyFacts, categories },
+    platform: { location, property: propertyFacts, categories, ...(vertical ? { vertical } : {}) },
     seller,
     channexPropertyId,
   };

@@ -125,6 +125,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /marketing/site/versions/:id/bookmark': 'settings',
   'DELETE /marketing/site/versions/:id/bookmark': 'settings',
   'GET /marketing/site/brief': 'settings',
+  // SITE-2: выбор филиала для сайта и «что WETOP знает о филиале»; право settings ещё и в месте (site-facts.service.ts)
+  'GET /marketing/site/locations': 'settings',
+  'GET /marketing/site/facts': 'settings',
   'POST /marketing/site/generations': 'settings',
   'GET /marketing/site/generations/:id': 'settings',
   'GET /marketing/site/draft': 'settings',

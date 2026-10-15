@@ -11,6 +11,7 @@ import {
   SITE_SPEC_SCHEMA_VERSION,
   addUsage,
   applyDesignDirection,
+  bindCatalogFacts,
   canWrite,
   checkEditedSpec,
   decodeDesignInstruction,
@@ -472,10 +473,12 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
       return this.retryOrFail(run, code);
     }
     // выбранное оформление ставится детерминированно поверх ответа модели и проверяется тем же валидатором
+    // SITE-2: цены, длительность, выход блюд и часы работы ставит платформа из брифа, а не модель
+    const bound = bindCatalogFacts(reply.spec, brief.input);
     const generated =
-      design && reply.spec && typeof reply.spec === 'object' && !Array.isArray(reply.spec) ? applyDesignDirection(reply.spec, design.design) : reply.spec;
+      design && bound && typeof bound === 'object' && !Array.isArray(bound) ? applyDesignDirection(bound, design.design) : bound;
     const checked = edit
-      ? checkEditedSpec(reply.spec, edit.baseSpec, brief.input, edit.mode)
+      ? checkEditedSpec(bound, edit.baseSpec, brief.input, edit.mode)
       : checkGeneratedSpec(generated, brief.input, targetLocales);
     if (!checked.ok) {
       this.logger.warn(`Генерация ${run.id}: документ не прошёл проверку (${checked.errors.length} ошибок)`);

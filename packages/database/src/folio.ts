@@ -6,6 +6,25 @@ import type { Prisma } from './generated/prisma/client';
 
 type Tx = Prisma.TransactionClient;
 
+export class FolioClosedError extends Error {
+  constructor(readonly folioId: string) {
+    super(`Счёт ${folioId} закрыт`);
+  }
+}
+
+/** Hold the same row lock as close until the surrounding transaction commits. */
+export async function lockFolio(tx: Tx, id: string): Promise<string | undefined> {
+  const rows = await tx.$queryRaw<Array<{ status: string }>>`
+    SELECT "status"::text AS status FROM "folios" WHERE "id" = ${id}::uuid FOR UPDATE`;
+  return rows[0]?.status;
+}
+
+export async function lockOpenFolios(tx: Tx, folioIds: string[]): Promise<void> {
+  for (const id of [...new Set(folioIds)].sort()) {
+    if (await lockFolio(tx, id) !== 'OPEN') throw new FolioClosedError(id);
+  }
+}
+
 export interface EnsureFolioInput {
   reservationItemId: string;
   currency: string;
@@ -41,6 +60,7 @@ export async function ensureSingleActiveCharge(
   tx: Tx,
   input: EnsureChargeInput,
 ): Promise<'created' | 'voided' | 'unchanged'> {
+  const status = await lockFolio(tx, input.folioId);
   const current = await tx.charge.findFirst({
     where: {
       folioId: input.folioId,
@@ -52,10 +72,12 @@ export async function ensureSingleActiveCharge(
   });
   if (!input.wanted) {
     if (!current) return 'unchanged';
+    if (status !== 'OPEN') throw new FolioClosedError(input.folioId);
     await tx.charge.update({ where: { id: current.id }, data: { voidedAt: new Date() } });
     return 'voided';
   }
   if (current && current.amount === input.amountMinor) return 'unchanged';
+  if (status !== 'OPEN') throw new FolioClosedError(input.folioId);
   if (current)
     await tx.charge.update({ where: { id: current.id }, data: { voidedAt: new Date() } });
   await tx.charge.create({

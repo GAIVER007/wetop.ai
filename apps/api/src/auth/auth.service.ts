@@ -366,21 +366,34 @@ export class AuthService {
     await this.assertOrganizationOpen(organizationId);
 
     const token = newSessionToken();
-    await this.prisma.db.user.update({
-      where: { id: user.id },
-      data: { failedAttempts: 0, lockedUntil: null, lastLoginAt: now },
-    });
     const expiresAt = sessionExpiry(now);
-    await this.prisma.db.session.create({
-      data: {
-        userId: user.id,
-        organizationId,
-        tokenHash: hashSessionToken(token),
-        userAgent: input.userAgentFamily ?? null,
-        expiresAt,
-      },
+    await this.prisma.db.$transaction(async (tx) => {
+      // The conditional update locks the same user row as reset until session issuance commits.
+      // A password verified before reset must not create a session after reset's revocation.
+      const current = await tx.user.updateMany({
+        where: {
+          id: user.id, passwordHash: user.passwordHash, status: 'ACTIVE',
+          OR: [{ lockedUntil: null }, { lockedUntil: { lte: now } }],
+        },
+        data: { failedAttempts: 0, lockedUntil: null, lastLoginAt: now },
+      });
+      if (current.count !== 1) throw new UnauthorizedException(WRONG);
+      await tx.session.create({
+        data: {
+          userId: user.id,
+          organizationId,
+          tokenHash: hashSessionToken(token),
+          userAgent: input.userAgentFamily ?? null,
+          expiresAt,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: user.id, entityType: 'user', entityId: user.id,
+          action: 'user.login', after: { via: 'password' },
+        },
+      });
     });
-    await this.record(user.id, 'user.login', { via: 'password' });
 
     return {
       token,

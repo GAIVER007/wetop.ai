@@ -11,7 +11,7 @@ import {
   Module,
   Post,
 } from '@nestjs/common';
-import { canWrite, moveOnboarding, onboardingFlow } from '@pms/domain';
+import { canWrite, moveOnboarding, onboardingFlow, roleAt, SCOPE_FORBIDDEN_MESSAGE } from '@pms/domain';
 import type { DbTx } from '@pms/database';
 import { Access } from '../auth/access.decorator';
 import {
@@ -19,6 +19,8 @@ import {
   currentBusinessId,
   currentLocationId,
   currentOrganizationId,
+  currentAssignments,
+  currentRole,
   currentUserId,
   hasSignedInActor,
 } from '../auth/request-context';
@@ -90,6 +92,12 @@ export class SharedOnboardingService {
       },
     });
     if (!location) throw new ForbiddenException('Филиал недоступен');
+    // онбординг подчиняется назначениям (ADR-183, аудит CORE-01 U2-4): право self пропускает ворота
+    // ролей места, поэтому формула roleAt применяется здесь
+    const places = currentAssignments();
+    const role = currentRole();
+    if (places.length && role && roleAt(role, places, { businessId, locationId }) === null)
+      throw new ForbiddenException(SCOPE_FORBIDDEN_MESSAGE);
     return location;
   }
   async status() {

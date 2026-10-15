@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { randomUUID } from 'node:crypto';
-import {
+import { ForbiddenException,
   BadRequestException,
   Body,
   ConflictException,
@@ -22,7 +22,7 @@ import {
   weekTemplate,
   type WorkingInterval,
 } from '@pms/domain';
-import { currentUserId } from '../auth/request-context';
+import { currentAssignments, currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
@@ -258,6 +258,22 @@ export class BeautyScheduleService {
       where: { employeeId: id },
       select: { locationId: true, location: { select: { name: true } } },
     });
+    // филиалы мастера меняет только тот, кому они назначены (ADR-183, аудит CORE-01 U2-3):
+    // состав чужих филиалов для ограниченного пользователя неприкосновенен
+    const places = currentAssignments();
+    const businessWide = places.some((p) => p.businessId === scope.businessId && p.locationId === null);
+    if (places.length && !businessWide) {
+      const allowed = new Set(
+        places.filter((p) => p.businessId === scope.businessId && p.locationId).map((p) => p.locationId!),
+      );
+      const currentIds = current.map((row) => row.locationId);
+      const touched = [
+        ...wanted.filter((locationId) => !currentIds.includes(locationId)),
+        ...currentIds.filter((locationId) => !wanted.includes(locationId)),
+      ];
+      if (touched.some((locationId) => !allowed.has(locationId)))
+        throw new ForbiddenException('Филиалы мастера вне ваших назначений менять нельзя');
+    }
     const removed = current.filter((row) => !wanted.includes(row.locationId));
     for (const row of removed) {
       const booked = await this.prisma.db.appointment.count({

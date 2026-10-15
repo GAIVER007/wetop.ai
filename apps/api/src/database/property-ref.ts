@@ -138,12 +138,14 @@ async function organizationPropertyRef(db: PropertyDb): Promise<PropertyRef> {
   const known = cache.get(key);
   if (known) return known;
   const chain = { business: { organizationId } };
+  // «ранний» объект выбираем только среди живых: архивный филиал или бизнес больше не подставляется (ADR-183)
+  const liveChain = { status: 'ACTIVE' as const, business: { organizationId, status: 'ACTIVE' as const } };
   const where =
     scope === 'LOCATION' && locationId
       ? { locationId, location: chain }
       : scope === 'BUSINESS' && businessId
-        ? { location: { businessId, ...chain } }
-        : { location: chain };
+        ? { location: { businessId, ...liveChain } }
+        : { location: liveChain };
   const found = await db.property.findFirst({
     where,
     orderBy: { createdAt: 'asc' },

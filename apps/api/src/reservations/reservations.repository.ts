@@ -1406,8 +1406,13 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     return { ...created, isNew: true };
   }
   async resetExternalEventAttempts(provider: string, externalEventId: string): Promise<void> {
+    // сброс только своего объекта (ADR-183, аудит CORE-01 U2-1): ревизия глобально уникальна, и без
+    // привязки администратор каналов одной организации сбрасывал событие другой; таблица без RLS (§17.3),
+    // фильтрует код. Строки эпохи до backfill (property_id IS NULL) повтором больше не сбрасываются.
+    const propertyId = currentIntegrationPropertyId();
+    if (!propertyId) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
     await this.db.externalEvent.updateMany({
-      where: { provider, externalEventId },
+      where: { provider, externalEventId, propertyId },
       data: { attemptCount: 0, status: 'RECEIVED', lastError: null },
     });
   }

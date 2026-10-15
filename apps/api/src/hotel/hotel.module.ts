@@ -104,6 +104,8 @@ export class HotelService {
       : { name: LUXX_APARTS_PROPERTY.name };
     const property = await this.prisma.db.property.findFirst({
       where,
+      // детерминизм на орг- и бизнес-скоупе: тот же «ранний» объект, что у property-ref (ADR-183)
+      orderBy: { createdAt: 'asc' },
       select: {
         id: true,
         name: true,

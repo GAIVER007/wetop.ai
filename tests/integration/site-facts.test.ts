@@ -242,12 +242,17 @@ describe.skipIf(!url)('SITE-2 site facts', () => {
   it('список филиалов: свои, с направлением и статусом сайта', async () => {
     const r = await get('/marketing/site/locations');
     expect(r.status, r.text).toBe(200);
-    const items = (r.body.items as Array<{ id: string }>).filter((i) => [salon, salon2, cafe, foreignSalon].includes(i.id));
-    expect(items).toEqual([
-      { id: salon, name: 'Салон на Тестовой', vertical: 'BEAUTY', siteStatus: 'NONE' },
-      { id: salon2, name: 'Салон второй', vertical: 'BEAUTY', siteStatus: 'NONE' },
-      { id: cafe, name: 'Кафе «Пример»', vertical: 'FOOD_SERVICE', siteStatus: 'NONE' },
-    ]);
+    const own: string[] = [salon, salon2, cafe, foreignSalon];
+    const items = (r.body.items as Array<{ id: string }>).filter((i) => own.includes(i.id));
+    // филиалы созданы одной вставкой (одно время создания): порядок между ними решает id, проверяем состав
+    const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : 1);
+    expect([...items].sort(byId)).toEqual(
+      [
+        { id: salon, name: 'Салон на Тестовой', vertical: 'BEAUTY', siteStatus: 'NONE' },
+        { id: salon2, name: 'Салон второй', vertical: 'BEAUTY', siteStatus: 'NONE' },
+        { id: cafe, name: 'Кафе «Пример»', vertical: 'FOOD_SERVICE', siteStatus: 'NONE' },
+      ].sort(byId),
+    );
   });
 
   it('бриф генерации берёт те же факты салона и ресторана', async () => {

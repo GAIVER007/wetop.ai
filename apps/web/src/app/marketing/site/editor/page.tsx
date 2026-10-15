@@ -19,7 +19,7 @@ import '../../marketing.css';
  * черновика правится в браузере и сохраняется новой неизменяемой версией; публикация на своей странице (MKT7).
  */
 export default async function SiteEditorPage() {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  await requireVertical(['HOSPITALITY']);
   const shell = await deskShell();
   const title = 'Редактор сайта';
   const brief = () =>

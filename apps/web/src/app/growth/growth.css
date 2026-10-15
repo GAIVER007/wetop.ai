@@ -56,6 +56,69 @@
   .growth-links a svg:last-child {
     margin-left: auto;
   }
+  .growth-period {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-2);
+  }
+  .growth-period label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .growth-period input {
+    height: var(--control-h);
+    padding: 0 var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+  }
+  .growth-period .btn {
+    height: var(--control-h);
+    min-height: 0;
+  }
+  .growth-rank {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .growth-rank li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .growth-rank__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .growth-rank__value {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .growth-rank__bar {
+    height: 6px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-muted);
+    overflow: hidden;
+  }
+  .growth-rank__bar span {
+    display: block;
+    height: 100%;
+    border-radius: var(--radius-sm);
+    background: var(--chart-1, var(--primary));
+  }
+  .growth-rank__count {
+    font-size: var(--text-xs);
+  }
   .growth-hub .sales-card__head h2 {
     font-size: var(--text-lg);
   }

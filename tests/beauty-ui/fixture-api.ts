@@ -7,6 +7,7 @@ import { Test } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 import { createPrismaClient } from '@pms/database';
 import type { MembershipRole } from '@pms/domain';
+import { MarketingBudgetModule } from '../../apps/api/src/marketing-budget/marketing-budget.module';
 import { BeautyModule } from '../../apps/api/src/beauty/beauty.module';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { AuthorInterceptor } from '../../apps/api/src/auth/author.interceptor';
@@ -88,7 +89,8 @@ for (const [name, path, method] of [
 }
 Body()(FixtureController.prototype, 'save', 0);
 const module = await Test.createTestingModule({
-  imports: [BeautyModule],
+  // бюджет маркетинга общий для всех направлений (14.10.2026): настоящий модуль на той же базе
+  imports: [BeautyModule, MarketingBudgetModule],
   controllers: [FixtureController],
 })
   .overrideProvider(PrismaService)
@@ -176,6 +178,8 @@ app.use(
                 await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
                 await tx.auditLog.deleteMany({ where: { organizationId: org } });
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
+                await tx.marketingExpense.deleteMany({ where: { location: { business: b } } });
+                await tx.marketingBudget.deleteMany({ where: { location: { business: b } } });
                 await tx.location.deleteMany({ where: { business: b } });
                 await tx.business.deleteMany({ where: b });
                 await tx.organization.delete({ where: { id: org } });

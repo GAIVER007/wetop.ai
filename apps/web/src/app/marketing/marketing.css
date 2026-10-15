@@ -23,6 +23,10 @@
     --module-fill: var(--primary-soft);
     --module-ink: var(--primary);
   }
+  .marketing-module--budget {
+    --module-fill: color-mix(in srgb, var(--info) 12%, transparent);
+    --module-ink: var(--info);
+  }
   .marketing-module--ads {
     --module-fill: var(--success-soft);
     --module-ink: var(--success);
@@ -109,11 +113,14 @@
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--space-4);
-    padding: var(--space-2) 0;
     background: var(--surface-muted);
     border-radius: var(--radius-control);
-    padding: var(--space-2);
+    padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
     font-size: var(--text-xs);
+  }
+  .marketing-results__row dd.muted {
+    color: var(--text-2);
+    font-weight: 400;
   }
   .marketing-results__mark {
     display: grid;
@@ -834,10 +841,6 @@
     justify-self: start;
   }
   /* Вкладка «ИИ»: лента запросов сессии и строка ввода снизу */
-  .ed-chat {
-    display: grid;
-    gap: var(--space-4);
-  }
   .ed-chat__empty p {
     margin: 0 0 var(--space-2);
   }

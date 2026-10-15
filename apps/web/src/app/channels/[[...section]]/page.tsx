@@ -74,7 +74,7 @@ const settle = <T,>(p: Promise<T>) =>
  * может стоять не в поясе объекта); без пробы подпись не нужна
  */
 const checkedAt = (iso: string | null | undefined, clock: PropertyClock) =>
-  iso ? `, проверено ${clock.clock(iso)} по Алматы` : '';
+  iso ? `, проверено ${clock.clock(iso)} по времени объекта` : '';
 
 export default async function ChannelSalesPage({
   params,

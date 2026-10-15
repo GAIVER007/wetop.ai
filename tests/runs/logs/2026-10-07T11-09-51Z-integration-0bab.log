@@ -1,0 +1,27 @@
+# Интеграционные (integration) · 07.10.2026 16:09 Алматы · vm
+# коммит 6247113 (claude/youthful-wozniak-vin0pp)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T11-09-51Z-integration-0bab.json' 'tests/integration/payment-method-settings.test.ts' 'tests/integration/rls-isolation.test.ts' 'tests/integration/rls-credential-grants.test.ts' 'tests/integration/cash-operations.test.ts' 'tests/integration/payment-requests.test.ts' 'tests/integration/payment-void.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 606ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 303ms
+ ✓ |integration| tests/integration/cash-operations.test.ts (4 tests) 490ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (9 tests) 74ms
+(node:441) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/payment-void.test.ts (4 tests) 1415ms
+   ✓ аннулирование платежа под блокировкой (integration) (4)
+     ✓ возврат и аннулирование наперегонки: проходит ровно одно 1024ms
+ ✓ |integration| tests/integration/payment-requests.test.ts (3 tests) 398ms
+ ✓ |integration| tests/integration/payment-method-settings.test.ts (2 tests) 227ms
+
+ Test Files  6 passed (6)
+      Tests  28 passed (28)
+   Start at  11:09:52
+   Duration  8.40s (tests 53%, import 26%, transform 20%)
+
+JSON report written to /tmp/pms-test-2026-10-07T11-09-51Z-integration-0bab.json
+
+# код выхода 0 · 9 с

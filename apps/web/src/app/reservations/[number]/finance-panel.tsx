@@ -1,5 +1,5 @@
 'use client';
-import { useActionState, useEffect, useState } from 'react';
+import { createContext, useActionState, useContext, useEffect, useMemo, useState } from 'react';
 import { useCommand } from '../../../lib/use-command';
 import { useMoneyReview } from './money-review';
 import { GroupPayment } from './group-payment';
@@ -62,6 +62,11 @@ const METHODS: Array<[string, string]> = [
   ['EXTERNAL', 'внешний канал'],
 ];
 export const methodRu = (m: string) => METHODS.find(([k]) => k === m)?.[1] ?? m;
+/** Способы стойки: без EXTERNAL (его ставят каналы), в порядке настройки объекта (DATA_MODEL §21.6) */
+const DESK_METHODS = METHODS.filter(([k]) => k !== 'EXTERNAL');
+const methodOptions = (enabled?: string[]): Array<[string, string]> =>
+  enabled ? enabled.flatMap((k) => DESK_METHODS.filter(([code]) => code === k)) : DESK_METHODS;
+const MethodsContext = createContext<Array<[string, string]>>(DESK_METHODS);
 const INIT: FinanceActionResult = { error: null, ok: 0 };
 /** «1.25» / «1,25» / «12000» → тиыны строкой; иначе null — сумма ещё не число */
 export const decimalToMinor = (raw: string): string | null => {
@@ -97,13 +102,12 @@ export function FinancePanel({
   services: ServiceOption[];
   today: string;
 }) {
+  // включённые способы объекта (§21.6): старый API без поля даёт все восемь
+  const methods = useMemo(() => methodOptions(finance.paymentMethods), [finance.paymentMethods]);
   return (
+    <MethodsContext.Provider value={methods}>
     <Stack>
-      <GroupPayment
-        number={number}
-        folios={finance.folios}
-        methods={METHODS.filter(([code]) => code !== 'EXTERNAL')}
-      />
+      <GroupPayment number={number} folios={finance.folios} methods={methods} />
       {finance.folios.length > 1 && (
         <div data-testid="finance-total">
           Итого по брони: начислено {formatMoney(finance.chargedMinor, finance.currency)}, оплачено{' '}
@@ -116,6 +120,7 @@ export function FinancePanel({
         <FolioPanel key={f.id} number={number} folio={f} services={services} today={today} />
       ))}
     </Stack>
+    </MethodsContext.Provider>
   );
 }
 
@@ -679,8 +684,9 @@ export function PaymentForm({
   busy: boolean;
   onDraftChange?: (dirty: boolean) => void;
 }) {
+  const methods = useContext(MethodsContext);
   const { review, onSubmit, onChange } = useMoneyReview(busy, onDraftChange);
-  const [method, setMethod] = useState(values?.method ?? 'CASH');
+  const [method, setMethod] = useState(values?.method ?? methods[0]?.[0] ?? 'CASH');
   const suggested = BigInt(folio.balanceMinor) > 0n ? toDecimal(folio.balanceMinor) : '';
   const [draft, setDraft] = useState<string | null>(values?.amount ?? null);
   const amount = draft ?? suggested;
@@ -708,7 +714,7 @@ export function PaymentForm({
             value={method}
             onChange={(e) => setMethod(e.target.value)}
           >
-            {METHODS.filter(([k]) => k !== 'EXTERNAL').map(([k, t]) => (
+            {methods.map(([k, t]) => (
               <option key={k} value={k}>
                 {t}
               </option>
@@ -970,6 +976,7 @@ function EditPaymentDrawer({
 }) {
   const grouped = payment.paymentAmountMinor !== payment.allocatedMinor;
   const clock = usePropertyClock();
+  const methods = useContext(MethodsContext);
   const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
     async (prev, fd) => {
       const r = await replacePaymentAction(number, payment.paymentId, prev, fd);
@@ -1010,7 +1017,7 @@ function EditPaymentDrawer({
           {state.error && <Alert boxed>{state.error}</Alert>}
           <Field label="Способ оплаты">
             <Select name="method" defaultValue={state.values?.method ?? payment.method}>
-              {METHODS.filter(([k]) => k !== 'EXTERNAL').map(([k, t]) => (
+              {methods.map(([k, t]) => (
                 <option key={k} value={k}>
                   {t}
                 </option>

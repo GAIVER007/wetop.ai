@@ -6,7 +6,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { parsePaymentRequestInput, type PaymentRequestMethod } from '@pms/domain';
+import {
+  FinanceRuleError,
+  assertPaymentMethodEnabled,
+  enabledPaymentMethods,
+  parsePaymentRequestInput,
+  resolvePaymentMethodSettings,
+  type PaymentRequestMethod,
+} from '@pms/domain';
 import { freeTextForStorage } from '@pms/shared';
 import {
   FINANCE_REPOSITORY,
@@ -86,6 +93,16 @@ export class PaymentRequestsService {
     const parsed = parsePaymentRequestInput(dto);
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const { method, amountMinor, link } = parsed.value;
+    // выключенный в настройках объекта способ новых денег не принимает (§21.6)
+    const enabled = enabledPaymentMethods(
+      resolvePaymentMethodSettings(await this.finance.paymentMethodSettings()),
+    );
+    try {
+      assertPaymentMethodEnabled(method, enabled);
+    } catch (e) {
+      if (e instanceof FinanceRuleError) throw new BadRequestException(e.message);
+      throw e;
+    }
     const note = freeTextForStorage(parsed.value.note);
     await lockedWrite(
       this.repo.create(

@@ -28,7 +28,7 @@ async function signIn(page: Page) {
   await page.waitForURL('**/today');
 }
 
-test('один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов', async ({
+test('один заголовок на всех вкладках, без «Обновить» и без второй карточки часов', async ({
   page,
 }) => {
   const main = page.getByRole('main');
@@ -40,6 +40,7 @@ test('один заголовок на трёх вкладках, без «Об�
     'Услуги',
     'Продажи и каналы',
     'Документы',
+    'Справочники',
   ]);
   for (const [tab, check] of [
     ['Основное', 'stored-property'],

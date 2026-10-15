@@ -1,0 +1,243 @@
+# Сквозные (e2e) · 15.10.2026 11:22 Алматы · vm
+# коммит f4a8925 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 1338
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--timeout=120000' 'tests/ui/settings-directories.spec.ts' 'tests/ui/property-settings.spec.ts' 'tests/ui/finance-cash.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/finance-card-actions.spec.ts' 'tests/ui/settings-simplification.spec.ts' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 229ms. If /home/user/wetop.ai/apps/site/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+
+Running 89 tests using 1 worker
+
+  ✓   1 tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (7.8s)
+  ✓   2 tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (4.7s)
+  ✓   3 tests/ui/finance-card-actions.spec.ts:82:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (5.7s)
+  ✓   4 tests/ui/finance-card-actions.spec.ts:106:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (4.9s)
+  ✓   5 tests/ui/finance-card-actions.spec.ts:129:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (5.7s)
+  ✓   6 tests/ui/finance-card-actions.spec.ts:155:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (4.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   7 tests/ui/finance-card-actions.spec.ts:174:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (12.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   8 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (10.0s)
+  ✓   9 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (8.4s)
+  ✓  10 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (8.6s)
+  ✓  11 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (7.2s)
+  ✓  12 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (8.1s)
+  ✓  13 tests/ui/finance-cash.spec.ts:48:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (8.4s)
+  ✓  14 tests/ui/finance-cash.spec.ts:75:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (8.6s)
+  ✓  15 tests/ui/finance-cash.spec.ts:114:1 › статьи: кнопка «Статьи кассы» ведёт в «Настройки объекта → Справочники»; выключенная статья уходит из формы расхода (7.5s)
+[WebServer] ⚠ Fast Refresh had to perform a full reload when ./packages/domain/src/finance/payment-methods.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+  ✘  16 tests/ui/finance-cash.spec.ts:137:1 › «только чтение»: кнопок кассы нет, остатки видны (7.4s)
+  ✓  17 tests/ui/finance-cash.spec.ts:154:3 › касса, снимки для владельца, light (6.8s)
+  ✓  18 tests/ui/finance-cash.spec.ts:154:3 › касса, снимки для владельца, dark (6.4s)
+  ✓  19 tests/ui/finance-cash.spec.ts:178:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента (7.0s)
+  ✓  20 tests/ui/finance-cash.spec.ts:207:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния (6.7s)
+  ✓  21 tests/ui/property-settings.spec.ts:31:1 › один заголовок на всех вкладках, без «Обновить» и без второй карточки часов (10.6s)
+  ✓  22 tests/ui/property-settings.spec.ts:80:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy (12.3s)
+  ✓  23 tests/ui/property-settings.spec.ts:95:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку (18.3s)
+  ✓  24 tests/ui/property-settings.spec.ts:155:1 › администратор и «только чтение» видят сведения без формы и без кнопки сохранения (8.4s)
+  ✓  25 tests/ui/property-settings.spec.ts:180:1 › данные объекта и каналов помещаются на экране ноутбука (5.3s)
+  ✓  26 tests/ui/property-settings.spec.ts:197:3 › снимки SET1 и доступность: light (29.9s)
+  ✓  27 tests/ui/property-settings.spec.ts:197:3 › снимки SET1 и доступность: dark (28.7s)
+  ✓  28 tests/ui/requests.spec.ts:88:3 › экран /today: данные берутся одним запросом на путь (3.1s)
+  ✓  29 tests/ui/requests.spec.ts:88:3 › экран /chessboard: данные берутся одним запросом на путь (5.3s)
+  ✓  30 tests/ui/requests.spec.ts:88:3 › экран /reservations: данные берутся одним запросом на путь (3.8s)
+  ✓  31 tests/ui/requests.spec.ts:88:3 › экран /guests: данные берутся одним запросом на путь (4.8s)
+  ✓  32 tests/ui/requests.spec.ts:88:3 › экран /inventory: данные берутся одним запросом на путь (4.7s)
+  ✓  33 tests/ui/requests.spec.ts:88:3 › экран /rooms/categories: данные берутся одним запросом на путь (4.7s)
+  ✓  34 tests/ui/requests.spec.ts:88:3 › экран /rooms/availability: данные берутся одним запросом на путь (3.1s)
+  ✓  35 tests/ui/requests.spec.ts:88:3 › экран /market: данные берутся одним запросом на путь (3.8s)
+  ✓  36 tests/ui/requests.spec.ts:88:3 › экран /management/analytics: данные берутся одним запросом на путь (4.4s)
+  ✓  37 tests/ui/requests.spec.ts:88:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (4.1s)
+  ✓  38 tests/ui/requests.spec.ts:88:3 › экран /management/analytics/units: данные берутся одним запросом на путь (5.7s)
+  ✓  39 tests/ui/requests.spec.ts:88:3 › экран /finance: данные берутся одним запросом на путь (3.3s)
+  ✓  40 tests/ui/requests.spec.ts:88:3 › экран /reports: данные берутся одним запросом на путь (3.4s)
+  ✓  41 tests/ui/requests.spec.ts:88:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (3.1s)
+  ✓  42 tests/ui/requests.spec.ts:88:3 › экран /channels: данные берутся одним запросом на путь (5.8s)
+  ✓  43 tests/ui/requests.spec.ts:88:3 › экран /connections/channex: данные берутся одним запросом на путь (3.9s)
+  ✓  44 tests/ui/requests.spec.ts:88:3 › экран /channels/mapping: данные берутся одним запросом на путь (2.8s)
+  ✓  45 tests/ui/requests.spec.ts:88:3 › экран /channels/sync: данные берутся одним запросом на путь (2.8s)
+  ✓  46 tests/ui/requests.spec.ts:88:3 › экран /channels/events: данные берутся одним запросом на путь (2.9s)
+  ✓  47 tests/ui/requests.spec.ts:88:3 › экран /marketing: данные берутся одним запросом на путь (3.6s)
+  ✓  48 tests/ui/requests.spec.ts:88:3 › экран /website: данные берутся одним запросом на путь (3.4s)
+  ✓  49 tests/ui/requests.spec.ts:88:3 › экран /website/booking: данные берутся одним запросом на путь (3.5s)
+  ✓  50 tests/ui/requests.spec.ts:88:3 › экран /website/analytics: данные берутся одним запросом на путь (3.9s)
+  ✓  51 tests/ui/requests.spec.ts:88:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.9s)
+  ✓  52 tests/ui/requests.spec.ts:88:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (2.5s)
+  ✓  53 tests/ui/requests.spec.ts:88:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (2.8s)
+  ✓  54 tests/ui/requests.spec.ts:88:3 › экран /hotel-settings/directories: данные берутся одним запросом на путь (2.9s)
+  ✓  55 tests/ui/requests.spec.ts:88:3 › экран /team: данные берутся одним запросом на путь (3.8s)
+  ✓  56 tests/ui/requests.spec.ts:88:3 › экран /connections: данные берутся одним запросом на путь (3.7s)
+  ✓  57 tests/ui/requests.spec.ts:88:3 › экран /ai-agents: данные берутся одним запросом на путь (3.9s)
+  ✓  58 tests/ui/requests.spec.ts:88:3 › экран /website/settings: данные берутся одним запросом на путь (3.7s)
+  ✓  59 tests/ui/requests.spec.ts:88:3 › экран /incidents: данные берутся одним запросом на путь (3.4s)
+  ✓  60 tests/ui/requests.spec.ts:88:3 › экран /journal: данные берутся одним запросом на путь (3.8s)
+  ✓  61 tests/ui/requests.spec.ts:88:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (3.6s)
+  ✓  62 tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (7.4s)
+  ✓  63 tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (19.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  64 tests/ui/roles.spec.ts:98:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (9.2s)
+  ✓  65 tests/ui/roles.spec.ts:115:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (13.3s)
+  ✓  66 tests/ui/roles.spec.ts:153:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (16.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  67 tests/ui/roles.spec.ts:215:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (12.9s)
+  ✓  68 tests/ui/roles.spec.ts:271:1 › владелец: зовёт управляющего и администратора, меняет роль (6.5s)
+  ✓  69 tests/ui/roles.spec.ts:302:1 › администратор: сотрудниками ведают владелец и управляющий (5.7s)
+  ✓  70 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, light, 1440px (12.0s)
+  ✓  71 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, dark, 1440px (12.5s)
+  ✓  72 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, light, 390px (10.5s)
+  ✓  73 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, dark, 390px (11.1s)
+  ✘  74 tests/ui/settings-directories.spec.ts:50:1 › вкладка «Справочники»: восемь способов; Kaspi выключен и Halyk поднят, сохранение из шапки, после перечитывания то же (20.4s)
+  ✘  75 tests/ui/settings-directories.spec.ts:87:1 › все способы выключены: сохранить нельзя, причина словами (2.0m)
+  ✓  76 tests/ui/settings-directories.spec.ts:99:1 › выключенный Kaspi: нет в форме оплаты, запросах оплаты и кассе; API отказывает словами (9.0s)
+  ✓  77 tests/ui/settings-directories.spec.ts:135:1 › статьи кассы: ссылка из «Кассы» ведёт в справочники; добавить, переименовать, выключить; выключенная уходит из расхода (14.9s)
+  ✓  78 tests/ui/settings-directories.spec.ts:167:1 › управляющий правит; «только чтение» видит факты без кнопок (8.1s)
+  ✓  79 tests/ui/settings-directories.spec.ts:185:5 › доступность «Справочников»: light, 1440px (7.8s)
+  ✓  80 tests/ui/settings-directories.spec.ts:185:5 › доступность «Справочников»: light, 390px (8.4s)
+  ✓  81 tests/ui/settings-directories.spec.ts:185:5 › доступность «Справочников»: dark, 1440px (9.0s)
+  ✓  82 tests/ui/settings-directories.spec.ts:185:5 › доступность «Справочников»: dark, 390px (8.6s)
+  ✓  83 tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (7.4s)
+  ✓  84 tests/ui/settings-simplification.spec.ts:40:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (16.6s)
+  ✓  85 tests/ui/settings-simplification.spec.ts:61:1 › поиск услуг работает без повторной загрузки каталога (3.4s)
+  ✓  86 tests/ui/settings-simplification.spec.ts:77:1 › ошибка каталога сохраняет навигацию и исправляется повтором (4.1s)
+  ✓  87 tests/ui/settings-simplification.spec.ts:91:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light (20.7s)
+  ✓  88 tests/ui/settings-simplification.spec.ts:91:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark (19.7s)
+  ✓  89 tests/ui/settings-simplification.spec.ts:159:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы (4.2s)
+
+
+  1) tests/ui/finance-cash.spec.ts:137:1 › «только чтение»: кнопок кассы нет, остатки видны ────────
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:3100/finance?from=2026-10-10&to=2026-10-15#cash
+    Call log:
+      - navigating to "http://127.0.0.1:3100/finance?from=2026-10-10&to=2026-10-15#cash", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:166:30)
+        at /home/user/wetop.ai/tests/ui/finance-cash.spec.ts:145:3
+
+    Error Context: test-results/finance-cash-«только-чтение»-кнопок-кассы-нет-остатки-видны/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-«только-чтение»-кнопок-кассы-нет-остатки-видны/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-«только-чтение»-кнопок-кассы-нет-остатки-видны/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/settings-directories.spec.ts:50:1 › вкладка «Справочники»: восемь способов; Kaspi выключен и Halyk поднят, сохранение из шапки, после перечитывания то же 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: getByRole('main').getByRole('button', { name: 'Сохранить изменения' })
+    Expected: disabled
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('main').getByRole('button', { name: 'Сохранить изменения' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('button', { name: 'Сохранить изменения' })
+
+
+      63 |   await expect(rows.first()).toHaveAttribute('data-method', 'CASH');
+      64 |   const save = main.getByRole('button', { name: 'Сохранить изменения' });
+    > 65 |   await expect(save).toBeDisabled();
+         |                      ^
+      66 |
+      67 |   await main.getByLabel('Принимаем: Kaspi').uncheck();
+      68 |   await main.getByRole('button', { name: 'Выше: Halyk' }).click();
+        at /home/user/wetop.ai/tests/ui/settings-directories.spec.ts:65:22
+
+    Error Context: test-results/settings-directories-вклад-17f23-и-после-перечитывания-то-же/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-directories-вклад-17f23-и-после-перечитывания-то-же/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-directories-вклад-17f23-и-после-перечитывания-то-же/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/settings-directories.spec.ts:87:1 › все способы выключены: сохранить нельзя, причина словами 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Сохранить изменения' })
+
+
+      93 |   for (let i = 0; i < 8; i += 1) await toggles.nth(i).uncheck();
+      94 |   await expect(main.getByText('Хотя бы один способ оплаты должен быть включён')).toBeVisible();
+    > 95 |   await main.getByRole('button', { name: 'Сохранить изменения' }).click();
+         |                                                                   ^
+      96 |   // форма не ушла: разбор домена остановил запрос, список по-прежнему весь выключен
+      97 |   await expect(main.getByTestId('settings-save-state')).toHaveText('• Есть несохранённые изменения');
+      98 | });
+        at /home/user/wetop.ai/tests/ui/settings-directories.spec.ts:95:67
+
+    Error Context: test-results/settings-directories-все-с-5c2c1-нить-нельзя-причина-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-directories-все-с-5c2c1-нить-нельзя-причина-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-directories-все-с-5c2c1-нить-нельзя-причина-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/finance-cash.spec.ts:137:1 › «только чтение»: кнопок кассы нет, остатки видны ─────────
+    tests/ui/settings-directories.spec.ts:50:1 › вкладка «Справочники»: восемь способов; Kaspi выключен и Halyk поднят, сохранение из шапки, после перечитывания то же 
+    tests/ui/settings-directories.spec.ts:87:1 › все способы выключены: сохранить нельзя, причина словами 
+  86 passed (14.1m)
+
+# код выхода 1 · 14 мин 8 с

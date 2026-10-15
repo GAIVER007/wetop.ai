@@ -1,0 +1,339 @@
+# Модульные (unit) · 07.10.2026 15:33 Алматы · vm
+# коммит fb520a3 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-33-01Z-unit-d351.json' 'apps/api/src/finance/finance.controller.test.ts' 'apps/api/src/finance/payment-requests.controller.test.ts' 'apps/api/src/hotel/payment-methods.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/finance/payment-requests.controller.test.ts (11 tests | 1 failed) 433ms
+   ❯ запросы оплаты /finance/*payment-requests (DATA_MODEL §24) (11)
+     × выключенный в настройках объекта способ не принимает запрос оплаты (DATA_MODEL §21.6) 57ms
+     ✓ Kaspi по телефону: запрос создан, сумма в тиынах, название объекта для текста гостю 8ms
+     ✓ ссылка банка в журнал не пишется: только признак 5ms
+     ✓ чужой счёт — отказ 5ms
+     ✓ наличные — отказ 5ms
+     ✓ ссылка http — отказ 4ms
+     ✓ закрытый счёт — отказ 4ms
+     ✓ нет брони — 404 4ms
+     ✓ «Оплачено» создаёт один платёж; повтор — 409, второго платежа нет 16ms
+     ✓ оплаченный не отменяется — 409 со словами про возврат 15ms
+     ✓ отмена ожидающего: статус «отменён» 5ms
+ ❯ |unit| apps/api/src/hotel/payment-methods.test.ts (5 tests | 5 failed) 35ms
+   ❯ способы оплаты объекта (5)
+     × без строк все восемь включены в системном порядке; строки задают порядок и включение 12ms
+     × сохранение: все восемь строк одной транзакцией, порядок это позиция в списке, журнал «было/стало» 2ms
+     × ничего не изменилось: записи нет, журнала нет 1ms
+     × неверное тело: 400 словами разбора, ничего не пишется 10ms
+     × администратор не читает и не правит: право settings (ADR-107) 7ms
+ ❯ |unit| apps/api/src/finance/finance.controller.test.ts (38 tests | 4 failed) 720ms
+   ❯ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (24)
+     ✓ id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026) 94ms
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 12ms
+     ✓ REP2: отчёт по услугам — свод по услуге, «вручную» одной строкой, крупные первыми, итог равен строке SERVICE сводки; неверный период → 400 15ms
+     ✓ T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400 14ms
+     ✓ ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, просроченные отдельно (Q-207); неверный период → 400 21ms
+     ✓ ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400 30ms
+     ✓ DATA_MODEL §26: чек по запросу — номер у платежа в счёте, пустой номер 400, чужой платёж 404, повтор 409 14ms
+     ✓ charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 40ms
+     ✓ payment: 9 methods, allocations must sum to the amount, folios must exist and share the currency 13ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются 7ms
+     ✓ refund: only from a payment that was allocated to this folio, not more than allocated − refunded 13ms
+     ✓ ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей 19ms
+     ✓ ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать 12ms
+     ✓ ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Legacy; занятая койка — отказ без начисления 10ms
+     ✓ void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand 10ms
+     ✓ Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся 4ms
+     ❯ способы оплаты объекта (DATA_MODEL §21.6, ADR-152) (4)
+       × без строк все восемь включены в системном порядке: бронь и касса отдают список 5ms
+       × выключенный способ: оплата, замена платежа, операция и перевод кассы отказывают словами 3ms
+       × плитки кассы: выключенный способ без движений плитки не получает, порядок по настройке 4ms
+       × GET /finance/cash/categories отдаёт справочник статей без остатков 4ms
+     ✓ аннулирование и замена платежа (4)
+       ✓ аннулирование: платёж уходит из оплаченного, строка остаётся со статусом VOIDED, запись в журнале 10ms
+       ✓ платёж с возвратом или с чеком не аннулируется и не меняется: 409 называет причину 17ms
+       ✓ замена: старый аннулирован, новый проведён с новым способом и суммой, дата платежа прежняя 8ms
+       ✓ групповой платёж: без распределения 409 словами, с распределением заменяется 6ms
+   ✓ роли в деньгах: возврат, сторно и уменьшение счёта — владелец и управляющий (ADR-107) (4)
+     ✓ аннулировать и заменить платёж может управляющий, администратор получает 403 с подписью права 18ms
+     ✓ администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт 15ms
+     ✓ управляющий и владелец возвращают, сторнируют и уменьшают счёт 19ms
+     ✓ отчёт за период администратор смотрит 2ms
+   ✓ касса: остатки, операции, переводы, статьи (DATA_MODEL §21) (7)
+     ✓ остатки по способам: оплаты гостей − возвраты + касса; плитки по умолчанию видны при нуле 14ms
+     ✓ проверки операции: вид, сумма, способ не из кассы, статья другого вида, перевод не этим маршрутом 12ms
+     ✓ перевод: из способа в способ, комиссия процентом — связанный расход со статьёй «Комиссия банка» 8ms
+     ✓ статья «Комиссия банка» выключена и статья комиссии не указана — 400 словами 2ms
+     ✓ аннулирование: комиссия снимается с основной; повтор — 409; комиссию отдельно — 409 14ms
+     ✓ статьи: стартовый набор в ответе кассы, добавление, дубль — 400, выключение, неизвестная — 404 13ms
+     ✓ лента операций: source — только RESERVATIONS или CASH, новые типы в type 6ms
+   ✓ сверка наличных (§21.4, K4) (3)
+     ✓ недостача с поправкой: запись сверки, расход «Недостача кассы», остаток равен пересчитанному 6ms
+     ✓ излишек без галочки — остаток не меняется; совпало — поправки нет; GET /finance/cash отдаёт сверку 10ms
+     ✓ проверки: отрицательная сумма, не-кассовый способ, не число — 400; способ по умолчанию — наличные 9ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 91ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 63ms
+     ✓ MKT4: у рантайма сайтов один путь, только GET; чтения версии по id и других путей рантайма нет 25ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(327) } to deeply equal { 'GET /onboarding': 'self', …(330) }
+
+- Expected
++ Received
+
+@@ -79,11 +79,10 @@
+    "GET /desk/dashboard": "desk",
+    "GET /desk/dashboard/channels": "reports",
+    "GET /desk/dashboard/units": "reports",
+    "GET /desk/today": "desk",
+    "GET /finance/cash": "desk",
+-   "GET /finance/cash/categories": "settings",
+    "GET /finance/debts": "reports",
+    "GET /finance/operations": "reports",
+    "GET /finance/report": "reports",
+    "GET /finance/reservations/:number": "desk",
+    "GET /finance/reservations/:number/payment-requests": "desk",
+@@ -104,11 +103,10 @@
+    "GET /guests/directory": "desk",
+    "GET /health": "public",
+    "GET /hotel/channel-report": "channels",
+    "GET /hotel/first-steps": "desk",
+    "GET /hotel/onboarding": "desk",
+-   "GET /hotel/payment-methods": "settings",
+    "GET /hotel/reservations": "desk",
+    "GET /hotel/services": "settings",
+    "GET /hotel/settings": "desk",
+    "GET /inventory/categories": "property",
+    "GET /inventory/summary": "desk",
+@@ -320,11 +318,10 @@
+    "PUT /beauty/employees/:id/locations": "property",
+    "PUT /beauty/employees/:id/services": "property",
+    "PUT /beauty/employees/:id/working-hours": "property",
+    "PUT /beauty/services/:id/location": "rates",
+    "PUT /food-service/reservations/:id/table": "desk",
+-   "PUT /hotel/payment-methods": "settings",
+    "PUT /market/collector/competitors/:id/occupancy": "service",
+    "PUT /market/competitors/:id/occupancy": "rates",
+    "PUT /platform/organizations/:id/extensions/ai-seller": "platform",
+    "PUT /platform/organizations/:id/status": "platform",
+    "PUT /platform/support/kb/:id": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:440:20
+    438|       .map(([key]) => key);
+    439|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    440|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    441|   });
+    442|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > способы оплаты объекта (DATA_MODEL §21.6, ADR-152) > без строк все восемь включены в системном порядке: бронь и касса отдают список
+AssertionError: expected undefined to deeply equal [ 'CASH', 'CARD_TERMINAL', …(6) ]
+
+- Expected:
+[
+  "CASH",
+  "CARD_TERMINAL",
+  "KASPI",
+  "HALYK",
+  "BANK_TRANSFER_PERSON",
+  "BANK_TRANSFER_LEGAL",
+  "DEPOSIT",
+  "CARD_GUARANTEE",
+]
+
++ Received:
+undefined
+
+ ❯ apps/api/src/finance/finance.controller.test.ts:1298:37
+    1296|     it('без строк все восемь включены в системном порядке: бронь и кас…
+    1297|       const r = await get();
+    1298|       expect(r.body.paymentMethods).toEqual(ALL);
+       |                                     ^
+    1299|       const c = await http().get('/finance/cash').expect(200);
+    1300|       expect(c.body.paymentMethods).toEqual([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > способы оплаты объекта (DATA_MODEL §21.6, ADR-152) > выключенный способ: оплата, замена платежа, операция и перевод кассы отказывают словами
+AssertionError: expected undefined to deeply equal [ 'CASH', 'CARD_TERMINAL', …(5) ]
+
+- Expected:
+[
+  "CASH",
+  "CARD_TERMINAL",
+  "HALYK",
+  "BANK_TRANSFER_PERSON",
+  "BANK_TRANSFER_LEGAL",
+  "DEPOSIT",
+  "CARD_GUARANTEE",
+]
+
++ Received:
+undefined
+
+ ❯ apps/api/src/finance/finance.controller.test.ts:1313:37
+    1311|       fakes.paymentMethods.push({ method: 'KASPI', enabled: false, sor…
+    1312|       const r = await get();
+    1313|       expect(r.body.paymentMethods).toEqual(ALL.filter((m) => m !== 'K…
+       |                                     ^
+    1314|       const pay = (method: string) =>
+    1315|         http()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > способы оплаты объекта (DATA_MODEL §21.6, ADR-152) > плитки кассы: выключенный способ без движений плитки не получает, порядок по настройке
+AssertionError: expected [ 'CASH', 'KASPI', 'HALYK', …(1) ] to deeply equal [ 'HALYK', 'CASH', 'CARD_TERMINAL' ]
+
+- Expected
++ Received
+
+  [
++   "CASH",
++   "KASPI",
+    "HALYK",
+-   "CASH",
+    "CARD_TERMINAL",
+  ]
+
+ ❯ apps/api/src/finance/finance.controller.test.ts:1348:72
+    1346|       );
+    1347|       const c = await http().get('/finance/cash').expect(200);
+    1348|       expect(c.body.balances.map((b: { method: string }) => b.method))…
+       |                                                                        ^
+    1349|         'HALYK',
+    1350|         'CASH',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > способы оплаты объекта (DATA_MODEL §21.6, ADR-152) > GET /finance/cash/categories отдаёт справочник статей без остатков
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:1363:62
+    1361|
+    1362|     it('GET /finance/cash/categories отдаёт справочник статей без оста…
+    1363|       const r = await http().get('/finance/cash/categories').expect(20…
+       |                                                              ^
+    1364|       expect(r.body.map((c: { name: string }) => c.name)).toContain('К…
+    1365|       expect(r.body[0]).toMatchObject({ kind: expect.any(String), acti…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  |unit| apps/api/src/finance/payment-requests.controller.test.ts > запросы оплаты /finance/*payment-requests (DATA_MODEL §24) > выключенный в настройках объекта способ не принимает запрос оплаты (DATA_MODEL §21.6)
+Error: expected 400 "Bad Request", got 201 "Created"
+ ❯ apps/api/src/finance/payment-requests.controller.test.ts:104:86
+    102|   it('выключенный в настройках объекта способ не принимает запрос опла…
+    103|     disabledMethods.push('KASPI');
+    104|     const r = await create({ folioId: FOLIO.id, method: 'KASPI', amoun…
+       |                                                                                      ^
+    105|     expect(r.body.message).toBe('Способ оплаты «Kaspi» выключен в наст…
+    106|     await create({ folioId: FOLIO.id, method: 'HALYK', amount: '12 000…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  |unit| apps/api/src/hotel/payment-methods.test.ts > способы оплаты объекта > без строк все восемь включены в системном порядке; строки задают порядок и включение
+TypeError: empty.service.paymentMethods is not a function
+ ❯ apps/api/src/hotel/payment-methods.test.ts:61:53
+     59|   it('без строк все восемь включены в системном порядке; строки задают…
+     60|     const empty = setup();
+     61|     const r = await as('OWNER', () => empty.service.paymentMethods());
+       |                                                     ^
+     62|     expect(r.methods).toEqual(all());
+     63|     const stored = setup([
+ ❯ apps/api/src/auth/request-context.ts:59:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:59:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:69:10
+ ❯ as apps/api/src/hotel/payment-methods.test.ts:55:3
+ ❯ apps/api/src/hotel/payment-methods.test.ts:61:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  |unit| apps/api/src/hotel/payment-methods.test.ts > способы оплаты объекта > сохранение: все восемь строк одной транзакцией, порядок это позиция в списке, журнал «было/стало»
+TypeError: service.updatePaymentMethods is not a function
+ ❯ apps/api/src/hotel/payment-methods.test.ts:82:47
+     80|       ...all().filter((m) => m.method !== 'KASPI' && m.method !== 'CAS…
+     81|     ];
+     82|     const r = await as('OWNER', () => service.updatePaymentMethods({ m…
+       |                                               ^
+     83|     expect(r.methods).toEqual(methods);
+     84|     expect(upsert).toHaveBeenCalledTimes(8);
+ ❯ apps/api/src/auth/request-context.ts:59:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:59:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:69:10
+ ❯ as apps/api/src/hotel/payment-methods.test.ts:55:3
+ ❯ apps/api/src/hotel/payment-methods.test.ts:82:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  |unit| apps/api/src/hotel/payment-methods.test.ts > способы оплаты объекта > ничего не изменилось: записи нет, журнала нет
+TypeError: service.updatePaymentMethods is not a function
+ ❯ apps/api/src/hotel/payment-methods.test.ts:109:37
+    107|   it('ничего не изменилось: записи нет, журнала нет', async () => {
+    108|     const { service, upsert, audit } = setup();
+    109|     await as('OWNER', () => service.updatePaymentMethods({ methods: al…
+       |                                     ^
+    110|     expect(upsert).not.toHaveBeenCalled();
+    111|     expect(audit).not.toHaveBeenCalled();
+ ❯ apps/api/src/auth/request-context.ts:59:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:59:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:69:10
+ ❯ as apps/api/src/hotel/payment-methods.test.ts:55:3
+ ❯ apps/api/src/hotel/payment-methods.test.ts:109:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  |unit| apps/api/src/hotel/payment-methods.test.ts > способы оплаты объекта > неверное тело: 400 словами разбора, ничего не пишется
+AssertionError: expected [Function] to throw error including 'Хотя бы один способ оплаты должен быт…' but got 'service.updatePaymentMethods is not a…'
+
+Expected: "Хотя бы один способ оплаты должен быть включён"
+Received: "service.updatePaymentMethods is not a function"
+
+ ❯ apps/api/src/hotel/payment-methods.test.ts:118:6
+    116|     await expect(
+    117|       as('OWNER', () => service.updatePaymentMethods({ methods: all(fa…
+    118|     ).rejects.toThrow('Хотя бы один способ оплаты должен быть включён'…
+       |      ^
+    119|     await expect(
+    120|       as('OWNER', () => service.updatePaymentMethods({ methods: all().…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  |unit| apps/api/src/hotel/payment-methods.test.ts > способы оплаты объекта > администратор не читает и не правит: право settings (ADR-107)
+AssertionError: expected [Function] to throw error including '«Настройки гостиницы»: доступ есть у …' but got 'service.paymentMethods is not a funct…'
+
+Expected: "«Настройки гостиницы»: доступ есть у владельца и управляющего."
+Received: "service.paymentMethods is not a function"
+
+ ❯ apps/api/src/hotel/payment-methods.test.ts:127:62
+    125|   it('администратор не читает и не правит: право settings (ADR-107)', …
+    126|     const { service } = setup();
+    127|     await expect(as('STAFF', () => service.paymentMethods())).rejects.…
+       |                                                              ^
+    128|       accessDeniedMessage('settings'),
+    129|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  11 failed | 46 passed (57)
+   Start at  10:33:02
+   Duration  5.24s (transform 59%, import 31%, tests 10%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-33-01Z-unit-d351.json
+
+# код выхода 1 · 6 с

@@ -1,0 +1,61 @@
+# Модульные (unit) · 07.10.2026 15:30 Алматы · vm
+# коммит fb520a3 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-30-12Z-unit-cd7d.json' 'packages/domain/src/finance/cash.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/finance/cash.test.ts (12 tests | 1 failed) 32ms
+   ✓ assertCashOperation (DATA_MODEL §21) (3)
+     ✓ поступление и расход: сумма больше нуля, статья того же вида 3ms
+     ✓ EXTERNAL, DEPOSIT и CARD_GUARANTEE — не живые деньги кассы (Q-237) 1ms
+     ✓ перевод: нужен другой способ-получатель, статьи у перевода нет 1ms
+   ✓ cashBalances (3)
+     ✓ остаток по способу: оплаты гостей − возвраты + поступления − расходы ± переводы 1ms
+     ✓ плитки по умолчанию видны и при нуле; EXTERNAL в кассу не попадает 1ms
+     ✓ способ вне умолчаний появляется, когда по нему было движение 0ms
+   ✓ commissionFromPercent (2)
+     ✓ целыми тиынами, вниз: 2,5 % от 10 000 тиын — 250 1ms
+     ✓ не число, ноль или больше 100 — ошибка 1ms
+   ✓ сверка наличных (§21.4) (2)
+     ✓ counted ≥ 0, способ — кассовый 2ms
+     ✓ поправка: излишек — поступление, недостача — расход, совпало — нет поправки 2ms
+   ❯ плитки кассы по настройке способов объекта (DATA_MODEL §21.6, ADR-152) (2)
+     ✓ без настройки: четыре плитки по умолчанию плюс способы с движениями, в системном порядке 1ms
+     × выключенный способ без движений плитки не получает, порядок плиток по настройке 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/finance/cash.test.ts > плитки кассы по настройке способов объекта (DATA_MODEL §21.6, ADR-152) > выключенный способ без движений плитки не получает, порядок плиток по настройке
+AssertionError: expected [ 'CASH', 'KASPI', 'HALYK', …(2) ] to deeply equal [ 'KASPI', 'CASH', …(1) ]
+
+- Expected
++ Received
+
+  [
+-   "KASPI",
+    "CASH",
++   "KASPI",
++   "HALYK",
++   "CARD_TERMINAL",
+    "BANK_TRANSFER_PERSON",
+  ]
+
+ ❯ packages/domain/src/finance/cash.test.ts:199:45
+    197|       order: ['KASPI', 'CASH', 'CARD_TERMINAL', 'HALYK'],
+    198|     });
+    199|     expect(b.balances.map((x) => x.method)).toEqual(['KASPI', 'CASH', …
+       |                                             ^
+    200|     expect(b.totalMinor).toBe(1_000n);
+    201|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  10:30:13
+   Duration  429ms (transform 71%, tests 15%, import 11%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-30-12Z-unit-cd7d.json
+
+# код выхода 1 · 1 с

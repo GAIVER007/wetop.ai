@@ -20,6 +20,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { Prisma, ReservationStatus } from '@pms/database';
@@ -27,9 +28,13 @@ import {
   LUXX_APARTS_PROPERTY,
   REGISTRATION_NAME_TAKEN_MESSAGE,
   accessDeniedMessage,
+  enabledPaymentMethods,
   parseHotelSettingsPatch,
+  parsePaymentMethodSettings,
   parseServiceInput,
+  resolvePaymentMethodSettings,
   type HotelSettingsPatch,
+  type PaymentMethodSetting,
   type ServiceInput,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
@@ -375,6 +380,60 @@ export class HotelService {
       throw new ForbiddenException(accessDeniedMessage('settings'));
   }
 
+  /**
+   * Способы оплаты объекта (DATA_MODEL §21.6, ADR-185): какие из восьми системных способов стойка предлагает и в
+   * каком порядке. Без строк умолчания домена (все включены). Право `settings`, как у остальных «Настроек объекта».
+   */
+  async paymentMethods(): Promise<{ methods: PaymentMethodSetting[] }> {
+    this.mayEditSettings();
+    const property = await this.property();
+    return { methods: await this.readPaymentMethods(property.id) };
+  }
+
+  private async readPaymentMethods(propertyId: string): Promise<PaymentMethodSetting[]> {
+    const rows = await this.prisma.db.paymentMethodSetting.findMany({
+      where: { propertyId },
+      orderBy: { sortOrder: 'asc' },
+      select: { method: true, enabled: true, sortOrder: true },
+    });
+    return resolvePaymentMethodSettings(rows);
+  }
+
+  /** Сохранение: все восемь строк одной транзакцией, порядок это позиция в списке; журнал «было/стало» */
+  async updatePaymentMethods(raw: unknown): Promise<{ methods: PaymentMethodSetting[] }> {
+    this.mayEditSettings();
+    const parsed = parsePaymentMethodSettings(raw);
+    if (!parsed.ok) throw new BadRequestException(parsed.reason);
+    const next = parsed.value;
+    const property = await this.property();
+    const current = await this.readPaymentMethods(property.id);
+    const snapshot = (list: PaymentMethodSetting[]) => ({
+      enabled: enabledPaymentMethods(list),
+      order: list.map((m) => m.method),
+    });
+    const before = snapshot(current);
+    const after = snapshot(next);
+    if (JSON.stringify(before) === JSON.stringify(after)) return { methods: current };
+    await this.prisma.db.$transaction(async (tx) => {
+      for (const [sortOrder, m] of next.entries())
+        await tx.paymentMethodSetting.upsert({
+          where: { propertyId_method: { propertyId: property.id, method: m.method } },
+          create: { propertyId: property.id, method: m.method, enabled: m.enabled, sortOrder },
+          update: { enabled: m.enabled, sortOrder },
+        });
+      await tx.auditLog.create({
+        data: {
+          entityType: 'Property',
+          entityId: property.id,
+          action: 'hotel.payment_methods.updated',
+          before,
+          after,
+        },
+      });
+    });
+    return { methods: next };
+  }
+
   /** Сбросить кэш настроек (после онбординга: у объекта появились номера, гейт больше не нужен). */
   forget(): void {
     this.cachedSettings.clear();
@@ -508,6 +567,17 @@ export class HotelController {
   @Patch('services/:code')
   updateService(@Param('code') code: string, @Body() body: unknown) {
     return this.service.updateService(code, body);
+  }
+  // Способы оплаты объекта (DATA_MODEL §21.6, ADR-185): владелец и управляющий
+  @Access('settings')
+  @Get('payment-methods')
+  paymentMethods() {
+    return this.service.paymentMethods();
+  }
+  @Access('settings')
+  @Put('payment-methods')
+  updatePaymentMethods(@Body() body: unknown) {
+    return this.service.updatePaymentMethods(body);
   }
   @Get('first-steps') firstSteps() {
     return this.service.firstSteps();

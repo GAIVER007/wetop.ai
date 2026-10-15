@@ -1,0 +1,583 @@
+# Сквозные (e2e) · 07.10.2026 15:45 Алматы · vm
+# коммит 89d21bc (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/settings-directories.spec.ts' 'tests/ui/finance-cash.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/finance-card-actions.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 62 tests using 1 worker
+
+  ✓   1 tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (3.7s)
+  ✓   2 tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (2.5s)
+  ✓   3 tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (2.8s)
+  ✓   4 tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (2.9s)
+  ✓   5 tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (3.7s)
+  ✓   6 tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (2.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   7 tests/ui/finance-card-actions.spec.ts:169:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (5.6s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   8 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (5.1s)
+  ✓   9 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (4.3s)
+  ✓  10 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (4.6s)
+  ✓  11 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (4.2s)
+  ✓  12 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (2.8s)
+  ✓  13 tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (4.6s)
+  ✓  14 tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (3.6s)
+  ✓  15 tests/ui/finance-cash.spec.ts:112:1 › статьи: кнопка «Статьи кассы» ведёт в «Настройки объекта → Справочники»; выключенная статья уходит из формы расхода (3.4s)
+  ✓  16 tests/ui/finance-cash.spec.ts:135:1 › «только чтение»: кнопок кассы нет, остатки видны (2.7s)
+  ✓  17 tests/ui/finance-cash.spec.ts:152:3 › касса, снимки для владельца, light (3.4s)
+  ✓  18 tests/ui/finance-cash.spec.ts:152:3 › касса, снимки для владельца, dark (3.2s)
+  ✓  19 tests/ui/finance-cash.spec.ts:176:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента (3.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  20 tests/ui/finance-cash.spec.ts:204:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния (3.0s)
+  ✓  21 tests/ui/requests.spec.ts:83:3 › экран /today: данные берутся одним запросом на путь (1.8s)
+  ✓  22 tests/ui/requests.spec.ts:83:3 › экран /chessboard: данные берутся одним запросом на путь (2.3s)
+  ✓  23 tests/ui/requests.spec.ts:83:3 › экран /reservations: данные берутся одним запросом на путь (2.0s)
+  ✓  24 tests/ui/requests.spec.ts:83:3 › экран /guests: данные берутся одним запросом на путь (1.9s)
+  ✓  25 tests/ui/requests.spec.ts:83:3 › экран /inventory: данные берутся одним запросом на путь (2.2s)
+  ✓  26 tests/ui/requests.spec.ts:83:3 › экран /rooms/categories: данные берутся одним запросом на путь (2.3s)
+  ✓  27 tests/ui/requests.spec.ts:83:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.7s)
+  ✓  28 tests/ui/requests.spec.ts:83:3 › экран /management/analytics: данные берутся одним запросом на путь (1.7s)
+  ✓  29 tests/ui/requests.spec.ts:83:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.8s)
+  ✓  30 tests/ui/requests.spec.ts:83:3 › экран /management/analytics/units: данные берутся одним запросом на путь (3.4s)
+  ✓  31 tests/ui/requests.spec.ts:83:3 › экран /finance: данные берутся одним запросом на путь (1.8s)
+  ✓  32 tests/ui/requests.spec.ts:83:3 › экран /reports: данные берутся одним запросом на путь (2.2s)
+  ✓  33 tests/ui/requests.spec.ts:83:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (1.8s)
+  ✓  34 tests/ui/requests.spec.ts:83:3 › экран /channels: данные берутся одним запросом на путь (2.6s)
+  ✓  35 tests/ui/requests.spec.ts:83:3 › экран /connections/channex: данные берутся одним запросом на путь (2.2s)
+  ✓  36 tests/ui/requests.spec.ts:83:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.9s)
+  ✓  37 tests/ui/requests.spec.ts:83:3 › экран /channels/sync: данные берутся одним запросом на путь (1.8s)
+  ✓  38 tests/ui/requests.spec.ts:83:3 › экран /channels/events: данные берутся одним запросом на путь (1.7s)
+  ✓  39 tests/ui/requests.spec.ts:83:3 › экран /marketing: данные берутся одним запросом на путь (1.6s)
+  ✓  40 tests/ui/requests.spec.ts:83:3 › экран /website: данные берутся одним запросом на путь (1.6s)
+  ✓  41 tests/ui/requests.spec.ts:83:3 › экран /website/booking: данные берутся одним запросом на путь (1.6s)
+  ✓  42 tests/ui/requests.spec.ts:83:3 › экран /website/analytics: данные берутся одним запросом на путь (1.8s)
+  ✓  43 tests/ui/requests.spec.ts:83:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.2s)
+  ✓  44 tests/ui/requests.spec.ts:83:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.7s)
+  ✓  45 tests/ui/requests.spec.ts:83:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.7s)
+  ✓  46 tests/ui/requests.spec.ts:83:3 › экран /hotel-settings/directories: данные берутся одним запросом на путь (1.9s)
+  ✓  47 tests/ui/requests.spec.ts:83:3 › экран /team: данные берутся одним запросом на путь (2.2s)
+  ✓  48 tests/ui/requests.spec.ts:83:3 › экран /connections: данные берутся одним запросом на путь (1.9s)
+  ✓  49 tests/ui/requests.spec.ts:83:3 › экран /ai-agents: данные берутся одним запросом на путь (2.4s)
+  ✓  50 tests/ui/requests.spec.ts:83:3 › экран /website/settings: данные берутся одним запросом на путь (1.8s)
+  ✓  51 tests/ui/requests.spec.ts:83:3 › экран /incidents: данные берутся одним запросом на путь (1.7s)
+  ✓  52 tests/ui/requests.spec.ts:83:3 › экран /journal: данные берутся одним запросом на путь (1.8s)
+  ✘  53 tests/ui/requests.spec.ts:83:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (3.1s)
+  ✓  54 tests/ui/settings-directories.spec.ts:50:1 › вкладка «Справочники»: восемь способов; Kaspi выключен и Halyk поднят, сохранение из шапки, после перечитывания то же (6.2s)
+  ✘  55 tests/ui/settings-directories.spec.ts:87:1 › все способы выключены: сохранить нельзя, причина словами (45.2s)
+  ✓  56 tests/ui/settings-directories.spec.ts:107:1 › выключенный Kaspi: нет в форме оплаты, запросах оплаты и кассе; API отказывает словами (4.1s)
+  ✓  57 tests/ui/settings-directories.spec.ts:143:1 › статьи кассы: ссылка из «Кассы» ведёт в справочники; добавить, переименовать, выключить; выключенная уходит из расхода (6.0s)
+  ✓  58 tests/ui/settings-directories.spec.ts:174:1 › управляющий правит; «только чтение» видит факты без кнопок (3.6s)
+  ✘  59 tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: light, 1440px (4.2s)
+  ✘  60 tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: light, 390px (4.5s)
+  ✘  61 tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: dark, 1440px (4.7s)
+  ✘  62 tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: dark, 390px (5.0s)
+
+
+  1) tests/ui/requests.spec.ts:83:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /reservations/new?unit=M03: {"GET /hotel/settings":1,"GET /auth/me":1,"GET /inventory/summary":1,"GET /rate-plans":1,"GET /availability?arrival=2026-10-07&departure=2026-10-08":1,"GET /system/pii-storage":1,"GET /system/freshness":1,"POST /reservations/quote":2}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "POST /reservations/quote",
+    +     2,
+    +   ],
+    + ]
+
+      90 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      91 |     );
+    > 92 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      93 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      94 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      95 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:92:88
+
+    Error Context: test-results/requests-экран-reservation-9e9b1-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-reservation-9e9b1-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-reservation-9e9b1-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/settings-directories.spec.ts:87:1 › все способы выключены: сохранить нельзя, причина словами 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.uncheck: Target page, context or browser has been closed
+
+      89 |   await page.goto('/hotel-settings/directories');
+      90 |   const main = page.getByRole('main');
+    > 91 |   for (const m of ALL) await main.getByLabel(`Принимаем: ${(await label(main, m)) ?? m}`).uncheck();
+         |                                                                                           ^
+      92 |   await expect(main.getByText('Хотя бы один способ оплаты должен быть включён')).toBeVisible();
+      93 |   await main.getByRole('button', { name: 'Сохранить изменения' }).click();
+      94 |   // форма не ушла: разбор домена остановил запрос, список по-прежнему весь выключен
+        at /home/user/wetop.ai/tests/ui/settings-directories.spec.ts:91:91
+
+    Error Context: test-results/settings-directories-все-с-5c2c1-нить-нельзя-причина-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-directories-все-с-5c2c1-нить-нельзя-причина-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-directories-все-с-5c2c1-нить-нельзя-причина-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: light, 1440px ───────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 75
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "способы оплаты",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Способы оплаты\">",
+    +                 "target": Array [
+    +                   ".table-scroll[role=\"region\"][aria-label=\"Способы оплаты\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"panel settings-block\" aria-labelledby=\"settings-payment-methods\" data-testid=\"payment-methods\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "section[aria-labelledby=\"settings-payment-methods\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "статьи кассы",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Статьи кассы\">",
+    +                 "target": Array [
+    +                   ".table-scroll[role=\"region\"][aria-label=\"Статьи кассы\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"panel settings-block\" id=\"cash-categories\" aria-labelledby=\"settings-cash-categories\" data-testid=\"cash-categories\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#cash-categories",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      204 |       await expect(main.getByTestId('cash-category-rename')).toBeVisible();
+      205 |       const result = await new AxeBuilder({ page }).include('main').analyze();
+    > 206 |       expect(result.violations).toEqual([]);
+          |                                 ^
+      207 |       const widths = await page.evaluate(() => [
+      208 |         document.documentElement.scrollWidth,
+      209 |         document.documentElement.clientWidth,
+        at /home/user/wetop.ai/tests/ui/settings-directories.spec.ts:206:33
+
+    Error Context: test-results/settings-directories-доступность-«Справочников»-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-directories-доступность-«Справочников»-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-directories-доступность-«Справочников»-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: light, 390px ────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 75
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "способы оплаты",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Способы оплаты\">",
+    +                 "target": Array [
+    +                   ".table-scroll[role=\"region\"][aria-label=\"Способы оплаты\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"panel settings-block\" aria-labelledby=\"settings-payment-methods\" data-testid=\"payment-methods\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "section[aria-labelledby=\"settings-payment-methods\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "статьи кассы",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Статьи кассы\">",
+    +                 "target": Array [
+    +                   ".table-scroll[role=\"region\"][aria-label=\"Статьи кассы\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"panel settings-block\" id=\"cash-categories\" aria-labelledby=\"settings-cash-categories\" data-testid=\"cash-categories\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#cash-categories",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      204 |       await expect(main.getByTestId('cash-category-rename')).toBeVisible();
+      205 |       const result = await new AxeBuilder({ page }).include('main').analyze();
+    > 206 |       expect(result.violations).toEqual([]);
+          |                                 ^
+      207 |       const widths = await page.evaluate(() => [
+      208 |         document.documentElement.scrollWidth,
+      209 |         document.documentElement.clientWidth,
+        at /home/user/wetop.ai/tests/ui/settings-directories.spec.ts:206:33
+
+    Error Context: test-results/settings-directories-доступность-«Справочников»-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-directories-доступность-«Справочников»-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-directories-доступность-«Справочников»-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: dark, 1440px ────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 75
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "способы оплаты",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Способы оплаты\">",
+    +                 "target": Array [
+    +                   ".table-scroll[role=\"region\"][aria-label=\"Способы оплаты\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"panel settings-block\" aria-labelledby=\"settings-payment-methods\" data-testid=\"payment-methods\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "section[aria-labelledby=\"settings-payment-methods\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "статьи кассы",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Статьи кассы\">",
+    +                 "target": Array [
+    +                   ".table-scroll[role=\"region\"][aria-label=\"Статьи кассы\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"panel settings-block\" id=\"cash-categories\" aria-labelledby=\"settings-cash-categories\" data-testid=\"cash-categories\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#cash-categories",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      204 |       await expect(main.getByTestId('cash-category-rename')).toBeVisible();
+      205 |       const result = await new AxeBuilder({ page }).include('main').analyze();
+    > 206 |       expect(result.violations).toEqual([]);
+          |                                 ^
+      207 |       const widths = await page.evaluate(() => [
+      208 |         document.documentElement.scrollWidth,
+      209 |         document.documentElement.clientWidth,
+        at /home/user/wetop.ai/tests/ui/settings-directories.spec.ts:206:33
+
+    Error Context: test-results/settings-directories-доступность-«Справочников»-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-directories-доступность-«Справочников»-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-directories-доступность-«Справочников»-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: dark, 390px ─────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 75
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "способы оплаты",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Способы оплаты\">",
+    +                 "target": Array [
+    +                   ".table-scroll[role=\"region\"][aria-label=\"Способы оплаты\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"panel settings-block\" aria-labelledby=\"settings-payment-methods\" data-testid=\"payment-methods\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "section[aria-labelledby=\"settings-payment-methods\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": "статьи кассы",
+    +               "role": "region",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"table-scroll\" tabindex=\"0\" role=\"region\" aria-label=\"Статьи кассы\">",
+    +                 "target": Array [
+    +                   ".table-scroll[role=\"region\"][aria-label=\"Статьи кассы\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<section class=\"panel settings-block\" id=\"cash-categories\" aria-labelledby=\"settings-cash-categories\" data-testid=\"cash-categories\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#cash-categories",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      204 |       await expect(main.getByTestId('cash-category-rename')).toBeVisible();
+      205 |       const result = await new AxeBuilder({ page }).include('main').analyze();
+    > 206 |       expect(result.violations).toEqual([]);
+          |                                 ^
+      207 |       const widths = await page.evaluate(() => [
+      208 |         document.documentElement.scrollWidth,
+      209 |         document.documentElement.clientWidth,
+        at /home/user/wetop.ai/tests/ui/settings-directories.spec.ts:206:33
+
+    Error Context: test-results/settings-directories-доступность-«Справочников»-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-directories-доступность-«Справочников»-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-directories-доступность-«Справочников»-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/requests.spec.ts:83:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь 
+    tests/ui/settings-directories.spec.ts:87:1 › все способы выключены: сохранить нельзя, причина словами 
+    tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: light, 1440px ────────
+    tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: light, 390px ─────────
+    tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: dark, 1440px ─────────
+    tests/ui/settings-directories.spec.ts:192:5 › доступность «Справочников»: dark, 390px ──────────
+  56 passed (5.7m)
+
+# код выхода 1 · 5 мин 45 с

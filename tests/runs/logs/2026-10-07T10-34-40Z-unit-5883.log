@@ -1,0 +1,19 @@
+# Модульные (unit) · 07.10.2026 15:34 Алматы · vm
+# коммит fb520a3 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-34-40Z-unit-5883.json' 'apps/api/src/finance/finance.controller.test.ts' 'apps/api/src/finance/payment-requests.controller.test.ts' 'apps/api/src/hotel/payment-methods.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/finance/payment-requests.controller.test.ts (11 tests) 295ms
+ ✓ |unit| apps/api/src/hotel/payment-methods.test.ts (5 tests) 19ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (38 tests) 782ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 92ms
+
+ Test Files  4 passed (4)
+      Tests  57 passed (57)
+   Start at  10:34:41
+   Duration  4.20s (transform 59%, import 29%, tests 12%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-34-40Z-unit-5883.json
+
+# код выхода 0 · 5 с

@@ -6,12 +6,11 @@ import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
-import { Alert, Button, Legend, cx } from '../../components/ui';
+import { Alert, Button, Legend, Stat } from '../../components/ui';
 import { Toolbar } from '../../components/toolbar';
 import { DateInput } from '../../components/date-field';
-import { PeriodPicker } from '../../components/period-picker';
+import { DateRangePopover } from '../../components/date-range-popover';
 import { ChessboardGrid } from './board-grid';
-import { BoardTodayLink } from './board-today-link';
 import { BoardMenu } from './board-menu';
 import { BoardZoom } from './board-zoom';
 import { displayDate } from '../../lib/display-date';
@@ -116,23 +115,6 @@ export default async function ChessboardPage({
     const period = monthPeriod(from, offset);
     return `/chessboard?from=${period.from}&to=${period.to}`;
   };
-  const periodLabel = new Intl.DateTimeFormat('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).formatRange(new Date(`${from}T00:00:00Z`), new Date(`${to}T00:00:00Z`));
-  const shortPeriodLabel = new Intl.DateTimeFormat('ru-RU', {
-    day: 'numeric',
-    month: 'short',
-    timeZone: 'UTC',
-  }).formatRange(new Date(`${from}T00:00:00Z`), new Date(`${to}T00:00:00Z`));
-  /** Произвольное окно от сегодня; календарные режимы сохраняют границы недели/месяца. */
-  const window = (days: number) => {
-    const t = new Date(`${today}T00:00:00Z`);
-    t.setUTCDate(t.getUTCDate() + days - 1);
-    return `/chessboard?from=${today}&to=${t.toISOString().slice(0, 10)}`;
-  };
   const shift = (days: number) => {
     const f = new Date(`${board.from}T00:00:00Z`);
     f.setUTCDate(f.getUTCDate() + days);
@@ -141,23 +123,6 @@ export default async function ChessboardPage({
     return `/chessboard?from=${f.toISOString().slice(0, 10)}&to=${t.toISOString().slice(0, 10)}`;
   };
 
-  const sameMonth = from.slice(0, 7) === to.slice(0, 7);
-  const monthTitle = (() => {
-    const parts = new Intl.DateTimeFormat('ru-RU', {
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'UTC',
-    }).formatToParts(new Date(`${from}T00:00:00Z`));
-    const m = parts.find((x) => x.type === 'month')?.value ?? '';
-    const y = parts.find((x) => x.type === 'year')?.value ?? '';
-    return `${m.charAt(0).toUpperCase()}${m.slice(1)} ${y}`;
-  })();
-  /** Подпись кнопки периода: «Октябрь 2026» в пределах месяца, иначе короткий отрезок («28 сент. – 4 окт.») */
-  const rangeTitle = sameMonth ? monthTitle : shortPeriodLabel;
-  const lengthLabel = pluralRu(board.dates.length, ['день', 'дня', 'дней']);
-  const isDay = board.dates.length === 1;
-  const dayDate = from <= today && today <= to ? today : from;
-  const dayHref = `/chessboard?from=${dayDate}&to=${dayDate}`;
   const current = from <= today && today <= to ? board : todayBoard;
   const todaySummary = current?.summary[today];
   const units = todaySummary
@@ -169,7 +134,6 @@ export default async function ChessboardPage({
       : units === 0
         ? 0
         : null;
-  const dirtyUnits = board.rows.filter((r) => r.unit.housekeepingStatus === 'DIRTY').length;
   const debtStays = new Set(
     board.rows.flatMap((r) =>
       r.cells.flatMap((c) =>
@@ -207,12 +171,24 @@ export default async function ChessboardPage({
     </p>
   );
 
+  const prevHref = isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length);
+  const nextHref = isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length);
+  // UI4.2, решение владельца 13.10.2026 (Q-DES-1): один контрол периода с пресетами и календарём,
+  // стрелки сдвигают тот же отрезок; «День / Неделя / Месяц» и второго выбора длины нет.
   const lead = (
     <div className="board-nav" role="group" aria-label="Период календаря">
-      <BoardTodayLink />
-      <span className="board-nav-arrows">
+      <div className="board-period" data-testid="board-period">
+        <DateRangePopover
+          from={board.from}
+          to={board.to}
+          today={today}
+          maxDays={MAX_CHESSBOARD_DAYS}
+          action="/chessboard"
+          triggerTestId="board-period-button"
+          compact
+        />
         <Link
-          href={isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length)}
+          href={prevHref}
           className="icon-button"
           aria-label={
             isMonth ? 'Предыдущий месяц' : isWeek ? 'Предыдущая неделя' : 'Предыдущий период'
@@ -221,7 +197,7 @@ export default async function ChessboardPage({
           <Icon name="chevron" className="rotate-left" />
         </Link>
         <Link
-          href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
+          href={nextHref}
           className="icon-button"
           aria-label={
             isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'
@@ -229,91 +205,7 @@ export default async function ChessboardPage({
         >
           <Icon name="chevron" />
         </Link>
-      </span>
-      {/* Образец владельца 09.10.2026: «Октябрь 2026 ▾» раскрывает выбор дат («С» / «По»); ключ по
-          периоду: после перехода раскрывашка закрыта, поля несут новые даты. */}
-      <BoardMenu
-        resetKey={`${board.from}-${board.to}`}
-        className="board-period-menu"
-        testId="board-period-button"
-        title={periodLabel}
-        summary={
-          <>
-            <Icon name="board" className="board-period-icon" />
-            <span className="board-period-label">{rangeTitle}</span>
-            <Icon name="chevron" className="board-period-caret" />
-          </>
-        }
-      >
-        <div className="board-period-pop">
-          <form method="get" className="board-period-form">
-            <PeriodPicker from={board.from} to={board.to} fromName="from" toName="to" />
-            <Button tone="secondary" type="submit">
-              Применить
-            </Button>
-          </form>
-        </div>
-      </BoardMenu>
-      <nav className="seg board-scale" aria-label="Масштаб календаря">
-        <Link
-          href={dayHref}
-          className={cx(isDay && 'is-on')}
-          aria-current={isDay ? 'page' : undefined}
-        >
-          День
-        </Link>
-        <Link
-          href={weekHref()}
-          className={cx(isWeek && 'is-on')}
-          aria-current={isWeek ? 'page' : undefined}
-        >
-          Неделя
-        </Link>
-        <Link
-          href={monthHref()}
-          className={cx(isMonth && 'is-on')}
-          aria-current={isMonth ? 'page' : undefined}
-        >
-          Месяц
-        </Link>
-      </nav>
-      {/* Длина окна: 7 дней, календарная неделя, 14 и 30, от сегодня (ТЗ «Шахматка v2» §6–7).
-          «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}
-      <BoardMenu
-        resetKey={`${board.from}-${board.to}`}
-        className="board-length-menu"
-        testId="board-length-button"
-        summary={
-          <>
-            <span>{lengthLabel}</span>
-            <Icon name="chevron" className="board-period-caret" />
-          </>
-        }
-      >
-        <nav className="board-length-pop" aria-label="Длина периода">
-          <Link
-            href={weekHref()}
-            className={cx(isWeek && 'is-on')}
-            aria-current={isWeek ? 'page' : undefined}
-          >
-            7 дней
-          </Link>
-          <Link
-            href={window(14)}
-            className={cx(board.dates.length === 14 && 'is-on')}
-            aria-current={board.dates.length === 14 ? 'page' : undefined}
-          >
-            14 дней
-          </Link>
-          <Link
-            href={window(30)}
-            className={cx(board.dates.length === 30 && !isMonth && 'is-on')}
-            aria-current={board.dates.length === 30 && !isMonth ? 'page' : undefined}
-          >
-            30 дней
-          </Link>
-        </nav>
-      </BoardMenu>
+      </div>
     </div>
   );
   const actions = (
@@ -334,7 +226,6 @@ export default async function ChessboardPage({
       occupied={todaySummary?.occupied ?? null}
       units={units}
       free={todaySummary?.free ?? null}
-      dirty={dirtyUnits}
       attention={attention}
       availabilityHref={availabilityHref}
     />
@@ -342,7 +233,23 @@ export default async function ChessboardPage({
 
   return (
     <CalendarWorkspace summary={null} nativeLayout>
-      <Page width="full" title="Календарь" className="page--board calendar-page">
+      <Page
+        width="full"
+        title={
+          <>
+            <Icon name="board" className="calendar-page__icon" />
+            Календарь
+          </>
+        }
+        subtitle="Размещение и бронирования по дням"
+        actions={
+          <>
+            {lead}
+            {actions}
+          </>
+        }
+        className="page--board calendar-page"
+      >
         {overbooked.length > 0 && (
           <Alert boxed data-testid="overbooked-callout">
             Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}
@@ -367,14 +274,15 @@ export default async function ChessboardPage({
           today={today}
           fitMonth={isMonth}
           readOnly={shell?.readOnly ?? false}
-          lead={lead}
-          actions={actions}
           kpis={kpis}
           help={help}
         />
         <div className="board-footer">
           {/* Нижняя строка по образцу владельца (09.10.2026): цвета плашек словами, «Показать легенду»,
             масштаб «− 100% +». Смысл не держится на цвете: у статуса свой значок на плашке. */}
+          <span className="board-legend-title" aria-hidden="true">
+            Легенда:
+          </span>
           <ul
             className="board-legend-inline"
             aria-label="Цвета плашек"
@@ -475,7 +383,6 @@ function DayStats({
   occupied,
   units,
   free,
-  dirty,
   attention,
   availabilityHref,
 }: {
@@ -487,126 +394,89 @@ function DayStats({
   occupied: number | null;
   units: number | null;
   free: number | null;
-  dirty: number;
   attention: number;
   availabilityHref: string;
 }) {
   const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
   const n = (value: number | null | undefined) => (value == null ? '–' : String(value));
+  const share = (value: number | null) =>
+    value === null || !units ? null : `${Math.round((value / units) * 100)}%`;
+  const freeShare = share(free);
+  const stays = (count: number) => pluralRu(count, ['бронь', 'брони', 'броней']).replace(/^\d+\s/, '');
   const c = day.counts;
+  const more = <Icon name="arrow" className="board-kpis__more" />;
+  // Эталон владельца 13.10.2026 (UI4.2): шесть плиток «Занято, Свободно, Заезд сегодня, Выезд сегодня,
+  // Проживание, Требует внимания» на общем `Stat`; числа те же серверные, макетные не переносятся.
   return (
     <section className="board-kpis" role="group" aria-label="Сегодня на объекте">
-      <div className="board-kpi board-kpi--occupancy">
-        <span className="board-kpi__icon" aria-hidden="true">
-          <Icon name="bed" />
-        </span>
-        <div className="board-kpi__body">
-          <span className="board-kpi__row">
-            <b className="board-kpi__value" data-testid="day-occupancy">
-              {occupancy === null ? '–' : `${occupancy}%`}
-            </b>
-            {trend !== null && trend !== 0 && (
-              <span
-                className="board-kpi__trend"
-                data-direction={trend > 0 ? 'up' : 'down'}
-                data-testid="day-trend"
-                title="К вчерашнему дню, процентных пунктов"
-              >
-                <Icon name="arrow" className={trend > 0 ? 'rotate-up' : 'rotate-down'} />
-                {/* разница загрузки в процентных пунктах (DESIGN.md §14), минус настоящий */}
-                {trend > 0 ? `+${trend} п.п.` : `−${Math.abs(trend)} п.п.`}
-              </span>
-            )}
-          </span>
-          <span className="board-kpi__label">
-            <span className="sr-only">Загрузка: </span>
+      <Stat
+        icon={<Icon name="bed" />}
+        tone="info"
+        label="Занято"
+        value={
+          <>
             <span data-testid="day-occupied">{n(occupied)}</span>
-            {units !== null && <> из {units}</>} мест занято
-          </span>
-        </div>
-      </div>
-      <div className="board-kpi board-kpi--arrivals">
-        <span className="board-kpi__icon" aria-hidden="true">
-          <Icon name="arrival" />
-        </span>
-        <div className="board-kpi__body">
-          <span className="board-kpi__row">
-            <b className="board-kpi__value" data-testid="day-arrivals">
-              {c.arrivals}
-            </b>
-            <span className="board-kpi__label">Заезды сегодня</span>
-          </span>
-          <Link className="board-kpi__more" href={dayHref('arrival')}>
-            Подробнее <Icon name="arrow" />
-          </Link>
-        </div>
-      </div>
-      <div className="board-kpi board-kpi--departures">
-        <span className="board-kpi__icon" aria-hidden="true">
-          <Icon name="departure" />
-        </span>
-        <div className="board-kpi__body">
-          <span className="board-kpi__row">
-            <b className="board-kpi__value" data-testid="day-departures">
-              {c.departures}
-            </b>
-            <span className="board-kpi__label">Выезды сегодня</span>
-          </span>
-          <Link className="board-kpi__more" href={dayHref('departure')}>
-            Подробнее <Icon name="arrow" />
-          </Link>
-        </div>
-      </div>
-      <Link
-        className="board-kpi board-kpi--free"
+            {/* доля без скобок: владелец 06.10.2026 «в скобках убери», эталон 13.10 ставит её рядом с числом */}
+            <span className="board-kpis__share" data-testid="day-occupancy">
+              {occupancy === null ? '–' : `${occupancy}%`}
+            </span>
+          </>
+        }
+        {...(trend !== null && trend !== 0
+          ? {
+              delta: {
+                direction: trend > 0 ? ('up' as const) : ('down' as const),
+                // разница загрузки в процентных пунктах (DESIGN.md §14), минус настоящий
+                text: `${trend > 0 ? `+${trend}` : `−${Math.abs(trend)}`} п.п. за сутки`,
+              },
+            }
+          : { hint: units !== null ? `из ${units} мест` : undefined })}
+      />
+      <Stat
+        icon={<Icon name="inventory" />}
+        tone="success"
+        label="Свободно"
         href={availabilityHref}
-        // видимая подпись входит в имя ссылки (WCAG 2.5.3), дальше куда она ведёт
-        aria-label={`Свободно мест: ${n(free)}. Поиск свободных мест`}
-      >
-        <span className="board-kpi__icon" aria-hidden="true">
-          <Icon name="inventory" />
-        </span>
-        <span className="board-kpi__row">
-          <b className="board-kpi__value" data-testid="day-free">
-            {n(free)}
-          </b>
-          <span className="board-kpi__label">
-            Свободно
-            <br />
-            мест
-          </span>
-        </span>
-      </Link>
-      <div className="board-kpi board-kpi--dirty">
-        <span className="board-kpi__icon" aria-hidden="true">
-          <Icon name="dirty" />
-        </span>
-        <span className="board-kpi__row">
-          <b className="board-kpi__value" data-testid="day-dirty">
-            {dirty}
-          </b>
-          <span className="board-kpi__label">Нужна уборка</span>
-        </span>
-      </div>
-      <Link
-        className="board-kpi board-kpi--attention"
+        value={
+          <>
+            <span data-testid="day-free">{n(free)}</span>
+            {freeShare && <span className="board-kpis__share">{freeShare}</span>}
+          </>
+        }
+        hint={<>Найти места{more}</>}
+      />
+      <Stat
+        icon={<Icon name="arrival" />}
+        tone="info"
+        label="Заезд сегодня"
+        href={dayHref('arrival')}
+        value={<span data-testid="day-arrivals">{c.arrivals}</span>}
+        hint={<>{stays(c.arrivals)}{more}</>}
+      />
+      <Stat
+        icon={<Icon name="departure" />}
+        tone="danger"
+        label="Выезд сегодня"
+        href={dayHref('departure')}
+        value={<span data-testid="day-departures">{c.departures}</span>}
+        hint={<>{stays(c.departures)}{more}</>}
+      />
+      <Stat
+        icon={<Icon name="guests" />}
+        tone="neutral"
+        label="Проживание"
+        href={dayHref('stay')}
+        value={<span data-testid="day-in-house">{c.inHouse}</span>}
+        hint={<>{stays(c.inHouse)}{more}</>}
+      />
+      <Stat
+        icon={<Icon name="incidents" />}
+        tone="danger"
+        label="Требует внимания"
         href="/chessboard?stays=debt"
-        aria-label={`Требует внимания: ${attention}. Неоплаченные брони`}
-      >
-        <span className="board-kpi__icon" aria-hidden="true">
-          <Icon name="incidents" />
-        </span>
-        <span className="board-kpi__row">
-          <b className="board-kpi__value" data-testid="day-attention">
-            {attention}
-          </b>
-          <span className="board-kpi__label">
-            Требует внимания
-            <br />
-            <span className="board-kpi__note">долги и задачи</span>
-          </span>
-        </span>
-      </Link>
+        value={<span data-testid="day-attention">{attention}</span>}
+        hint={<>Долги и задачи{more}</>}
+      />
     </section>
   );
 }

@@ -32,7 +32,7 @@ test.beforeEach(async ({ page, request }) => {
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   // гостиница после входа сразу на «Финансах» (scope-resolve), без второго перехода с /today
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   // следующий экран грузится «холодно»: HTML сразу, скрипты стойки только после команды
   const gate = new Promise<void>((resolve) => {
     openGate = resolve;

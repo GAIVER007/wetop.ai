@@ -18,8 +18,8 @@ test.beforeEach(async ({ request, page }) => {
   await dialog.getByLabel('Почта').fill(EMAIL);
   await dialog.getByLabel('Пароль', { exact: true }).fill(PASSWORD);
   await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
-  // гостиница с 09.10.2026 садится на «Обзор бизнеса»: /today ведёт на /finance (vertical-landing.ts)
-  await expect(page).toHaveURL(`${WEB}/finance`);
+  // гостиница с 13.10.2026 садится на «Главную» на /today (vertical-landing.ts, ADR-180)
+  await expect(page).toHaveURL(`${WEB}/today`);
 });
 
 for (const status of [403, 500]) {
@@ -35,7 +35,7 @@ for (const status of [403, 500]) {
     await request.post(`${API}/__test/control`, {
       data: { failPath: '/auth/me', failStatus: status },
     });
-    // возврат с параметрами проверяется на самом экране посадки: /today перенаправляет и query не несёт
+    // возврат с параметрами проверяется на экране «Финансы», который их читает (ADR-180: /today не несёт период)
     const target = '/finance?from=2026-10-07&to=2026-10-08';
     const response = await page.goto(`${WEB}${target}`);
     await expect(page).toHaveURL(`${WEB}${target}`);
@@ -66,8 +66,7 @@ for (const status of [403, 500]) {
       })
       .click();
     await expect(page).toHaveURL(`${WEB}${target}`);
-    await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
-    await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
   });
 }
 
@@ -103,8 +102,8 @@ for (const width of [1440, 390])
       ).toBe(true);
       await request.post(`${PROXY}/__a27/network`, { data: { unavailable: false } });
       await page.keyboard.press('Enter');
-      await expect(page).toHaveURL(`${WEB}/finance`);
-      await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
+      await expect(page).toHaveURL(`${WEB}/today`);
+      await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
       await expect(page).not.toHaveURL(SITE);
     });
   }

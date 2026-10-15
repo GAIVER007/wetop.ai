@@ -1243,6 +1243,12 @@
     align-items: center;
     gap: var(--space-2);
   }
+  /* телефон: полоса дат и итога переносится, страница не тянется вбок (аудит UI5: перелив 45 px) */
+  @media (max-width: 600px) {
+    .rest-card__tools {
+      flex-wrap: wrap;
+    }
+  }
   .rest-card__tools .field {
     gap: 0;
   }
@@ -1359,6 +1365,19 @@
     cursor: pointer;
     box-shadow: inset 0 -2px 0 transparent;
   }
+  /* телефон: вкладка — цель касания 44 px; полоса прокручивается сама и не тянет страницу (аудит UI5) */
+  @media (max-width: 600px) {
+    .rest-utabs {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+    .rest-utabs > a,
+    .rest-utabs > button {
+      flex: none;
+      min-height: var(--touch-target);
+    }
+  }
+
   .rest-utabs > [aria-current='page'] {
     color: var(--primary);
     font-weight: var(--weight-semibold);
@@ -1401,6 +1420,13 @@
     font-size: var(--text-sm);
     text-decoration: none;
   }
+  /* телефон: пункт раздела настроек — цель касания 44 px (аудит UI5) */
+  @media (max-width: 600px) {
+    .rest-settings__nav a {
+      min-height: var(--touch-target);
+    }
+  }
+
   .rest-settings__nav a:hover {
     background: var(--surface-muted);
   }
@@ -1666,5 +1692,81 @@
   /* полоса вкладок сотрудников над содержимым страницы, с отступом снизу */
   .rest-staff-tabs {
     margin-bottom: var(--space-4);
+  }
+}
+
+@layer sections {
+  /*
+   * UI4.5 по эталону владельца (`design/references/05_verticals/three_calendar_concepts.png`, зал ресторана;
+   * DESIGN.md §21): смены карточками с часами («Завтрак 08:00–11:00»), у зоны значок и «N столов»,
+   * подпись под заголовком. Схема зала и состояния столов прежние.
+   */
+  .rest-shifts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .rest-shift {
+    display: grid;
+    gap: 0;
+    min-width: 112px;
+    min-height: var(--control-h);
+    padding: var(--space-1) var(--space-4);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .rest-shift strong {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .rest-shift span {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-shift:hover {
+    background: var(--row-hover);
+  }
+  .rest-shift[aria-pressed='true'] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .rest-shift:focus-visible {
+    outline: var(--focus-ring-w) solid var(--focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .rest-fp__zones button {
+    justify-content: flex-start;
+    min-height: var(--space-12);
+  }
+  .rest-fp__zone-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+    color: var(--text-2);
+  }
+  .rest-fp__zones button[aria-pressed='true'] .rest-fp__zone-icon {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .rest-fp__zone-text {
+    display: grid;
+    min-width: 0;
+  }
+  .rest-fp__zone-text small {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
   }
 }

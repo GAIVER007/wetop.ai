@@ -1,0 +1,16 @@
+# Сквозные (e2e) · 15.10.2026 11:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8715c74 (codex/bar-design-check-repair-20261014), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' '.design-only/bar-polish.config.ts' '--grep' 'bar labels and product form' '--workers=1'
+
+Running 4 tests using 1 worker
+
+(node:9579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/design-polish.spec.ts:9:5 › bar labels and product form: 1333 light (904ms)
+  ✓  2 tests/ui/design-polish.spec.ts:9:5 › bar labels and product form: 1333 dark (677ms)
+  ✓  3 tests/ui/design-polish.spec.ts:9:5 › bar labels and product form: 390 light (698ms)
+  ✓  4 tests/ui/design-polish.spec.ts:9:5 › bar labels and product form: 390 dark (691ms)
+
+  4 passed (4.4s)
+
+# код выхода 0 · 5 с

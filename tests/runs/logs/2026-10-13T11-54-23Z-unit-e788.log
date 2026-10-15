@@ -1,0 +1,22 @@
+# Модульные (unit) · 13.10.2026 16:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3bd01f4 (codex/organizations-card-editor), незакоммиченных файлов набора: 27
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T11-54-23Z-unit-e788.json' 'apps/web/src/app/branches/reference-board.test.ts' 'apps/web/src/app/branches/business-groups.test.ts' 'apps/api/src/hotel/business-cards.test.ts' 'apps/web/src/design-rules.test.ts' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/auth/auth.service.test.ts' 'apps/api/src/hotel/branches.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |unit| apps/web/src/app/branches/business-groups.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/branches/reference-board.test.ts (3 tests) 23ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 402ms
+ ✓ |unit| apps/api/src/hotel/business-cards.test.ts (8 tests) 5ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (13 tests) 9ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 35ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (62 tests) 3150ms
+
+ Test Files  7 passed (7)
+      Tests  109 passed (109)
+   Start at  04:54:24
+   Duration  4.15s (tests 42%, transform 30%, import 28%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T11-54-23Z-unit-e788.json
+
+# код выхода 0 · 5 с

@@ -5,24 +5,62 @@ test('филиалы: создание, сохранение после reload �
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await page.goto('/branches');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { name: 'Организация и филиалы' })).toBeVisible();
-  await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
-  await main.getByLabel('Название филиала').fill('Тестовый филиал у парка');
-  await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
-  await expect(main.getByRole('status')).toContainText('Филиал создан');
+  await expect(main.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  expect(
+    await page
+      .locator('.org-heading-controls')
+      .evaluate((element) => getComputedStyle(element).display),
+  ).toBe('flex');
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
+  await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toHaveCount(1);
+  const monthControls = await page
+    .locator('.org-month a, .org-month input, .org-month button')
+    .evaluateAll((elements) =>
+      elements.map((element) => ({
+        height: element.getBoundingClientRect().height,
+        bottom: element.getBoundingClientRect().bottom,
+      })),
+    );
+  expect(monthControls).toHaveLength(4);
+  expect(monthControls.every((control) => control.height === 40)).toBe(true);
+  expect(
+    monthControls.every((control) => Math.abs(control.bottom - monthControls[0]!.bottom) < 1),
+  ).toBe(true);
+
+  await main.getByRole('button', { name: 'Добавить', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
+  await expect(creation).toBeVisible();
+  // Existing businesses remain after reset. Explicitly create a new brand and its first branch.
+  await creation.getByLabel('Новый бизнес или бренд').check();
+  await creation.getByLabel('Название бизнеса', { exact: true }).fill('Тестовый бизнес у парка');
+  await creation
+    .getByRole('textbox', { name: /^Название первого объекта/ })
+    .fill('Тестовый филиал у парка');
+  await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+  await expect(creation.getByRole('status')).toContainText(/создан/);
   await page.reload();
-  await expect(main.getByRole('heading', { name: 'Тестовый филиал у парка' })).toBeVisible();
   await expect(
-    main.getByRole('heading', { name: 'Сводка по гостиницам', exact: true }),
+    main.getByRole('button').filter({ hasText: 'Тестовый филиал у парка' }),
   ).toBeVisible();
-  for (const width of [1440, 390]) {
-    await page.setViewportSize({ width, height: 1000 });
+  await expect(main.locator('.org-bottom, .org-object-results')).toHaveCount(0);
+  for (const width of [1440, 1024, 390]) {
+    await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
+    if (width >= 1024) {
+      expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(
+        900,
+      );
+      const footer = await main.locator('.org-card-footer').first().boundingBox();
+      expect(footer).not.toBeNull();
+      // Compact cards remain within the approved first-screen bound, including multiple businesses.
+      expect(footer!.y + footer!.height).toBeLessThanOrEqual(900);
+    }
     await page.screenshot({
       path: `reports/branches-2026-10-01/branches-${width}.png`,
       fullPage: true,
@@ -39,7 +77,7 @@ test('организации: филиал создаётся прямо в ра
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await page.goto('/platform');
   await expect(page.getByTestId('platform-forbidden')).toBeVisible();
   await expect(page.locator('summary').filter({ hasText: 'Добавить филиал' })).toHaveCount(0);
@@ -56,7 +94,7 @@ test('организации: филиал создаётся прямо в ра
   await expect(main).not.toContainText('Реквизиты организации');
   await expect(main).not.toContainText('объект / филиал');
   await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
-  await main.getByLabel('Название филиала').fill('Тестовый объект Север');
+  await main.getByLabel('Название объекта').fill('Тестовый объект Север');
   await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
   await expect(main.getByRole('status')).toContainText('Филиал создан');
   await page.reload();
@@ -65,7 +103,7 @@ test('организации: филиал создаётся прямо в ра
   ).toBeVisible();
   // показатели стоят прямо в карточке филиала
   await expect(main.getByText('Загрузка').first()).toBeVisible();
-  for (const width of [1440, 390]) {
+  for (const width of [1440, 1024, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,

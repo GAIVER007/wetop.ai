@@ -136,17 +136,19 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await page.getByRole('button', { name: 'Добавить мастера' }).click();
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Тестовый мастер Анна');
+  await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
+  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
   await panel.getByRole('checkbox', { name: 'Тестовая стрижка' }).check();
-  await panel.getByRole('button', { name: 'Сохранить мастера' }).click();
-  await expect(panel.getByRole('status')).toContainText('Мастер добавлен');
+  await panel.getByRole('button', { name: 'Сохранить услуги' }).click();
+  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
   await page.reload();
   await page
-    .getByRole('row')
+    .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
     .getByRole('button', { name: 'Открыть' })
     .click();
   panel = page.getByRole('dialog');
-  await panel.getByRole('button', { name: 'График', exact: true }).click();
+  await panel.getByRole('tab', { name: 'График', exact: true }).click();
   await panel
     .getByRole('group', { name: 'Понедельник', exact: true })
     .getByRole('button', { name: 'Сделать рабочим' })
@@ -376,7 +378,7 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
   const f = await seed(page, request);
   await page.goto('/employees');
   await page
-    .getByRole('row')
+    .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
     .getByRole('button', { name: 'Открыть' })
     .click();
@@ -448,7 +450,7 @@ test('Beauty onboarding completion opens Today and resumes there', async ({ page
   // MV8: рабочий экран дня один на все направления
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByTestId('beauty-today')).toBeVisible();
-  await expect(page.getByTestId('today-masters')).toHaveText('0');
+  await expect(page.getByTestId('today-shift')).toHaveText('0 из 0');
   await page.goto('/calendar');
   await expectEmptyCalendar(page);
   await page.goto('/register/setup');

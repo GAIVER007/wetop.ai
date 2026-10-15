@@ -753,7 +753,7 @@ export class RestaurantService {
     const yesterday = previousDay(date);
     const wy = timeOffWindow({ dateFrom: yesterday, dateTo: yesterday, timezone: s.timezone });
     const db = this.prisma.db;
-    const [todayOrders, yesterdayOrders, openOrders, tables, seated, hours] = await Promise.all([
+    const [todayOrders, yesterdayOrders, closedToday, closedYesterday, openOrders, tables, seated, hours] = await Promise.all([
       db.restaurantOrder.findMany({
         where: { locationId: s.locationId, openedAt: { gte: w.fromUtc, lt: w.toUtcExclusive } },
         include: orderInclude,
@@ -761,7 +761,16 @@ export class RestaurantService {
       }),
       db.restaurantOrder.findMany({
         where: { locationId: s.locationId, openedAt: { gte: wy.fromUtc, lt: wy.toUtcExclusive } },
-        select: { status: true, total: true, closedAt: true },
+        select: { status: true },
+      }),
+      // канон выручки (ADR-181): закрытые заказы по дате закрытия, как в period-report
+      db.restaurantOrder.findMany({
+        where: { locationId: s.locationId, status: 'CLOSED', closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive } },
+        select: { total: true, closedAt: true },
+      }),
+      db.restaurantOrder.findMany({
+        where: { locationId: s.locationId, status: 'CLOSED', closedAt: { gte: wy.fromUtc, lt: wy.toUtcExclusive } },
+        select: { total: true },
       }),
       db.restaurantOrder.findMany({
         where: { locationId: s.locationId, status: { in: OPEN_STATUSES } },
@@ -781,8 +790,6 @@ export class RestaurantService {
       }),
     ]);
     const now = new Date();
-    const closedToday = todayOrders.filter((o) => o.status === 'CLOSED');
-    const closedYesterday = yesterdayOrders.filter((o) => o.status === 'CLOSED');
     const sum = (rows: { total: bigint }[]) => rows.reduce((acc, o) => acc + o.total, 0n);
     const revenue = sum(closedToday);
     const revenueYesterday = sum(closedYesterday);
@@ -1153,23 +1160,37 @@ export class RestaurantService {
   }
 
   /** Касса филиала: остатки по способам, последние операции и сверки (§35.2) */
-  async cash() {
+  async cash(query: unknown = {}) {
     foodMay('desk');
     const s = await foodScope(this.prisma.db);
     const db = this.prisma.db;
+    // период считает сервер (ADR-181): фильтр последних 100 строк в браузере занижал итоги
+    const q = parsed(() => foodObject(query, ['from', 'to']));
+    if ((q.from === undefined) !== (q.to === undefined))
+      throw new BadRequestException('Нужны обе даты периода');
+    let period: { gte: Date; lt: Date } | null = null;
+    if (q.from !== undefined) {
+      const from = dayParam(q.from),
+        to = dayParam(q.to);
+      if (from > to) throw new BadRequestException('Начало периода позже конца');
+      if ((Date.parse(to) - Date.parse(from)) / 86_400_000 > 92)
+        throw new BadRequestException('Период не длиннее 93 дней');
+      const w = timeOffWindow({ dateFrom: from, dateTo: to, timezone: s.timezone });
+      period = { gte: w.fromUtc, lt: w.toUtcExclusive };
+    }
     const [balances, operations, payments, checks] = await Promise.all([
       this.balances(db, s),
       db.restaurantCashOperation.findMany({
-        where: { locationId: s.locationId },
+        where: { locationId: s.locationId, ...(period ? { occurredAt: period } : {}) },
         include: { employee: { select: { name: true } } },
         orderBy: { occurredAt: 'desc' },
-        take: 100,
+        ...(period ? {} : { take: 100 }),
       }),
       db.restaurantPayment.findMany({
-        where: { locationId: s.locationId },
+        where: { locationId: s.locationId, ...(period ? { paidAt: period } : {}) },
         include: { order: { select: { number: true } } },
         orderBy: { paidAt: 'desc' },
-        take: 100,
+        ...(period ? {} : { take: 100 }),
       }),
       db.restaurantCashReconciliation.findMany({
         where: { locationId: s.locationId },
@@ -1334,7 +1355,7 @@ export class RestaurantService {
       status: 'CLOSED' as const,
       closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
     };
-    const [orders, payments, items, waiters, closedDays] = await Promise.all([
+    const [orders, payments, items, waiters, closedDays, barSales] = await Promise.all([
       db.restaurantOrder.aggregate({
         where: closedWhere,
         _count: { _all: true },
@@ -1362,6 +1383,11 @@ export class RestaurantService {
         _count: { _all: true },
       }),
       db.restaurantOrder.findMany({ where: closedWhere, select: { closedAt: true, total: true } }),
+      // выручка бара каноном самого бара (ADR-182, §45): POSTED по дате продажи, сторно исключает
+      db.barSale.aggregate({
+        where: { locationId: s.locationId, status: 'POSTED', createdAt: { gte: w.fromUtc, lt: w.toUtcExclusive } },
+        _sum: { totalRevenue: true },
+      }),
     ]);
     const count = orders._count._all;
     // выручка по дням периода (по поясу филиала): каждый день периода есть в ответе, пустой с нулём
@@ -1432,6 +1458,8 @@ export class RestaurantService {
       // гости закрытых заказов периода (макет «Аналитика», плитка «Гостей»)
       guestsCount: orders._sum.guestCount ?? 0,
       revenueMinor: revenue.toString(),
+      // отдельным полем, не внутри revenueMinor: канон выручки заказов (ADR-181) не меняется
+      barRevenueMinor: (barSales._sum.totalRevenue ?? 0n).toString(),
       averageCheckMinor: count ? ((revenue + BigInt(count) / 2n) / BigInt(count)).toString() : null,
       payments: payments
         .map((p) => ({ method: p.method, amountMinor: (p._sum.amount ?? 0n).toString(), count: p._count._all }))
@@ -1475,10 +1503,12 @@ export class RestaurantService {
         include: { paySetting: true },
         orderBy: { id: 'asc' },
       }),
+      // зарплата принадлежит бизнесу (ADR-181): процент и «выплачено» по всем филиалам,
+      // иначе бизнес с двумя филиалами показывает и может выплатить один оклад дважды
       db.restaurantOrder.groupBy({
         by: ['waiterId'],
         where: {
-          locationId: s.locationId,
+          location: { businessId: s.businessId },
           status: 'CLOSED',
           waiterId: { not: null },
           closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
@@ -1491,7 +1521,12 @@ export class RestaurantService {
       }),
       db.restaurantCashOperation.groupBy({
         by: ['employeeId'],
-        where: { locationId: s.locationId, period, status: 'COMPLETED', employeeId: { not: null } },
+        where: {
+          location: { businessId: s.businessId },
+          period,
+          status: 'COMPLETED',
+          employeeId: { not: null },
+        },
         _sum: { amount: true },
       }),
     ]);

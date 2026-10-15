@@ -4,7 +4,7 @@ const api = 'http://127.0.0.1:26804';
 test.afterAll(async ({ request }) => {
   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
 });
-for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
+for (const vertical of ['FOOD_SERVICE']) {
   test(`${vertical}: trusted adapter, persistence, back/next, completion, keyboard and axe`, async ({
     page,
     request,
@@ -59,11 +59,30 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
     expect(calls.some((p) => p.startsWith('/hotel'))).toBe(false);
   });
 }
-test('READ_ONLY displays data without mutation controls', async ({ page, request }) => {
-  await request.post(`${api}/__test/reset`, { data: { vertical: 'BEAUTY', readOnly: true } });
+test('Beauty v2 trusted adapter, saved profile and honest empty readiness',async ({page,request})=>{
+  await request.post(`${api}/__test/reset`,{data:{vertical:'BEAUTY'}});
+  await page.goto('/register/setup?vertical=HOSPITALITY');
+  const main=page.getByRole('main');
+  await expect(main.getByRole('heading',{level:1})).toHaveText('Добро пожаловать в WETOP');
+  await main.getByRole('button',{name:'Настроить салон',exact:true}).click();
+  await main.getByLabel('Название салона',{exact:true}).fill('Салон Проверки');
+  await main.getByRole('button',{name:'Сохранить и продолжить',exact:true}).click();
+  await expect(main.getByText('Выполнено 0 из 4 обязательных шагов',{exact:true})).toBeVisible();
+  await page.reload();
+  await expect(main.getByText('Выполнено 0 из 4 обязательных шагов',{exact:true})).toBeVisible();
+  const state=await (await request.get(`${api}/onboarding`)).json();
+  expect(state).toMatchObject({vertical:'BEAUTY',flowVersion:2,profileApplied:true,completedAt:null,draft:{businessName:'Салон Проверки'},readiness:{ready:false}});
+  expect(state.readiness.steps).toHaveLength(4);
+  const complete=await request.post(`${api}/onboarding`,{data:{action:'complete',draft:state.draft,updatedAt:state.updatedAt}});
+  expect(complete.ok()).toBe(false);
+  expect((await (await request.get(`${api}/onboarding`)).json()).completedAt).toBeNull();
+});
+test('READ_ONLY displays Beauty welcome without mutation controls',async ({page,request})=>{
+  await request.post(`${api}/__test/reset`,{data:{vertical:'BEAUTY',readOnly:true}});
   await page.goto('/register/setup');
-  await expect(page.getByRole('main').getByLabel('Название бизнеса')).toBeDisabled();
-  await expect(page.getByRole('button', { name: 'Продолжить', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('main').getByRole('heading',{level:1})).toHaveText('Добро пожаловать в WETOP');
+  await expect(page.getByRole('button',{name:'Настроить салон',exact:true})).toHaveCount(0);
+  expect(await (await request.get(`${api}/onboarding`)).json()).toMatchObject({canEdit:false,completedAt:null});
 });
 test('Hospitality existing categories persist on reload and provision real inventory', async ({
   page,

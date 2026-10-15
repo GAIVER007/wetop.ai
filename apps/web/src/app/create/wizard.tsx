@@ -93,7 +93,6 @@ export function GuestWizard() {
         <Link href="/" className="guest-wizard__brand">
           WETOP<span>.AI</span>
         </Link>
-      </header>
       <ol className="guest-wizard__progress" aria-label="Этапы создания">
         {PROGRESS.map((name, i) => (
           <li
@@ -106,6 +105,7 @@ export function GuestWizard() {
           </li>
         ))}
       </ol>
+      </header>
       <div className="guest-wizard__layout">
         <section className="guest-wizard__card" aria-busy={busy}>
           {error && (

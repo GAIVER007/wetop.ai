@@ -35,26 +35,35 @@ export async function createPropertyInChain(
   tx: ChainTx,
   organizationId: string,
   data: PropertyInChainData,
+  businessId?: string,
 ) {
   const business =
     (await tx.business.findFirst({
-      where: { organizationId, vertical: 'HOSPITALITY' },
+      where: {
+        organizationId,
+        vertical: 'HOSPITALITY',
+        ...(businessId ? { id: businessId, status: 'ACTIVE' as const } : {}),
+      },
       orderBy: { createdAt: 'asc' },
       select: { id: true },
     })) ??
-    (await tx.business.create({
-      data: {
-        organizationId,
-        name: (
-          await tx.organization.findUniqueOrThrow({
-            where: { id: organizationId },
-            select: { name: true },
-          })
-        ).name,
-        vertical: 'HOSPITALITY',
-      },
-      select: { id: true },
-    }));
+    (businessId
+      ? (() => {
+          throw new Error('Выбранный бизнес недоступен');
+        })()
+      : await tx.business.create({
+          data: {
+            organizationId,
+            name: (
+              await tx.organization.findUniqueOrThrow({
+                where: { id: organizationId },
+                select: { name: true },
+              })
+            ).name,
+            vertical: 'HOSPITALITY',
+          },
+          select: { id: true },
+        }));
   const location = await tx.location.create({
     data: {
       businessId: business.id,
@@ -88,25 +97,35 @@ export async function createBeautyLocationInChain(
   organizationId: string,
   data: BeautyLocationData,
   vertical: 'BEAUTY' | 'FOOD_SERVICE' = 'BEAUTY',
+  businessId?: string,
 ) {
   const business =
     (await tx.business.findFirst({
-      where: { organizationId, vertical, status: 'ACTIVE' },
+      where: {
+        organizationId,
+        ...(businessId ? { id: businessId } : {}),
+        vertical,
+        status: 'ACTIVE',
+      },
       orderBy: { createdAt: 'asc' },
       select: { id: true },
     })) ??
-    (await tx.business.create({
-      data: {
-        organizationId,
-        name: (
-          await tx.organization.findUniqueOrThrow({
-            where: { id: organizationId },
-            select: { name: true },
-          })
-        ).name,
-        vertical,
-      },
-      select: { id: true },
-    }));
+    (businessId
+      ? (() => {
+          throw new Error('Выбранный бизнес недоступен');
+        })()
+      : await tx.business.create({
+          data: {
+            organizationId,
+            name: (
+              await tx.organization.findUniqueOrThrow({
+                where: { id: organizationId },
+                select: { name: true },
+              })
+            ).name,
+            vertical,
+          },
+          select: { id: true },
+        }));
   return tx.location.create({ data: { ...data, businessId: business.id } });
 }

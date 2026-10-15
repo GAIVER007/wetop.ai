@@ -26,7 +26,7 @@ async function signIn(page: import('@playwright/test').Page): Promise<void> {
   await dialog.getByLabel('Почта').fill(EMAIL);
   await dialog.getByLabel('Пароль', { exact: true }).fill(PASSWORD);
   await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(`${APP}/finance`); // гостиница садится на «Обзор бизнеса» (vertical-landing.ts)
+  await expect(page).toHaveURL(`${APP}/today`); // гостиница садится на «Главную» (vertical-landing.ts, ADR-180)
 }
 
 for (const path of ['/today', '/chessboard', '/reservations']) {
@@ -44,7 +44,7 @@ test('после входа рабочее место открывается, о
   page,
 }) => {
   await signIn(page);
-  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
   await page.goto(`${APP}/chessboard`);
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
 
@@ -74,7 +74,7 @@ test('ссылка из письма подтверждает почту при 
   );
 
   await page.goto(`${APP}/login/verify?token=ui-verify-1`);
-  await expect(page).toHaveURL(`${APP}/finance`); // гостиница садится на «Обзор бизнеса» (vertical-landing.ts)
+  await expect(page).toHaveURL(`${APP}/today`); // гостиница садится на «Главную» (vertical-landing.ts, ADR-180)
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
 });

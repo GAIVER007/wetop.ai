@@ -34,6 +34,8 @@ import {
   registrationPhone,
   trialEndsAt,
   validEmail,
+  isRestricted,
+  visibleLocations,
   sessionExpiry,
   sessionState,
   type MembershipRole,
@@ -211,7 +213,17 @@ export class AuthService {
     return { registrationEnabled: registrationOpen() };
   }
 
-  async registrationContext(organizationId: string) {
+  /**
+   * Первый бизнес и филиал организации для завершения регистрации и входа. Человеку с областью доступа (DATA_MODEL §31.1)
+   * называет только то, что ему назначено: названия бизнесов и филиалов, куда его не пускают, он не получает (A3/F6).
+   */
+  async registrationContext(
+    organizationId: string,
+    access?: { role: MembershipRole; scopes?: readonly ScopeAssignment[] },
+  ) {
+    const assignments = access?.scopes ?? [];
+    if (access && isRestricted(access.role, assignments))
+      return this.restrictedRegistrationContext(organizationId, access.role, assignments);
     const business = await this.prisma.db.business.findFirst({
       where: { organizationId, status: 'ACTIVE' },
       orderBy: { createdAt: 'asc' },
@@ -219,12 +231,22 @@ export class AuthService {
     });
     const vertical = parseBusinessVertical(business?.vertical);
     if (!business || !vertical) return null;
+    const otherBusiness = await this.prisma.db.business.findFirst({
+      where: { organizationId, status: 'ACTIVE', id: { not: business.id } },
+      select: { id: true },
+    });
+    if (otherBusiness && otherBusiness.id !== business.id) return null;
     const location = await this.prisma.db.location.findFirst({
       where: { businessId: business.id, status: 'ACTIVE' },
       orderBy: { createdAt: 'asc' },
       select: { id: true, name: true },
     });
     if (!location) return null;
+    const otherLocation = await this.prisma.db.location.findFirst({
+      where: { businessId: business.id, status: 'ACTIVE', id: { not: location.id } },
+      select: { id: true },
+    });
+    if (otherLocation && otherLocation.id !== location.id) return null;
     return {
       businessId: business.id,
       locationId: location.id,
@@ -232,6 +254,45 @@ export class AuthService {
       businessName: business.name,
       locationName: location.name,
     };
+  }
+
+  private async restrictedRegistrationContext(
+    organizationId: string,
+    role: MembershipRole,
+    assignments: readonly ScopeAssignment[],
+  ) {
+    const businesses = await this.prisma.db.business.findMany({
+      where: { organizationId, status: 'ACTIVE' },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        vertical: true,
+        locations: {
+          where: { status: 'ACTIVE' },
+          orderBy: { createdAt: 'asc' },
+          select: { id: true, name: true },
+        },
+      },
+    });
+    for (const business of businesses) {
+      const vertical = parseBusinessVertical(business.vertical);
+      if (!vertical) continue;
+      const [location] = visibleLocations(
+        role,
+        assignments,
+        business.locations.map((l) => ({ ...l, businessId: business.id })),
+      );
+      if (location)
+        return {
+          businessId: business.id,
+          locationId: location.id,
+          vertical,
+          businessName: business.name,
+          locationName: location.name,
+        };
+    }
+    return null;
   }
 
   assertRegistrationOpen(): void {
@@ -291,7 +352,8 @@ export class AuthService {
     // Сессия открывается под организацией: без членства человеку нечего открывать (§13.3, §13.5)
     // приостановленный член в организацию не входит (DATA_MODEL §31.2): пароль он назвал верно, поэтому говорим причину
     const active = user.memberships.find((m) => m.status === 'ACTIVE');
-    if (!active && user.memberships.length > 0) throw new ForbiddenException(ACCESS_SUSPENDED_MESSAGE);
+    if (!active && user.memberships.length > 0)
+      throw new ForbiddenException(ACCESS_SUSPENDED_MESSAGE);
     const organizationId = active?.organizationId;
     if (!organizationId) throw new UnauthorizedException(WRONG);
     await this.assertOrganizationOpen(organizationId);

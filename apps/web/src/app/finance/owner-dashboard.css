@@ -456,7 +456,8 @@
     height: 32px;
   }
   .owner-placeholder--load {
-    min-height: 408px;
+    /* прогноз свёрнут по умолчанию (ADR-180): скелет равен карточке без графика */
+    min-height: 328px;
   }
   .owner-placeholder--today {
     min-height: 70px;
@@ -481,7 +482,7 @@
   }
   @media (max-width: 900px) {
     .owner-placeholder--load {
-      min-height: 296px;
+      min-height: 216px;
     }
     .owner-placeholder--outlook {
       min-height: 120px;
@@ -489,7 +490,7 @@
   }
   @media (max-width: 600px) {
     .owner-placeholder--load {
-      min-height: 242px;
+      min-height: 162px;
     }
     .owner-placeholder--outlook {
       min-height: 96px;
@@ -546,5 +547,21 @@
     .owner-week-track {
       height: 24px;
     }
+  }
+}
+
+@layer sections {
+  .page:has(.finance-workspace) .page__head {
+    margin-bottom: var(--space-2);
+  }
+  .page:has(.finance-workspace) .page__title {
+    font-size: var(--text-3xl);
+  }
+  .owner-load .owner-ring {
+    width: 96px;
+    height: 96px;
+  }
+  .owner-load .owner-load-value {
+    font-size: var(--text-4xl);
   }
 }

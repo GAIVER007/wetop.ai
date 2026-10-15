@@ -34,10 +34,7 @@ async function choose(page: Page, name: string) {
       await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
     await expect(region).toBeVisible({ timeout: 3000 });
   }).toPass({ timeout: 20000 });
-  await region
-    .getByRole('button')
-    .filter({ hasText: name })
-    .click();
+  await region.getByRole('button').filter({ hasText: name }).click();
   await settleStreaming(page);
 }
 function settleNavigations(page: Page) {
@@ -74,12 +71,13 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await page.goto('/scope/resolve?next=%2Ftoday');
     await expect(page).toHaveURL(/\/branches$/);
     expect(await scopeCookie(page)).toBe('');
-    await expect(
-      page.getByRole('heading', { name: 'Сводка по гостиницам', exact: true }),
-    ).toBeVisible();
-    // Смешанная организация: в гостиничной сводке только отель, салон и рестораны не показываются нулями
-    const summary = page.getByRole('table', { name: 'Статистика по филиалам' });
-    await expect(summary.getByRole('rowheader')).toHaveText(['Тестовый отель']);
+    await expect(page.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
+    await expect(page.locator('.org-card--HOSPITALITY')).toHaveCount(1);
+    await expect(page.locator('.org-card--BEAUTY')).toHaveCount(1);
+    await expect(page.locator('.org-card--BEAUTY')).toContainText('Учёт оплат не подключён');
+    await expect(page.locator('.org-card--HOSPITALITY .org-branch-rows')).toContainText(
+      'Тестовый отель',
+    );
   });
 
   test('устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране', async ({
@@ -157,9 +155,11 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     expect(await scopeCookie(page)).toBe(`business=${f.business};location=${f.locations[1]}`);
     await choose(page, 'Тестовый отель');
-    await expect(page).toHaveURL(/\/finance$/);
+    await expect(page).toHaveURL(/\/today$/);
     // Гостиница уходит с общего /today на единые «Финансы»: ждём выбранный филиал перед переключателем.
-    await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText('Тестовый отель');
+    await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText(
+      'Тестовый отель',
+    );
     await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toBeEnabled();
     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     await choose(page, 'Гостиница Б');
@@ -221,7 +221,7 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   await page.goto('/calendar');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
   await choose(page, 'Тестовый отель');
-  await expect(page).toHaveURL(/\/finance$/);
+  await expect(page).toHaveURL(/\/today$/);
   // The accepted branch action preserves a safe Hospitality collection or falls back to the landing.
   await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
   expect(
@@ -232,4 +232,21 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   await page.reload();
   await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+});
+
+test('restaurant-only organization keeps financial widgets without lower panels', async ({
+  page,
+  request,
+}) => {
+  await reset(request);
+  try {
+    await request.post(`${api}/__test/control`, { data: { org: 'B' } });
+    await page.goto('/branches');
+    await expect(page.locator('.org-reference--service')).toBeVisible();
+    await expect(page.locator('.org-bottom, .org-object-results')).toHaveCount(0);
+    await expect(page.getByText('Доход от оплат', { exact: true })).toBeVisible();
+  } finally {
+    await request.post(`${api}/__test/control`, { data: { org: 'A' } });
+    await request.post(`${api}/__test/cleanup`);
+  }
 });

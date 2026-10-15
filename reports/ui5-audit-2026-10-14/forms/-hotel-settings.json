@@ -1,0 +1,12 @@
+{
+ "/hotel-settings": {
+  "open": null,
+  "controls": 24,
+  "unlabeled": [],
+  "placeholderOnly": [],
+  "controlHeights": {
+   "44px": 14,
+   "41px": 8
+  }
+ }
+}

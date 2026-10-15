@@ -28,6 +28,11 @@ export function DayToolbar({
     if (time) q.set('time', time);
     router.push(`${path}?${q}`);
   }
+  // смены выбранного дня (weekday как в load.ts: getUTCDay, 0 это воскресенье)
+  const weekday = new Date(`${data.date}T12:00:00Z`).getUTCDay();
+  const shifts = data.periods
+    .filter((p) => p.active && p.weekday === weekday)
+    .sort((a, b) => a.timeFrom.localeCompare(b.timeFrom));
   return (
     <>
       {/* день: общий DateBar (MV8.5 DS1c); переход сразу при смене даты */}
@@ -39,20 +44,44 @@ export function DayToolbar({
         onNext={() => go(shiftDate(data.date, 1))}
         onDateChange={(next) => go(next)}
         // «Сегодня» на расписании, как на макете (экран 3); на плане зала её нет, как и раньше
-        onToday={floor ? undefined : () => go(localInput(new Date().toISOString(), data.timezone).slice(0, 10))}
+        onToday={
+          floor
+            ? undefined
+            : () => go(localInput(new Date().toISOString(), data.timezone).slice(0, 10))
+        }
       />
-      <Field label={quiet('Период')}>
-        <Select value={period} onChange={(e) => setPeriod(e.target.value)}>
-          <option value="">Все периоды</option>
-          {data.periods
-            .filter((p) => p.active)
-            .map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-        </Select>
-      </Field>
+      {/* план зала: смены карточками с часами, как на эталоне 13.10.2026; на расписании прежний список */}
+      {floor && shifts.length > 0 ? (
+        <div className="rest-shifts" role="group" aria-label="Период">
+          {shifts.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              className="rest-shift"
+              aria-pressed={period === p.id}
+              onClick={() => setPeriod(period === p.id ? '' : p.id)}
+            >
+              <strong>{p.name}</strong>
+              <span>
+                {p.timeFrom}–{p.timeTo}
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <Field label={quiet('Период')}>
+          <Select value={period} onChange={(e) => setPeriod(e.target.value)}>
+            <option value="">Все периоды</option>
+            {data.periods
+              .filter((p) => p.active)
+              .map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+          </Select>
+        </Field>
+      )}
       {floor && (
         <Field label={quiet('Время плана')}>
           <Input

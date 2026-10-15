@@ -25,7 +25,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
 }
 
 const A = '00000000-0000-4000-8000-00000000000a';
@@ -147,8 +147,8 @@ test('администратор смены открывает хаб', async ({
   await control(request, { role: 'STAFF' });
   // как человек: со стартовой страницы роли через меню (прямой переход первым запросом после смены роли разворачивает стойка)
   // переход может быть прерван разворотом стойки на стартовую страницу роли: ждём, пока она откроется
-  await page.goto('/finance').catch(() => undefined);
-  await page.waitForURL('**/finance');
+  await page.goto('/today');
+  await page.waitForURL('**/today');
   await goViaMenu(page, 'Продажи', 'Обзор продаж');
   await expect(page).toHaveURL(/\/sales$/);
   await expect(page.getByTestId('sales-kpis')).toBeVisible();

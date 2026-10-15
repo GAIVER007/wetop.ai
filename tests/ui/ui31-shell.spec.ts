@@ -23,7 +23,10 @@ test('UI3.1: одна кнопка, стабильная ширина и кла�
   expect(after?.width).toBe(before?.width);
   expect(after?.x).toBe(before?.x);
   const sales = panel.getByRole('button', { name: 'Продажи', exact: true });
+  // список компактный (#501): фокус группу не раскрывает, раскрывает ArrowRight или щелчок
   await sales.focus();
+  await expect(sales).toHaveAttribute('aria-expanded', 'false');
+  await sales.press('Enter');
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await page.screenshot({ path: `${shots}/after-desktop-menu-subsections.png` });
   await page.keyboard.press('ArrowRight');
@@ -62,7 +65,8 @@ test('UI3.1: переход закрывает меню, active route сохра
   const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
   await trigger.click();
   const panel = page.locator('.sidenav__panel');
-  await panel.getByRole('button', { name: 'Настройки', exact: true }).hover();
+  // компактный список (#501): группа раскрывается щелчком, а не наведением
+  await panel.getByRole('button', { name: 'Настройки', exact: true }).click();
   await panel.getByRole('link', { name: 'Объект', exact: true }).click();
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(panel).toBeHidden();
@@ -113,11 +117,21 @@ test('UI3.1: размеры целей шапки и мобильной пове
   await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toBeEnabled();
   for (const width of [1440, 360]) {
     await page.setViewportSize({ width, height: 640 });
-    for (const name of ['Открыть меню', 'Переключить тему', 'Найти гостя или бронь']) {
+    await expect(page.getByRole('button', { name: 'Найти гостя или бронь', exact: true })).toHaveCount(0);
+    for (const name of ['Открыть меню', 'Переключить тему']) {
       const box = (await page.getByRole('button', { name, exact: true }).boundingBox())!;
       expect(box.width, name).toBeGreaterThanOrEqual(44);
       expect(box.height, name).toBeGreaterThanOrEqual(44);
     }
+  }
+  await page.goto('/finance');
+  for (const width of [1440, 360]) {
+    await page.setViewportSize({ width, height: 640 });
+    const search = page.getByRole('button', { name: 'Найти гостя или бронь', exact: true });
+    await expect(search).toBeVisible();
+    const box = (await search.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
   }
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });

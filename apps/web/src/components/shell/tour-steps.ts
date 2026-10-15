@@ -195,13 +195,13 @@ export function tourKeyOf(email: string): string {
   return `wetop.tour.v1:${hash.toString(36)}`;
 }
 
-/** Сам тур стартует один раз: на стартовых «Финансах», у вошедшего, пока отметки нет. Повтор из меню профиля. */
+/** Сам тур стартует один раз: на стартовой «Главной», у вошедшего, пока отметки нет. Повтор из меню профиля. */
 export function shouldAutoStartTour(input: {
   path: string;
   key: string | null;
   done: boolean;
 }): boolean {
-  return input.path === '/finance' && input.key !== null && !input.done;
+  return input.path === '/today' && input.key !== null && !input.done;
 }
 
 /** Событие «показать обучение ещё раз» — его шлёт пункт меню профиля */

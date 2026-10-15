@@ -22,6 +22,8 @@ const openStep = async (
   page: Page,
   name: 'Объект' | 'Инструкция' | 'Подключения' | 'Проверка' | 'Готовность',
 ) => {
+  const setup = page.locator('.seller-setup-disclosure');
+  if ((await setup.count()) && (await setup.getAttribute('open')) === null) await setup.locator(':scope > summary').click();
   const button = page
     .getByRole('main')
     .locator('.seller-wizard__steps')
@@ -67,7 +69,7 @@ test('раздел в меню «Продажи», четыре вкладки, 
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await page.goto('/ai-seller');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
   // текущий раздел на кнопке левого меню, пункт помечен текущим (ADR-161)
@@ -489,7 +491,7 @@ test('закрытое расширение: администратор види
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await page.goto('/ai-seller');
   await expect(
     page.getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' }),

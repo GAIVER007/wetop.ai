@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useActionState, useState, useTransition } from 'react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import { parseTimeOffInput, parseWorkingHoursWeek } from '@pms/domain';
 import { useConfirm } from '../../../components/use-confirm';
 import { Overlay } from '../../../components/overlay';
@@ -12,6 +12,7 @@ import {
   removeBeautyTimeOff,
   saveBeautyEmployeeLocations,
   saveBeautyWorkingHours,
+  loadBeautySchedule,
 } from '../actions';
 
 /**
@@ -172,7 +173,14 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
         title={`График: ${master.name}`}
         drawer
       >
-        {editing === 'week' && <WeekForm employeeId={master.id} week={data.week} />}
+        {editing === 'week' && (
+          <WeekForm
+            employeeId={master.id}
+            week={data.week}
+            expectedRevision={data.weekRevision ?? undefined}
+            scopeKey={data.location?.id ?? ''}
+          />
+        )}
       </Overlay>
       <Overlay
         open={editing === 'timeOff'}
@@ -201,8 +209,12 @@ export function WeekForm({
   onSaved,
   week,
   save = saveBeautyWorkingHours,
+  expectedRevision,
+  scopeKey = '',
 }: {
+  scopeKey?: string | undefined;
   employeeId: string;
+  expectedRevision?: string | undefined;
   onSaved?: () => Promise<void>;
   week: BeautySchedule['week'];
   /** Действие сохранения недели: салонное по умолчанию, ресторан передаёт своё (Q-REST-11) */
@@ -216,6 +228,12 @@ export function WeekForm({
     },
     null,
   );
+  const [originalRevision, setOriginalRevision] = useState(expectedRevision);
+  const [comparison, setComparison] = useState<BeautySchedule | null>(null);
+  const [checking, check] = useTransition();
+  useEffect(() => {
+    if (state?.revision) setOriginalRevision(state.revision);
+  }, [state?.revision]);
   const [error, setError] = useState<string | null>(null);
   const [slots, setSlots] = useState<Record<number, Slot[]>>(() =>
     Object.fromEntries(week.map((day) => [day.weekday, day.intervals.map((i) => ({ ...i }))])),
@@ -250,6 +268,10 @@ export function WeekForm({
     >
       <input type="hidden" name="id" value={employeeId} />
       <input type="hidden" name="intervals" value={JSON.stringify(intervals)} />
+      <input type="hidden" name="scopeKey" value={scopeKey} />
+      {(originalRevision ?? state?.revision) && (
+        <input type="hidden" name="expectedRevision" value={originalRevision ?? state?.revision} />
+      )}
       {week.map((day) => {
         const rows = slots[day.weekday] ?? [];
         return (
@@ -316,6 +338,52 @@ export function WeekForm({
       })}
       {(error ?? state?.error) && <Alert>{error ?? state?.error}</Alert>}
       {!error && state?.message && <p role="status">{state.message}</p>}
+      {state?.error && scopeKey && (
+        <Button
+          type="button"
+          tone="secondary"
+          disabled={checking}
+          onClick={() =>
+            check(async () => {
+              const result = await loadBeautySchedule(employeeId);
+              if (result.data?.location?.id !== scopeKey) return;
+              setComparison(result.data);
+            })
+          }
+        >
+          Сравнить с актуальным графиком
+        </Button>
+      )}
+      {comparison && (
+        <section className="panel">
+          <h3>Сохранено на сервере</h3>
+          <ul>
+            {comparison.week.map((day) => (
+              <li key={day.weekday}>
+                {DAYS[day.weekday]}:{' '}
+                {day.intervals.map((i) => `${i.timeFrom} до ${i.timeTo}`).join(', ') || 'Выходной'}
+              </li>
+            ))}
+          </ul>
+          <p>Ваш ввод остаётся в форме; он не отправлен поверх чужих изменений.</p>
+          <Button
+            type="button"
+            tone="secondary"
+            onClick={() => {
+              setSlots(
+                Object.fromEntries(
+                  comparison.week.map((d) => [d.weekday, d.intervals.map((i) => ({ ...i }))]),
+                ),
+              );
+              setOriginalRevision(comparison.weekRevision ?? undefined);
+              setComparison(null);
+            }}
+          >
+            Принять сохранённый график
+          </Button>
+        </section>
+      )}
+
       <Button type="submit" disabled={pending}>
         {pending ? 'Сохраняем…' : 'Сохранить график'}
       </Button>

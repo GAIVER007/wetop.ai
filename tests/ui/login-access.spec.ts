@@ -2,7 +2,7 @@ import { FIXTURE_API, expect, test, type Page, openProfileMenu } from './fixture
 import AxeBuilder from '@axe-core/playwright';
 
 const SITE = 'http://127.0.0.1:3002';
-const APP = 'http://127.0.0.1:3100';
+const APP = process.env.UI_APP_URL ?? 'http://127.0.0.1:3100';
 const API = FIXTURE_API;
 // ADR-131: прежние проверки формы перенесены на реальную главную, не на заменитель /login.
 test.beforeEach(async ({ request }) => {
@@ -42,7 +42,7 @@ test('верный пароль открывает рабочее место, в
   await page.goto('/login');
   await fillLogin(page);
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(APP + '/finance');
+  await expect(page).toHaveURL(APP + '/today');
   await openProfileMenu(page);
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).toHaveURL(SITE + '/?next=%2Ftoday#login');
@@ -63,7 +63,7 @@ test('сбой API сохраняет поля, повтор после восс
   await expect(dialog(page).getByLabel('Почта')).toHaveValue('admin@wetop.test');
   await request.post(API + '/__test/control', { data: { failPath: '' } });
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(APP + '/finance');
+  await expect(page).toHaveURL(APP + '/today');
 });
 test('клавиатура, показ пароля и блокировка повторной отправки', async ({ page }) => {
   await page.goto('/login');
@@ -96,7 +96,7 @@ test('клавиатура, показ пароля и блокировка по
   } finally {
     release();
   }
-  await expect(page).toHaveURL(APP + '/finance');
+  await expect(page).toHaveURL(APP + '/today');
 });
 for (const theme of ['light', 'dark'] as const) {
   test('доступность формы и адаптивность — ' + theme, async ({ page }) => {
@@ -131,7 +131,7 @@ test('сеансы открываются в профиле, команда в �
   await page.goto('/login');
   await fillLogin(page);
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(APP + '/finance');
+  await expect(page).toHaveURL(APP + '/today');
   await page.goto('/profile/access');
   await expect(
     page.getByRole('heading', { name: 'Управление доступом', exact: true }),
@@ -167,7 +167,7 @@ test('до подтверждения письма сессии нет; ссыл
   await expect(dialog(page).getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
   await page.goto('/login/verify?token=ui-verify-1');
-  await expect(page).toHaveURL(APP + '/finance');
+  await expect(page).toHaveURL(APP + '/today');
   expect((await context.cookies(APP)).find((c) => c.name === 'wetop_session')?.httpOnly).toBe(true);
 });
 test('негодная ссылка подтверждения показывает отказ и возможность повтора', async ({ page }) => {

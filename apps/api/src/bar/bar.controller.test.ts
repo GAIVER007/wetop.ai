@@ -168,3 +168,58 @@ describe('бар: приходы (BAR2)', () => {
     await request(app.getHttpServer()).post('/bar/inventory-counts').send({ productId, actualUnits: '13', reason: 'Найден излишек' }).expect(409);
   });
 });
+
+/** ADR-181: сторно продажи гасит деньги, поэтому право `refunds`; продажа и расходы остаются у смены. */
+describe('бар: права на сторно (FOOD-FIX-01)', () => {
+  let app: INestApplication;
+  const repo = {
+    async sellRetail() {
+      return { kind: 'posted', id: '60000000-0000-4000-8000-000000000001', status: 'POSTED', revenueMinor: '70000', costMinor: '15000' };
+    },
+    async reverseSale(id: string, restock: boolean, reason: string) {
+      return { kind: 'reversed', id, status: 'REVERSED', restocked: restock, reason };
+    },
+  } as unknown as BarRepository;
+
+  beforeAll(async () => {
+    const m = await Test.createTestingModule({ imports: [BarModule] })
+      .overrideProvider(BAR_REPOSITORY).useValue(repo)
+      .overrideProvider(PrismaService).useValue({})
+      .compile();
+    app = m.createNestApplication();
+    app.use(
+      (req: { user?: object; headers: Record<string, string> }, _res: unknown, next: () => void) => {
+        req.user = {
+          id: '00000000-0000-4000-8000-000000000001',
+          organizationId: '00000000-0000-4000-8000-000000000002',
+          role: req.headers['x-test-role'] === 'STAFF' ? 'STAFF' : 'OWNER',
+        };
+        next();
+      },
+    );
+    const { RoleGuard } = await import('../auth/role.guard');
+    const { Reflector } = await import('@nestjs/core');
+    app.useGlobalGuards(new RoleGuard(new Reflector()));
+    await app.init();
+  });
+  afterAll(async () => app.close());
+
+  const saleId = '60000000-0000-4000-8000-000000000001';
+
+  it('смене (STAFF) сторно закрыто, продажа открыта', async () => {
+    await request(app.getHttpServer())
+      .post(`/bar/sales/${saleId}/reverse`).set('x-test-role', 'STAFF').send({ restock: true, reason: 'Возврат гостя' })
+      .expect(403);
+    await request(app.getHttpServer())
+      .post('/bar/sales/retail').set('x-test-role', 'STAFF')
+      .send({ productId: '30000000-0000-4000-8000-000000000001', quantityUnits: '1', method: 'CASH', idempotencyKey: 'perm-sale-1' })
+      .expect(201);
+  });
+
+  it('владельцу с правом refunds сторно открыто', async () => {
+    const reversed = await request(app.getHttpServer())
+      .post(`/bar/sales/${saleId}/reverse`).send({ restock: true, reason: 'Возврат гостя' })
+      .expect(201);
+    expect(reversed.body.status).toBe('REVERSED');
+  });
+});

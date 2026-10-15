@@ -45,15 +45,10 @@ function Delta({ value, worseWhenUp }: { value: TrendValue | undefined; worseWhe
 export function InventorySummaryTiles({
   units,
   trend,
-  days,
 }: {
   units: InventoryUnit[];
   trend: InventoryTrend | null;
-  days: number;
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const search = useSearchParams();
   const rooms = units.filter((u) => u.kind === 'ROOM').length;
   const beds = units.length - rooms;
   const onSale = units.filter((u) => u.active && !u.block).length;
@@ -123,29 +118,8 @@ export function InventorySummaryTiles({
       worseWhenUp: true,
     },
   ];
-  function setPeriod(value: string) {
-    const params = new URLSearchParams(search.toString());
-    params.set('period', value);
-    router.replace(`${pathname}?${params}`, { scroll: false });
-  }
   return (
     <section aria-label="Сводка фонда" className="inv-summary-wrap">
-      <div className="inv-summary-head">
-        <label className="inv-period">
-          Динамика за
-          <Select
-            aria-label="Период динамики"
-            value={String(days)}
-            onChange={(e) => setPeriod(e.target.value)}
-          >
-            {PERIODS.map(([value, text]) => (
-              <option key={value} value={value}>
-                {text}
-              </option>
-            ))}
-          </Select>
-        </label>
-      </div>
       <dl className="inv-summary" data-testid="inventory-summary">
         {tiles.map((tile) => (
           <div key={tile.id} className="inv-tile">
@@ -169,5 +143,35 @@ export function InventorySummaryTiles({
         ))}
       </dl>
     </section>
+  );
+}
+
+/**
+ * «Динамика за 7 / 30 / 90 дней» стоит в шапке страницы рядом с действиями (эталон владельца
+ * `01_hospitality/inventory.png`): отдельной строки над плитками нет. Период живёт в адресе (`?period=`).
+ */
+export function InventoryPeriodSelect({ days }: { days: number }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const search = useSearchParams();
+  return (
+    <label className="inv-period">
+      Динамика за
+      <Select
+        aria-label="Период динамики"
+        value={String(days)}
+        onChange={(e) => {
+          const params = new URLSearchParams(search.toString());
+          params.set('period', e.target.value);
+          router.replace(`${pathname}?${params}`, { scroll: false });
+        }}
+      >
+        {PERIODS.map(([value, text]) => (
+          <option key={value} value={value}>
+            {text}
+          </option>
+        ))}
+      </Select>
+    </label>
   );
 }

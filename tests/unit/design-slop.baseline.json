@@ -41,17 +41,16 @@
     "apps/web/src/app/workspace.css": 3
   },
   "font-literal": {
-    "apps/web/src/app/ai-agents/ai-agents.css": 6,
-    "apps/web/src/app/channels/channels.css": 20,
+    "apps/web/src/app/ai-agents/ai-agents.css": 5,
+    "apps/web/src/app/channels/channels.css": 8,
     "apps/web/src/app/chessboard/board.css": 3,
     "apps/web/src/app/components.css": 4,
-    "apps/web/src/app/connections/integrations.css": 7,
-    "apps/web/src/app/finance/finance.css": 14,
+    "apps/web/src/app/connections/integrations.css": 6,
+    "apps/web/src/app/finance/finance.css": 9,
     "apps/web/src/app/finance/owner-dashboard.css": 2,
-    "apps/web/src/app/food/food.css": 9,
-    "apps/web/src/app/journal/journal.css": 1,
+    "apps/web/src/app/food/food.css": 8,
     "apps/web/src/app/premium.css": 5,
-    "apps/web/src/app/reservations/new/booking-compact.css": 8
+    "apps/web/src/app/reservations/new/booking-compact.css": 5
   },
   "space-literal-not-var": {
     "apps/web/src/app/ai-agents/ai-agents.css": 12,
@@ -65,7 +64,7 @@
     "apps/web/src/app/finance/finance.css": 36,
     "apps/web/src/app/finance/owner-dashboard.css": 67,
     "apps/web/src/app/food/food.css": 30,
-    "apps/web/src/app/inventory/fund.css": 27,
+    "apps/web/src/app/inventory/fund.css": 26,
     "apps/web/src/app/journal/journal.css": 4,
     "apps/web/src/app/login/role-access.css": 4,
     "apps/web/src/app/management/analytics/analytics.css": 43,
@@ -77,10 +76,8 @@
     "apps/web/src/app/workspace.css": 85
   },
   "inline-style": {
-    "apps/web/src/app/ai-agents/[id]/telegram-panel.tsx": 4,
     "apps/web/src/app/ai-seller/agents/editor.tsx": 1,
-    "apps/web/src/app/beauty/journal.tsx": 6,
-    "apps/web/src/app/branches/workspace.tsx": 1,
+    "apps/web/src/app/beauty/journal.tsx": 4,
     "apps/web/src/app/chessboard/board-grid.tsx": 9,
     "apps/web/src/app/chessboard/stay-resize.tsx": 1,
     "apps/web/src/app/finance/overview.tsx": 2,

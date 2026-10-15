@@ -1,0 +1,30 @@
+{
+ "/marketing/budget": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бюджет маркетинга",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Все расходы 94x23"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бюджет маркетинга",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бюджет маркетинга",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

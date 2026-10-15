@@ -5,13 +5,23 @@ import { expect, test } from '@playwright/test';
  * одно и то же расстояние на компьютере и телефоне. Ловит блок, который принёс свой внешний отступ.
  */
 const PAGES = [
-  '/for/hotels/', '/for/salons/', '/for/restaurants/', '/for/hostels/', '/for/mini-hotels/',
-  '/for/apart-hotels/', '/for/beauty-salons/', '/for/barbershops/', '/for/spa/', '/for/nail-studios/',
-  '/for/cafes/', '/for/bars/',
+  '/for/hotels/',
+  '/for/salons/',
+  '/for/restaurants/',
+  '/for/hostels/',
+  '/for/mini-hotels/',
+  '/for/apart-hotels/',
+  '/for/beauty-salons/',
+  '/for/barbershops/',
+  '/for/spa/',
+  '/for/nail-studios/',
+  '/for/cafes/',
+  '/for/bars/',
 ];
 
 for (const width of [1440, 390]) {
   test(`одинаковые отступы между блоками лендингов, ${width}`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width, height: 900 });
     const problems: string[] = [];
     for (const path of PAGES) {

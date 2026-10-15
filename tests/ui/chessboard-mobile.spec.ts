@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, chooseBoardPeriod, expect, test } from './fixtures';
 
 const add = (date: string, nights: number) => {
   const day = new Date(`${date}T12:00:00Z`);
@@ -193,7 +193,7 @@ for (const width of [360, 390, 430]) {
     await page.goto('/chessboard');
     const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
     await expect(stats).toBeVisible();
-    for (const id of ['arrivals', 'departures', 'free', 'occupied', 'occupancy', 'dirty', 'attention']) {
+    for (const id of ['arrivals', 'departures', 'free', 'occupied', 'occupancy', 'in-house', 'attention']) {
       await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
     }
     const day = await (
@@ -255,7 +255,7 @@ test('календарь возвращает обе позиции после �
   await page.goBack();
   await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBeCloseTo(position.x, 0);
   await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBeCloseTo(position.y, 0);
-  await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
+  await chooseBoardPeriod(page, 'Сегодня');
   await expect
     .poll(() =>
       wrap.evaluate((el) => {

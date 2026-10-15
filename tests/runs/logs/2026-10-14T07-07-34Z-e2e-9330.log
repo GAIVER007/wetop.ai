@@ -1,0 +1,8 @@
+# Сквозные (e2e) · 14.10.2026 12:07 Алматы · MacBook-Air-Urij.local
+# коммит 216f02c (claude/ui4-master-20261013)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/accessibility.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' 'tests/ui/design-refresh.spec.ts' 'tests/ui/desk-tasks.spec.ts' 'tests/ui/empty-base.spec.ts' 'tests/ui/finance-card-actions.spec.ts' 'tests/ui/finance-cash-first.spec.ts' 'tests/ui/finance-cash.spec.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/finance-f2.spec.ts' 'tests/ui/finance-home-merge.spec.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' 'tests/ui/product-tour.spec.ts' 'tests/ui/onboarding.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/side-nav.spec.ts' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/design-reference.spec.ts' 'tests/ui/desktop-compact.spec.ts' '--workers=1'
+
+Running 273 tests using 1 worker
+
+
+# код выхода —, сигнал SIGTERM · 4 мин 3 с

@@ -1,0 +1,32 @@
+{
+ "/reports/occupancy": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Двухместный номер 146x17",
+    "A:Мужской общий номер 162x17",
+    "A:Женский общий номер 161x17"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

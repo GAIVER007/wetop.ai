@@ -160,7 +160,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'desk',
         label: 'Сегодня',
         icon: 'today',
-        description: 'Рабочий экран дня салона и ресторана; гостиницу ведёт в «Финансы».',
+        description: 'Главная: загрузка, события дня и задачи объекта; у салона и ресторана их рабочий день.',
       },
       {
         href: '/chessboard',
@@ -253,7 +253,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'reports',
         label: 'Финансы',
         icon: 'money',
-        description: 'Касса и день объекта: загрузка, поступления, расходы, операции и отчёты.',
+        description: 'Доходы, поступления, расходы, прибыль, операции, касса и отчёты.',
       },
       {
         href: '/bar',
@@ -489,11 +489,17 @@ function direct(
  * то же меню выдвижное. Работа смены одним щелчком; группы с несколькими экранами
  * («Продажи», «Маркетинг», «Отчёты», «Настройки») раскрывают список.
  */
-// Порядок вкладок по частоте использования (поручение владельца 03.10). С 09.10 «Финансы» это единый
-// раздел вместо Главной (день объекта и касса вместе, plans/finance-home-merge-2026-10-09.md), поэтому
-// стоит первым; дальше работа смены, продажи, отчётность; фонд и настройки реже всего.
-// «Отчёты» и «Аналитика» объединены в одну группу: оба раздела — «посмотреть цифры».
+// Порядок гостиничного меню утверждён владельцем 13.10.2026: календарь, гости, фонд,
+// финансы, продажи, маркетинг, отчёты и настройки. Адреса и права сохраняются.
 export const menuSections: MenuSection[] = [
+  // «Главная» первой (решение владельца 13.10.2026, ADR-180); дальше порядок #501
+  direct('today', '/today', 'today', 'Главная'),
+  // задачи смены открываются из панели «Сегодня» календаря (ADR-145): раздел тот же
+  direct('chessboard', '/chessboard', 'board', undefined, ['/tasks']),
+  // Одна вкладка вместо «Брони» и «Гости» (поручение владельца 09.10.2026): экран `/guests` по макету; список
+  // броней со всеми отборами и экспортом открывается кнопкой на нём, адреса и права страниц прежние
+  direct('guests', '/guests', 'guests', undefined, ['/reservations']),
+  direct('inventory', '/inventory', 'bed', undefined, ['/units', '/rooms', '/rates']),
   {
     // «Бар» живёт внутри «Финансов» (ADR-157, поручение владельца 09.10.2026): товарно-денежный учёт
     // рядом с кассой, своей вкладки у него нет. Маршруты и права не менялись.
@@ -502,11 +508,6 @@ export const menuSections: MenuSection[] = [
     icon: 'money',
     items: [menuItem('/finance', 'Оплаты и касса'), menuItem('/bar')],
   },
-  // задачи смены открываются из панели «Сегодня» календаря (ADR-145): раздел тот же
-  direct('chessboard', '/chessboard', 'board', undefined, ['/tasks']),
-  // Одна вкладка вместо «Брони» и «Гости» (поручение владельца 09.10.2026): экран `/guests` по макету; список
-  // броней со всеми отборами и экспортом открывается кнопкой на нём, адреса и права страниц прежние
-  direct('guests', '/guests', 'guests', undefined, ['/reservations']),
   {
     id: 'sales',
     label: 'Продажи',
@@ -537,10 +538,9 @@ export const menuSections: MenuSection[] = [
     id: 'reports',
     label: 'Отчёты',
     icon: 'analytics',
-    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics')],
+    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics', 'Аналитика бизнеса')],
     match: ['/management'],
   },
-  direct('inventory', '/inventory', 'bed', undefined, ['/units', '/rooms', '/rates']),
   {
     id: 'settings',
     label: 'Настройки',
@@ -572,11 +572,54 @@ export const beautyMenuSections: MenuSection[] = [
   // «График» салона отдельной вкладкой (решение владельца №1 по плану DS2, 09.10.2026)
   direct('schedule', '/beauty/schedule', 'clock'),
   direct('services', '/services', 'rates', undefined, ['/beauty/services']),
-  direct('team', '/staff', 'guests', undefined, ['/team']),
-  direct('sales', '/sales', 'rates', 'Продажи'),
-  direct('marketing', '/marketing', 'send', 'Маркетинг'),
-  direct('analytics', '/management/analytics', 'analytics'),
-  direct('journal', '/journal', 'journal'),
+  {
+    id: 'money',
+    label: 'Финансы',
+    icon: 'money' as IconName,
+    items: [menuItem('/finance', 'Оплаты и касса'), menuItem('/bar', 'Бар')],
+  },
+  {
+    id: 'team',
+    label: 'Команда',
+    icon: 'guests' as IconName,
+    items: [menuItem('/team', 'Сотрудники и доступ')],
+    match: ['/staff'],
+  },
+  {
+    id: 'sales',
+    label: 'Продажи',
+    icon: 'rates' as IconName,
+    items: [menuItem('/sales'), menuItem('/ai-agents')],
+    match: ['/ai-seller'],
+  },
+  {
+    id: 'marketing',
+    label: 'Маркетинг',
+    icon: 'send' as IconName,
+    items: [
+      menuItem('/marketing', 'Сайт и SEO'),
+      menuItem('/marketing/budget', 'Бюджет'),
+      menuItem('/marketing/analytics', 'Аналитика'),
+    ],
+    match: ['/website'],
+  },
+  {
+    id: 'reports',
+    label: 'Отчёты',
+    icon: 'analytics' as IconName,
+    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics', 'Аналитика бизнеса')],
+    match: ['/management'],
+  },
+  {
+    id: 'settings',
+    label: 'Настройки',
+    icon: 'settings' as IconName,
+    items: [
+      menuItem('/connections'),
+      menuItem('/journal'),
+      menuItem('/incidents'),
+    ],
+  },
   direct('help', '/help', 'help'),
   direct('profile', '/profile', 'guests'),
 ];
@@ -590,13 +633,13 @@ export const foodMenuSections: MenuSection[] = [
   {
     id: 'hall',
     label: 'Зал',
-    icon: 'board',
+    icon: 'board' as IconName,
     items: [menuItem('/floor-plan'), menuItem('/table-reservations'), menuItem('/dining-areas')],
   },
   {
     id: 'orders',
     label: 'Заказы',
-    icon: 'receipt',
+    icon: 'receipt' as IconName,
     items: [
       menuItem('/orders'),
       menuItem('/kitchen'),
@@ -605,25 +648,57 @@ export const foodMenuSections: MenuSection[] = [
       menuItem('/stock'),
     ],
   },
-  direct('customers', '/customers', 'guests', 'Клиенты'),
+  // гости ресторана это его клиенты (`customers`); гостиничный `/guests` ресторану не нужен
+  direct('customers', '/customers', 'guests', 'Гости'),
   {
     id: 'money',
     label: 'Финансы',
-    icon: 'money',
-    items: [menuItem('/restaurant-finance'), menuItem('/cashbox')],
+    icon: 'money' as IconName,
+    items: [menuItem('/restaurant-finance'), menuItem('/cashbox'), menuItem('/finance', 'Оплаты и касса')],
   },
   {
     id: 'team',
     label: 'Команда',
-    icon: 'guests',
-    items: [menuItem('/employees', 'Сотрудники'), menuItem('/payroll'), menuItem('/staff')],
-    match: ['/team'],
+    icon: 'guests' as IconName,
+    // «Сотрудники и доступ» ведут прямо на `/team`; старый `/staff` только перенаправляет сюда (DS2 §14)
+    items: [menuItem('/employees', 'Сотрудники'), menuItem('/payroll'), menuItem('/team', 'Сотрудники и доступ')],
+    match: ['/staff'],
   },
-  direct('sales', '/sales', 'rates', 'Продажи'),
-  direct('marketing', '/marketing', 'send', 'Маркетинг'),
-  direct('analytics', '/management/analytics', 'analytics'),
-  direct('settings', '/restaurant-settings', 'settings', 'Настройки'),
-  direct('journal', '/journal', 'journal'),
+  {
+    id: 'sales',
+    label: 'Продажи',
+    icon: 'rates' as IconName,
+    items: [menuItem('/sales'), menuItem('/ai-agents')],
+  },
+  {
+    id: 'marketing',
+    label: 'Маркетинг',
+    icon: 'send' as IconName,
+    items: [
+      menuItem('/marketing', 'Сайт и SEO'),
+      menuItem('/marketing/budget', 'Бюджет'),
+      menuItem('/marketing/analytics', 'Аналитика'),
+    ],
+    match: ['/website'],
+  },
+  {
+    id: 'reports',
+    label: 'Отчёты',
+    icon: 'analytics' as IconName,
+    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics', 'Аналитика бизнеса')],
+    match: ['/management'],
+  },
+  {
+    id: 'settings',
+    label: 'Настройки',
+    icon: 'settings' as IconName,
+    items: [
+      menuItem('/restaurant-settings'),
+      menuItem('/connections'),
+      menuItem('/journal'),
+      menuItem('/incidents'),
+    ],
+  },
   direct('help', '/help', 'help'),
   direct('profile', '/profile', 'guests'),
 ];

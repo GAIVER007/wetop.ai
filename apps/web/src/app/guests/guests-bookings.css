@@ -567,3 +567,196 @@
     }
   }
 }
+
+@layer sections {
+  /*
+   * UI4.3 по эталону владельца (`design/references/01_hospitality/guests_and_reservations.png`, DESIGN.md §21):
+   * плитки с подписью тёмным и крупным числом, выбранный быстрый вид залит, дополнительные отборы
+   * переключателями, цветные аватары, номер брони ссылкой, панель гостя: вкладки подчёркнуты, подписи и значения
+   * двумя колонками слева, разделы через черту, действия видны без прокрутки. Оболочка по UI3.1.
+   */
+  .gb-kpis .stat__label {
+    color: var(--text);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+  .gb-kpis .stat__value {
+    font-weight: var(--weight-bold);
+  }
+  .gb-kpis .stat__icon {
+    width: var(--space-10);
+    height: var(--space-10);
+    border-radius: var(--radius-control);
+  }
+
+  /* быстрые виды: выбранный залит главным цветом */
+  .gb-views .chip[aria-current='page'] {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .gb-views .chip[aria-current='page'] .chip__count {
+    color: inherit;
+  }
+
+  /* дополнительные отборы видом переключателя: дорожка (::before) и бегунок (::after) перед подписью */
+  .gb-toggles .chip {
+    position: relative;
+    gap: var(--space-2);
+    border-color: transparent;
+    background: transparent;
+    color: var(--text-2);
+  }
+  .gb-toggles .chip::before {
+    content: '';
+    flex: none;
+    width: var(--space-8);
+    height: 18px;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-full);
+    background: var(--surface-muted);
+    transition: background-color var(--duration-fast) ease;
+  }
+  .gb-toggles .chip::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: calc(var(--space-2) + 3px);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--surface-solid);
+    box-shadow: 0 0 0 1px var(--border-input);
+    translate: 0 -50%;
+    transition: left var(--duration-fast) ease;
+  }
+  .gb-toggles .chip[aria-current='page'] {
+    color: var(--text);
+  }
+  .gb-toggles .chip[aria-current='page']::before {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+  .gb-toggles .chip[aria-current='page']::after {
+    left: calc(var(--space-2) + var(--space-8) - 15px);
+    box-shadow: none;
+  }
+
+  /* аватары насыщенным тоном, инициалы на нём */
+  .gb-avatar {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .gb-avatar[data-hue='1'] {
+    background: var(--success);
+    color: var(--on-primary);
+  }
+  .gb-avatar[data-hue='2'] {
+    background: var(--warning);
+    color: var(--on-primary);
+  }
+  .gb-avatar[data-hue='3'] {
+    background: var(--text-2);
+    color: var(--on-primary);
+  }
+  .gb-booking,
+  .gb-booking a {
+    color: var(--primary);
+    font-weight: var(--weight-medium);
+  }
+
+  /* панель гостя */
+  .gb-panel__card .tabs {
+    margin: var(--space-4) var(--space-4) 0;
+    padding: 0;
+    gap: var(--space-4);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: inset 0 -1px 0 var(--border);
+  }
+  .gb-panel__card .tabs__item {
+    flex: none;
+    padding-inline: 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+  }
+  .gb-panel__card .tabs__item:hover {
+    background: transparent;
+  }
+  .gb-panel__card .tabs__item[aria-selected='true'] {
+    border-bottom-color: var(--primary);
+    background: transparent;
+    color: var(--primary);
+  }
+  .gb-panel__body {
+    gap: 0;
+    padding-block: var(--space-2);
+  }
+  .gb-panel__body > .gb-section {
+    padding-block: var(--space-2);
+  }
+  .gb-panel__body > .gb-section + .gb-section {
+    border-top: 1px solid var(--border-soft);
+  }
+  .gb-section header {
+    margin-bottom: var(--space-1);
+  }
+  .gb-contact-list {
+    gap: var(--space-1);
+  }
+  .gb-facts {
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+  }
+  .gb-facts > div {
+    display: grid;
+    grid-template-columns: 10em minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .gb-facts dd {
+    text-align: left;
+  }
+  .gb-visits {
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+  }
+  .gb-panel__actions {
+    padding-top: var(--space-2);
+  }
+
+  /* плотность эталона: таблица 13 px, строка около 52 px, подписи плиток в одну строку */
+  .gb-table td,
+  .gb-table th {
+    font-size: var(--text-xs);
+    line-height: var(--leading-base);
+  }
+  .gb-table small {
+    margin-top: 0;
+  }
+  .gb-table .badge {
+    font-size: var(--text-xs);
+  }
+  .gb-kpis .stat__label {
+    font-size: var(--text-xs);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .gb-kpis .stat__hint,
+  .gb-kpis .stat__delta {
+    overflow: hidden;
+    font-size: var(--text-xs);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .gb-chips {
+    margin-bottom: var(--space-2);
+  }
+  .gb-toolbar {
+    margin-bottom: var(--space-2);
+  }
+}
+

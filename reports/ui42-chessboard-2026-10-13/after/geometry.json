@@ -1,0 +1,722 @@
+{
+  "320": {
+    "scrollWidth": 320,
+    "font": "inter, \"inter Fallback\", -apple-system, \"system-ui\", \"Segoe UI\", sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+    "fontsLoaded": [
+      "inter 100 900",
+      "inter Fallback normal"
+    ],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 320,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 8,
+      "y": 73,
+      "w": 252,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 8,
+      "y": 116,
+      "w": 304,
+      "h": 46,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 8,
+      "y": 170,
+      "w": 304,
+      "h": 180,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 8,
+      "y": 170,
+      "w": 96,
+      "h": 88,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "filters": {
+      "x": 8,
+      "y": 358,
+      "w": 304,
+      "h": 62,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "grid": {
+      "x": 8,
+      "y": 428,
+      "w": 304,
+      "h": 480,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 153,
+      "y": 429,
+      "w": 104,
+      "h": 56,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 8,
+      "y": 916,
+      "w": 304,
+      "h": 138,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "16px"
+    }
+  },
+  "360": {
+    "scrollWidth": 360,
+    "font": "inter, \"inter Fallback\", -apple-system, \"system-ui\", \"Segoe UI\", sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+    "fontsLoaded": [
+      "inter 100 900",
+      "inter Fallback normal"
+    ],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 360,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 8,
+      "y": 73,
+      "w": 292,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 8,
+      "y": 116,
+      "w": 344,
+      "h": 46,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 8,
+      "y": 170,
+      "w": 344,
+      "h": 180,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 8,
+      "y": 170,
+      "w": 109,
+      "h": 88,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "filters": {
+      "x": 8,
+      "y": 358,
+      "w": 344,
+      "h": 62,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "grid": {
+      "x": 8,
+      "y": 428,
+      "w": 344,
+      "h": 480,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 153,
+      "y": 429,
+      "w": 104,
+      "h": 56,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 8,
+      "y": 916,
+      "w": 344,
+      "h": 138,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "16px"
+    }
+  },
+  "390": {
+    "scrollWidth": 390,
+    "font": "inter, \"inter Fallback\", -apple-system, \"system-ui\", \"Segoe UI\", sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+    "fontsLoaded": [
+      "inter 100 900",
+      "inter Fallback normal"
+    ],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 8,
+      "y": 73,
+      "w": 322,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 8,
+      "y": 116,
+      "w": 374,
+      "h": 46,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 8,
+      "y": 170,
+      "w": 374,
+      "h": 180,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 8,
+      "y": 170,
+      "w": 119,
+      "h": 88,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "filters": {
+      "x": 8,
+      "y": 358,
+      "w": 374,
+      "h": 62,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "grid": {
+      "x": 8,
+      "y": 428,
+      "w": 374,
+      "h": 506,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 153,
+      "y": 429,
+      "w": 104,
+      "h": 56,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 8,
+      "y": 942,
+      "w": 374,
+      "h": 138,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "16px"
+    }
+  },
+  "768": {
+    "scrollWidth": 768,
+    "font": "inter, \"inter Fallback\", -apple-system, \"system-ui\", \"Segoe UI\", sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+    "fontsLoaded": [
+      "inter 100 900",
+      "inter Fallback normal"
+    ],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 768,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 24,
+      "y": 72,
+      "w": 262,
+      "h": 36,
+      "fontSize": "30px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 130,
+      "y": 149,
+      "w": 414,
+      "h": 38,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 24,
+      "y": 203,
+      "w": 720,
+      "h": 137,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 24,
+      "y": 203,
+      "w": 229,
+      "h": 60,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "filters": {
+      "x": 24,
+      "y": 356,
+      "w": 720,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "grid": {
+      "x": 24,
+      "y": 428,
+      "w": 720,
+      "h": 614,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 145,
+      "y": 429,
+      "w": 85,
+      "h": 67,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 24,
+      "y": 1058,
+      "w": 720,
+      "h": 91,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "16px"
+    }
+  },
+  "1024": {
+    "scrollWidth": 1024,
+    "font": "inter, \"inter Fallback\", -apple-system, \"system-ui\", \"Segoe UI\", sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+    "fontsLoaded": [
+      "inter 100 900",
+      "inter Fallback normal"
+    ],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1024,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 24,
+      "y": 67,
+      "w": 176,
+      "h": 32,
+      "fontSize": "26px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 386,
+      "y": 64,
+      "w": 414,
+      "h": 38,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 24,
+      "y": 106,
+      "w": 976,
+      "h": 129,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 24,
+      "y": 106,
+      "w": 320,
+      "h": 60,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "filters": {
+      "x": 24,
+      "y": 239,
+      "w": 976,
+      "h": 48,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "grid": {
+      "x": 24,
+      "y": 291,
+      "w": 976,
+      "h": 414,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 145,
+      "y": 292,
+      "w": 122,
+      "h": 53,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 24,
+      "y": 709,
+      "w": 976,
+      "h": 60,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "16px"
+    }
+  },
+  "1280": {
+    "scrollWidth": 1280,
+    "font": "inter, \"inter Fallback\", -apple-system, \"system-ui\", \"Segoe UI\", sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+    "fontsLoaded": [
+      "inter 100 900",
+      "inter Fallback normal"
+    ],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 24,
+      "y": 67,
+      "w": 176,
+      "h": 32,
+      "fontSize": "26px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 642,
+      "y": 64,
+      "w": 414,
+      "h": 38,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 24,
+      "y": 106,
+      "w": 1232,
+      "h": 60,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 24,
+      "y": 106,
+      "w": 199,
+      "h": 60,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "filters": {
+      "x": 24,
+      "y": 170,
+      "w": 1232,
+      "h": 48,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "grid": {
+      "x": 24,
+      "y": 222,
+      "w": 1232,
+      "h": 548,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 305,
+      "y": 223,
+      "w": 136,
+      "h": 53,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 24,
+      "y": 774,
+      "w": 1232,
+      "h": 26,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "16px"
+    }
+  },
+  "1440": {
+    "scrollWidth": 1440,
+    "font": "inter, \"inter Fallback\", -apple-system, \"system-ui\", \"Segoe UI\", sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+    "fontsLoaded": [
+      "inter 100 900",
+      "inter Fallback normal"
+    ],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 24,
+      "y": 72,
+      "w": 262,
+      "h": 36,
+      "fontSize": "30px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 802,
+      "y": 84,
+      "w": 414,
+      "h": 38,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 24,
+      "y": 149,
+      "w": 1392,
+      "h": 111,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 24,
+      "y": 149,
+      "w": 219,
+      "h": 111,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "filters": {
+      "x": 24,
+      "y": 276,
+      "w": 1392,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "grid": {
+      "x": 24,
+      "y": 348,
+      "w": 1392,
+      "h": 484,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 305,
+      "y": 349,
+      "w": 159,
+      "h": 53,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 24,
+      "y": 848,
+      "w": 1392,
+      "h": 36,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "16px"
+    }
+  },
+  "ref-1586": {
+    "scrollWidth": 1586,
+    "font": "inter, \"inter Fallback\", -apple-system, \"system-ui\", \"Segoe UI\", sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+    "fontsLoaded": [
+      "inter 100 900",
+      "inter Fallback normal"
+    ],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1586,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 24,
+      "y": 72,
+      "w": 262,
+      "h": 36,
+      "fontSize": "30px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 948,
+      "y": 84,
+      "w": 414,
+      "h": 38,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 24,
+      "y": 149,
+      "w": 1538,
+      "h": 111,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 24,
+      "y": 149,
+      "w": 243,
+      "h": 111,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "filters": {
+      "x": 24,
+      "y": 276,
+      "w": 1538,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "16px"
+    },
+    "grid": {
+      "x": 24,
+      "y": 348,
+      "w": 1538,
+      "h": 576,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 305,
+      "y": 349,
+      "w": 179,
+      "h": 53,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 24,
+      "y": 940,
+      "w": 1538,
+      "h": 36,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "16px"
+    }
+  }
+}

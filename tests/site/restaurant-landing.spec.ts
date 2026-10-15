@@ -8,7 +8,9 @@ import { expect, test } from '@playwright/test';
  */
 const PATH = '/for/restaurants/';
 
-test('герой: заголовок, регистрация с направлением и мокап с подписью примера', async ({ page }) => {
+test('герой: заголовок, регистрация с направлением и мокап с подписью примера', async ({
+  page,
+}) => {
   await page.goto(PATH);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'Зал, заказы и кухня ресторана в одном окне',
@@ -24,7 +26,8 @@ test('герой: заголовок, регистрация с направле
     '#restaurant-features',
   );
   // В герое цветное фото зала (своё, KIE): с альтернативным текстом и без интерактива
-  await expect(hero.locator('.restaurant-hero__photo img')).toHaveAttribute('alt', /зал ресторана/i);
+  await expect(hero.locator('figure img')).toHaveAttribute('src', '/design-only/restaurant.svg');
+  await expect(hero.locator('figure img')).toHaveAttribute('alt', /вымышленные/);
 });
 
 test('полоса фактов и возможности: девять карточек, без выдуманных чисел', async ({ page }) => {
@@ -34,7 +37,13 @@ test('полоса фактов и возможности: девять карт
   await expect(features).toHaveCount(9);
   await expect(features.first()).toContainText('План зала');
   // модули для владельца: пункты внутри каждой карточки; бара у ресторана ещё нет, он помечен «Скоро»
-  for (const name of ['Касса и оплата', 'Меню и калькуляция', 'График смен', 'Зарплата официантов', 'Личные кабинеты'])
+  for (const name of [
+    'Касса и оплата',
+    'Меню и калькуляция',
+    'График смен',
+    'Зарплата официантов',
+    'Личные кабинеты',
+  ])
     await expect(features.filter({ hasText: name }).locator('li')).not.toHaveCount(0);
   // склад кухни работает на стойке с 12.10.2026: пометок «Скоро» в модулях больше нет
   await expect(features.filter({ hasText: 'Склад кухни и бара' }).locator('li')).toHaveCount(4);

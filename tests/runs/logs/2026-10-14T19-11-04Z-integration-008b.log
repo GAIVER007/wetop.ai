@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 15.10.2026 00:11 Алматы · MacBook-Air-Urij.local
+# коммит b46db14 (claude/core-01-20261014)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-11-04Z-integration-008b.json' 'tests/integration/mv6-food.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/core-01
+
+[pms_test] миграций применено 0; данные скопированы
+(node:37791) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv6-food.test.ts (19 tests) 2002ms
+   ✓ MV6 real PostgreSQL (19)
+     ✓ HTTP reload and every route enforce vertical, scope, permissions and READ_ONLY 356ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  23:11:06
+   Duration  6.87s (import 45%, tests 40%, transform 15%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-11-04Z-integration-008b.json
+
+# код выхода 0 · 9 с

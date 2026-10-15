@@ -90,15 +90,18 @@ test('телефон: сводка и управление оставляют с
   await expect(page.getByLabel('Период: по', { exact: true })).toBeVisible();
 });
 
-test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
+test('узкий телефон: плитки финансов в две колонки без перелива вбок', async ({ page }) => {
+  // денежный экран по эталону 13.10 (ADR-180): четыре плитки на телефоне парами, свёртка «Отчёты и управление» снята
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
-  await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   const columns = await page
-    .locator('.finance-kpis')
+    .locator('.fin-kpis')
     .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
-  expect(columns).toBe(1);
+  expect(columns).toBe(2);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+  ).toBeLessThanOrEqual(1);
 });
 
 test('телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px', async ({ page }) => {
@@ -125,6 +128,10 @@ test('телефон: кнопки, поля и вкладки разделов 
     const small = await page.evaluate(() =>
       [...document.querySelectorAll('button, select, input, a.btn')]
         .filter((el) => {
+          // закрытый <details> прячет содержимое, но Chrome сохраняет его геометрию:
+          // скрытые цели (календарь выбора периода) не считаются
+          if (!(el as HTMLElement).checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }))
+            return false;
           const r = el.getBoundingClientRect();
           return r.height > 0 && r.width > 0 && r.height < 44;
         })
@@ -162,6 +169,9 @@ test('телефон: поля не мельче 16 px — иначе iOS зум
     const small = await page.evaluate(() =>
       [...document.querySelectorAll('input, select, textarea')]
         .filter((el) => {
+          // скрытые поля (календарь периода в закрытом <details>) не считаются: Chrome хранит их геометрию
+          if (!(el as HTMLElement).checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }))
+            return false;
           const r = el.getBoundingClientRect();
           const type = (el as HTMLInputElement).type;
           if (['checkbox', 'radio', 'hidden'].includes(type)) return false;

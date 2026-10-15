@@ -21,14 +21,21 @@ describe('Food workspace isolation', () => {
       '/customers',
       '/restaurant-finance',
       '/cashbox',
+      '/finance',
       '/employees',
       '/payroll',
-      '/staff',
+      '/team',
       '/sales',
+      '/ai-agents',
       '/marketing',
+      '/marketing/budget',
+      '/marketing/analytics',
+      '/reports',
       '/management/analytics',
       '/restaurant-settings',
+      '/connections',
       '/journal',
+      '/incidents',
       '/help',
       '/profile',
     ]);
@@ -37,23 +44,22 @@ describe('Food workspace isolation', () => {
       'Главная',
       'Зал',
       'Заказы',
-      'Клиенты',
+      'Гости',
       'Финансы',
       'Команда',
       'Продажи',
       'Маркетинг',
-      'Аналитика',
+      'Отчёты',
       'Настройки',
-      'Журнал операций',
       'Помощь',
       'Профиль',
     ]);
-    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 2, 3]);
+    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 3, 3, 2, 3, 2, 4]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],
       ['/orders', 'Заказы'],
-      ['/customers', 'Клиенты'],
+      ['/customers', 'Гости'],
     ]);
     const labels = sections.flatMap((s) => s.items);
     expect(labels.find((i) => i.href === '/orders')?.label).toBe('Заказы');
@@ -71,11 +77,11 @@ describe('Food workspace isolation', () => {
         '/floor-plan',
       );
       if (v === 'HOSPITALITY') {
-        // первая вкладка гостиницы — группа «Финансы» (ADR-157): первый пункт «Оплаты и касса»
-        expect(menuSectionsFor(owner, v)[0]!.label).toBe('Финансы');
+        // «Главная» первой (ADR-180, 13.10.2026), затем «Календарь» (порядок #501)
+        expect(menuSectionsFor(owner, v)[0]!.label).toBe('Главная');
         expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({
-          href: '/finance',
-          label: 'Оплаты и касса',
+          href: '/today',
+          label: 'Главная',
         });
       }
     }
@@ -84,7 +90,7 @@ describe('Food workspace isolation', () => {
     // MV8: рабочий экран дня салона и ресторана; гостиница стартует с единых «Финансов» (09.10.2026)
     expect(landingForVertical('FOOD_SERVICE')).toBe('/today');
     expect(landingForVertical('BEAUTY')).toBe('/today');
-    expect(landingForVertical('HOSPITALITY')).toBe('/finance');
+    expect(landingForVertical('HOSPITALITY')).toBe('/today');
     expect(
       deskShellOf({
         user: { email: 'synthetic@example.invalid', name: null },

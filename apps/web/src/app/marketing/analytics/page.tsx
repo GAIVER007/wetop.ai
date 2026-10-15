@@ -25,8 +25,8 @@ import { ChooseLocation, MonthNav, platformLabel } from '../budget/parts';
 const LATER = [
   ['Лиды', 'Подтянутся из Meta и от ИИ-продавца (этап В5)'],
   ['Квалифицированные', 'Квалификацию ведёт ИИ-продавец (этап В5)'],
-  ['Продажи', 'Сделки и брони из CRM и ИИ-продавца (этап В5)'],
-  ['Выручка', 'Из продаж и броней (этап В6)'],
+  ['Продажи', 'Сделки, брони, записи и заказы из CRM и ИИ-продавца (этап В5)'],
+  ['Выручка', 'Из оплаченных продаж (этап В6)'],
   ['ROMI', 'Выручка минус расходы к расходам (этап В6)'],
 ] as const;
 
@@ -35,7 +35,7 @@ export default async function MarketingAnalyticsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const loaded = await loadBudget(await searchParams);
   const subtitle = 'Полная картина эффективности маркетинга: от источников до продаж.';
   if (loaded.chooseLocation || loaded.error)
@@ -124,7 +124,7 @@ export default async function MarketingAnalyticsPage({
           <p className="settings-note" data-testid="man-sources-note">
             Лиды, CPL, продажи, выручка и ROMI по источникам подтянутся с подключением рекламных
             кабинетов (Meta, Google, TikTok, этап В3) и ИИ-продавца, который сам ведёт переписку,
-            квалифицирует и бронирует (этапы В5/В6).
+            квалифицирует и доводит до продажи (этапы В5/В6).
           </p>
         </section>
         <section aria-labelledby="man-days-title">

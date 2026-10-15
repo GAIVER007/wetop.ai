@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { tasksApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Alert } from '../../components/ui';
@@ -13,6 +14,8 @@ export default async function TasksPage({
 }: {
   searchParams: Promise<{ reservation?: string }>;
 }) {
+  // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
+  await requireVertical(['HOSPITALITY']);
   const { reservation } = await searchParams;
   const [list, shell, me] = await Promise.all([
     tasksApi.list().catch(() => null),

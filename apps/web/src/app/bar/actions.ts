@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { hotelApi } from '../../lib/hotel-api';
 import { ApiError, barApi, type BarScanResult } from '../../lib/api';
+import { loadBarContext } from './load-context';
 
 export interface BarActionResult { error: string | null; ok: number; message?: string }
 /** Результат скана накладной: те же поля обратной связи плюс разобранный документ */
@@ -15,12 +15,12 @@ const describe = (error: unknown) =>
       ? error.message
       : 'Не удалось выполнить действие. Проверьте результат перед повтором.';
 async function verifyContext(fd: FormData) {
-  const { property } = await hotelApi.settings();
-  if (!property.id || value(fd, 'barPropertyId') !== property.id)
+  const current = await loadBarContext();
+  if (!current.propertyId || value(fd, 'barPropertyId') !== current.propertyId)
     throw new Error('Объект формы изменился. Откройте форму в выбранном объекте.');
-  if (!property.currency || value(fd, 'barCurrency') !== property.currency)
+  if (!current.currency || value(fd, 'barCurrency') !== current.currency)
     throw new Error('Валюта формы не совпадает с выбранным объектом. Обновите данные.');
-  return property;
+  return current;
 }
 const saleKey = (fd: FormData) => {
   const key = value(fd, 'idempotencyKey');

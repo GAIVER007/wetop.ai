@@ -9,7 +9,7 @@ test('события филиалов и проверки остатков по�
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await page.goto('/journal');
   await page.getByText('Фильтры журнала', { exact: true }).click();
   const actions = page.getByRole('combobox', { name: 'Действие', exact: true });

@@ -81,6 +81,15 @@
     justify-content: space-between;
     gap: var(--space-4);
   }
+  /* телефон: «Все расходы» — цель касания 44 px (аудит UI5) */
+  @media (max-width: 600px) {
+    .budget-recent-head a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
+    }
+  }
+
 
   .budget-recent {
     list-style: none;

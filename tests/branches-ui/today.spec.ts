@@ -1,3 +1,4 @@
+import { formatMoney } from '../../apps/web/src/lib/money';
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { settleStreaming } from '../ui/fixtures';
@@ -155,13 +156,11 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await page.goto('/today');
     await expect(page.getByRole('heading', { name: 'Сегодня', exact: true })).toBeVisible();
     await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
-    const { m } = await expectedBeauty(request, f.salon);
+    const { day, m } = await expectedBeauty(request, f.salon);
     expect(m.masters).toBe(2);
     for (const [id, n] of [
-      ['today-planned', m.planned],
-      ['today-confirmed', m.confirmed],
-      ['today-done', m.done],
-      ['today-masters', m.masters],
+      ['today-total', m.total],
+      ['today-clients', m.clients],
     ] as const)
       await expect(value(page, id), id).toHaveText(String(n));
     if (m.awaitingConfirmation > 0)
@@ -170,7 +169,11 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
       );
     if (m.noShow > 0)
       await expect(page.getByTestId('today-attention-no-show')).toContainText(String(m.noShow));
-    await expect(page.getByText('Мастеров', { exact: true })).toBeVisible();
+    await expect(value(page, 'today-shift')).toHaveText(`${m.onShift} из ${m.masters}`);
+    await expect(value(page, 'today-revenue')).toHaveText(m.revenue.length
+      ? formatMoney(m.revenue[0]!.minor, m.revenue[0]!.currency)
+      : formatMoney('0', day.location.currency));
+    await expect(page.getByText('Мастера на смене', { exact: true }).first()).toBeVisible();
     const rows = page.getByTestId('today-upcoming').locator('li');
     await expect(rows).toHaveCount(m.upcoming.length);
     if (m.upcoming.some((u) => u.master === UNAVAILABLE_MASTER))
@@ -215,7 +218,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     // Скрытое меню UI3.1 держит разделы в панели: открыть «Зал» и найти «Бронирования».
     const nav = page.getByRole('navigation', { name: 'Разделы' });
     await nav.locator('.sidenav__current').click();
-    await nav.getByRole('button', { name: 'Зал', exact: true }).focus();
+    await nav.getByRole('button', { name: 'Зал', exact: true }).click();
     await expect(nav.getByRole('link', { name: 'Бронирования', exact: true }).first()).toBeVisible();
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|desk|hotel|chessboard|finance)\b/.test(c))).toBe(false);
@@ -257,10 +260,10 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('beauty-today')).toHaveCount(0);
     expect(await scopeCookie(page)).toBe(f.food);
     await choose(page, 'Тестовый отель');
-    // гостиница с 09.10 живёт единым разделом «Финансы»: /today уводит туда (finance-home-merge)
-    await expect(page).toHaveURL(/\/finance$/);
+    // гостиница с 13.10 снова на своей «Главной» /today (ADR-180)
+    await expect(page).toHaveURL(/\/today$/);
     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
     await expect(page.getByTestId('food-today')).toHaveCount(0);
     await choose(page, 'Тестовый салон');
     await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
@@ -340,9 +343,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const f = await prepare(request);
     await setScope(page, f.hotelScope);
     await page.clock.install();
-    // экран гостиницы живёт в «Финансах»: `/today` перенаправляет туда (f5f7d58a4), и серверное действие
-    // выбора филиала уходит POST на `/finance`, а не на `/today`
-    await page.goto('/finance');
+    // «Главная» гостиницы на /today (ADR-180); серверное действиеое действие
+    // выбора филиала уходит POST на текущий адрес «Главной» `/today`
+    await page.goto('/today');
     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     await page.locator('.sidenav__current').click();
     await expect(page.getByTestId('data-freshness')).toBeVisible();
@@ -357,7 +360,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const held = new Promise<void>((resolve) => {
       started = resolve;
     });
-    await page.route('**/finance', async (route) => {
+    await page.route('**/today', async (route) => {
       if (route.request().method() === 'POST' && route.request().headers()['next-action']) {
         started();
         await gate;
@@ -414,7 +417,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const from = await callCount(request);
     await page.goto('/today');
     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
     await expect(page.getByTestId('beauty-today')).toHaveCount(0);
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|food-service)\b/.test(c))).toBe(false);
@@ -459,7 +462,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const f = await prepare(request);
     await setScope(page, f.hotelScope);
     await page.goto('/today');
-    await expect(page).toHaveURL(/\/finance$/);
+    await expect(page).toHaveURL(/\/today$/);
     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     await expect(page.getByRole('dialog')).toBeVisible();
     for (const [scope, testId] of [

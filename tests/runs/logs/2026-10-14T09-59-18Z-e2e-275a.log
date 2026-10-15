@@ -1,0 +1,121 @@
+# Сквозные (e2e) · 14.10.2026 14:59 Алматы · MacBook-Air-Urij.local
+# коммит 113546e (claude/ui5-fullpass-20261014), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/ui5-audit.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 65 tests using 1 worker
+
+  ✓   1 tests/ui/ui5-audit.spec.ts:46:5 › аудит /today (5.4s)
+  ✓   2 tests/ui/ui5-audit.spec.ts:46:5 › аудит /chessboard (7.7s)
+  ✓   3 tests/ui/ui5-audit.spec.ts:46:5 › аудит /tasks (3.8s)
+  ✓   4 tests/ui/ui5-audit.spec.ts:46:5 › аудит /guests (4.3s)
+  ✓   5 tests/ui/ui5-audit.spec.ts:46:5 › аудит /guests?q=Тест (4.8s)
+  ✓   6 tests/ui/ui5-audit.spec.ts:46:5 › аудит /guests/ui-guest (3.4s)
+  ✓   7 tests/ui/ui5-audit.spec.ts:46:5 › аудит /guests/birthdays (3.1s)
+  ✓   8 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reservations (3.1s)
+  ✓   9 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reservations/new?unit=M03 (2.3s)
+  ✓  10 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reservations/20260913-TESTAA (3.3s)
+  ✓  11 tests/ui/ui5-audit.spec.ts:46:5 › аудит /inventory (7.0s)
+  ✓  12 tests/ui/ui5-audit.spec.ts:46:5 › аудит /units/R01 (3.8s)
+  ✓  13 tests/ui/ui5-audit.spec.ts:46:5 › аудит /rooms/categories (4.4s)
+  ✓  14 tests/ui/ui5-audit.spec.ts:46:5 › аудит /rooms/availability (2.7s)
+  ✓  15 tests/ui/ui5-audit.spec.ts:46:5 › аудит /finance (4.3s)
+  ✓  16 tests/ui/ui5-audit.spec.ts:46:5 › аудит /finance?tab=cash (3.6s)
+  ✓  17 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar (3.0s)
+  ✓  18 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar/products (2.6s)
+  ✓  19 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar/receipts (2.2s)
+  ✓  20 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar/receipts/new (2.3s)
+  ✓  21 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar/suppliers (2.9s)
+  ✓  22 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar/operations (2.1s)
+  ✓  23 tests/ui/ui5-audit.spec.ts:46:5 › аудит /sales (2.3s)
+  ✓  24 tests/ui/ui5-audit.spec.ts:46:5 › аудит /market (2.1s)
+  ✓  25 tests/ui/ui5-audit.spec.ts:46:5 › аудит /channels (3.2s)
+  ✓  26 tests/ui/ui5-audit.spec.ts:46:5 › аудит /channels/events (1.6s)
+  ✓  27 tests/ui/ui5-audit.spec.ts:46:5 › аудит /channel-manager (2.7s)
+  ✓  28 tests/ui/ui5-audit.spec.ts:46:5 › аудит /ai-agents (2.0s)
+  ✓  29 tests/ui/ui5-audit.spec.ts:46:5 › аудит /ai-seller (3.0s)
+  ✓  30 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing (2.2s)
+  ✓  31 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/ads (2.3s)
+  ✓  32 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/content (2.2s)
+  ✓  33 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/budget (2.2s)
+  ✓  34 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/budget/expenses (2.1s)
+  ✓  35 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/budget/analytics (2.7s)
+  ✓  36 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/analytics (1.7s)
+  ✓  37 tests/ui/ui5-audit.spec.ts:46:5 › аудит /website (1.9s)
+  ✓  38 tests/ui/ui5-audit.spec.ts:46:5 › аудит /website/booking (2.1s)
+  ✓  39 tests/ui/ui5-audit.spec.ts:46:5 › аудит /website/analytics (2.5s)
+  ✓  40 tests/ui/ui5-audit.spec.ts:46:5 › аудит /website/settings (2.1s)
+  ✓  41 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports (2.2s)
+  ✓  42 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports/overview (3.0s)
+  ✓  43 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports/finance (2.8s)
+  ✓  44 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports/occupancy (2.4s)
+  ✓  45 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports/units (4.2s)
+  ✓  46 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports/form-910 (2.1s)
+  ✓  47 tests/ui/ui5-audit.spec.ts:46:5 › аудит /management/analytics (2.9s)
+  ✓  48 tests/ui/ui5-audit.spec.ts:46:5 › аудит /management/analytics/occupancy (2.3s)
+  ✓  49 tests/ui/ui5-audit.spec.ts:46:5 › аудит /management/analytics/channels (2.3s)
+  ✓  50 tests/ui/ui5-audit.spec.ts:46:5 › аудит /management/analytics/units (3.9s)
+  ✓  51 tests/ui/ui5-audit.spec.ts:46:5 › аудит /team (1.8s)
+  ✓  52 tests/ui/ui5-audit.spec.ts:46:5 › аудит /team/roles (1.7s)
+  ✓  53 tests/ui/ui5-audit.spec.ts:46:5 › аудит /profile (2.2s)
+  ✘  54 tests/ui/ui5-audit.spec.ts:46:5 › аудит /profile/access (19.4s)
+  ✓  55 tests/ui/ui5-audit.spec.ts:46:5 › аудит /branches (6.7s)
+  ✓  56 tests/ui/ui5-audit.spec.ts:46:5 › аудит /hotel-settings (7.6s)
+  ✓  57 tests/ui/ui5-audit.spec.ts:46:5 › аудит /hotel-settings/stay (2.5s)
+  ✓  58 tests/ui/ui5-audit.spec.ts:46:5 › аудит /hotel-settings/services (4.0s)
+  ✓  59 tests/ui/ui5-audit.spec.ts:46:5 › аудит /connections (3.3s)
+  ✓  60 tests/ui/ui5-audit.spec.ts:46:5 › аудит /connections/channex (2.2s)
+  ✓  61 tests/ui/ui5-audit.spec.ts:46:5 › аудит /journal (2.6s)
+  ✓  62 tests/ui/ui5-audit.spec.ts:46:5 › аудит /incidents (2.4s)
+  ✓  63 tests/ui/ui5-audit.spec.ts:46:5 › аудит /help (2.1s)
+  ✓  64 tests/ui/ui5-audit.spec.ts:46:5 › аудит /status (1.7s)
+  ✓  65 tests/ui/ui5-audit.spec.ts:46:5 › аудит /design-system (16.3s)
+
+
+  1) tests/ui/ui5-audit.spec.ts:46:5 › аудит /profile/access ───────────────────────────────────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('html')
+    Expected: "light"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('html') with timeout 15000ms
+      - waiting for locator('html')
+        32 × locator resolved to <html lang="ru" data-scroll-behavior="smooth" class="manrope_e43ac67-module__aAKcTW__variable ibm_plex_sans_6979dae1-module__07KeAq__variable ibm_plex_mono_ed86ef51-module__ntsEZG__variable">…</html>
+           - unexpected value "null"
+
+
+      102 |         await page.setViewportSize({ width: 1440, height: 900 });
+      103 |         await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    > 104 |         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+          |                                            ^
+      105 |         const audit = await new AxeBuilder({ page })
+      106 |           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+      107 |           .analyze();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui/ui5-audit.spec.ts:104:44
+
+    Error Context: test-results/ui5-audit-аудит-profile-access/error-context.md
+
+    Error Context: test-results/ui5-audit-аудит-profile-access/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui5-audit-аудит-profile-access/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui5-audit-аудит-profile-access/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ui5-audit.spec.ts:46:5 › аудит /profile/access ────────────────────────────────────────
+  64 passed (4.2m)
+
+# код выхода 1 · 4 мин 13 с

@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 14.10.2026 16:05 Алматы · MacBook-Air-Urij.local
+# коммит 40ec6c2 (claude/ui5-fullpass-20261014), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/password-reset.spec.ts' 'tests/ui/login-lock.spec.ts' 'tests/ui/unified-auth.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (4.0s)
+  ✓  2 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (6.0s)
+  ✓  3 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (3.0s)
+  ✓  4 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (1.4s)
+  ✓  5 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (751ms)
+  ✓  6 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (748ms)
+  ✓  7 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (725ms)
+  ✓  8 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (2.8s)
+  ✓  9 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (3.1s)
+
+  9 passed (34.6s)
+
+# код выхода 0 · 36 с

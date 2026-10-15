@@ -26,7 +26,12 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /onboarding': 'settings',
   'GET /branches': 'desk',
   'POST /branches': 'owner',
+  'GET /branches/locations/archived': 'owner',
+  'POST /branches/locations/:id/archive': 'owner',
+  'POST /branches/locations/:id/restore': 'owner',
+  'POST /branches/businesses/:id/card': 'owner',
   'GET /branches/overview': 'reports',
+  'GET /branches/summary': 'reports',
   // ── учётная запись, вход, сотрудники ─────────────────────────────────────────────────────
   'GET /auth/options': 'public',
   'POST /auth/login': 'public',
@@ -90,7 +95,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /bar/report': 'desk',
   'POST /bar/sales/retail': 'desk',
   'POST /bar/sales/folio': 'desk',
-  'POST /bar/sales/:id/reverse': 'desk',
+  // сторно гасит кассовую операцию и начисление фолио, как аннулирования в /finance (ADR-181)
+  'POST /bar/sales/:id/reverse': 'refunds',
   'POST /bar/write-offs': 'desk',
   'POST /bar/inventory-counts': 'desk',
   'POST /bar/receipts': 'desk',

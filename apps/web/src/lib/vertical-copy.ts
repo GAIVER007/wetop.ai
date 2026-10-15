@@ -33,6 +33,8 @@ export interface VerticalCopy {
   catalogTitle: string;
   /** подсказки-чипы чата первого экрана «Сайт и SEO» (plans/site-seo-flow-2026-10-15.md §1 шаг 2) */
   siteChips: readonly string[];
+  /** подсказки-чипы правки готового сайта в простом редакторе (SITE-1): частые просьбы владельца */
+  siteEditChips: readonly string[];
 }
 
 const COPY: Record<WebVertical, VerticalCopy> = {
@@ -51,6 +53,7 @@ const COPY: Record<WebVertical, VerticalCopy> = {
     bookAction: 'Забронировать',
     catalogTitle: 'Номера и цены',
     siteChips: ['Сайт с онлайн-бронированием', 'Акцент на семейном отдыхе', 'Покажи трансфер'],
+    siteEditChips: ['Сделай тексты короче и проще', 'Сделай первый экран ярче', 'Подчеркни удобное расположение', 'Добавь блок «Почему мы»'],
   },
   BEAUTY: {
     business: 'салон',
@@ -67,6 +70,7 @@ const COPY: Record<WebVertical, VerticalCopy> = {
     bookAction: 'Записаться',
     catalogTitle: 'Услуги и цены',
     siteChips: ['Сайт для записи на услуги', 'Акцент на мастерах', 'Акция на первое посещение'],
+    siteEditChips: ['Сделай тексты короче и проще', 'Сделай первый экран ярче', 'Подчеркни опыт мастеров', 'Добавь акцию на первое посещение'],
   },
   FOOD_SERVICE: {
     business: 'ресторан',
@@ -83,6 +87,7 @@ const COPY: Record<WebVertical, VerticalCopy> = {
     bookAction: 'Забронировать стол',
     catalogTitle: 'Меню и цены',
     siteChips: ['Сайт с меню и бронью столов', 'Акцент на банкетах', 'Покажи бизнес-ланч'],
+    siteEditChips: ['Сделай тексты короче и проще', 'Сделай первый экран аппетитнее', 'Расскажи про банкеты', 'Выдели бизнес-ланч'],
   },
 };
 

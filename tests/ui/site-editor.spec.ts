@@ -36,7 +36,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 test('открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await expect(m.getByRole('heading', { level: 1 })).toHaveText('Редактор сайта');
   await expect(m.getByTestId('ed-revision')).toHaveText('версия 2');
@@ -88,13 +88,13 @@ test('открыть голову: щелчок по блоку на сайте,
 });
 
 test('просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await expect(frame(page).locator('#sec-hero')).toBeVisible();
   await frame(page).locator('footer').getByRole('link', { name: 'Правила' }).click();
   await expect(frame(page).locator('#sec-rules')).toContainText('Правила проживания');
   await expect(m.locator('#ed-preview-page')).toHaveValue('page-rules');
-  await expect(page).toHaveURL(/\/marketing\/site\/editor$/);
+  await expect(page).toHaveURL(/\/marketing\/site\/editor\?full=1$/);
   await tab(page, 'Страницы').click();
   await expect(structure(page).getByRole('button', { name: 'О гостинице: Правила проживания', exact: true })).toBeVisible();
   await m.locator('#ed-preview-page').selectOption({ label: 'Главная' });
@@ -106,7 +106,7 @@ test('просмотр: ссылка подвала на страницу сай
 });
 
 test('открыть в новой вкладке: с несохранёнными правками просит сохранить, без них открывает ссылку', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await pick(page, 'sec-hero');
   await heroHeading(page).fill('Ещё не сохранено');
@@ -121,7 +121,7 @@ test('открыть в новой вкладке: с несохранённым
 });
 
 test('восстановить старую версию как новый черновик', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await m.getByTestId('ed-history-open').click();
   await page.getByTestId('ed-history').getByTestId('ed-history-row').nth(1).getByTestId('ed-restore').click();
@@ -134,7 +134,7 @@ test('восстановить старую версию как новый че�
 });
 
 test('выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await pick(page, 'sec-hero');
   await m.getByRole('button', { name: 'Заменить изображение' }).first().click();
@@ -152,7 +152,7 @@ test('выбор картинки: только готовые нужного в
 });
 
 test('галерея: добавить, переставить, подписать и убрать; сохраняется', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await openBlock(page, 'Галерея: Фото');
   const items = m.getByTestId('ed-gallery-item');
@@ -170,7 +170,7 @@ test('галерея: добавить, переставить, подписат
 });
 
 test('ошибка проверки: ввод на месте, сводка ведёт к полю', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await pick(page, 'sec-about');
   await m.getByLabel('Абзацы: 1').fill('Мой новый текст о гостинице');
@@ -189,7 +189,7 @@ test('ошибка проверки: ввод на месте, сводка ве
 });
 
 test('конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить', async ({ page, request }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await openBlock(page, 'О гостинице: О нас');
   await m.getByLabel('Абзацы: 1').fill('Мои правки');
@@ -207,7 +207,7 @@ test('конфликт 409: правки остаются, сравнение, �
 });
 
 test('удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await tab(page, 'Страницы').click();
   await structure(page).getByRole('button', { name: 'Страница «Правила»: удалить' }).click();
@@ -217,7 +217,7 @@ test('удаление: страницу, на которую ссылается
 });
 
 test('добавить секцию, переставить и сделать копию с клавиатуры', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await tab(page, 'Страницы').click();
   const sections = structure(page).getByTestId('ed-section');
@@ -239,7 +239,7 @@ test('добавить секцию, переставить и сделать к
 });
 
 test('уход со страницы с правками спрашивает; отказ оставляет на месте', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await pick(page, 'sec-hero');
   await heroHeading(page).fill('Не ушло');
@@ -247,12 +247,12 @@ test('уход со страницы с правками спрашивает; �
   const dialog = page.getByRole('dialog').filter({ hasText: 'Уйти без сохранения?' });
   await expect(dialog).toBeVisible();
   await dialog.getByRole('button', { name: 'Остаться' }).click();
-  await expect(page).toHaveURL(/\/marketing\/site\/editor$/);
+  await expect(page).toHaveURL(/\/marketing\/site\/editor\?full=1$/);
   await expect(heroHeading(page)).toHaveValue('Не ушло');
 });
 
 test('ИИ всего сайта: запрос в ленте, в очереди → готово, сайт справа обновился, разница, вернуть как было', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   const ai = m.getByTestId('ed-ai');
   await expect(ai).toContainText('Напишите, что поменять на сайте.');
@@ -278,7 +278,7 @@ test('ИИ всего сайта: запрос в ленте, в очереди 
 });
 
 test('ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await pick(page, 'sec-about');
   await m.getByTestId('ed-ai-section').click();
@@ -297,7 +297,7 @@ test('ИИ одного блока: щелчок по блоку на сайте
 
 test('ИИ с несохранёнными правками: «Сохранить и отправить» сохраняет версию, ошибка ИИ словами, «Повторить запрос»', async ({ page, request }) => {
   await control(request, { aiFail: 'BUDGET_EXCEEDED' });
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await pick(page, 'sec-hero');
   await heroHeading(page).fill('Правка');
@@ -314,7 +314,7 @@ test('ИИ с несохранёнными правками: «Сохранит�
 
 test('первый экран MKT9.2 + SITE-1: «Сайт для …», без названия и адреса сайта; факты филиала; сайт создаётся и открывается редактор', async ({ page, request }) => {
   await control(request, { noSite: true });
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   const win = m.getByTestId('create-site');
   await expect(win.getByRole('heading', { name: 'Сайт для Luxx Aparts' })).toBeVisible();
@@ -336,7 +336,7 @@ test('первый экран MKT9.2 + SITE-1: «Сайт для …», без �
 
 test('первый экран: сайт есть без версий; ошибка ИИ словами, текст на месте', async ({ page, request }) => {
   await control(request, { noVersions: true, aiFail: 'TIMEOUT' });
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const win = main(page).getByTestId('create-site');
   await expect(win.getByLabel('Адрес сайта')).toHaveCount(0);
   await win.getByLabel('Опишите, каким должен быть сайт').fill('Коротко и по делу');
@@ -354,7 +354,7 @@ for (const theme of ['light', 'dark'] as const)
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-      await page.goto('/marketing/site/editor');
+      await page.goto('/marketing/site/editor?full=1');
       await expect(main(page).getByTestId('create-site')).toBeVisible();
       const wide = await page.evaluate(() =>
         [...document.querySelectorAll('main *')].filter((el) => el.getBoundingClientRect().right > innerWidth + 1).length,
@@ -376,7 +376,7 @@ for (const theme of ['light', 'dark'] as const) {
       if (!devNoise.test(error.message)) errors.push(error.message);
     });
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/marketing/site/editor');
+    await page.goto('/marketing/site/editor?full=1');
     const audit = async () => {
       const result = await axe(page);
       expect(result.violations).toEqual([]);
@@ -427,7 +427,7 @@ for (const theme of ['light', 'dark'] as const) {
     mkdirSync(SHOTS, { recursive: true });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/marketing/site/editor');
+    await page.goto('/marketing/site/editor?full=1');
     const m = main(page);
     const wide = () =>
       page.evaluate(() =>
@@ -471,7 +471,7 @@ for (const theme of ['light', 'dark'] as const) {
 }
 
 test('MKT10.3: отмена и повтор несохранённой правки, кнопками и с клавиатуры, сервер не трогают', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   const undo = m.getByRole('button', { name: 'Отменить', exact: true });
   const redo = m.getByRole('button', { name: 'Повторить', exact: true });
@@ -502,7 +502,7 @@ test('MKT10.3: отмена и повтор несохранённой прав�
 });
 
 test('MKT10.3: просмотр на ширине планшета', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await expect(frame(page).locator('#sec-hero')).toBeVisible();
   const tablet = m.getByRole('button', { name: 'Планшет', exact: true });

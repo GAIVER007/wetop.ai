@@ -98,8 +98,8 @@ test('гостиница: филиал → факты → чип → три ша
   // создать по шаблону: без ИИ, сразу редактор с готовым сайтом в теме шаблона, сайт правится
   await win.getByTestId('create-site-start').click();
   await expect(editor(page)).toBeVisible({ timeout: 15_000 });
-  await main(page).getByRole('tab', { name: 'Дизайн', exact: true }).click();
-  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NIGHT');
+  // сайт открылся в простом редакторе с выбранным шаблоном
+  await expect(main(page).getByTestId('ed-template').filter({ hasText: 'Бутик-отель' })).toHaveAttribute('aria-checked', 'true');
 });
 
 test('диктовка: фраза дописывается в запрос, язык выбирается; без поддержки браузера кнопки нет', async ({ page, request }) => {
@@ -182,8 +182,8 @@ test('салон: выбор филиала переключает стойку,
   await win.getByTestId('create-site-start').click();
   await expect(editor(page)).toBeVisible({ timeout: 15_000 });
   await expect(main(page).getByTestId('create-site-error')).toHaveCount(0);
-  await main(page).getByRole('tab', { name: 'Дизайн', exact: true }).click();
-  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('WARM');
+  await expect(main(page).getByTestId('ed-template').filter({ hasText: 'Запись за минуту' })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.frameLocator('[data-testid="ed-frame"]').locator('main')).toContainText('Маникюр с покрытием');
   await page.screenshot({ path: `${SHOTS}/salon-editor-1440.png`, fullPage: true });
 });
 
@@ -211,8 +211,8 @@ test('ресторан: меню с ценами, чипы и три шабло�
   await win.getByTestId('site-design-card').filter({ hasText: 'Ресторан' }).filter({ hasText: 'Вечерний' }).click();
   await win.getByTestId('create-site-start').click();
   await expect(editor(page)).toBeVisible({ timeout: 15_000 });
-  await main(page).getByRole('tab', { name: 'Дизайн', exact: true }).click();
-  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NIGHT');
+  await expect(main(page).getByTestId('ed-template').filter({ hasText: 'Ресторан' }).filter({ hasText: 'Вечерний' })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.frameLocator('[data-testid="ed-frame"]').locator('main')).toContainText('Бешбармак');
 });
 
 for (const theme of ['light', 'dark'] as const)

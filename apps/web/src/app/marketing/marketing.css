@@ -621,6 +621,179 @@
     background: var(--primary);
     color: var(--surface);
   }
+  /* Простой редактор сайта (SITE-1, DESIGN.md §8): слева живой сайт, справа одна панель «Изменить с ИИ», «Шаблон», «Ещё».
+     Без вкладок; до 960 px панель под сайтом */
+  .simple-ed {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .simple-ed__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .simple-ed__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-2);
+    margin: 0;
+  }
+  .simple-ed__status {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .simple-ed__status.is-error {
+    color: var(--danger);
+  }
+  .simple-ed__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-left: auto;
+  }
+  .simple-ed__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .simple-ed__site {
+    min-width: 0;
+  }
+  .simple-ed__panel {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-4));
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .simple-ed__card {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .simple-ed__title {
+    margin: 0;
+    padding: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+  }
+  .simple-ed__hint {
+    margin: 0;
+  }
+  .simple-ed__target {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-2) var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
+    font-weight: var(--weight-semibold);
+  }
+  .simple-ed__text {
+    width: 100%;
+    min-height: 112px;
+    padding: var(--space-2);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    resize: vertical;
+  }
+  .simple-ed__text:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+  .simple-ed__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .simple-ed__row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+  .simple-ed__done {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .simple-ed__done p {
+    margin: 0;
+  }
+  .simple-ed__tpls {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .simple-ed__tpl {
+    display: grid;
+    grid-template-columns: var(--space-6) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: var(--space-2);
+    align-items: center;
+    min-height: var(--touch-target);
+    padding: var(--space-2) var(--space-2);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .simple-ed__tpl .ed-design__swatch {
+    grid-row: 1 / span 2;
+    width: var(--space-6);
+  }
+  .simple-ed__tpl .muted {
+    font-size: var(--text-sm);
+  }
+  .simple-ed__tpl.is-on {
+    border-color: var(--primary);
+    box-shadow: inset 0 0 0 1px var(--primary);
+  }
+  .simple-ed__tpl:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .simple-ed__more {
+    gap: var(--space-1);
+  }
+  .simple-ed__link {
+    display: flex;
+    align-items: center;
+    min-height: var(--touch-target);
+  }
+  @media (max-width: 960px) {
+    .simple-ed__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .simple-ed__panel {
+      position: static;
+    }
+    .simple-ed__actions {
+      margin-left: 0;
+    }
+  }
   .ed-structure {
     display: grid;
     gap: var(--space-2);

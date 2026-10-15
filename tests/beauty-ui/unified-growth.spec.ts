@@ -15,7 +15,8 @@ const minus = (iso: string, n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-async function ok(res: Awaited<ReturnType<APIRequestContext['post']>>, what: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- ответы стенда, форма проверяется ожиданиями
+async function ok(res: Awaited<ReturnType<APIRequestContext['post']>>, what: string): Promise<any> {
   expect(res.ok(), `${what}: ${res.status()} ${await res.text()}`).toBe(true);
   return res.json();
 }
@@ -26,7 +27,7 @@ async function seed(page: Page, request: APIRequestContext) {
   await page.context().addCookies([
     { name: 'wetop_scope', value: encodeURIComponent(pointer(f.business, f.locations[0])), domain: '127.0.0.1', path: '/' },
   ]);
-  const services = [];
+  const services: Array<{ id: string }> = [];
   for (const [name, price] of [
     ['Стрижка женская', '1200000'],
     ['Окрашивание', '2500000'],
@@ -42,7 +43,7 @@ async function seed(page: Page, request: APIRequestContext) {
     await ok(await request.put(`${api}/beauty/services/${s.id}/location`, { headers, data: { enabled: true } }), 'enable');
     services.push(s);
   }
-  const masters = [];
+  const masters: Array<{ id: string }> = [];
   for (const name of ['Мария Ким', 'Дина Абенова']) {
     const e = await ok(await request.post(`${api}/beauty/employees`, { headers, data: { name } }), 'employee');
     await ok(
@@ -83,8 +84,8 @@ async function seed(page: Page, request: APIRequestContext) {
       await request.post(`${api}/beauty/appointments`, {
         headers,
         data: {
-          employeeId: masters[m].id,
-          serviceId: services[s].id,
+          employeeId: masters[m]!.id,
+          serviceId: services[s]!.id,
           startsAt,
           firstName: ['Анна', 'Алия', 'Карина', 'Жанна', 'Сауле', 'Мадина', 'Лаура', 'Ирина'][n++],
           phone: `+7 701 000-00-${String(n).padStart(2, '0')}`,

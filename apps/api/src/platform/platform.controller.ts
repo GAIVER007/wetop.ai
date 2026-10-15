@@ -172,7 +172,7 @@ export class PlatformController {
     return organizationJson(saved!, now);
   }
 
-  /** MKT9.2: гостиничные филиалы организации с лицензией конструктора сайта */
+  /** MKT9.2, SITE-3: филиалы организации (любое направление) с лицензией конструктора сайта */
   @Get('organizations/:id/site-builder')
   @Header('Cache-Control', 'no-store')
   async siteBuilder(@Param('id') id: string) {
@@ -185,7 +185,7 @@ export class PlatformController {
 
   /**
    * MKT9.2: пробный, активировать, продлить или выключить конструктор сайта филиала: статус, дата «до» по Алматы и
-   * заметка (номер счёта). Только главный администратор; филиал только гостиничный и только этой организации
+   * заметка (номер счёта). Только главный администратор; филиал только этой организации (любое направление, SITE-3)
    */
   @Put('organizations/:id/site-builder/:locationId')
   async changeSiteBuilder(@Param('id') id: string, @Param('locationId') locationId: string, @Body() body: unknown) {
@@ -194,7 +194,7 @@ export class PlatformController {
     const now = new Date();
     const parsed = parseExtensionChange(body, now);
     if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
-    if (!(await this.licenses.location(id, locationId))) throw new NotFoundException('Такого гостиничного филиала у организации нет');
+    if (!(await this.licenses.location(id, locationId))) throw new NotFoundException('Такого филиала у организации нет');
     await this.licenses.save({ organizationId: id, locationId, change: parsed.value, by: currentUserId(), now });
     return licenseLocationView((await this.licenses.location(id, locationId))!, now);
   }

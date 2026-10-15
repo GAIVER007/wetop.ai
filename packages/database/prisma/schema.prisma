@@ -123,6 +123,10 @@ model Location {
   siteAssets             SiteAsset[]
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement SiteBuilderEntitlement?
+  /// SITE-3: сайты счётчика филиала (любое направление)
+  trackedSites           TrackedSite[]                  @relation("LocationTrackedSites")
+  /// SITE-5: заявки с сайта без слота
+  siteLeads              SiteLead[]
 
   @@index([businessId])
   @@index([bookingTrackedSiteId])
@@ -267,39 +271,39 @@ model Property {
 
   /// Ключ и индекс — как их строит миграция 20260920000016: ON DELETE и ON UPDATE — NO ACTION.
   /// Организацию, за которой числится объект, удалить нельзя: объект не становится ничьим молча.
-  organization        Organization          @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  organization          Organization           @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   /// Location удалить, пока на ней объект, нельзя (RESTRICT): объект не остаётся без точки молча.
-  location            Location              @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  buildings           Building[]
-  media               PropertyMedia[]
-  accommodationTypes  AccommodationType[]
-  reservations        Reservation[]
-  ratePlans           RatePlan[]
-  promoCodes          PromoCode[]
-  channelMappings     ChannelMapping[]
-  payments            Payment[]
-  cashCategories      CashCategory[]
-  cashOperations      CashOperation[]
-  cashReconciliations CashReconciliation[]
+  location              Location               @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  buildings             Building[]
+  media                 PropertyMedia[]
+  accommodationTypes    AccommodationType[]
+  reservations          Reservation[]
+  ratePlans             RatePlan[]
+  promoCodes            PromoCode[]
+  channelMappings       ChannelMapping[]
+  payments              Payment[]
+  cashCategories        CashCategory[]
+  cashOperations        CashOperation[]
+  cashReconciliations   CashReconciliation[]
   paymentMethodSettings PaymentMethodSetting[]
-  barCategories       BarCategory[]
-  barProducts         BarProduct[]
-  barSuppliers        BarSupplier[]
-  barReceipts         BarReceipt[]
-  barStockLots        BarStockLot[]
-  barStockMovements   BarStockMovement[]
-  barSales            BarSale[]
-  deskTasks           DeskTask[]
-  paymentRequests     PaymentRequest[]
-  fiscalReceipts      FiscalReceipt[]
-  competitors         Competitor[]
-  competitorOccupancy CompetitorOccupancy[]
-  competitorRates     CompetitorRate[]
-  services            Service[]
-  trackedSites        TrackedSite[]
-  inventoryUnits      InventoryUnit[]
-  externalEvents      ExternalEvent[]
-  channelOutbox       ChannelOutbox[]
+  barCategories         BarCategory[]
+  barProducts           BarProduct[]
+  barSuppliers          BarSupplier[]
+  barReceipts           BarReceipt[]
+  barStockLots          BarStockLot[]
+  barStockMovements     BarStockMovement[]
+  barSales              BarSale[]
+  deskTasks             DeskTask[]
+  paymentRequests       PaymentRequest[]
+  fiscalReceipts        FiscalReceipt[]
+  competitors           Competitor[]
+  competitorOccupancy   CompetitorOccupancy[]
+  competitorRates       CompetitorRate[]
+  services              Service[]
+  trackedSites          TrackedSite[]
+  inventoryUnits        InventoryUnit[]
+  externalEvents        ExternalEvent[]
+  channelOutbox         ChannelOutbox[]
 
   sellerBookingIntents SellerBookingIntent[]
 
@@ -1664,9 +1668,13 @@ enum WebDevice {
 }
 
 /// Сайт объекта со счётчиком. Ключ стоит в HTML сайта — не секрет; домены ограничивают приёмник.
+/// SITE-3 (ADR-185): владелец сайта счётчика это филиал (`location_id`, всегда задан); объект гостиницы (`property_id`) только
+/// у гостиничных сайтов, по нему считаются цены и бронь `/w/book`. Согласованность объекта и филиала держит триггер
+/// tracked_site_location_guard, он же заполняет филиал по объекту у прежних путей.
 model TrackedSite {
   id                String            @id @default(uuid()) @db.Uuid
-  propertyId        String            @map("property_id") @db.Uuid
+  propertyId        String?           @map("property_id") @db.Uuid
+  locationId        String?           @map("location_id") @db.Uuid
   name              String
   /// Домены сайта; Origin/Referer приёмника должны совпадать (сам домен или поддомен)
   hosts             String[]
@@ -1680,13 +1688,16 @@ model TrackedSite {
   createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property        Property       @relation(fields: [propertyId], references: [id])
+  property        Property?      @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location        Location?      @relation("LocationTrackedSites", fields: [locationId], references: [id], onDelete: Restrict)
   bookingRatePlan RatePlan?      @relation(fields: [bookingRatePlanId], references: [id])
   sessions        WebSession[]
   marketingSite   MarketingSite?
   bookingOf       Location[]     @relation("LocationBookingSite")
+  leads           SiteLead[]
 
   @@index([propertyId])
+  @@index([locationId])
   @@map("tracked_sites")
 }
 
@@ -2246,6 +2257,7 @@ model Organization {
   customers            Customer[]
 
   sellerBookingIntents SellerBookingIntent[]
+  siteLeads            SiteLead[]
 
   @@map("organizations")
 }
@@ -2803,6 +2815,12 @@ enum AppointmentStatus {
   CANCELLED
 }
 
+/// SITE-4 (ADR-185): источник записи к мастеру
+enum AppointmentSource {
+  DESK
+  WEBSITE
+}
+
 /// Клиент сети: канонический на организацию (freeze-решение №2, закрыло Q-198). Гость §3 не меняется.
 /// Телефон уникален внутри организации, частичным индексом в миграции (без телефона клиентов много).
 model Customer {
@@ -2982,20 +3000,25 @@ model TimeOff {
 /// Запись клиента к мастеру на услугу. `price` и `currency`: снимок на момент записи, не ссылка на каталог.
 /// Пересечение записей одного мастера запрещает база (EXCLUDE в миграции), отменённая и незаезд места не держат.
 model Appointment {
-  id          String            @id @default(uuid()) @db.Uuid
-  locationId  String            @map("location_id") @db.Uuid
-  customerId  String            @map("customer_id") @db.Uuid
-  employeeId  String            @map("employee_id") @db.Uuid
-  serviceId   String            @map("service_id") @db.Uuid
-  startsAt    DateTime          @map("starts_at") @db.Timestamptz(6)
-  endsAt      DateTime          @map("ends_at") @db.Timestamptz(6)
-  status      AppointmentStatus @default(BOOKED)
-  price       BigInt
-  currency    String            @db.VarChar(3)
-  notes       String?
-  createdById String?           @map("created_by_id") @db.Uuid
-  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                  String            @id @default(uuid()) @db.Uuid
+  locationId          String            @map("location_id") @db.Uuid
+  customerId          String            @map("customer_id") @db.Uuid
+  employeeId          String            @map("employee_id") @db.Uuid
+  serviceId           String            @map("service_id") @db.Uuid
+  startsAt            DateTime          @map("starts_at") @db.Timestamptz(6)
+  endsAt              DateTime          @map("ends_at") @db.Timestamptz(6)
+  status              AppointmentStatus @default(BOOKED)
+  price               BigInt
+  currency            String            @db.VarChar(3)
+  notes               String?
+  /// SITE-4: откуда запись; стойка DESK, форма сайта WEBSITE
+  source              AppointmentSource @default(DESK)
+  /// SITE-4: ключ создания (повтор формы сайта); у записей стойки NULL. Ставится вместе с отпечатком (CHECK)
+  creationKey         String?           @map("creation_key") @db.VarChar(200)
+  creationFingerprint String?           @map("creation_fingerprint") @db.VarChar(64)
+  createdById         String?           @map("created_by_id") @db.Uuid
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   location  Location      @relation(fields: [locationId], references: [id])
   customer  Customer      @relation(fields: [customerId], references: [id])
@@ -3003,6 +3026,7 @@ model Appointment {
   service   BeautyService @relation(fields: [serviceId], references: [id])
   createdBy User?         @relation(fields: [createdById], references: [id])
 
+  @@unique([locationId, creationKey])
   @@index([locationId, startsAt])
   @@index([employeeId, startsAt])
   @@index([customerId])
@@ -3034,6 +3058,8 @@ enum RestaurantReservationStatus {
 enum RestaurantReservationSource {
   DESK
   WALK_IN
+  /// SITE-4 (ADR-185): бронь стола с формы сайта
+  WEBSITE
 }
 
 model DiningArea {
@@ -3545,4 +3571,45 @@ model RestaurantOrderRating {
 
   @@index([waiterId])
   @@map("restaurant_order_ratings")
+}
+
+/// SITE-5 (ADR-185 п. 3, DATA_MODEL §46): заявка с сайта без слота («Перезвоните мне»). Заводит публичный `POST /w/lead` от
+/// имени организации сайта; меняется только статус (триггер site_lead_guard). Ключ запроса уникален в пределах сайта.
+model SiteLead {
+  id                 String         @id @default(uuid()) @db.Uuid
+  organizationId     String         @map("organization_id") @db.Uuid
+  locationId         String         @map("location_id") @db.Uuid
+  trackedSiteId      String         @map("tracked_site_id") @db.Uuid
+  name               String         @db.VarChar(100)
+  phone              String         @db.VarChar(32)
+  comment            String?        @db.VarChar(2000)
+  kind               SiteLeadKind   @default(CALLBACK)
+  status             SiteLeadStatus @default(NEW)
+  requestKey         String         @map("request_key") @db.VarChar(64)
+  requestFingerprint String         @map("request_fingerprint") @db.VarChar(64)
+  /// Метки перехода (utm_*, referrer, страница): только объект
+  source             Json?
+  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  location     Location     @relation(fields: [locationId], references: [id])
+  trackedSite  TrackedSite  @relation(fields: [trackedSiteId], references: [id])
+
+  @@unique([trackedSiteId, requestKey])
+  @@index([locationId, createdAt])
+  @@index([organizationId])
+  @@map("site_leads")
+}
+
+enum SiteLeadKind {
+  CALLBACK
+  OTHER
+}
+
+enum SiteLeadStatus {
+  NEW
+  IN_PROGRESS
+  DONE
+  SPAM
 }

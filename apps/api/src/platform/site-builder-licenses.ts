@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.provider';
 
 /**
  * Лицензии конструктора сайта по филиалам (MKT9.2, DATA_MODEL §29.12) глазами главного администратора платформы:
- * гостиничные филиалы организации, есть ли сайт, статус и срок лицензии. Выдаёт, продлевает и выключает только он
+ * филиалы организации любого направления (SITE-3, ADR-185), есть ли сайт, статус и срок лицензии. Выдаёт, продлевает и выключает только он
  * (служебная роль базы, приложение лицензию не пишет по правам). Строки не удаляются: выключение это OFF.
  */
 const LOCATION_SELECT = {
@@ -48,10 +48,10 @@ export function licenseLocationView(row: LocationRow, now: Date) {
 export class SiteBuilderLicenses {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  /** Гостиничные филиалы организации (действующие и архивные) по порядку заведения */
+  /** Филиалы организации (действующие и архивные) по порядку заведения */
   async locations(organizationId: string) {
     return this.prisma.db.location.findMany({
-      where: { business: { organizationId, vertical: 'HOSPITALITY' } },
+      where: { business: { organizationId } },
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
       select: LOCATION_SELECT,
     });
@@ -59,7 +59,7 @@ export class SiteBuilderLicenses {
 
   async location(organizationId: string, locationId: string) {
     return this.prisma.db.location.findFirst({
-      where: { id: locationId, business: { organizationId, vertical: 'HOSPITALITY' } },
+      where: { id: locationId, business: { organizationId } },
       select: LOCATION_SELECT,
     });
   }
@@ -70,10 +70,10 @@ export class SiteBuilderLicenses {
       // перепроверка в той же транзакции, что запись: проверки контроллера до неё мало (филиал могли перенести)
       await tx.$queryRaw`SELECT id FROM locations WHERE id = ${input.locationId}::uuid FOR UPDATE`;
       const owned = await tx.location.findFirst({
-        where: { id: input.locationId, business: { organizationId: input.organizationId, vertical: 'HOSPITALITY' } },
+        where: { id: input.locationId, business: { organizationId: input.organizationId } },
         select: { id: true },
       });
-      if (!owned) throw new NotFoundException('Такого гостиничного филиала у организации нет');
+      if (!owned) throw new NotFoundException('Такого филиала у организации нет');
       const before = await tx.siteBuilderEntitlement.findUnique({
         where: { locationId: input.locationId },
         select: { status: true, activeUntil: true, note: true },

@@ -52,6 +52,12 @@ function conflict(code: string, message: string, extra: Record<string, unknown> 
   return new ConflictException({ code, message, ...extra });
 }
 
+/** Тариф брони номеров есть только у гостиницы; `checkVersion` уже отказал версии с виджетом брони без объекта */
+function hotelProperty(propertyId: string | null): string {
+  if (!propertyId) throw conflict('NO_PROPERTY', 'У филиала нет гостиницы в системе');
+  return propertyId;
+}
+
 function strictBody(body: unknown, allowed: string[]): Record<string, unknown> {
   if (body === undefined || body === null) return {};
   if (typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('Ожидается объект');
@@ -139,18 +145,18 @@ export class SitePublicationService {
         : null;
       const plan =
         checked.mode === 'WETOP_WIDGET'
-          ? await this.ratePlan(tx, propertyId, explicitPlan, managed?.bookingRatePlanId ?? null, location.bookingTrackedSiteId)
+          ? await this.ratePlan(tx, hotelProperty(propertyId), explicitPlan, managed?.bookingRatePlanId ?? null, location.bookingTrackedSiteId)
           : null;
       const domain = await this.ensurePlatformDomain(tx, site, base);
       const nextState = site.state === 'PAUSED' ? 'PAUSED' : 'PUBLISHED';
       let trackedSiteId = managed?.id ?? null;
       let canonicalChanged = false;
       if (!trackedSiteId) {
-        trackedSiteId = await this.createTrackedSite(tx, site, propertyId, nextState, checked.mode, plan);
+        trackedSiteId = await this.createTrackedSite(tx, site, scope.locationId, propertyId, nextState, checked.mode, plan);
         // §31: канонического нет и других подходящих сайтов объекта нет, значит этот сайт брони становится каноническим
         if (location.bookingTrackedSiteId === null && checked.mode === 'WETOP_WIDGET') {
           const others = await tx.trackedSite.count({
-            where: { propertyId, id: { not: trackedSiteId }, status: 'ACTIVE', bookingEnabled: true, bookingRatePlanId: { not: null } },
+            where: { locationId: scope.locationId, id: { not: trackedSiteId }, status: 'ACTIVE', bookingEnabled: true, bookingRatePlanId: { not: null } },
           });
           if (others === 0) {
             await tx.location.update({ where: { id: scope.locationId }, data: { bookingTrackedSiteId: trackedSiteId } });
@@ -342,10 +348,9 @@ export class SitePublicationService {
     if (!('trackedSiteId' in input)) throw new BadRequestException('trackedSiteId: UUID или null');
     const next = input['trackedSiteId'] === null ? null : uuidField(input['trackedSiteId'], 'trackedSiteId');
     return siteTransaction(this.prisma, scope, true, async (tx) => {
-      const propertyId = await this.propertyOf(tx, scope);
       if (next) {
         const site = await tx.trackedSite.findFirst({
-          where: { id: next, propertyId },
+          where: { id: next, locationId: scope.locationId },
           select: { status: true, bookingEnabled: true, bookingRatePlanId: true },
         });
         if (!site) throw new NotFoundException('Сайт не найден');
@@ -374,20 +379,19 @@ export class SitePublicationService {
   private async bookingSourceView(tx: DbTx, scope: SiteScope) {
     const location = await tx.location.findUniqueOrThrow({ where: { id: scope.locationId }, select: { bookingTrackedSiteId: true } });
     const property = await tx.property.findFirst({ where: { locationId: scope.locationId, organizationId: scope.organizationId }, select: { id: true } });
-    const options = property
-      ? await tx.trackedSite.findMany({
-          where: { propertyId: property.id },
-          orderBy: { name: 'asc' },
-          select: {
-            id: true,
-            name: true,
-            status: true,
-            bookingEnabled: true,
-            bookingRatePlan: { select: { id: true, code: true, name: true } },
-            marketingSite: { select: { id: true } },
-          },
-        })
-      : [];
+    // SITE-3: сайты счётчика филиала (у салона и ресторана объекта нет, сайт у них по филиалу)
+    const options = await tx.trackedSite.findMany({
+      where: { locationId: scope.locationId },
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        bookingEnabled: true,
+        bookingRatePlan: { select: { id: true, code: true, name: true } },
+        marketingSite: { select: { id: true } },
+      },
+    });
     // действующие тарифы объекта: явный выбор тарифа при публикации (§29 п. 1); список, а не выбор за человека
     const ratePlans = property
       ? await tx.ratePlan.findMany({
@@ -426,13 +430,13 @@ export class SitePublicationService {
     return site;
   }
 
-  private async propertyOf(tx: DbTx, scope: SiteScope): Promise<string> {
+  /** Объект гостиницы филиала; у салона и ресторана его нет (null), сайт у них работает по филиалу (SITE-3) */
+  private async propertyOf(tx: DbTx, scope: SiteScope): Promise<string | null> {
     const property = await tx.property.findFirst({
       where: { locationId: scope.locationId, organizationId: scope.organizationId },
       select: { id: true },
     });
-    if (!property) throw conflict('NO_PROPERTY', 'У филиала нет гостиницы в системе');
-    return property.id;
+    return property?.id ?? null;
   }
 
   /**
@@ -445,7 +449,7 @@ export class SitePublicationService {
     tx: DbTx,
     siteId: string,
     versionId: string,
-    propertyId: string,
+    propertyId: string | null,
     locationId: string,
   ): Promise<{ mode: BookingMode }> {
     const version = await tx.marketingSiteVersion.findFirst({
@@ -463,17 +467,22 @@ export class SitePublicationService {
     await assertSpecAssetsPublishable(tx, this.storage, locationId, spec, { historical, lock: true });
     const codes = siteSpecCategoryCodes(spec);
     if (codes.length) {
-      const active = await tx.accommodationType.findMany({
-        where: { propertyId, code: { in: codes }, active: true },
-        select: { code: true },
-      });
+      const active = propertyId
+        ? await tx.accommodationType.findMany({
+            where: { propertyId, code: { in: codes }, active: true },
+            select: { code: true },
+          })
+        : [];
       const have = new Set(active.map((c) => c.code));
       const missing = codes.filter((c) => !have.has(c));
       if (missing.length)
         throw conflict('CATEGORY_UNAVAILABLE', 'В версии есть категории, которых в гостинице нет или они выключены', { codes: missing });
     }
     const integrations = (spec['integrations'] ?? {}) as { booking?: { mode?: string } };
-    return { mode: integrations.booking?.mode === 'WETOP_WIDGET' ? 'WETOP_WIDGET' : 'NONE' };
+    const mode: BookingMode = integrations.booking?.mode === 'WETOP_WIDGET' ? 'WETOP_WIDGET' : 'NONE';
+    // Виджет брони номеров считает цены по объекту гостиницы: без объекта (салон, ресторан) такой версии не опубликовать
+    if (mode === 'WETOP_WIDGET' && !propertyId) throw conflict('NO_PROPERTY', 'У филиала нет гостиницы в системе');
+    return { mode };
   }
 
   /**
@@ -506,10 +515,10 @@ export class SitePublicationService {
     throw conflict('BOOKING_RATE_PLAN_REQUIRED', 'Выберите тариф, по которому сайт будет принимать брони');
   }
 
-  private async planForMode(tx: DbTx, scope: SiteScope, propertyId: string, mode: BookingMode, managedPlan: string | null) {
+  private async planForMode(tx: DbTx, scope: SiteScope, propertyId: string | null, mode: BookingMode, managedPlan: string | null) {
     if (mode !== 'WETOP_WIDGET') return null;
     const location = await tx.location.findUniqueOrThrow({ where: { id: scope.locationId }, select: { bookingTrackedSiteId: true } });
-    return this.ratePlan(tx, propertyId, undefined, managedPlan, location.bookingTrackedSiteId);
+    return this.ratePlan(tx, hotelProperty(propertyId), undefined, managedPlan, location.bookingTrackedSiteId);
   }
 
   /** Домен платформы: найти живой или завести `PENDING` и включить. Хост только из slug и базы, занятый 409 */
@@ -537,7 +546,8 @@ export class SitePublicationService {
   private async createTrackedSite(
     tx: DbTx,
     site: SiteRow,
-    propertyId: string,
+    locationId: string,
+    propertyId: string | null,
     state: 'PUBLISHED' | 'PAUSED',
     mode: BookingMode,
     plan: string | null,
@@ -547,6 +557,7 @@ export class SitePublicationService {
       publicKey = newSiteKey();
     const created = await tx.trackedSite.create({
       data: {
+        locationId,
         propertyId,
         name: site.name,
         hosts: [],

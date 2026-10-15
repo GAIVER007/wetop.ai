@@ -311,7 +311,7 @@ test('late schedule A cannot populate employee B or a new employee', async ({ pa
     await route.fulfill({ response: result });
   });
   await page
-    .getByRole('row')
+    .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер' })
     .filter({ hasNotText: 'Тестовый мастер Б' })
     .getByRole('button', { name: 'Открыть' })
@@ -319,7 +319,7 @@ test('late schedule A cannot populate employee B or a new employee', async ({ pa
   await ready;
   await dialog(page).getByRole('button', { name: 'Закрыть: Мастер' }).click();
   await page
-    .getByRole('row')
+    .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Б' })
     .getByRole('button', { name: 'Открыть' })
     .click();

@@ -85,7 +85,7 @@ for (const [name, path, method] of [
 ] as const) {
   const descriptor = Object.getOwnPropertyDescriptor(FixtureController.prototype, name)!;
   method(path)(FixtureController.prototype, name, descriptor);
-  Access('desk')(FixtureController.prototype, name, descriptor);
+  Access(name === 'me' ? 'self' : 'desk')(FixtureController.prototype, name, descriptor);
 }
 Body()(FixtureController.prototype, 'save', 0);
 const module = await Test.createTestingModule({

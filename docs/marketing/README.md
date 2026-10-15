@@ -49,6 +49,10 @@ Postgres), воркер API зовёт узкий вход бота `POST /inter
 клиентов на отдельном registrable domain, не под `wetop.ai` (Q-271 RESOLVED OWNER 07.10.2026). Контракт:
 [`site-publication-v0.md`](site-publication-v0.md).
 
+Формы сайта салона и ресторана (SITE-4, SITE-5, ADR-185): свободные окна и запись к мастеру `/w/beauty/*`, бронь стола
+`/w/food/reserve`, заявка без слота `/w/lead` и «Входящие» `/marketing/site/leads`; сайт счётчика и лицензия конструктора
+у всех направлений (SITE-3). Контракты: [`site-forms-v0.md`](site-forms-v0.md).
+
 ## 3. Два режима сайта
 
 | Режим | Что есть у филиала | Что делает WETOP |

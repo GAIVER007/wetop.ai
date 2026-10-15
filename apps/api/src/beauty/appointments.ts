@@ -26,6 +26,7 @@ import {
 import { currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
+import type { DbTx } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
 
@@ -48,7 +49,7 @@ function isUniqueViolation(error: unknown): boolean {
  */
 
 /** Записи этих состояний место мастера занимают */
-const BUSY: AppointmentStatus[] = ['BOOKED', 'CONFIRMED', 'DONE'];
+export const BUSY: AppointmentStatus[] = ['BOOKED', 'CONFIRMED', 'DONE'];
 
 /** Сетка дня, когда график мастеров ничего не подсказал */
 const DEFAULT_FROM = 8 * 60;
@@ -202,38 +203,7 @@ export class BeautyAppointmentsService {
         if (!own) throw new NotFoundException('Клиент не найден');
         customerId = own.id;
       } else {
-        // тот же телефон это тот же клиент: у `customers` уникальный (organization_id, phone), и второй
-        // записи тому же человеку иначе не быть вовсе
-        const known = input.customer.phone
-          ? await tx.customer.findFirst({
-              where: { organizationId: scope.organizationId, phone: input.customer.phone },
-              select: { id: true, status: true },
-            })
-          : null;
-        if (known && known.status !== 'ACTIVE') throw new ConflictException('Клиент в архиве');
-        customerId = known?.id ?? randomUUID();
-        if (!known) {
-          try {
-            await tx.customer.create({
-              data: {
-                id: customerId,
-                organizationId: scope.organizationId,
-                firstName: input.customer.firstName,
-                lastName: input.customer.lastName,
-                phone: input.customer.phone,
-              },
-            });
-          } catch (error) {
-            // Гонка: параллельный запрос с тем же новым телефоном успел раньше (двойная отправка формы, два окна).
-            // Уникальный индекс (organization_id, phone) не даёт завести второго клиента; проигравший откатывается
-            // целиком и получает понятный 409 (CORE-SECURITY-FIX-01, U3-b). Повтор найдёт клиента по телефону.
-            if (isUniqueViolation(error))
-              throw new ConflictException(
-                'Клиент с таким телефоном уже записывается: повторите запись через несколько секунд',
-              );
-            throw error;
-          }
-        }
+        customerId = await findOrCreateCustomer(tx, scope.organizationId, input.customer);
       }
       // клиент становится виден бизнесу при первом обращении в него (§19.1)
       await tx.customerBusiness.createMany({
@@ -382,104 +352,166 @@ export class BeautyAppointmentsService {
     return { scope, row };
   }
 
-  /**
-   * Цена, длительность и попадание в график. Мастер и услуга проверяются на свой бизнес и свой филиал
-   * здесь же: база это тоже держит триггером, но её сообщение человеку не ответ.
-   */
-  private async planFor(
-    scope: BeautyScope,
-    employeeId: string,
-    serviceId: string,
-    startsAt: Date,
-  ): Promise<AppointmentPlan> {
-    const locationId = scope.locationId as string;
-    if (!UUID.test(employeeId)) throw new NotFoundException('Мастер не найден');
-    if (!UUID.test(serviceId)) throw new NotFoundException('Услуга не найдена');
-
-    const employee = await this.prisma.db.employee.findFirst({
-      where: { id: employeeId, businessId: scope.businessId, locations: { some: { locationId } } },
-      select: {
-        id: true,
-        status: true,
-        workingHours: { where: { locationId }, select: { weekday: true, timeFrom: true, timeTo: true } },
-        timeOffs: { select: { dateFrom: true, dateTo: true } },
-        services: { select: { serviceId: true } },
-      },
-    });
-    if (!employee) throw new NotFoundException('Мастер в этом филиале не работает');
-    if (employee.status !== 'ACTIVE') throw new ConflictException('Мастер в архиве');
-    if (!employee.services.some((s) => s.serviceId === serviceId))
-      throw new ConflictException('Мастер эту услугу не оказывает');
-
-    const service = await this.prisma.db.beautyService.findFirst({
-      where: { id: serviceId, businessId: scope.businessId },
-      select: {
-        active: true,
-        price: true,
-        currency: true,
-        durationMinutes: true,
-        locations: { where: { locationId }, select: { enabled: true, priceOverride: true, durationOverride: true } },
-      },
-    });
-    if (!service) throw new NotFoundException('Услуга не найдена');
-    const own = service.locations[0] ?? null;
-
-    const plan = planAppointment({
-      startsAt,
-      timezone: scope.locationTimezone ?? 'UTC',
-      service: {
-        active: service.active,
-        priceMinor: service.price,
-        currency: service.currency,
-        durationMinutes: service.durationMinutes,
-      },
-      locationCurrency: scope.locationCurrency ?? '',
-      locationService: own
-        ? {
-            enabled: own.enabled,
-            priceOverrideMinor: own.priceOverride,
-            durationOverrideMinutes: own.durationOverride,
-          }
-        : null,
-      workingHours: employee.workingHours.map((h) => ({
-        weekday: h.weekday,
-        timeFrom: clockOf(h.timeFrom),
-        timeTo: clockOf(h.timeTo),
-      })),
-      timeOffs: employee.timeOffs.map((t) => ({
-        dateFrom: t.dateFrom.toISOString().slice(0, 10),
-        dateTo: t.dateTo.toISOString().slice(0, 10),
-      })),
-    });
-    if (!plan.ok) throw new ConflictException(plan.reason);
-    return plan.value;
+  private planFor(scope: BeautyScope, employeeId: string, serviceId: string, startsAt: Date): Promise<AppointmentPlan> {
+    return planBeautyAppointment(this.prisma.db, scope, employeeId, serviceId, startsAt);
   }
 
-  /**
-   * Занятость мастера проверяется до вставки: нарушение `EXCLUDE` (23P01) обрывает транзакцию Postgres,
-   * и внятно ответить человеку из мёртвой транзакции уже нельзя.
-   */
   private async assertFree(employeeId: string, startsAt: Date, endsAt: Date, exceptId: string | null) {
-    const busy = await this.prisma.db.appointment.findFirst({
-      where: {
-        employeeId,
-        status: { in: BUSY },
-        startsAt: { lt: endsAt },
-        endsAt: { gt: startsAt },
-        ...(exceptId ? { id: { not: exceptId } } : {}),
-      },
-      select: { startsAt: true },
-    });
-    if (busy) throw new ConflictException('Мастер в это время уже занят');
+    if (await employeeBusy(this.prisma.db, employeeId, startsAt, endsAt, exceptId))
+      throw new ConflictException('Мастер в это время уже занят');
   }
+}
+
+
+// ───────────── общее со записью с сайта (SITE-4) ─────────────
+
+type BeautyDb = Pick<DbTx, 'employee' | 'beautyService' | 'appointment'>;
+type PlanScope = Pick<BeautyScope, 'businessId' | 'locationId' | 'locationTimezone' | 'locationCurrency'>;
+
+/**
+ * Цена, длительность и попадание в график. Мастер и услуга проверяются на свой бизнес и свой филиал
+ * здесь же: база это тоже держит триггером, но её сообщение человеку не ответ. Один расчёт у стойки и у формы сайта.
+ */
+export async function planBeautyAppointment(
+  db: BeautyDb,
+  scope: PlanScope,
+  employeeId: string,
+  serviceId: string,
+  startsAt: Date,
+): Promise<AppointmentPlan> {
+  const locationId = scope.locationId as string;
+  if (!UUID.test(employeeId)) throw new NotFoundException('Мастер не найден');
+  if (!UUID.test(serviceId)) throw new NotFoundException('Услуга не найдена');
+
+  const employee = await db.employee.findFirst({
+    where: { id: employeeId, businessId: scope.businessId, locations: { some: { locationId } } },
+    select: {
+      id: true,
+      status: true,
+      workingHours: { where: { locationId }, select: { weekday: true, timeFrom: true, timeTo: true } },
+      timeOffs: { select: { dateFrom: true, dateTo: true } },
+      services: { select: { serviceId: true } },
+    },
+  });
+  if (!employee) throw new NotFoundException('Мастер в этом филиале не работает');
+  if (employee.status !== 'ACTIVE') throw new ConflictException('Мастер в архиве');
+  if (!employee.services.some((s) => s.serviceId === serviceId))
+    throw new ConflictException('Мастер эту услугу не оказывает');
+
+  const service = await db.beautyService.findFirst({
+    where: { id: serviceId, businessId: scope.businessId },
+    select: {
+      active: true,
+      price: true,
+      currency: true,
+      durationMinutes: true,
+      locations: { where: { locationId }, select: { enabled: true, priceOverride: true, durationOverride: true } },
+    },
+  });
+  if (!service) throw new NotFoundException('Услуга не найдена');
+  const own = service.locations[0] ?? null;
+
+  const plan = planAppointment({
+    startsAt,
+    timezone: scope.locationTimezone ?? 'UTC',
+    service: {
+      active: service.active,
+      priceMinor: service.price,
+      currency: service.currency,
+      durationMinutes: service.durationMinutes,
+    },
+    locationCurrency: scope.locationCurrency ?? '',
+    locationService: own
+      ? {
+          enabled: own.enabled,
+          priceOverrideMinor: own.priceOverride,
+          durationOverrideMinutes: own.durationOverride,
+        }
+      : null,
+    workingHours: employee.workingHours.map((h) => ({
+      weekday: h.weekday,
+      timeFrom: clockOf(h.timeFrom),
+      timeTo: clockOf(h.timeTo),
+    })),
+    timeOffs: employee.timeOffs.map((t) => ({
+      dateFrom: t.dateFrom.toISOString().slice(0, 10),
+      dateTo: t.dateTo.toISOString().slice(0, 10),
+    })),
+  });
+  if (!plan.ok) throw new ConflictException(plan.reason);
+  return plan.value;
+}
+
+/**
+ * Занятость мастера проверяется до вставки: нарушение `EXCLUDE` (23P01) обрывает транзакцию Postgres,
+ * и внятно ответить человеку из мёртвой транзакции уже нельзя.
+ */
+export async function employeeBusy(
+  db: Pick<DbTx, 'appointment'>,
+  employeeId: string,
+  startsAt: Date,
+  endsAt: Date,
+  exceptId: string | null,
+): Promise<boolean> {
+  const busy = await db.appointment.findFirst({
+    where: {
+      employeeId,
+      status: { in: BUSY },
+      startsAt: { lt: endsAt },
+      endsAt: { gt: startsAt },
+      ...(exceptId ? { id: { not: exceptId } } : {}),
+    },
+    select: { startsAt: true },
+  });
+  return busy !== null;
+}
+
+/**
+ * Клиент по телефону: тот же телефон это тот же клиент (`customers` уникален по (organization_id, phone)), иначе новый.
+ * Вызывается под замком филиала (`beautyTransaction` и запись с сайта берут его `FOR UPDATE`); если параллельный запрос
+ * всё же успел завести того же клиента, проигравший откатывается целиком и получает 409 (CORE-SECURITY-FIX-01, U3-b).
+ */
+export async function findOrCreateCustomer(
+  tx: Pick<DbTx, 'customer'>,
+  organizationId: string,
+  customer: { firstName: string; lastName: string | null; phone: string | null },
+  archivedMessage = 'Клиент в архиве',
+): Promise<string> {
+  const known = customer.phone
+    ? await tx.customer.findFirst({
+        where: { organizationId, phone: customer.phone },
+        select: { id: true, status: true },
+      })
+    : null;
+  if (known && known.status !== 'ACTIVE') throw new ConflictException(archivedMessage);
+  if (known) return known.id;
+  const id = randomUUID();
+  try {
+    await tx.customer.create({
+      data: {
+        id,
+        organizationId,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        phone: customer.phone,
+      },
+    });
+  } catch (error) {
+    if (isUniqueViolation(error))
+      throw new ConflictException(
+        'Клиент с таким телефоном уже записывается: повторите запись через несколько секунд',
+      );
+    throw error;
+  }
+  return id;
+}
+
+/** `time` Prisma отдаёт как момент 1970-01-01 */
+export function clockOf(at: Date): string {
+  return at.toISOString().slice(11, 16);
 }
 
 // ───────────── время ─────────────
-
-/** `time` Prisma отдаёт как момент 1970-01-01 */
-function clockOf(at: Date): string {
-  return at.toISOString().slice(11, 16);
-}
 
 function clockMinutes(clock: string): number {
   const [hh, mm] = clock.split(':');

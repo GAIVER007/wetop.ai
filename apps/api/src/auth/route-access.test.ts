@@ -148,6 +148,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /marketing/site/assets/:id': 'settings',
   'DELETE /marketing/site/assets/:id': 'settings',
   'GET /marketing/site/assets/channex': 'settings',
+  // SITE-5 (ADR-185): заявки с сайта во «Входящих», как диалоги ИИ-продавца
+  'GET /marketing/site/leads': 'dialogs',
+  'PATCH /marketing/site/leads/:id': 'dialogs',
   'POST /marketing/site/assets/channex/import': 'settings',
   'GET /food-service/areas': 'desk',
   'POST /food-service/areas': 'property',
@@ -514,6 +517,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // Q-276: цена «от» тарифа брони сайта, тот же ключ и домен, что у availability
   'GET /w/from-prices': 'public',
   'POST /w/book': 'public',
+  // SITE-4, SITE-5 (ADR-185): формы сайта салона и ресторана, заявка без слота; ключ сайта, домен, Turnstile, лимиты
+  'GET /w/beauty/slots': 'public',
+  'POST /w/beauty/book': 'public',
+  'POST /w/food/reserve': 'public',
+  'POST /w/lead': 'public',
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',
   // H14 (ADR-144): страница статуса сервиса без входа
@@ -601,6 +609,8 @@ describe('права маршрутов API (ADR-107)', () => {
       'POST /marketing/site/assistant/:id/approve',
       'PUT /marketing/site/versions/:id/bookmark',
       'DELETE /marketing/site/versions/:id/bookmark',
+      // SITE-5: статус заявки своего филиала (право dialogs, строгий scope филиала)
+      'PATCH /marketing/site/leads/:id',
     ];
     const byId = Object.keys(actual).filter(
       (key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key) && !allowed.includes(key),

@@ -4164,6 +4164,11 @@ export interface BarScanResult {
   lines: BarScanLine[];
   warnings: string[];
 }
+/** Списки способов для форм бара (ADR-185): включённые у объекта, в его порядке; у бара без объекта список бара целиком */
+export interface BarPaymentMethods {
+  sale: string[];
+  supplier: string[];
+}
 export const barApi = {
   categories: () => getJson<BarCategoryRow[]>('/bar/categories'),
   createCategory: (body: unknown) => sendJson<BarCategoryRow>('POST', '/bar/categories', body),
@@ -4189,6 +4194,7 @@ export const barApi = {
     }),
   receipts: () => getJson<BarReceiptRow[]>('/bar/receipts'),
   stock: () => getJson<BarStockRow[]>('/bar/stock'),
+  paymentMethods: () => getJson<BarPaymentMethods>('/bar/payment-methods'),
   sales: () => getJson<BarSaleRow[]>('/bar/sales'),
   folios: () => getJson<BarFolioRow[]>('/bar/folios'),
   movements: () => getJson<BarMovementRow[]>('/bar/movements'),

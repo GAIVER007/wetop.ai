@@ -33,6 +33,7 @@ export class BarController {
   @Patch('suppliers/:id/active') setSupplierActive(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.setSupplierActive(id, body); }
   @Get('receipts') receipts() { return this.service.receipts(); }
   @Get('stock') stock() { return this.service.stock(); }
+  @Get('payment-methods') paymentMethods() { return this.service.paymentMethods(); }
   @Get('sales') sales() { return this.service.sales(); }
   @Get('folios') folios() { return this.service.folios(); }
   @Get('movements') movements() { return this.service.movements(); }

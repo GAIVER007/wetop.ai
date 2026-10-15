@@ -4,6 +4,7 @@ import { BarContextFields, type BarFormContext } from './context';
 
 import { Button, Field, Input, Select } from '../../components/ui';
 import { payBarSupplierAction, type BarActionResult } from './actions';
+import { barMethodRu } from '@pms/domain';
 
 const initial: BarActionResult = { error: null, ok: 0 };
 const tenge = (minor: string) => {
@@ -16,12 +17,22 @@ export function SupplierPaymentForm({
   receiptId,
   dueAmount,
   context,
+  methods,
 }: {
   context: BarFormContext;
   receiptId: string;
   dueAmount: string;
+  methods: string[];
 }) {
   const [state, action, pending] = useBarAction(payBarSupplierAction, initial);
+  // способы из настройки объекта (ADR-185); счёт организации остаётся умолчанием поставщика, пока объект его не выключил
+  const preferred = methods.includes('BANK_TRANSFER_LEGAL') ? 'BANK_TRANSFER_LEGAL' : methods[0];
+  if (methods.length === 0)
+    return (
+      <p role="status" className="bar-muted" data-testid="bar-no-methods">
+        В настройках объекта нет способа оплаты, который принимает бар
+      </p>
+    );
   return (
     <form onSubmit={action} className="bar-payment-form">
       <BarContextFields context={context} />
@@ -30,13 +41,12 @@ export function SupplierPaymentForm({
         <Input name="amount" inputMode="decimal" defaultValue={tenge(dueAmount)} required />
       </Field>
       <Field label="Способ">
-        <Select name="method" defaultValue="BANK_TRANSFER_LEGAL">
-          <option value="BANK_TRANSFER_LEGAL">Счет организации</option>
-          <option value="CASH">Наличные</option>
-          <option value="CARD_TERMINAL">Карта</option>
-          <option value="KASPI">Kaspi</option>
-          <option value="HALYK">Halyk</option>
-          <option value="BANK_TRANSFER_PERSON">Перевод</option>
+        <Select name="method" defaultValue={preferred}>
+          {methods.map((method) => (
+            <option key={method} value={method}>
+              {barMethodRu(method)}
+            </option>
+          ))}
         </Select>
       </Field>
       <Button type="submit" size="xs" disabled={pending}>

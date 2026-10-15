@@ -1,0 +1,63 @@
+# Модульные (unit) · 15.10.2026 13:52 Алматы · vm
+# коммит 48e05c9 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T08-52-08Z-unit-5828.json' 'packages/domain/src/bar' 'apps/api/src/bar/bar-payment-methods.test.ts' 'apps/api/src/bar/bar.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/bar/payment-methods.test.ts (5 tests) 11ms
+ ✓ |unit| apps/api/src/bar/bar-payment-methods.test.ts (5 tests) 17ms
+ ✓ |unit| packages/domain/src/bar/bar.test.ts (6 tests) 11ms
+[Nest] 2367  - 10/15/2026, 8:52:14 AM   ERROR [ExceptionsHandler] TypeError: this.repo.enabledPaymentMethods is not a function
+    at BarService.assertMethodEnabled (/home/user/wetop.ai/apps/api/src/bar/bar.service.ts:125:37)
+    at BarService.sellRetail (/home/user/wetop.ai/apps/api/src/bar/bar.service.ts:141:16)
+    at BarController.sellRetail (/home/user/wetop.ai/apps/api/src/bar/bar.controller.ts:41:81)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:42:29
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ❯ |unit| apps/api/src/bar/bar.controller.test.ts (12 tests | 1 failed) 501ms
+   ✓ бар: приходы (BAR2) (10)
+     ✓ создает черновик и проводит его один раз 86ms
+     ✓ отклоняет пустой приход и сумму float 11ms
+     ✓ создает товар и поставщика, архивирует без удаления 30ms
+     ✓ правит карточку товара: название, категорию, штрихкод, наценку и минимум, но не цену 16ms
+     ✓ продает без брони и запрещает минусовой остаток 10ms
+     ✓ возвращает продажу и восстанавливает остаток только по флагу 4ms
+     ✓ списывает товар с причиной и не уходит в минус 9ms
+     ✓ принимает частичную оплату поставщику и запрещает переплату 7ms
+     ✓ добавляет товар в открытый счет гостя 4ms
+     ✓ фиксирует недостачу и блокирует излишек без цены 7ms
+   ❯ бар: права на сторно (FOOD-FIX-01) (2)
+     × смене (STAFF) сторно закрыто, продажа открыта 14ms
+     ✓ владельцу с правом refunds сторно открыто 4ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 171ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/bar/bar.controller.test.ts > бар: права на сторно (FOOD-FIX-01) > смене (STAFF) сторно закрыто, продажа открыта
+Error: expected 201 "Created", got 500 "Internal Server Error"
+ ❯ apps/api/src/bar/bar.controller.test.ts:217:8
+    215|       .post('/bar/sales/retail').set('x-test-role', 'STAFF')
+    216|       .send({ productId: '30000000-0000-4000-8000-000000000001', quant…
+    217|       .expect(201);
+       |        ^
+    218|   });
+    219|
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 30 passed (31)
+   Start at  08:52:10
+   Duration  9.37s (transform 71%, import 25%, tests 4%)
+
+JSON report written to /tmp/pms-test-2026-10-15T08-52-08Z-unit-5828.json
+
+# код выхода 1 · 12 с

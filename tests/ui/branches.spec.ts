@@ -56,10 +56,10 @@ test('филиалы: создание, сохранение после reload �
       expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(
         900,
       );
-      const footer = await main.locator('.org-card-footer').first().boundingBox();
-      expect(footer).not.toBeNull();
+      const card = await main.locator('.org-card').first().boundingBox();
+      expect(card).not.toBeNull();
       // Compact cards remain within the approved first-screen bound, including multiple businesses.
-      expect(footer!.y + footer!.height).toBeLessThanOrEqual(900);
+      expect(card!.y + card!.height).toBeLessThanOrEqual(900);
     }
     await page.screenshot({
       path: `reports/branches-2026-10-01/branches-${width}.png`,

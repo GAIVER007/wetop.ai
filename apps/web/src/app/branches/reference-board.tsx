@@ -1,5 +1,5 @@
 'use client';
-import { FinancialWidgets, BusinessFinancialWidgets } from './financial-widgets';
+import { FinancialWidgets } from './financial-widgets';
 import { useState, type ReactNode } from 'react';
 import { Icon, type IconName } from '../../components/icon';
 import type { BranchItem } from '../../lib/api';
@@ -103,38 +103,48 @@ export function ReferenceBoard({
       </div>
       <FinancialWidgets summary={financial} />
       {visible.length ? (
-        <div className="org-cards">
+        <div className="org-cards org-cards--workspace">
           {visible.map((group) => {
             const coverStyle = group.card.coverUrl
               ? { backgroundImage: `url(${JSON.stringify(group.card.coverUrl)})` }
               : undefined;
             return (
-              <article key={group.id} className={`org-card org-card--${group.vertical}`}>
-                <div
-                  className={`org-cover ${group.card.coverUrl ? 'org-cover--custom' : ''}`}
-                  style={coverStyle} /* slop-allow: inline-style cover */
-                >
-                  {!group.card.coverUrl ? <Icon name="image" /> : null}
-                  <span className="org-count">
-                    {group.branches.length === 1
-                      ? 'Один объект'
-                      : `Объектов: ${group.branches.length}`}
-                  </span>
-                </div>
+              <article
+                key={group.id}
+                className={`org-card org-card--workspace org-card--${group.vertical}`}
+              >
+                {group.card.coverUrl && (
+                  <div
+                    className="org-cover org-cover--custom"
+                    style={coverStyle} /* slop-allow: inline-style cover */
+                  />
+                )}
                 <div className="org-card-body">
-                  <span className="org-business-icon">
-                    <Icon name={businessIcons[group.vertical]} />
-                  </span>
-                  <h2 title={group.card.name}>{group.card.name}</h2>
-                  <p className="org-muted org-business-kind">{businessLabels[group.vertical]}</p>
-                  <p className="org-address">
-                    <Icon name="pin" />
-                    {group.branches[0]?.address || 'Адрес не указан'}
-                  </p>
-                  <p className="org-description" title={group.card.description ?? ''}>
-                    {group.card.description || 'Добавьте описание бизнеса в настройках карточки.'}
-                  </p>
-                  <BusinessFinancialWidgets summary={financial} businessId={group.id} />
+                  <header className="org-project-header">
+                    <span className="org-business-icon">
+                      <Icon name={businessIcons[group.vertical]} />
+                    </span>
+                    <div className="org-project-title">
+                      <h2 title={group.card.name}>{group.card.name}</h2>
+                      <p className="org-muted org-business-kind">{businessLabels[group.vertical]}</p>
+                    </div>
+                    {group.card.canEdit && (
+                      <button
+                        type="button"
+                        className="org-edit"
+                        aria-label={`Редактировать: ${group.card.name}`}
+                        onClick={() => setEditing(group.card)}
+                      >
+                        <Icon name="edit" />
+                        <span>Редактировать</span>
+                      </button>
+                    )}
+                  </header>
+                  {group.card.description && (
+                    <p className="org-description" title={group.card.description}>
+                      {group.card.description}
+                    </p>
+                  )}
                   <div className="org-branches-heading">
                     <strong>
                       {group.branches.length === 1
@@ -187,26 +197,6 @@ export function ReferenceBoard({
                         </button>
                       </form>
                     ))}
-                  </div>
-                  <div className="org-card-footer">
-                    {group.branches.length > 0 && (
-                      <form action={selectBranch}>
-                        <input type="hidden" name="id" value={group.branches[0]?.id} />
-                        <button type="submit" className="org-open">
-                          Открыть <Icon name="arrow" />
-                        </button>
-                      </form>
-                    )}
-                    {group.card.canEdit && (
-                      <button
-                        className="org-edit"
-                        aria-label={`Редактировать: ${group.card.name}`}
-                        onClick={() => setEditing(group.card)}
-                      >
-                        <Icon name="edit" />
-                        <span>Редактировать</span>
-                      </button>
-                    )}
                   </div>
                 </div>
               </article>

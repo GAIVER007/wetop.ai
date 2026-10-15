@@ -5,7 +5,7 @@ import { expect, test, type Page } from '@playwright/test';
  * а не только отсутствием ссылки в меню. Защита та же, что у `/reports`: `requireVertical(['HOSPITALITY'])`
  * уводит чужое направление на его стартовую страницу и не даёт странице звать гостиничный API.
  */
-const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '26864'}`;
 
 /** Экраны гостиницы; `/connections/channex` входит в раздел `/connections` */
 const HOTEL_ROUTES = [

@@ -934,6 +934,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
     '/today',
     '/management/analytics',
     '/management/analytics/occupancy',
+    '/connections',
   ]) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
@@ -968,7 +969,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await page.goto('/management/analytics/occupancy');
   await expect(page.getByTestId('statistics-error')).toBeVisible();
   await expect(page.locator('.kpi__value:visible')).toHaveCount(0);
-  await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/channels/channex/connection' } });
   await page.goto('/connections');
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
   await expect(page.getByTestId('integration-health')).not.toHaveText('Работает');

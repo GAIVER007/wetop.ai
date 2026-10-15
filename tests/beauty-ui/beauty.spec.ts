@@ -49,8 +49,8 @@ async function expectEmptyCalendar(page: Page) {
     '/employees',
   );
 }
-async function seed(page: Page, request: APIRequestContext) {
-  const f = await reset(page, request);
+async function seed(page: Page, request: APIRequestContext, fixture?: Fixture) {
+  const f = fixture ?? await reset(page, request);
   const headers = { 'x-wetop-scope': pointer(f.business, f.locations[0]!) };
   const service = await (
     await request.post(`${api}/beauty/services`, {
@@ -121,7 +121,10 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await panel.getByLabel('Название', { exact: true }).fill('Тестовая стрижка');
   await panel.getByLabel(/Цена каталога, тиын/).fill('1200000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуга добавлена');
+  await expect(page.getByRole('row').filter({ hasText: 'Тестовая стрижка' })).toContainText('12 000');
+  await panel.getByRole('button', { name: 'Закрыть: Услуга каталога', exact: true }).click();
+  await expect(panel).toBeHidden();
+  await expect(page).toHaveURL(/\/services$/);
   await page.reload();
   await page
     .getByRole('row')
@@ -141,6 +144,9 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await panel.getByRole('checkbox', { name: 'Тестовая стрижка' }).check();
   await panel.getByRole('button', { name: 'Сохранить услуги' }).click();
   await expect(panel.getByRole('status')).toContainText('Услуги назначены');
+  await panel.getByRole('button', { name: 'Закрыть: Мастер', exact: true }).click();
+  await expect(panel).toBeHidden();
+  await expect(page).toHaveURL(/\/employees$/);
   await page.reload();
   await page
     .getByRole('listitem')
@@ -383,7 +389,7 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
     .getByRole('button', { name: 'Открыть' })
     .click();
   const panel = page.getByRole('dialog');
-  await panel.getByRole('button', { name: 'Отсутствия', exact: true }).click();
+  await panel.getByRole('tab', { name: 'Отсутствия', exact: true }).click();
   await panel.getByLabel('С какого дня').fill(day);
   await panel.getByLabel('По какой день включительно').fill(day);
   await panel.getByLabel(/Причина/).fill('Тестовое обучение');
@@ -438,21 +444,26 @@ test('DS1c: day navigation keeps the previous addresses', async ({ page, request
   await expect(page).toHaveURL(/\/calendar$/);
 });
 
-test('Beauty onboarding completion opens Today and resumes there', async ({ page, request }) => {
-  await reset(page, request);
+test('Beauty onboarding v2 completes a ready branch and resumes Today', async ({ page, request }) => {
+  const f = await reset(page, request);
   await page.goto('/register/setup');
   const main = page.getByRole('main');
-  await main.getByLabel('Название бизнеса').fill('Тестовый салон');
-  await main.getByRole('button', { name: 'Продолжить', exact: true }).click();
+  await main.getByRole('button', { name: 'Настроить салон', exact: true }).click();
+  await main.getByLabel('Название салона').fill('Тестовый салон');
   await main.getByLabel('Название филиала').fill('Тестовый филиал');
-  await main.getByRole('button', { name: 'Продолжить', exact: true }).click();
+  await main.getByRole('button', { name: 'Сохранить и продолжить', exact: true }).click();
+  await expect(main.getByRole('button', { name: 'Завершить настройку' })).toBeDisabled();
+  await seed(page, request, f);
+  await main.getByRole('button', { name: 'Обновить проверку', exact: true }).click();
+  await expect(main.getByRole('status').filter({ hasText: 'Выполнено' })).toContainText('Выполнено 4 из 4');
   await main.getByRole('button', { name: 'Завершить настройку' }).click();
-  // MV8: рабочий экран дня один на все направления
+  await expect(main.getByRole('heading', { name: 'Салон готов к работе', exact: true })).toBeVisible();
+  await main.getByRole('link', { name: 'Перейти к работе', exact: true }).click();
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByTestId('beauty-today')).toBeVisible();
-  await expect(page.getByTestId('today-shift')).toHaveText('0 из 0');
-  await page.goto('/calendar');
-  await expectEmptyCalendar(page);
-  await page.goto('/register/setup');
+  await page.goto(`/calendar?date=${day}`);
+  await expect(page.getByTestId('beauty-grid')).toBeVisible();
+  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeEnabled();
+  await page.goto('/register/setup?entry=1');
   await expect(page).toHaveURL(/\/today$/);
 });

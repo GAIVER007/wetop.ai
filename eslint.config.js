@@ -66,6 +66,20 @@ export default tseslint.config(
     },
   },
   {
+    // Runtime-аудит (scripts/ci/runtime-audit.sh): preload и перезапуск API — CommonJS, их грузит node --require
+    files: ['tests/runtime-audit/*.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: Object.fromEntries(
+        ['require', 'process', 'console', '__dirname', 'SharedArrayBuffer', 'Atomics', 'Int32Array'].map((g) => [
+          g,
+          'readonly',
+        ]),
+      ),
+    },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
+  {
     // Скрипты главной wetop.ai: чистый Node без сборки (их запускают `node scripts/site/…`).
     files: ['scripts/site/*.mjs'],
     languageOptions: {

@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 11.10.2026 16:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8654b09 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-06-44Z-integration-0e8e.json' 'tests/integration/membership-scopes-schema.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ✓ |integration| tests/integration/membership-scopes-schema.test.ts (8 tests) 326ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  04:06:46
+   Duration  1.51s (transform 45%, tests 43%, import 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-06-44Z-integration-0e8e.json
+
+# код выхода 0 · 3 с

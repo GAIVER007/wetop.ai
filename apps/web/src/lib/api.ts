@@ -4068,6 +4068,7 @@ export interface BarSupplierRow {
 }
 export interface BarReceiptRow {
   id: string;
+  currency: string;
   documentNumber: string;
   documentDate: string;
   receivedDate: string;
@@ -4079,6 +4080,7 @@ export interface BarReceiptRow {
   _count: { lines: number };
 }
 export interface BarStockRow extends BarProductRow {
+  currency: string;
   availableUnits: string;
   stockCostMinor: string;
   /** Последний проведённый приход (ADR-157): цена закупки, дата приёмки и поставщик; приходов нет, тогда null */
@@ -4090,6 +4092,7 @@ export interface BarStockRow extends BarProductRow {
 }
 export interface BarSaleRow {
   id: string;
+  currency: string;
   status: 'POSTED' | 'REVERSED';
   totalRevenue: string;
   totalCost: string;
@@ -4122,6 +4125,7 @@ export interface BarMovementRow {
   product: { name: string };
 }
 export interface BarReport {
+  currency: string;
   purchasesMinor: string;
   supplierPaidMinor: string;
   revenueMinor: string;
@@ -4198,7 +4202,7 @@ export const barApi = {
       {},
     ),
   sellRetail: (body: unknown) =>
-    sendJson<{ id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>(
+    sendJson<{ id: string; status: 'POSTED' | 'REVERSED'; revenueMinor: string; costMinor: string }>(
       'POST',
       '/bar/sales/retail',
       body,
@@ -4206,7 +4210,7 @@ export const barApi = {
   sellToFolio: (body: unknown) =>
     sendJson<{
       id: string;
-      status: 'POSTED';
+      status: 'POSTED' | 'REVERSED';
       chargeId: string;
       revenueMinor: string;
       costMinor: string;

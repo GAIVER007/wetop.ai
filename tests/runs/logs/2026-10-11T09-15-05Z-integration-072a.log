@@ -1,0 +1,38 @@
+# Интеграционные (integration) · 11.10.2026 14:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит bd2b9dd (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T09-15-05Z-integration-072a.json' 'tests/integration/connection-schema-a29.test.ts' 'tests/integration/bar-api-bootstrap.test.ts' 'tests/integration/bar-money-fixes.test.ts' 'tests/integration/auth-timezone-a26.test.ts' 'tests/integration/auth-timezone-matrix-a26.test.ts' 'tests/integration/auth-date-consumers-a26.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ✓ |integration| tests/integration/auth-timezone-matrix-a26.test.ts (1 test) 3437ms
+   ✓ A26 timezone matrix, application roles and pools (1)
+     ✓ keeps epochs, HTTP expiry and tenant isolation across database defaults and process zones 3436ms
+ ✓ |integration| tests/integration/bar-money-fixes.test.ts (35 tests) 12642ms
+   ✓ A3 approved money audit through real workspace HTTP and PostgreSQL (35)
+     ✓ D-KEY distinct keys allow independent legitimate sales 679ms
+     ✓ SHIFT / A3-1: independently reconciled KZT shift 999ms
+     ✓ A3-3 legacy mixed documents and drafts are guarded 386ms
+     ✓ A3-3 same-product mixed lots block ambiguous cost paths 364ms
+     ✓ A3-5: own scope excludes a different property and currency 301ms
+     ✓ M1: repeated and concurrent receipt posting has one effective posting 447ms
+     ✓ M2 payload identity: product, quantity, method and retail/Folio reuse 415ms
+     ✓ M4 retail/writeoff: controlled shared stock race is atomic 321ms
+     ✓ M5: partial payments, overpayment and concurrent debt limit 649ms
+     ✓ M5 cash void: supplier debt agrees with surviving settlement 653ms
+     ✓ N3 quantities/UUID: invalid inputs rejected with zero partial effect 331ms
+     ✓ N6: archived product rejected; category/supplier historical boundary explicit 422ms
+ ✓ |integration| tests/integration/bar-api-bootstrap.test.ts (5 tests) 2336ms
+ ✓ |integration| tests/integration/connection-schema-a29.test.ts (7 tests) 994ms
+ ✓ |integration| tests/integration/auth-timezone-a26.test.ts (1 test) 582ms
+   ✓ A26 real HTTP session expiry (1)
+     ✓ keeps an active absolute expiry valid with a non UTC database default 580ms
+ ✓ |integration| tests/integration/auth-date-consumers-a26.test.ts (1 test) 294ms
+
+ Test Files  6 passed (6)
+      Tests  50 passed (50)
+   Start at  02:15:07
+   Duration  22.46s (tests 96%, import 3%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T09-15-05Z-integration-072a.json
+
+# код выхода 0 · 24 с

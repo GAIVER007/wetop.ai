@@ -1,16 +1,19 @@
 'use client';
-import { useActionState, useState } from 'react';
+import { useState } from 'react';
+import { useBarAction } from './use-bar-action';
+import { BarContextFields, type BarFormContext } from './context';
 import type { BarStockRow } from '../../lib/api';
 import { Button, Field, Input, Select } from '../../components/ui';
 import { inventoryBarAction, type BarActionResult } from './actions';
 
 const initial: BarActionResult = { error: null, ok: 0 };
-export function InventoryCountForm({ stock }: { stock: BarStockRow[] }) {
+export function InventoryCountForm({ stock, context }: { stock: BarStockRow[]; context: BarFormContext }) {
   const [productId, setProductId] = useState('');
   const selected = stock.find((item) => item.id === productId);
-  const [state, action, pending] = useActionState(inventoryBarAction, initial);
+  const [state, action, pending] = useBarAction(inventoryBarAction, initial);
   return (
-    <form action={action} className="bar-sale-form">
+    <form onSubmit={action} onReset={() => setProductId('')} className="bar-sale-form">
+      <BarContextFields context={context} />
       <Field label="Товар">
         <Select
           name="productId"

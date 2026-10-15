@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 11.10.2026 13:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6bfa21e (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=2' 'tests/ui/a28-ui-transitions.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 [main-ui-1] › ../.wetop-main-ui-8xrR6n/worker-1/tests/ui/a28-ui-transitions.spec.ts:35:1 › A28 cash: hydration preserves a native date edited before client scripts load (3.5s)
+  ✘  2 [main-ui-1] › ../.wetop-main-ui-8xrR6n/worker-1/tests/ui/a28-ui-transitions.spec.ts:70:1 › A28 cash: valid invalid valid periods and history preserve applied values (17.3s)
+  ✓  3 [main-ui-1] › ../.wetop-main-ui-8xrR6n/worker-1/tests/ui/a28-ui-transitions.spec.ts:100:1 › A28 channels: delayed synthetic API keeps the current page heading through refresh (5.7s)
+
+
+  1) [main-ui-1] › ../.wetop-main-ui-8xrR6n/worker-1/tests/ui/a28-ui-transitions.spec.ts:70:1 › A28 cash: valid invalid valid periods and history preserve applied values 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByRole('region', { name: 'Итоги кассы', exact: true }).getByTestId('cash-period-income')
+    Expected: "Нет данных"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('region', { name: 'Итоги кассы', exact: true }).getByTestId('cash-period-income') with timeout 15000ms
+      - waiting for getByRole('main').getByRole('region', { name: 'Итоги кассы', exact: true }).getByTestId('cash-period-income')
+
+
+      83 |       .getByRole('region', { name: 'Итоги кассы', exact: true })
+      84 |       .getByTestId('cash-period-income'),
+    > 85 |   ).toHaveText('Нет данных');
+         |     ^
+      86 |   await main.getByLabel('Период: по').fill('2026-10-01');
+      87 |   await main.getByRole('button', { name: 'Показать', exact: true }).click();
+      88 |   await appliedPeriod(page, request, '2026-10-01');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-8xrR6n/worker-1/tests/ui/a28-ui-transitions.spec.ts:85:5
+
+    Error Context: test-results/a28-ui-transitions-A28-cas-bb747-ory-preserve-applied-values-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a28-ui-transitions-A28-cas-bb747-ory-preserve-applied-values-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a28-ui-transitions-A28-cas-bb747-ory-preserve-applied-values-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [main-ui-1] › ../.wetop-main-ui-8xrR6n/worker-1/tests/ui/a28-ui-transitions.spec.ts:70:1 › A28 cash: valid invalid valid periods and history preserve applied values 
+  2 passed (48.4s)
+
+# код выхода 1 · 50 с

@@ -1,0 +1,30 @@
+# Модульные (unit) · 13.10.2026 11:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит abb1431 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 269
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T06-28-09Z-unit-a469.json' 'tests/unit/guard-run.test.ts' 'tests/unit/ci-runner.test.ts' 'tests/unit/ui-worker-ports.test.ts' 'tests/unit/vertical-guard-auth.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ✓ |unit| tests/unit/ui-worker-ports.test.ts (5 tests) 4ms
+ ✓ |unit| tests/unit/vertical-guard-auth.test.ts (5 tests) 5ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (25 tests) 2215ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 1443ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 476ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 12341ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 4502ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 1487ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1798ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 1690ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 1682ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 1056ms
+
+ Test Files  4 passed (4)
+      Tests  43 passed (43)
+   Start at  23:28:15
+   Duration  13.05s (tests 98%, transform 2%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T06-28-09Z-unit-a469.json
+
+# код выхода 0 · 20 с

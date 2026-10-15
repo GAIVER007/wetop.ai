@@ -182,7 +182,7 @@ jobs:
           if-no-files-found: ignore
 
   ui-shard:
-    name: UI · часть ${{ matrix.shard }}/3
+    name: UI · часть ${{ matrix.shard }}/5
     needs: fast
     # Три части UI идут параллельно на двух ядрах GitHub. На своём раннере (боевой сервер) `next dev`
     # не поднимался за 120 с, а 812 тестов не помещались в 25 минут (03.10.2026).
@@ -196,7 +196,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        # Пять частей (13.10.2026): при трёх часть 3/3 одним worker не уложилась в 60 минут (38388304633); время
+        # части задают тяжёлые спеки, а не число тестов, поэтому части мельче, потолок прежний
+        shard: [1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -211,12 +213,13 @@ jobs:
       - name: Браузерные проверки без базы
         env:
           UI_BROWSER_CHANNEL: chromium
-        run: npx playwright test --config tests/ui/playwright.config.ts --shard=${{ matrix.shard }}/3
-      - name: Единый вход с включённым замком
-        if: matrix.shard == 1
-        env:
-          UI_BROWSER_CHANNEL: chromium
-        run: npx playwright test --config tests/ui/playwright.auth.config.ts
+          # часть набора выбирает харнесс до раздачи файлов двум worker (tests/ui/worker-ports.ts, shardSpecs):
+          # --shard Playwright отдавал первую часть целиком одному worker
+          UI_SHARD: ${{ matrix.shard }}/5
+        # вход с включённым замком гоняет своя задача ui-auth (два worker), второй раз в первой части не нужен.
+        # Один worker на часть: с двумя одновременно работающими стойками раннер на 2 ядра дважды подряд получал
+        # shutdown signal посреди части 3/3 (release-checks 38377601835, попытки 2 и 3); баланс частей даёт UI_SHARD
+        run: npx playwright test --config tests/ui/playwright.config.ts --workers=1
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -287,14 +290,92 @@ jobs:
             test-results
           if-no-files-found: ignore
 
+  ui-auth:
+    name: Канонический вход и сохранённые login-lock требования
+    needs: fast
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      - name: Все требования входа на двух изолированных workers
+        env:
+          UI_BROWSER_CHANNEL: chromium
+        run: npx playwright test --config tests/ui/playwright.auth.config.ts --workers=2
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ui-auth-results
+          # только результаты Playwright; test-results/auth-runtime-* это сборки Next двух workers (десятки тысяч файлов)
+          path: test-results/auth
+          if-no-files-found: ignore
+
+  runtime-audit:
+    # Обязательный runtime-аудит денег, входа и схемы (A2, A23, A26, A29): настоящие API и PostgreSQL 16.14,
+    # штатные роли, AUTH_REQUIRED=1, независимая SQL-сверка. База, API и тесты в одном сетевом пространстве с
+    # loopback; у пространства нет внешних интерфейсов и маршрутов, connect() наружу сразу получает ENETUNREACH,
+    # это проверяет и сам скрипт, и preload каждого API.
+    # Исторический A3 (A3_RUNTIME_AUDIT) сюда не входит: reports/wetop-master-2026-10-10/audit-coverage.md
+    name: runtime-аудит денег, входа и схемы без внешней сети
+    needs: fast
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      - name: Подготовка с сетью (PostgreSQL 16.14 из npm, миграции, роли, вымышленные данные)
+        run: scripts/ci/runtime-audit.sh prepare
+      - name: Прогон в закрытом сетевом пространстве
+        # каталог доказательств пустой: в репозитории лежат доказательства прежних локальных прогонов, в артефакт
+        # должен попасть только этот (одноразовый checkout раннера)
+        run: |
+          rm -rf tests/runs/runtime-audit tests/runs/a2-runtime tests/runs/a23-runtime
+          scripts/ci/runtime-audit.sh isolated
+      - name: Записи журнала этого прогона (новые файлы, не из репозитория)
+        if: always()
+        run: |
+          mkdir -p tests/runs/runtime-audit/journal
+          git ls-files --others --exclude-standard -- tests/runs/entries tests/runs/logs | xargs -r cp -t tests/runs/runtime-audit/journal
+          find test-results -name error-context.md -exec sh -c 'd="tests/runs/runtime-audit/failures/$(basename "$(dirname "$1")")"; mkdir -p "$d"; cp "$1" "$d/"' _ {} \; 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: runtime-audit-evidence
+          # allowlist: доказательства сети и сверок, снимки A25, журнал этого прогона, контексты падений; без trace с cookie
+          path: |
+            tests/runs/runtime-audit/**/*.json
+            tests/runs/runtime-audit/**/*.png
+            tests/runs/runtime-audit/journal/*
+            tests/runs/runtime-audit/failures/**/error-context.md
+            tests/runs/a2-runtime/*.json
+            tests/runs/a23-runtime/*.json
+          if-no-files-found: ignore
+
   ui:
     # Сохраняем прежнее имя обязательной проверки; успешны должны быть все части.
     name: стойка на синтетическом API (tests/ui)
-    needs: ui-shard
+    needs: [ui-shard, ui-vertical, ui-auth]
     if: always()
     runs-on: ubuntu-24.04
     steps:
       - name: Все части UI прошли
         env:
           UI_RESULT: ${{ needs.ui-shard.result }}
-        run: test "$UI_RESULT" = success
+          VERTICAL_RESULT: ${{ needs.ui-vertical.result }}
+          AUTH_RESULT: ${{ needs.ui-auth.result }}
+        run: |
+          test "$UI_RESULT" = success
+          test "$VERTICAL_RESULT" = success
+          test "$AUTH_RESULT" = success

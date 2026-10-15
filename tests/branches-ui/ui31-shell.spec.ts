@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '26864'}`;
 const shots = 'reports/ui3-1-2026-10-11/verticals';
 
 test.beforeEach(async ({ page }) => {

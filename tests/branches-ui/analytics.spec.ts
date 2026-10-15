@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { createPrismaClient } from '@pms/database';
 import { instantOf } from '../../apps/web/src/app/beauty/time';
-const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '26864'}`;
 const db = createPrismaClient(process.env.DATABASE_URL, 'pms_test');
 const setScope = (page: Page, business: string, location: string) =>
   page.context().addCookies([

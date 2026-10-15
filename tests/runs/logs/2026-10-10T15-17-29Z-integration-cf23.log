@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 10.10.2026 20:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит a668521 (claude/a28-money-port-2026-10-10)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T15-17-29Z-integration-cf23.json' 'tests/integration/connection-schema-a29.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ✓ |integration| tests/integration/connection-schema-a29.test.ts (7 tests) 329ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  08:17:30
+   Duration  965ms (tests 64%, transform 26%, import 10%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T15-17-29Z-integration-cf23.json
+
+# код выхода 0 · 1 с

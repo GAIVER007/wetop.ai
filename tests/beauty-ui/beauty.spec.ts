@@ -1,6 +1,6 @@
 import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '55814'}`;
+const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '26814'}`;
 // Ближайший понедельник после сегодняшнего дня по поясу филиала стенда (Asia/Almaty): тесты заводят мастеру
 // рабочий понедельник. Дата была зашита как 2026-10-12, и с полуночи 13.10 по Алматы отсутствие на этот день
 // стало прошедшим: список отсутствий показывает только идущие и будущие (`schedule.ts`, `dateTo >= сегодня`)

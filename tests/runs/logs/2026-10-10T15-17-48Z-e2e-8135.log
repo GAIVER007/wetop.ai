@@ -1,0 +1,1502 @@
+# Сквозные (e2e) · 10.10.2026 20:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит a668521 (claude/a28-money-port-2026-10-10)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/bar.spec.ts' 'tests/ui/drawer-contrast-a29.spec.ts' 'tests/ui/a28-ui-transitions.spec.ts' 'tests/ui/finance-card-actions.spec.ts' 'tests/ui/finance-cash-first.spec.ts' 'tests/ui/workspace.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at TodayPage (src/app/today/page.tsx:23:35)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+
+Running 94 tests using 1 worker
+
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (16.1s)
+  ✓   2 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/finance-cash-first.spec.ts:69:3 › касса: доступность и верстка 1440 (8.5s)
+  ✓   3 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/finance-cash-first.spec.ts:69:3 › касса: доступность и верстка 390 (10.0s)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/finance-cash-first.spec.ts:69:3 › касса: доступность и верстка 360 (22.1s)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/finance-cash-first.spec.ts:99:1 › касса: первый экран без лишних кнопок, действия внутри управления (8.4s)
+  ✓   6 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/finance-cash-first.spec.ts:119:1 › касса: визуальная иерархия итогов и спокойный сброс (6.4s)
+  ✓   7 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/finance-cash-first.spec.ts:138:1 › касса: тёмное оформление читается на телефоне (16.5s)
+  ✓   8 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (2.3m)
+  ✓   9 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:119:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (7.0s)
+  ✓  10 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:169:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (4.0s)
+  ✓  11 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:192:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (2.6s)
+  ✓  12 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:217:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (2.7s)
+  ✓  13 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:246:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (6.2s)
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:298:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.3s)
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:332:1 › шахматка: подсказка внутри окошка «Фильтры», Escape закрывает окошко целиком (1.5s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:353:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (1.9s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:390:1 › карточка: профиль гостя и заселение проходят через server actions (1.9s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:24:65)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:24:65)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  18 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:435:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (1.3s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:42:13)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  19 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:452:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (4.6s)
+  ✓  20 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:469:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (2.2s)
+  ✓  21 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:489:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (2.3s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:24:65)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  22 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:515:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.6s)
+  ✓  23 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:524:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (3.4s)
+  ✓  24 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:551:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (1.2s)
+  ✓  25 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:563:1 › неверная дата в ссылке оставляет доступную форму для исправления (881ms)
+  ✓  26 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:572:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (2.6s)
+  ✓  27 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:581:1 › групповая бронь: разные категории сохраняются при конфликте (1.9s)
+  ✓  28 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:612:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (1.4s)
+  ✓  29 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:639:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (2.6s)
+  ✓  30 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:671:1 › ошибка буфера обмена видна, код остаётся доступен (1.4s)
+  ✓  31 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:689:1 › финансы: неверные даты можно исправить без падения страницы (2.3s)
+  ✓  32 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:705:1 › ошибка загрузки тарифов не позволяет включить виджет (807ms)
+  ✓  33 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:714:1 › номера: статус уборки, блокировка и снятие сохраняются (4.6s)
+  ✓  34 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:744:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (1.7s)
+  ✓  35 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:771:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (748ms)
+  ✓  36 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:783:1 › групповая бронь: три места показывают трёх гостей в итогах (1.2s)
+  ✓  37 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:807:1 › неисправности: когда история обрезана, это написано (1.9s)
+  ✓  38 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:815:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (1.7s)
+  ✓  39 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:827:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (4.0s)
+  ✓  40 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:872:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (12.4s)
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:592:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:592:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:592:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:592:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:592:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:592:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:592:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  41 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:928:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (9.6s)
+  ✓  42 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1000:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (1.5s)
+  ✓  43 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1029:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (1.2s)
+  ✓  44 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1053:1 › гости на сегодня: в списке все, а не первые двадцать пять (911ms)
+  ✓  45 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1072:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (1.2s)
+  ✓  46 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1085:1 › общие настройки показывают адрес PMS без дублирования контента Channex (1.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  47 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1092:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (2.4s)
+  ✓  48 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1124:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.4s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:28:28)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  49 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1146:1 › фонд и категории открываются независимо от сбоя шахматки (2.2s)
+  ✓  50 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1167:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (872ms)
+  ✓  51 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1183:1 › подключения каналов: время события — по Алматы, а не сырой UTC (894ms)
+  ✓  52 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1202:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (1.4s)
+  ✓  53 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1217:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (799ms)
+  ✓  54 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1230:1 › счета: приём оплаты подтверждается суммой на экране (1.4s)
+  ✓  55 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1247:1 › деньги за период: период длиннее года объясняется на странице (896ms)
+  ✓  56 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1266:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (1.1s)
+  ✓  57 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1288:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.6s)
+  ✓  58 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1318:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (2.6s)
+  ✓  59 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1338:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (841ms)
+  ✓  60 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1354:1 › каналы: входящая бронь ведёт на карточку брони (1.1s)
+  ✓  61 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1372:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (1.0s)
+  ✓  62 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1390:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (1.9s)
+  ✓  63 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1428:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (1.4s)
+  ✓  64 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1495:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (3.1s)
+  ✓  65 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1574:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (2.9s)
+  ✓  66 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1631:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (3.9s)
+  ✓  67 [main-ui-0] › ../.wetop-main-ui-ACBQQS/worker-0/tests/ui/workspace.spec.ts:1658:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (1.3s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at FinanceReportPage (src/app/finance/page.tsx:99:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  68 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:34:1 › A28 cash: hydration preserves a native date edited before client scripts load (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at FinanceReportPage (src/app/finance/page.tsx:99:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  69 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:69:1 › A28 cash: valid invalid valid periods and history preserve applied values (15.7s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at InventoryPage (src/app/inventory/page.tsx:21:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  70 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:99:1 › A28 channels: delayed synthetic API keeps the current page heading through refresh (15.9s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarPage (src/app/bar/page.tsx:71:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  71 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:23:1 › обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные (16.2s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarPage (src/app/bar/page.tsx:71:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  72 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:74:1 › быстрая продажа одной строкой и фильтры доски (15.6s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarPage (src/app/bar/page.tsx:71:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  73 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:98:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarPage (src/app/bar/page.tsx:71:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  74 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:131:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarPage (src/app/bar/page.tsx:71:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  75 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarProductsPage (src/app/bar/products/page.tsx:20:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  76 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:162:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (1.4s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarNewReceiptPage (src/app/bar/receipts/new/page.tsx:20:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  77 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:174:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (15.6s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarNewReceiptPage (src/app/bar/receipts/new/page.tsx:20:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  78 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:203:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarReceiptsPage (src/app/bar/receipts/page.tsx:20:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  79 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:215:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarOperationsPage (src/app/bar/operations/page.tsx:28:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  80 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:239:1 › операции: списание с причиной, журнал продаж и лента движений (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarPage (src/app/bar/page.tsx:71:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarNewReceiptPage (src/app/bar/receipts/new/page.tsx:20:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  81 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:253:3 › доступность и телефон: light (1.7s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarPage (src/app/bar/page.tsx:71:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at BarNewReceiptPage (src/app/bar/receipts/new/page.tsx:20:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  82 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:253:3 › доступность и телефон: dark (1.5s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.me (src/lib/api.ts:592:26)
+[WebServer]     at <unknown> (src/lib/desk-shell.ts:15:24)
+[WebServer]     at requireVertical (src/lib/vertical-guard.ts:6:29)
+[WebServer]     at RoomsPage (src/app/rooms/[[...section]]/page.tsx:22:24)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  83 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/drawer-contrast-a29.spec.ts:4:1 › drawer text retains AA contrast at the start of its opening animation (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.reservation (src/lib/api.ts:422:5)
+[WebServer]     at ReservationPage (src/app/reservations/[number]/page.tsx:42:33)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  84 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.reservation (src/lib/api.ts:422:5)
+[WebServer]     at ReservationPage (src/app/reservations/[number]/page.tsx:42:33)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  85 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.reservation (src/lib/api.ts:422:5)
+[WebServer]     at ReservationPage (src/app/reservations/[number]/page.tsx:42:33)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  86 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.reservation (src/lib/api.ts:422:5)
+[WebServer]     at ReservationPage (src/app/reservations/[number]/page.tsx:42:33)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  87 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (45.2s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.reservation (src/lib/api.ts:422:5)
+[WebServer]     at ReservationPage (src/app/reservations/[number]/page.tsx:42:33)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  88 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (45.7s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.reservation (src/lib/api.ts:422:5)
+[WebServer]     at ReservationPage (src/app/reservations/[number]/page.tsx:42:33)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  89 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (46.5s)
+  ✘  90 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:173:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (46.6s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.reservation (src/lib/api.ts:422:5)
+[WebServer]     at ReservationPage (src/app/reservations/[number]/page.tsx:42:33)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  91 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (46.2s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.reservation (src/lib/api.ts:422:5)
+[WebServer]     at ReservationPage (src/app/reservations/[number]/page.tsx:42:33)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  92 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (45.1s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.reservation (src/lib/api.ts:422:5)
+[WebServer]     at ReservationPage (src/app/reservations/[number]/page.tsx:42:33)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  93 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (45.5s)
+[WebServer] ⨯ Error: Демонстрационный источник отключён. Подключите рабочий API.
+[WebServer]     at backendFetch (src/lib/api.ts:116:11)
+[WebServer]     at getJson (src/lib/api.ts:186:21)
+[WebServer]     at Object.reservation (src/lib/api.ts:422:5)
+[WebServer]     at ReservationPage (src/app/reservations/[number]/page.tsx:42:33)
+[WebServer]   114 |     endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+[WebServer]   115 |   if (!demo && new URL(endpoint).port === '4312')
+[WebServer] > 116 |     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
+[WebServer]       |           ^
+[WebServer]   117 |   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+[WebServer]   118 |   if (!testing && new URL(endpoint).port === '4311') {
+[WebServer]   119 |     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.'); {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  94 [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (46.3s)
+
+
+  1) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:34:1 › A28 cash: hydration preserves a native date edited before client scripts load 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.unroute: Target page, context or browser has been closed
+
+      63 |   } finally {
+      64 |     release();
+    > 65 |     await page.unroute('**/_next/static/**/*.js');
+         |                ^
+      66 |   }
+      67 | });
+      68 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:65:16
+
+    Error Context: test-results/a28-ui-transitions-A28-cas-7fe8e--before-client-scripts-load-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a28-ui-transitions-A28-cas-7fe8e--before-client-scripts-load-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a28-ui-transitions-A28-cas-7fe8e--before-client-scripts-load-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:69:1 › A28 cash: valid invalid valid periods and history preserve applied values 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByRole('region', { name: 'Итоги кассы', exact: true })
+    Expected: 1
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByRole('region', { name: 'Итоги кассы', exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('region', { name: 'Итоги кассы', exact: true })
+        34 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      11 |   const main = page.getByRole('main');
+      12 |   const summary = main.getByRole('region', { name: 'Итоги кассы', exact: true });
+    > 13 |   await expect(summary).toHaveCount(1);
+         |                         ^
+      14 |   await expect(summary).toBeVisible();
+      15 |   await expect(main.getByLabel('Период: с')).toHaveValue('2026-09-30');
+      16 |   await expect(main.getByLabel('Период: по')).toHaveValue(to);
+        at appliedPeriod (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:13:25)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:74:3
+
+    Error Context: test-results/a28-ui-transitions-A28-cas-bb747-ory-preserve-applied-values-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a28-ui-transitions-A28-cas-bb747-ory-preserve-applied-values-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a28-ui-transitions-A28-cas-bb747-ory-preserve-applied-values-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:99:1 › A28 channels: delayed synthetic API keeps the current page heading through refresh 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('heading', { name: 'Номерной фонд', exact: true, level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('heading', { name: 'Номерной фонд', exact: true, level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { name: 'Номерной фонд', exact: true, level: 1 })
+
+
+      107 |   await expect(
+      108 |     page.getByRole('main').getByRole('heading', { level: 1, name: 'Номерной фонд', exact: true }),
+    > 109 |   ).toBeVisible();
+          |     ^
+      110 |   await page.goto('/channels', { waitUntil: 'commit' });
+      111 |   const heading = page
+      112 |     .getByRole('main')
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:109:5
+
+    Error Context: test-results/a28-ui-transitions-A28-cha-76e79-age-heading-through-refresh-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a28-ui-transitions-A28-cha-76e79-age-heading-through-refresh-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a28-ui-transitions-A28-cha-76e79-age-heading-through-refresh-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:23:1 › обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').visible().getByRole('heading', { level: 1 })
+    Expected: "Бар"
+    Received: "Не удалось загрузить данные"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('heading', { level: 1 })
+        32 × locator resolved to <h1 class="page__title">Не удалось загрузить данные</h1>
+           - unexpected value "Не удалось загрузить данные"
+
+
+      26 |   await page.goto('/bar');
+      27 |   const m = main(page);
+    > 28 |   await expect(m.getByRole('heading', { level: 1 })).toHaveText('Бар');
+         |                                                      ^
+      29 |   // шапка: «Добавить товар» главной, затем «Приход», «Продажа», «Инвентаризация» и «⋯»; вкладок на обзоре нет
+      30 |   await expect(m.getByRole('link', { name: 'Добавить товар' })).toHaveAttribute('href', '/bar?product=new');
+      31 |   await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:28:54
+
+    Error Context: test-results/bar-обзор-как-на-макете-ша-4ff02--доска-приходы-и-популярные-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-обзор-как-на-макете-ша-4ff02--доска-приходы-и-популярные-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-обзор-как-на-макете-ша-4ff02--доска-приходы-и-популярные-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:74:1 › быстрая продажа одной строкой и фильтры доски 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('main').visible().locator('#bar-quick-sale').getByLabel('Количество, шт.')
+    Expected: "1"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').visible().locator('#bar-quick-sale').getByLabel('Количество, шт.') with timeout 15000ms
+      - waiting for getByRole('main').visible().locator('#bar-quick-sale').getByLabel('Количество, шт.')
+
+
+      77 |   const m = main(page);
+      78 |   const sale = m.locator('#bar-quick-sale');
+    > 79 |   await expect(sale.getByLabel('Количество, шт.')).toHaveValue('1');
+         |                                                    ^
+      80 |   await sale.getByLabel('Товар').selectOption({ index: 1 });
+      81 |   await sale.getByRole('button', { name: 'Продать' }).click();
+      82 |   await expect(sale.getByRole('status')).toContainText('Продажа записана');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:79:52
+
+    Error Context: test-results/bar-быстрая-продажа-одной-строкой-и-фильтры-доски-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-быстрая-продажа-одной-строкой-и-фильтры-доски-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-быстрая-продажа-одной-строкой-и-фильтры-доски-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:98:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().getByRole('region', { name: 'Товары и остатки бара' }).getByRole('button', { name: 'Изменить Red Bull 0.25' })
+
+
+      102 |   const m = main(page);
+      103 |   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
+    > 104 |   await board.getByRole('button', { name: 'Изменить Red Bull 0.25' }).click();
+          |                                                                       ^
+      105 |   const card = m.getByRole('complementary', { name: 'Карточка товара Red Bull 0.25' });
+      106 |   await expect(card.getByLabel('Закупочная цена')).toHaveValue('550');
+      107 |   // 550 ₸ + 88 % = 1034 ₸, вверх до 10 тенге: 1040 ₸
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:104:71
+
+    Error Context: test-results/bar-карточка-товара-«Измен-04a51-ь»-пишет-история-и-списание-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-карточка-товара-«Измен-04a51-ь»-пишет-история-и-списание-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-карточка-товара-«Измен-04a51-ь»-пишет-история-и-списание-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:131:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.check: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().getByRole('region', { name: 'Товары и остатки бара' }).getByRole('checkbox', { name: 'Отметить Red Bull 0.25' })
+
+
+      134 |   const m = main(page);
+      135 |   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
+    > 136 |   await board.getByRole('checkbox', { name: 'Отметить Red Bull 0.25' }).check();
+          |                                                                         ^
+      137 |   await board.getByRole('checkbox', { name: 'Отметить Сок Rich 0.2' }).check();
+      138 |   await expect(m.getByRole('toolbar', { name: 'Отмеченные товары' })).toContainText('Отмечено: 2');
+      139 |   await m.getByRole('toolbar', { name: 'Отмеченные товары' }).getByRole('button', { name: 'Снять отметку' }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:136:73
+
+    Error Context: test-results/bar-«Удалить»-уводит-товар-9a9ca-роса-флажки-отмечают-строки-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-«Удалить»-уводит-товар-9a9ca-роса-флажки-отмечают-строки-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-«Удалить»-уводит-товар-9a9ca-роса-флажки-отмечают-строки-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().getByRole('link', { name: 'Добавить товар' })
+
+
+      150 |   await page.goto('/bar');
+      151 |   const m = main(page);
+    > 152 |   await m.getByRole('link', { name: 'Добавить товар' }).click();
+          |                                                         ^
+      153 |   const card = m.getByRole('complementary', { name: 'Новый товар' });
+      154 |   await expect(card).toBeVisible();
+      155 |   await card.getByLabel('Название товара').fill('Чай зелёный');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:152:57
+
+    Error Context: test-results/bar-«Добавить-товар»-откры-50384-од-предлагается-из-названия-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-«Добавить-товар»-откры-50384-од-предлагается-из-названия-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-«Добавить-товар»-откры-50384-од-предлагается-из-названия-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:174:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').visible().getByRole('heading', { level: 1 })
+    Expected: "Новый приход"
+    Received: "Не удалось загрузить данные"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('heading', { level: 1 })
+        31 × locator resolved to <h1 class="page__title">Не удалось загрузить данные</h1>
+           - unexpected value "Не удалось загрузить данные"
+
+
+      176 |   await page.goto('/bar/receipts/new');
+      177 |   const m = main(page);
+    > 178 |   await expect(m.getByRole('heading', { level: 1 })).toHaveText('Новый приход');
+          |                                                      ^
+      179 |   await m.getByLabel('Фото накладной или счёта-фактуры').setInputFiles({ name: 'invoice.png', mimeType: 'image/png', buffer: PNG });
+      180 |   await m.getByRole('button', { name: 'Распознать и заполнить' }).click();
+      181 |   await expect(m.getByRole('status').first()).toContainText('Распознано строк: 2, новых товаров: 1');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:178:54
+
+    Error Context: test-results/bar-новый-приход-ИИ-скан-з-3b750-создаётся-вместе-с-приходом-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-новый-приход-ИИ-скан-з-3b750-создаётся-вместе-с-приходом-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-новый-приход-ИИ-скан-з-3b750-создаётся-вместе-с-приходом-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:203:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.setInputFiles: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().getByLabel('Фото накладной или счёта-фактуры')
+
+
+      204 |   await page.goto('/bar/receipts/new');
+      205 |   const m = main(page);
+    > 206 |   await m.getByLabel('Фото накладной или счёта-фактуры').setInputFiles({ name: 'invoice.pdf', mimeType: 'application/pdf', buffer: PNG });
+          |   ^
+      207 |   await m.getByRole('button', { name: 'Распознать и заполнить' }).click();
+      208 |   await expect(m.getByRole('alert')).toContainText('PDF');
+      209 |   await m.getByRole('button', { name: 'Строка с новым товаром' }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:206:3
+
+    Error Context: test-results/bar-скан-бережёт-руки-но-н-5b615--строки-добавляются-вручную-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-скан-бережёт-руки-но-н-5b615--строки-добавляются-вручную-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-скан-бережёт-руки-но-н-5b615--строки-добавляются-вручную-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:215:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().getByRole('region', { name: 'Приходы бара' }).locator('tbody tr').filter({ hasText: 'П-000122' }).getByRole('button', { name: 'Оплатить' })
+
+
+      217 |   const m = main(page);
+      218 |   const row = m.getByRole('region', { name: 'Приходы бара' }).locator('tbody tr', { hasText: 'П-000122' });
+    > 219 |   await row.getByRole('button', { name: 'Оплатить' }).click();
+          |                                                       ^
+      220 |   await expect(row).toContainText('Оплачено');
+      221 |   await page.goto('/bar/products');
+      222 |   const products = main(page);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:219:55
+
+    Error Context: test-results/bar-подстраницы-оплата-дол-b4e84-логе-расчёты-с-поставщиками-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-подстраницы-оплата-дол-b4e84-логе-расчёты-с-поставщиками-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-подстраницы-оплата-дол-b4e84-логе-расчёты-с-поставщиками-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:239:1 › операции: списание с причиной, журнал продаж и лента движений 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().locator('.bar-sale-form').first().getByLabel('Товар')
+
+
+      241 |   const m = main(page);
+      242 |   const writeOff = m.locator('.bar-sale-form').first();
+    > 243 |   await writeOff.getByLabel('Товар').selectOption({ index: 1 });
+          |                                      ^
+      244 |   await writeOff.getByLabel('Кол-во, шт.').fill('1');
+      245 |   await writeOff.getByLabel('Причина').selectOption('Бой');
+      246 |   await writeOff.getByRole('button', { name: 'Списать' }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:243:38
+
+    Error Context: test-results/bar-операции-списание-с-пр-8db7c-нал-продаж-и-лента-движений-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-операции-списание-с-пр-8db7c-нал-продаж-и-лента-движений-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-операции-списание-с-пр-8db7c-нал-продаж-и-лента-движений-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/drawer-contrast-a29.spec.ts:4:1 › drawer text retains AA contrast at the start of its opening animation 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('fund-category-row').filter({ hasText: 'Мужской общий номер' }).getByRole('button', { name: 'Изменить категорию Мужской общий номер', exact: true })
+
+
+      11 |   await category
+      12 |     .getByRole('button', { name: 'Изменить категорию Мужской общий номер', exact: true })
+    > 13 |     .click();
+         |      ^
+      14 |   const drawer = page.getByRole('dialog', { name: 'Редактировать категорию', exact: true });
+      15 |   await expect(drawer).toBeVisible();
+      16 |   await drawer.evaluate((element) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/drawer-contrast-a29.spec.ts:13:6
+
+    Error Context: test-results/drawer-contrast-a29-drawer-99c30-rt-of-its-opening-animation-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/drawer-contrast-a29-drawer-99c30-rt-of-its-opening-animation-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/drawer-contrast-a29-drawer-99c30-rt-of-its-opening-animation-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Счета', exact: true })
+
+
+      16 | async function openAccounts(page: Page) {
+      17 |   await page.goto(`/reservations/${NUMBER}`);
+    > 18 |   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+         |                                                               ^
+      19 |   return page.getByTestId('folio-panel').first();
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+        at openAccounts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:18:63)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:37:17
+
+    Error Context: test-results/finance-card-actions-поряд-fa3fa-апросы-оплаты-свёрнуты-ниже-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-поряд-fa3fa-апросы-оплаты-свёрнуты-ниже-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-поряд-fa3fa-апросы-оплаты-свёрнуты-ниже-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Счета', exact: true })
+
+
+      16 | async function openAccounts(page: Page) {
+      17 |   await page.goto(`/reservations/${NUMBER}`);
+    > 18 |   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+         |                                                               ^
+      19 |   return page.getByTestId('folio-panel').first();
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+        at openAccounts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:18:63)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:62:17
+
+    Error Context: test-results/finance-card-actions-возвр-f8441-а-строка-и-баланс-обновлены-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-возвр-f8441-а-строка-и-баланс-обновлены-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-возвр-f8441-а-строка-и-баланс-обновлены-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Счета', exact: true })
+
+
+      16 | async function openAccounts(page: Page) {
+      17 |   await page.goto(`/reservations/${NUMBER}`);
+    > 18 |   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+         |                                                               ^
+      19 |   return page.getByTestId('folio-panel').first();
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+        at openAccounts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:18:63)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:84:17
+
+    Error Context: test-results/finance-card-actions-«Изме-a1711-ний-остаётся-аннулированным-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-«Изме-a1711-ний-остаётся-аннулированным-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-«Изме-a1711-ний-остаётся-аннулированным-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Счета', exact: true })
+
+
+      16 | async function openAccounts(page: Page) {
+      17 |   await page.goto(`/reservations/${NUMBER}`);
+    > 18 |   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+         |                                                               ^
+      19 |   return page.getByTestId('folio-panel').first();
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+        at openAccounts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:18:63)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:109:17
+
+    Error Context: test-results/finance-card-actions-«Анну-1ba92-нной-остаток-к-оплате-вырос-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-«Анну-1ba92-нной-остаток-к-оплате-вырос-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-«Анну-1ba92-нной-остаток-к-оплате-вырос-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Счета', exact: true })
+
+
+      16 | async function openAccounts(page: Page) {
+      17 |   await page.goto(`/reservations/${NUMBER}`);
+    > 18 |   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+         |                                                               ^
+      19 |   return page.getByTestId('folio-panel').first();
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+        at openAccounts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:18:63)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:131:17
+
+    Error Context: test-results/finance-card-actions-скидк-42bff-м-минус-сумма-скидки-—-тоже-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-скидк-42bff-м-минус-сумма-скидки-—-тоже-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-скидк-42bff-м-минус-сумма-скидки-—-тоже-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Счета', exact: true })
+
+
+      16 | async function openAccounts(page: Page) {
+      17 |   await page.goto(`/reservations/${NUMBER}`);
+    > 18 |   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+         |                                                               ^
+      19 |   return page.getByTestId('folio-panel').first();
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+        at openAccounts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:18:63)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:157:17
+
+    Error Context: test-results/finance-card-actions-цена--34c55-ена-в-счёте-и-в-шапке-брони-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-цена--34c55-ена-в-счёте-и-в-шапке-брони-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-цена--34c55-ена-в-счёте-и-в-шапке-брони-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:173:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+    ============================================================
+
+      27 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      28 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 29 |   await page.waitForURL('**/finance');
+         |              ^
+      30 | }
+      31 | const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF') =>
+      32 |   request.post(`${fixture}/__test/control`, { data: { role } });
+        at signIn (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:29:14)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:177:3
+
+    Error Context: test-results/finance-card-actions-админ-2b9b6-дки-у-управляющего-они-есть-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-админ-2b9b6-дки-у-управляющего-они-есть-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-админ-2b9b6-дки-у-управляющего-они-есть-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Счета', exact: true })
+
+
+      16 | async function openAccounts(page: Page) {
+      17 |   await page.goto(`/reservations/${NUMBER}`);
+    > 18 |   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+         |                                                               ^
+      19 |   return page.getByTestId('folio-panel').first();
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+        at openAccounts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:18:63)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:203:21
+
+    Error Context: test-results/finance-card-actions-досту-bbed8-правки-платежа-light-1440px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-досту-bbed8-правки-платежа-light-1440px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-досту-bbed8-правки-платежа-light-1440px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Счета', exact: true })
+
+
+      16 | async function openAccounts(page: Page) {
+      17 |   await page.goto(`/reservations/${NUMBER}`);
+    > 18 |   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+         |                                                               ^
+      19 |   return page.getByTestId('folio-panel').first();
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+        at openAccounts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:18:63)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:203:21
+
+    Error Context: test-results/finance-card-actions-досту-58f1c--правки-платежа-light-390px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-досту-58f1c--правки-платежа-light-390px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-досту-58f1c--правки-платежа-light-390px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Счета', exact: true })
+
+
+      16 | async function openAccounts(page: Page) {
+      17 |   await page.goto(`/reservations/${NUMBER}`);
+    > 18 |   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+         |                                                               ^
+      19 |   return page.getByTestId('folio-panel').first();
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+        at openAccounts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:18:63)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:203:21
+
+    Error Context: test-results/finance-card-actions-досту-b0eb2--правки-платежа-dark-1440px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-досту-b0eb2--правки-платежа-dark-1440px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-досту-b0eb2--правки-платежа-dark-1440px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Счета', exact: true })
+
+
+      16 | async function openAccounts(page: Page) {
+      17 |   await page.goto(`/reservations/${NUMBER}`);
+    > 18 |   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+         |                                                               ^
+      19 |   return page.getByTestId('folio-panel').first();
+      20 | }
+      21 | const top = (locator: ReturnType<Page['getByTestId']>) =>
+        at openAccounts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:18:63)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:203:21
+
+    Error Context: test-results/finance-card-actions-досту-0aae0-ю-правки-платежа-dark-390px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-card-actions-досту-0aae0-ю-правки-платежа-dark-390px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-card-actions-досту-0aae0-ю-правки-платежа-dark-390px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24 failed
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:34:1 › A28 cash: hydration preserves a native date edited before client scripts load 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:69:1 › A28 cash: valid invalid valid periods and history preserve applied values 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/a28-ui-transitions.spec.ts:99:1 › A28 channels: delayed synthetic API keeps the current page heading through refresh 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:23:1 › обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:74:1 › быстрая продажа одной строкой и фильтры доски 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:98:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:131:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:174:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:203:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:215:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/bar.spec.ts:239:1 › операции: списание с причиной, журнал продаж и лента движений 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/drawer-contrast-a29.spec.ts:4:1 › drawer text retains AA contrast at the start of its opening animation 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:173:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px 
+    [main-ui-1] › ../.wetop-main-ui-ACBQQS/worker-1/tests/ui/finance-card-actions.spec.ts:198:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px 
+  70 passed (23.7m)
+
+# код выхода 1 · 23 мин 44 с

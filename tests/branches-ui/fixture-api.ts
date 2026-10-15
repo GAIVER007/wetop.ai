@@ -554,7 +554,7 @@ app.use(
 );
 app.useGlobalGuards(new RoleGuard(new Reflector()));
 app.useGlobalInterceptors(new AuthorInterceptor(prisma));
-await app.listen(Number(process.env.BRANCHES_UI_API_PORT ?? '55864'), '127.0.0.1');
+await app.listen(Number(process.env.BRANCHES_UI_API_PORT ?? '26864'), '127.0.0.1');
 for (const signal of ['SIGTERM', 'SIGINT'] as const)
   process.on(signal, () => {
     void app

@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 mkdirSync('tests/runs/screenshots/employee-workspace', { recursive: true });
 import { expect, test, type Page, type APIRequestContext } from '@playwright/test';
-const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '55814'}`;
+const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '26814'}`;
 async function theme(page: Page, value: string) {
   await expect(page.getByRole('dialog', { name: 'Мастер', exact: true })).toBeVisible();
   await page.evaluate(async (next) => {

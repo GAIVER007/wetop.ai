@@ -1,5 +1,4 @@
-import { expect, test } from '@playwright/test';
-import { FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Мобильная версия стойки (02.10.2026, поручение владельца «особое внимание телефону»).

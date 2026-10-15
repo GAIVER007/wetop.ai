@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 11.10.2026 14:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит bd2b9dd (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T09-48-55Z-integration-af1f.json' 'tests/integration/connection-schema-a29.test.ts' 'tests/integration/bar-api-bootstrap.test.ts' 'tests/integration/bar-money-fixes.test.ts' 'tests/integration/auth-timezone-a26.test.ts' 'tests/integration/auth-timezone-matrix-a26.test.ts' 'tests/integration/auth-date-consumers-a26.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+No test files found, exiting with code 0
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T09-48-55Z-integration-af1f.json
+filter: tests/integration/connection-schema-a29.test.ts, tests/integration/bar-api-bootstrap.test.ts, tests/integration/bar-money-fixes.test.ts, tests/integration/auth-timezone-a26.test.ts, tests/integration/auth-timezone-matrix-a26.test.ts, tests/integration/auth-date-consumers-a26.test.ts
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: connect EPERM 127.0.0.1:55601 - Local (0.0.0.0:0)
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:56:18
+     54|   const log = opts.log ?? (() => undefined);
+     55|   const pool = new pg.Pool({ connectionString: connectionString(), max…
+     56|   const client = await pool.connect();
+       |                  ^
+     57|   try {
+     58|     const existed =
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -1, code: 'EPERM', syscall: 'connect', address: '127.0.0.1', port: 55601 }
+
+
+
+
+# код выхода 1 · 6 с

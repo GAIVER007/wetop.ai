@@ -654,7 +654,7 @@ export class FinanceService {
       order: cashEnabled,
     });
     return {
-      currency: 'KZT',
+      currency: src.currency,
       totalMinor: s(b.totalMinor),
       balances: b.balances.map((x) => ({ method: x.method, balanceMinor: s(x.balanceMinor) })),
       paymentMethods: cashEnabled,

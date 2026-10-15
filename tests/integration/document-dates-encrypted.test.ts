@@ -28,7 +28,7 @@ describe.skipIf(!url)('guest_documents dates encrypted (integration, DATABASE_UR
     organizationId = (await db.organization.findFirstOrThrow({ orderBy: { createdAt: 'asc' } })).id;
     const rows = await db.$queryRaw<Array<{ column_name: string }>>`
       SELECT column_name FROM information_schema.columns
-      WHERE table_schema = 'public' AND table_name = 'guest_documents'
+      WHERE table_schema = current_schema() AND table_name = 'guest_documents'
         AND column_name = 'issued_at_encrypted'`;
     migrated = rows.length > 0;
     if (!migrated)
@@ -48,7 +48,7 @@ describe.skipIf(!url)('guest_documents dates encrypted (integration, DATABASE_UR
     if (!migrated) return ctx.skip();
     const open = await db.$queryRaw<Array<{ column_name: string }>>`
       SELECT column_name FROM information_schema.columns
-      WHERE table_schema = 'public' AND table_name = 'guest_documents'
+      WHERE table_schema = current_schema() AND table_name = 'guest_documents'
         AND column_name IN ('issued_at', 'expires_at')`;
     expect(open).toEqual([]);
   });
@@ -83,7 +83,7 @@ describe.skipIf(!url)('guest_documents dates encrypted (integration, DATABASE_UR
     if (!migrated) return ctx.skip();
     const cols = await db.$queryRaw<Array<{ column_name: string; is_nullable: string }>>`
       SELECT column_name, is_nullable FROM information_schema.columns
-      WHERE table_schema = 'public' AND table_name = 'properties'
+      WHERE table_schema = current_schema() AND table_name = 'properties'
         AND column_name IN ('phone', 'email')
       ORDER BY column_name`;
     expect(cols).toEqual([

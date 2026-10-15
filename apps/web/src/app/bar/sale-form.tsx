@@ -1,5 +1,7 @@
 'use client';
-import { useActionState, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useBarAction } from './use-bar-action';
+import { BarContextFields, type BarFormContext } from './context';
 import type { BarStockRow } from '../../lib/api';
 import { Button, Input, Select } from '../../components/ui';
 import { Icon } from '../../components/icon';
@@ -7,13 +9,18 @@ import { sellBarRetailAction, type BarActionResult } from './actions';
 
 const initial: BarActionResult = { error: null, ok: 0 };
 
-/** «Быстрая продажа» одной строкой (макет владельца 09.10.2026): товар, количество, оплата, «Продать» */
-export function SaleForm({ stock }: { stock: BarStockRow[] }) {
-  const [state, action, pending] = useActionState(sellBarRetailAction, initial);
+/** «Быстрая продажа» одной строкой (макет владельца 09.10.2026): товар, количество, оплата, «Продать».
+ * Отправка руками (useBarAction): отказ не стирает введённое; ключ продажи стабилен до успеха или правки формы (D-KEY). */
+export function SaleForm({ stock, context }: { stock: BarStockRow[]; context: BarFormContext }) {
+  const [state, action, pending] = useBarAction(sellBarRetailAction, initial);
+  const [key, setKey] = useState('');
+  useEffect(() => setKey(crypto.randomUUID()), [state.ok]);
   const [productId, setProductId] = useState('');
   const selected = stock.find((item) => item.id === productId);
   const available = stock.filter((item) => item.active && BigInt(item.availableUnits) > 0n);
-  return <form action={action} className="bar-quick-form bar-retail-form" onReset={() => setProductId('')}>
+  return <form onSubmit={action} onChange={() => setKey(crypto.randomUUID())} className="bar-quick-form bar-retail-form" onReset={() => setProductId('')}>
+    <BarContextFields context={context} />
+    <input type="hidden" name="idempotencyKey" value={key} />
     <div className="bar-inline bar-retail-fields">
       <label className="bar-retail-field">
         <span className="bar-retail-label">Товар</span>
@@ -39,7 +46,7 @@ export function SaleForm({ stock }: { stock: BarStockRow[] }) {
           <option value="BANK_TRANSFER_PERSON">Перевод</option>
         </Select>
       </label>
-      <Button type="submit" disabled={pending || available.length === 0}><Icon name="cart" width={16} height={16} /> {pending ? 'Продаём…' : 'Продать'}</Button>
+      <Button type="submit" disabled={pending || !key || available.length === 0}><Icon name="cart" width={16} height={16} /> {pending ? 'Продаём…' : 'Продать'}</Button>
     </div>
     {selected && <p className="bar-retail-product-info"><b>{selected.name}</b><span>В наличии: {selected.availableUnits} шт.</span></p>}
     {state.error && <p role="alert" className="bar-error">{state.error}</p>}

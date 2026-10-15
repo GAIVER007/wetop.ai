@@ -1,0 +1,204 @@
+{
+  "meta": {
+    "task": "Мастер-ТЗ владельца от 09.10.2026: единый фактический отчёт, восстановление сделанного, выполнение технического остатка",
+    "executor": "Claude (Mac, локальная сессия 10.10.2026; исполнение в собственном чистом клоне; оригинальное дерево claude/restaurant-module-tz не тронуто)",
+    "targetMainSha": "ff174dbaebaaa2f248d641938975036877a24b03",
+    "targetMainFetchedAt": "2026-10-11 (единственное слияние main по продолжению; основание заморожено; к 11:08 UTC main d90a76a8 впереди на 64 коммита, 7 общих файлов, текстовое слияние чистое)",
+    "inputCandidate": {
+      "name": "A28/A29: полный локальный кандидат аудита (деньги, UTC/schema, web-auth, UI, тесты)",
+      "recoveredFrom": "/Users/vyacheslav/.codex/visualizations/2026/10/08/01a11c07-1e74-7383-9e89-edd5df327595/a29-evidence/a29-candidate.bundle",
+      "bundleBranch": "codex/wetop-a29-gates",
+      "bundleHeadSha": "db18826c1f1fd218f82ff81339eece1b2dc4a82b",
+      "bundleBaseSha": "60e85fc114c4927a2d050ab82e003b0eb7578e44",
+      "carriesA28CandidateSha": "7fa893430604de993696fd7b06bdb33cfe5e79be (как коммит 8665b95e «Preserve A28 candidate on frozen A29 upstream»)",
+      "deltaFiles": 92
+    },
+    "incident": "10.10 ~14:00 UTC Mac перезагрузился, scratchpad с первым клоном (коммит слияния f87e1c95) и журналом прогонов стёрт; порт воспроизведён заново теми же решениями, прогоны повторены. Номера прогонов до перезагрузки (lint c61d, unit 64df и спутники) существовали, но их файлы утрачены вместе с клоном и в ветку не входят."
+  },
+  "requirements": [
+    {
+      "id": "R-A2-BOOTSTRAP",
+      "origin": "A2",
+      "title": "Штатный bootstrap API и BarService (@Inject)",
+      "implementation": "ALREADY_PRESENT",
+      "evidence": "REMOTE_VERIFIED: bar-api-bootstrap.test.ts 5/5 в задаче runtime-audit (38134402605, Linux, изоляция сети)",
+      "delivery": "IN_MAIN",
+      "ownerDecision": "APPROVED_CONTRACT"
+    },
+    {
+      "id": "R-A3-MONEY-CORE",
+      "origin": "A3 / ТЗ №2.2–2.4, D-CUR, D-KEY",
+      "title": "Деньги бара и финансов: D-CUR (совместимость валют, 409 на смешение), D-KEY (повтор по ключу под замком, различие ключа и содержимого, сохранённый REVERSED), Int64-границы, FIFO/склад/касса/Folio, оплата поставщику только COMPLETED-кассой, вложенная сериализация sales/movements",
+      "implementation": "IMPLEMENTED",
+      "evidence": "REMOTE_VERIFIED: bar-money-fixes.test.ts 35/35 (32 PASS, 3 DESIGN_GAP: M6, M9, N6) в runtime-audit 38134402605; unit-наборы локально",
+      "delivery": "REMOTE_BRANCH claude/a28-money-port-2026-10-10",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "files": "apps/api/src/bar/bar.repository.ts, apps/api/src/finance/*, tests/*",
+      "portNotes": "Слито семантически с Бар-2 (ADR-157): месячные метрики, популярные и скан сохранены; replay/saleTransaction кандидата заменил наивный replay; у продажи в счёт гостя сохранена serviceDate (Q-292) и возвращён стабильный ключ из формы вместо crypto.randomUUID() на сервере (регрессия Бар-2 против D-KEY)."
+    },
+    {
+      "id": "R-A3-MONEY-UI",
+      "origin": "A3 UI / ТЗ №2.5",
+      "title": "Денежный UI: контекст формы (объект+валюта, verifyContext), сохранение введённого при отказе (useBarAction), стабильный ключ команды, ошибки вместо ложных нулей, подписи валюты",
+      "implementation": "IMPLEMENTED",
+      "evidence": "REMOTE_VERIFIED: tests/e2e/a25-bar-money.spec.ts 18/18 на настоящем API в runtime-audit 38134402605 (ожидание, API, независимый SQL, DOM); actions.test 18/18 локально",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "portNotes": "Бар-2 удалил catalogs.tsx и receipt-form.tsx кандидата; семантика перенесена в новые экраны пяти подстраниц, контекст доведён и до новых действий Бар-2 (updateBarProductAction, postBarReceiptAction, reverseBarSaleAction, toggleBarCatalogAction); formatMoney получает валюту объекта. 11.10: суммы и подписи Бар-2 в валюте объекта (плитки, приходы, операции, доска, новый приход); строка нового товара в объекте не в тенге отклоняется до создания карточки (частичный эффект); отказ чтения 409 показывает слова сервера вместо нулей."
+    },
+    {
+      "id": "R-A26-UTC-SCHEMA",
+      "origin": "A2.6",
+      "title": "TIMESTAMPTZ/UTC и схема соединений direct/service/tenant, перепроверка на переиспользованных соединениях",
+      "implementation": "IMPLEMENTED",
+      "evidence": "REMOTE_VERIFIED: connection-schema-a29 7/7, auth-timezone-a26/matrix/date-consumers 3/3 в runtime-audit 38134402605",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "open": "O-3 приведён к коду: компоновка options и отказ при расхождении search_path реализованы оба; нужно формальное да владельца"
+    },
+    {
+      "id": "R-A27-WEB-AUTH",
+      "origin": "A2.7",
+      "title": "Web-auth: границы сессии рабочего места, смена пользователя/организации, back/forward и новые вкладки",
+      "implementation": "IMPLEMENTED",
+      "evidence": "REMOTE_VERIFIED: ui-auth success в 38131747231 и 38134402605; e2e chessboard.spec.ts:36 RED в 38127479617 и 38131747231 (бесконечный refresh под перехватом @drawer) -> GREEN в 38134402605 после 8654b093",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "files": "apps/web/src/components/workspace-session-boundary.tsx, apps/web/src/lib/desk-shell.ts, layout.tsx, team/page.tsx",
+      "open": "a27-web-auth.spec.ts (17) и a26-auth.spec.ts (1) на настоящем HTTP не исполняются нигде (O-7)"
+    },
+    {
+      "id": "R-LOGIN-LOCK",
+      "origin": "A2.9",
+      "title": "Пять требований login-lock живы и исполняются: канонический auth-набор отдельной задачей гейта ui-auth",
+      "implementation": "IMPLEMENTED",
+      "evidence": "карта reports/a29-auth-mapping.md; локальный прогон auth-конфига: checks.json",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "notes": "login-lock.spec.ts не исполнялся ни одним конфигом с 01.10 (e76d00bc); задача ui-auth делает набор обязательным."
+    },
+    {
+      "id": "R-CI-GATE",
+      "origin": "A4/A5",
+      "title": "Гейт: задача ui-auth, два worker на шард с изолированными runtime, агрегатор требует все части",
+      "implementation": "IMPLEMENTED",
+      "evidence": "REMOTE_VERIFIED: задачи ui-auth, runtime-audit, ui-shard, ui-vertical в 38134402605; сторож ci-runner 25/25",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "notes": "Строго аддитивно: триггеры ADR-152 и permissions contents:read не тронуты, выкладки в workflow нет."
+    },
+    {
+      "id": "R-DRAWER-CONTRAST",
+      "origin": "A28 UI / §5.8",
+      "title": "Шторка держит AA-контраст с первого кадра анимации (снята opacity из drawer-in)",
+      "implementation": "IMPLEMENTED",
+      "evidence": "tests/ui/drawer-contrast-a29.spec.ts прибивает анимацию к t=0 (checks.json)",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT; видимое отличие (шторка без фейда): на взгляд владельца",
+      "notes": "Ожидания конца анимаций в спеках main сохранены: оба уровня защиты."
+    },
+    {
+      "id": "R-KIT-WIDTH",
+      "origin": "A29 (kit.css max-width)",
+      "title": "Ширина витрины /design-system",
+      "implementation": "NOT_STARTED",
+      "evidence": "DESIGN_GAP",
+      "delivery": "REJECTED",
+      "ownerDecision": "NEEDS_DECISION (необязательно)",
+      "notes": "Сдвинула бы все эталоны -linux без продуктовой нужды; возвращать только с пересъёмкой ui-snapshots."
+    },
+    {
+      "id": "R-SERVER-BOOTSTRAP",
+      "origin": "№2.9 / мастер-ТЗ §8",
+      "title": "server-bootstrap.sh: git от имени pms из /, а не из каталога запуска",
+      "implementation": "IMPLEMENTED (этой сессией)",
+      "evidence": "LOCAL_VERIFIED: deploy-server 41/41; все аргументы as_user абсолютные (проверено)",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT (мастер-ТЗ §8 прямо называет ремонт)"
+    },
+    {
+      "id": "R-MENU-PR",
+      "origin": "меню профиля / №2.9 (0001+0005)",
+      "title": "Кнопка меню профиля недоступна до оживления React",
+      "implementation": "IMPLEMENTED (другой сессией)",
+      "evidence": "PASS_AT_SOURCE; гейт на 37c77c03: fast/bot/db зелёные, красные: чужие слои устаревшего основания",
+      "delivery": "REMOTE_BRANCH: PR #332 (draft), ветка claude/profile-menu-ready, head b99ec05f98dc9463d2fc2352b2b0c792d05f040a; НЕ в main",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "notes": "Ветка чужая и живая: не трогал. Остаток: merge свежего main, один гейт, ready (O-2)."
+    },
+    {
+      "id": "R-SITE-AUTH-EARLY-CLICK",
+      "origin": "регрессия 10.10 (CWV, PR #357/#360)",
+      "title": "Первый щелчок по «Войти»/«Регистрация» до загрузки ленивого куска уводил на боевой wetop.ai; гейт main красный в «главной»",
+      "implementation": "ALREADY_PRESENT (чужой PR #362: жадный монтаж окна возвращён)",
+      "evidence": "FAIL_REPRODUCED (прогоны гейта 38037374393/38044499299/38048316467, 4 падения) → ремонт чужой; моя диагностика причины (CORS-несовпадение мока выдало побег на живой домен) в WETOP_MASTER_RESULT.md",
+      "delivery": "IN_MAIN (2341cfb7)",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "notes": "Свой дубль-ремонт снят по §7 мастер-ТЗ."
+    },
+    {
+      "id": "R-OPEN-BUSINESS",
+      "origin": "M6, M9, N6, Q-BAR-9, смена валюты с историей",
+      "title": "Открытые бизнес-решения денежного учёта",
+      "implementation": "NOT_STARTED",
+      "evidence": "DESIGN_GAP",
+      "delivery": "UNKNOWN",
+      "ownerDecision": "NEEDS_DECISION",
+      "notes": "Последующих решений владельца не найдено (DECISIONS.md на 2341cfb7); код отвечает 409/консервативно, ничего не выдумано. Варианты: WETOP_REMAINING_TZ.md O-4."
+    },
+    {
+      "id": "R-LOAD-STAND",
+      "origin": "пакет нагрузки",
+      "title": "Нагрузочный стенд (push-menu-load.sh и пр.)",
+      "implementation": "NOT_STARTED",
+      "evidence": "NOT_RUN",
+      "delivery": "EXCLUDED",
+      "ownerDecision": "DEFERRED (запуск прямо запрещён мастер-ТЗ §0)"
+    },
+    {
+      "id": "R-RUNTIME-MATRICES",
+      "origin": "A2/A3/A26 runtime-матрицы (76 тестов)",
+      "title": "Opt-in матрицы A2, A23, A26, A29 и браузер A25 на настоящем API и PostgreSQL без внешней сети",
+      "implementation": "IMPLEMENTED",
+      "evidence": "REMOTE_VERIFIED 38134402605: сеть local CONNECTED, external и dns ENETUNREACH; integration 50/50; браузер A25 18/18. Исторический A3 (31) сознательно не исполняется, у каждого случая есть пара в A23 (audit-coverage.md)",
+      "delivery": "REMOTE_BRANCH; обязательная задача runtime-audit в release-checks",
+      "ownerDecision": "APPROVED_CONTRACT (продолжение: обязательный изолированный Linux-job)"
+    },
+    {
+      "id": "R-WORKER-PORTS",
+      "origin": "продолжение п.4",
+      "title": "Распределитель портов UI-workers: пары API, web, site, proxy без резерва 4312/3001 и пересечений",
+      "implementation": "IMPLEMENTED",
+      "evidence": "unit ui-worker-ports; два workers локально; на CI beauty-ui, branches-ui, onboarding переведены на 268xx (диапазон эфемерных портов Linux 32768-60999)",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT"
+    },
+    {
+      "id": "R-SKIP-FIXES",
+      "origin": "продолжение п.3",
+      "title": "Молчаливые пропуски integration сняты",
+      "implementation": "IMPLEMENTED",
+      "evidence": "wizard-survey (порт 55432 в условии) и membership-scopes-schema (схема public вместо current_schema(); RED 0/8 -> 8/8); на раннере остаются только 81 opt-in",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT"
+    },
+    {
+      "id": "R-VISUAL-DELIVERY-01",
+      "origin": "продолжение п.6",
+      "title": "Бар-2 в настоящем браузере: форма после 409, KZT/USD, точные суммы, смена объекта, повтор продажи, возврат, шторка в двух темах и на двух ширинах с reduced-motion",
+      "implementation": "IMPLEMENTED",
+      "evidence": "таблица в WETOP_MASTER_RESULT.md; снимки и axe в артефакте runtime-audit-evidence",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT"
+    },
+    {
+      "id": "R-ARTIFACT-ALLOWLIST",
+      "origin": "продолжение п.8",
+      "title": "Артефакты гейта только по списку",
+      "implementation": "IMPLEMENTED",
+      "evidence": "runtime-audit: доказательства сети, сверки A2/A23/A25, снимки A25, журнал этого прогона, контексты падений, без trace с cookie, каталог очищается перед прогоном; ui-auth: только test-results/auth (не сборки Next). Проверено скачиванием артефакта 38134402605: 60 файлов, совпадений password/token/cookie нет",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT"
+    }
+  ]
+}

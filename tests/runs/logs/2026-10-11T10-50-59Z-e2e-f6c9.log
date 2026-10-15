@@ -1,0 +1,116 @@
+# Сквозные (e2e) · 11.10.2026 15:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит 70b550b (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.auth.config.ts' '--workers=1' 'tests/ui/a27-auth-boundary.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 403,
+[WebServer]   digest: 'API_403'
+[WebServer] }
+  ✓  1 tests/ui/a27-auth-boundary.spec.ts:26:3 › session check 403 is a safe distinct failure and preserves the valid session (21.3s)
+[WebServer] ⨯ Error: API /auth/me: HTTP 500
+[WebServer]     at getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 500,
+[WebServer]   digest: 'API_500'
+[WebServer] }
+  ✓  2 tests/ui/a27-auth-boundary.spec.ts:26:3 › session check 500 is a safe distinct failure and preserves the valid session (21.5s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  3 tests/ui/a27-auth-boundary.spec.ts:76:5 › unavailable session API 1440 light: safe keyboard recovery without cookie deletion (13.0s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  4 tests/ui/a27-auth-boundary.spec.ts:76:5 › unavailable session API 1440 dark: safe keyboard recovery without cookie deletion (13.1s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  5 tests/ui/a27-auth-boundary.spec.ts:76:5 › unavailable session API 390 light: safe keyboard recovery without cookie deletion (13.1s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  6 tests/ui/a27-auth-boundary.spec.ts:76:5 › unavailable session API 390 dark: safe keyboard recovery without cookie deletion (11.8s)
+
+  6 passed (2.1m)
+
+# код выхода 0 · 2 мин 9 с

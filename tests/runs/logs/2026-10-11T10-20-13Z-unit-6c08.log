@@ -1,0 +1,51 @@
+# Модульные (unit) · 11.10.2026 15:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит bd2b9dd (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-20-13Z-unit-6c08.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/guard-run.test.ts' 'apps/api/src/analytics/analytics.controller.test.ts' 'tests/unit/ui-worker-ports.test.ts' 'tests/unit/ci-runner.test.ts' 'apps/web/src/app/bar/actions.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ✓ |unit| tests/unit/ui-worker-ports.test.ts (5 tests) 29ms
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (18 tests) 679ms
+   ✓ форма прихода бара (14)
+     ✓ переводит тенге и процент в целые младшие единицы 496ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (25 tests) 3471ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 1695ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 455ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (15 tests) 279ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 14742ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 4425ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 2257ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1898ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 3041ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 1872ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 809ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 48200ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 5790ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 2822ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 5768ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 2856ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 3989ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 2221ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1874ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 4461ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2488ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 2462ms
+     ✓ локальные правки в клоне — не затирает их 2066ms
+     ✓ историю ветки переписали — не выкладывает поверх 3269ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 3305ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 1500ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 2223ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1101ms
+
+ Test Files  6 passed (6)
+      Tests  87 passed (87)
+   Start at  03:20:48
+   Duration  51.69s (tests 83%, import 9%, transform 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-20-13Z-unit-6c08.json
+
+# код выхода 0 · 1 мин 27 с

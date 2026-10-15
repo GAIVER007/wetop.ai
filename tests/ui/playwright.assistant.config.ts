@@ -1,5 +1,4 @@
 import { defineConfig } from '@playwright/test';
-import base from './playwright.config';
 
 /**
  * Стойка с чатом ИИ-помощника (ТЗ ред. 1, П2): `ASSISTANT_URL` указывает на подставного помощника
@@ -12,13 +11,23 @@ import base from './playwright.config';
 const API = 'http://127.0.0.1:4314';
 const WEB = 'http://127.0.0.1:3103';
 export const FAKE_ASSISTANT = 'http://127.0.0.1:4316';
+const uiExecutable = process.env.UI_BROWSER_EXECUTABLE || process.env.CHROMIUM_PATH;
 
 export default defineConfig({
-  ...base,
+  testDir: '.',
   testMatch: 'assistant-widget.spec.ts',
-  testIgnore: undefined as unknown as string,
-  snapshotPathTemplate: undefined as unknown as string,
-  use: { ...base.use, baseURL: WEB },
+  fullyParallel: false,
+  workers: 1,
+  timeout: 45_000,
+  expect: { timeout: 15_000 },
+  use: {
+    baseURL: WEB,
+    ...(uiExecutable
+      ? { launchOptions: { executablePath: uiExecutable } }
+      : { channel: process.env.UI_BROWSER_CHANNEL || 'chrome' }),
+    viewport: { width: 1440, height: 1000 },
+    trace: 'retain-on-failure',
+  },
   webServer: [
     {
       command: 'npx tsx tests/ui/fixture-api.ts',

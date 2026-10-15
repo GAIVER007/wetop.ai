@@ -26,7 +26,7 @@ describe.skipIf(!url)('accounts schema (integration, DATABASE_URL required)', ()
     db = createPrismaClient(url);
     const rows = await db.$queryRaw<Array<{ table_name: string }>>`
       SELECT table_name FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = 'organizations'`;
+      WHERE table_schema = current_schema() AND table_name = 'organizations'`;
     migrated = rows.length > 0;
     if (!migrated)
       console.warn('миграция 20260915000013_accounts не применена к этой базе — проверки пропущены');

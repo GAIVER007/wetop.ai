@@ -13,7 +13,11 @@ export function FilterHistory({ defaults }: { defaults: Record<string, string> }
           field.value = q.get(name) ?? fallback;
       }
     };
-    restore();
+    // Ordinary hydration must preserve native input already edited by the user.
+    // History restoration is the exception because pageshow may fire before this listener exists.
+    const navigation = performance.getEntriesByType('navigation')[0] as
+      PerformanceNavigationTiming | undefined;
+    if (navigation?.type === 'back_forward') restore();
     window.addEventListener('pageshow', restore);
     window.addEventListener('popstate', restore);
     return () => {

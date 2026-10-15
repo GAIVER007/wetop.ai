@@ -12,6 +12,7 @@ import { BarReturnButtons } from '../return-buttons';
 import { WriteOffForm } from '../write-off-form';
 import { InventoryCountForm } from '../inventory-count-form';
 import { BarTabs } from '../tabs';
+import { loadBarContext } from '../load-context';
 import '../bar.css';
 
 const settle = <T,>(promise: Promise<T>) =>
@@ -45,6 +46,8 @@ export default async function BarOperationsPage() {
   const failed = [stock, sales, movements].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!stock.ok || !sales.ok || !movements.ok) return null;
+  // контекст денежных форм: сервер сверяет объект и валюту (D-CUR); у салона вместо объекта филиал
+  const context = await loadBarContext();
   return (
     <Page
       width="wide"
@@ -89,9 +92,9 @@ export default async function BarOperationsPage() {
                               .map((line) => `${line.product.name} × ${line.quantityUnits}`)
                               .join(', ')}
                           </td>
-                          <td>{formatMoney(sale.totalRevenue)}</td>
-                          <td>{formatMoney(sale.totalCost)}</td>
-                          <td>{formatMoney(BigInt(sale.totalRevenue) - BigInt(sale.totalCost))}</td>
+                          <td>{formatMoney(sale.totalRevenue, context.currency)}</td>
+                          <td>{formatMoney(sale.totalCost, context.currency)}</td>
+                          <td>{formatMoney(BigInt(sale.totalRevenue) - BigInt(sale.totalCost), context.currency)}</td>
                           <td>
                             <Badge tone={sale.status === 'POSTED' ? 'ok' : 'neutral'}>
                               {sale.status === 'POSTED' ? 'Продано' : 'Возврат'}
@@ -101,7 +104,8 @@ export default async function BarOperationsPage() {
                             {sale.status === 'POSTED' && canReverse && (
                               <BarReturnButtons
                                 saleId={sale.id}
-                                amountText={formatMoney(sale.totalRevenue)}
+                                context={context}
+                                amountText={formatMoney(sale.totalRevenue, context.currency)}
                               />
                             )}
                           </td>
@@ -143,7 +147,7 @@ export default async function BarOperationsPage() {
                           <td>{movement.product.name}</td>
                           <td>{MOVEMENT_LABEL[movement.kind] ?? movement.kind}</td>
                           <td>{movement.units}</td>
-                          <td>{formatMoney(movement.amountMinor)}</td>
+                          <td>{formatMoney(movement.amountMinor, context.currency)}</td>
                           <td>{movement.note ?? 'нет'}</td>
                         </tr>
                       ))}
@@ -163,7 +167,7 @@ export default async function BarOperationsPage() {
                   <p className="bar-muted">
                     Порча, бой, срок или угощение: остаток уменьшится с причиной в ленте.
                   </p>
-                  <WriteOffForm stock={stock.value} />
+                  <WriteOffForm stock={stock.value} context={context} />
                 </section>
               </>
             ),
@@ -178,7 +182,7 @@ export default async function BarOperationsPage() {
                   <p className="bar-muted">
                     Пересчёт по факту: недостача запишется движением с причиной.
                   </p>
-                  <InventoryCountForm stock={stock.value} />
+                  <InventoryCountForm stock={stock.value} context={context} />
                 </section>
               </>
             ),

@@ -1,0 +1,21 @@
+# Типы (typecheck) · 11.10.2026 15:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит bd2b9dd (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 26
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/bar/page.tsx(87,8): error TS2375: Type '{ title: string | undefined; status: number | undefined; message: string; testId: string; }' is not assignable to type '{ status: number | undefined; message: string; testId: string; title?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'title' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+# код выхода 1 · 55 с

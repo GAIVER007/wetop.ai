@@ -1,0 +1,37 @@
+# Сквозные (e2e) · 11.10.2026 11:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1179770 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1' '-g' 'переключения: Hospitality|pending Hospitality selection'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/branches-ui/branches.spec.ts:131:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (6.3s)
+  ✘  2 tests/branches-ui/today.spec.ts:340:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling (1.5m)
+
+
+  1) tests/branches-ui/today.spec.ts:340:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling 
+
+    Test timeout of 90000ms exceeded.
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/today.spec.ts:340:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling 
+  1 passed (1.7m)
+
+# код выхода 1 · 1 мин 45 с

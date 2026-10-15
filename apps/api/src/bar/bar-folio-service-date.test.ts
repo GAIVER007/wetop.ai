@@ -19,7 +19,9 @@ describe('бар на счёт: дата услуги начисления', () 
     vi.useFakeTimers({ now: new Date('2026-10-09T18:30:00Z'), toFake: ['Date'] });
     const created: Array<Record<string, unknown>> = [];
     const tx = {
-      $queryRaw: async () => [],
+      // валюта филиала отвечает KZT (D-CUR, §44), сверка истории закупок и замки строк — пусто
+      $queryRaw: async (strings: TemplateStringsArray) =>
+        strings.join('?').includes('SELECT currency FROM locations') ? [{ currency: 'KZT' }] : [],
       barSale: {
         findFirst: async () => null,
         create: async () => ({ id: 'sale-1' }),

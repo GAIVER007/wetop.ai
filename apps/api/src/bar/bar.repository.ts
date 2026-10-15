@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
 import { randomUUID } from 'node:crypto';
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { allocateFifo, foodCashBalances, foodLocal, LUXX_APARTS_PROPERTY, salePriceFromMarkup, zonedStartOfDay } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyRef } from '../database/property-ref';
@@ -75,8 +75,8 @@ export interface BarRepository {
   folios(): Promise<unknown[]>;
   movements(): Promise<unknown[]>;
   report(): Promise<unknown>;
-  sellRetail(input: BarRetailSaleInput): Promise<{ kind: 'not_found' | 'no_cash' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>;
-  sellToFolio(input: BarFolioSaleInput): Promise<{ kind: 'folio_not_found' | 'product_not_found' | 'no_folio' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED'; chargeId: string; revenueMinor: string; costMinor: string }>;
+  sellRetail(input: BarRetailSaleInput): Promise<{ kind: 'not_found' | 'no_cash' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED' | 'REVERSED'; revenueMinor: string; costMinor: string }>;
+  sellToFolio(input: BarFolioSaleInput): Promise<{ kind: 'folio_not_found' | 'product_not_found' | 'no_folio' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED' | 'REVERSED'; chargeId: string; revenueMinor: string; costMinor: string }>;
   reverseSale(id: string, restock: boolean, reason: string): Promise<{ kind: 'not_found' | 'already_reversed' } | { kind: 'reversed'; id: string; status: 'REVERSED'; restocked: boolean }>;
   writeOff(input: BarWriteOffInput): Promise<{ kind: 'not_found' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; movementsCreated: number; costMinor: string }>;
   payReceipt(id: string, input: BarSupplierPaymentInput): Promise<{ kind: 'not_found' | 'not_posted' | 'no_cash' } | { kind: 'overpayment'; dueAmount: bigint } | { kind: 'insufficient_cash'; available: bigint } | { kind: 'paid'; id: string; receiptId: string; paidAmount: string; dueAmount: string }>;
@@ -119,6 +119,24 @@ export class PrismaBarRepository implements BarRepository {
       ops.map((o: any) => ({ kind: o.kind, method: o.method, methodTo: o.methodTo, amount: o._sum.amount ?? 0n, status: 'COMPLETED' as const })),
     ) as Record<string, bigint>;
   }
+  /** Валюта бара это валюта филиала (D-CUR, §44): строка блокируется на время денежной команды */
+  private async currency(tx: any, locationId: string): Promise<string> {
+    const rows = await tx.$queryRaw`SELECT currency FROM locations WHERE id = ${locationId}::uuid FOR SHARE`;
+    if (!rows[0]) throw new ConflictException('Филиал не настроен');
+    return rows[0].currency;
+  }
+  private compatible(actual: string, expected: string) {
+    if (actual !== expected) throw new ConflictException({ code: 'BAR_CURRENCY_MISMATCH', message: 'Валюта операции несовместима с валютой объекта. Пересчет без утвержденного курса запрещен.' });
+  }
+  private async costSources(tx: any, locationId: string, currency: string, productId: string | null = null) {
+    const mismatches = await tx.$queryRaw`SELECT DISTINCT r.id, r.currency FROM bar_receipts r
+      JOIN bar_receipt_lines l ON l.receipt_id = r.id
+      WHERE r.location_id = ${locationId}::uuid AND r.status = 'POSTED' AND r.currency <> ${currency}
+        AND (${productId}::uuid IS NULL OR l.product_id = ${productId}::uuid) LIMIT 1`;
+    if (mismatches.length) throw new ConflictException({ code: 'BAR_MIXED_CURRENCY_HISTORY', message: 'История закупок содержит несовместимую валюту. Денежный расчет требует отдельной сверки.' });
+  }
+  /** Оплата поставщику уменьшает долг, только пока её операция в кассе завершена: гостиничная или ресторанная (§45) */
+  private static readonly COMPLETED_PAYMENTS = { OR: [{ cashOperation: { status: 'COMPLETED' } }, { restaurantCashOperation: { status: 'COMPLETED' } }] };
   async categories() {
     return (this.prisma.db as any).barCategory.findMany({ where: { locationId: (await this.scope()).locationId }, orderBy: { name: 'asc' } });
   }
@@ -197,7 +215,7 @@ export class PrismaBarRepository implements BarRepository {
   }
   async receipts() {
     const rows = await (this.prisma.db as any).barReceipt.findMany({
-      where: { locationId: (await this.scope()).locationId }, include: { supplier: true, payments: { select: { amount: true } }, _count: { select: { lines: true } } },
+      where: { locationId: (await this.scope()).locationId }, include: { supplier: true, payments: { where: PrismaBarRepository.COMPLETED_PAYMENTS, select: { amount: true } }, _count: { select: { lines: true } } },
       orderBy: [{ receivedDate: 'desc' }, { createdAt: 'desc' }],
     });
     return rows.map((row: any) => {
@@ -209,6 +227,8 @@ export class PrismaBarRepository implements BarRepository {
   }
   async stock() {
     const { locationId } = await this.scope();
+    const currency = await this.currency(this.prisma.db, locationId);
+    await this.costSources(this.prisma.db, locationId, currency);
     const rows = await (this.prisma.db as any).barProduct.findMany({
       where: { locationId },
       include: {
@@ -231,7 +251,7 @@ export class PrismaBarRepository implements BarRepository {
       delete product.lots;
       delete product.receiptLines;
       return {
-        ...product, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString(),
+        ...product, currency, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString(),
         availableUnits: available.toString(), stockCostMinor: stockCost.toString(),
         lastUnitCostMinor: last ? last.unitCost.toString() : null,
         lastReceivedDate: last ? last.receipt.receivedDate.toISOString().slice(0, 10) : null,
@@ -242,7 +262,7 @@ export class PrismaBarRepository implements BarRepository {
   }
   async sales() {
     const rows = await (this.prisma.db as any).barSale.findMany({ where: { locationId: (await this.scope()).locationId }, include: { lines: { include: { product: true } } }, orderBy: { createdAt: 'desc' }, take: 100 });
-    return rows.map((row: any) => ({ ...row, totalRevenue: row.totalRevenue.toString(), totalCost: row.totalCost.toString(), lines: row.lines.map((line: any) => ({ ...line, quantityUnits: line.quantityUnits.toString(), salePrice: line.salePrice.toString(), revenue: line.revenue.toString(), cost: line.cost.toString() })) }));
+    return rows.map((row: any) => ({ ...row, totalRevenue: row.totalRevenue.toString(), totalCost: row.totalCost.toString(), lines: row.lines.map((line: any) => ({ ...line, quantityUnits: line.quantityUnits.toString(), salePrice: line.salePrice.toString(), revenue: line.revenue.toString(), cost: line.cost.toString(), product: { ...line.product, salePrice: line.product.salePrice.toString(), minimumStockUnits: line.product.minimumStockUnits.toString() } })) }));
   }
   async folios() {
     const { propertyId } = await this.scope();
@@ -256,19 +276,24 @@ export class PrismaBarRepository implements BarRepository {
     return rows.map((row: any) => ({ id: row.id, confirmationNumber: row.reservationItem.reservation.confirmationNumber, guestName: row.reservationItem.reservation.primaryGuest ? `${row.reservationItem.reservation.primaryGuest.firstName} ${row.reservationItem.reservation.primaryGuest.lastName}` : 'Гость не указан', unitCode: row.reservationItem.allocations[0]?.inventoryUnit?.code ?? null }));
   }
   async movements() {
-    const rows = await (this.prisma.db as any).barStockMovement.findMany({ where: { locationId: (await this.scope()).locationId }, include: { product: true }, orderBy: { createdAt: 'desc' }, take: 200 });
-    return rows.map((row: any) => ({ ...row, units: row.units.toString(), unitCost: row.unitCost.toString(), amountMinor: (BigInt(row.units < 0n ? -row.units : row.units) * BigInt(row.unitCost)).toString() }));
+    const { locationId } = await this.scope();
+    const currency = await this.currency(this.prisma.db, locationId);
+    await this.costSources(this.prisma.db, locationId, currency);
+    const rows = await (this.prisma.db as any).barStockMovement.findMany({ where: { locationId }, include: { product: true }, orderBy: { createdAt: 'desc' }, take: 200 });
+    return rows.map((row: any) => ({ ...row, units: row.units.toString(), unitCost: row.unitCost.toString(), product: { ...row.product, salePrice: row.product.salePrice.toString(), minimumStockUnits: row.product.minimumStockUnits.toString() }, amountMinor: (BigInt(row.units < 0n ? -row.units : row.units) * BigInt(row.unitCost)).toString() }));
   }
   async report() {
     const { locationId, timezone } = await this.scope();
+    const currency = await this.currency(this.prisma.db, locationId);
+    await this.costSources(this.prisma.db, locationId, currency);
     const today = foodLocal(new Date(), timezone).date;
     const { prevMonthStart, monthStart, nextMonthStart } = monthBounds(today);
     // границы месяца для продаж: начало суток в поясе объекта, а не по UTC (AGENTS.md §13)
     const at = (day: string) => zonedStartOfDay(day, timezone);
     const popularFrom = at(shiftDate(today, -29));
     const [receipts, sales, lots, writeOffs, popularLines] = await Promise.all([
-      (this.prisma.db as any).barReceipt.findMany({ where: { locationId, status: 'POSTED' }, include: { payments: { select: { amount: true } } } }),
-      (this.prisma.db as any).barSale.findMany({ where: { locationId, status: 'POSTED' }, select: { totalRevenue: true, totalCost: true, createdAt: true } }),
+      (this.prisma.db as any).barReceipt.findMany({ where: { locationId, status: 'POSTED' }, include: { payments: { where: PrismaBarRepository.COMPLETED_PAYMENTS, select: { amount: true } } } }),
+      (this.prisma.db as any).barSale.findMany({ where: { locationId, status: 'POSTED' }, select: { totalRevenue: true, totalCost: true, createdAt: true, currency: true } }),
       (this.prisma.db as any).barStockLot.findMany({ where: { locationId, remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true } }),
       (this.prisma.db as any).barStockMovement.findMany({ where: { locationId, kind: 'WRITE_OFF' }, select: { units: true, unitCost: true } }),
       (this.prisma.db as any).barSaleLine.findMany({
@@ -276,6 +301,7 @@ export class PrismaBarRepository implements BarRepository {
         select: { productId: true, quantityUnits: true, product: { select: { name: true } } },
       }),
     ]);
+    for (const sale of sales) this.compatible(sale.currency, currency);
     const inMonth = (from: string, to: string) => (day: string) => day >= from && day < to;
     const thisMonth = inMonth(monthStart, nextMonthStart);
     const lastMonth = inMonth(prevMonthStart, monthStart);
@@ -313,20 +339,52 @@ export class PrismaBarRepository implements BarRepository {
     const cost = sales.reduce((sum: bigint, row: any) => sum + BigInt(row.totalCost), 0n);
     const stockCost = lots.reduce((sum: bigint, row: any) => sum + BigInt(row.remainingUnits) * BigInt(row.unitCost), 0n);
     const writeOff = writeOffs.reduce((sum: bigint, row: any) => sum + (BigInt(row.units) < 0n ? -BigInt(row.units) : BigInt(row.units)) * BigInt(row.unitCost), 0n);
-    return { purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString(), month, popular };
+    return { currency, purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString(), month, popular };
+  }
+  /** Повтор продажи тем же ключом (D-KEY): ключ уникален по филиалу (§44), исходная операция возвращается как есть */
+  private async replaySale(tx: any, locationId: string, input: BarRetailSaleInput | BarFolioSaleInput) {
+    const sale = await tx.barSale.findFirst({ where: { locationId, idempotencyKey: input.idempotencyKey }, include: { lines: true, cashOperation: { select: { method: true } }, restaurantCashOperation: { select: { method: true } } } });
+    if (!sale) return null;
+    const folio = 'folioId' in input;
+    const line = sale.lines[0];
+    const cashMethod = sale.cashOperation?.method ?? sale.restaurantCashOperation?.method;
+    const paidByCash = Boolean(sale.cashOperationId || sale.restaurantCashOperationId);
+    if (sale.lines.length !== 1 || line.productId !== input.productId.toLowerCase() || line.quantityUnits !== input.quantityUnits ||
+      (folio ? sale.folioId !== input.folioId.toLowerCase() || !sale.chargeId || paidByCash : sale.folioId !== null || !paidByCash || cashMethod !== input.method))
+      throw new ConflictException('Ключ повтора уже использован для другой продажи');
+    return { kind: 'posted' as const, id: sale.id, status: sale.status as 'POSTED' | 'REVERSED', ...(folio ? { chargeId: sale.chargeId as string } : {}), revenueMinor: sale.totalRevenue.toString(), costMinor: sale.totalCost.toString() };
+  }
+  private async saleTransaction<T>(locationId: string, input: BarRetailSaleInput | BarFolioSaleInput, run: (tx: any) => Promise<T>): Promise<T> {
+    try { return await this.prisma.db.$transaction(run); }
+    catch (error) {
+      const e = error as { code?: string; meta?: { modelName?: string; target?: string[]; driverAdapterError?: { cause?: { constraint?: { index?: string } } } } };
+      const target = e.meta?.target;
+      // Ключ продажи уникален по филиалу (§44, миграция 102 переименовала индекс property_id → location_id)
+      const sameKey = e.meta?.driverAdapterError?.cause?.constraint?.index === 'bar_sales_location_id_idempotency_key_key' ||
+        (e.meta?.modelName === 'BarSale' && Array.isArray(target) && target.length === 2 && target.includes('location_id') && target.includes('idempotency_key'));
+      if (e.code !== 'P2002' || !sameKey) throw error;
+      // The failed transaction has rolled back before this scoped reread.
+      const replay = await this.prisma.db.$transaction(tx => this.replaySale(tx, locationId, input));
+      if (!replay) throw error;
+      return replay as T;
+    }
   }
   async sellRetail(input: BarRetailSaleInput) {
-    const { propertyId, locationId, vertical, currency } = await this.scope();
+    const { propertyId, locationId, vertical } = await this.scope();
     // деньги бара: касса гостиницы, касса ресторана (§45); у салона кассы пока нет
     if (!propertyId && vertical !== 'FOOD_SERVICE') return { kind: 'no_cash' as const };
-    return this.prisma.db.$transaction(async (tx) => {
+    return this.saleTransaction(locationId, input, async (tx) => {
       // касса ресторана: одна запись за раз на филиал, как у самой кассы
       if (!propertyId) await tx.$queryRaw`SELECT id FROM locations WHERE id = ${locationId}::uuid FOR UPDATE`;
-      const replay = await (tx as any).barSale.findFirst({ where: { locationId, idempotencyKey: input.idempotencyKey } });
-      if (replay) return { kind: 'posted' as const, id: replay.id, status: 'POSTED' as const, revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
+      const replay = await this.replaySale(tx, locationId, input);
+      if (replay) return replay;
       const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, locationId, active: true } });
       if (!product) return { kind: 'not_found' as const };
+      const currency = await this.currency(tx, locationId);
+      await this.costSources(tx, locationId, currency, product.id);
       await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE location_id = ${locationId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
+      const lockedReplay = await this.replaySale(tx, locationId, input);
+      if (lockedReplay) return lockedReplay;
       const lots = await (tx as any).barStockLot.findMany({ where: { locationId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
       let fifo;
       try {
@@ -335,6 +393,7 @@ export class PrismaBarRepository implements BarRepository {
         return { kind: 'insufficient_stock' as const, availableUnits: lots.reduce((sum: bigint, lot: any) => sum + lot.remainingUnits, 0n) };
       }
       const revenue = product.salePrice * input.quantityUnits;
+      if (revenue > 9_223_372_036_854_775_807n || fifo.totalCostMinor > 9_223_372_036_854_775_807n) throw new BadRequestException('Сумма продажи превышает диапазон Int64');
       const note = `Бар: ${product.name}`;
       const cashLink = propertyId
         ? { cashOperationId: (await (tx as any).cashOperation.create({ data: { propertyId, kind: 'INCOME', method: input.method, amount: revenue, note, createdById: auditUserId() } })).id }
@@ -354,15 +413,20 @@ export class PrismaBarRepository implements BarRepository {
     if (!propertyId) return { kind: 'no_folio' as const };
     // дата услуги: сегодня по часам объекта (docs/metrics.md §5, Q-292); без неё начисление выпадало из периодных отчётов
     const serviceDate = new Date(`${foodLocal(new Date(), timezone).date}T00:00:00Z`);
-    return this.prisma.db.$transaction(async (tx) => {
-      const replay = await (tx as any).barSale.findFirst({ where: { locationId, idempotencyKey: input.idempotencyKey } });
-      if (replay) return { kind: 'posted' as const, id: replay.id, status: 'POSTED' as const, chargeId: replay.chargeId, revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
+    return this.saleTransaction(locationId, input, async (tx) => {
+      const replay = await this.replaySale(tx, locationId, input);
+      if (replay) return { ...replay, chargeId: replay.chargeId! };
       await tx.$queryRaw`SELECT f.id FROM folios f JOIN reservation_items i ON i.id = f.reservation_item_id JOIN reservations r ON r.id = i.reservation_id WHERE f.id = ${input.folioId}::uuid AND r.property_id = ${propertyId}::uuid AND f.status = 'OPEN' FOR UPDATE OF f`;
       const folio = await (tx as any).folio.findFirst({ where: { id: input.folioId, status: 'OPEN', reservationItem: { reservation: { propertyId } } } });
       if (!folio) return { kind: 'folio_not_found' as const };
       const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, locationId, active: true } });
       if (!product) return { kind: 'product_not_found' as const };
+      const currency = await this.currency(tx, locationId);
+      await this.costSources(tx, locationId, currency, product.id);
+      this.compatible(folio.currency, currency);
       await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE location_id = ${locationId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
+      const lockedReplay = await this.replaySale(tx, locationId, input);
+      if (lockedReplay) return { ...lockedReplay, chargeId: lockedReplay.chargeId! };
       const lots = await (tx as any).barStockLot.findMany({ where: { locationId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
       let fifo;
       try {
@@ -371,6 +435,7 @@ export class PrismaBarRepository implements BarRepository {
         return { kind: 'insufficient_stock' as const, availableUnits: lots.reduce((sum: bigint, lot: any) => sum + BigInt(lot.remainingUnits), 0n) };
       }
       const revenue = BigInt(product.salePrice) * input.quantityUnits;
+      if (revenue > 9_223_372_036_854_775_807n || fifo.totalCostMinor > 9_223_372_036_854_775_807n) throw new BadRequestException('Сумма продажи превышает диапазон Int64');
       const charge = await (tx as any).charge.create({ data: { folioId: folio.id, kind: 'SERVICE', description: `Бар: ${product.name}`, quantity: Number(input.quantityUnits), unitPrice: product.salePrice, amount: revenue, serviceDate, createdBy: auditUserId() } });
       const sale = await (tx as any).barSale.create({ data: { propertyId, locationId, folioId: folio.id, chargeId: charge.id, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency: folio.currency, totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
       for (const allocation of fifo.allocations) {
@@ -408,6 +473,8 @@ export class PrismaBarRepository implements BarRepository {
     return this.prisma.db.$transaction(async (tx) => {
       const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, locationId, active: true } });
       if (!product) return { kind: 'not_found' as const };
+      const currency = await this.currency(tx, locationId);
+      await this.costSources(tx, locationId, currency, product.id);
       await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE location_id = ${locationId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
       const lots = await (tx as any).barStockLot.findMany({ where: { locationId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
       let fifo;
@@ -427,8 +494,15 @@ export class PrismaBarRepository implements BarRepository {
   }
   async createReceipt(input: BarReceiptInput) {
     const { propertyId, locationId } = await this.scope();
+    return this.prisma.db.$transaction(async tx => {
+    const currency = await this.currency(tx, locationId);
+    const supplier = await (tx as any).barSupplier.findFirst({ where: { id: input.supplierId, locationId } });
+    const products = await (tx as any).barProduct.count({ where: { locationId, id: { in: [...new Set(input.lines.map(line => line.productId))] } } });
+    if (!supplier || products !== new Set(input.lines.map(line => line.productId)).size) throw new ConflictException('Поставщик или товар недоступен в этом объекте');
+    this.compatible(input.currency, currency);
+    if (currency !== 'KZT') throw new ConflictException({ code: 'BAR_AUTO_PRICE_UNDEFINED', message: 'Автоматическая цена для этой валюты еще не утверждена. Используйте операции с заданной ценой.' });
     const totalAmount = input.lines.reduce((s, l) => s + l.quantityUnits * l.unitCostMinor, 0n);
-    const row = await (this.prisma.db as any).barReceipt.create({
+    const row = await (tx as any).barReceipt.create({
       data: {
         propertyId, locationId, supplierId: input.supplierId, documentNumber: input.documentNumber,
         documentDate: new Date(`${input.documentDate}T00:00:00Z`), receivedDate: new Date(`${input.receivedDate}T00:00:00Z`),
@@ -447,6 +521,7 @@ export class PrismaBarRepository implements BarRepository {
         calculatedPrice: line.calculatedPrice.toString(),
       })),
     };
+    });
   }
   async postReceipt(id: string) {
     const { propertyId, locationId } = await this.scope();
@@ -455,6 +530,10 @@ export class PrismaBarRepository implements BarRepository {
       const receipt = await (tx as any).barReceipt.findFirst({ where: { id, locationId }, include: { lines: true } });
       if (!receipt) return { kind: 'not_found' as const };
       if (receipt.status !== 'DRAFT') return { kind: 'already_posted' as const };
+      const currency = await this.currency(tx, locationId);
+      this.compatible(receipt.currency, currency);
+      if (currency !== 'KZT') throw new ConflictException({ code: 'BAR_AUTO_PRICE_UNDEFINED', message: 'Автоматическая цена для этой валюты еще не утверждена' });
+      for (const line of receipt.lines) await this.costSources(tx, locationId, currency, line.productId);
       const now = new Date();
       for (const line of receipt.lines) {
         await (tx as any).barProduct.update({ where: { id: line.productId }, data: { salePrice: line.calculatedPrice } });
@@ -472,9 +551,10 @@ export class PrismaBarRepository implements BarRepository {
     return this.prisma.db.$transaction(async (tx) => {
       if (!propertyId) await tx.$queryRaw`SELECT id FROM locations WHERE id = ${locationId}::uuid FOR UPDATE`;
       await tx.$queryRaw`SELECT id FROM bar_receipts WHERE id = ${id}::uuid AND location_id = ${locationId}::uuid FOR UPDATE`;
-      const receipt = await (tx as any).barReceipt.findFirst({ where: { id, locationId }, include: { supplier: true, payments: { select: { amount: true } } } });
+      const receipt = await (tx as any).barReceipt.findFirst({ where: { id, locationId }, include: { supplier: true, payments: { where: PrismaBarRepository.COMPLETED_PAYMENTS, select: { amount: true } } } });
       if (!receipt) return { kind: 'not_found' as const };
       if (receipt.status !== 'POSTED') return { kind: 'not_posted' as const };
+      this.compatible(receipt.currency, await this.currency(tx, locationId));
       const alreadyPaid = receipt.payments.reduce((sum: bigint, payment: any) => sum + BigInt(payment.amount), 0n);
       const dueAmount = BigInt(receipt.totalAmount) - alreadyPaid;
       if (input.amountMinor > dueAmount) return { kind: 'overpayment' as const, dueAmount };
@@ -502,6 +582,8 @@ export class PrismaBarRepository implements BarRepository {
     return this.prisma.db.$transaction(async (tx) => {
       const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, locationId, active: true } });
       if (!product) return { kind: 'not_found' as const };
+      const currency = await this.currency(tx, locationId);
+      await this.costSources(tx, locationId, currency, product.id);
       await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE location_id = ${locationId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
       const lots = await (tx as any).barStockLot.findMany({ where: { locationId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
       const systemUnits = lots.reduce((sum: bigint, lot: any) => sum + BigInt(lot.remainingUnits), 0n);

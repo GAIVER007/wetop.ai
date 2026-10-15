@@ -1,0 +1,159 @@
+# Сквозные (e2e) · 11.10.2026 13:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1179770 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.auth.config.ts' '--workers=2'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 247ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/test-results/auth-runtime-1/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 2 workers
+
+  ✓   2 tests/ui/login-lock.spec.ts:31:3 › без входа /today уводит на канонический экран входа (4.3s)
+  ✓   3 tests/ui/login-lock.spec.ts:31:3 › без входа /chessboard уводит на канонический экран входа (1.9s)
+  ✓   4 tests/ui/login-lock.spec.ts:31:3 › без входа /reservations уводит на канонический экран входа (2.4s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 403,
+[WebServer]   digest: 'API_403'
+[WebServer] }
+  ✓   1 tests/ui/a27-auth-boundary.spec.ts:24:3 › session check 403 is a safe distinct failure and preserves the valid session (10.8s)
+[WebServer] ⨯ Error: API /auth/me: HTTP 500
+[WebServer]     at getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 500,
+[WebServer]   digest: 'API_500'
+[WebServer] }
+  ✓   6 tests/ui/a27-auth-boundary.spec.ts:24:3 › session check 500 is a safe distinct failure and preserves the valid session (5.2s)
+  ✓   5 tests/ui/login-lock.spec.ts:41:1 › после входа рабочее место открывается, обычный выход снова закрывает доступ (11.8s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   7 tests/ui/a27-auth-boundary.spec.ts:74:5 › unavailable session API 1440 light: safe keyboard recovery without cookie deletion (6.8s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   9 tests/ui/a27-auth-boundary.spec.ts:74:5 › unavailable session API 1440 dark: safe keyboard recovery without cookie deletion (6.3s)
+  ✓   8 tests/ui/login-lock.spec.ts:57:1 › ссылка из письма подтверждает почту при включенном замке (9.6s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  11 tests/ui/unified-auth.spec.ts:21:3 › защищённая /today: главная → реальная cookie → исходный экран (7.8s)
+  ✓  10 tests/ui/a27-auth-boundary.spec.ts:74:5 › unavailable session API 390 light: safe keyboard recovery without cookie deletion (9.4s)
+  ✓  12 tests/ui/unified-auth.spec.ts:21:3 › защищённая /chessboard: главная → реальная cookie → исходный экран (9.2s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  13 tests/ui/a27-auth-boundary.spec.ts:74:5 › unavailable session API 390 dark: safe keyboard recovery without cookie deletion (12.0s)
+  ✓  14 tests/ui/unified-auth.spec.ts:21:3 › защищённая /reservations: главная → реальная cookie → исходный экран (4.5s)
+  ✓  15 tests/ui/unified-auth.spec.ts:38:1 › старые адреса открывают только формы на главной (3.1s)
+  ✘  16 tests/ui/unified-auth.spec.ts:49:1 › сессия работает в новой вкладке; выход возвращает на главную и закрывает доступ (4.6s)
+  ✓  17 tests/ui/unified-auth.spec.ts:68:1 › регистрация на главной → письмо → подтверждение → рабочее место (7.0s)
+  ✓  18 tests/ui/unified-auth.spec.ts:89:1 › резервный вход без JavaScript сохраняет сессию и возвращает на исходный экран (1.5s)
+
+
+  1) tests/ui/unified-auth.spec.ts:49:1 › сессия работает в новой вкладке; выход возвращает на главную и закрывает доступ 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('session-list')
+    Expected: visible
+    Error: strict mode violation: getByTestId('session-list') resolved to 2 elements:
+        1) <ul class="login-invite-list" data-testid="session-list">…</ul> aka getByRole('region', { name: 'Где вы вошли' }).getByTestId('session-list')
+        2) <ul class="login-invite-list" data-testid="session-list">…</ul> aka getByTestId('session-list').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('session-list') with timeout 15000ms
+      - waiting for getByTestId('session-list')
+
+
+      59 |     tab.getByRole('heading', { name: 'Управление доступом', exact: true }),
+      60 |   ).toBeVisible();
+    > 61 |   await expect(tab.getByTestId('session-list')).toBeVisible();
+         |                                                 ^
+      62 |   await tab.getByRole('button', { name: 'Завершить все сеансы' }).click();
+      63 |   await expect(tab).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
+      64 |   await page.goto(`${APP}/today`, { waitUntil: 'domcontentloaded' });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/ui/unified-auth.spec.ts:61:49
+
+    Error Context: tests/ui/test-results/auth/unified-auth-сессия-работа-38563--главную-и-закрывает-доступ/error-context.md
+
+  1 failed
+    tests/ui/unified-auth.spec.ts:49:1 › сессия работает в новой вкладке; выход возвращает на главную и закрывает доступ 
+  17 passed (1.5m)
+
+# код выхода 1 · 1 мин 30 с

@@ -87,15 +87,29 @@ describe('свой раннер CI', () => {
     expect(triggers).toContain('workflow_dispatch:');
     // c 09.10.2026 (ADR-152) гейт идёт и на пуш кода в main: зелёный гейт перематывает release сам
     expect(triggers).toMatch(/push:\n\s+branches: \[release-candidate, main\]/);
-    for (const name of ['fast', 'bot', 'db', 'ui-shard', 'ui'])
+    for (const name of ['fast', 'bot', 'db', 'ui-shard', 'ui-vertical', 'ui-auth', 'ui'])
       expect(job(name), name).toMatch(/runs-on: ubuntu-24\.04/);
     const fast = withoutComments(job('fast'));
     for (const step of ['npm run lint', 'npm run typecheck', 'vitest run --project unit', 'npm run site:check'])
       expect(fast, step).toContain(step);
-    expect(withoutComments(job('ui-shard'))).toMatch(/shard: \[1, 2, 3\]/);
+    expect(withoutComments(job('ui-shard'))).toMatch(/shard: \[1, 2, 3, 4, 5\]/);
     const summary = withoutComments(job('ui'));
-    expect(summary).toContain('needs: ui-shard');
-    expect(summary).toContain('test "$UI_RESULT" = success');
+    expect(summary).toContain('needs: [ui-shard, ui-vertical, ui-auth]');
+    for (const result of ['UI_RESULT', 'VERTICAL_RESULT', 'AUTH_RESULT'])
+      expect(summary).toContain(`test "$${result}" = success`);
+    const auth = withoutComments(job('ui-auth'));
+    expect(auth).toMatch(/needs: fast/);
+    expect(auth).toContain('tests/ui/playwright.auth.config.ts --workers=2');
+    expect(withoutComments(job('ui-shard'))).toContain('--workers=1');
+    // часть набора выбирает харнесс, а не --shard: тот отдавал первую часть целиком одному из двух worker
+    expect(withoutComments(job('ui-shard'))).toContain('UI_SHARD: ${{ matrix.shard }}/5');
+    expect(withoutComments(job('ui-shard'))).not.toContain('--shard');
+    // runtime-аудит (O-9) обязателен: своя задача гейта, прогон в закрытом сетевом пространстве, без исторического A3
+    const audit = withoutComments(job('runtime-audit'));
+    expect(audit).toMatch(/runs-on: ubuntu-24\.04/);
+    expect(audit).toContain('scripts/ci/runtime-audit.sh prepare');
+    expect(audit).toContain('scripts/ci/runtime-audit.sh isolated');
+    expect(audit).not.toMatch(/continue-on-error|A3_RUNTIME_AUDIT/);
     // На main прогон не отменяется следующим слиянием, а ждёт в очереди (один, самый свежий): с 10.10.2026 по 11.10
     // из 59 прогонов на main 39 отменены, 19 красные, ни одного зелёного, и release не двигался. На прочих ветках
     // новый прогон по-прежнему заменяет прежний.

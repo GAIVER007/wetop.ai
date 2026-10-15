@@ -6,8 +6,11 @@ import { hotelToday, propertyTimezone } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
+import { LoadError } from '../../components/load-error';
+import { loadErrorProps } from '../../lib/load-error';
 import { Tabs } from '../../components/tabs';
 import { BarTabs } from './tabs';
+import { loadBarContext } from './load-context';
 import { Badge, EmptyState, Table, cx } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
 import { SaleForm } from './sale-form';
@@ -96,7 +99,17 @@ export default async function BarPage({
   const failed = [categories, stock, suppliers, folios, receipts, sales, movements, report].find(
     (result) => !result.ok,
   );
-  if (failed && !failed.ok) throw failed.error;
+  // Отказ чтения называется словами сервера (например, смешанная валюта истории, D-CUR), а не общим экраном ошибки
+  // и не нулями в плитках
+  if (failed && !failed.ok) {
+    const error = loadErrorProps(failed.error);
+    // 409 это деловой отказ сервера (смешанная валюта истории, D-CUR): его слова и есть заголовок
+    return (
+      <Page width="full" className="bar-page" title="Бар">
+        <LoadError testId="bar-load-error" {...error} {...(error.status === 409 ? { title: error.message } : {})} />
+      </Page>
+    );
+  }
   if (
     !categories.ok ||
     !stock.ok ||
@@ -108,7 +121,11 @@ export default async function BarPage({
     !report.ok
   )
     return null;
+  // контекст форм: объект и валюта, сервер сверяет их при каждой денежной команде (D-CUR); у салона вместо объекта филиал
+  const context = await loadBarContext();
   const r = report.value;
+  // суммы в валюте объекта (D-CUR): без валюты formatMoney подписывает тенге и для объекта в USD
+  const money = (minor: string | bigint) => formatMoney(minor, r.currency);
   const active = stock.value.filter((item) => item.active);
   const lowStock = active.filter((item) => stockStatusOf(item) !== 'ok');
   const lowCount = lowStock.length;
@@ -153,7 +170,7 @@ export default async function BarPage({
                     <td>{receipt.supplier.name}</td>
                     <td>{receipt.documentNumber}</td>
                     <td>{receipt._count.lines}</td>
-                    <td>{formatMoney(receipt.totalAmount)}</td>
+                    <td>{money(receipt.totalAmount)}</td>
                     <td>
                       <Badge tone={badge.tone}>{badge.label}</Badge>
                     </td>
@@ -239,10 +256,10 @@ export default async function BarPage({
       </nav>
       <BarTabs current="overview" />
       <section className="bar-kpis" aria-label="Показатели бара">
-        <Kpi icon="cart" tone="info" label="Сумма закупок" value={formatMoney(r.month?.purchasesMinor ?? r.purchasesMinor)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />
-        <Kpi icon="chart" tone="primary" label="Выручка бара" value={formatMoney(monthRevenue)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />
-        <Kpi icon="coins" tone="success" label="Прибыль от продаж" value={formatMoney(monthProfit)} hint={r.month ? 'Текущий месяц, без прочих расходов' : 'За всё время, без прочих расходов'} />
-        <Kpi icon="truck" tone="warning" label="Долг поставщикам" value={formatMoney(r.supplierDebtMinor)} hint="Осталось оплатить" />
+        <Kpi icon="cart" tone="info" label="Сумма закупок" value={money(r.month?.purchasesMinor ?? r.purchasesMinor)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />
+        <Kpi icon="chart" tone="primary" label="Выручка бара" value={money(monthRevenue)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />
+        <Kpi icon="coins" tone="success" label="Прибыль от продаж" value={money(monthProfit)} hint={r.month ? 'Текущий месяц, без прочих расходов' : 'За всё время, без прочих расходов'} />
+        <Kpi icon="truck" tone="warning" label="Долг поставщикам" value={money(r.supplierDebtMinor)} hint="Осталось оплатить" />
         <Kpi icon="incidents" tone="danger" label="Заканчиваются" value={String(lowCount)} hint={lowCount ? pluralRu(lowCount,['товар','товара','товаров'],false) : 'Нет предупреждений'} alarm={lowCount > 0}>
           {lowCount > 0 && <details className="bar-kpi-list"><summary>Список товаров</summary><ul>{lowStock.map(item => <li key={item.id}><Link href={`/bar?product=${item.id}`} prefetch={false}>{item.name}</Link><b>{item.availableUnits} шт.</b></li>)}</ul></details>}
         </Kpi>
@@ -263,7 +280,7 @@ export default async function BarPage({
               {
                 id: 'bar-retail',
                 label: 'Продажа напрямую',
-                content: <SaleForm stock={stock.value} />,
+                content: <SaleForm stock={stock.value} context={context} />,
               },
               {
                 id: 'bar-folio',
@@ -272,7 +289,7 @@ export default async function BarPage({
                   folios.value.length === 0 ? (
                     <p className="bar-muted">Открытых счетов нет. Доступна продажа напрямую.</p>
                   ) : (
-                    <FolioSaleForm stock={stock.value} folios={folios.value} />
+                    <FolioSaleForm stock={stock.value} folios={folios.value} context={context} />
                   ),
               },
             ]}
@@ -289,6 +306,7 @@ export default async function BarPage({
       ) : (
         <StockBoard
           key={productParam ?? 'first'}
+          context={context}
           stock={stock.value}
           categories={categories.value}
           suppliers={suppliers.value}

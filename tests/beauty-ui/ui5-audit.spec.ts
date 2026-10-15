@@ -4,7 +4,7 @@ import { test, expect, type Page, type APIRequestContext } from '@playwright/tes
 import { UI5_VIEWS, ui5Facts } from '../ui5-audit-core';
 
 /** UI5 (plans/ui5-fullpass-2026-10-14.md): обходчик стенда «beauty», включается только UI5_AUDIT=1. */
-const api = `http://127.0.0.1:${process.env['BEAUTY_UI_API_PORT'] || '55814'}`;
+const api = `http://127.0.0.1:${process.env['BEAUTY_UI_API_PORT'] || '26814'}`;
 const OUT = 'reports/ui5-audit-2026-10-14/routes-beauty';
 const ROUTES: string[] = ['/today', '/beauty/schedule', '/appointments', '/services', '/employees', '/employees/shifts', '/customers', '/finance', '/team', '/help', '/branches', '/reports'];
 

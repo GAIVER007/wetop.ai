@@ -1,0 +1,806 @@
+[
+  {
+    "step": "drafts",
+    "expected": {
+      "units": "0",
+      "stockCost": "0",
+      "debt": "0",
+      "cashDelta": "0"
+    },
+    "actual": {
+      "units": "0",
+      "stockCost": "0",
+      "movementUnits": "0",
+      "purchase": "0",
+      "paid": "0",
+      "settled": "0",
+      "debt": "0",
+      "settledDebt": "0",
+      "cashDelta": "0"
+    },
+    "report": {
+      "currency": "KZT",
+      "purchasesMinor": "0",
+      "supplierPaidMinor": "0",
+      "revenueMinor": "0",
+      "costMinor": "0",
+      "grossProfitMinor": "0",
+      "writeOffMinor": "0",
+      "stockCostMinor": "0",
+      "supplierDebtMinor": "0",
+      "month": {
+        "monthStart": "2026-10-01",
+        "purchasesMinor": "0",
+        "purchasesPrevMinor": "0",
+        "revenueMinor": "0",
+        "revenuePrevMinor": "0",
+        "grossProfitMinor": "0",
+        "purchasesGrowth": null,
+        "revenueGrowth": null
+      },
+      "popular": []
+    },
+    "cashApi": {
+      "currency": "KZT",
+      "totalMinor": "0",
+      "balances": [
+        {
+          "method": "CASH",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "KASPI",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "HALYK",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "CARD_TERMINAL",
+          "balanceMinor": "0"
+        }
+      ],
+      "categories": [
+        {
+          "id": "06866876-c5d9-4a7a-b2ce-c911e77096dd",
+          "kind": "INCOME",
+          "name": "Начальный остаток",
+          "active": true
+        },
+        {
+          "id": "48da0aeb-4fe1-4f35-a3f2-0d63a60d0a19",
+          "kind": "INCOME",
+          "name": "Прочее поступление",
+          "active": true
+        },
+        {
+          "id": "05a930f2-7b96-4a1d-b476-e796796e6d7c",
+          "kind": "EXPENSE",
+          "name": "Бытовая химия",
+          "active": true
+        },
+        {
+          "id": "b1e1da96-5e80-4a5d-86e8-460e9862714a",
+          "kind": "EXPENSE",
+          "name": "Бытовые расходы",
+          "active": true
+        },
+        {
+          "id": "e2d7c88d-7ec4-4cbd-b7b2-69c80a1a35b2",
+          "kind": "EXPENSE",
+          "name": "Зарплата",
+          "active": true
+        },
+        {
+          "id": "f0503473-8579-41a6-bd2a-d18084a037a0",
+          "kind": "EXPENSE",
+          "name": "Комиссия банка",
+          "active": true
+        },
+        {
+          "id": "5c9c46f0-3af2-422e-ae2a-defdda97f1d0",
+          "kind": "EXPENSE",
+          "name": "Мероприятия",
+          "active": true
+        },
+        {
+          "id": "60b76830-0ddc-42d9-a534-000b9c2e2ccf",
+          "kind": "EXPENSE",
+          "name": "Минибар",
+          "active": true
+        },
+        {
+          "id": "387abdca-d98c-49b6-8408-7c5c53b5a84f",
+          "kind": "EXPENSE",
+          "name": "Ремонтные работы",
+          "active": true
+        },
+        {
+          "id": "b3b24ff3-94af-4dc1-9463-2dada007283b",
+          "kind": "EXPENSE",
+          "name": "Таргет/СММ/Инстаграм",
+          "active": true
+        },
+        {
+          "id": "8d338752-08b0-47eb-b30c-512d3c9e254e",
+          "kind": "EXPENSE",
+          "name": "Чай/вода/сахар",
+          "active": true
+        }
+      ],
+      "reconciliations": []
+    }
+  },
+  {
+    "step": "post P1",
+    "expected": {
+      "units": "3",
+      "stockCost": "30000",
+      "debt": "30000",
+      "cashDelta": "0"
+    },
+    "actual": {
+      "units": "3",
+      "stockCost": "30000",
+      "movementUnits": "3",
+      "purchase": "30000",
+      "paid": "0",
+      "settled": "0",
+      "debt": "30000",
+      "settledDebt": "30000",
+      "cashDelta": "0"
+    },
+    "report": {
+      "currency": "KZT",
+      "purchasesMinor": "30000",
+      "supplierPaidMinor": "0",
+      "revenueMinor": "0",
+      "costMinor": "0",
+      "grossProfitMinor": "0",
+      "writeOffMinor": "0",
+      "stockCostMinor": "30000",
+      "supplierDebtMinor": "30000",
+      "month": {
+        "monthStart": "2026-10-01",
+        "purchasesMinor": "30000",
+        "purchasesPrevMinor": "0",
+        "revenueMinor": "0",
+        "revenuePrevMinor": "0",
+        "grossProfitMinor": "0",
+        "purchasesGrowth": null,
+        "revenueGrowth": null
+      },
+      "popular": []
+    },
+    "cashApi": {
+      "currency": "KZT",
+      "totalMinor": "0",
+      "balances": [
+        {
+          "method": "CASH",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "KASPI",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "HALYK",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "CARD_TERMINAL",
+          "balanceMinor": "0"
+        }
+      ],
+      "categories": [
+        {
+          "id": "06866876-c5d9-4a7a-b2ce-c911e77096dd",
+          "kind": "INCOME",
+          "name": "Начальный остаток",
+          "active": true
+        },
+        {
+          "id": "48da0aeb-4fe1-4f35-a3f2-0d63a60d0a19",
+          "kind": "INCOME",
+          "name": "Прочее поступление",
+          "active": true
+        },
+        {
+          "id": "05a930f2-7b96-4a1d-b476-e796796e6d7c",
+          "kind": "EXPENSE",
+          "name": "Бытовая химия",
+          "active": true
+        },
+        {
+          "id": "b1e1da96-5e80-4a5d-86e8-460e9862714a",
+          "kind": "EXPENSE",
+          "name": "Бытовые расходы",
+          "active": true
+        },
+        {
+          "id": "e2d7c88d-7ec4-4cbd-b7b2-69c80a1a35b2",
+          "kind": "EXPENSE",
+          "name": "Зарплата",
+          "active": true
+        },
+        {
+          "id": "f0503473-8579-41a6-bd2a-d18084a037a0",
+          "kind": "EXPENSE",
+          "name": "Комиссия банка",
+          "active": true
+        },
+        {
+          "id": "5c9c46f0-3af2-422e-ae2a-defdda97f1d0",
+          "kind": "EXPENSE",
+          "name": "Мероприятия",
+          "active": true
+        },
+        {
+          "id": "60b76830-0ddc-42d9-a534-000b9c2e2ccf",
+          "kind": "EXPENSE",
+          "name": "Минибар",
+          "active": true
+        },
+        {
+          "id": "387abdca-d98c-49b6-8408-7c5c53b5a84f",
+          "kind": "EXPENSE",
+          "name": "Ремонтные работы",
+          "active": true
+        },
+        {
+          "id": "b3b24ff3-94af-4dc1-9463-2dada007283b",
+          "kind": "EXPENSE",
+          "name": "Таргет/СММ/Инстаграм",
+          "active": true
+        },
+        {
+          "id": "8d338752-08b0-47eb-b30c-512d3c9e254e",
+          "kind": "EXPENSE",
+          "name": "Чай/вода/сахар",
+          "active": true
+        }
+      ],
+      "reconciliations": []
+    }
+  },
+  {
+    "step": "post P2",
+    "expected": {
+      "units": "5",
+      "stockCost": "54000",
+      "debt": "54000",
+      "cashDelta": "0"
+    },
+    "actual": {
+      "units": "5",
+      "stockCost": "54000",
+      "movementUnits": "5",
+      "purchase": "54000",
+      "paid": "0",
+      "settled": "0",
+      "debt": "54000",
+      "settledDebt": "54000",
+      "cashDelta": "0"
+    },
+    "report": {
+      "currency": "KZT",
+      "purchasesMinor": "54000",
+      "supplierPaidMinor": "0",
+      "revenueMinor": "0",
+      "costMinor": "0",
+      "grossProfitMinor": "0",
+      "writeOffMinor": "0",
+      "stockCostMinor": "54000",
+      "supplierDebtMinor": "54000",
+      "month": {
+        "monthStart": "2026-10-01",
+        "purchasesMinor": "54000",
+        "purchasesPrevMinor": "0",
+        "revenueMinor": "0",
+        "revenuePrevMinor": "0",
+        "grossProfitMinor": "0",
+        "purchasesGrowth": null,
+        "revenueGrowth": null
+      },
+      "popular": []
+    },
+    "cashApi": {
+      "currency": "KZT",
+      "totalMinor": "0",
+      "balances": [
+        {
+          "method": "CASH",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "KASPI",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "HALYK",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "CARD_TERMINAL",
+          "balanceMinor": "0"
+        }
+      ],
+      "categories": [
+        {
+          "id": "06866876-c5d9-4a7a-b2ce-c911e77096dd",
+          "kind": "INCOME",
+          "name": "Начальный остаток",
+          "active": true
+        },
+        {
+          "id": "48da0aeb-4fe1-4f35-a3f2-0d63a60d0a19",
+          "kind": "INCOME",
+          "name": "Прочее поступление",
+          "active": true
+        },
+        {
+          "id": "05a930f2-7b96-4a1d-b476-e796796e6d7c",
+          "kind": "EXPENSE",
+          "name": "Бытовая химия",
+          "active": true
+        },
+        {
+          "id": "b1e1da96-5e80-4a5d-86e8-460e9862714a",
+          "kind": "EXPENSE",
+          "name": "Бытовые расходы",
+          "active": true
+        },
+        {
+          "id": "e2d7c88d-7ec4-4cbd-b7b2-69c80a1a35b2",
+          "kind": "EXPENSE",
+          "name": "Зарплата",
+          "active": true
+        },
+        {
+          "id": "f0503473-8579-41a6-bd2a-d18084a037a0",
+          "kind": "EXPENSE",
+          "name": "Комиссия банка",
+          "active": true
+        },
+        {
+          "id": "5c9c46f0-3af2-422e-ae2a-defdda97f1d0",
+          "kind": "EXPENSE",
+          "name": "Мероприятия",
+          "active": true
+        },
+        {
+          "id": "60b76830-0ddc-42d9-a534-000b9c2e2ccf",
+          "kind": "EXPENSE",
+          "name": "Минибар",
+          "active": true
+        },
+        {
+          "id": "387abdca-d98c-49b6-8408-7c5c53b5a84f",
+          "kind": "EXPENSE",
+          "name": "Ремонтные работы",
+          "active": true
+        },
+        {
+          "id": "b3b24ff3-94af-4dc1-9463-2dada007283b",
+          "kind": "EXPENSE",
+          "name": "Таргет/СММ/Инстаграм",
+          "active": true
+        },
+        {
+          "id": "8d338752-08b0-47eb-b30c-512d3c9e254e",
+          "kind": "EXPENSE",
+          "name": "Чай/вода/сахар",
+          "active": true
+        }
+      ],
+      "reconciliations": []
+    }
+  },
+  {
+    "step": "partial P1",
+    "expected": {
+      "units": "5",
+      "stockCost": "54000",
+      "debt": "34000",
+      "cashDelta": "-20000"
+    },
+    "actual": {
+      "units": "5",
+      "stockCost": "54000",
+      "movementUnits": "5",
+      "purchase": "54000",
+      "paid": "20000",
+      "settled": "20000",
+      "debt": "34000",
+      "settledDebt": "34000",
+      "cashDelta": "-20000"
+    },
+    "report": {
+      "currency": "KZT",
+      "purchasesMinor": "54000",
+      "supplierPaidMinor": "20000",
+      "revenueMinor": "0",
+      "costMinor": "0",
+      "grossProfitMinor": "0",
+      "writeOffMinor": "0",
+      "stockCostMinor": "54000",
+      "supplierDebtMinor": "34000",
+      "month": {
+        "monthStart": "2026-10-01",
+        "purchasesMinor": "54000",
+        "purchasesPrevMinor": "0",
+        "revenueMinor": "0",
+        "revenuePrevMinor": "0",
+        "grossProfitMinor": "0",
+        "purchasesGrowth": null,
+        "revenueGrowth": null
+      },
+      "popular": []
+    },
+    "cashApi": {
+      "currency": "KZT",
+      "totalMinor": "-20000",
+      "balances": [
+        {
+          "method": "CASH",
+          "balanceMinor": "-20000"
+        },
+        {
+          "method": "KASPI",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "HALYK",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "CARD_TERMINAL",
+          "balanceMinor": "0"
+        }
+      ],
+      "categories": [
+        {
+          "id": "06866876-c5d9-4a7a-b2ce-c911e77096dd",
+          "kind": "INCOME",
+          "name": "Начальный остаток",
+          "active": true
+        },
+        {
+          "id": "48da0aeb-4fe1-4f35-a3f2-0d63a60d0a19",
+          "kind": "INCOME",
+          "name": "Прочее поступление",
+          "active": true
+        },
+        {
+          "id": "05a930f2-7b96-4a1d-b476-e796796e6d7c",
+          "kind": "EXPENSE",
+          "name": "Бытовая химия",
+          "active": true
+        },
+        {
+          "id": "b1e1da96-5e80-4a5d-86e8-460e9862714a",
+          "kind": "EXPENSE",
+          "name": "Бытовые расходы",
+          "active": true
+        },
+        {
+          "id": "e2d7c88d-7ec4-4cbd-b7b2-69c80a1a35b2",
+          "kind": "EXPENSE",
+          "name": "Зарплата",
+          "active": true
+        },
+        {
+          "id": "f0503473-8579-41a6-bd2a-d18084a037a0",
+          "kind": "EXPENSE",
+          "name": "Комиссия банка",
+          "active": true
+        },
+        {
+          "id": "5c9c46f0-3af2-422e-ae2a-defdda97f1d0",
+          "kind": "EXPENSE",
+          "name": "Мероприятия",
+          "active": true
+        },
+        {
+          "id": "60b76830-0ddc-42d9-a534-000b9c2e2ccf",
+          "kind": "EXPENSE",
+          "name": "Минибар",
+          "active": true
+        },
+        {
+          "id": "387abdca-d98c-49b6-8408-7c5c53b5a84f",
+          "kind": "EXPENSE",
+          "name": "Ремонтные работы",
+          "active": true
+        },
+        {
+          "id": "b3b24ff3-94af-4dc1-9463-2dada007283b",
+          "kind": "EXPENSE",
+          "name": "Таргет/СММ/Инстаграм",
+          "active": true
+        },
+        {
+          "id": "8d338752-08b0-47eb-b30c-512d3c9e254e",
+          "kind": "EXPENSE",
+          "name": "Чай/вода/сахар",
+          "active": true
+        }
+      ],
+      "reconciliations": []
+    }
+  },
+  {
+    "step": "finish P1",
+    "expected": {
+      "units": "5",
+      "stockCost": "54000",
+      "debt": "24000",
+      "cashDelta": "-30000"
+    },
+    "actual": {
+      "units": "5",
+      "stockCost": "54000",
+      "movementUnits": "5",
+      "purchase": "54000",
+      "paid": "30000",
+      "settled": "30000",
+      "debt": "24000",
+      "settledDebt": "24000",
+      "cashDelta": "-30000"
+    },
+    "report": {
+      "currency": "KZT",
+      "purchasesMinor": "54000",
+      "supplierPaidMinor": "30000",
+      "revenueMinor": "0",
+      "costMinor": "0",
+      "grossProfitMinor": "0",
+      "writeOffMinor": "0",
+      "stockCostMinor": "54000",
+      "supplierDebtMinor": "24000",
+      "month": {
+        "monthStart": "2026-10-01",
+        "purchasesMinor": "54000",
+        "purchasesPrevMinor": "0",
+        "revenueMinor": "0",
+        "revenuePrevMinor": "0",
+        "grossProfitMinor": "0",
+        "purchasesGrowth": null,
+        "revenueGrowth": null
+      },
+      "popular": []
+    },
+    "cashApi": {
+      "currency": "KZT",
+      "totalMinor": "-30000",
+      "balances": [
+        {
+          "method": "CASH",
+          "balanceMinor": "-30000"
+        },
+        {
+          "method": "KASPI",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "HALYK",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "CARD_TERMINAL",
+          "balanceMinor": "0"
+        }
+      ],
+      "categories": [
+        {
+          "id": "06866876-c5d9-4a7a-b2ce-c911e77096dd",
+          "kind": "INCOME",
+          "name": "Начальный остаток",
+          "active": true
+        },
+        {
+          "id": "48da0aeb-4fe1-4f35-a3f2-0d63a60d0a19",
+          "kind": "INCOME",
+          "name": "Прочее поступление",
+          "active": true
+        },
+        {
+          "id": "05a930f2-7b96-4a1d-b476-e796796e6d7c",
+          "kind": "EXPENSE",
+          "name": "Бытовая химия",
+          "active": true
+        },
+        {
+          "id": "b1e1da96-5e80-4a5d-86e8-460e9862714a",
+          "kind": "EXPENSE",
+          "name": "Бытовые расходы",
+          "active": true
+        },
+        {
+          "id": "e2d7c88d-7ec4-4cbd-b7b2-69c80a1a35b2",
+          "kind": "EXPENSE",
+          "name": "Зарплата",
+          "active": true
+        },
+        {
+          "id": "f0503473-8579-41a6-bd2a-d18084a037a0",
+          "kind": "EXPENSE",
+          "name": "Комиссия банка",
+          "active": true
+        },
+        {
+          "id": "5c9c46f0-3af2-422e-ae2a-defdda97f1d0",
+          "kind": "EXPENSE",
+          "name": "Мероприятия",
+          "active": true
+        },
+        {
+          "id": "60b76830-0ddc-42d9-a534-000b9c2e2ccf",
+          "kind": "EXPENSE",
+          "name": "Минибар",
+          "active": true
+        },
+        {
+          "id": "387abdca-d98c-49b6-8408-7c5c53b5a84f",
+          "kind": "EXPENSE",
+          "name": "Ремонтные работы",
+          "active": true
+        },
+        {
+          "id": "b3b24ff3-94af-4dc1-9463-2dada007283b",
+          "kind": "EXPENSE",
+          "name": "Таргет/СММ/Инстаграм",
+          "active": true
+        },
+        {
+          "id": "8d338752-08b0-47eb-b30c-512d3c9e254e",
+          "kind": "EXPENSE",
+          "name": "Чай/вода/сахар",
+          "active": true
+        }
+      ],
+      "reconciliations": []
+    }
+  },
+  {
+    "step": "retail four",
+    "expected": {
+      "units": "1",
+      "stockCost": "12000",
+      "debt": "24000",
+      "cashDelta": "30000"
+    },
+    "actual": {
+      "units": "1",
+      "stockCost": "12000",
+      "movementUnits": "1",
+      "purchase": "54000",
+      "paid": "30000",
+      "settled": "30000",
+      "debt": "24000",
+      "settledDebt": "24000",
+      "cashDelta": "30000"
+    },
+    "report": {
+      "currency": "KZT",
+      "purchasesMinor": "54000",
+      "supplierPaidMinor": "30000",
+      "revenueMinor": "60000",
+      "costMinor": "42000",
+      "grossProfitMinor": "18000",
+      "writeOffMinor": "0",
+      "stockCostMinor": "12000",
+      "supplierDebtMinor": "24000",
+      "month": {
+        "monthStart": "2026-10-01",
+        "purchasesMinor": "54000",
+        "purchasesPrevMinor": "0",
+        "revenueMinor": "60000",
+        "revenuePrevMinor": "0",
+        "grossProfitMinor": "18000",
+        "purchasesGrowth": null,
+        "revenueGrowth": null
+      },
+      "popular": [
+        {
+          "productId": "862288e8-71ce-4ada-8123-46091db0d68e",
+          "name": "A3 synthetic product",
+          "units": "4"
+        }
+      ]
+    },
+    "cashApi": {
+      "currency": "KZT",
+      "totalMinor": "30000",
+      "balances": [
+        {
+          "method": "CASH",
+          "balanceMinor": "30000"
+        },
+        {
+          "method": "KASPI",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "HALYK",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "CARD_TERMINAL",
+          "balanceMinor": "0"
+        }
+      ],
+      "categories": [
+        {
+          "id": "06866876-c5d9-4a7a-b2ce-c911e77096dd",
+          "kind": "INCOME",
+          "name": "Начальный остаток",
+          "active": true
+        },
+        {
+          "id": "48da0aeb-4fe1-4f35-a3f2-0d63a60d0a19",
+          "kind": "INCOME",
+          "name": "Прочее поступление",
+          "active": true
+        },
+        {
+          "id": "05a930f2-7b96-4a1d-b476-e796796e6d7c",
+          "kind": "EXPENSE",
+          "name": "Бытовая химия",
+          "active": true
+        },
+        {
+          "id": "b1e1da96-5e80-4a5d-86e8-460e9862714a",
+          "kind": "EXPENSE",
+          "name": "Бытовые расходы",
+          "active": true
+        },
+        {
+          "id": "e2d7c88d-7ec4-4cbd-b7b2-69c80a1a35b2",
+          "kind": "EXPENSE",
+          "name": "Зарплата",
+          "active": true
+        },
+        {
+          "id": "f0503473-8579-41a6-bd2a-d18084a037a0",
+          "kind": "EXPENSE",
+          "name": "Комиссия банка",
+          "active": true
+        },
+        {
+          "id": "5c9c46f0-3af2-422e-ae2a-defdda97f1d0",
+          "kind": "EXPENSE",
+          "name": "Мероприятия",
+          "active": true
+        },
+        {
+          "id": "60b76830-0ddc-42d9-a534-000b9c2e2ccf",
+          "kind": "EXPENSE",
+          "name": "Минибар",
+          "active": true
+        },
+        {
+          "id": "387abdca-d98c-49b6-8408-7c5c53b5a84f",
+          "kind": "EXPENSE",
+          "name": "Ремонтные работы",
+          "active": true
+        },
+        {
+          "id": "b3b24ff3-94af-4dc1-9463-2dada007283b",
+          "kind": "EXPENSE",
+          "name": "Таргет/СММ/Инстаграм",
+          "active": true
+        },
+        {
+          "id": "8d338752-08b0-47eb-b30c-512d3c9e254e",
+          "kind": "EXPENSE",
+          "name": "Чай/вода/сахар",
+          "active": true
+        }
+      ],
+      "reconciliations": []
+    }
+  }
+]

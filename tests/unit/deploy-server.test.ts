@@ -19,7 +19,7 @@
  */
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 const ROOT = resolve(import.meta.dirname, '../..');
 const read = (p: string) => readFileSync(join(ROOT, p), 'utf8');
@@ -216,7 +216,7 @@ describe('deploy/compose.yml', () => {
     }
 
     /** Читаются только вне production (`NODE_ENV !== 'production'`) или на сборке — в боевой стойке им неоткуда взяться. */
-    const DEV_ONLY = ['APP_ALLOW_TEST_DATA', 'APP_DEMO_MODE', 'APP_UI_TEST'];
+    const DEV_ONLY = ['APP_ALLOW_TEST_DATA', 'APP_DEMO_MODE', 'APP_UI_TEST', 'NEXT_TEST_TURBOPACK_ROOT'];
     /** Нужны самому процессу, а не коду стойки: путь к node и npx, кэш npx, пояс и режим из образа. */
     const PROCESS = ['PATH', 'HOME', 'TZ', 'NODE_ENV'];
 
@@ -224,6 +224,24 @@ describe('deploy/compose.yml', () => {
       const allowed = new Set(webEnvAllowlist());
       const missing = webEnvReads().filter((n) => !DEV_ONLY.includes(n) && !allowed.has(n));
       expect(missing, `читается кодом стойки, но не пропущено в процесс: ${missing.join(', ')}`).toEqual([]);
+    });
+
+    it('корень Turbopack применяется только при явном разрешении тестовых данных', async () => {
+      try {
+        vi.stubEnv('NEXT_TEST_TURBOPACK_ROOT', '/test-only-runtime');
+        for (const allowed of [undefined, '0', '1']) {
+          vi.stubEnv('APP_ALLOW_TEST_DATA', allowed);
+          vi.resetModules();
+          const configPath = join(ROOT, 'apps/web/next.config.ts');
+          const { default: config } = (await import(configPath)) as {
+            default: { turbopack?: { root?: string } };
+          };
+          expect(config.turbopack?.root).toBe(allowed === '1' ? '/test-only-runtime' : undefined);
+        }
+      } finally {
+        vi.unstubAllEnvs();
+        vi.resetModules();
+      }
     });
 
     it('лишнего в процесс стойки не уходит: ни ключей API, ни строки базы, ни того, что код не читает', () => {

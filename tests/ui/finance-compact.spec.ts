@@ -19,13 +19,13 @@ test('финансы: обзор на ноутбуке, вкладки и пер
     animations: 'disabled',
   });
   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
-  await expect(page.getByTestId('finance-operations')).toBeVisible();
+  await expect(page.getByTestId('finance-operations').filter({ visible: true })).toBeVisible();
   await expect(page.getByTestId('finance-charges')).not.toBeVisible();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByTestId('finance-debts')).toBeVisible();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await page.getByTestId('kpi-paid').click();
   await settleStreaming(page);
-  await expect(page.getByTestId('finance-operations')).toBeVisible();
+  await expect(page.getByTestId('finance-operations').filter({ visible: true })).toBeVisible();
   await expect(page).toHaveURL(/op=payment/);
 });

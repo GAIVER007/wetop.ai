@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 15.10.2026 12:07 Алматы · vm
+# коммит de31953 (claude/youthful-wozniak-vin0pp)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T07-07-50Z-integration-ea98.json' 'tests/integration/platform-p1-backfill.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 545ms
+   ✓ Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) (3)
+     ✓ каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business 369ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  07:07:51
+   Duration  7.21s (transform 65%, import 20%, tests 14%)
+
+JSON report written to /tmp/pms-test-2026-10-15T07-07-50Z-integration-ea98.json
+
+# код выхода 0 · 9 с

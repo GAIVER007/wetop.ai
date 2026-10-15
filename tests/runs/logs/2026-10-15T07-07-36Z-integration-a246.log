@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 15.10.2026 12:07 Алматы · vm
+# коммит de31953 (claude/youthful-wozniak-vin0pp)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T07-07-36Z-integration-a246.json' 'tests/integration/core-security/system-connection.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/core-security/system-connection.test.ts (8 tests) 1070ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  07:07:38
+   Duration  9.84s (transform 61%, import 20%, tests 18%)
+
+JSON report written to /tmp/pms-test-2026-10-15T07-07-36Z-integration-a246.json
+
+# код выхода 0 · 12 с

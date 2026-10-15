@@ -1,0 +1,141 @@
+# Сквозные (e2e) · 15.10.2026 11:44 Алматы · vm
+# коммит de31953 (claude/youthful-wozniak-vin0pp)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--timeout=120000' 'tests/ui/settings-directories.spec.ts' 'tests/ui/property-settings.spec.ts' 'tests/ui/finance-cash.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/finance-card-actions.spec.ts' 'tests/ui/settings-simplification.spec.ts' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 89 tests using 1 worker
+
+  ✓   1 tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (6.3s)
+  ✓   2 tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (6.1s)
+  ✓   3 tests/ui/finance-card-actions.spec.ts:82:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (4.9s)
+  ✓   4 tests/ui/finance-card-actions.spec.ts:106:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (4.1s)
+  ✓   5 tests/ui/finance-card-actions.spec.ts:129:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (5.5s)
+  ✓   6 tests/ui/finance-card-actions.spec.ts:155:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (4.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   7 tests/ui/finance-card-actions.spec.ts:174:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (9.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   8 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (6.9s)
+  ✓   9 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (6.8s)
+  ✓  10 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (8.5s)
+  ✓  11 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (7.0s)
+  ✓  12 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (6.4s)
+  ✓  13 tests/ui/finance-cash.spec.ts:48:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (7.8s)
+  ✓  14 tests/ui/finance-cash.spec.ts:75:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (8.0s)
+  ✓  15 tests/ui/finance-cash.spec.ts:114:1 › статьи: кнопка «Статьи кассы» ведёт в «Настройки объекта → Справочники»; выключенная статья уходит из формы расхода (6.6s)
+  ✓  16 tests/ui/finance-cash.spec.ts:137:1 › «только чтение»: кнопок кассы нет, остатки видны (5.8s)
+  ✓  17 tests/ui/finance-cash.spec.ts:154:3 › касса, снимки для владельца, light (6.0s)
+  ✓  18 tests/ui/finance-cash.spec.ts:154:3 › касса, снимки для владельца, dark (6.0s)
+  ✓  19 tests/ui/finance-cash.spec.ts:178:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента (6.0s)
+  ✓  20 tests/ui/finance-cash.spec.ts:207:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния (7.2s)
+  ✓  21 tests/ui/property-settings.spec.ts:31:1 › один заголовок на всех вкладках, без «Обновить» и без второй карточки часов (8.9s)
+  ✓  22 tests/ui/property-settings.spec.ts:80:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy (9.9s)
+  ✓  23 tests/ui/property-settings.spec.ts:95:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку (15.1s)
+  ✓  24 tests/ui/property-settings.spec.ts:155:1 › администратор и «только чтение» видят сведения без формы и без кнопки сохранения (7.5s)
+  ✓  25 tests/ui/property-settings.spec.ts:180:1 › данные объекта и каналов помещаются на экране ноутбука (5.0s)
+  ✓  26 tests/ui/property-settings.spec.ts:197:3 › снимки SET1 и доступность: light (25.6s)
+  ✓  27 tests/ui/property-settings.spec.ts:197:3 › снимки SET1 и доступность: dark (26.9s)
+  ✓  28 tests/ui/requests.spec.ts:88:3 › экран /today: данные берутся одним запросом на путь (3.1s)
+  ✓  29 tests/ui/requests.spec.ts:88:3 › экран /chessboard: данные берутся одним запросом на путь (5.8s)
+  ✓  30 tests/ui/requests.spec.ts:88:3 › экран /reservations: данные берутся одним запросом на путь (3.6s)
+  ✓  31 tests/ui/requests.spec.ts:88:3 › экран /guests: данные берутся одним запросом на путь (3.3s)
+  ✓  32 tests/ui/requests.spec.ts:88:3 › экран /inventory: данные берутся одним запросом на путь (3.8s)
+  ✓  33 tests/ui/requests.spec.ts:88:3 › экран /rooms/categories: данные берутся одним запросом на путь (4.2s)
+  ✓  34 tests/ui/requests.spec.ts:88:3 › экран /rooms/availability: данные берутся одним запросом на путь (2.4s)
+  ✓  35 tests/ui/requests.spec.ts:88:3 › экран /market: данные берутся одним запросом на путь (3.1s)
+  ✓  36 tests/ui/requests.spec.ts:88:3 › экран /management/analytics: данные берутся одним запросом на путь (3.5s)
+  ✓  37 tests/ui/requests.spec.ts:88:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (3.2s)
+  ✓  38 tests/ui/requests.spec.ts:88:3 › экран /management/analytics/units: данные берутся одним запросом на путь (4.3s)
+  ✓  39 tests/ui/requests.spec.ts:88:3 › экран /finance: данные берутся одним запросом на путь (3.3s)
+  ✓  40 tests/ui/requests.spec.ts:88:3 › экран /reports: данные берутся одним запросом на путь (3.2s)
+  ✓  41 tests/ui/requests.spec.ts:88:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (2.9s)
+  ✓  42 tests/ui/requests.spec.ts:88:3 › экран /channels: данные берутся одним запросом на путь (5.1s)
+  ✓  43 tests/ui/requests.spec.ts:88:3 › экран /connections/channex: данные берутся одним запросом на путь (3.4s)
+  ✓  44 tests/ui/requests.spec.ts:88:3 › экран /channels/mapping: данные берутся одним запросом на путь (2.6s)
+  ✓  45 tests/ui/requests.spec.ts:88:3 › экран /channels/sync: данные берутся одним запросом на путь (3.1s)
+  ✓  46 tests/ui/requests.spec.ts:88:3 › экран /channels/events: данные берутся одним запросом на путь (2.5s)
+  ✓  47 tests/ui/requests.spec.ts:88:3 › экран /marketing: данные берутся одним запросом на путь (3.3s)
+  ✓  48 tests/ui/requests.spec.ts:88:3 › экран /website: данные берутся одним запросом на путь (3.2s)
+  ✓  49 tests/ui/requests.spec.ts:88:3 › экран /website/booking: данные берутся одним запросом на путь (3.0s)
+  ✓  50 tests/ui/requests.spec.ts:88:3 › экран /website/analytics: данные берутся одним запросом на путь (3.4s)
+  ✓  51 tests/ui/requests.spec.ts:88:3 › экран /hotel-settings: данные берутся одним запросом на путь (3.1s)
+  ✓  52 tests/ui/requests.spec.ts:88:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (2.9s)
+  ✓  53 tests/ui/requests.spec.ts:88:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (2.6s)
+  ✓  54 tests/ui/requests.spec.ts:88:3 › экран /hotel-settings/directories: данные берутся одним запросом на путь (2.7s)
+  ✓  55 tests/ui/requests.spec.ts:88:3 › экран /team: данные берутся одним запросом на путь (2.8s)
+  ✓  56 tests/ui/requests.spec.ts:88:3 › экран /connections: данные берутся одним запросом на путь (3.1s)
+  ✓  57 tests/ui/requests.spec.ts:88:3 › экран /ai-agents: данные берутся одним запросом на путь (3.8s)
+  ✓  58 tests/ui/requests.spec.ts:88:3 › экран /website/settings: данные берутся одним запросом на путь (4.3s)
+  ✓  59 tests/ui/requests.spec.ts:88:3 › экран /incidents: данные берутся одним запросом на путь (5.4s)
+  ✓  60 tests/ui/requests.spec.ts:88:3 › экран /journal: данные берутся одним запросом на путь (3.6s)
+  ✓  61 tests/ui/requests.spec.ts:88:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (4.3s)
+  ✓  62 tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (7.5s)
+  ✓  63 tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (16.9s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  64 tests/ui/roles.spec.ts:98:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (9.0s)
+  ✓  65 tests/ui/roles.spec.ts:115:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (14.3s)
+  ✓  66 tests/ui/roles.spec.ts:153:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (16.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  67 tests/ui/roles.spec.ts:215:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (12.4s)
+  ✓  68 tests/ui/roles.spec.ts:271:1 › владелец: зовёт управляющего и администратора, меняет роль (6.8s)
+  ✓  69 tests/ui/roles.spec.ts:302:1 › администратор: сотрудниками ведают владелец и управляющий (5.3s)
+  ✓  70 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, light, 1440px (11.9s)
+  ✓  71 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, dark, 1440px (12.5s)
+  ✓  72 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, light, 390px (10.1s)
+  ✓  73 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, dark, 390px (11.1s)
+  ✓  74 tests/ui/settings-directories.spec.ts:50:1 › вкладка «Справочники»: восемь способов; Kaspi выключен и Halyk поднят, сохранение из шапки, после перечитывания то же (8.6s)
+  ✓  75 tests/ui/settings-directories.spec.ts:87:1 › все способы выключены: сохранить нельзя, причина словами (6.4s)
+  ✓  76 tests/ui/settings-directories.spec.ts:99:1 › выключенный Kaspi: нет в форме оплаты, запросах оплаты и кассе; API отказывает словами (9.0s)
+  ✓  77 tests/ui/settings-directories.spec.ts:135:1 › статьи кассы: ссылка из «Кассы» ведёт в справочники; добавить, переименовать, выключить; выключенная уходит из расхода (14.5s)
+  ✓  78 tests/ui/settings-directories.spec.ts:167:1 › управляющий правит; «только чтение» видит факты без кнопок (6.8s)
+  ✓  79 tests/ui/settings-directories.spec.ts:185:5 › доступность «Справочников»: light, 1440px (7.5s)
+  ✓  80 tests/ui/settings-directories.spec.ts:185:5 › доступность «Справочников»: light, 390px (7.3s)
+  ✓  81 tests/ui/settings-directories.spec.ts:185:5 › доступность «Справочников»: dark, 1440px (9.6s)
+  ✓  82 tests/ui/settings-directories.spec.ts:185:5 › доступность «Справочников»: dark, 390px (9.1s)
+  ✓  83 tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (8.4s)
+  ✓  84 tests/ui/settings-simplification.spec.ts:40:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (16.1s)
+  ✓  85 tests/ui/settings-simplification.spec.ts:61:1 › поиск услуг работает без повторной загрузки каталога (3.0s)
+  ✓  86 tests/ui/settings-simplification.spec.ts:77:1 › ошибка каталога сохраняет навигацию и исправляется повтором (3.8s)
+  ✓  87 tests/ui/settings-simplification.spec.ts:91:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light (22.1s)
+  ✓  88 tests/ui/settings-simplification.spec.ts:91:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark (22.3s)
+  ✓  89 tests/ui/settings-simplification.spec.ts:159:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы (3.2s)
+
+  89 passed (11.0m)
+
+# код выхода 0 · 11 мин 1 с

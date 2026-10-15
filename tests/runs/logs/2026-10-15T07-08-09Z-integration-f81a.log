@@ -1,0 +1,149 @@
+# Интеграционные (integration) · 15.10.2026 12:08 Алматы · vm
+# коммит de31953 (claude/youthful-wozniak-vin0pp)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T07-08-09Z-integration-f81a.json' 'tests/integration/core-security/scope-self.test.ts' 'tests/integration/core-security/beauty-appointment-concurrency.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/core-security/scope-self.test.ts (50 tests | 3 failed) 6406ms
+   ❯ A3/F6: self-маршруты не отдают данные места без назначения (HTTP + настоящая база + RLS) (50)
+     ✓ T11 менеджер ресторана с указателем на гостиничный филиал H2 не читает его черновик онбординга 92ms
+     ✓ H1_MGR с указателем на H2 (место без назначения) не получает черновик H2 48ms
+     ✓ H1_STAFF с указателем на H2 (место без назначения) не получает черновик H2 28ms
+     ✓ HOT2_MGR с указателем на H2 (место без назначения) не получает черновик H2 26ms
+     ✓ BEA_MGR с указателем на H2 (место без назначения) не получает черновик H2 29ms
+     ✓ BEA_LOC_STAFF с указателем на H2 (место без назначения) не получает черновик H2 29ms
+     ✓ контроль: H2_MGR открывает черновик своего места H2 (назначение есть) 50ms
+     ✓ контроль: H2_STAFF открывает черновик своего места H2 (назначение есть) 31ms
+     ✓ контроль: HOT_MGR открывает черновик своего места H2 (назначение есть) 39ms
+     ✓ контроль: ограниченный без указателя получает отказ «выберите филиал», а не данные (как и раньше) 26ms
+     ✓ контроль: OWNER (без назначений) читает онбординг любого своего филиала, как раньше 33ms
+     ✓ контроль: ORG_MGR (без назначений) читает онбординг любого своего филиала, как раньше 48ms
+     ✓ контроль: ORG_STAFF (без назначений) читает онбординг любого своего филиала, как раньше 37ms
+     ✓ чужая организация: черновик H2 недоступен ни по какому указателю 24ms
+     ✓ T12 менеджер ресторана получает свой бизнес и филиал, а не названия самого раннего бизнеса организации 48ms
+     ✓ BEA_MGR: контекст регистрации только из его назначений (bea, lb) 69ms
+     ✓ BEA_LOC_STAFF: контекст регистрации только из его назначений (bea, lb) 86ms
+     ✓ H1_MGR: контекст регистрации только из его назначений (hot, h1) 71ms
+     ✓ H1_STAFF: контекст регистрации только из его назначений (hot, h1) 63ms
+     ✓ H2_MGR: контекст регистрации только из его назначений (hot, h2) 80ms
+     ✓ H2_STAFF: контекст регистрации только из его назначений (hot, h2) 69ms
+     ✓ HOT_MGR: контекст регистрации только из его назначений (hot, h1) 93ms
+     ✓ HOT2_MGR: контекст регистрации только из его назначений (hot2, h3) 83ms
+     ✓ H2_MGR не получает название филиала H1, хотя H1 в организации самый ранний 39ms
+     × контроль: OWNER (без назначений) по-прежнему получает самый ранний бизнес и филиал организации 60ms
+     × контроль: ORG_MGR (без назначений) по-прежнему получает самый ранний бизнес и филиал организации 31ms
+     × контроль: ORG_STAFF (без назначений) по-прежнему получает самый ранний бизнес и филиал организации 28ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (BEA_MGR) 195ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (BEA_LOC_STAFF) 156ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (FOO_MGR) 142ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (H1_STAFF) 136ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (H1_MGR) 115ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (H2_MGR) 129ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (H2_STAFF) 127ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (HOT_MGR) 146ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (HOT2_MGR) 126ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (OWNER) 119ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (ORG_MGR) 116ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (ORG_STAFF) 138ms
+     ✓ /auth/me отвечает 200 и с чужим, и с битым, и с устаревшим указателем (FOREIGN) 118ms
+     ✓ восстановление: /auth/me H1_MGR с указателем HOT+H2 (место без назначения) не подтверждает выбор, стойка ведёт на выбор филиала 31ms
+     ✓ восстановление: /auth/me H1_STAFF с указателем HOT2+H3 (место без назначения) не подтверждает выбор, стойка ведёт на выбор филиала 35ms
+     ✓ восстановление: /auth/me BEA_MGR с указателем HOT+H1 (место без назначения) не подтверждает выбор, стойка ведёт на выбор филиала 38ms
+     ✓ восстановление: /auth/me FOO_MGR с указателем BEA+LB (место без назначения) не подтверждает выбор, стойка ведёт на выбор филиала 37ms
+     ✓ /auth/me H1_MGR с указателем HOT+H1 подтверждает назначенное или свободное место, как раньше 39ms
+     ✓ /auth/me H2_STAFF с указателем HOT+H2 подтверждает назначенное или свободное место, как раньше 35ms
+     ✓ /auth/me HOT_MGR с указателем HOT+H2 подтверждает назначенное или свободное место, как раньше 53ms
+     ✓ /auth/me BEA_LOC_STAFF с указателем BEA+LB подтверждает назначенное или свободное место, как раньше 39ms
+     ✓ /auth/me ORG_MGR с указателем HOT+H2 подтверждает назначенное или свободное место, как раньше 35ms
+     ✓ /auth/me OWNER с указателем HOT2+H3 подтверждает назначенное или свободное место, как раньше 46ms
+ ❯ |integration| tests/integration/core-security/beauty-appointment-concurrency.test.ts (8 tests | 2 failed) 2672ms
+   ❯ U3-b: гонка нового телефона и двойная отправка записи Beauty (8)
+     ✓ ALLOW: запись с новым клиентом и телефоном создаётся (201), клиент один и виден бизнесу 325ms
+     ✓ ALLOW: тот же телефон последовательно находит того же клиента (find-or-create), не создаёт второго 231ms
+     × U3-b: два одновременных запроса с одним новым телефоном (разные мастера, то же время): 201 и 409, не 500 216ms
+     ✓ U5: двойная отправка формы (два одинаковых запроса одновременно, новый клиент с телефоном): 201 и 409, не 500 508ms
+     ✓ U5: повтор уже выполненной отправки (последовательно): 409 «Мастер уже занят», запись одна 113ms
+     × после проигранной гонки повтор проигравшего проходит и находит того же клиента по телефону 117ms
+     ✓ DENY: администратор BL1 не записывает клиента в неназначенный BL2 (403) 9ms
+     ✓ DENY: владелец чужой организации не записывает в наш салон 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/core-security/beauty-appointment-concurrency.test.ts > U3-b: гонка нового телефона и двойная отправка записи Beauty > U3-b: два одновременных запроса с одним новым телефоном (разные мастера, то же время): 201 и 409, не 500
+AssertionError: 0: {"location":{"id":"cc59a0da-8a8f-4537-8c85-e07df223a514","name":"CSF Salon 1","timezone":"Asia/Almaty","currency":"KZT"},"date":"2027-08-16","columns":[{"id":"9f0bb201-0017-4ef1-a718-8b513a225e27","name":"CSF master BL1","intervals":[{"timeFrom":"09:00","timeTo":"18:00"}],"timeOff":false,"timeOffReason":null,"serviceIds":["b41ad614-addd-4b7c-a137-ad1e6aad37f3"]},{"id":"0283d7c5-7888-4e4e-9019-250fa64f1c10","name":"CSF master BL1 second","intervals":[{"timeFrom":"09:00","timeTo":"18:00"}],"timeOff":false,"timeOffReason":null,"serviceIds":["b41ad614-addd-4b7c-a137-ad1e6aad37f3"]}],"appointments":[{"id":"5214a35b-9baa-4b89-8f12-149b16ed8299","employeeId":"0283d7c5-7888-4e4e-9019-250fa64f1c10","serviceId":"b41ad614-addd-4b7c-a137-ad1e6aad37f3","serviceName":"Manicure","customer":{"id":"f9eacc8b-5ecf-4644-97f9-8136d5d52082","name":"Race","phone":"<телефон>"},"startsAt":"2027-08-16T05:00:00.000Z","endsAt":"2027-08-16T06:00:00.000Z","startMinutes":600,"endMinutes":660,"status":"BOOKED","next":["CONFIRMED","DONE","NO_SHOW","CANCELLED"],"priceMinor":"800000","currency":"KZT","notes":null},{"id":"8a4cf0f0-ad88-4072-9628-cdeecb10cefa","employeeId":"9f0bb201-0017-4ef1-a718-8b513a225e27","serviceId":"b41ad614-addd-4b7c-a137-ad1e6aad37f3","serviceName":"Manicure","customer":{"id":"f9eacc8b-5ecf-4644-97f9-8136d5d52082","name":"Race","phone":"<телефон>"},"startsAt":"2027-08-16T05:00:00.000Z","endsAt":"2027-08-16T06:00:00.000Z","startMinutes":600,"endMinutes":660,"status":"BOOKED","next":["CONFIRMED","DONE","NO_SHOW","CANCELLED"],"priceMinor":"800000","currency":"KZT","notes":null}],"services":[{"id":"b41ad614-addd-4b7c-a137-ad1e6aad37f3","name":"Manicure","category":null,"sellable":true,"durationMinutes":60,"priceMinor":"800000","currency":"KZT"}],"bounds":{"fromMinutes":480,"toMinutes":1200}} | {"location":{"id":"cc59a0da-8a8f-4537-8c85-e07df223a514","name":"CSF Salon 1","timezone":"Asia/Almaty","currency":"KZT"},"date":"2027-08-16","columns":[{"id":"9f0bb201-0017-4ef1-a718-8b513a225e27","name":"CSF master BL1","intervals":[{"timeFrom":"09:00","timeTo":"18:00"}],"timeOff":false,"timeOffReason":null,"serviceIds":["b41ad614-addd-4b7c-a137-ad1e6aad37f3"]},{"id":"0283d7c5-7888-4e4e-9019-250fa64f1c10","name":"CSF master BL1 second","intervals":[{"timeFrom":"09:00","timeTo":"18:00"}],"timeOff":false,"timeOffReason":null,"serviceIds":["b41ad614-addd-4b7c-a137-ad1e6aad37f3"]}],"appointments":[{"id":"5214a35b-9baa-4b89-8f12-149b16ed8299","employeeId":"0283d7c5-7888-4e4e-9019-250fa64f1c10","serviceId":"b41ad614-addd-4b7c-a137-ad1e6aad37f3","serviceName":"Manicure","customer":{"id":"f9eacc8b-5ecf-4644-97f9-8136d5d52082","name":"Race","phone":"<телефон>"},"startsAt":"2027-08-16T05:00:00.000Z","endsAt":"2027-08-16T06:00:00.000Z","startMinutes":600,"endMinutes":660,"status":"BOOKED","next":["CONFIRMED","DONE","NO_SHOW","CANCELLED"],"priceMinor":"800000","currency":"KZT","notes":null}],"services":[{"id":"b41ad614-addd-4b7c-a137-ad1e6aad37f3","name":"Manicure","category":null,"sellable":true,"durationMinutes":60,"priceMinor":"800000","currency":"KZT"}],"bounds":{"fromMinutes":480,"toMinutes":1200}}: expected [ 201, 201 ] to deeply equal [ 201, 409 ]
+
+- Expected
++ Received
+
+  [
+    201,
+-   409,
++   201,
+  ]
+
+ ❯ tests/integration/core-security/beauty-appointment-concurrency.test.ts:105:59
+    103|       tally.push(sorted(a, b).join('+'));
+    104|       const loser = [a, b].find((r) => r.status !== 201);
+    105|       expect(sorted(a, b), `${i}: ${a.text} | ${b.text}`).toEqual([201…
+       |                                                           ^
+    106|       expect(typeof loser?.json?.message).toBe('string');
+    107|       // проигравший откатился целиком: клиент один, запись одна, связ…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |integration| tests/integration/core-security/beauty-appointment-concurrency.test.ts > U3-b: гонка нового телефона и двойная отправка записи Beauty > после проигранной гонки повтор проигравшего проходит и находит того же клиента по телефону
+AssertionError: expected [ 201, 201 ] to deeply equal [ 201, 409 ]
+
+- Expected
++ Received
+
+  [
+    201,
+-   409,
++   201,
+  ]
+
+ ❯ tests/integration/core-security/beauty-appointment-concurrency.test.ts:156:26
+    154|       book('staffBl1', day, '13:00', w.ids.eBl1b!, { firstName: 'Loser…
+    155|     ]);
+    156|     expect(sorted(a, b)).toEqual([201, 409]);
+       |                          ^
+    157|     const loserMaster = a.status === 201 ? w.ids.eBl1b! : w.ids.eBl1!;
+    158|     const again = await book('staffBl1', day, '13:00', loserMaster, {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |integration| tests/integration/core-security/scope-self.test.ts > A3/F6: self-маршруты не отдают данные места без назначения (HTTP + настоящая база + RLS) > контроль: OWNER (без назначений) по-прежнему получает самый ранний бизнес и филиал организации
+ FAIL  |integration| tests/integration/core-security/scope-self.test.ts > A3/F6: self-маршруты не отдают данные места без назначения (HTTP + настоящая база + RLS) > контроль: ORG_MGR (без назначений) по-прежнему получает самый ранний бизнес и филиал организации
+ FAIL  |integration| tests/integration/core-security/scope-self.test.ts > A3/F6: self-маршруты не отдают данные места без назначения (HTTP + настоящая база + RLS) > контроль: ORG_STAFF (без назначений) по-прежнему получает самый ранний бизнес и филиал организации
+AssertionError: expected {} to match object { …(3) }
+
+- Expected
++ Received
+
+- {
+-   "businessId": "9cb8a3f0-f6f4-4651-ae11-8e4d7f3ebbff",
+-   "locationId": "bb924887-869c-4d12-a713-7e92614a4892",
+-   "vertical": "HOSPITALITY",
+- }
++ {}
+
+ ❯ tests/integration/core-security/scope-self.test.ts:123:24
+    121|         const r = await w.call(user, 'get', '/auth/registration-contex…
+    122|         expect(r.status).toBe(200);
+    123|         expect(r.json).toMatchObject({
+       |                        ^
+    124|           businessId: w.ids.hot,
+    125|           locationId: w.ids.h1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 53 passed (58)
+   Start at  07:08:10
+   Duration  22.97s (tests 47%, transform 37%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-15T07-08-09Z-integration-f81a.json
+
+# код выхода 1 · 24 с

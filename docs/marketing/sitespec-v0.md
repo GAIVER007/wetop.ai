@@ -15,6 +15,9 @@ alternative allowed SiteSpec size). `jsonb::text` не каноническая 
 `apps/api/src/body-parsers.ts`), больше даёт 413; у остальных маршрутов API прежние 100 КБ. Итого три уровня: HTTP
 300 КБ, SiteSpec 256 КБ (400 `too_large`), база 384 КБ.
 
+Секции салона и ресторана, форма заявки, часы и закреплённая кнопка (SITE-2, та же `site-spec/0`):
+[`sitespec-v1-verticals.md`](sitespec-v1-verticals.md).
+
 Полный валидный пример: [`sitespec-v0.example.json`](sitespec-v0.example.json). Архитектура, рантайм и безопасность:
 [`README.md`](README.md).
 
@@ -85,7 +88,7 @@ Business, Location и нет ключей. Кто владелец сайта, �
 
 | Поле | Тип | Обязательно | Правило |
 |---|---|---|---|
-| `vertical` | `"HOSPITALITY"` | да | v0 знает только гостиницы; совпадает с `Business.vertical` филиала (проверка при сохранении) |
+| `vertical` | `"HOSPITALITY"`, с SITE-2 также `"BEAUTY"`, `"FOOD_SERVICE"` | да | совпадает с `Business.vertical` филиала (проверка при сохранении); секции по направлению: `sitespec-v1-verticals.md` §1 |
 | `displayName` | `LocalizedText<80>` | да | имя на сайте; по умолчанию из `Property.name` или `Location.name` при генерации |
 | `defaultLocale` | `Locale` | да | |
 | `locales` | `Locale[]` | да | содержит `defaultLocale`, без повторов |

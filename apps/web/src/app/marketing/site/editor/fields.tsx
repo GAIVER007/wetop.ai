@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import { LOCALE_LABEL, accommodationCardCodes, localizedText, type EditorField, type EditorOption } from '@pms/domain';
+import { LOCALE_LABEL, WEEKDAY_OPTIONS, accommodationCardCodes, localizedText, type EditorField, type EditorOption } from '@pms/domain';
 import type { SiteAssetView } from '../../../../lib/api';
 import { Button, Field, Input, Select, Textarea, cx } from '../../../../components/ui';
 import { getAt, pathId, pathString, type Path } from './paths';
@@ -480,6 +480,8 @@ function newListItem(fields: readonly EditorField[], c: EditorContextValue, item
     if (f.spec.kind === 'text') item[f.key] = { [c.defaultLocale]: f.key === 'title' || f.key === 'label' || f.key === 'question' ? itemLabel : 'Текст' };
     else if (f.spec.kind === 'enum') item[f.key] = f.spec.options[0]?.value;
     else if (f.spec.kind === 'category') item[f.key] = c.categories[0]?.code ?? '';
+    else if (f.spec.kind === 'weekday') item[f.key] = 1;
+    else if (f.spec.kind === 'clock') item[f.key] = f.key === 'close' ? '20:00' : '10:00';
   }
   return item;
 }
@@ -583,6 +585,77 @@ function MapField({ path, label }: { path: Path; label: string }) {
   );
 }
 
+/** SITE-2: целое число (длительность, выход блюда); пусто снимает необязательное поле */
+function IntField({ path, label, min, max, hint }: { path: Path; label: string; min: number; max: number; hint?: string | undefined }) {
+  const c = useEditor();
+  const value = getAt(c.spec, path);
+  return (
+    <Field label={label} controlId={pathId(path)} error={c.errorAt(path)} hint={hint}>
+      <Input
+        type="number"
+        inputMode="numeric"
+        min={min}
+        max={max}
+        step={1}
+        value={typeof value === 'number' ? String(value) : ''}
+        disabled={c.readOnly}
+        onChange={(e) => {
+          const raw = e.currentTarget.value.trim();
+          c.set(path, raw === '' ? undefined : Number(raw));
+        }}
+      />
+    </Field>
+  );
+}
+
+/** SITE-2: время ЧЧ:ММ */
+function ClockField({ path, label }: { path: Path; label: string }) {
+  const c = useEditor();
+  const value = getAt(c.spec, path);
+  return (
+    <Field label={label} controlId={pathId(path)} error={c.errorAt(path)}>
+      <Input type="time" step={60} value={typeof value === 'string' ? value : ''} disabled={c.readOnly} onChange={(e) => c.set(path, e.currentTarget.value || undefined)} />
+    </Field>
+  );
+}
+
+/** SITE-2: день недели числом в документе (0 воскресенье), выбор с понедельника */
+function WeekdayField({ path, label }: { path: Path; label: string }) {
+  const c = useEditor();
+  const value = getAt(c.spec, path);
+  return (
+    <Field label={label} controlId={pathId(path)} error={c.errorAt(path)}>
+      <Select value={typeof value === 'number' ? String(value) : ''} disabled={c.readOnly} onChange={(e) => c.set(path, Number(e.currentTarget.value))}>
+        {WEEKDAY_OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </Select>
+    </Field>
+  );
+}
+
+/**
+ * SITE-2: ссылка на запись WETOP и цена снимком: только для чтения. Их ставит заготовка из данных филиала, на сайте
+ * они меняются только обновлением из данных WETOP (план SITE-2), а не рукой и не ИИ
+ */
+function DataRefField({ path, label, hint }: { path: Path; label: string; hint?: string | undefined }) {
+  const c = useEditor();
+  const value = getAt(c.spec, path);
+  const text =
+    value && typeof value === 'object' && 'minor' in (value as Record<string, unknown>)
+      ? `${(value as { minor: string }).minor} (${(value as { currency: string }).currency}, в минимальных единицах)`
+      : typeof value === 'string'
+        ? value
+        : 'нет';
+  return (
+    <Field label={label} controlId={pathId(path)} error={c.errorAt(path)} hint={hint ?? 'Из данных WETOP, на сайте не правится'}>
+      <Input value={text} readOnly disabled />
+    </Field>
+  );
+}
+
 /** Поле по описанию реестра редактора */
 export function FieldFor({ field, path }: { field: EditorField; path: Path }): ReactNode {
   const s = field.spec;
@@ -609,5 +682,14 @@ export function FieldFor({ field, path }: { field: EditorField; path: Path }): R
       return <MapField path={path} label={field.label} />;
     case 'list':
       return <ListField path={path} field={field as EditorField & { spec: { kind: 'list' } }} />;
+    case 'int':
+      return <IntField path={path} label={field.label} min={s.min} max={s.max} hint={field.hint} />;
+    case 'clock':
+      return <ClockField path={path} label={field.label} />;
+    case 'weekday':
+      return <WeekdayField path={path} label={field.label} />;
+    case 'dataRef':
+    case 'money':
+      return <DataRefField path={path} label={field.label} hint={field.hint} />;
   }
 }

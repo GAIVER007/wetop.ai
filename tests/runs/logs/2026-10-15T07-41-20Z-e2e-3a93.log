@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 15.10.2026 12:41 Алматы · vm
+# коммит 6db3ad9 (claude/release-verify-20261015)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/employee-workspace.spec.ts:534' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card (9.9s)
+
+
+  1) tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/employees$/
+    Received string:  "http://127.0.0.1:55813/employees?employee=9a0d3191-b03b-43f6-8969-e1c96632aff7#profile"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        13 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+           - unexpected value "http://127.0.0.1:55813/employees?employee=9a0d3191-b03b-43f6-8969-e1c96632aff7#profile"
+
+
+      547 |   expect(await read(request, f.headers)).toHaveLength(1);
+      548 |   await page.reload();
+    > 549 |   await expect(page).toHaveURL(/\/employees$/);
+          |                      ^
+      550 |   await expect(page.getByRole('dialog').filter({ visible: true })).toHaveCount(0);
+      551 | });
+      552 |
+        at /home/user/wetop.ai/tests/beauty-ui/employee-workspace.spec.ts:549:22
+
+    Error Context: test-results/employee-workspace-saving--30679--employee-and-a-closed-card/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/employee-workspace-saving--30679--employee-and-a-closed-card/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/employee-workspace-saving--30679--employee-and-a-closed-card/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card 
+
+# код выхода 1 · 23 с

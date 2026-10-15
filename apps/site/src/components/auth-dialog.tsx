@@ -12,6 +12,8 @@ import { Icon, type IconName } from './icon';
 import type { AuthMode } from '../lib/site';
 import { PHONE_COUNTRIES, PRIVACY_POLICY_PATH, defaultPhoneCountry } from '../lib/phone-countries';
 
+import styles from './auth-dialog.module.css';
+
 type Texts = Dictionary['auth'];
 
 type Props = {
@@ -68,12 +70,12 @@ const VERTICAL_TILES: Record<BusinessVertical, { icon: IconName; label: string }
   FOOD_SERVICE: { icon: 'food', label: 'Ресторан' },
 };
 
-/** Язык системы: стойка пока только на русском, остальные видны, но не выбираются (§19.9, без обещаний). */
+/** Выбор сохраняется в существующем поле locale профиля. */
 const LANGUAGES = [
-  { code: 'ru', label: 'Русский', ready: true },
-  { code: 'kk', label: 'Қазақша', ready: false },
-  { code: 'en', label: 'English', ready: false },
+  { code: 'ru', label: 'Русский' },
+  { code: 'en', label: 'English' },
 ] as const;
+const REGISTRATION_COUNTRIES = PHONE_COUNTRIES.filter((c) => ['KZ', 'AE', 'QA'].includes(c.code));
 
 /*
  * Окно входа и создания аккаунта поверх главной (ADR-100, plans/site-auth-dialog-tour-2026-09-27.md).
@@ -115,7 +117,7 @@ export function AuthDialog({ texts, urls }: Props) {
       Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
     const query = new URLSearchParams(window.location.search);
-    setForm((f) => ({ ...f, phoneCountry: country, email: query.get('email') ?? '' }));
+    setForm((f) => ({ ...f, phoneCountry: REGISTRATION_COUNTRIES.some((c) => c.code === country) ? country : 'KZ', email: query.get('email') ?? '' }));
     setVertical(parseBusinessVertical(query.get('vertical')) ?? 'HOSPITALITY');
     setPasswordJustSet(query.get('password') === 'set');
     setChoosable(window.location.pathname === '/');
@@ -386,7 +388,7 @@ export function AuthDialog({ texts, urls }: Props) {
   return (
     <dialog
       ref={dialogRef}
-      className="auth-dialog"
+      className={`auth-dialog ${mode === 'register' ? styles.registration : ''}`}
       aria-label={texts.dialogLabel}
       onClose={onClose}
       onClick={(event) => {
@@ -565,7 +567,6 @@ export function AuthDialog({ texts, urls }: Props) {
                             />
                             <Icon name={VERTICAL_TILES[id].icon} size={22} />
                             <span>{VERTICAL_TILES[id].label}</span>
-                            <small>Доступно</small>
                           </label>
                         ))}
                       </div>
@@ -626,9 +627,9 @@ export function AuthDialog({ texts, urls }: Props) {
                         onChange={set('phoneCountry')}
                         disabled={pending}
                       >
-                        {PHONE_COUNTRIES.map((c) => (
+                        {REGISTRATION_COUNTRIES.map((c) => (
                           <option key={c.code} value={c.code}>
-                            {c.name}
+                            {c.code === 'AE' ? 'ОАЭ (Дубай)' : c.name}
                           </option>
                         ))}
                       </select>
@@ -647,8 +648,8 @@ export function AuthDialog({ texts, urls }: Props) {
                         disabled={pending}
                       >
                         {LANGUAGES.map((l) => (
-                          <option key={l.code} value={l.code} disabled={!l.ready}>
-                            {l.ready ? l.label : `${l.label} (${texts.fields.languageSoon})`}
+                          <option key={l.code} value={l.code}>
+                            {l.label}
                           </option>
                         ))}
                       </select>
@@ -671,7 +672,7 @@ export function AuthDialog({ texts, urls }: Props) {
                         autoComplete="tel-national"
                         required
                         maxLength={40}
-                        placeholder={texts.fields.phonePlaceholder}
+                        placeholder={form.phoneCountry === 'QA' ? '5550 1234' : form.phoneCountry === 'AE' ? '50 123 4567' : texts.fields.phonePlaceholder}
                         value={form.phone}
                         onChange={set('phone')}
                         disabled={pending}

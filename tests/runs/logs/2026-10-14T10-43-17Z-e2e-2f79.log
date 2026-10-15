@@ -1,0 +1,21 @@
+# Сквозные (e2e) · 14.10.2026 15:43 Алматы · MacBook-Air-Urij.local
+# коммит 6b03be4 (claude/site-photos-20261014), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'segments.spec'
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/site/segments.spec.ts:60:3 › /for/hostels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (574ms)
+  ✓   2 tests/site/segments.spec.ts:60:3 › /for/mini-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (205ms)
+  ✓   3 tests/site/segments.spec.ts:60:3 › /for/apart-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (178ms)
+  ✓   4 tests/site/segments.spec.ts:60:3 › /for/beauty-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (176ms)
+  ✓   5 tests/site/segments.spec.ts:60:3 › /for/barbershops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (178ms)
+  ✓   6 tests/site/segments.spec.ts:60:3 › /for/spa/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (171ms)
+  ✓   7 tests/site/segments.spec.ts:60:3 › /for/nail-studios/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (194ms)
+  ✓   8 tests/site/segments.spec.ts:60:3 › /for/cafes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (193ms)
+  ✓   9 tests/site/segments.spec.ts:60:3 › /for/bars/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (211ms)
+  ✓  10 tests/site/segments.spec.ts:119:1 › карточки направлений на главной ведут на страницы по типам объектов (248ms)
+  ✓  11 tests/site/segments.spec.ts:132:1 › страницы направлений ведут карточками на свои типы бизнеса (375ms)
+
+  11 passed (11.1s)
+
+# код выхода 0 · 13 с

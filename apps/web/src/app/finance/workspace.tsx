@@ -1,12 +1,10 @@
 'use client';
 
-import { useSyncExternalStore, useState, type ReactNode } from 'react';
-
-import { Icon } from '../../components/icon';
+import { useSyncExternalStore, type ReactNode } from 'react';
 
 type View = 'overview' | 'operations' | 'debts' | 'services' | 'cash';
 const tabs = [
-  { id: 'overview', label: 'Обзор', hash: '#charges' },
+  { id: 'overview', label: 'Обзор', hash: '#overview' },
   { id: 'operations', label: 'Операции', hash: '#operations' },
   { id: 'debts', label: 'Долги', hash: '#debts' },
   // REP2: отчёт по услугам — свод начислений-услуг периода
@@ -43,10 +41,12 @@ export function FinanceWorkspace({
     () => window.location.hash,
     () => '',
   );
-  const active = tabs.find((tab) => tab.hash === hash)?.id ?? initialView;
-  const viewKey = `${initialView ?? ''}:${hash}`;
-  const [disclosure, setDisclosure] = useState<{ key: string; open: boolean } | null>(null);
-  const expanded = disclosure?.key === viewKey ? disclosure.open : active !== null;
+  const active =
+    hash === '#finance-filters'
+      ? 'operations'
+      : hash === '#charges'
+        ? 'overview'
+        : (tabs.find((tab) => tab.hash === hash)?.id ?? initialView ?? 'overview');
   const choose = (index: number) => {
     const tab = tabs[index]!;
     window.history.pushState(null, '', tab.hash);
@@ -56,17 +56,7 @@ export function FinanceWorkspace({
   const panels = { overview, operations, debts, services, cash };
   return (
     <div className="finance-workspace finance-more">
-      <button
-        type="button"
-        className="finance-more__trigger"
-        aria-expanded={expanded}
-        aria-controls="finance-details"
-        onClick={() => setDisclosure({ key: viewKey, open: !expanded })}
-      >
-        <Icon name="chevron" />
-        Отчёты и управление
-      </button>
-      <div id="finance-details" hidden={!expanded}>
+      <div id="finance-details">
         <div className="finance-tabs" role="tablist" aria-label="Детализация финансов">
           {tabs.map((tab, index) => (
             <button

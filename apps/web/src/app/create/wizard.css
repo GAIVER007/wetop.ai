@@ -322,3 +322,16 @@
     font-size: var(--text-sm);
   }
 }
+
+@layer sections {
+  .guest-wizard__header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4); }
+  .guest-wizard__header .guest-wizard__progress { margin: 0; }
+  .guest-wizard__layout { gap: var(--space-4); }
+  .guest-wizard__card, .guest-wizard__preview { padding: var(--space-4); border-radius: var(--radius); }
+  .guest-wizard h1 { font-size: var(--text-3xl); line-height: 1.2; margin-bottom: var(--space-2); }
+  .guest-wizard__fields { gap: var(--space-2) var(--space-4); }
+  .guest-wizard__fields label span { white-space: normal; overflow-wrap: anywhere; }
+  .guest-wizard__actions { flex-wrap: wrap; gap: var(--space-2); }
+  @media (min-width: 961px) { .guest-wizard__preview { position: sticky; top: var(--space-4); } }
+  @media (max-width: 600px) { .guest-wizard__header .guest-wizard__progress { width: 100%; flex-wrap: wrap; } }
+}

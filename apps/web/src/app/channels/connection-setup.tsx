@@ -17,7 +17,7 @@ const settle = <T,>(p: Promise<T>) =>
     },
   );
 const checkedAt = (iso: string | null | undefined, clock: PropertyClock) =>
-  iso ? `, проверено ${clock.clock(iso)} по Алматы` : '';
+  iso ? `, проверено ${clock.clock(iso)} по времени объекта` : '';
 export async function ChannelConnectionSetup({ canMutate }: { canMutate?: boolean } = {}) {
   const clock = await hotelClock();
   const [connection, webhook, me, hotel, shell] = await Promise.all([
@@ -65,10 +65,10 @@ export async function ChannelConnectionSetup({ canMutate }: { canMutate?: boolea
               value={`категорий ${connection.mappedCategories}, тарифных планов ${connection.mappedLocalRatePlans}, сопоставлений ${connection.mappedRatePlans}`}
             />
             <Fact
-              label="Последний webhook, по Алматы"
+              label="Последний webhook, время объекта"
               value={clock.local(connection.lastWebhookAt)}
             />
-            <Fact label="Последний импорт, по Алматы" value={clock.local(connection.lastPullAt)} />
+            <Fact label="Последний импорт, время объекта" value={clock.local(connection.lastPullAt)} />
           </Grid>
         )}
       </Panel>

@@ -1,0 +1,66 @@
+# Сквозные (e2e) · 13.10.2026 21:08 Алматы · MacBook-Air-Urij.local
+# коммит 7ca4b3f (claude/ui44-verticals-20261013), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 42 tests using 1 worker
+
+  ✓   1 tests/branches-ui/analytics.spec.ts:28:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (3.1s)
+  ✓   2 tests/branches-ui/analytics.spec.ts:70:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance (2.2s)
+  ✓   3 tests/branches-ui/analytics.spec.ts:135:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (3.5s)
+  ✓   4 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 1440 light: accessibility, keyboard and screenshot (1.4s)
+  ✓   5 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 light: accessibility, keyboard and screenshot (1.4s)
+  ✓   6 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 1440 dark: accessibility, keyboard and screenshot (1.2s)
+  ✓   7 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot (1.6s)
+  ✓   8 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 390 light: accessibility, keyboard and screenshot (1.4s)
+  ✓   9 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 light: accessibility, keyboard and screenshot (1.5s)
+  ✓  10 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 390 dark: accessibility, keyboard and screenshot (1.4s)
+  ✓  11 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 dark: accessibility, keyboard and screenshot (1.6s)
+  ✓  12 tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (1.3s)
+  ✓  13 tests/branches-ui/branches.spec.ts:68:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (1.2s)
+  ✓  14 tests/branches-ui/branches.spec.ts:80:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (1.1s)
+  ✓  15 tests/branches-ui/branches.spec.ts:92:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (2.2s)
+[WebServer] [browser] Uncaught TypeError: Failed to execute 'measure' on 'Performance': '​TodayPage' cannot have a negative time stamp.
+  ✓  16 tests/branches-ui/branches.spec.ts:120:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (10.1s)
+  ✓  17 tests/branches-ui/branches.spec.ts:156:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (4.2s)
+  ✓  18 tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (816ms)
+  ✓  19 tests/branches-ui/today.spec.ts:173:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (878ms)
+  ✓  20 tests/branches-ui/today.spec.ts:212:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (704ms)
+  ✓  21 tests/branches-ui/today.spec.ts:229:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (4.8s)
+  ✓  22 tests/branches-ui/today.spec.ts:269:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action (1.6s)
+  ✓  23 tests/branches-ui/today.spec.ts:319:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling (3.1s)
+  ✓  24 tests/branches-ui/today.spec.ts:372:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (2.1s)
+[WebServer] [browser] Uncaught TypeError: Failed to execute 'measure' on 'Performance': '​TodayPage' cannot have a negative time stamp.
+  ✓  25 tests/branches-ui/today.spec.ts:394:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: блоки владельца в «Финансах», без запросов салона и ресторана (1.8s)
+[WebServer] [browser] Uncaught TypeError: Failed to execute 'measure' on 'Performance': '​TodayPage' cannot have a negative time stamp.
+[WebServer] [browser] Uncaught TypeError: Failed to execute 'measure' on 'Performance': '​TodayPage' cannot have a negative time stamp.
+  ✓  26 tests/branches-ui/today.spec.ts:406:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (2.3s)
+[WebServer] [browser] Uncaught TypeError: Failed to execute 'measure' on 'Performance': '​TodayPage' cannot have a negative time stamp.
+  ✓  27 tests/branches-ui/today.spec.ts:438:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет (6.2s)
+  ✓  28 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок (1.5s)
+  ✓  29 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок (1.4s)
+  ✓  30 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок (1.3s)
+  ✓  31 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок (1.3s)
+  ✓  32 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок (1.6s)
+  ✓  33 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок (1.8s)
+  ✓  34 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок (1.5s)
+  ✓  35 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок (1.5s)
+[WebServer] [browser] Uncaught TypeError: Failed to execute 'measure' on 'Performance': '​TodayPage' cannot have a negative time stamp.
+  ✓  36 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (2.7s)
+  ✓  37 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (2.3s)
+[WebServer] [browser] Uncaught TypeError: Failed to execute 'measure' on 'Performance': '​TodayPage' cannot have a negative time stamp.
+  ✓  38 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (2.3s)
+[WebServer] [browser] Uncaught TypeError: Failed to execute 'measure' on 'Performance': '​TodayPage' cannot have a negative time stamp.
+  ✓  39 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (2.6s)
+  ✓  40 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: hotel shared shell desktop/mobile (3.0s)
+  ✓  41 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: beauty shared shell desktop/mobile (1.7s)
+  ✓  42 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: food shared shell desktop/mobile (1.8s)
+
+  42 passed (1.7m)
+
+# код выхода 0 · 1 мин 45 с

@@ -1,0 +1,66 @@
+# Сквозные (e2e) · 13.10.2026 21:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9b1e4c3 (codex/organizations-card-editor)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/branches.spec.ts' '--grep' 'restaurant-only' '--workers=1'
+[WebServer] (node:37789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37822) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37823) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37863) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:37872) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/branches-ui/branches.spec.ts:218:1 › restaurant-only organization shows monthly payment chart (6.5s)
+
+
+  1) tests/branches-ui/branches.spec.ts:218:1 › restaurant-only organization shows monthly payment chart 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Оплаты по месяцам', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Оплаты по месяцам', exact: true }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Оплаты по месяцам', exact: true })
+
+
+      222 |     await page.goto('/branches');
+      223 |     await expect(page.locator('.org-reference--service')).toBeVisible();
+    > 224 |     await expect(page.getByRole('heading', { name: 'Оплаты по месяцам', exact: true })).toBeVisible();
+          |                                                                                         ^
+      225 |     await expect(page.getByRole('list', { name: 'Полученные оплаты по месяцам' })).toBeVisible();
+      226 |   } finally {
+      227 |     await request.post(`${api}/__test/control`, { data: { org: 'A' } });
+        at /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP/tests/branches-ui/branches.spec.ts:224:89
+
+    Error Context: test-results/branches-restaurant-only-o-5d4ab-shows-monthly-payment-chart/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-restaurant-only-o-5d4ab-shows-monthly-payment-chart/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-restaurant-only-o-5d4ab-shows-monthly-payment-chart/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/branches.spec.ts:218:1 › restaurant-only organization shows monthly payment chart 
+
+# код выхода 1 · 13 с

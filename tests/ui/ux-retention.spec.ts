@@ -19,7 +19,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
 }
 
 test('пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7)', async ({
@@ -84,7 +84,7 @@ test('меню телефона сохраняет порядок основны
     sections.filter((label) =>
       ['Финансы', 'Календарь', 'Гости и бронирования', 'Продажи'].includes(label),
     ),
-  ).toEqual(['Финансы', 'Календарь', 'Гости и бронирования', 'Продажи']);
+  ).toEqual(['Календарь', 'Гости и бронирования', 'Финансы', 'Продажи']);
 });
 
 test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7)', async ({ page }) => {

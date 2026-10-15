@@ -1,0 +1,41 @@
+.registration:global(.auth-dialog) {
+  width: min(620px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  border-color: var(--public-border);
+  background: var(--public-surface);
+  color: var(--public-text);
+}
+.registration :global(.auth-dialog__panel) { padding: 32px 28px 24px; }
+.registration :global(.auth-dialog__title) { font-size: 1.75rem; letter-spacing: -0.03em; }
+.registration :global(.auth-dialog__lead) { font-size: 0.9375rem; line-height: 1.5; color: var(--public-muted); }
+.registration :global(.auth-form) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+.registration :global(.auth-form > *) { grid-column: 1 / -1; min-width: 0; }
+.registration :global(.auth-form > .auth-field) { grid-column: auto; }
+.registration :global(.auth-form > .auth-field:has(input[autocomplete='new-password'])) { grid-column: 1 / -1; }
+.registration :global(.auth-field__input) { background: var(--public-bg); border-color: var(--public-border); color: var(--public-text); min-height: 46px; }
+.registration :global(.auth-field__input::placeholder) { color: var(--public-muted); opacity: 1; }
+.registration :global(.auth-row) { gap: 16px; }
+.registration :global(.auth-form__hint) { color: var(--public-muted); font-size: 0.8125rem; line-height: 1.5; }
+.registration :global(.auth-verticals__grid) { gap: 8px; }
+.registration :global(.auth-vertical) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  min-height: 52px;
+  color: var(--public-text);
+  background: var(--public-bg);
+  border-color: var(--public-border);
+  font-size: 0.875rem;
+}
+.registration :global(.auth-vertical:has(input:checked)) { background: var(--public-selected); border-color: var(--public-accent); color: var(--public-text); }
+.registration :global(.auth-vertical:has(input:focus-visible)) { outline: 2px solid var(--public-accent); outline-offset: 3px; }
+.registration :global(.auth-vertical svg) { flex-shrink: 0; }
+.registration :global(.auth-form__submit) { min-height: 48px; }
+@media (max-width: 520px) {
+  .registration :global(.auth-dialog__panel) { padding: 28px 16px 20px; }
+  .registration :global(.auth-form) { grid-template-columns: minmax(0, 1fr); }
+  .registration :global(.auth-vertical) { flex-direction: column; gap: 6px; }
+  .registration :global(.auth-row) { gap: 10px; }
+}

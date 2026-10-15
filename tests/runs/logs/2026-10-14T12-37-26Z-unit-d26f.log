@@ -1,0 +1,17 @@
+# Модульные (unit) · 14.10.2026 17:37 Алматы · MacBook-Air-Urij.local
+# коммит 519326e (claude/food-fix-01-20261014), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-37-26Z-unit-d26f.json' 'apps/api/src/bar/bar.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01
+
+ ✓ |unit| apps/api/src/bar/bar.controller.test.ts (12 tests) 285ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 60ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  16:37:27
+   Duration  3.27s (transform 54%, import 38%, tests 8%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-37-26Z-unit-d26f.json
+
+# код выхода 0 · 5 с

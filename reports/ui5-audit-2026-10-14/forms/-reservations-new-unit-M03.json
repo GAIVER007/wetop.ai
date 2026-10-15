@@ -1,0 +1,12 @@
+{
+ "/reservations/new?unit=M03": {
+  "open": null,
+  "controls": 12,
+  "unlabeled": [],
+  "placeholderOnly": [],
+  "controlHeights": {
+   "43px": 2,
+   "41px": 10
+  }
+ }
+}

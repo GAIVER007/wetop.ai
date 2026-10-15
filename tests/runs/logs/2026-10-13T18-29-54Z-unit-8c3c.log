@@ -1,0 +1,39 @@
+# Модульные (unit) · 13.10.2026 23:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит e8bfc4f (codex/organizations-card-editor), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T18-29-54Z-unit-8c3c.json' 'apps/web/src/app/branches/financial-widgets.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |unit| apps/web/src/app/branches/financial-widgets.test.ts (1 test | 1 failed) 21ms
+   × orders the overview from expenses to received income without changing values 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/branches/financial-widgets.test.ts > orders the overview from expenses to received income without changing values
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/web/src/app/branches/financial-widgets.test.ts:11:48
+      9|   const labels = ['Расходы', 'Средний чек', 'Оплаченные заказы', 'Дохо…
+     10|   const positions = labels.map(label => html.indexOf(`<p>${label}</p>`…
+     11|   expect(positions.every(index => index >= 0)).toBe(true);
+       |                                                ^
+     12|   expect(positions).toEqual([...positions].sort((a,b) => a-b));
+     13|   expect(html).toContain('5 000 ₸');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  11:29:55
+   Duration  396ms (import 66%, transform 24%, tests 8%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T18-29-54Z-unit-8c3c.json
+
+# код выхода 1 · 2 с

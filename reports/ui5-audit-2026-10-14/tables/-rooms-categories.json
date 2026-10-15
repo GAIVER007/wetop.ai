@@ -1,0 +1,30 @@
+{
+ "/rooms/categories": {
+  "390": [
+   {
+    "cols": 7,
+    "noHead": false,
+    "rows": 3,
+    "rowHeights": [
+     181,
+     182
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 7,
+    "noHead": false,
+    "rows": 3,
+    "rowHeights": [
+     46,
+     47
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

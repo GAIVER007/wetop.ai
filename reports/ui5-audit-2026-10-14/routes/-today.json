@@ -1,0 +1,30 @@
+{
+ "/today": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Главная",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Подробнее 78x24"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Главная",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Главная",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

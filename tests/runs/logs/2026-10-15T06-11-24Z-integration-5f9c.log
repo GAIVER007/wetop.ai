@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 15.10.2026 11:11 Алматы · MacBook-Air-Urij.local
+# коммит ff86d2d (claude/core-security-fix-20261015)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-15T06-11-24Z-integration-5f9c.json' 'tests/integration/platform-p1-backfill.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/core-sec
+
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 247ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  10:11:27
+   Duration  2.54s (transform 50%, import 34%, tests 16%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-15T06-11-24Z-integration-5f9c.json
+
+# код выхода 0 · 5 с

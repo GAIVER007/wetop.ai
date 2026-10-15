@@ -22,9 +22,14 @@ for (const theme of ['dark', 'light'] as const) {
       await expect(hero).toContainText('Рестораны');
       await expect(hero).not.toContainText(/пилот/i);
       // Дашборд-мокап (LAND2 v2): вымышленные данные и подпись примера, интерактива внутри нет
-      await expect(hero.locator('.dash')).toBeVisible();
+      await expect(hero.locator('.public-intro__figure img')).toBeVisible();
       await expect(hero).toContainText('Пример интерфейса. Данные вымышленные.');
-      await expect(hero.locator('.dash a, .dash button, .dash [role="button"]')).toHaveCount(0);
+      await expect(
+        hero
+          .locator('.public-intro__figure img')
+          .locator('..')
+          .locator('a, button, [role="button"]'),
+      ).toHaveCount(0);
       const cards = page.locator('.verticals__card');
       await expect(cards).toHaveCount(3);
       await expect(cards.nth(0)).toContainText('Гостиницы');
@@ -36,12 +41,15 @@ for (const theme of ['dark', 'light'] as const) {
       ] as const) {
         const card = cards.nth(index);
         await expect(card).not.toContainText(/пилот/i);
-        await expect(card.locator('.verticals__action')).toHaveAttribute('href', href);
+        await expect(card.getByRole('heading', { level: 3 }).getByRole('link')).toHaveAttribute(
+          'href',
+          href,
+        );
       }
       const layout = await page.evaluate(() => ({
         width: innerWidth,
         scroll: document.documentElement.scrollWidth,
-        preview: document.querySelector('.dash')!.getBoundingClientRect().top,
+        preview: document.querySelector('.public-intro__figure img')!.getBoundingClientRect().top,
       }));
       expect(layout.scroll).toBeLessThanOrEqual(layout.width);
       expect(layout.preview).toBeLessThan(width === 1440 ? 900 : 1400);
@@ -140,5 +148,14 @@ test('business positioning: three verticals, no maturity labels, five capabiliti
     await expect(photo).toBeVisible();
     // Фото загрузилось, а не битая ссылка: у картинки есть собственная ширина.
     expect(await photo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  }
+});
+
+test('compact direction cards retain accessible links without subtype lists', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#audience .verticals__segments')).toHaveCount(0);
+  for (const link of await page.locator('#audience h3 a').all()) {
+    expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await expect(link).toHaveAttribute('href', /^\/for\/[^/]+\/$/);
   }
 });

@@ -15,7 +15,7 @@ for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-    // шесть карточек по образцу владельца (09.10): загрузка, заезды, выезды, свободно, уборка, внимание
+    // шесть плиток по эталону владельца 13.10.2026: занято, свободно, заезд, выезд, проживание, внимание
     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
     // exact: подпись «Требует внимания: долги и задачи» (макет владельца 09.10) содержит это слово в нижнем регистре
     await expect(panel.getByText('Задачи', { exact: true })).toHaveCount(0);
@@ -32,7 +32,7 @@ for (const width of [360, 390, 430]) {
     ).length;
     await expect(panel.getByTestId('day-free')).toHaveText(String(free));
     await page.evaluate(() => document.fonts.ready);
-    const brokenWords = await panel.locator('.board-kpi__label').evaluateAll((labels) => {
+    const brokenWords = await panel.locator('.stat__label').evaluateAll((labels) => {
       const broken: string[] = [];
       for (const label of labels) {
         const walker = document.createTreeWalker(label, NodeFilter.SHOW_TEXT);
@@ -49,8 +49,8 @@ for (const width of [360, 390, 430]) {
       return broken;
     });
     expect(brokenWords).toEqual([]);
-    await expect(panel.locator('.board-kpi--free')).toContainText('мест');
-    await expect(panel.locator('.board-kpi--dirty')).toContainText('Нужна уборка');
+    await expect(panel.getByRole('link', { name: /^Свободно / })).toBeVisible();
+    await expect(panel.getByTestId('day-in-house')).toBeVisible();
     const label = page.locator('.board-group-name-text').first();
     await label.scrollIntoViewIfNeeded();
     await page.evaluate(() => document.fonts.ready);

@@ -12,10 +12,10 @@ import { expect, test } from './fixtures';
 test('календарь: заголовок, сводка дня и быстрые действия', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
-  // Шесть карточек по образцу владельца (09.10): загрузка, заезды, выезды, свободно, уборка, внимание.
+  // Шесть плиток по эталону владельца 13.10.2026: занято, свободно, заезд, выезд, проживание, внимание.
   const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(stats).toBeVisible();
-  for (const id of ['occupancy', 'arrivals', 'departures', 'free', 'dirty', 'attention'])
+  for (const id of ['occupancy', 'free', 'arrivals', 'departures', 'in-house', 'attention'])
     await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
   // часов в сводке больше нет: образец их не показывает
   await expect(stats.getByRole('heading')).toHaveCount(0);
@@ -35,10 +35,10 @@ test('календарь: заголовок, сводка дня и быстр�
   const departure = new Date(Date.parse(`${last}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
   // имя ссылки начинается с видимой подписи плитки (WCAG 2.5.3, мастер-проход UI, этап 4)
   await expect(
-    page.getByRole('link', { name: /^Свободно мест: .*Поиск свободных мест$/ }),
+    page.getByRole('link', { name: /^Свободно .*Найти места$/ }),
   ).toHaveAttribute('href', `/rooms/availability?arrival=${arrival}&departure=${departure}`);
   await expect(
-    page.getByRole('link', { name: /^Требует внимания: \d+\. Неоплаченные брони$/ }),
+    page.getByRole('link', { name: /^Требует внимания \d+ Долги и задачи$/ }),
   ).toHaveAttribute(
     'href',
     '/chessboard?stays=debt',

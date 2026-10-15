@@ -38,6 +38,13 @@
     font-weight: var(--weight-medium);
     color: var(--text-2);
   }
+  /* телефон: пресеты периода — цель касания 44 px (специфичнее общего правила directory.css; аудит UI5) */
+  @media (max-width: 600px) {
+    .reports-controls .directory-filters a {
+      min-height: var(--touch-target);
+    }
+  }
+
   .reports-controls .directory-filters a:hover {
     background: var(--surface-muted);
     color: var(--text);

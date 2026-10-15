@@ -1,0 +1,35 @@
+# Интеграционные (integration) · 13.10.2026 15:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3bd01f4 (codex/organizations-card-editor), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T10-43-26Z-integration-3bc5.json' 'tests/integration/business-card-metadata.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |integration| tests/integration/business-card-metadata.test.ts (4 tests | 1 failed) 158ms
+   ❯ business card database persistence and tenant isolation (4)
+     × edits a legacy business whose updated_at has PostgreSQL microseconds 22ms
+     ✓ persists metadata, rolls back an audit failure, and rejects stale versions 17ms
+     ✓ rejects foreign business metadata and raw foreign image references 5ms
+     ✓ persists a sanitized cover and removes its reference without deleting unrelated objects 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/business-card-metadata.test.ts > business card database persistence and tenant isolation > edits a legacy business whose updated_at has PostgreSQL microseconds
+ConflictException: Карточка изменилась. Обновите страницу и повторите правки.
+ ❯ apps/api/src/hotel/business-cards.ts:57:28
+
+ ❯ Proxy._transactionWithCallback ../../../../Desktop/Проекты/WETOP/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ BusinessCardsService.save apps/api/src/hotel/business-cards.ts:55:16
+ ❯ apps/api/src/auth/request-context.ts:61:41
+ ❯ tests/integration/business-card-metadata.test.ts:25:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  03:43:27
+   Duration  1.60s (import 57%, transform 28%, tests 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T10-43-26Z-integration-3bc5.json
+
+# код выхода 1 · 2 с

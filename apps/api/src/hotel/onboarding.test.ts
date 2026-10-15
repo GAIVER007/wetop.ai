@@ -269,9 +269,18 @@ describe('OnboardingService', () => {
     expect(rec.properties).toHaveLength(0);
   });
 
-  it('provision: у организации нет объекта — создаёт его в цепочке и заводит номера под ним', async () => {
+  it('provision: у организации нет объекта — владелец создаёт его в цепочке и заводит номера под ним', async () => {
     const { service, rec } = makeDb({ property: null });
-    const res = await asUser(() => service.provision(SETUP, NOW));
+    // новое направление создаёт только владелец (ADR-183), менеджер получает 403
+    await expect(
+      withSignedInUser({ userId: 'u-1', organizationId: 'org-1', role: 'MANAGER' } as never, () =>
+        service.provision(SETUP, NOW),
+      ),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    const res = await withSignedInUser(
+      { userId: 'u-1', organizationId: 'org-1', role: 'OWNER' } as never,
+      () => service.provision(SETUP, NOW),
+    );
     expect(res).toMatchObject({ ok: true, categories: 2, units: 11 });
     expect(rec.businesses).toEqual([
       expect.objectContaining({ organizationId: 'org-1', vertical: 'HOSPITALITY' }),

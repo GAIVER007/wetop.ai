@@ -1,0 +1,80 @@
+# Модульные (unit) · 14.10.2026 17:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 84a7397 (codex/market-runtime-readiness-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T12-42-59Z-unit-000e.json' 'apps/api/src/market/collector-selection.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-market-ready-20261014
+
+ ❯ |unit| apps/api/src/market/collector-selection.test.ts (2 tests | 1 failed) 8ms
+   ❯ выбор соседей для автоматического сбора загрузки (2)
+     × список учитывает включённое автообновление и исключает мониторинг только цен 7ms
+     ✓ адресная запись сохраняет проверку действующего конкурента 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/market/collector-selection.test.ts > выбор соседей для автоматического сбора загрузки > список учитывает включённое автообновление и исключает мониторинг только цен
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
++   {
++     "orderBy": [
++       {
++         "propertyId": "asc",
++       },
++       {
++         "name": "asc",
++       },
++     ],
++     "select": {
++       "distanceM": true,
++       "id": true,
++       "name": true,
++       "property": {
++         "select": {
++           "id": true,
++           "name": true,
++           "timezone": true,
++         },
++       },
++       "unitsTotal": true,
++       "url": true,
++     },
+      "where": {
+        "active": true,
+-       "autoRefresh": true,
+-       "monitoring": {
+-         "in": [
+-           "OCCUPANCY",
+-           "BOTH",
+-         ],
+-       },
+      },
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/api/src/market/collector-selection.test.ts:10:22
+      8|     const repo = new PrismaMarketRepository({ db: { competitor: { find…
+      9|     await repo.collectorTargets();
+     10|     expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ wh…
+       |                      ^
+     11|       active: true, autoRefresh: true, monitoring: { in: ['OCCUPANCY',…
+     12|     } }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  05:43:01
+   Duration  883ms (transform 59%, import 39%, worker 1%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T12-42-59Z-unit-000e.json
+
+# код выхода 1 · 3 с

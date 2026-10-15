@@ -12,7 +12,7 @@ test('ошибка стойки показывается сразу, даже е
   page,
   request,
 }) => {
-  await page.goto('/finance');
+  await page.goto('/today');
   await request.post(`${API}/__test/control`, {
     data: {
       failPath: '/desk/today',
@@ -20,7 +20,7 @@ test('ошибка стойки показывается сразу, даже е
       delayMs: 6000,
     },
   });
-  await page.goto('/finance', { waitUntil: 'commit' });
+  await page.goto('/today', { waitUntil: 'commit' });
   await expect(page.getByTestId('desk-error')).toBeVisible({ timeout: 2500 });
 });
 
@@ -30,8 +30,8 @@ test('«Финансы» показывают блоки, пока настро�
 }) => {
   await request.post(`${API}/__test/control`, { data: { holdHotel: true } });
   try {
-    await page.goto('/finance', { waitUntil: 'commit' });
-    await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible({
+    await page.goto('/today', { waitUntil: 'commit' });
+    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible({
       timeout: 5000,
     });
     await expect(page.getByTestId('owner-risks')).toBeVisible({ timeout: 5000 });
@@ -45,12 +45,13 @@ test('«Финансы» показывают блоки, пока настро�
 });
 
 test('стойка и её шахматка запрашиваются параллельно', async ({ page, request }) => {
-  await page.goto('/finance'); // компиляция next dev не входит в бюджет
+  // блоки стойки живут на «Главной» (ADR-180)
+  await page.goto('/today'); // компиляция next dev не входит в бюджет
   await request.post(`${API}/__test/reset`);
   await request.post(`${API}/__test/control`, {
     data: { delayPath: '/desk/today', delayMs: 5000 },
   });
-  await page.goto('/finance', { waitUntil: 'commit' });
+  await page.goto('/today', { waitUntil: 'commit' });
   await expect
     .poll(async () => {
       const hits = await (await request.get(`${API}/__test/hits`)).json();
@@ -101,12 +102,12 @@ test('замер: блоки «Финансов» при задержке нас
       data: { delayPath: '/hotel/settings', delayMs: 2000 },
     });
     const start = performance.now();
-    await page.goto('/finance', { waitUntil: 'commit' });
+    await page.goto('/today', { waitUntil: 'commit' });
     const sample: Record<string, number> = {};
     await Promise.all(
       [
-        ['heading', page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })],
-        ['money', page.getByTestId('cash-period-income')],
+        ['heading', page.getByRole('heading', { name: 'Главная', exact: true })],
+        ['today', page.getByTestId('biz-arrivals')],
         ['risks', page.getByTestId('owner-risks')],
       ].map(async ([key, locator]) => {
         await expect(locator as import('@playwright/test').Locator).toBeVisible();

@@ -1,0 +1,33 @@
+{
+ "/reports": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Сегодня 74x30",
+    "A:7 дней 62x30",
+    "A:Этот месяц 95x30",
+    "A:Прошлый месяц 130x30"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

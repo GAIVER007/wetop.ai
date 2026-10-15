@@ -11,3 +11,17 @@ export async function saveOnboarding(body: Parameters<typeof sharedOnboardingApi
     };
   }
 }
+
+export async function reloadOnboarding() {
+  try {
+    return { state: await sharedOnboardingApi.status(), error: null };
+  } catch (error) {
+    return {
+      state: null,
+      error:
+        error instanceof ApiError
+          ? error.message
+          : 'Не удалось проверить настройку. Попробуйте ещё раз.',
+    };
+  }
+}

@@ -3,6 +3,8 @@ import { IBM_Plex_Mono, IBM_Plex_Sans, Manrope } from 'next/font/google';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
 import { AuthDialog } from '../components/auth-dialog';
+import { SiteMotion } from '../components/site-motion';
+import motion from '../components/site-motion.module.css';
 import { DevAgentation } from '../components/dev-agentation';
 import { SiteFooter } from '../components/site-footer';
 import { SiteHeader } from '../components/site-header';
@@ -79,7 +81,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       // Плавная прокрутка — только к разделам на странице; переход на другую страницу Next делает сразу.
       data-scroll-behavior="smooth"
     >
-      <body>
+      <body className={motion.motion}>
         <a className="skip-link" href="#content">
           {t.a11y.skipToContent}
         </a>
@@ -121,6 +123,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </noscript>
         {/* Чат ИИ-помощника (ТЗ П2): анонимный, адрес — assistantUrl в site.config.ts */}
         {assistantSrc && <Script src={assistantSrc} />}
+        <SiteMotion />
         <DevAgentation />
       </body>
     </html>

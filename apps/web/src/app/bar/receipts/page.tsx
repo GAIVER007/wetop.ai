@@ -10,33 +10,32 @@ import { Icon } from '../../../components/icon';
 import { postBarReceiptAction } from '../actions';
 import { SupplierPaymentForm } from '../supplier-payment-form';
 import { BarTabs } from '../tabs';
-import '../bar.css';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
+import '../bar.css';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
 /** Приходы бара (ADR-157): журнал документов поставщиков, проведение черновиков, оплата и долги. */
 export default async function BarReceiptsPage() {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY']);
   const [receipts, shell] = await Promise.all([settle(barApi.receipts()), deskShell()]);
+  // UI-FIX-01: проведение и оплата прихода пишут склад и кассу, нужны право desk и не режим чтения.
   const canMutate = mayAccess(shell.access, 'desk') && !shell.readOnly;
   if (!receipts.ok) throw receipts.error;
-  return <Page width="wide" title="Бар: приходы" subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={canMutate ?
+  return <Page width="wide" className="bar-subpage" title="Бар: приходы" subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={canMutate ?
     <Link className="btn" href="/bar/receipts/new" prefetch={false}>Новый приход</Link>
   : undefined}>
     <BarTabs current="receipts" />
-    <p className="bar-accounting-note"><b>Как учитываются деньги:</b> проведение прихода увеличивает склад и фиксирует закупку. Расход в кассе появляется только после оплаты поставщику, включая частичную оплату.</p>
+    <details className="bar-details"><summary>Как учитываются деньги</summary><p className="bar-accounting-note"> проведение прихода увеличивает склад и фиксирует закупку. Расход в кассе появляется только после оплаты поставщику, включая частичную оплату.</p></details>
     {receipts.value.length === 0
       ? <EmptyState icon={<Icon name="receipt" />} title="Приходов пока нет">Занесите первую счёт-фактуру: кнопка «Новый приход».</EmptyState>
       : <Table density="compact" sticky="header" stack aria-label="Приходы бара">
-          <thead><tr><th>Документ</th><th>Поставщик</th><th>Позиций</th><th>Сумма</th><th>Оплачено</th><th>Долг</th><th>Статус</th><th /></tr></thead>
+          <thead><tr><th>Документ</th><th>Поставщик</th><th>Сумма</th><th>Долг</th><th>Статус</th><th /></tr></thead>
           <tbody>{receipts.value.map((receipt) => <tr key={receipt.id}>
-            <td data-label="Документ"><b>{receipt.documentNumber}</b> <small>{displayDate(receipt.receivedDate.slice(0, 10))}</small></td>
+            <td data-label="Документ"><b>{receipt.documentNumber}</b> <small>{displayDate(receipt.receivedDate.slice(0, 10))}</small><small>{receipt._count.lines} позиций</small></td>
             <td data-label="Поставщик">{receipt.supplier.name}</td>
-            <td data-label="Позиций">{receipt._count.lines}</td>
-            <td data-label="Сумма">{formatMoney(receipt.totalAmount)}</td>
-            <td data-label="Оплачено">{formatMoney(receipt.paidAmount)}</td>
+            <td data-label="Сумма">{formatMoney(receipt.totalAmount)}<small>Оплачено: {formatMoney(receipt.paidAmount)}</small></td>
             <td data-label="Долг">{formatMoney(receipt.dueAmount)}</td>
             <td data-label="Статус"><Badge tone={receipt.status === 'POSTED' ? 'ok' : 'neutral'}>{receipt.status === 'POSTED' ? 'Проведён' : 'Черновик'}</Badge></td>
             <td>{!canMutate ? null : receipt.status === 'DRAFT'

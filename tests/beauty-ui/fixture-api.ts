@@ -7,6 +7,7 @@ import { Test } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 import { createPrismaClient } from '@pms/database';
 import type { MembershipRole } from '@pms/domain';
+import { MarketingBudgetModule } from '../../apps/api/src/marketing-budget/marketing-budget.module';
 import { BeautyModule } from '../../apps/api/src/beauty/beauty.module';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { AuthorInterceptor } from '../../apps/api/src/auth/author.interceptor';
@@ -22,6 +23,7 @@ import { isLocalDatabase } from '../tools/seed-local';
 
 if (!isLocalDatabase(process.env.DATABASE_URL ?? ''))
   throw new Error('Own local database required');
+process.env.SESSION_SECRET ??= 'synthetic-beauty-ui-replay-key-not-production';
 const db = createPrismaClient(process.env.DATABASE_URL, 'pms_test');
 const prisma = { db } as unknown as PrismaService;
 const onboarding = new SharedOnboardingService(prisma);
@@ -88,7 +90,8 @@ for (const [name, path, method] of [
 }
 Body()(FixtureController.prototype, 'save', 0);
 const module = await Test.createTestingModule({
-  imports: [BeautyModule],
+  // бюджет маркетинга общий для всех направлений (14.10.2026): настоящий модуль на той же базе
+  imports: [BeautyModule, MarketingBudgetModule],
   controllers: [FixtureController],
 })
   .overrideProvider(PrismaService)
@@ -121,7 +124,17 @@ app.use(
             if (req.path === '/__test/reset') {
               role = 'OWNER';
               calls.length = 0;
-              await db.organization.update({ where: { id: org }, data: { status: 'ACTIVE' } });
+              // спеки делят стенд: cleanup предыдущего спека удаляет организацию, reset создаёт её заново
+              await db.organization.upsert({
+                where: { id: org },
+                create: { id: org, name: `MV5-browser-${org}`, status: 'ACTIVE' },
+                update: { status: 'ACTIVE' },
+              });
+              await db.user.upsert({
+                where: { id: user },
+                create: { id: user, name: 'Тестовый владелец', email: `mv5-${user}@example.invalid` },
+                update: {},
+              });
               const b1 = await db.business.create({
                 data: { organizationId: org, name: 'Тестовая студия А', vertical: 'BEAUTY' },
               });
@@ -176,6 +189,8 @@ app.use(
                 await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
                 await tx.auditLog.deleteMany({ where: { organizationId: org } });
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
+                await tx.marketingExpense.deleteMany({ where: { location: { business: b } } });
+                await tx.marketingBudget.deleteMany({ where: { location: { business: b } } });
                 await tx.location.deleteMany({ where: { business: b } });
                 await tx.business.deleteMany({ where: b });
                 await tx.organization.delete({ where: { id: org } });

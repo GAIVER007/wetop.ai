@@ -1,4 +1,5 @@
 'use client';
+import design from './calendar-design.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -105,7 +106,7 @@ function StayPanel({
   onCommand: (command: PreviewCommand, target: PreviewTarget) => void;
   onEditStateChange?: (dirty: boolean, pending: boolean) => void;
 }) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<StayPreviewData | null | undefined>(undefined);
   const [financeOpen, setFinanceOpen] = useState(false);
   const [financeDirty, setFinanceDirty] = useState(false);
@@ -227,21 +228,23 @@ function StayPanel({
         .join(', ')
     : '';
   const row = (icon: IconName, label: string, children: React.ReactNode, testId?: string) => (
-    <div className="stay-panel__row" data-testid={testId}>
-      <span className="stay-panel__icon" aria-hidden="true">
-        <Icon name={icon} />
-      </span>
-      <dt>{label}</dt>
+    <dl className="stay-panel__row" data-testid={testId}>
+      <dt>
+        <span className="stay-panel__icon" aria-hidden="true">
+          <Icon name={icon} />
+        </span>
+        {label}
+      </dt>
       <dd>{children}</dd>
-    </div>
+    </dl>
   );
   return (
-    <aside
+    <div
       ref={ref}
       role="dialog"
       aria-label={`Бронь: ${target.guest}`}
       tabIndex={-1}
-      className="stay-panel"
+      className={`stay-panel ${design.preview}`}
       data-testid="stay-preview"
       onDoubleClick={openCardOnDouble(router, card, requestClose)}
     >
@@ -293,7 +296,7 @@ function StayPanel({
           </a>
         )}
       </div>
-      <dl className="stay-panel__facts">
+      <div className="stay-panel__facts">
         <div data-testid="preview-dates" className="stay-panel__group">
           {row(
             'arrival',
@@ -301,7 +304,7 @@ function StayPanel({
             data === undefined
               ? 'Загружаю…'
               : data
-                ? displayDate(data.arrivalDate, 'full')
+                ? displayDate(data.arrivalDate, 'numeric')
                 : 'в карточке брони',
           )}
           {row(
@@ -311,7 +314,7 @@ function StayPanel({
               'Загружаю…'
             ) : data ? (
               <>
-                {displayDate(data.departureDate, 'full')}
+                {displayDate(data.departureDate, 'numeric')}
                 <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>
               </>
             ) : (
@@ -344,7 +347,7 @@ function StayPanel({
         </div>
         {target.sourceName && row('channels', 'Источник', target.sourceName)}
         {data?.notes && row('journal', 'Заметки', data.notes)}
-      </dl>
+      </div>
       {unready && (
         <p className="stay-panel__warn" data-testid="preview-unready">
           {places} не проверен после уборки
@@ -410,7 +413,7 @@ function StayPanel({
           </Link>
         </div>
       )}
-    </aside>
+    </div>
   );
 }
 

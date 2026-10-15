@@ -86,7 +86,7 @@ export default async function RevisionPageView({
     <Page
       width="wide"
       title="Приём брони из канала"
-      subtitle="Входящая ревизия → бронь → назначенная койка, время объекта (Алматы)"
+      subtitle="Входящая ревизия → бронь → назначенная койка, время объекта"
       crumbs={<BackCrumb href="/channels/events">События каналов</BackCrumb>}
     >
       <div className="chain" data-testid="revision-chain">

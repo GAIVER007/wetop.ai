@@ -14,6 +14,7 @@ import {
   Table,
 } from '../../components/ui';
 import { IconField } from '../../components/icon-field';
+import { Icon } from '../../components/icon';
 import { Segmented } from '../../components/segmented';
 import { Tabs } from '../../components/tabs';
 import { pluralRu } from '../../lib/plural';
@@ -62,6 +63,8 @@ export function WorkspaceBoard({
   const [panelTable, setPanelTable] = useState<string | null>(null);
   const [cleaningPending, startCleaning] = useTransition();
   const [cleaningError, setCleaningError] = useState<string | null>(null);
+  // все хуки до раннего возврата «Переключаем ресторан…», иначе React падает на смене филиала (ADR-181, аудит P1.5)
+  const [editingArea, setEditingArea] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
   useEffect(() => {
     const begin = () => {
@@ -131,7 +134,6 @@ export function WorkspaceBoard({
     );
   const panel = panelTable ? data.tables.find((t) => t.id === panelTable) : undefined;
   const shown = areas.filter((a) => !area || a.id === area);
-  const [editingArea, setEditingArea] = useState<string | null>(null);
   const spots = (tables: DiningTable[]) =>
     layoutSpots(tables.map((t) => ({ id: t.id, posX: t.posX ?? null, posY: t.posY ?? null })));
   /** Стол на плане: одна разметка для сетки и для схемы зала (§42) */
@@ -269,9 +271,17 @@ export function WorkspaceBoard({
                   aria-pressed={area === a.id}
                   onClick={() => setArea(a.id)}
                 >
-                  <span>{a.name}</span>
-                  <span className="rest-fp__count">
-                    {a.id ? activeTables.filter((t) => t.areaId === a.id).length : activeTables.length}
+                  <span className="rest-fp__zone-icon" aria-hidden="true">
+                    <Icon name={a.id ? 'board' : 'inventory'} width={18} height={18} />
+                  </span>
+                  <span className="rest-fp__zone-text">
+                    {a.name}
+                    <small>
+                      {pluralRu(
+                        a.id ? activeTables.filter((t) => t.areaId === a.id).length : activeTables.length,
+                        ['стол', 'стола', 'столов'],
+                      )}
+                    </small>
                   </span>
                 </button>
               ))}

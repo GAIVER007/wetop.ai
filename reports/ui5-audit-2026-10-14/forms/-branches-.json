@@ -1,0 +1,12 @@
+{
+ "/branches": {
+  "open": "Добавить",
+  "controls": 7,
+  "unlabeled": [],
+  "placeholderOnly": [],
+  "controlHeights": {
+   "40px": 1,
+   "41px": 4
+  }
+ }
+}

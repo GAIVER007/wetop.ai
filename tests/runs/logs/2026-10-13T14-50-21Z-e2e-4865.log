@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 13.10.2026 19:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c23c6e (codex/organizations-card-editor), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/organization-card-workflow.spec.ts' '--workers=1'
+[WebServer] (node:51459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51491) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51527) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:51530) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/organization-card-workflow.spec.ts:3:1 › business metadata and branch archive survive reload; second brand keeps its identity (45.4s)
+
+
+  1) tests/ui/organization-card-workflow.spec.ts:3:1 › business metadata and branch archive survive reload; second brand keeps its identity 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Редактировать карточку', exact: true }).getByLabel('Описание', { exact: true })
+
+
+      17 |   const editor = page.getByRole('dialog', { name: 'Редактировать карточку', exact: true });
+      18 |   await editor.getByLabel('Название бизнеса', { exact: true }).fill('Acceptance Brand');
+    > 19 |   await editor.getByLabel('Описание', { exact: true }).fill('Persisted business description');
+         |                                                        ^
+      20 |   await editor.getByRole('button', { name: 'Сохранить изменения' }).click();
+      21 |   await expect(editor).not.toBeVisible();
+      22 |   await page.reload();
+        at /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP/tests/ui/organization-card-workflow.spec.ts:19:56
+
+    Error Context: test-results/organization-card-workflow-46e6b-nd-brand-keeps-its-identity/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/organization-card-workflow-46e6b-nd-brand-keeps-its-identity/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/organization-card-workflow-46e6b-nd-brand-keeps-its-identity/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/organization-card-workflow.spec.ts:3:1 › business metadata and branch archive survive reload; second brand keeps its identity 
+
+# код выхода 1 · 51 с

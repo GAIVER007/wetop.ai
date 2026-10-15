@@ -45,7 +45,7 @@ WETOP превращает разрозненные инструменты се�
 |---|---|
 | **WETOP Platform** | Партнёры, доступ, расширения, поддержка и platform administration |
 | **Partner / Organization** | Компания-клиент и tenant: пользователи, бизнесы и расширения |
-| **Business** | Направление или бренд; хранит `vertical = HOSPITALITY | BEAUTY` |
+| **Business** | Направление или бренд; хранит `vertical = HOSPITALITY | BEAUTY | FOOD_SERVICE` |
 | **Location** | Конкретный филиал или физический объект |
 | **Vertical Domain** | Отраслевая операционная модель |
 

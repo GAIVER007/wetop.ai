@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button, Field, Input, Table } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
@@ -24,16 +25,21 @@ interface Row {
 export function FinanceBoard({
   cash,
   timezone,
-  today,
+  from,
+  to,
 }: {
   cash: FoodCashView;
   timezone: string;
-  today: string;
+  from: string;
+  to: string;
 }) {
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>('revenue');
-  const monthStart = `${today.slice(0, 8)}01`;
-  const [from, setFrom] = useState(monthStart);
-  const [to, setTo] = useState(today);
+  // период грузит сервер целиком (ADR-181): смена даты перечитывает страницу с новыми параметрами
+  const setPeriod = (nextFrom: string, nextTo: string) => {
+    if (!nextFrom || !nextTo) return;
+    router.push(`?from=${nextFrom}&to=${nextTo}`);
+  };
   const day = (iso: string) => localInput(iso, timezone).slice(0, 10);
   const method = (m: string) => METHOD_RU[m] ?? m;
   const rows: Record<Tab, Row[]> = {
@@ -118,11 +124,11 @@ export function FinanceBoard({
       <div className="rest-card">
         <div className="rest-card__tools">
           <Field label={<span className="sr-only">С даты</span>}>
-            <Input type="date" value={from} max={to} onChange={(e) => setFrom(e.target.value)} />
+            <Input type="date" value={from} max={to} onChange={(e) => setPeriod(e.target.value, to)} />
           </Field>
           <span aria-hidden="true">–</span>
           <Field label={<span className="sr-only">По дату</span>}>
-            <Input type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} />
+            <Input type="date" value={to} min={from} onChange={(e) => setPeriod(from, e.target.value)} />
           </Field>
           <span className="rest-finance-total" data-testid="finance-total">
             Итого: <strong>{money(total)}</strong>

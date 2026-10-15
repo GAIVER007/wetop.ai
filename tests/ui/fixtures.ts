@@ -228,6 +228,17 @@ export async function openBoardFilters(page: Page) {
   return pop;
 }
 
+/** Выбирает утверждённый пресет в едином контроле и применяет его к шахматке. */
+export async function chooseBoardPeriod(
+  page: Page,
+  preset: 'Сегодня' | '7 дней' | '14 дней' | '30 дней' | 'Текущий месяц',
+) {
+  await page.getByTestId('board-period-button').click();
+  const menu = page.locator('.board-nav .date-range');
+  await menu.getByRole('button', { name: preset, exact: true }).click();
+  await menu.getByRole('button', { name: 'Применить', exact: true }).click();
+}
+
 /** Выбрать категорию и/или состояние места в окошке «Фильтры» и применить */
 export async function boardFilter(page: Page, pick: { category?: string; state?: string }) {
   const pop = await openBoardFilters(page);
@@ -245,7 +256,7 @@ export async function boardFilter(page: Page, pick: { category?: string; state?:
 export const sideNav = (page: Page) => page.locator('.sidenav');
 export const menuLinks = (page: Page) =>
   page
-    .locator('.sidenav__items a')
+    .locator('.sidenav__panel a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 /** Открывает панель разделов наведением на кнопку текущего раздела и показывает подразделы `section` */
@@ -262,10 +273,11 @@ export async function openSection(page: Page, section: string) {
     if ((await nav.locator('.sidenav__current').getAttribute('aria-expanded')) !== 'true')
       await nav.locator('.sidenav__current').click();
     await expect(panel).toBeVisible({ timeout: 1_000 });
-    await nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) }).hover();
+    const group = nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) });
+    if (await group.getAttribute('aria-expanded') === 'false') await group.click();
     await expect(panel).toBeVisible({ timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
-  return nav.locator('.sidenav__items > :not([hidden])');
+  return nav.locator('.sidenav__items:not([hidden])');
 }
 
 /** Переход через панель: раздел → подраздел, как человек мышью */

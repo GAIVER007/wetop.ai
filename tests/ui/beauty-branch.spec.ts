@@ -15,28 +15,26 @@ async function signIn(page: Page, request: APIRequestContext) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
 }
 
 /** Заводит салон формой филиалов и переключает стойку на него */
 async function createAndOpenSalon(page: Page, name: string) {
   await page.goto('/branches');
   const main = page.getByRole('main');
-  await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
-  await main.getByRole('radio', { name: 'Салон красоты или студия' }).check();
-  await main.getByLabel('Название филиала').fill(name);
+  await main.getByRole('button', { name: 'Добавить', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
+  await creation.getByLabel('Новый бизнес или бренд').check();
+  await creation.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+  await creation.getByLabel('Название бизнеса', { exact: true }).fill(name);
   await page.screenshot({ path: `${SNAPSHOTS}/branch-form-vertical.png`, fullPage: true });
-  await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
-  await expect(main.getByRole('status')).toContainText('Салон создан');
+  await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+  await expect(creation.getByRole('status')).toContainText('Салон создан');
   await page.reload();
-  const card = main.locator('.branches-grid section').filter({ hasText: name });
+  const card = main.locator('.org-card').filter({ hasText: name });
   await expect(card).toContainText('Салон красоты');
   await expect(card).not.toContainText('номеров и коек');
-  await main
-    .locator('.branches-grid section')
-    .filter({ hasText: name })
-    .getByRole('button', { name: 'Открыть салон', exact: true })
-    .click();
+  await main.getByRole('button', { name: `Открыть объект: ${name}`, exact: true }).click();
   // MV8: открытый салон начинает с общего рабочего экрана дня
   await page.waitForURL('**/today');
   await expect(page.getByTestId('beauty-today')).toBeVisible();

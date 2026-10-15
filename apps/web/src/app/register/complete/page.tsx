@@ -10,15 +10,10 @@ import '../../login/login.css';
 
 export default async function RegistrationCompletePage() {
   if (!(await signedInUser())) redirect(publicAuthUrl());
-  const context = await authApi.registrationContext();
-  if (!context)
-    return (
-      <AuthShell>
-        <h1>Рабочее пространство недоступно</h1>
-        <p>Обратитесь к владельцу организации.</p>
-      </AuthShell>
-    );
   const { context: verified } = await authApi.me();
+  if (verified?.businessId && verified.locationId) redirect('/register/setup');
+  const context = await authApi.registrationContext();
+  if (!context) redirect('/scope/resolve');
   const selected =
     verified?.businessId === context.businessId && verified?.locationId === context.locationId;
   if (selected) redirect('/register/setup');

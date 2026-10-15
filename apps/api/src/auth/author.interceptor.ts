@@ -19,6 +19,7 @@ import {
   LUXX_APARTS_PROPERTY,
   SCOPE_CHOOSE_MESSAGE,
   SCOPE_FORBIDDEN_MESSAGE,
+  SCOPE_REJECTED_MESSAGE,
   accessDeniedMessage,
   can,
   isRestricted,
@@ -28,7 +29,13 @@ import {
 import { ROUTE_ACCESS, type RouteAccess } from './access.decorator';
 import { SCOPE_AWARE } from './scope-aware.decorator';
 import { propertyRef } from '../database/property-ref';
-import { SCOPE_HEADER, parseScopePointer, resolveScope, type ResolvedScope } from './scope';
+import {
+  SCOPE_HEADER,
+  hasScopePointer,
+  parseScopePointer,
+  resolveScope,
+  type ResolvedScope,
+} from './scope';
 
 /**
  * Оборачивает обработку запроса в контекст вошедшего, чтобы `audit_logs.user_id` заполнялся сам:
@@ -62,10 +69,13 @@ export class AuthorInterceptor implements NestInterceptor {
       role: request?.user?.role ?? null,
       platformAdmin: request?.user?.platformAdmin === true,
     };
-    const scope = await this.scope(actor, request?.headers?.[SCOPE_HEADER]);
+    const { scope, rejected } = await this.scope(actor, request?.headers?.[SCOPE_HEADER]);
     // Public endpoints authenticate and bind the provider/site inside their own domain adapter.
     const handler = context.getHandler?.();
     const controller = context.getClass?.();
+    // fail-closed (O4=A): указатель прислан, но не принят. Не превращаем его молча в организацию
+    if (rejected && !this.mayIgnoreRejectedPointer(handler, controller))
+      throw new ForbiddenException(SCOPE_REJECTED_MESSAGE);
     const assignments = request?.user?.scopes ?? [];
     const role = this.roleAtPlace(actor.role, assignments, scope, handler, controller);
     const publicRoute =
@@ -91,6 +101,22 @@ export class AuthorInterceptor implements NestInterceptor {
       return lastValueFrom(next.handle(), { defaultValue: undefined });
     });
     return from([value]);
+  }
+
+  /**
+   * Маршруты, которым отклонённый указатель не мешает: публичные и служебные (человека за запросом нет), личные (`self`:
+   * среди них `GET /auth/me`, по которому стойка узнаёт, что кука устарела), раздел платформы (указатель ему не нужен) и
+   * `@ScopeAware` (выбор филиала и сводка вызываются до выбора и сами восстанавливают указатель). Маршрут без записанного
+   * права сюда не входит: он и так закрыт `RoleGuard`.
+   */
+  private mayIgnoreRejectedPointer(handler: unknown, controller: unknown): boolean {
+    const reflectOn = (key: string) =>
+      handler &&
+      (Reflect.getMetadata(key, handler as object) ??
+        (controller && Reflect.getMetadata(key, controller as object)));
+    if (reflectOn(PUBLIC_ROUTE) || reflectOn(SCOPE_AWARE)) return true;
+    const access: RouteAccess | undefined = reflectOn(ROUTE_ACCESS);
+    return access === 'self' || access === 'platform' || access === 'service';
   }
 
   /**
@@ -166,13 +192,20 @@ export class AuthorInterceptor implements NestInterceptor {
   private async scope(
     actor: { userId: string | null; organizationId: string | null },
     header: string | string[] | undefined,
-  ): Promise<ResolvedScope | Record<string, never>> {
-    if (!actor.userId || !actor.organizationId) return {};
+  ): Promise<{ scope: ResolvedScope | Record<string, never>; rejected: boolean }> {
+    if (!actor.userId || !actor.organizationId) return { scope: {}, rejected: false };
+    const attempted = hasScopePointer(header);
     const pointer = parseScopePointer(header);
-    if (!pointer.businessId && !pointer.locationId) return { scope: 'ORGANIZATION' };
+    // указатель есть, но не разобран (битый uuid, повтор ключа, чужой ключ): отклонён
+    if (!pointer.businessId && !pointer.locationId)
+      return { scope: { scope: 'ORGANIZATION' }, rejected: attempted };
     const prisma = this.prisma;
-    if (!prisma) return { scope: 'ORGANIZATION' };
+    if (!prisma) return { scope: { scope: 'ORGANIZATION' }, rejected: false };
     const organizationId = actor.organizationId;
-    return withSignedInUser(actor, () => resolveScope(prisma.db, organizationId, pointer));
+    const resolved = await withSignedInUser(actor, () =>
+      resolveScope(prisma.db, organizationId, pointer),
+    );
+    // resolveScope отдаёт ORGANIZATION на любой отказ при разобранном указателе: чужой, архивный, без бизнеса
+    return { scope: resolved, rejected: resolved.scope === 'ORGANIZATION' };
   }
 }

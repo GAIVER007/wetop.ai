@@ -60,4 +60,42 @@
       gap: 4px;
     }
   }
+
+  /* «Главная» салона (ТЗ 09.10.2026): «Ближайшие записи» рядом с «Мастера на смене» на широком экране */
+  .vertical-today__split {
+    display: grid;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  @media (min-width: 1280px) {
+    .vertical-today__split {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+  }
+  .vertical-today__masters {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .vertical-today__masters li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--touch-target);
+    padding: var(--space-2) 0;
+  }
+  .vertical-today__masters li + li {
+    border-top: 1px solid var(--border);
+  }
+  .vertical-today__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  @media (max-width: 600px) {
+    .vertical-today__actions .btn {
+      flex: 1 1 100%;
+    }
+  }
 }

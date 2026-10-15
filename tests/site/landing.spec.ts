@@ -134,7 +134,7 @@ test('главная: регистрация открыта, маркетинг�
   ).toHaveCount(1);
   expect((await page.request.get('/blog/')).status()).toBe(200);
   // Карта разделов на первом экране (01.10.2026): схема продукта, а не снимок системы и не выдуманные показатели
-  await expect(hero.locator('.dash')).toBeVisible();
+  await expect(hero.locator('.public-intro__figure img')).toBeVisible();
   await expect(hero).toContainText(/Пример интерфейса/);
   await expect(hero).not.toContainText(/248[\s\u00a0]?500|Алина|Марат/);
 });

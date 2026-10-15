@@ -6,6 +6,7 @@ import {
   ConflictException,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Inject,
   Injectable,
@@ -17,16 +18,27 @@ import {
 } from '@nestjs/common';
 import {
   parseTimeOffInput,
+  roleAt,
+  SCOPE_CHOOSE_MESSAGE,
   parseWorkingHoursWeek,
   timeOffWindow,
   weekTemplate,
   type WorkingInterval,
 } from '@pms/domain';
-import { currentUserId } from '../auth/request-context';
+import { assertRevision, hoursRevision, canonicalRevision } from './write-contract';
+import type { DbTx } from '@pms/database';
+import { currentAssignments, currentRole, currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
-import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
+import {
+  beautyScope,
+  beautyTransaction,
+  mayBeauty,
+  mayBeautyWrite,
+  UUID,
+  type BeautyScope,
+} from './scope';
 
 /**
  * График мастера и отсутствия (DATA_MODEL §19.1, Q-251, срез B4).
@@ -72,7 +84,8 @@ export class BeautyScheduleService {
       : (employees.find(
           (e) =>
             e.status === 'ACTIVE' &&
-            (scope.locationId === null || e.locations.some((l) => l.locationId === scope.locationId)),
+            (scope.locationId === null ||
+              e.locations.some((l) => l.locationId === scope.locationId)),
         ) ??
         employees.find((e) => e.status === 'ACTIVE') ??
         employees[0] ??
@@ -82,10 +95,16 @@ export class BeautyScheduleService {
       id: e.id,
       name: e.name,
       active: e.status === 'ACTIVE',
-      worksHere: scope.locationId !== null && e.locations.some((l) => l.locationId === scope.locationId),
+      worksHere:
+        scope.locationId !== null && e.locations.some((l) => l.locationId === scope.locationId),
     }));
 
+    const snapshot =
+      chosen && scope.locationId
+        ? await this.weekSnapshot(this.prisma.db, chosen.id, scope.locationId)
+        : { intervals: [], revision: null };
     return {
+      businessName: scope.businessName,
       location:
         scope.locationId === null
           ? null
@@ -107,7 +126,8 @@ export class BeautyScheduleService {
         name: l.name,
         assigned: chosen ? chosen.locations.some((x) => x.locationId === l.id) : false,
       })),
-      week: weekTemplate(chosen && scope.locationId ? await this.hours(chosen.id, scope.locationId) : []),
+      week: weekTemplate(snapshot.intervals),
+      weekRevision: snapshot.revision,
       timeOffs: chosen ? await this.timeOffs(chosen.id, scope) : [],
     };
   }
@@ -125,10 +145,17 @@ export class BeautyScheduleService {
       select: { employeeId: true },
     });
     if (!assigned)
-      throw new ConflictException('Мастер в этом филиале не работает: сначала поставьте его в филиал');
+      throw new ConflictException(
+        'Мастер в этом филиале не работает: сначала поставьте его в филиал',
+      );
 
     const locationId = scope.locationId;
-    await beautyTransaction(this.prisma, scope, async (tx) => {
+    const snapshot = await beautyTransaction(this.prisma, scope, async (tx) => {
+      await assertRevision(raw, await hoursRevision(tx, id, locationId));
+      const stillAssigned = await tx.employeeLocation.findFirst({
+        where: { employeeId: id, locationId },
+      });
+      if (!stillAssigned) throw new ConflictException('Мастер больше не работает в этом филиале');
       await tx.workingHours.deleteMany({ where: { employeeId: id, locationId } });
       if (parsed.value.length)
         await tx.workingHours.createMany({
@@ -148,11 +175,15 @@ export class BeautyScheduleService {
           entityType: 'employee',
           entityId: id,
           action: 'beauty.employee.working_hours.set',
-          after: { locationId, intervals: parsed.value.map((i) => `${i.weekday} ${i.timeFrom}-${i.timeTo}`) },
+          after: {
+            locationId,
+            intervals: parsed.value.map((i) => `${i.weekday} ${i.timeFrom}-${i.timeTo}`),
+          },
         },
       });
+      return this.weekSnapshot(tx, id, locationId);
     });
-    return { week: weekTemplate(await this.hours(id, locationId)) };
+    return { week: weekTemplate(snapshot.intervals), weekRevision: snapshot.revision };
   }
 
   /** Отсутствие мастера. Записи в эти дни не отменяются, их число возвращается словами для человека */
@@ -252,13 +283,27 @@ export class BeautyScheduleService {
       where: { id: { in: wanted }, businessId: scope.businessId, status: 'ACTIVE' },
       select: { id: true },
     });
-    if (own.length !== wanted.length) throw new BadRequestException('Среди выбранных филиалов есть чужой');
+    if (own.length !== wanted.length)
+      throw new BadRequestException('Среди выбранных филиалов есть чужой');
 
     const current = await this.prisma.db.employeeLocation.findMany({
       where: { employeeId: id },
       select: { locationId: true, location: { select: { name: true } } },
     });
-    const removed = current.filter((row) => !wanted.includes(row.locationId));
+    const currentIds = current.map((row) => row.locationId);
+
+    // CORE-SECURITY-FIX-01, F4: менять привязки мастера можно только в филиалах из области вызывающего (назначения,
+    // DATA_MODEL §31). Без назначений (и у владельца) область это вся организация, и всё идёт как раньше. У ограниченного
+    // привязки вне области не снимаются и не меняются, а график там не стирается; добавить мастера в филиал вне области
+    // нельзя. Форма отдаёт список целиком, поэтому филиал вне области, где мастер уже работает, ничего не меняет.
+    const role = currentRole();
+    const inArea = (locationId: string): boolean =>
+      role !== null && roleAt(role, currentAssignments(), { businessId: scope.businessId, locationId }) !== null;
+    if (wanted.some((locationId) => !inArea(locationId) && !currentIds.includes(locationId)))
+      throw new ForbiddenException(SCOPE_CHOOSE_MESSAGE);
+    const wantedInArea = wanted.filter(inArea);
+
+    const removed = current.filter((row) => inArea(row.locationId) && !wantedInArea.includes(row.locationId));
     for (const row of removed) {
       const booked = await this.prisma.db.appointment.count({
         where: {
@@ -274,12 +319,20 @@ export class BeautyScheduleService {
         );
     }
 
-    const added = wanted.filter((locationId) => !current.some((row) => row.locationId === locationId));
+    const added = wantedInArea.filter((locationId) => !currentIds.includes(locationId));
+    const finalIds = [
+      ...currentIds.filter((locationId) => !removed.some((row) => row.locationId === locationId)),
+      ...added,
+    ];
     await beautyTransaction(this.prisma, scope, async (tx) => {
       if (removed.length) {
         const locationIds = removed.map((row) => row.locationId);
-        await tx.workingHours.deleteMany({ where: { employeeId: id, locationId: { in: locationIds } } });
-        await tx.employeeLocation.deleteMany({ where: { employeeId: id, locationId: { in: locationIds } } });
+        await tx.workingHours.deleteMany({
+          where: { employeeId: id, locationId: { in: locationIds } },
+        });
+        await tx.employeeLocation.deleteMany({
+          where: { employeeId: id, locationId: { in: locationIds } },
+        });
       }
       if (added.length)
         await tx.employeeLocation.createMany({
@@ -292,8 +345,8 @@ export class BeautyScheduleService {
           entityType: 'employee',
           entityId: id,
           action: 'beauty.employee.locations.set',
-          before: { locationIds: current.map((row) => row.locationId) },
-          after: { locationIds: wanted },
+          before: { locationIds: currentIds },
+          after: { locationIds: finalIds },
         },
       });
     });
@@ -327,6 +380,28 @@ export class BeautyScheduleService {
     }));
   }
 
+  private async weekSnapshot(
+    db: Pick<DbTx, 'workingHours'>,
+    employeeId: string,
+    locationId: string,
+  ) {
+    const rows = await db.workingHours.findMany({
+      where: { employeeId, locationId },
+      orderBy: [{ weekday: 'asc' }, { timeFrom: 'asc' }],
+      select: { id: true, weekday: true, timeFrom: true, timeTo: true },
+    });
+    return {
+      intervals: rows.map((r) => ({
+        weekday: r.weekday,
+        timeFrom: dateToClock(r.timeFrom),
+        timeTo: dateToClock(r.timeTo),
+      })),
+      revision: canonicalRevision(
+        rows.map((r) => [r.id, r.weekday, r.timeFrom.toISOString(), r.timeTo.toISOString()]),
+      ),
+    };
+  }
+
   /** Отсутствия, которые ещё не кончились: прошлые графику не мешают и экран не засоряют */
   private async timeOffs(employeeId: string, scope: BeautyScope) {
     const timezone = scope.locationTimezone ?? 'UTC';
@@ -352,7 +427,10 @@ export class BeautyScheduleService {
         employeeId,
         status: { in: [...BUSY_STATUSES] },
         startsAt: {
-          gte: windows.reduce((min, w) => (w.window.fromUtc < min ? w.window.fromUtc : min), windows[0]!.window.fromUtc),
+          gte: windows.reduce(
+            (min, w) => (w.window.fromUtc < min ? w.window.fromUtc : min),
+            windows[0]!.window.fromUtc,
+          ),
           lt: windows.reduce(
             (max, w) => (w.window.toUtcExclusive > max ? w.window.toUtcExclusive : max),
             windows[0]!.window.toUtcExclusive,
@@ -367,8 +445,9 @@ export class BeautyScheduleService {
       dateFrom: utcToDate(row.dateFrom),
       dateTo: utcToDate(row.dateTo),
       reason: row.reason,
-      appointments: appointments.filter((a) => a.startsAt >= window.fromUtc && a.startsAt < window.toUtcExclusive)
-        .length,
+      appointments: appointments.filter(
+        (a) => a.startsAt >= window.fromUtc && a.startsAt < window.toUtcExclusive,
+      ).length,
     }));
   }
 }

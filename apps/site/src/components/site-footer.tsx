@@ -5,10 +5,10 @@ import { companyName, loginLink } from '../lib/site';
 import { getPublishedPosts } from '../lib/posts';
 import { Wordmark } from './brand';
 import { typo } from './typo';
+import styles from './site-footer.module.css';
 
 /*
- * Подвал одной строкой (по снимку владельца): бренд и подпись слева, ссылки по центру, © справа;
- * ниже мелкая строка с правовыми страницами. «Блог» — только при опубликованных статьях.
+ * Навигация, направления и заметные правовые ссылки. Блог виден при опубликованных статьях.
  */
 const DIRECTION_COPY = { hotels: 'hotel', salons: 'salon', restaurants: 'restaurant' } as const;
 
@@ -20,7 +20,7 @@ export function SiteFooter() {
   const hasPosts = getPublishedPosts().length > 0;
 
   return (
-    <footer id="contacts" className="site-footer">
+    <footer id="contacts" className={`site-footer ${styles.footer}`}>
       <div className="container">
         <div className="site-footer__row">
           <div className="site-footer__brand">
@@ -36,9 +36,6 @@ export function SiteFooter() {
               </li>
               <li>
                 <a href="/#features">{t.footer.features}</a>
-              </li>
-              <li>
-                <Link href="/calculator/">{t.calculator.link}</Link>
               </li>
               {hasPosts ? (
                 <li>
@@ -76,10 +73,10 @@ export function SiteFooter() {
             );
           })}
         </nav>
-        <div className="site-footer__legal">
+        <nav className={`site-footer__legal ${styles.legal}`} aria-label="Правовая информация">
           <Link href="/privacy/">{t.footer.privacy}</Link>
           <Link href="/terms/">{t.footer.terms}</Link>
-        </div>
+        </nav>
       </div>
     </footer>
   );

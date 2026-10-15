@@ -15,7 +15,7 @@ import {
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { auditUserId } from '../accounts/actor';
-import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
+import { actsForOrganization, currentAssignments, currentOrganizationId } from '../auth/request-context';
 import { FOREIGN_PROPERTY_MESSAGE, propertyToday } from '../database/property-ref';
 
 export interface GuestSummary {
@@ -300,18 +300,44 @@ export class PrismaGuestsRepository implements GuestsRepository {
    * режет ровно по колонке, и гость, проштампованный чужой организацией, не должен открываться
    * из-за связи через бронь. Служебный ходок (сторож, скрипты, импорт) — без фильтра, как раньше.
    */
-  private visible(): Prisma.GuestWhereInput {
+  private async visible(): Promise<Prisma.GuestWhereInput> {
     if (!actsForOrganization()) return {};
     const organizationId = currentOrganizationId();
     // вошедший без организации не видит ни одного гостя — как и объект в property-ref
     if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
-    return { organizationId };
+    // гость для назначенного сотрудника — гость его мест (ADR-183, аудит CORE-01 U2-2): связан бронью
+    // или проживанием с объектом назначений, либо совсем новый (без единой брони — иначе стойка не
+    // заведёт гостя под новую бронь). Без назначений — организация целиком, как раньше (ADR-083).
+    const places = currentAssignments();
+    if (!places.length) return { organizationId };
+    const properties = await this.prisma.db.property.findMany({
+      where: {
+        organizationId,
+        location: {
+          OR: places.map((p) => (p.locationId ? { id: p.locationId } : { businessId: p.businessId })),
+        },
+      },
+      select: { id: true },
+    });
+    const ids = properties.map((p) => p.id);
+    return {
+      AND: [
+        { organizationId },
+        {
+          OR: [
+            { primaryReservations: { some: { propertyId: { in: ids } } } },
+            { stays: { some: { reservationItem: { reservation: { propertyId: { in: ids } } } } } },
+            { AND: [{ primaryReservations: { none: {} } }, { stays: { none: {} } }] },
+          ],
+        },
+      ],
+    };
   }
   async withBirthDates() {
     // ponytail: все гости с датой рождения в память, окно — в домене; при десятках тысяч гостей —
     // перенести отбор по месяцу и дню в SQL (to_char(birth_date, 'MM-DD'))
     const rows = await this.prisma.db.guest.findMany({
-      where: { AND: [this.visible(), { birthDate: { not: null } }] },
+      where: { AND: [await this.visible(), { birthDate: { not: null } }] },
       select: { id: true, firstName: true, lastName: true, birthDate: true },
     });
     return rows.map((g) => ({
@@ -326,7 +352,7 @@ export class PrismaGuestsRepository implements GuestsRepository {
     const rows = await this.prisma.db.guest.findMany({
       where: {
         AND: [
-          this.visible(),
+          await this.visible(),
           {
             OR: [
               { lastName: { contains: q, mode: 'insensitive' } },
@@ -365,7 +391,7 @@ export class PrismaGuestsRepository implements GuestsRepository {
    */
   async directory(query: GuestDirectoryQuery): Promise<GuestDirectoryResult> {
     // замок организаций до любого запроса: вошедший без организации не видит никого (как `visible()`)
-    const scope = this.visible();
+    const scope = await this.visible();
     const organizationId = 'organizationId' in scope ? (scope.organizationId as string) : null;
     const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const recentFrom = shiftDate(today, -GUEST_RECENT_DAYS);
@@ -681,7 +707,7 @@ export class PrismaGuestsRepository implements GuestsRepository {
   async preview(id: string): Promise<GuestPreview | null> {
     const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const g = await this.prisma.db.guest.findFirst({
-      where: { AND: [{ id }, this.visible()] },
+      where: { AND: [{ id }, await this.visible()] },
       select: {
         id: true,
         firstName: true,
@@ -816,7 +842,7 @@ export class PrismaGuestsRepository implements GuestsRepository {
   }
   async byId(id: string): Promise<GuestProfile | null> {
     const g = await this.prisma.db.guest.findFirst({
-      where: { AND: [{ id }, this.visible()] },
+      where: { AND: [{ id }, await this.visible()] },
       include: {
         documents: { orderBy: { createdAt: 'asc' } },
         stays: {

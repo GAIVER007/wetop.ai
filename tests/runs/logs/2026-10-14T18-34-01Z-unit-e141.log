@@ -1,0 +1,29 @@
+# Модульные (unit) · 14.10.2026 23:34 Алматы · MacBook-Air-Urij.local
+# коммит ecd2127 (claude/food-fix-02-20261014), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T18-34-01Z-unit-e141.json' 'tests/unit/db-backup-offsite.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02
+
+ ✓ |unit| tests/unit/db-backup-offsite.test.ts (12 tests | 1 skipped) 7979ms
+   ✓ вторая копия вне сервера: наружу только шифротекст (ADR-137) (3)
+     ✓ последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан 734ms
+     ✓ шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение 1108ms
+     ✓ закрытый ключ age в настройке: отказ до шифрования, закрытому ключу не место на сервере 358ms
+   ✓ вторая копия вне сервера: ключи R2 не светятся (ADR-137) (3)
+     ✓ ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет 828ms
+     ✓ настройки читаются из .env клона, как у db-backup.sh 799ms
+     ✓ Telegram: токен в адресе через stdin, а не аргументом 656ms
+   ✓ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     ✓ ночная копия старше 26 часов: наружу не несём, сообщаем 686ms
+     ✓ R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 1035ms
+     ✓ размер в R2 не совпал: сбой, статус не тронут 1048ms
+     ✓ rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401) 689ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed | 1 skipped (12)
+   Start at  22:34:02
+   Duration  8.09s (tests 100%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T18-34-01Z-unit-e141.json
+
+# код выхода 0 · 9 с

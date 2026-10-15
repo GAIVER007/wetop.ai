@@ -1,0 +1,35 @@
+# Интеграционные (integration) · 13.10.2026 15:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3bd01f4 (codex/organizations-card-editor), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T10-46-19Z-integration-ebdc.json' 'tests/integration/business-card-metadata.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |integration| tests/integration/business-card-metadata.test.ts (4 tests | 1 failed) 150ms
+   ❯ business card database persistence and tenant isolation (4)
+     ✓ edits a legacy business whose updated_at has PostgreSQL microseconds 28ms
+     × persists metadata, rolls back an audit failure, and rejects stale versions 12ms
+     ✓ rejects foreign business metadata and raw foreign image references 6ms
+     ✓ persists a sanitized cover and removes its reference without deleting unrelated objects 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/business-card-metadata.test.ts > business card database persistence and tenant isolation > persists metadata, rolls back an audit failure, and rejects stale versions
+AssertionError: expected [Function] to throw error including 'audit unavailable' but got 'this.prisma.db.$queryRaw is not a fun…'
+
+Expected: "audit unavailable"
+Received: "this.prisma.db.$queryRaw is not a function"
+
+ ❯ tests/integration/business-card-metadata.test.ts:35:149
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  03:46:20
+   Duration  1.51s (import 53%, transform 32%, tests 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T10-46-19Z-integration-ebdc.json
+
+# код выхода 1 · 2 с

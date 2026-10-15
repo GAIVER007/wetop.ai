@@ -7,13 +7,13 @@ describe('MV3 onboarding adapters', () => {
     expect(() => onboardingFlow(undefined)).toThrow();
     expect(onboardingFlow('HOSPITALITY').steps.map((s) => s.id)).toEqual(['hotel']);
   });
-  it.each(['BEAUTY', 'FOOD_SERVICE'])('%s has shared steps only', (vertical) => {
+  it.each(['FOOD_SERVICE'])('%s retains its v1 shared steps', (vertical) => {
     const flow = onboardingFlow(vertical);
     expect(flow.steps.map((s) => s.id)).toEqual(['business', 'location', 'review']);
     expect(flow.steps.every((s) => !s.skippable)).toBe(true);
   });
   it('moves forward and back without permitting unknown or forbidden skip', () => {
-    const flow = onboardingFlow('BEAUTY');
+    const flow = onboardingFlow('FOOD_SERVICE');
     expect(moveOnboarding(flow, 'business', 'next')).toBe('location');
     expect(moveOnboarding(flow, 'location', 'back')).toBe('business');
     expect(moveOnboarding(flow, 'business', 'back')).toBe('business');

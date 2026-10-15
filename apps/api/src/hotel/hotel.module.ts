@@ -1,3 +1,6 @@
+import { OrganizationSummaryService, OrganizationSummaryController } from './organization-summary';
+import { BranchLifecycleService, BranchLifecycleController } from './branch-lifecycle';
+import { BusinessCardsModule } from './business-cards';
 import { DashboardModule } from '../dashboard/dashboard.module';
 import { BranchesController, BranchesService } from './branches';
 import 'reflect-metadata';
@@ -101,6 +104,8 @@ export class HotelService {
       : { name: LUXX_APARTS_PROPERTY.name };
     const property = await this.prisma.db.property.findFirst({
       where,
+      // детерминизм на орг- и бизнес-скоупе: тот же «ранний» объект, что у property-ref (ADR-183)
+      orderBy: { createdAt: 'asc' },
       select: {
         id: true,
         name: true,
@@ -519,15 +524,19 @@ export class HotelController {
 }
 
 @Module({
-  imports: [DashboardModule],
+  imports: [DashboardModule, BusinessCardsModule],
   controllers: [
     BranchesController,
+    OrganizationSummaryController,
+    BranchLifecycleController,
     HotelController,
     ReservationDirectoryController,
     OnboardingController,
   ],
   providers: [
     BranchesService,
+    OrganizationSummaryService,
+    BranchLifecycleService,
     PrismaService,
     HotelService,
     ReservationDirectory,

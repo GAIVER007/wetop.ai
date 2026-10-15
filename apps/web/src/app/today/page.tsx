@@ -11,13 +11,14 @@ import {
   unresolvedTarget,
 } from './dispatch';
 import { FoodToday } from './food-today';
+import { HospitalityToday } from './hospitality-today';
 import { TodayScopeContent } from './scope-content';
 
 /**
  * Рабочий экран дня (MV8): один адрес на все направления. Экран выбирает подтверждённое направление
  * выбранного филиала; без него гостиница не угадывается, человек идёт через выбор филиала (SCOPE-HARDENING).
- * Гостиница с 09.10.2026 живёт одним разделом «Финансы» (план plans/finance-home-merge-2026-10-09.md):
- * прежняя Главная объединена с кассой, старые закладки `/today` переезжают туда перенаправлением.
+ * Гостиница: с 13.10.2026 снова своя Главная (загрузка, события дня, задачи), «Финансы» отдельно
+ * (решение владельца поверх ADR-152, план объединения plans/finance-home-merge-2026-10-09.md).
  */
 export default async function TodayPage() {
   const me = await requireVertical(TODAY_VERTICALS);
@@ -31,7 +32,13 @@ export default async function TodayPage() {
     const pointer = (await cookies()).get(SCOPE_COOKIE)?.value;
     redirect(unresolvedTarget(Boolean(scopeHeader(pointer)['x-wetop-scope'])));
   }
-  if (screen === 'HOSPITALITY') redirect('/finance');
+  // гостиница: Главная снова отдельным экраном (решение владельца 13.10.2026, «Финансы» по эталону)
+  if (screen === 'HOSPITALITY')
+    return (
+      <TodayScopeContent key={key}>
+        <HospitalityToday />
+      </TodayScopeContent>
+    );
   const content = screen === 'BEAUTY' ? <BeautyToday /> : <FoodToday />;
   return <TodayScopeContent key={key}>{content}</TodayScopeContent>;
 }

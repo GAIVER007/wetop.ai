@@ -699,8 +699,10 @@ test('Food excludes every registered foreign workspace route before API requests
   test.setTimeout(240_000);
   await seed(page, request);
   const before = (await (await request.get(`${api}/__test/calls`)).json()).length;
+  // «Финансы» общие для всех направлений: у ресторана `/finance` ведёт в его финансы (единая система, 14.10.2026)
+  await page.goto('/finance');
+  await expect(page).toHaveURL(/\/restaurant-finance$/, { timeout: 15000 });
   for (const route of [
-    '/finance',
     '/rooms/categories',
     '/onboarding',
     '/calendar',

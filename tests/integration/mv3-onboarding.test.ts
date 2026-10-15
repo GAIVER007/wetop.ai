@@ -80,29 +80,28 @@ describe.skipIf(!process.env.DATABASE_URL)('MV3 durable progress', () => {
     });
     await db.$disconnect();
   });
-  it('persists steps and values across fresh service reads; completes without Property', async () => {
+  it('persists Beauty v2 profile across reads without pretending an empty salon is ready', async () => {
     let state = await run(() => service.status());
-    expect(state.currentStep).toBe('business');
+    expect(state.currentStep).toBe('welcome');
     state = await run(() => service.save({ action: 'next', draft, updatedAt: state.updatedAt }));
-    expect(state.currentStep).toBe('location');
-    const fresh = new SharedOnboardingService({ db } as never);
-    expect(await run(() => fresh.status())).toMatchObject({ currentStep: 'location', draft });
-    state = await run(() => service.save({ action: 'back', draft, updatedAt: state.updatedAt }));
-    expect(state.currentStep).toBe('business');
-    state = await run(() => service.save({ action: 'next', draft, updatedAt: state.updatedAt }));
-    state = await run(() => service.save({ action: 'next', draft, updatedAt: state.updatedAt }));
-    expect(state.currentStep).toBe('review');
+    expect(state.currentStep).toBe('profile');
     state = await run(() =>
-      service.save({ action: 'complete', draft, updatedAt: state.updatedAt }),
+      service.save({ action: 'apply-profile', draft, updatedAt: state.updatedAt }),
     );
-    expect(state.completedAt).not.toBeNull();
+    const fresh = new SharedOnboardingService({ db } as never);
+    expect(await run(() => fresh.status())).toMatchObject({
+      currentStep: 'services',
+      draft,
+      profileApplied: true,
+      readiness: { ready: false },
+    });
+    await expect(
+      run(() => service.save({ action: 'complete', draft, updatedAt: state.updatedAt })),
+    ).rejects.toThrow('ещё не готов');
     expect(await db.property.count({ where: { organizationId: org } })).toBe(0);
     expect(await db.location.findUnique({ where: { id: location } })).toMatchObject({
       name: draft.locationName,
     });
-    await expect(
-      run(() => service.save({ action: 'save', draft, updatedAt: state.updatedAt })),
-    ).rejects.toThrow('уже завершена');
   });
   it('Food flow saves separately and stale tab cannot overwrite latest progress', async () => {
     const foodActor = {

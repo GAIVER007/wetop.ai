@@ -25,10 +25,17 @@ const FLOWS: Record<BusinessVertical, OnboardingFlow> = {
   },
   BEAUTY: {
     vertical: 'BEAUTY',
-    version: 1,
-    steps: SHARED_STEPS,
-    completion:
-      'Пилот Beauty подключён. Настройку услуг и сотрудников продолжим после активации модуля.',
+    version: 2,
+    steps: [
+      { id: 'welcome', label: 'Приветствие', skippable: false },
+      { id: 'profile', label: 'Основные сведения', skippable: false },
+      { id: 'services', label: 'Услуги', skippable: false },
+      { id: 'masters', label: 'Мастера', skippable: false },
+      { id: 'skills', label: 'Услуги мастеров', skippable: false },
+      { id: 'schedule', label: 'Рабочее время', skippable: false },
+      { id: 'review', label: 'Готовность', skippable: false },
+    ],
+    completion: 'Салон готов к работе',
   },
   FOOD_SERVICE: {
     vertical: 'FOOD_SERVICE',

@@ -23,6 +23,7 @@ import { isLocalDatabase } from '../tools/seed-local';
 
 if (!isLocalDatabase(process.env.DATABASE_URL ?? ''))
   throw new Error('Own local database required');
+process.env.SESSION_SECRET ??= 'synthetic-beauty-ui-replay-key-not-production';
 const db = createPrismaClient(process.env.DATABASE_URL, 'pms_test');
 const prisma = { db } as unknown as PrismaService;
 const onboarding = new SharedOnboardingService(prisma);
@@ -123,7 +124,17 @@ app.use(
             if (req.path === '/__test/reset') {
               role = 'OWNER';
               calls.length = 0;
-              await db.organization.update({ where: { id: org }, data: { status: 'ACTIVE' } });
+              // спеки делят стенд: cleanup предыдущего спека удаляет организацию, reset создаёт её заново
+              await db.organization.upsert({
+                where: { id: org },
+                create: { id: org, name: `MV5-browser-${org}`, status: 'ACTIVE' },
+                update: { status: 'ACTIVE' },
+              });
+              await db.user.upsert({
+                where: { id: user },
+                create: { id: user, name: 'Тестовый владелец', email: `mv5-${user}@example.invalid` },
+                update: {},
+              });
               const b1 = await db.business.create({
                 data: { organizationId: org, name: 'Тестовая студия А', vertical: 'BEAUTY' },
               });

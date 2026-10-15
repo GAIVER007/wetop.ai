@@ -14,7 +14,7 @@ import { loadErrorProps } from '../../../lib/load-error';
  * хранимой даты рождения гостя. Только чтение; поздравлять — по телефону из карточки гостя.
  */
 export default async function BirthdaysPage() {
-  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE']);
+  await requireVertical(['HOSPITALITY']);
   const today = await hotelToday();
   let failure: unknown = null;
   const list = await guestsApi.birthdays(today, 7).catch((e: unknown) => {

@@ -14,24 +14,26 @@ const actor: Exclude<Parameters<typeof withSignedInUser>[0], string | null> = {
 function fixture() {
   const db = {
     location: {
-      findFirst: vi
-        .fn()
-        .mockResolvedValue({
-          id: 'location',
-          businessId: 'business',
-          name: 'Филиал',
-          timezone: 'Asia/Almaty',
-          currency: 'KZT',
-          business: {
-            name: 'Бизнес',
-            vertical: 'BEAUTY',
-            organization: { status: 'ACTIVE', trialEndsAt: null },
-          },
-        }),
+      findFirst: vi.fn().mockResolvedValue({
+        id: 'location',
+        businessId: 'business',
+        name: 'Филиал',
+        timezone: 'Asia/Almaty',
+        currency: 'KZT',
+        business: {
+          name: 'Бизнес',
+          vertical: 'BEAUTY',
+          organization: { status: 'ACTIVE', trialEndsAt: null },
+        },
+      }),
     },
     onboardingProgress: { findUnique: vi.fn().mockResolvedValue(null), upsert: vi.fn() },
+    beautyService: { findMany: vi.fn().mockResolvedValue([]) },
+    employee: { findMany: vi.fn().mockResolvedValue([]) },
+    $queryRaw: vi.fn(),
     $transaction: vi.fn(),
   };
+  db.$transaction.mockImplementation(async (fn: (tx: typeof db) => unknown) => fn(db));
   return { db, service: new SharedOnboardingService({ db } as unknown as PrismaService) };
 }
 describe('MV3 trusted onboarding context', () => {
@@ -56,7 +58,7 @@ describe('MV3 trusted onboarding context', () => {
       }),
     );
     expect(state.vertical).toBe('BEAUTY');
-    expect(state.currentStep).toBe('business');
+    expect(state.currentStep).toBe('welcome');
   });
   it('denies another Business without writing anything', async () => {
     const { service, db } = fixture();

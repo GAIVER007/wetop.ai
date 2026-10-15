@@ -58,9 +58,11 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
+  await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
+  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
   await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
-  await panel.getByRole('button', { name: 'Сохранить мастера', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Мастер добавлен');
+  await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
   await page.goto('/beauty/schedule');
   await main.getByRole('button', { name: 'Изменить график', exact: true }).click();
   panel = page.getByRole('dialog');

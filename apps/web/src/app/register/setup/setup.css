@@ -24,3 +24,19 @@
     }
   }
 }
+
+@layer sections {
+  .setup-welcome, .setup-profile { max-width: 640px; }
+  .setup-checklist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); list-style: none; padding: 0; }
+  .setup-checklist .panel { margin: 0; padding: var(--space-6); }
+  .setup-step-title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+  .setup-step-title h2 { margin: 0; }
+  .setup-help { color: var(--muted); margin-bottom: var(--space-6); }
+  .setup-shell .onboarding__actions { flex-wrap: wrap; }
+  .setup-shell h1:focus { outline-offset: var(--space-2); }
+  @media (max-width: 600px) {
+    .setup-checklist { grid-template-columns: minmax(0, 1fr); }
+    .setup-shell .inp { font-size: var(--text-lg); min-height: 44px; }
+    .setup-shell .btn { min-height: 44px; white-space: normal; }
+  }
+}

@@ -2086,85 +2086,31 @@ body:has(.org-reference) .topmenu {
   }
 }
 
-/* Compact organization workspace, with no empty media or repeated financial totals. */
-.org-reference .org-cards.org-cards--workspace {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
-  justify-content: stretch;
+/* Keep the familiar cards usable before a cover is uploaded. */
+.org-reference .org-card--no-cover .org-card-body {
+  padding: var(--space-4);
 }
-.org-reference .org-cards.org-cards--workspace:has(> .org-card:only-child) {
-  grid-template-columns: minmax(0, 1fr);
-}
-.org-cards--workspace .org-card--workspace {
-  width: auto;
-  max-width: none;
-  min-height: 0;
-}
-.org-cards--workspace .org-card--workspace .org-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-6);
-  min-height: 0;
-}
-.org-project-header {
-  display: grid;
-  grid-template-columns: var(--space-12) minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-4);
-}
-.org-project-header .org-business-icon {
-  position: static;
+.org-reference .org-card--no-cover .org-business-icon {
+  top: var(--space-4);
   width: var(--space-12);
   height: var(--space-12);
-  margin: 0;
   background: var(--primary-soft);
 }
-.org-project-title { min-width: 0; }
-.org-project-title h2 { margin: 0; font-size: var(--text-xl); }
-.org-cards--workspace .org-project-title .org-business-kind { margin: var(--space-1) 0 0; text-align: left; }
-.org-project-header .org-edit { min-height: var(--touch-target); }
-.org-card--workspace .org-description {
-  margin: 0;
-  padding: 0;
-  min-height: 0;
-  max-height: none;
+.org-reference .org-card--no-cover h2 {
+  margin-top: var(--space-1);
 }
-.org-card--workspace .org-branches-heading {
-  margin: 0;
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border);
+.org-reference .org-card--no-cover .org-address {
+  margin-top: var(--space-6);
 }
-.org-cards--workspace .org-card--workspace .org-branch-rows {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-2);
+.org-reference .org-card .org-description {
   min-height: 0;
+}
+.org-reference .org-card .org-branch-rows {
   max-height: none;
   overflow: visible;
 }
-.org-cards--workspace .org-card--workspace:only-child .org-branch-rows {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.org-card--workspace .org-branch-rows form { min-width: 0; margin: 0; }
-.org-card--workspace .org-branch-rows button {
+.org-reference .org-card .org-branch-rows button {
   height: auto;
-  min-height: 104px;
-  padding: var(--space-4);
-  gap: var(--space-4);
+  min-height: 80px;
 }
-.org-card--workspace .org-branch-info { gap: var(--space-1); }
-.org-card--workspace .org-branch-rows strong { font-size: var(--text-md); }
-.org-card--workspace .org-branch-capacity { gap: var(--space-2); flex-wrap: wrap; }
-.org-card--workspace .org-cover--custom { height: 160px; }
-@media (max-width: 960px) {
-  .org-reference .org-cards.org-cards--workspace,
-  .org-cards--workspace .org-card--workspace:only-child .org-branch-rows {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (max-width: 600px) {
-  .org-cards--workspace .org-card--workspace .org-card-body { padding: var(--space-4); }
-  .org-project-header { grid-template-columns: var(--space-12) minmax(0, 1fr); gap: var(--space-2); }
-  .org-project-header .org-edit { grid-column: 1 / -1; justify-content: center; }
-}
+.org-reference .org-card-footer { margin-top: var(--space-4); }

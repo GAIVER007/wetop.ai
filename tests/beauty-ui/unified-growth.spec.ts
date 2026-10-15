@@ -1,4 +1,9 @@
 import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
+import type { BeautyDay } from '../../apps/web/src/lib/api';
+
+type Fixture = { business: string; locations: string[] };
+type CreatedEntity = { id: string };
+
 /**
  * Единая система направлений (14.10.2026): «Продажи», «Финансы» и «Маркетинг» салона на настоящем API салона и
  * базе стенда. Записи заводятся на прошедшие дни периода и проводятся до «Выполнено»: хаб продаж и финансы считают
@@ -15,17 +20,18 @@ const minus = (iso: string, n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any -- json фикстуры, поля проверяет сам спек */
-async function ok(res: Awaited<ReturnType<APIRequestContext['post']>>, what: string): Promise<any> {
+async function ok<T = unknown>(res: Awaited<ReturnType<APIRequestContext['post']>>, what: string) {
   expect(res.ok(), `${what}: ${res.status()} ${await res.text()}`).toBe(true);
-  return res.json();
+  return (await res.json()) as T;
 }
 
 async function seed(page: Page, request: APIRequestContext) {
-  const f = await ok(await request.post(`${api}/__test/reset`), 'reset');
-  const headers = { 'x-wetop-scope': pointer(f.business, f.locations[0]) };
+  const f = await ok<Fixture>(await request.post(`${api}/__test/reset`), 'reset');
+  const location = f.locations[0];
+  if (!location) throw new Error('В стенде отсутствует филиал');
+  const headers = { 'x-wetop-scope': pointer(f.business, location) };
   await page.context().addCookies([
-    { name: 'wetop_scope', value: encodeURIComponent(pointer(f.business, f.locations[0])), domain: '127.0.0.1', path: '/' },
+    { name: 'wetop_scope', value: encodeURIComponent(pointer(f.business, location)), domain: '127.0.0.1', path: '/' },
   ]);
   const services = [];
   for (const [name, price] of [
@@ -33,7 +39,7 @@ async function seed(page: Page, request: APIRequestContext) {
     ['Окрашивание', '2500000'],
     ['Маникюр', '800000'],
   ] as const) {
-    const s = await ok(
+    const s = await ok<CreatedEntity>(
       await request.post(`${api}/beauty/services`, {
         headers,
         data: { name, durationMinutes: 60, priceMinor: price, currency: 'KZT' },
@@ -45,7 +51,7 @@ async function seed(page: Page, request: APIRequestContext) {
   }
   const masters = [];
   for (const name of ['Мария Ким', 'Дина Абенова']) {
-    const e = await ok(await request.post(`${api}/beauty/employees`, { headers, data: { name } }), 'employee');
+    const e = await ok<CreatedEntity>(await request.post(`${api}/beauty/employees`, { headers, data: { name } }), 'employee');
     await ok(
       await request.put(`${api}/beauty/employees/${e.id}/services`, {
         headers,
@@ -80,12 +86,15 @@ async function seed(page: Page, request: APIRequestContext) {
     // Алматы UTC+5: местное время в UTC
     const [hh, mm] = time.split(':').map(Number);
     const startsAt = new Date(Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, +date.slice(8, 10), hh! - 5, mm)).toISOString();
-    const day = await ok(
+    const master = masters[m];
+    const service = services[s];
+    if (!master || !service) throw new Error('Не найдены мастер или услуга сценария');
+    const day = await ok<BeautyDay>(
       await request.post(`${api}/beauty/appointments`, {
         headers,
         data: {
-          employeeId: masters[m].id,
-          serviceId: services[s].id,
+          employeeId: master.id,
+          serviceId: service.id,
           startsAt,
           firstName: ['Анна', 'Алия', 'Карина', 'Жанна', 'Сауле', 'Мадина', 'Лаура', 'Ирина'][n++],
           phone: `+7 701 000-00-${String(n).padStart(2, '0')}`,
@@ -94,6 +103,7 @@ async function seed(page: Page, request: APIRequestContext) {
       'appointment',
     );
     const row = day.appointments.find((a: { startsAt: string }) => a.startsAt === startsAt);
+    if (!row) throw new Error('Созданная запись отсутствует в ответе API');
     const path: string[] = final === 'DONE' ? ['CONFIRMED', 'DONE'] : final === 'BOOKED' ? [] : [final];
     for (const status of path)
       await ok(await request.post(`${api}/beauty/appointments/${row.id}/status`, { headers, data: { status } }), status);

@@ -11,15 +11,22 @@ import {
   Module,
   Post,
 } from '@nestjs/common';
-import { canWrite, moveOnboarding, onboardingFlow, roleAt, SCOPE_FORBIDDEN_MESSAGE } from '@pms/domain';
+import {
+  SCOPE_FORBIDDEN_MESSAGE,
+  canWrite,
+  isRestricted,
+  moveOnboarding,
+  onboardingFlow,
+  roleAt,
+} from '@pms/domain';
 import type { DbTx } from '@pms/database';
 import { Access } from '../auth/access.decorator';
 import {
   actorMay,
+  currentAssignments,
   currentBusinessId,
   currentLocationId,
   currentOrganizationId,
-  currentAssignments,
   currentRole,
   currentUserId,
   hasSignedInActor,
@@ -69,6 +76,16 @@ export class SharedOnboardingService {
     const locationId = currentLocationId();
     if (!hasSignedInActor() || !organizationId || !businessId || !locationId)
       throw new ForbiddenException('Выберите бизнес и филиал для настройки');
+    // `GET /onboarding` открыт всем ролям (`self`), и перехватчик места не проверяет: человеку с областью доступа
+    // (DATA_MODEL §31.1) черновик филиала без назначения не отдаём (A3/F6)
+    const role = currentRole();
+    const assignments = currentAssignments();
+    if (
+      role &&
+      isRestricted(role, assignments) &&
+      !roleAt(role, assignments, { businessId, locationId })
+    )
+      throw new ForbiddenException(SCOPE_FORBIDDEN_MESSAGE);
     const location = await db.location.findFirst({
       where: {
         id: locationId,
@@ -92,12 +109,6 @@ export class SharedOnboardingService {
       },
     });
     if (!location) throw new ForbiddenException('Филиал недоступен');
-    // онбординг подчиняется назначениям (ADR-183, аудит CORE-01 U2-4): право self пропускает ворота
-    // ролей места, поэтому формула roleAt применяется здесь
-    const places = currentAssignments();
-    const role = currentRole();
-    if (places.length && role && roleAt(role, places, { businessId, locationId }) === null)
-      throw new ForbiddenException(SCOPE_FORBIDDEN_MESSAGE);
     return location;
   }
   async status() {

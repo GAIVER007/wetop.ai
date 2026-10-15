@@ -1,11 +1,12 @@
 import 'reflect-metadata';
 import { randomUUID } from 'node:crypto';
-import { ForbiddenException,
+import {
   BadRequestException,
   Body,
   ConflictException,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Inject,
   Injectable,
@@ -17,12 +18,14 @@ import { ForbiddenException,
 } from '@nestjs/common';
 import {
   parseTimeOffInput,
+  roleAt,
+  SCOPE_CHOOSE_MESSAGE,
   parseWorkingHoursWeek,
   timeOffWindow,
   weekTemplate,
   type WorkingInterval,
 } from '@pms/domain';
-import { currentAssignments, currentUserId } from '../auth/request-context';
+import { currentAssignments, currentRole, currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
@@ -258,23 +261,20 @@ export class BeautyScheduleService {
       where: { employeeId: id },
       select: { locationId: true, location: { select: { name: true } } },
     });
-    // филиалы мастера меняет только тот, кому они назначены (ADR-183, аудит CORE-01 U2-3):
-    // состав чужих филиалов для ограниченного пользователя неприкосновенен
-    const places = currentAssignments();
-    const businessWide = places.some((p) => p.businessId === scope.businessId && p.locationId === null);
-    if (places.length && !businessWide) {
-      const allowed = new Set(
-        places.filter((p) => p.businessId === scope.businessId && p.locationId).map((p) => p.locationId!),
-      );
-      const currentIds = current.map((row) => row.locationId);
-      const touched = [
-        ...wanted.filter((locationId) => !currentIds.includes(locationId)),
-        ...currentIds.filter((locationId) => !wanted.includes(locationId)),
-      ];
-      if (touched.some((locationId) => !allowed.has(locationId)))
-        throw new ForbiddenException('Филиалы мастера вне ваших назначений менять нельзя');
-    }
-    const removed = current.filter((row) => !wanted.includes(row.locationId));
+    const currentIds = current.map((row) => row.locationId);
+
+    // CORE-SECURITY-FIX-01, F4: менять привязки мастера можно только в филиалах из области вызывающего (назначения,
+    // DATA_MODEL §31). Без назначений (и у владельца) область это вся организация, и всё идёт как раньше. У ограниченного
+    // привязки вне области не снимаются и не меняются, а график там не стирается; добавить мастера в филиал вне области
+    // нельзя. Форма отдаёт список целиком, поэтому филиал вне области, где мастер уже работает, ничего не меняет.
+    const role = currentRole();
+    const inArea = (locationId: string): boolean =>
+      role !== null && roleAt(role, currentAssignments(), { businessId: scope.businessId, locationId }) !== null;
+    if (wanted.some((locationId) => !inArea(locationId) && !currentIds.includes(locationId)))
+      throw new ForbiddenException(SCOPE_CHOOSE_MESSAGE);
+    const wantedInArea = wanted.filter(inArea);
+
+    const removed = current.filter((row) => inArea(row.locationId) && !wantedInArea.includes(row.locationId));
     for (const row of removed) {
       const booked = await this.prisma.db.appointment.count({
         where: {
@@ -290,7 +290,11 @@ export class BeautyScheduleService {
         );
     }
 
-    const added = wanted.filter((locationId) => !current.some((row) => row.locationId === locationId));
+    const added = wantedInArea.filter((locationId) => !currentIds.includes(locationId));
+    const finalIds = [
+      ...currentIds.filter((locationId) => !removed.some((row) => row.locationId === locationId)),
+      ...added,
+    ];
     await beautyTransaction(this.prisma, scope, async (tx) => {
       if (removed.length) {
         const locationIds = removed.map((row) => row.locationId);
@@ -308,8 +312,8 @@ export class BeautyScheduleService {
           entityType: 'employee',
           entityId: id,
           action: 'beauty.employee.locations.set',
-          before: { locationIds: current.map((row) => row.locationId) },
-          after: { locationIds: wanted },
+          before: { locationIds: currentIds },
+          after: { locationIds: finalIds },
         },
       });
     });

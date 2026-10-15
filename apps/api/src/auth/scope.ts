@@ -10,8 +10,10 @@ import type { BusinessVertical, RequestScope } from './request-context';
  * несуществующий или архивный Business или филиал, филиал без Business, битый указатель) даёт здесь ORGANIZATION,
  * и права указатель не расширяет. Под RLS те же выборки ещё и режет база.
  *
- * Отклонённый явный указатель на маршрутах с проверкой направления дальше отвечает 403 (`AuthorInterceptor`, MV1,
- * fail-closed): в смешанной организации неверный выбор не должен молча открывать гостиницу. Устаревшую куку сбрасывает
+ * Отклонённый явный указатель на всех маршрутах человека дальше отвечает 403 (`AuthorInterceptor`, MV1, CORE-SECURITY-FIX-01
+ * O4=A; fail-closed): неверный выбор не должен молча открывать самый ранний объект организации и не должен писать в него.
+ * Кроме маршрутов, которым указатель не нужен или которые сами его восстанавливают: публичные и служебные, личные
+ * (`self`, среди них `GET /auth/me`), раздел платформы и `@ScopeAware` (выбор филиала и сводка). Устаревшую куку сбрасывает
  * стойка: она видит, что `/auth/me` выбор не подтвердил, и ведёт через `/scope/resolve` (SCOPE-HARDENING, 06.10.2026).
  */
 export const SCOPE_HEADER = 'x-wetop-scope';
@@ -44,6 +46,16 @@ export function parseScopePointer(header: string | string[] | undefined): ScopeP
     pointer[field] = value;
   }
   return pointer;
+}
+
+/**
+ * Человек прислал указатель: в заголовке есть непустое значение (даже неразобранное). Это отличает «указателя нет вообще»
+ * (организация, как всегда) от «указатель есть, но его не приняли» (чужой, архивный, битый): второе на маршрутах человека
+ * отвечает 403 (CORE-SECURITY-FIX-01, O4=A; fail-closed), а не молча превращается в организацию.
+ */
+export function hasScopePointer(header: string | string[] | undefined): boolean {
+  if (Array.isArray(header)) return header.length > 0;
+  return typeof header === 'string' && header.trim() !== '';
 }
 
 type ScopeDb = Pick<Db, 'business' | 'location'>;

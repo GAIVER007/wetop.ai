@@ -203,7 +203,7 @@
         "signedOut": "open",
         "unknown": "open",
         "platformAdmin": "open",
-        "restrictedManager": "open"
+        "restrictedManager": "denied"
       }
     },
     "/ai-seller/agents/123": {
@@ -219,7 +219,7 @@
         "signedOut": "open",
         "unknown": "open",
         "platformAdmin": "open",
-        "restrictedManager": "open"
+        "restrictedManager": "denied"
       }
     },
     "/ai-seller/agents/new": {
@@ -235,7 +235,7 @@
         "signedOut": "open",
         "unknown": "open",
         "platformAdmin": "open",
-        "restrictedManager": "open"
+        "restrictedManager": "denied"
       }
     },
     "/ai-seller/sample": {

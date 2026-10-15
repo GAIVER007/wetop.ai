@@ -70,15 +70,22 @@ test('название гостиницы в каркасе и обзоре по
 test('недоступный API не скрывается за демо или выдуманным объектом', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   await page.goto('/connections');
-  // нет связи — состояние Channex «неизвестно», а не зелёное и не «не подключено»
+  // без ответа авторизации гостиничный экран закрыт (DS2 F1, как в workspace.spec): честная ошибка, а не
+  // зелёное «Работает», демо-объект или выдуманный фонд
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
+  await expect(page.getByTestId('integration-health')).toHaveCount(0);
+  await expect(page.getByRole('main')).not.toContainText('Работает');
+  await expect(page.locator('body')).not.toContainText('Luxx Aparts');
+  await expect(page.getByTestId('database-units')).toHaveCount(0);
+  // частичный сбой (менеджер каналов молчит, авторизация жива): состояние «неизвестно», а не зелёное
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/channels/channex/connection' },
+  });
+  await page.goto('/connections');
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
   await expect(page.getByTestId('integration-issues')).toContainText(
     'Не удалось проверить менеджер каналов',
   );
-  await expect(page.locator('.workspace-header .workspace-property')).toContainText(
-    'Филиал недоступен',
-  );
-  await expect(page.getByTestId('database-units')).toHaveCount(0);
 });
 
 test('поздняя загрузка гостиницы сохраняет ввод формы и открытое меню', async ({

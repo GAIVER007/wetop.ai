@@ -1,0 +1,103 @@
+# Сквозные (e2e) · 15.10.2026 12:36 Алматы · vm
+# коммит 6db3ad9 (claude/release-verify-20261015)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 44 tests using 1 worker
+
+[WebServer] (node:3059) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   1 tests/beauty-ui/beauty.spec.ts:111:1 › empty setup through real UI, persisted appointment, move, confirm, complete (23.6s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:200:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (8.3s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:237:1 › existing customer can be selected for another appointment without duplication (3.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   4 tests/beauty-ui/beauty.spec.ts:265:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (15.1s)
+  ✓   5 tests/beauty-ui/beauty.spec.ts:265:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (12.8s)
+  ✓   6 tests/beauty-ui/beauty.spec.ts:265:5 › calendar and drawer 390 light, keyboard, axe, no overflow (12.9s)
+  ✓   7 tests/beauty-ui/beauty.spec.ts:265:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (13.5s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:346:1 › archived service and employee preserve historical calendar appointments (4.6s)
+  ✓   9 tests/beauty-ui/beauty.spec.ts:380:1 › TimeOff from employee drawer, server denial and timezone persisted (8.2s)
+  ✓  10 tests/beauty-ui/beauty.spec.ts:432:1 › DS1c: day navigation keeps the previous addresses (2.7s)
+  ✓  11 tests/beauty-ui/beauty.spec.ts:447:1 › Beauty onboarding v2 completes a ready branch and resumes Today (5.2s)
+  -  12 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -  13 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -  14 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -  15 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+  ✓  16 tests/beauty-ui/employee-workspace.spec.ts:69:1 › minimal create, saved ID, reload and actual desktop/mobile themes (7.1s)
+  ✓  17 tests/beauty-ui/employee-workspace.spec.ts:106:1 › two stale forms keep the second draft and show the current profile (3.9s)
+  ✓  18 tests/beauty-ui/employee-workspace.spec.ts:134:1 › dirty stay, discard and save before tabs/close; failed save keeps draft (5.0s)
+  ✓  19 tests/beauty-ui/employee-workspace.spec.ts:178:1 › Back/Forward and keyboard tabs retain a consistent employee URL (3.1s)
+  ✓  20 tests/beauty-ui/employee-workspace.spec.ts:209:1 › inaccessible deep link is neutral and old Beauty entry remains compatible (3.0s)
+  ✓  21 tests/beauty-ui/employee-workspace.spec.ts:221:1 › lost create response is recovered on reload using one persistent operation (3.6s)
+  ✓  22 tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee (2.8s)
+  ✓  23 tests/beauty-ui/employee-workspace.spec.ts:333:1 › a scope-switch event invalidates an in-flight profile response (3.3s)
+  ✓  24 tests/beauty-ui/employee-workspace.spec.ts:380:1 › services cannot restore a stale name and profile cannot restore stale services (4.9s)
+  ✓  25 tests/beauty-ui/employee-workspace.spec.ts:424:1 › native beforeunload protects reload and preserves draft when dismissed (4.5s)
+  ✓  26 tests/beauty-ui/employee-workspace.spec.ts:449:1 › dirty internal navigation asks before leaving and stays on failure (3.8s)
+  ✓  27 tests/beauty-ui/employee-workspace.spec.ts:469:1 › profile fields, keyboard focus and contrast pass an axe audit (3.9s)
+  ✓  28 tests/beauty-ui/employee-workspace.spec.ts:486:1 › pending services save cannot mark a later checkbox edit as saved (2.7s)
+  ✘  29 tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card (8.2s)
+  ✓  30 tests/beauty-ui/employee-workspace.spec.ts:553:1 › a later week edit stays dirty after the submitted week is saved (3.5s)
+  -  31 tests/beauty-ui/ref-capture.spec.ts:14:1 › салон: календарь на ширинах и темах
+  -  32 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /today
+  -  33 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /beauty/schedule
+  -  34 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /appointments
+  -  35 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /services
+  -  36 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees
+  -  37 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts
+  -  38 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /customers
+  -  39 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /finance
+  -  40 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /team
+  -  41 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /help
+  -  42 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /branches
+  -  43 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports
+  ✓  44 tests/beauty-ui/unified-growth.spec.ts:129:1 › салон: продажи, финансы и маркетинг на данных филиала (16.2s)
+
+
+  1) tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/employees$/
+    Received string:  "http://127.0.0.1:55813/employees?employee=c7781274-46f0-48b8-8d1f-3c8b211688a3#profile"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        13 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+           - unexpected value "http://127.0.0.1:55813/employees?employee=c7781274-46f0-48b8-8d1f-3c8b211688a3#profile"
+
+
+      547 |   expect(await read(request, f.headers)).toHaveLength(1);
+      548 |   await page.reload();
+    > 549 |   await expect(page).toHaveURL(/\/employees$/);
+          |                      ^
+      550 |   await expect(page.getByRole('dialog').filter({ visible: true })).toHaveCount(0);
+      551 | });
+      552 |
+        at /home/user/wetop.ai/tests/beauty-ui/employee-workspace.spec.ts:549:22
+
+    Error Context: test-results/employee-workspace-saving--30679--employee-and-a-closed-card/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/employee-workspace-saving--30679--employee-and-a-closed-card/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/employee-workspace-saving--30679--employee-and-a-closed-card/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card 
+  17 skipped
+  26 passed (3.4m)
+
+# код выхода 1 · 3 мин 25 с

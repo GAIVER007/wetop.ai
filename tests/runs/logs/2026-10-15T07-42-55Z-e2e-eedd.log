@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 15.10.2026 12:42 Алматы · vm
+# коммит 6db3ad9 (claude/release-verify-20261015), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/real-data.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/real-data.spec.ts:21:1 › источник и агрегаты проекта видны главному администратору в «Платформе», а не на «Интеграциях» (7.9s)
+  ✓  2 tests/ui/real-data.spec.ts:41:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (3.3s)
+  ✓  3 tests/ui/real-data.spec.ts:61:1 › название гостиницы в каркасе и обзоре поступает из backend (3.0s)
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:201:11)
+[WebServer]     at async Object.me (src/lib/api.ts:612:20)
+[WebServer]   199 |         /* тело не JSON */
+[WebServer]   200 |       }
+[WebServer] > 201 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   202 |   }
+[WebServer]   203 |   return (await res.json()) as T;
+[WebServer]   204 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  4 tests/ui/real-data.spec.ts:70:1 › недоступный API не скрывается за демо или выдуманным объектом (2.3s)
+  ✓  5 tests/ui/real-data.spec.ts:91:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (3.3s)
+
+  5 passed (32.5s)
+
+# код выхода 0 · 34 с

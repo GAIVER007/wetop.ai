@@ -168,12 +168,12 @@ export function TopNav({
         data-scope-switching={scopeSwitching || undefined}
         onClickCapture={onMenuNavigation}
       >
-        <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
-          К содержимому
-        </a>
         <header
           className={`workspace-header ${path === '/chessboard' ? styles.calendarHeader : ''}`}
         >
+          <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
+            К содержимому
+          </a>
           <div className="workspace-header__row">
             <button
               className="icon-button mobile-menu"

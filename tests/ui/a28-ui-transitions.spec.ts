@@ -13,8 +13,8 @@ async function appliedPeriod(page: Page, request: APIRequestContext, to: string)
   const summary = main.getByRole('region', { name: 'Финансовый обзор', exact: true });
   await expect(summary).toHaveCount(1);
   await expect(summary).toBeVisible();
-  await expect(main.getByLabel('Период: с')).toHaveValue('2026-09-30');
-  await expect(main.getByLabel('Период: по')).toHaveValue(to);
+  await expect(main.getByTestId('period-form').getByLabel('Период: с')).toHaveValue('2026-09-30');
+  await expect(main.getByTestId('period-form').getByLabel('Период: по')).toHaveValue(to);
   const response = await request.get(`${FIXTURE_API}/finance/operations?from=2026-09-30&to=${to}`, {
     headers: { 'x-wetop-test-client': '1' },
   });
@@ -46,7 +46,7 @@ test('A28 cash: hydration preserves a native date edited before client scripts l
   });
   try {
     await page.goto('/finance?from=2026-09-30&to=2026-09-01', { waitUntil: 'commit' });
-    const to = page.getByRole('main').getByLabel('Период: по');
+    const to = page.getByRole('main').getByTestId('period-form').getByLabel('Период: по');
     await to.fill('2026-09-30');
     await expect(to).toHaveValue('2026-09-30');
     release();
@@ -59,7 +59,7 @@ test('A28 cash: hydration preserves a native date edited before client scripts l
     await expect(page.getByRole('dialog', { name: 'Календарь', exact: true })).toBeVisible();
     await expect(to).toHaveValue('2026-09-30');
     await page.keyboard.press('Escape');
-    await page.getByRole('main').getByRole('button', { name: 'Показать', exact: true }).click();
+    await page.getByRole('main').getByTestId('period-form').getByRole('button', { name: 'Показать', exact: true }).click();
     await appliedPeriod(page, request, '2026-09-30');
   } finally {
     release();
@@ -74,8 +74,8 @@ test('A28 cash: valid invalid valid periods and history preserve applied values'
   await page.goto('/finance?from=2026-09-30&to=2026-09-30');
   await appliedPeriod(page, request, '2026-09-30');
   const main = page.getByRole('main');
-  await main.getByLabel('Период: по').fill('2026-09-01');
-  await main.getByRole('button', { name: 'Показать', exact: true }).click();
+  await main.getByTestId('period-form').getByLabel('Период: по').fill('2026-09-01');
+  await main.getByTestId('period-form').getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page).toHaveURL((url) => url.searchParams.get('to') === '2026-09-01');
   await expect(main.getByRole('alert')).toContainText('Проверьте даты');
   await expect(
@@ -83,10 +83,10 @@ test('A28 cash: valid invalid valid periods and history preserve applied values'
       .getByRole('region', { name: 'Финансовый обзор', exact: true })
       .getByTestId('cash-period-income'),
   ).toHaveText('Нет данных');
-  await main.getByLabel('Период: по').fill('2026-10-01');
-  await main.getByRole('button', { name: 'Показать', exact: true }).click();
+  await main.getByTestId('period-form').getByLabel('Период: по').fill('2026-10-01');
+  await main.getByTestId('period-form').getByRole('button', { name: 'Показать', exact: true }).click();
   await appliedPeriod(page, request, '2026-10-01');
-  await main.getByLabel('Период: по').fill('2026-10-02');
+  await main.getByTestId('period-form').getByLabel('Период: по').fill('2026-10-02');
   await page.goto('/channels');
   await page.goBack();
   await appliedPeriod(page, request, '2026-10-01');

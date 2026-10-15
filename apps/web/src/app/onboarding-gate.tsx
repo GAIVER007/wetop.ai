@@ -24,18 +24,18 @@ export async function OnboardingGate() {
       const state = await sharedOnboardingApi.status();
       if (state.completedAt && !state.readiness?.ready)
         return (
-          <aside className="alert" role="status">
+          <div className="alert" role="status">
             <p>Настройка салона требует проверки. Рабочее пространство доступно.</p>
             <a href="/register/setup">Проверить услуги, мастеров и график</a>
-          </aside>
+          </div>
         );
     } catch (error) {
       if (!(error instanceof ApiError)) throw error;
       return (
-        <aside className="alert" role="status">
+        <div className="alert" role="status">
           <p>Не удалось проверить готовность салона.</p>
           <a href="/register/setup">Повторить проверку</a>
-        </aside>
+        </div>
       );
     }
     return null;

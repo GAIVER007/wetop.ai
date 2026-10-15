@@ -46,7 +46,7 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await panel.getByLabel(/Длительность, минут/).fill('60');
   await panel.getByLabel(/Цена каталога, тиын/).fill('800000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуга добавлена');
+  await expect(panel.getByRole('status')).toHaveText('Услуга создана. Включите её в выбранном филиале ниже.');
   await page.goto('/beauty/services');
   await main
     .getByRole('row')
@@ -127,12 +127,14 @@ test('неделя показывает запись и открывает её 
   await expect(page.getByRole('dialog')).toContainText('Тестовый клиент недели');
   await page.goto(`/calendar?date=${DAY}&view=week`);
   await page.setViewportSize({ width: 390, height: 844 });
+  await expect(week).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: 'reports/beauty-continuation-2026-10-14/week-390.png', fullPage: true });
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto(`/calendar?date=${DAY}&view=week`);
+  await expect(week).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({ path: 'reports/beauty-continuation-2026-10-14/week-dark-390.png', fullPage: true });
 });

@@ -34,6 +34,8 @@ import {
   registrationPhone,
   trialEndsAt,
   validEmail,
+  isRestricted,
+  visibleLocations,
   sessionExpiry,
   sessionState,
   type MembershipRole,
@@ -211,7 +213,17 @@ export class AuthService {
     return { registrationEnabled: registrationOpen() };
   }
 
-  async registrationContext(organizationId: string) {
+  /**
+   * Первый бизнес и филиал организации для завершения регистрации и входа. Человеку с областью доступа (DATA_MODEL §31.1)
+   * называет только то, что ему назначено: названия бизнесов и филиалов, куда его не пускают, он не получает (A3/F6).
+   */
+  async registrationContext(
+    organizationId: string,
+    access?: { role: MembershipRole; scopes?: readonly ScopeAssignment[] },
+  ) {
+    const assignments = access?.scopes ?? [];
+    if (access && isRestricted(access.role, assignments))
+      return this.restrictedRegistrationContext(organizationId, access.role, assignments);
     const business = await this.prisma.db.business.findFirst({
       where: { organizationId, status: 'ACTIVE' },
       orderBy: { createdAt: 'asc' },
@@ -242,6 +254,45 @@ export class AuthService {
       businessName: business.name,
       locationName: location.name,
     };
+  }
+
+  private async restrictedRegistrationContext(
+    organizationId: string,
+    role: MembershipRole,
+    assignments: readonly ScopeAssignment[],
+  ) {
+    const businesses = await this.prisma.db.business.findMany({
+      where: { organizationId, status: 'ACTIVE' },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        vertical: true,
+        locations: {
+          where: { status: 'ACTIVE' },
+          orderBy: { createdAt: 'asc' },
+          select: { id: true, name: true },
+        },
+      },
+    });
+    for (const business of businesses) {
+      const vertical = parseBusinessVertical(business.vertical);
+      if (!vertical) continue;
+      const [location] = visibleLocations(
+        role,
+        assignments,
+        business.locations.map((l) => ({ ...l, businessId: business.id })),
+      );
+      if (location)
+        return {
+          businessId: business.id,
+          locationId: location.id,
+          vertical,
+          businessName: business.name,
+          locationName: location.name,
+        };
+    }
+    return null;
   }
 
   assertRegistrationOpen(): void {

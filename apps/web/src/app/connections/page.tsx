@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import Link from 'next/link';
 import { Page } from '../../components/page';
 import { RefreshButton } from '../../components/refresh-button';
@@ -33,6 +34,8 @@ export default async function ConnectionsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   const tab = sp.tab === 'available' ? 'available' : 'connected';
   const state = await loadChannexState();

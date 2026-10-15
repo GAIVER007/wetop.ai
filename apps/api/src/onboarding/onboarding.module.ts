@@ -11,14 +11,23 @@ import {
   Module,
   Post,
 } from '@nestjs/common';
-import { canWrite, moveOnboarding, onboardingFlow } from '@pms/domain';
+import {
+  SCOPE_FORBIDDEN_MESSAGE,
+  canWrite,
+  isRestricted,
+  moveOnboarding,
+  onboardingFlow,
+  roleAt,
+} from '@pms/domain';
 import type { DbTx } from '@pms/database';
 import { Access } from '../auth/access.decorator';
 import {
   actorMay,
+  currentAssignments,
   currentBusinessId,
   currentLocationId,
   currentOrganizationId,
+  currentRole,
   currentUserId,
   hasSignedInActor,
 } from '../auth/request-context';
@@ -68,6 +77,16 @@ export class SharedOnboardingService {
     const locationId = currentLocationId();
     if (!hasSignedInActor() || !organizationId || !businessId || !locationId)
       throw new ForbiddenException('Выберите бизнес и филиал для настройки');
+    // `GET /onboarding` открыт всем ролям (`self`), и перехватчик места не проверяет: человеку с областью доступа
+    // (DATA_MODEL §31.1) черновик филиала без назначения не отдаём (A3/F6)
+    const role = currentRole();
+    const assignments = currentAssignments();
+    if (
+      role &&
+      isRestricted(role, assignments) &&
+      !roleAt(role, assignments, { businessId, locationId })
+    )
+      throw new ForbiddenException(SCOPE_FORBIDDEN_MESSAGE);
     const location = await db.location.findFirst({
       where: {
         id: locationId,

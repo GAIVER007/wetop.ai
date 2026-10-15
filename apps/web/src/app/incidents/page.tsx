@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
@@ -43,7 +44,9 @@ const HISTORY_LIMIT = 200;
  * неисправностям не менялись; D4 (LoadError с повтором, объяснённые пустые состояния, время в `<time>`,
  * телефон без прокрутки вбок) остаётся в силе.
  */
-export default function IncidentsPage() {
+export default async function IncidentsPage() {
+  // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
+  await requireVertical(['HOSPITALITY']);
   return (
     <Page
       title="Неисправности"

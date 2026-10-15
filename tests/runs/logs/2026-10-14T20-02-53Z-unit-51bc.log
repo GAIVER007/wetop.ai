@@ -1,0 +1,20 @@
+# Модульные (unit) · 15.10.2026 01:02 Алматы · vm
+# коммит 6a9aa68 (claude/ds2-f1-hospitality-route-guards-20261014), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-14T20-02-53Z-unit-51bc.json' 'tests/unit/server-bootstrap.test.ts' 'tests/unit/vertical-guard-auth.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/vertical-guard-auth.test.ts (5 tests) 10ms
+ ✓ |unit| tests/unit/server-bootstrap.test.ts (3 tests) 85374ms
+   ✓ deploy/server-bootstrap.sh (root, Linux) (3)
+     ✓ репозиторий недоступен: печатает публичный ключ, просит добавить его в GitHub и выходит с кодом 3 706ms
+     ✓ репозиторий доступен: клонирует нужную ветку, заводит папку туннеля и говорит, что дальше 29413ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  20:02:54
+   Duration  85.58s (tests 100%)
+
+JSON report written to /tmp/pms-test-2026-10-14T20-02-53Z-unit-51bc.json
+
+# код выхода 0 · 1 мин 27 с

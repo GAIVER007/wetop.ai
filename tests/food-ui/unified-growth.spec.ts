@@ -94,6 +94,8 @@ test('ресторан: продажи и маркетинг на данных �
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/sales');
-  await expect(page.getByTestId('business-sales')).toBeVisible();
+  const mobileSales = page.getByRole('main').filter({ visible: true }).getByTestId('business-sales').filter({ visible: true });
+  await expect(mobileSales).toHaveCount(1);
+  await expect(mobileSales).toBeVisible();
   await page.screenshot({ path: `${shots}/food-sales-mobile.png`, fullPage: true });
 });

@@ -1,4 +1,4 @@
-import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
+import { test, expect, type Page, type APIRequestContext, type APIResponse } from '@playwright/test';
 /**
  * Единая система направлений (14.10.2026): «Продажи», «Финансы» и «Маркетинг» салона на настоящем API салона и
  * базе стенда. Записи заводятся на прошедшие дни периода и проводятся до «Выполнено»: хаб продаж и финансы считают
@@ -15,7 +15,7 @@ const minus = (iso: string, n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-async function ok(res: Awaited<ReturnType<APIRequestContext['post']>>, what: string) {
+async function ok(res: APIResponse, what: string) {
   expect(res.ok(), `${what}: ${res.status()} ${await res.text()}`).toBe(true);
   return res.json();
 }

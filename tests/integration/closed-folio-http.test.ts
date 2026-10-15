@@ -39,7 +39,15 @@ describe.skipIf(!process.env.DATABASE_URL)('closed folio charge mutations throug
       await tx.auditLog.deleteMany({ where: { OR: [{ userId }, { entityId: { in: stays.flatMap(s => [s.reservationId, s.folioId]) } }] } });
       await tx.paymentAllocation.deleteMany({ where: { paymentId: { in: stays.map(s => s.paymentId) } } });
       await tx.payment.deleteMany({ where: { id: { in: stays.map(s => s.paymentId) } } });
+      await tx.barStockMovement.deleteMany({ where: { locationId: hotel.locationId } });
+      await tx.barSaleLine.deleteMany({ where: { sale: { locationId: hotel.locationId } } });
       await tx.barSale.deleteMany({ where: { locationId: hotel.locationId } });
+      await tx.barStockLot.deleteMany({ where: { locationId: hotel.locationId } });
+      await tx.barReceiptLine.deleteMany({ where: { receipt: { locationId: hotel.locationId } } });
+      await tx.barReceipt.deleteMany({ where: { locationId: hotel.locationId } });
+      await tx.barProduct.deleteMany({ where: { locationId: hotel.locationId } });
+      await tx.barCategory.deleteMany({ where: { locationId: hotel.locationId } });
+      await tx.barSupplier.deleteMany({ where: { locationId: hotel.locationId } });
       await tx.charge.deleteMany({ where: { folioId: { in: stays.map(s => s.folioId) } } });
       await tx.folio.deleteMany({ where: { id: { in: stays.map(s => s.folioId) } } });
       await tx.allocation.deleteMany({ where: { reservationItemId: { in: stays.map(s => s.itemId) } } });
@@ -125,25 +133,91 @@ describe.skipIf(!process.env.DATABASE_URL)('closed folio charge mutations throug
     expect(await snapshot(s)).toEqual(before);
   });
 
-  for (const [closed, restock] of [[true, false], [true, true], [false, false]] as const) it(`${closed ? 'rejects closed' : 'allows open'} folio bar reversal over HTTP (restock=${restock})`, async () => {
+  async function post(path: string, body?: unknown) {
+    const response = await http('POST', path, body);
+    expect(response.status, response.text).toBe(201);
+    return response.json as { id: string; chargeId?: string };
+  }
+
+  async function stockSnapshot(s: HotelGuest, saleId: string, productId: string) {
+    const stay = await snapshot(s);
+    return {
+      stay,
+      balanceMinor: stay.folio.charges.filter(c => !c.voidedAt).reduce((sum, c) => sum + c.amount, 0n)
+        - stay.folio.allocations.reduce((sum, a) => sum + a.amount, 0n)
+        + stay.folio.refunds.reduce((sum, r) => sum + r.amount, 0n),
+      sale: await db.barSale.findUniqueOrThrow({ where: { id: saleId }, include: { lines: { orderBy: { id: 'asc' } } } }),
+      lots: await db.barStockLot.findMany({ where: { productId }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] }),
+      movements: await db.barStockMovement.findMany({ where: { productId }, orderBy: { id: 'asc' } }),
+      audit: await db.auditLog.findMany({ where: { userId }, orderBy: { id: 'asc' } }),
+    };
+  }
+
+  for (const closed of [true, false]) for (const restock of [true, false]) it(`${closed ? 'rejects closed' : 'allows open'} folio real-stock bar reversal over HTTP (restock=${restock})`, async () => {
     const s = await fixture(false);
-    const charge = await db.charge.create({ data: { folioId: s.folioId, kind: 'SERVICE', description: 'Synthetic bar service', quantity: 1, unitPrice: 100n, amount: 100n, serviceDate: new Date('2026-10-15') } });
-    const sale = await db.barSale.create({ data: { propertyId: hotel.propertyId, locationId: hotel.locationId, folioId: s.folioId, chargeId: charge.id, idempotencyKey: randomUUID(), currency: 'KZT', totalRevenue: 100n, totalCost: 50n } });
-    await db.payment.update({ where: { id: s.paymentId }, data: { amount: 2_000_100n } });
-    await db.paymentAllocation.update({ where: { paymentId_folioId: { paymentId: s.paymentId, folioId: s.folioId } }, data: { amount: 2_000_100n } });
-    if (closed) expect((await http('POST', `/finance/folios/${s.folioId}/close`)).status).toBe(200);
-    const before = await snapshot(s);
-    const response = await http('POST', `/bar/sales/${sale.id}/reverse`, { restock, reason: 'Synthetic reversal' });
-    console.log('bar reversal', { closed, status: response.status, body: response.json });
-    expect(response.status, response.text).toBe(closed ? 409 : 201);
-    if (closed) {
-      expect(await snapshot(s)).toEqual(before);
-      expect(await db.barSale.findUnique({ where: { id: sale.id } })).toEqual(sale);
-      expect(await db.auditLog.count({ where: { entityId: sale.id } })).toBe(0);
-    } else {
-      expect((await db.charge.findUniqueOrThrow({ where: { id: charge.id } })).voidedAt).not.toBeNull();
-      expect((await db.barSale.findUniqueOrThrow({ where: { id: sale.id } })).status).toBe('REVERSED');
+    const category = await post('/bar/categories', { name: `Synthetic stock ${randomUUID()}`, defaultMarkupBasis: 0 });
+    const supplier = await post('/bar/suppliers', { name: `Synthetic supplier ${randomUUID()}` });
+    const product = await post('/bar/products', { code: randomUUID(), name: 'Synthetic stock product', categoryId: category.id, unitsPerPackage: 1, salePriceMinor: '100', minimumStockUnits: '0' });
+    // Two actual posted receipts exercise FIFO depletion and restoration to each original lot.
+    for (const [quantityUnits, unitCostMinor] of [['3', '50'], ['4', '70']]) {
+      const receipt = await post('/bar/receipts', { supplierId: supplier.id, documentNumber: randomUUID(), documentDate: '2026-10-15', receivedDate: '2026-10-15', currency: 'KZT', lines: [{ productId: product.id, quantityUnits, unitCostMinor, markupBasis: 0 }] });
+      await post(`/bar/receipts/${receipt.id}/post`);
     }
+    const price = await http('PATCH', `/bar/products/${product.id}/price`, { salePriceMinor: '100' });
+    expect(price.status, price.text).toBe(200);
+    const initialLots = await db.barStockLot.findMany({ where: { productId: product.id }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
+    expect(initialLots.map(l => [l.receivedUnits, l.remainingUnits, l.unitCost])).toEqual([[3n, 3n, 50n], [4n, 4n, 70n]]);
+
+    const sale = await post('/bar/sales/folio', { productId: product.id, folioId: s.folioId, quantityUnits: '4', idempotencyKey: randomUUID() });
+    expect(sale.chargeId).toEqual(expect.any(String));
+    await db.payment.update({ where: { id: s.paymentId }, data: { amount: 2_000_400n } });
+    await db.paymentAllocation.update({ where: { paymentId_folioId: { paymentId: s.paymentId, folioId: s.folioId } }, data: { amount: 2_000_400n } });
+    if (closed) expect((await http('POST', `/finance/folios/${s.folioId}/close`)).status).toBe(200);
+    const before = await stockSnapshot(s, sale.id, product.id);
+    expect(before.balanceMinor).toBe(0n);
+    expect(before.sale).toMatchObject({ status: 'POSTED', folioId: s.folioId, chargeId: sale.chargeId, totalRevenue: 400n, totalCost: 220n, reversedAt: null });
+    expect(before.sale.lines).toEqual([expect.objectContaining({ productId: product.id, quantityUnits: 4n, salePrice: 100n, revenue: 400n, cost: 220n })]);
+    expect(before.stay.folio.charges.find(c => c.id === sale.chargeId)).toMatchObject({ amount: 400n, voidedAt: null });
+    expect(before.lots.map(l => l.remainingUnits)).toEqual([0n, 3n]);
+    expect(before.movements).toHaveLength(4);
+    expect(before.movements.filter(m => m.kind === 'RECEIPT').map(m => m.units).sort()).toEqual([3n, 4n]);
+    const depletion = before.movements.filter(m => m.kind === 'SALE').sort((a, b) => a.unitCost < b.unitCost ? -1 : 1);
+    expect(depletion).toEqual(initialLots.map((lot, i) => expect.objectContaining({ lotId: lot.id, productId: product.id, sourceType: 'BAR_SALE', sourceId: sale.id, units: i === 0 ? -3n : -1n, unitCost: lot.unitCost })));
+
+    const response = await http('POST', `/bar/sales/${sale.id}/reverse`, { restock, reason: 'Synthetic stock reversal' });
+    console.log('real-stock bar reversal', { closed, restock, saleId: sale.id, folioId: s.folioId, status: response.status, body: response.json });
+    expect(response.status, response.text).toBe(closed ? 409 : 201);
+    const after = await stockSnapshot(s, sale.id, product.id);
+    if (closed) {
+      expect(response.text).toContain('закрыт');
+      // Includes complete folio/charges/payments, sale/lines, nonzero lot balances, movements and audit.
+      expect(after).toEqual(before);
+    } else {
+      expect(response.json).toMatchObject({ id: sale.id, status: 'REVERSED', restocked: restock });
+      expect(after.sale.status).toBe('REVERSED');
+      expect(after.sale.reversedAt).toBeInstanceOf(Date);
+      expect({ ...after.sale, status: before.sale.status, reversedAt: before.sale.reversedAt }).toEqual(before.sale);
+      expect(after.stay.folio.status).toBe('OPEN');
+      expect(after.balanceMinor).toBe(-400n);
+      const charge = after.stay.folio.charges.find(c => c.id === sale.chargeId)!;
+      expect(charge.voidedAt).toBeInstanceOf(Date);
+      expect({ ...charge, voidedAt: null }).toEqual(before.stay.folio.charges.find(c => c.id === sale.chargeId));
+      expect(after.stay.folio.charges.filter(c => c.id !== sale.chargeId)).toEqual(before.stay.folio.charges.filter(c => c.id !== sale.chargeId));
+      expect(after.stay.folio.allocations).toEqual(before.stay.folio.allocations);
+      expect(after.stay.folio.refunds).toEqual(before.stay.folio.refunds);
+      expect(after.lots).toEqual(restock ? initialLots : before.lots);
+      expect(after.movements.filter(m => m.kind !== 'SALE_RETURN')).toEqual(before.movements);
+      const returns = after.movements.filter(m => m.kind === 'SALE_RETURN').sort((a, b) => a.unitCost < b.unitCost ? -1 : 1);
+      expect(returns).toEqual(restock ? depletion.map(m => expect.objectContaining({ lotId: m.lotId, productId: m.productId, units: -m.units, unitCost: m.unitCost, sourceType: 'BAR_SALE_RETURN', sourceId: sale.id })) : []);
+      expect(after.audit.filter(a => a.entityId === sale.id && a.action === 'bar.sale.reversed')).toHaveLength(1);
+    }
+    // Retrying either flag must not restore any lot twice, or turn a no-restock reversal into a restock.
+    for (const retryRestock of [restock, !restock]) {
+      const repeated = await http('POST', `/bar/sales/${sale.id}/reverse`, { restock: retryRestock, reason: 'Synthetic repeated reversal' });
+      expect(repeated.status, repeated.text).toBe(409);
+      expect(await stockSnapshot(s, sale.id, product.id)).toEqual(after);
+    }
+    console.log('real-stock invariant evidence', { closed, restock, saleId: sale.id, initialUnits: '7', soldUnits: '4', remainingUnits: after.lots.map(l => String(l.remainingUnits)), movements: after.movements.length, balanceMinor: String(after.balanceMinor), retries: 'same and opposite flag: 409, unchanged' });
   });
 
   for (const early of [false, true]) it(`allows ${early ? 'early' : 'normal'} checkout after manual paid close`, async () => {

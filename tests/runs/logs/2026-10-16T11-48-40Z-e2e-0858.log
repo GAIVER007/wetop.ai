@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 16.10.2026 16:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит e494ce2 (claude/marketing-meta-connect), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing-campaigns.spec.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   1 tests/ui/marketing-campaigns.spec.ts:20:1 › кампания: создать, день вручную и CSV, расход из бюджета, показатели площадки (17.2s)
+  ✓   2 tests/ui/marketing-campaigns.spec.ts:89:1 › кабинет Meta: номер, окно Facebook с кодом авторизации, возврат, обновление, отключение; подделка отклонена (39.6s)
+  ✓   3 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (24.5s)
+  ✓   4 tests/ui/marketing.spec.ts:77:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (14.1s)
+  ✓   5 tests/ui/marketing.spec.ts:97:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», из данных только бюджет месяца (6.6s)
+  ✓   6 tests/ui/marketing.spec.ts:190:1 › экраны «Реклама» и «Контент»: вкладки как в макете; кампании живые (ADR-MKT-B3), кабинет и контент пока пустые (8.3s)
+  ✓   7 tests/ui/marketing.spec.ts:244:1 › администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (21.3s)
+  ✓   8 tests/ui/marketing.spec.ts:270:3 › хаб на компьютере и телефоне, доступность: light (1.0m)
+  ✓   9 tests/ui/marketing.spec.ts:270:3 › хаб на компьютере и телефоне, доступность: dark (27.0s)
+  ✓  10 tests/ui/marketing.spec.ts:325:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (25.9s)
+
+  10 passed (4.3m)
+
+# код выхода 0 · 4 мин 26 с

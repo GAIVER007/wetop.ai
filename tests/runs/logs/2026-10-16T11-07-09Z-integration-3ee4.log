@@ -1,0 +1,45 @@
+# Интеграционные (integration) · 16.10.2026 16:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/marketing-meta-plan), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-07-09Z-integration-3ee4.json' 'tests/integration/marketing-campaigns.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-campaigns.test.ts (3 tests | 1 failed) 504ms
+   ❯ рекламные кампании (integration) (3)
+     ✓ кампания, расход к ней, статистика дня, CSV и сводка месяца 182ms
+     ✓ чужой филиал: кампании не видно, расход к ней не привязать; переименование доходит до расходов 24ms
+     × кампания из кабинета (§54): ручная правка, день и CSV отклоняются словами, данные не меняются 10ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  04:07:10
+   Duration  3.16s (import 49%, transform 31%, tests 20%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-07-09Z-integration-3ee4.json
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-campaigns.test.ts > рекламные кампании (integration) > кампания из кабинета (§54): ручная правка, день и CSV отклоняются словами, данные не меняются
+AssertionError: promise resolved "{ id: '863ac1d2-be8d-4ec5-afe8-5d8ed…' }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "id": "863ac1d2-be8d-4ec5-afe8-5d8ed2baeda3",
+  }
+
+ ❯ tests/integration/marketing-campaigns.test.ts:119:41
+    117|       () => campaigns.removeDay(cabinet.id, '2026-10-05'),
+    118|     ])
+    119|       await expect(as('own', attemptIt)).rejects.toMatchObject({ statu…
+       |                                         ^
+    120|     expect(await db.marketingCampaign.findUniqueOrThrow({ where: { id:…
+    121|     expect(await db.marketingCampaignStat.count({ where: { campaignId:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+# код выхода 1 · 4 с

@@ -1,0 +1,11 @@
+# Линтер (lint) · 16.10.2026 16:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/marketing-meta-plan), незакоммиченных файлов набора: 12
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/packages/integrations/src/meta/client.ts
+  129:11  error  The value assigned to 'body' is not used in subsequent statements  no-useless-assignment
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 2 мин 28 с

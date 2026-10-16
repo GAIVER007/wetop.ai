@@ -4038,6 +4038,11 @@ export interface MarketingCampaignView {
   impressions: number;
   clicks: number;
   leads: number;
+  /** Кампания из рекламного кабинета (§55): правит только сверка */
+  fromCabinet?: boolean;
+  /** Расход по кабинету за месяц, тиыны валюты кабинета; null у ручных */
+  cabinetSpend?: string | null;
+  cabinetCurrency?: string | null;
   days: Array<{ date: string; impressions: number; clicks: number; leads: number }>;
 }
 export interface MarketingCampaignsView {
@@ -4047,6 +4052,31 @@ export interface MarketingCampaignsView {
   reportingCurrency: string;
   campaigns: MarketingCampaignView[];
 }
+
+/** Кабинет Meta филиала (DATA_MODEL §55, ADR-MKT-META); ключ наружу не отдаётся никогда */
+export interface MetaConnectionView {
+  /** false: владелец платформы ещё не вписал ключи приложения Meta */
+  configured: boolean;
+  connection: {
+    adAccountId: string;
+    accountName: string | null;
+    currency: string;
+    timezone: string;
+    status: 'ACTIVE' | 'FAILED';
+    lastSyncedAt: string | null;
+    lastError: string | null;
+  } | null;
+}
+
+export const metaConnectionApi = {
+  view: () => getJson<MetaConnectionView>('/marketing/ad-connections/meta'),
+  start: (adAccountId: string) => sendJson<{ url: string }>('POST', '/marketing/ad-connections/meta/start', { adAccountId }),
+  complete: (code: string, state: string) =>
+    sendJson<{ connected: true; accountName: string }>('POST', '/marketing/ad-connections/meta/complete', { code, state }),
+  sync: () =>
+    sendJson<{ ok: boolean; days: number; campaigns: number; error: string | null }>('POST', '/marketing/ad-connections/meta/sync', {}),
+  disconnect: () => sendJson<{ disconnected: true }>('POST', '/marketing/ad-connections/meta/disconnect', {}),
+};
 
 export const marketingCampaignsApi = {
   list: (month?: string) =>

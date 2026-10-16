@@ -1,0 +1,87 @@
+# Модульные (unit) · 16.10.2026 16:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит e494ce2 (claude/marketing-meta-connect), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-19-11Z-unit-bf72.json' 'packages/integrations/src/meta/auth.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/integrations/src/meta/auth.test.ts (5 tests | 5 failed) 5ms
+   ❯ окно входа Facebook Login for Business (1)
+     × код авторизации для SUAT, конфигурация вместо scope, state и адрес возврата как есть 3ms
+   ❯ обмен кода на ключ (2)
+     × сервером: тот же адрес возврата, секрет только в запросе к Graph API; ответ: ключ 0ms
+     × отказ Meta: ошибка без секрета и кода в тексте 0ms
+   ❯ кабинет по номеру (2)
+     × название, валюта, пояс и статус; номер без приставки act_ 0ms
+     × закрытый или неактивный кабинет помечается 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/meta/auth.test.ts > окно входа Facebook Login for Business > код авторизации для SUAT, конфигурация вместо scope, state и адрес возврата как есть
+TypeError: metaLoginUrl is not a function
+ ❯ packages/integrations/src/meta/auth.test.ts:19:25
+     17| describe('окно входа Facebook Login for Business', () => {
+     18|   it('код авторизации для SUAT, конфигурация вместо scope, state и адр…
+     19|     const url = new URL(metaLoginUrl({ ...APP, state: 'st.ate' }));
+       |                         ^
+     20|     expect(url.origin + url.pathname).toBe('https://www.facebook.com/v…
+     21|     expect(Object.fromEntries(url.searchParams)).toEqual({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| packages/integrations/src/meta/auth.test.ts > обмен кода на ключ > сервером: тот же адрес возврата, секрет только в запросе к Graph API; ответ: ключ
+TypeError: exchangeMetaCode is not a function
+ ❯ packages/integrations/src/meta/auth.test.ts:36:18
+     34|   it('сервером: тот же адрес возврата, секрет только в запросе к Graph…
+     35|     const { fn, urls } = fakeFetch({ access_token: '<скрыто>', to…
+     36|     expect(await exchangeMetaCode({ ...APP, code: 'c0de', fetch: fn })…
+       |                  ^
+     37|     expect(urls[0]!.origin + urls[0]!.pathname).toBe('https://graph.fa…
+     38|     expect(Object.fromEntries(urls[0]!.searchParams)).toEqual({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| packages/integrations/src/meta/auth.test.ts > обмен кода на ключ > отказ Meta: ошибка без секрета и кода в тексте
+TypeError: exchangeMetaCode is not a function
+ ❯ packages/integrations/src/meta/auth.test.ts:48:23
+     46|   it('отказ Meta: ошибка без секрета и кода в тексте', async () => {
+     47|     const { fn } = fakeFetch({ error: { message: `bad code c0de ${APP.…
+     48|     const err = await exchangeMetaCode({ ...APP, code: 'c0de', fetch: …
+       |                       ^
+     49|     expect(err).toBeInstanceOf(MetaApiError);
+     50|     expect((err as Error).message).not.toContain(APP.appSecret);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| packages/integrations/src/meta/auth.test.ts > кабинет по номеру > название, валюта, пояс и статус; номер без приставки act_
+TypeError: (intermediate value).adAccount is not a function
+ ❯ packages/integrations/src/meta/auth.test.ts:65:90
+     63|       account_status: 1,
+     64|     });
+     65|     const account = await new MetaAdsClient({ accessToken: 'suat-not-r…
+       |                                                                                          ^
+     66|     expect(urls[0]!.pathname).toBe('/v25.0/act_1234567890');
+     67|     expect(urls[0]!.searchParams.get('fields')).toBe('account_id,name,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| packages/integrations/src/meta/auth.test.ts > кабинет по номеру > закрытый или неактивный кабинет помечается
+TypeError: (intermediate value).adAccount is not a function
+ ❯ packages/integrations/src/meta/auth.test.ts:73:70
+     71|   it('закрытый или неактивный кабинет помечается', async () => {
+     72|     const { fn } = fakeFetch({ account_id: '1', name: 'x', currency: '…
+     73|     expect((await new MetaAdsClient({ accessToken: 't', fetch: fn }).a…
+       |                                                                      ^
+     74|   });
+     75| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  04:19:15
+   Duration  169ms (transform 62%, import 22%, tests 9%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-19-11Z-unit-bf72.json
+
+# код выхода 1 · 4 с

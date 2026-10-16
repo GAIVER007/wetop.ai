@@ -123,6 +123,7 @@ model Location {
   marketingBudgetLines   MarketingBudgetLine[]
   marketingExpenseFiles  MarketingExpenseFile[]
   marketingCampaigns     MarketingCampaign[]
+  marketingAdConnections MarketingAdConnection[]
   siteAssets             SiteAsset[]
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement SiteBuilderEntitlement?
@@ -225,12 +226,71 @@ model MarketingCampaign {
   createdAt  DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  /// §55 (v2.38): номер кампании в кабинете; у ручных пусто. Уникальность имени только у ручных (частичный индекс в SQL)
+  externalId String?                 @map("external_id") @db.VarChar(64)
+
   location Location                 @relation(fields: [locationId], references: [id], onDelete: Restrict)
   stats    MarketingCampaignStat[]
   expenses MarketingExpense[]
 
-  @@unique([locationId, platform, name])
+  @@unique([locationId, platform, externalId])
   @@map("marketing_campaigns")
+}
+
+enum MarketingStatSource {
+  MANUAL
+  META
+}
+
+enum MarketingConnectionStatus {
+  ACTIVE
+  FAILED
+  DISCONNECTED
+}
+
+/// §55 (v2.38, ADR-MKT-META): рекламный кабинет филиала; ключ только зашифрованным
+model MarketingAdConnection {
+  id              String                    @id @default(uuid()) @db.Uuid
+  locationId      String                    @map("location_id") @db.Uuid
+  platform        MarketingPlatform
+  adAccountId     String                    @map("ad_account_id") @db.VarChar(40)
+  accountName     String?                   @map("account_name") @db.VarChar(200)
+  currency        String                    @db.Char(3)
+  timezone        String                    @db.VarChar(64)
+  tokenCiphertext String                    @map("token_ciphertext")
+  status          MarketingConnectionStatus @default(ACTIVE)
+  lastSyncedAt    DateTime?                 @map("last_synced_at") @db.Timestamptz(6)
+  lastError       String?                   @map("last_error") @db.VarChar(500)
+  connectedById   String?                   @map("connected_by_id") @db.Uuid
+  createdAt       DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location    Location           @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  connectedBy User?              @relation(fields: [connectedById], references: [id], onDelete: SetNull)
+  runs        MarketingSyncRun[]
+
+  @@unique([locationId, platform])
+  @@map("marketing_ad_connections")
+}
+
+/// §55: след каждой сверки кабинета (ADR-007)
+model MarketingSyncRun {
+  id           String    @id @default(uuid()) @db.Uuid
+  connectionId String    @map("connection_id") @db.Uuid
+  trigger      String    @db.VarChar(10)
+  since        DateTime  @db.Date
+  until        DateTime  @db.Date
+  status       String    @db.VarChar(10)
+  campaigns    Int?
+  days         Int?
+  error        String?   @db.VarChar(500)
+  startedAt    DateTime  @default(now()) @map("started_at") @db.Timestamptz(6)
+  finishedAt   DateTime? @map("finished_at") @db.Timestamptz(6)
+
+  connection MarketingAdConnection @relation(fields: [connectionId], references: [id], onDelete: Restrict)
+
+  @@index([connectionId, startedAt])
+  @@map("marketing_sync_runs")
 }
 
 /// §53: показы, клики и лиды площадки за день (вручную, позже кабинеты)
@@ -241,6 +301,11 @@ model MarketingCampaignStat {
   impressions Int
   clicks      Int
   leads       Int
+  /// §55: MANUAL ввод или день из кабинета (только для чтения на экране)
+  source        MarketingStatSource @default(MANUAL)
+  /// §55: расход кабинета в его валюте, minor units; у ручных дней пусто
+  spendMinor    BigInt?             @map("spend_minor")
+  spendCurrency String?             @map("spend_currency") @db.Char(3)
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -2427,6 +2492,7 @@ model User {
   propertyMedia                PropertyMedia[]
   marketingExpensesCreated     MarketingExpense[]
   marketingExpenseFilesCreated MarketingExpenseFile[]
+  marketingAdConnectionsMade   MarketingAdConnection[]
   siteAiRunsRequested          SiteAiRun[]
   siteBookmarksCreated         MarketingSiteVersionBookmark[]
   siteBuilderEntitlementEdits  SiteBuilderEntitlement[]

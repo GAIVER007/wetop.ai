@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 16.10.2026 16:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит e494ce2 (claude/marketing-meta-connect), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-44-17Z-integration-ca1d.json' 'tests/integration/marketing-meta.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-meta.test.ts (4 tests) 4851ms
+   ✓ кабинет Meta (integration) (4)
+     ✓ вход: state другого филиала не принимается; свой подключает кабинет, ключ шифром, первая сверка 1454ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  04:44:32
+   Duration  25.14s (transform 50%, import 25%, tests 25%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-44-17Z-integration-ca1d.json
+
+# код выхода 0 · 42 с

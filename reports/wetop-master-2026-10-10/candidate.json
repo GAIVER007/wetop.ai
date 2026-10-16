@@ -26,5 +26,17 @@
     "deploy/server-bootstrap.sh: cd / в as_user (мастер-ТЗ §8)",
     "мок валюты в apps/api/src/bar/bar-folio-service-date.test.ts (новый тест main не знал про D-CUR-сверку)",
     "describe-whitelist actions.ts расширен сообщениями скана и строк прихода (иначе их глотал экран ошибок)"
-  ]
+  ],
+  "final": {
+    "observedAt": "2026-10-16T06:35Z",
+    "prHead": "778ef7080f55fb7b8ced8ec2576f65ea4a085736",
+    "mainMergeCommit": "86e42a06d896cab1de06b1e007af3cd7dbb9e369",
+    "mergedBy": "GAIVER007",
+    "mergedAt": "2026-10-15T08:44:02Z",
+    "stage2MergeCommit": "7f907046bf5dd3384f8ab31b3198266ef6979ad4",
+    "gateFollowUpPr558Merge": "7dc8919a53cdbdfe5325515235c40a955aacb698",
+    "release": "c534c35a3069ee8d22ce0f0a2026f1011fffb5ec",
+    "releaseGateRun": 38856962136,
+    "deployedRuntime": "UNKNOWN"
+  }
 }

@@ -130,6 +130,47 @@ test('карточка товара: «Изменить цены» пересч�
   await expect(cola.locator('.bar-history')).toContainText('Приход');
 });
 
+test('N6: товар в архивной категории сохраняет её при правке карточки (ADR-186)', async ({
+  page,
+  request,
+}) => {
+  const { token } = await (
+    await request.post(`${fixture}/auth/login`, {
+      data: { email: 'admin@wetop.test', password: 'ui-test-parol' },
+      headers: { 'x-wetop-test-client': '1' },
+    })
+  ).json();
+  const headers = { authorization: `Bearer ${token}`, 'x-wetop-test-client': '1' };
+  const categories = (await (
+    await request.get(`${fixture}/bar/categories`, { headers })
+  ).json()) as Array<{ id: string; name: string }>;
+  const juices = categories.find((c) => c.name === 'Соки')!;
+  expect(
+    (
+      await request.patch(`${fixture}/bar/categories/${juices.id}/active`, {
+        headers,
+        data: { active: false },
+      })
+    ).ok(),
+  ).toBe(true);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/bar');
+  const m = main(page);
+  const board = m.getByRole('region', { name: 'Товары и остатки бара' });
+  await board.getByRole('button', { name: 'Изменить Сок Rich 0.2' }).click();
+  const card = m.getByRole('complementary', { name: 'Карточка товара Сок Rich 0.2' });
+  const select = card.getByLabel('Категория', { exact: true });
+  await expect(select).toHaveValue(juices.id);
+  await expect(select.locator('option:checked')).toHaveText('Соки (в архиве)');
+  await card.getByLabel('Мин. остаток').fill('6');
+  await card.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(card.getByRole('status').last()).toContainText('Карточка товара сохранена');
+  const products = (await (
+    await request.get(`${fixture}/bar/products`, { headers })
+  ).json()) as Array<{ name: string; categoryId: string | null }>;
+  expect(products.find((p) => p.name === 'Сок Rich 0.2')?.categoryId).toBe(juices.id);
+});
+
 test('«Удалить» уводит товар в архив после вопроса; флажки отмечают строки', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');

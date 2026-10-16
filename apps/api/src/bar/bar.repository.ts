@@ -111,7 +111,7 @@ export class PrismaBarRepository implements BarRepository {
     const property = await this.prisma.db.property.findUniqueOrThrow({ where: { id: ref.id }, select: { locationId: true, currency: true } });
     return { locationId: property.locationId, propertyId: ref.id, vertical: 'HOSPITALITY', timezone: ref.timezone, currency: property.currency };
   }
-  /** Способы оплаты объекта (§21.6, ADR-185): у бара салона и ресторана объекта нет, настройка к ним не относится */
+  /** Способы оплаты объекта (§21.6, ADR-186): у бара салона и ресторана объекта нет, настройка к ним не относится */
   async enabledPaymentMethods(): Promise<string[] | null> {
     const { propertyId } = await this.scope();
     if (!propertyId) return null;
@@ -172,8 +172,16 @@ export class PrismaBarRepository implements BarRepository {
     const rows = await (this.prisma.db as any).barProduct.findMany({ where: { locationId: (await this.scope()).locationId }, include: { category: true }, orderBy: { name: 'asc' } });
     return rows.map((row: any) => ({ ...row, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString() }));
   }
+  /** N6 (ADR-186): архивная категория остаётся у прежних товаров, новые в неё не попадают */
+  private async activeCategory(locationId: string, categoryId: string | null, keep: string | null = null) {
+    if (!categoryId || categoryId === keep) return;
+    const category = await (this.prisma.db as any).barCategory.findFirst({ where: { id: categoryId, locationId } });
+    if (!category) throw new ConflictException('Категория недоступна в этом объекте');
+    if (!category.active) throw new ConflictException('Категория в архиве: выберите действующую или верните её из архива');
+  }
   async createProduct(input: BarProductInput) {
     const { propertyId, locationId } = await this.scope();
+    await this.activeCategory(locationId, input.categoryId);
     const row = await (this.prisma.db as any).barProduct.create({ data: {
       propertyId, locationId, code: input.code, name: input.name, categoryId: input.categoryId, barcode: input.barcode,
       unitsPerPackage: input.unitsPerPackage, markupBasis: input.markupBasis, salePrice: input.salePriceMinor,
@@ -194,6 +202,7 @@ export class PrismaBarRepository implements BarRepository {
     const { locationId } = await this.scope();
     const existing = await (this.prisma.db as any).barProduct.findFirst({ where: { id, locationId } });
     if (!existing) return null;
+    await this.activeCategory(locationId, patch.categoryId, existing.categoryId);
     const row = await (this.prisma.db as any).barProduct.update({ where: { id }, data: {
       name: patch.name, categoryId: patch.categoryId, barcode: patch.barcode,
       unitsPerPackage: patch.unitsPerPackage, markupBasis: patch.markupBasis,
@@ -522,6 +531,7 @@ export class PrismaBarRepository implements BarRepository {
     const supplier = await (tx as any).barSupplier.findFirst({ where: { id: input.supplierId, locationId } });
     const products = await (tx as any).barProduct.count({ where: { locationId, id: { in: [...new Set(input.lines.map(line => line.productId))] } } });
     if (!supplier || products !== new Set(input.lines.map(line => line.productId)).size) throw new ConflictException('Поставщик или товар недоступен в этом объекте');
+    if (!supplier.active) throw new ConflictException('Поставщик в архиве: верните его из архива, чтобы принять приход');
     this.compatible(input.currency, currency);
     if (currency !== 'KZT') throw new ConflictException({ code: 'BAR_AUTO_PRICE_UNDEFINED', message: 'Автоматическая цена для этой валюты еще не утверждена. Используйте операции с заданной ценой.' });
     const totalAmount = input.lines.reduce((s, l) => s + l.quantityUnits * l.unitCostMinor, 0n);

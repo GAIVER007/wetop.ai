@@ -569,11 +569,12 @@ function ProductCard({
         <CardField label="Категория" htmlFor={id('category')}>
           <Select id={id('category')} name="categoryId" defaultValue={product.categoryId ?? ''}>
             <option value="">Без категории</option>
+            {/* N6 (ADR-186): своя архивная категория остаётся в списке, иначе сохранение молча её сотрёт */}
             {categories
-              .filter((category) => category.active)
+              .filter((category) => category.active || category.id === product.categoryId)
               .map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.name}
+                  {category.active ? category.name : `${category.name} (в архиве)`}
                 </option>
               ))}
           </Select>

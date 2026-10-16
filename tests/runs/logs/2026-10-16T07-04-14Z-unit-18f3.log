@@ -1,0 +1,16 @@
+# Модульные (unit) · 16.10.2026 12:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит cedb36f (claude/salon-appointment-payment), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-04-14Z-unit-18f3.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 54ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  00:04:16
+   Duration  3.05s (transform 59%, import 39%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-04-14Z-unit-18f3.json
+
+# код выхода 0 · 5 с

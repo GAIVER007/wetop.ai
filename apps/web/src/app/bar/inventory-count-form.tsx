@@ -39,6 +39,13 @@ export function InventoryCountForm({ stock, context }: { stock: BarStockRow[]; c
       <Field label="Факт, шт.">
         <Input name="actualUnits" inputMode="numeric" pattern="[0-9]+" required />
       </Field>
+      <Field
+        label="Цена излишка за шт."
+        controlId="bar-surplus-cost"
+        hint="Нужна, только если на складе пусто. Иначе излишек примем по средней цене остатка"
+      >
+        <Input name="surplusCost" inputMode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" />
+      </Field>
       <Field label="Причина">
         <Input name="reason" defaultValue="Пересчет смены" required />
       </Field>

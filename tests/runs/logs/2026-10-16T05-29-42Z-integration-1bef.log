@@ -1,0 +1,60 @@
+# Интеграционные (integration) · 16.10.2026 10:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит b6e59e0 (claude/bar-surplus), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-29-42Z-integration-1bef.json' 'tests/integration/bar-money-fixes.test.ts' 'tests/integration/bar-money-invariants-audit.test.ts' '-t' 'N4/5'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ❯ |integration| tests/integration/bar-money-fixes.test.ts (35 tests | 35 skipped) 10ms
+   ❯ A3 approved money audit through real workspace HTTP and PostgreSQL (35)
+     ↓ D-KEY distinct keys allow independent legitimate sales
+     ↓ SHIFT / A3-1: independently reconciled KZT shift
+     ↓ A3-2 new currency writes and Folio mismatch reject atomically
+     ↓ A3-3 legacy mixed documents and drafts are guarded
+     ↓ A3-3 same-product mixed lots block ambiguous cost paths
+     ↓ A3-5: own scope excludes a different property and currency
+     ↓ A3-4 foreign property retail: sale currency follows its actual property
+     ↓ D-CUR legacy cash sources never produce a false scalar total
+     ↓ A3-6: malformed currency rejected atomically; cross-currency rejection branch recorded
+     ↓ M1: repeated and concurrent receipt posting has one effective posting
+     ↓ M2 sequential: identical retail replay has one cash and stock effect
+     ↓ M2 concurrent: same-key copies replay the one source without a 500
+     ↓ M2 payload identity: product, quantity, method and retail/Folio reuse
+     ↓ D-KEY Folio identical and changed concurrent replays
+     ↓ M3: replay after reversal reports the persisted terminal status
+     ↓ M4 retail/retail: controlled race cannot oversell last unit
+     ↓ M4 retail/writeoff: controlled shared stock race is atomic
+     ↓ M5: partial payments, overpayment and concurrent debt limit
+     ↓ M5 cash void: supplier debt agrees with surviving settlement
+     ↓ M6: payment replay has no operation identity contract
+     ↓ M7: Folio Charge, real guest payment, no duplicate cash/sale
+     ↓ M7: closed/foreign Folio rejected atomically; payment currency mismatch
+     ↓ M8: retail return restocks original lots and repeats have no effect
+     ↓ M9: return without restock keeps depletion; cost accounting gap explicit
+     ↓ M10: unpaid Folio reversal cancels Charge without fictitious refund
+     ↓ M10: paid Folio reversal and explicit Refund remain distinct
+     ↓ M11: controlled real DB constraint failure after cash creation rolls back
+     ↓ N1: price preview, persisted receipt calculatedPrice and posted salePrice
+     ↓ N2: category default, product override, line override and zero markup
+     ↓ N3 quantities/UUID: invalid inputs rejected with zero partial effect
+     ↓ N3 calendar: both dates exist and preserve calendar day
+     ↓ N3 integer/bigint bounds: schema-invalid values do not become unhandled 500
+     ↓ N3 exact bigint: valid money above JS safe integer persists exactly
+     ↓ N4/5: writeoff FIFO, inventory shortage, no-op and surplus at average cost
+     ↓ N6: archived product rejected; category/supplier historical boundary explicit
+ ↓ |integration| tests/integration/bar-money-invariants-audit.test.ts (31 tests | 31 skipped)
+
+ Test Files  1 failed | 1 skipped (2)
+      Tests  66 skipped (66)
+   Start at  22:30:02
+   Duration  16.06s (transform 55%, import 41%, worker 3%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-29-42Z-integration-1bef.json
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-money-fixes.test.ts > A3 approved money audit through real workspace HTTP and PostgreSQL
+Error: connect ECONNREFUSED 127.0.0.1:55601
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+# код выхода 1 · 36 с

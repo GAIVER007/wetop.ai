@@ -220,7 +220,32 @@ describe('форма прихода бара', () => {
       productId: 'product-1',
       actualUnits: '10',
       reason: 'Пересчет',
+      unitCostMinor: null,
     });
+  });
+
+  it('излишек: цена вручную уходит в тиынах, ответ называет принятый излишек (ADR-175)', async () => {
+    vi.mocked(barApi.inventoryCount).mockResolvedValue({
+      id: 'count-2',
+      systemUnits: '0',
+      actualUnits: '3',
+      differenceUnits: '3',
+      costMinor: '75000',
+    });
+    const fd = new FormData();
+    fd.set('barPropertyId', 'property-1');
+    fd.set('barCurrency', 'KZT');
+    Object.entries({ productId: 'product-1', actualUnits: '3', reason: 'Нашли ящик', surplusCost: '250' }).forEach(
+      ([key, value]) => fd.set(key, value),
+    );
+    const result = await inventoryBarAction({ error: null, ok: 0 }, fd);
+    expect(barApi.inventoryCount).toHaveBeenLastCalledWith({
+      productId: 'product-1',
+      actualUnits: '3',
+      reason: 'Нашли ящик',
+      unitCostMinor: '25000',
+    });
+    expect(result.message).toBe('Излишек 3 шт. принят на склад');
   });
 
   it('хранит наценку категории в basis points', async () => {

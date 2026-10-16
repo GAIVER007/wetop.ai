@@ -154,4 +154,154 @@ describe.skipIf(!url)('МКТ-В1/В2 marketing accounting: инварианты
       await attempt(`DELETE FROM marketing_expenses`);
     });
   });
+
+  it('план по каналам (§52): первое число, один канал на месяц филиала, сумма больше нуля, RLS, DELETE есть', async () => {
+    await probe(async (attempt) => {
+      const line = (month: string, platform = 'META', amount = '100000', location = locA) =>
+        attempt(
+          `INSERT INTO marketing_budget_lines (id, location_id, month, platform, amount, updated_at)
+           VALUES ($1, $2, $3, $4, $5, now())`,
+          [randomUUID(), location, month, platform, amount],
+        );
+      await line('2026-10-01');
+      await line('2026-10-01', 'GOOGLE');
+      await expect(line('2026-10-15', 'SITE')).rejects.toThrow(/marketing_budget_lines_month/);
+      await expect(line('2026-10-01', 'TIKTOK', '0')).rejects.toThrow(/marketing_budget_lines_amount/);
+      await expect(line('2026-10-01')).rejects.toThrow(/marketing_budget_lines_location_id_month_platform_key/);
+      await line('2026-10-01', 'META', '5', locB);
+      await asApp(attempt, orgB);
+      const seen = await attempt(`SELECT count(*)::int AS n FROM marketing_budget_lines`);
+      expect(seen.rows[0].n).toBe(1);
+      await expect(line('2026-11-01', 'META', '1', locA)).rejects.toThrow(/violates row-level security/);
+      await attempt('RESET ROLE');
+      await asApp(attempt, orgA);
+      // канал убирается из плана удалением строки: у роли DELETE есть
+      const gone = await attempt(`DELETE FROM marketing_budget_lines WHERE platform = 'GOOGLE'`);
+      expect(gone.rowCount).toBe(1);
+    });
+  });
+
+  it('чеки (§51): ключ хранилища выводится из строки, только WebP и PDF, RLS, без UPDATE, уходят с расходом', async () => {
+    await probe(async (attempt) => {
+      const expenseId = randomUUID();
+      await expense(attempt, locA, { id: expenseId });
+      const sha = 'a'.repeat(64);
+      const file = (over: Record<string, unknown> = {}) => {
+        const id = (over.id as string | undefined) ?? randomUUID();
+        const hash = (over.sha256 as string | undefined) ?? sha;
+        const row: Record<string, unknown> = {
+          id,
+          expense_id: expenseId,
+          location_id: locA,
+          file_name: 'чек.pdf',
+          mime_type: 'application/pdf',
+          storage_ref: `marketing-expense-files/${locA}/${id}/${hash}.pdf`,
+          byte_size: 100,
+          sha256: hash,
+          ...over,
+        };
+        const keys = Object.keys(row);
+        return attempt(
+          `INSERT INTO marketing_expense_files (${keys.join(', ')}) VALUES (${keys.map((_, i) => `$${i + 1}`).join(', ')})`,
+          keys.map((k) => row[k]),
+        );
+      };
+      await file();
+      await expect(file({ storage_ref: `marketing-expense-files/${locB}/x/${sha}.pdf` })).rejects.toThrow(/marketing_expense_files_ref/);
+      await expect(file({ mime_type: 'image/svg+xml', sha256: 'b'.repeat(64) })).rejects.toThrow(/marketing_expense_files_mime/);
+      await expect(file({ sha256: 'b'.repeat(64), byte_size: 0 })).rejects.toThrow(/marketing_expense_files_size/);
+      await expect(file()).rejects.toThrow(/marketing_expense_files_expense_id_sha256_key/);
+      await asApp(attempt, orgB);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_expense_files`)).rows[0].n).toBe(0);
+      await attempt('RESET ROLE');
+      await asApp(attempt, orgA);
+      await expect(attempt(`UPDATE marketing_expense_files SET file_name = 'другое'`)).rejects.toThrow(/permission denied/);
+      await attempt('RESET ROLE');
+      await attempt(`DELETE FROM marketing_expenses WHERE id = $1`, [expenseId]);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_expense_files`)).rows[0].n).toBe(0);
+    });
+  });
+
+  it('кампании (§53): клики не больше показов, даты по порядку, статистика за кампанией в RLS, кампанию не удалить', async () => {
+    await probe(async (attempt) => {
+      const campaign = randomUUID();
+      await attempt(
+        `INSERT INTO marketing_campaigns (id, location_id, platform, name, updated_at) VALUES ($1, $2, 'META', 'Осень', now())`,
+        [campaign, locA],
+      );
+      await expect(
+        attempt(
+          `INSERT INTO marketing_campaigns (id, location_id, platform, name, starts_on, ends_on, updated_at)
+           VALUES ($1, $2, 'META', 'Зима', '2026-12-10', '2026-12-01', now())`,
+          [randomUUID(), locA],
+        ),
+      ).rejects.toThrow(/marketing_campaigns_dates/);
+      const day = (date: string, impressions: number, clicks: number) =>
+        attempt(
+          `INSERT INTO marketing_campaign_stats (id, campaign_id, date, impressions, clicks, leads, updated_at)
+           VALUES ($1, $2, $3, $4, $5, 0, now())`,
+          [randomUUID(), campaign, date, impressions, clicks],
+        );
+      await day('2026-10-05', 100, 10);
+      await expect(day('2026-10-06', 10, 11)).rejects.toThrow(/marketing_campaign_stats_clicks/);
+      await expect(day('2026-10-05', 1, 1)).rejects.toThrow(/marketing_campaign_stats_campaign_id_date_key/);
+      await asApp(attempt, orgB);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_campaign_stats`)).rows[0].n).toBe(0);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_campaigns`)).rows[0].n).toBe(0);
+      await attempt('RESET ROLE');
+      await asApp(attempt, orgA);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_campaign_stats`)).rows[0].n).toBe(1);
+      await expect(attempt(`DELETE FROM marketing_campaigns`)).rejects.toThrow(/permission denied/);
+    });
+  });
+
+  it('кабинет (§55): имя уникально только у ручных, расход только у дней кабинета, ключ только шифром, сверки без DELETE', async () => {
+    await probe(async (attempt) => {
+      const campaign = (name: string, external: string | null) =>
+        attempt(
+          `INSERT INTO marketing_campaigns (id, location_id, platform, name, external_id, updated_at)
+           VALUES ($1, $2, 'META', $3, $4, now()) RETURNING id`,
+          [randomUUID(), locA, name, external],
+        );
+      await campaign('Осень', null);
+      await expect(campaign('Осень', null)).rejects.toThrow(/marketing_campaigns_manual_name_key/);
+      // площадка разрешает одинаковые имена: у кампаний кабинета уникален номер
+      const meta = (await campaign('Осень', '120200000000001')).rows[0].id as string;
+      await campaign('Осень', '120200000000002');
+      await expect(campaign('Другое', '120200000000001')).rejects.toThrow(/marketing_campaigns_location_id_platform_external_id_key/);
+
+      const day = (date: string, source: string, spend: string | null, currency: string | null) =>
+        attempt(
+          `INSERT INTO marketing_campaign_stats (id, campaign_id, date, impressions, clicks, leads, source, spend_minor, spend_currency, updated_at)
+           VALUES ($1, $2, $3, 10, 1, 0, $4::"MarketingStatSource", $5, $6, now())`,
+          [randomUUID(), meta, date, source, spend, currency],
+        );
+      await day('2026-10-05', 'META', '533950', 'USD');
+      await expect(day('2026-10-06', 'META', null, null)).rejects.toThrow(/marketing_campaign_stats_spend/);
+      await expect(day('2026-10-07', 'MANUAL', '100', 'KZT')).rejects.toThrow(/marketing_campaign_stats_spend/);
+
+      const connection = (token: string, status = 'ACTIVE', account = '1234567890') =>
+        attempt(
+          `INSERT INTO marketing_ad_connections (id, location_id, platform, ad_account_id, currency, timezone, token_ciphertext, status, updated_at)
+           VALUES ($1, $2, 'META', $3, 'USD', 'Asia/Almaty', $4, $5::"MarketingConnectionStatus", now()) RETURNING id`,
+          [randomUUID(), locA, account, token, status],
+        );
+      await expect(connection('EAAB-plain-token')).rejects.toThrow(/marketing_ad_connections_token/);
+      await expect(connection('v1:a:b:c', 'ACTIVE', 'act_123')).rejects.toThrow(/marketing_ad_connections_account/);
+      const conn = (await connection('v1:a:b:c')).rows[0].id as string;
+      await expect(connection('v1:a:b:c')).rejects.toThrow(/marketing_ad_connections_location_id_platform_key/);
+      await attempt(
+        `INSERT INTO marketing_sync_runs (id, connection_id, trigger, since, until, status) VALUES ($1, $2, 'MANUAL', '2026-10-01', '2026-10-07', 'RUNNING')`,
+        [randomUUID(), conn],
+      );
+      await asApp(attempt, orgB);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_ad_connections`)).rows[0].n).toBe(0);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_sync_runs`)).rows[0].n).toBe(0);
+      await attempt('RESET ROLE');
+      await asApp(attempt, orgA);
+      await expect(attempt(`DELETE FROM marketing_sync_runs`)).rejects.toThrow(/permission denied/);
+      await expect(attempt(`DELETE FROM marketing_ad_connections`)).rejects.toThrow(/permission denied/);
+    });
+  });
 });
+

@@ -12,7 +12,7 @@ import '../../marketing.css';
 /**
  * «Маркетинг → Изображения сайта» (MKT8, `docs/marketing/site-assets-v0.md`). Библиотека картинок филиала: загрузка,
  * подпись, удаление и импорт фото из менеджера каналов. Редактора страниц нет: выбрать картинку для секции можно будет
- * в MKT9. Право `settings` и строгий scope филиала проверяет API.
+ * в MKT9. Право `marketing` и строгий scope филиала проверяет API.
  */
 export default async function SiteAssetsPage() {
   await requireVertical(['HOSPITALITY']);

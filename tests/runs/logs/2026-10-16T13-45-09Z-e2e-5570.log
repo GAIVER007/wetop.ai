@@ -1,0 +1,59 @@
+# Сквозные (e2e) · 16.10.2026 18:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит eaf0b57 (claude/finance-refunds), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' '-g' 'заказы: создание с экрана|бар, финансы и настройки|касса: остатки'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1400ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+[WebServer] (node:43859) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (25.2s)
+  ✓  2 tests/food-ui/restaurant.spec.ts:822:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (15.3s)
+  ✓  3 tests/food-ui/restaurant.spec.ts:984:1 › бар, финансы и настройки ресторана по макету (экраны 7, 12, 13) (19.8s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByTestId('finance-board').locator('tbody')
+    Expected substring: not "Возврат по заказу"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "not toContainText" getByTestId('finance-board').locator('tbody') with timeout 5000ms
+      - waiting for getByTestId('finance-board').locator('tbody')
+
+
+      275 |   await expect(page.getByTestId('finance-total')).toContainText('200 ₸');
+      276 |   await board.getByRole('button', { name: 'Расходы' }).click();
+    > 277 |   await expect(board.locator('tbody')).not.toContainText('Возврат по заказу');
+          |                                            ^
+      278 | });
+      279 |
+      280 | test('кухня: колонки KDS и переходы кнопками', async ({ page, request }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/food-ui/restaurant.spec.ts:277:44
+
+    Error Context: test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+  2 passed (1.3m)
+
+# код выхода 1 · 1 мин 23 с

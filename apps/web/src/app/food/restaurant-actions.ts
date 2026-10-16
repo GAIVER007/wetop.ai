@@ -34,6 +34,11 @@ type OrderCommand =
       body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string };
     }
   | { kind: 'void-payment'; id: string; reason: string }
+  | {
+      kind: 'refund';
+      id: string;
+      body: { method: FoodPaymentMethod; amount: number; reason: string; idempotencyKey: string };
+    }
   | { kind: 'rate'; id: string; body: { stars: number; comment: string | null } };
 type CashCommand =
   | { kind: 'operation'; body: FoodCashOperationInput }
@@ -113,6 +118,9 @@ export async function mutateOrder(
         break;
       case 'void-payment':
         order = await restaurantApi.voidPayment(command.id, command.reason);
+        break;
+      case 'refund':
+        order = await restaurantApi.refundOrder(command.id, command.body);
         break;
       case 'rate':
         order = await restaurantApi.rateOrder(command.id, command.body);

@@ -1,0 +1,210 @@
+# Сквозные (e2e) · 16.10.2026 17:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит bb30d13 (claude/calendar-polish), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-card.spec.ts:275' 'tests/ui/chessboard-range.spec.ts:134' 'tests/ui/calendar-feedback.spec.ts:7' 'tests/ui/chessboard-filters.spec.ts:178' 'tests/ui/chessboard-month.spec.ts:65' 'tests/ui/chessboard-month.spec.ts:115'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 [main-ui-0] › ../.wetop-main-ui-c29xnP/worker-0/tests/ui/chessboard-card.spec.ts:275:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (36.7s)
+  ✓  2 [main-ui-0] › ../.wetop-main-ui-c29xnP/worker-0/tests/ui/chessboard-range.spec.ts:134:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом (20.1s)
+  ✘  3 [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: light, month and booking preview (48.7s)
+  ✘  4 [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: dark, month and booking preview (46.6s)
+  ✘  5 [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-filters.spec.ts:178:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (49.2s)
+  ✘  6 [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-month.spec.ts:65:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (52.1s)
+  ✘  7 [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-month.spec.ts:115:1 › в месяце открываются брони, свободные даты и группы номеров (50.0s)
+
+
+  1) [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: light, month and booking preview 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByTestId('stay-preview')
+    Expected: visible
+    Received: undefined
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('stay-preview') with timeout 15000ms
+      - waiting for getByTestId('stay-preview')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      18 |     await page.screenshot({ path: `${evidence}/${theme}-calendar.jpg` });
+      19 |     await page.getByTestId('stay-cell').first().click();
+    > 20 |     await expect(page.getByTestId('stay-preview')).toBeVisible();
+         |                                                    ^
+      21 |     expect(
+      22 |       (await new AxeBuilder({ page }).include('[data-testid="stay-preview"]').analyze()).violations,
+      23 |     ).toEqual([]);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-c29xnP/worker-1/tests/ui/calendar-feedback.spec.ts:20:52
+
+    Error Context: test-results/calendar-feedback-calendar-43805-t-month-and-booking-preview-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/calendar-feedback-calendar-43805-t-month-and-booking-preview-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/calendar-feedback-calendar-43805-t-month-and-booking-preview-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: dark, month and booking preview 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByTestId('stay-preview')
+    Expected: visible
+    Received: undefined
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('stay-preview') with timeout 15000ms
+      - waiting for getByTestId('stay-preview')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      18 |     await page.screenshot({ path: `${evidence}/${theme}-calendar.jpg` });
+      19 |     await page.getByTestId('stay-cell').first().click();
+    > 20 |     await expect(page.getByTestId('stay-preview')).toBeVisible();
+         |                                                    ^
+      21 |     expect(
+      22 |       (await new AxeBuilder({ page }).include('[data-testid="stay-preview"]').analyze()).violations,
+      23 |     ).toEqual([]);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-c29xnP/worker-1/tests/ui/calendar-feedback.spec.ts:20:52
+
+    Error Context: test-results/calendar-feedback-calendar-1f92b-k-month-and-booking-preview-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/calendar-feedback-calendar-1f92b-k-month-and-booking-preview-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/calendar-feedback-calendar-1f92b-k-month-and-booking-preview-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-filters.spec.ts:178:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/20260913-NEW1/
+    Received string:  "http://127.0.0.1:3101/chessboard?from=2026-10-15&to=2026-10-21"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        26 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__OHtZoG__variable">…</html>
+           - unexpected value "http://127.0.0.1:3101/chessboard?from=2026-10-15&to=2026-10-21"
+
+
+      224 |   await search.fill('Поискова');
+      225 |   await search.press('Enter');
+    > 226 |   await expect(page).toHaveURL(new RegExp(`/reservations/${near}`));
+          |                      ^
+      227 |   await expect(
+      228 |     page
+      229 |       .getByRole('dialog', { name: 'Бронирование', exact: true })
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-filters.spec.ts:226:22
+
+    Error Context: test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-month.spec.ts:65:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('board-period-button')
+        - locator resolved to <summary aria-label="Выбрать период" data-testid="board-period-button" aria-controls="_R_mj5esndklmlb_-panel">…</summary>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+
+
+       at ../../../.wetop-main-ui-c29xnP/worker-1/tests/ui/fixtures.ts:233
+
+      231 |   preset: 'Сегодня' | '7 дней' | '14 дней' | '30 дней' | 'Текущий месяц',
+      232 | ) {
+    > 233 |   await page.getByTestId('board-period-button').click();
+          |                                                 ^
+      234 |   const menu = page.locator('.board-nav .date-range');
+      235 |   await menu.getByRole('button', { name: preset, exact: true }).click();
+      236 |   await menu.getByRole('button', { name: 'Применить', exact: true }).click();
+        at chooseBoardPeriod (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-c29xnP/worker-1/tests/ui/fixtures.ts:233:49)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-month.spec.ts:82:9
+
+    Error Context: test-results/chessboard-month-7-дней-14-8cdbf-й-период-и-возврат-к-месяцу-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-7-дней-14-8cdbf-й-период-и-возврат-к-месяцу-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-7-дней-14-8cdbf-й-период-и-возврат-к-месяцу-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-month.spec.ts:115:1 › в месяце открываются брони, свободные даты и группы номеров 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/units\/R03$/
+    Received string:  "http://127.0.0.1:3101/chessboard?from=2026-10-01&to=2026-10-31"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__OHtZoG__variable">…</html>
+          - unexpected value "http://127.0.0.1:3101/chessboard?from=2026-10-01&to=2026-10-31"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      133 |   await expect(page.getByTestId('unit-row')).toHaveCount(88);
+      134 |   await page.locator('[data-unit-code="R03"] [data-testid="unit-link"]').click();
+    > 135 |   await expect(page).toHaveURL(/\/units\/R03$/);
+          |                      ^
+      136 |   await page.goBack();
+      137 |   await expect(page.getByTestId('chessboard')).toBeVisible();
+      138 |   const lastFree = page.locator('[data-unit-code="R03"] [data-testid="free-cell"]').last();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-month.spec.ts:135:22
+
+    Error Context: test-results/chessboard-month-в-месяце--4ca2d-одные-даты-и-группы-номеров-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-в-месяце--4ca2d-одные-даты-и-группы-номеров-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-в-месяце--4ca2d-одные-даты-и-группы-номеров-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: light, month and booking preview 
+    [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: dark, month and booking preview 
+    [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-filters.spec.ts:178:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь 
+    [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-month.spec.ts:65:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу 
+    [main-ui-1] › ../.wetop-main-ui-c29xnP/worker-1/tests/ui/chessboard-month.spec.ts:115:1 › в месяце открываются брони, свободные даты и группы номеров 
+  2 passed (9.0m)
+
+# код выхода 1 · 9 мин 8 с

@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 16.10.2026 11:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит cedb36f (claude/salon-appointment-payment)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 44 tests using 1 worker
+
+[WebServer] (node:28283) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   1 tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete (28.4s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:220:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (9.8s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:257:1 › existing customer can be selected for another appointment without duplication (4.0s)
+  ✓   4 tests/beauty-ui/beauty.spec.ts:285:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (12.3s)
+  ✓   5 tests/beauty-ui/beauty.spec.ts:285:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (6.6s)
+  ✓   6 tests/beauty-ui/beauty.spec.ts:285:5 › calendar and drawer 390 light, keyboard, axe, no overflow (6.7s)
+  ✓   7 tests/beauty-ui/beauty.spec.ts:285:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (7.9s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:366:1 › archived service and employee preserve historical calendar appointments (2.6s)
+  ✓   9 tests/beauty-ui/beauty.spec.ts:400:1 › TimeOff from employee drawer, server denial and timezone persisted (5.6s)
+  ✓  10 tests/beauty-ui/beauty.spec.ts:452:1 › DS1c: day navigation keeps the previous addresses (1.6s)
+  ✓  11 tests/beauty-ui/beauty.spec.ts:467:1 › Beauty onboarding v2 completes a ready branch and resumes Today (3.7s)
+  -  12 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -  13 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -  14 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -  15 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+  ✓  16 tests/beauty-ui/employee-workspace.spec.ts:69:1 › minimal create, saved ID, reload and actual desktop/mobile themes (3.4s)
+  ✓  17 tests/beauty-ui/employee-workspace.spec.ts:106:1 › two stale forms keep the second draft and show the current profile (1.8s)
+  ✓  18 tests/beauty-ui/employee-workspace.spec.ts:134:1 › dirty stay, discard and save before tabs/close; failed save keeps draft (2.3s)
+  ✓  19 tests/beauty-ui/employee-workspace.spec.ts:178:1 › Back/Forward and keyboard tabs retain a consistent employee URL (1.3s)
+  ✓  20 tests/beauty-ui/employee-workspace.spec.ts:209:1 › inaccessible deep link is neutral and old Beauty entry remains compatible (1.7s)
+  ✓  21 tests/beauty-ui/employee-workspace.spec.ts:221:1 › lost create response is recovered on reload using one persistent operation (1.6s)
+  ✓  22 tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee (1.4s)
+  ✓  23 tests/beauty-ui/employee-workspace.spec.ts:333:1 › a scope-switch event invalidates an in-flight profile response (1.7s)
+  ✓  24 tests/beauty-ui/employee-workspace.spec.ts:380:1 › services cannot restore a stale name and profile cannot restore stale services (2.3s)
+  ✓  25 tests/beauty-ui/employee-workspace.spec.ts:424:1 › native beforeunload protects reload and preserves draft when dismissed (2.6s)
+  ✓  26 tests/beauty-ui/employee-workspace.spec.ts:449:1 › dirty internal navigation asks before leaving and stays on failure (1.7s)
+  ✓  27 tests/beauty-ui/employee-workspace.spec.ts:469:1 › profile fields, keyboard focus and contrast pass an axe audit (1.8s)
+  ✓  28 tests/beauty-ui/employee-workspace.spec.ts:486:1 › pending services save cannot mark a later checkbox edit as saved (1.1s)
+  ✓  29 tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card (1.5s)
+  ✓  30 tests/beauty-ui/employee-workspace.spec.ts:553:1 › a later week edit stays dirty after the submitted week is saved (1.2s)
+  -  31 tests/beauty-ui/ref-capture.spec.ts:14:1 › салон: календарь на ширинах и темах
+  -  32 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /today
+  -  33 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /beauty/schedule
+  -  34 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /appointments
+  -  35 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /services
+  -  36 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees
+  -  37 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts
+  -  38 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /customers
+  -  39 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /finance
+  -  40 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /team
+  -  41 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /help
+  -  42 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /branches
+  -  43 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports
+  ✓  44 tests/beauty-ui/unified-growth.spec.ts:130:1 › салон: продажи, финансы и маркетинг на данных филиала (7.6s)
+
+  17 skipped
+  27 passed (2.3m)
+
+# код выхода 0 · 2 мин 19 с

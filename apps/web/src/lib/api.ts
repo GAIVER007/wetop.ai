@@ -3693,6 +3693,10 @@ export interface BeautyAppointmentRow {
   status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
   next: Array<'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED'>;
   priceMinor: string;
+  /** оплачено в кассу филиала (§49), действующие приходы */
+  paidMinor: string;
+  /** возвращено по выполненной записи (§54), действующие расходы */
+  refundedMinor: string;
   currency: string;
   notes: string | null;
 }
@@ -3794,6 +3798,12 @@ export const beautyApi = {
     sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, {
       status,
     }),
+  /** Оплата записи в кассу филиала (§49) */
+  payAppointment: (id: string, body: { method: string; amount: number; idempotencyKey: string }) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/payments`, body),
+  /** Возврат по выполненной записи (§54) */
+  refundAppointment: (id: string, body: { method: string; amount: number; reason: string; idempotencyKey: string }) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/refunds`, body),
 };
 
 // ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────
@@ -3974,6 +3984,14 @@ export const marketApi = {
 };
 
 /** Расход маркетинга (МКТ-В1/В2, DATA_MODEL §41.1). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
+/** Чек или файл расхода маркетинга (DATA_MODEL §51); url null: хранилище не включено */
+export interface MarketingExpenseFile {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  byteSize: number;
+  url: string | null;
+}
 export interface MarketingExpenseRow {
   id: string;
   date: string;
@@ -3988,6 +4006,10 @@ export interface MarketingExpenseRow {
   /** Сумма в валюте отчётности организации, minor units, по курсу на дату операции */
   baseAmount: string;
   countedInBudget: boolean;
+  /** Кампания расхода (§53) */
+  campaignId?: string | null;
+  /** Чеки и файлы (§51) с подписанными адресами на время; есть в ответе месяца */
+  files?: MarketingExpenseFile[];
 }
 
 export interface MarketingBudgetView {
@@ -3997,8 +4019,86 @@ export interface MarketingBudgetView {
   locationCurrency: string;
   plan: string | null;
   prevSpent: string;
+  /** Разбивка плана по каналам (§52, ADR-MKT-B7), суммы строками тиынов в валюте отчётности */
+  lines: Array<{ platform: string; amount: string }>;
+  /** Разбивка прошлого месяца: «взять из прошлого месяца» */
+  prevLines: Array<{ platform: string; amount: string }>;
   expenses: MarketingExpenseRow[];
 }
+
+/** Рекламная кампания филиала за месяц (DATA_MODEL §53, ADR-MKT-B3): расход строкой тиынов, статистика площадки */
+export interface MarketingCampaignView {
+  id: string;
+  platform: string;
+  name: string;
+  status: 'ACTIVE' | 'PAUSED' | 'FINISHED';
+  startsOn: string | null;
+  endsOn: string | null;
+  spend: string;
+  impressions: number;
+  clicks: number;
+  leads: number;
+  /** Кампания из рекламного кабинета (§55): правит только сверка */
+  fromCabinet?: boolean;
+  /** Расход по кабинету за месяц, тиыны валюты кабинета; null у ручных */
+  cabinetSpend?: string | null;
+  cabinetCurrency?: string | null;
+  days: Array<{ date: string; impressions: number; clicks: number; leads: number }>;
+}
+export interface MarketingCampaignsView {
+  month: string;
+  /** Сегодня в поясе филиала */
+  today: string;
+  reportingCurrency: string;
+  campaigns: MarketingCampaignView[];
+}
+
+/** Кабинет Meta филиала (DATA_MODEL §55, ADR-MKT-META); ключ наружу не отдаётся никогда */
+export interface MetaConnectionView {
+  /** false: владелец платформы ещё не вписал ключи приложения Meta */
+  configured: boolean;
+  connection: {
+    adAccountId: string;
+    accountName: string | null;
+    currency: string;
+    timezone: string;
+    status: 'ACTIVE' | 'FAILED';
+    lastSyncedAt: string | null;
+    lastError: string | null;
+  } | null;
+}
+
+export type MetaCompleteResult =
+  | { connected: true; accountName: string }
+  | { connected: false; pending: string; accounts: Array<{ adAccountId: string; name: string; currency: string }> };
+
+export const metaConnectionApi = {
+  view: () => getJson<MetaConnectionView>('/marketing/ad-connections/meta'),
+  /** Окно входа Facebook; кабинет человек отмечает в самом окне */
+  start: () => sendJson<{ url: string }>('POST', '/marketing/ad-connections/meta/start', {}),
+  complete: (code: string, state: string) =>
+    sendJson<MetaCompleteResult>('POST', '/marketing/ad-connections/meta/complete', { code, state }),
+  /** Выбор одного из нескольких отмеченных кабинетов; `pending` это шифрованная заготовка входа на 10 минут */
+  choose: (pending: string, adAccountId: string) =>
+    sendJson<MetaCompleteResult>('POST', '/marketing/ad-connections/meta/choose', { pending, adAccountId }),
+  sync: () =>
+    sendJson<{ ok: boolean; days: number; campaigns: number; error: string | null }>('POST', '/marketing/ad-connections/meta/sync', {}),
+  disconnect: () => sendJson<{ disconnected: true }>('POST', '/marketing/ad-connections/meta/disconnect', {}),
+};
+
+export const marketingCampaignsApi = {
+  list: (month?: string) =>
+    getJson<MarketingCampaignsView>(`/marketing/campaigns${month ? `?month=${encodeURIComponent(month)}` : ''}`),
+  create: (body: unknown) => sendJson<{ id: string }>('POST', '/marketing/campaigns', body),
+  update: (id: string, body: unknown) =>
+    sendJson<{ id: string }>('PATCH', `/marketing/campaigns/${encodeURIComponent(id)}`, body),
+  setDay: (id: string, body: unknown) =>
+    sendJson<unknown>('PUT', `/marketing/campaigns/${encodeURIComponent(id)}/stats`, body),
+  importDays: (id: string, csv: string) =>
+    sendJson<{ imported: number }>('POST', `/marketing/campaigns/${encodeURIComponent(id)}/stats/import`, { csv }),
+  removeDay: (id: string, date: string) =>
+    deleteJson<{ deleted: true }>(`/marketing/campaigns/${encodeURIComponent(id)}/stats/${encodeURIComponent(date)}`),
+};
 
 export const marketingBudgetApi = {
   view: (month?: string) =>
@@ -4007,6 +4107,9 @@ export const marketingBudgetApi = {
     ),
   setPlan: (body: unknown) =>
     sendJson<{ month: string; amount: string }>('PUT', '/marketing/budget', body),
+  /** Разбивка плана месяца по каналам заменяется целиком (§52) */
+  setLines: (body: unknown) =>
+    sendJson<{ month: string; lines: Array<{ platform: string; amount: string }> }>('PUT', '/marketing/budget/lines', body),
   createExpense: (body: unknown) =>
     sendJson<MarketingExpenseRow>('POST', '/marketing/expenses', body),
   updateExpense: (id: string, body: unknown) =>
@@ -4016,6 +4119,17 @@ export const marketingBudgetApi = {
   /** Импорт из CSV формата выгрузки: всё или ничего; итог в валюте отчётности строкой тиынов */
   importExpenses: (csv: string) =>
     sendJson<{ imported: number; baseTotal: string }>('POST', '/marketing/expenses/import', { csv }),
+  /** Чек или файл к расходу (§51): фото или PDF до 10 МиБ, файл идёт в API, оттуда в закрытое хранилище */
+  uploadFile: async (expenseId: string, file: File): Promise<void> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch(`/marketing/expenses/${encodeURIComponent(expenseId)}/files`, { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  removeFile: (expenseId: string, fileId: string) =>
+    deleteJson<{ deleted: true }>(
+      `/marketing/expenses/${encodeURIComponent(expenseId)}/files/${encodeURIComponent(fileId)}`,
+    ),
   results: (month?: string) =>
     getJson<MarketingResultsView>(
       `/marketing/results${month ? `?month=${encodeURIComponent(month)}` : ''}`,

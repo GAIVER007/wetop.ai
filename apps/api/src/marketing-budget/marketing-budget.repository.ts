@@ -14,6 +14,7 @@ import {
   hasSignedInActor,
 } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import type { ExpenseFileRow } from './expense-files';
 
 /**
  * Учёт бюджета и расходов маркетинга (МКТ-В1/В2, DATA_MODEL §41, ADR-MKT-B1).
@@ -46,7 +47,10 @@ export interface ExpenseRecord {
   fxRate: string;
   baseAmount: bigint;
   countedInBudget: boolean;
+  campaignId: string | null;
   createdAt: Date;
+  /** Чеки и файлы (§51): только в чтении месяца */
+  files?: ExpenseFileRow[];
 }
 
 /** Строка журнала, которую запись пишет той же транзакцией (аудит, ТЗ §8.7) */
@@ -63,12 +67,7 @@ export interface MarketingBudgetRepository {
   /** Организация не только для чтения (пробный период, приостановка) */
   assertWritable(organizationId: string): Promise<void>;
   /** Месяц [first, nextFirst): план, строки расходов и учтённый расход прошлого месяца */
-  monthData(
-    locationId: string,
-    first: string,
-    nextFirst: string,
-    prevFirst: string,
-  ): Promise<{ plan: bigint | null; expenses: ExpenseRecord[]; prevSpent: bigint }>;
+  monthData(locationId: string, first: string, nextFirst: string, prevFirst: string): Promise<MonthData>;
   createExpense(
     locationId: string,
     input: MarketingExpenseInput,
@@ -89,11 +88,30 @@ export interface MarketingBudgetRepository {
     items: Array<{ input: MarketingExpenseInput; audit: BudgetAudit }>,
   ): Promise<number>;
   setPlan(locationId: string, month: string, amount: bigint, audit: BudgetAudit): Promise<void>;
+  /** Разбивка плана месяца по каналам (§52) заменяется целиком одной транзакцией */
+  setLines(locationId: string, month: string, lines: BudgetLineRecord[], audit: BudgetAudit): Promise<void>;
   /**
    * Результаты маркетинговых каналов филиала за месяц [first, nextFirst) по правилу Q-MKT-ATTR (МКТ-В5a).
    * `supported: false`: у филиала нет объекта размещения (салон, ресторан), броней гостиницы нет.
    */
   results(locationId: string, first: string, nextFirst: string): Promise<ResultsData>;
+  /** Имя кампании этого филиала; null: кампании нет или она чужая */
+  campaignName(locationId: string, id: string): Promise<string | null>;
+}
+
+export interface BudgetLineRecord {
+  platform: MarketingPlatform;
+  amount: bigint;
+}
+
+export interface MonthData {
+  plan: bigint | null;
+  expenses: ExpenseRecord[];
+  prevSpent: bigint;
+  /** Разбивка плана месяца по каналам (§52) */
+  lines: BudgetLineRecord[];
+  /** Разбивка прошлого месяца: «взять из прошлого месяца» на экране */
+  prevLines: BudgetLineRecord[];
 }
 
 export interface ResultsData {
@@ -135,7 +153,9 @@ const toRecord = (r: {
   fxRate: { toString(): string };
   baseAmount: bigint;
   countedInBudget: boolean;
+  campaignId: string | null;
   createdAt: Date;
+  files?: ExpenseFileRow[];
 }): ExpenseRecord => ({
   id: r.id,
   date: iso(r.date),
@@ -148,6 +168,8 @@ const toRecord = (r: {
   fxRate: r.fxRate.toString(),
   baseAmount: r.baseAmount,
   countedInBudget: r.countedInBudget,
+  campaignId: r.campaignId,
+  ...(r.files ? { files: r.files } : {}),
   createdAt: r.createdAt,
 });
 
@@ -162,6 +184,7 @@ const expenseData = (input: MarketingExpenseInput) => ({
   fxRate: input.fxRate,
   baseAmount: input.baseAmount,
   countedInBudget: input.countedInBudget,
+  campaignId: input.campaignId,
 });
 
 @Injectable()
@@ -206,8 +229,14 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
     first: string,
     nextFirst: string,
     prevFirst: string,
-  ): Promise<{ plan: bigint | null; expenses: ExpenseRecord[]; prevSpent: bigint }> {
-    const [plan, rows, prev] = await Promise.all([
+  ): Promise<MonthData> {
+    const linesOf = (month: string) =>
+      this.prisma.db.marketingBudgetLine.findMany({
+        where: { locationId, month: asDate(month) },
+        select: { platform: true, amount: true },
+        orderBy: [{ amount: 'desc' }, { platform: 'asc' }],
+      });
+    const [plan, rows, prev, lines, prevLines] = await Promise.all([
       this.prisma.db.marketingBudget.findUnique({
         where: { locationId_month: { locationId, month: asDate(first) } },
         select: { amount: true },
@@ -215,6 +244,12 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
       this.prisma.db.marketingExpense.findMany({
         where: { locationId, date: { gte: asDate(first), lt: asDate(nextFirst) } },
         orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+        include: {
+          files: {
+            select: { id: true, fileName: true, mimeType: true, byteSize: true, storageRef: true },
+            orderBy: { createdAt: 'asc' },
+          },
+        },
       }),
       this.prisma.db.marketingExpense.aggregate({
         where: {
@@ -224,11 +259,15 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
         },
         _sum: { baseAmount: true },
       }),
+      linesOf(first),
+      linesOf(prevFirst),
     ]);
     return {
       plan: plan?.amount ?? null,
       expenses: rows.map(toRecord),
       prevSpent: prev._sum.baseAmount ?? 0n,
+      lines,
+      prevLines,
     };
   }
 
@@ -306,6 +345,22 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
       });
       await writeAudit(tx, audit);
     });
+  }
+
+  async setLines(locationId: string, month: string, lines: BudgetLineRecord[], audit: BudgetAudit): Promise<void> {
+    await this.prisma.db.$transaction(async (tx) => {
+      await tx.marketingBudgetLine.deleteMany({ where: { locationId, month: asDate(month) } });
+      if (lines.length > 0)
+        await tx.marketingBudgetLine.createMany({
+          data: lines.map((l) => ({ locationId, month: asDate(month), platform: l.platform, amount: l.amount })),
+        });
+      await writeAudit(tx, audit);
+    });
+  }
+
+  async campaignName(locationId: string, id: string): Promise<string | null> {
+    const c = await this.prisma.db.marketingCampaign.findFirst({ where: { id, locationId }, select: { name: true } });
+    return c?.name ?? null;
   }
 
   async results(locationId: string, first: string, nextFirst: string): Promise<ResultsData> {

@@ -124,3 +124,16 @@ CREATE POLICY rls_tenant ON table_occupancy_commands TO wetop_app USING(EXISTS(S
 GRANT SELECT,INSERT,UPDATE ON table_occupancy_sessions,table_occupancy_commands TO wetop_app;
 REVOKE ALL ON FUNCTION occupancy_command(uuid,text,text,uuid,uuid,uuid,uuid,uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION occupancy_command(uuid,text,text,uuid,uuid,uuid,uuid,uuid) TO wetop_app;
+
+-- Bind only this migration's owned routines to the actual application schema.
+DO $owner_home_search_path$
+DECLARE target_schema text := current_schema(); routine record;
+BEGIN
+  FOR routine IN SELECT p.oid::regprocedure AS signature FROM pg_proc p
+    JOIN pg_namespace n ON n.oid=p.pronamespace
+    WHERE n.nspname=target_schema AND p.proname=ANY(ARRAY['occupancy_command','occupancy_parent_guard','occupancy_scope_guard'])
+  LOOP
+    EXECUTE format('ALTER FUNCTION %s SET search_path TO %I, public, pg_temp',routine.signature,target_schema);
+  END LOOP;
+END
+$owner_home_search_path$;

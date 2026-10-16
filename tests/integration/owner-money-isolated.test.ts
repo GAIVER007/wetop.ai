@@ -13,6 +13,7 @@ const from=new Date('2040-01-02T19:00Z'), now=new Date('2040-01-03T03:00Z');
 beforeAll(async()=>{
  const held=readFileSync('packages/database/prisma/migrations-hold/20261016000114_expense_links/migration.sql','utf8');
  await pool.query(held.slice(held.indexOf('CREATE OR REPLACE FUNCTION hotel_cash_currency_guard'),held.indexOf('CREATE TRIGGER hotel_cash_currency_guard')));
+ await pool.query('ALTER FUNCTION hotel_cash_currency_guard() SET search_path TO pms_test, public, pg_temp');
  if(!(await pool.query("SELECT 1 FROM pg_trigger WHERE tgname='hotel_cash_currency_guard' AND tgrelid='cash_operations'::regclass")).rowCount) await pool.query(held.slice(held.indexOf('CREATE TRIGGER hotel_cash_currency_guard'),held.indexOf('CREATE TABLE expense_categories')));
  organizationId=(await pool.query('SELECT id FROM organizations LIMIT 1')).rows[0].id;
  await pool.query(`INSERT INTO businesses(id,organization_id,name,vertical,updated_at) VALUES($1,$2,'Synthetic owner revenue','FOOD_SERVICE',now())`,[business,organizationId]);
@@ -148,18 +149,35 @@ describe('owner money actual isolated PostgreSQL queries',()=>{
   expect(voided.current.paidExpenses.currencies).toEqual([{currency:'USD',paidMinor:'100',categories:[{categoryId:null,categoryName:'Без статьи',paidMinor:'100'}]}]);
   delete process.env.EXPENSE_LINKS_ENABLED;
  });
- it('executes DONE beauty snapshot reads without inventing a payment ledger',async()=>{
-  const employee=randomUUID(),customer=randomUUID(),service=randomUUID();
+ it('keeps DONE beauty revenue separate from gross receipts in the canonical branch cash ledger',async()=>{
+  const employee=randomUUID(),customer=randomUUID(),service=randomUUID(),appointment=randomUUID();
+  const business=randomUUID(),locationId=randomUUID();
+  await pool.query(`INSERT INTO businesses(id,organization_id,name,vertical,updated_at) VALUES($1,$2,'Synthetic beauty receipts','BEAUTY',now())`,[business,organizationId]);
+  await pool.query(`INSERT INTO locations(id,business_id,name,timezone,currency,updated_at) VALUES($1,$2,'Synthetic beauty receipts','Asia/Almaty','EUR',now())`,[locationId,business]);
   await pool.query(`INSERT INTO employees(id,business_id,name,updated_at) VALUES($1,$2,'Synthetic master',now())`,[employee,business]);
   await pool.query(`INSERT INTO employee_locations(employee_id,location_id) VALUES($1,$2)`,[employee,locationId]);
   await pool.query(`INSERT INTO customers(id,organization_id,first_name,updated_at) VALUES($1,$2,'Synthetic customer',now())`,[customer,organizationId]);
   await pool.query(`INSERT INTO beauty_services(id,business_id,name,duration_minutes,price,currency,updated_at) VALUES($1,$2,'Synthetic service',30,999,'EUR',now())`,[service,business]);
   await pool.query(`INSERT INTO location_services(location_id,service_id,updated_at) VALUES($1,$2,now())`,[locationId,service]);
   await pool.query(`INSERT INTO employee_services(employee_id,service_id) VALUES($1,$2)`,[employee,service]);
-  await pool.query(`INSERT INTO appointments(id,location_id,customer_id,employee_id,service_id,starts_at,ends_at,status,price,currency,updated_at) VALUES($1,$2,$3,$4,$5,'2040-01-03T01:00Z','2040-01-03T01:30Z','DONE',50,'USD',now())`,[randomUUID(),locationId,customer,employee,service]);
+  await pool.query(`INSERT INTO appointments(id,location_id,customer_id,employee_id,service_id,starts_at,ends_at,status,price,currency,updated_at) VALUES($1,$2,$3,$4,$5,'2040-01-03T01:00Z','2040-01-03T01:30Z','DONE',50,'USD',now())`,[appointment,locationId,customer,employee,service]);
+  // Existing RestaurantCashOperation is the sole Beauty payment ledger. Neither
+  // manual income nor refunds/voids/future payments are gross appointment receipts.
+  for(const [kind,status,amount,at,linked] of [
+   ['INCOME','COMPLETED',30,'2040-01-03T02:00Z',true],
+   ['INCOME','COMPLETED',10,'2040-01-03T02:30Z',true],
+   ['INCOME','VOIDED',999,'2040-01-03T02:00Z',true],
+   ['INCOME','COMPLETED',999,'2040-01-03T04:00Z',true],
+   ['INCOME','COMPLETED',999,'2040-01-02T18:59Z',true],
+   ['INCOME','COMPLETED',999,'2040-01-03T02:00Z',false],
+   ['EXPENSE','COMPLETED',10,'2040-01-03T02:00Z',true],
+  ] as const) await pool.query(`INSERT INTO restaurant_cash_operations(id,location_id,appointment_id,kind,status,method,amount,currency,occurred_at,voided_at) VALUES($1,$2,$3,$4,$5,'CASH',$6,'USD',$7,$8)`,[randomUUID(),locationId,linked?appointment:null,kind,status,amount,at,status==='VOIDED'?at:null]);
   const r=await readOwnerMoney(db,{locationId,organizationId,vertical:'BEAUTY',propertyId:null,from,now,fromDate:'2040-01-03',toDate:'2040-01-03'});
   expect(r.revenue.currencies).toEqual([{currency:'USD',amountMinor:'50'}]);
-  expect(r.receipts.reason).toBe('PAYMENT_LEDGER_NOT_AVAILABLE');
+  expect(r.receipts.state).toBe('READY');
+  expect(r.receipts.reason).toBeNull();
+  expect(r.receipts.currencies).toEqual([{currency:'USD',amountMinor:'40'}]);
+  expect(r.receipts.daily.days).toEqual([{date:'2040-01-03',unresolvedSources:0,currencies:[{currency:'USD',amountMinor:'40'}]}]);
  });
  it('reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders',async()=>{
   const r=await readOwnerMoney(db,{locationId,organizationId,vertical:'FOOD_SERVICE',propertyId:null,from,now,fromDate:'2040-01-03',toDate:'2040-01-03'});

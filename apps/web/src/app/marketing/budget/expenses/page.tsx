@@ -5,9 +5,11 @@ import { normalizeSearchParams } from '../../../../lib/search-params';
 import { requireVertical } from '../../../../lib/vertical-guard';
 import { deskShell } from '../../../../lib/desk-shell';
 import { formatMoney } from '../../../../lib/money';
+import { marketingCampaignsApi } from '../../../../lib/api';
 import { displayDate } from '../../../../lib/display-date';
 import { pluralRu } from '../../../../lib/plural';
 import { Page } from '../../../../components/page';
+import { Icon } from '../../../../components/icon';
 import { LoadError } from '../../../../components/load-error';
 import { Badge, EmptyState, Table, cx } from '../../../../components/ui';
 import { BackToModules } from '../../parts';
@@ -31,7 +33,7 @@ export default async function BudgetExpensesPage({
   const sp = await searchParams;
   const [loaded, shell] = await Promise.all([loadBudget(sp), deskShell()]);
   const role = shell.access.role;
-  const editable = !shell.readOnly && (role === null || can(role, 'settings'));
+  const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
   const subtitle = 'Журнал всех расходов на продвижение за месяц.';
   if (loaded.chooseLocation || loaded.error)
     return (
@@ -46,7 +48,9 @@ export default async function BudgetExpensesPage({
   const rows = platform ? view.expenses.filter((e) => e.platform === platform) : view.expenses;
   const present = [...new Set(view.expenses.map((e) => e.platform))];
   const total = rows.reduce((s, e) => s + BigInt(e.baseAmount), 0n);
-  const defaults = { today: view.today, reportingCurrency: rc, locationCurrency: view.locationCurrency };
+  // кампании для выбора в форме расхода (§53); не загрузились: форма без выбора
+  const campaigns = await marketingCampaignsApi.list(view.month).then((r) => r.campaigns, () => []);
+  const defaults = { today: view.today, reportingCurrency: rc, locationCurrency: view.locationCurrency, campaigns };
   const chip = (href: string, label: string, current: boolean) => (
     <Link
       key={href}
@@ -127,6 +131,12 @@ export default async function BudgetExpensesPage({
                       <span className="budget-cell-main">{e.campaign ?? e.category}</span>
                       {e.campaign && <span className="budget-cell-sub">{e.category}</span>}
                       {e.description && <span className="budget-cell-sub">{e.description}</span>}
+                      {(e.files?.length ?? 0) > 0 && (
+                        <span className="budget-cell-sub budget-files__count" data-testid={`budget-files-count-${e.id}`}>
+                          <Icon name="receipt" width={14} aria-hidden="true" />
+                          {pluralRu(e.files!.length, ['файл', 'файла', 'файлов'])}
+                        </span>
+                      )}
                     </td>
                     <td className="budget-td-num">
                       {formatMoney(e.amount, e.currency)}

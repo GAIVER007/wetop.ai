@@ -127,6 +127,9 @@ test('создание записи: пустое название — ошиб�
   await expect(form.getByLabel('Текст знания')).toHaveValue('Симптом: …');
   await form.getByLabel('Название').fill('Как закрыть смену');
   await form.getByRole('button', { name: 'Сохранить' }).click();
+  // создание уводит на адрес записи с другой формой: подтверждение обязано пережить этот переход
+  // (на раннере переход успевал раньше проверки, и «Сохранено» пропадало вместе с прежней формой)
+  await expect(page).toHaveURL(/[?&]id=[0-9a-f-]{36}/);
   await expect(page.getByTestId('kb-result')).toContainText('Сохранено');
   await expect(page.getByTestId('kb-entry')).toContainText('Черновик');
 });

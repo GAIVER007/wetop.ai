@@ -37,7 +37,7 @@ export class OwnerSummaryService {
     let sources: (ExpenseSource & { occurredAt: Date })[] = [];
     if (vertical === 'BEAUTY' || vertical === 'FOOD_SERVICE') {
       const rows = await this.prisma.db.restaurantCashOperation.findMany({
-        where: { locationId, kind: 'EXPENSE', status: 'COMPLETED', occurredAt },
+        where: { locationId, kind: 'EXPENSE', status: 'COMPLETED', appointmentId: null, orderId: null, occurredAt },
         select: { id: true, amount: true, currency: true, occurredAt: true },
       });
       sources = rows.map(r => ({ sourceType: 'RESTAURANT_CASH', sourceId: r.id, occurredAt: r.occurredAt, locationId, kind: 'EXPENSE', status: 'COMPLETED', amountMinor: r.amount, currency: r.currency, categoryId: null }));

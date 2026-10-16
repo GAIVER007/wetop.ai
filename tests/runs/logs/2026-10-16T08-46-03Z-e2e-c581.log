@@ -1,0 +1,82 @@
+# Сквозные (e2e) · 16.10.2026 13:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит b9e15ce (claude/fix-a25-staff-price), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/runtime-audit/playwright.bar.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/e2e/a25-bar-money.spec.ts:263:1 › UI-02 currency comes from real USD report (8.9s)
+  ✓   2 tests/e2e/a25-bar-money.spec.ts:273:1 › UI-01 real KZT user flow and expected/API/SQL/DOM reconciliation (1.6m)
+  ✓   3 tests/e2e/a25-bar-money.spec.ts:342:1 › UI-02 real compatible USD retail, stock, history and cash (36.7s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓   4 tests/e2e/a25-bar-money.spec.ts:383:1 › UI-03 branch switching clears drafts, including controlled delay and focus (32.6s)
+  ✓   5 tests/e2e/a25-bar-money.spec.ts:421:1 › UI-04 real mixed-history guard is explicit, not zero success (7.9s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓   6 tests/e2e/a25-bar-money.spec.ts:441:1 › UI-05 non-KZT auto price refusal preserves editable input (11.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '156259883'
+[WebServer] }
+  ✓   7 tests/e2e/a25-bar-money.spec.ts:461:1 › UI-07 unavailable stock and cross-property draft have no partial effect (11.8s)
+  ✓   8 tests/e2e/a25-bar-money.spec.ts:479:1 › UI-09 exact large minor price stays exact in input and DOM (9.3s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓   9 tests/e2e/a25-bar-money.spec.ts:497:5 › UI-visual 390 light real USD (16.4s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓  10 tests/e2e/a25-bar-money.spec.ts:497:5 › UI-visual 390 dark real USD (8.3s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓  11 tests/e2e/a25-bar-money.spec.ts:497:5 › UI-visual 1440 light real USD (7.4s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓  12 tests/e2e/a25-bar-money.spec.ts:497:5 › UI-visual 1440 dark real USD (6.9s)
+[WebServer] [browser] TypeError: Cannot write to a CLOSED writable stream
+[WebServer] [browser] TypeError: Cannot write to a CLOSED writable stream
+[WebServer] [browser] TypeError: Cannot write to a CLOSED writable stream
+[WebServer] [browser] TypeError: Cannot write to a CLOSED writable stream
+[WebServer] [browser] TypeError: Cannot write to a CLOSED writable stream
+[WebServer] [browser] TypeError: Cannot write to a CLOSED writable stream
+[WebServer] [browser] TypeError: Cannot write to a CLOSED writable stream
+[WebServer] [browser] TypeError: Cannot write to a CLOSED writable stream
+[WebServer] [browser] TypeError: Cannot close a CLOSED writable stream
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓  13 tests/e2e/a25-bar-money.spec.ts:525:1 › UI-08 duplicate command, fresh command and REVERSED replay (13.3s)
+  ✓  14 tests/e2e/a25-bar-money.spec.ts:568:1 › UI-06 supplier void restores cash and debt (28.9s)
+  ✓  15 tests/e2e/a25-bar-money.spec.ts:629:1 › UI-07 server validation retains draft and has no receipt effects (10.3s)
+  ✓  16 tests/e2e/a25-bar-money.spec.ts:678:1 › UI-10 empty scope and actual read failure never become successful zeros (3.4s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓  17 tests/e2e/a25-bar-money.spec.ts:698:1 › UI-09 negative fractional profit and zero stock remain exact (7.6s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓  18 tests/e2e/a25-bar-money.spec.ts:725:1 › UI-10 normal STAFF read and settings permission refusal (3.3s)
+
+  Slow test file: tests/e2e/a25-bar-money.spec.ts (5.4m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  18 passed (5.9m)
+
+# код выхода 0 · 5 мин 57 с

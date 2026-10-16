@@ -489,12 +489,30 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     expect(constraints).toHaveLength(1);
     expect(constraints[0]!.definition).toContain('employee_id WITH =');
     expect(constraints[0]!.definition).not.toContain('location_id WITH =');
-    const functions = await db.$queryRaw<Array<{ config: string[] }>>`
-      SELECT proconfig AS config FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+    const functions = await db.$queryRaw<Array<{ name: string; config: string[] | null }>>`
+      SELECT p.proname AS name, proconfig AS config FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
       WHERE n.nspname = current_schema() AND p.proname LIKE 'beauty_%'`;
-    expect(functions).toHaveLength(6);
+    const heldTables = await db.$queryRaw<Array<{ name: string }>>`
+      SELECT c.relname AS name FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+      WHERE n.nspname=current_schema() AND c.relkind IN ('r','p')
+        AND c.relname IN ('beauty_schedule_versions','beauty_capacity_intervals','appointment_workload_revisions')`;
+    // Baseline CI and the full held package are both supported; partial installation is never accepted.
+    expect([0, 3], 'Beauty history schema must be wholly absent or wholly installed').toContain(heldTables.length);
+    expect(functions.map((f) => f.name).sort()).toEqual([
+      'beauty_customer_business_guard',
+      'beauty_employee_location_guard',
+      'beauty_location_service_guard',
+      'beauty_employee_service_guard',
+      'beauty_working_hours_guard',
+      'beauty_appointment_guard',
+      ...(heldTables.length === 3 ? [
+        'beauty_appointment_changed',
+        'beauty_capacity_changed',
+        'beauty_history_tenant_guard',
+      ] : []),
+    ].sort());
     for (const f of functions)
-      expect(f.config.some((c) => c.startsWith('search_path=pms_test,'))).toBe(true);
+      expect(f.config, f.name).toContain('search_path=pms_test, public, pg_temp');
   });
   it('successful catalog, employee, schedule and appointment changes are audited', async () => {
     const day = await run(() => appointments.create(input()));

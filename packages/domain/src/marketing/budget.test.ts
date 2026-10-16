@@ -3,6 +3,7 @@ import {
   MARKETING_PLATFORMS,
   MarketingBudgetError,
   parseMarketingBudgetInput,
+  parseMarketingBudgetLinesInput,
   parseMarketingExpenseInput,
 } from './budget';
 
@@ -130,3 +131,47 @@ describe('план бюджета месяца: разбор ввода (DATA_MO
     expect(() => parseMarketingBudgetInput(body)).toThrow(MarketingBudgetError);
   });
 });
+
+describe('расход и кампания (DATA_MODEL §53, ADR-MKT-B3)', () => {
+  it('кампания необязательна; идентификатор только uuid, приводится к нижнему регистру', () => {
+    expect(parseMarketingExpenseInput(base, ctx).campaignId).toBeNull();
+    const id = '7B61F3E1-0000-4000-8000-000000000001';
+    expect(parseMarketingExpenseInput({ ...base, campaignId: id }, ctx).campaignId).toBe(id.toLowerCase());
+    expect(() => parseMarketingExpenseInput({ ...base, campaignId: 'осень' }, ctx)).toThrow('Кампания');
+  });
+});
+
+describe('план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7)', () => {
+  it('месяц к первому числу, суммы в тиынах, пустая сумма значит «канала в плане нет»', () => {
+    const r = parseMarketingBudgetLinesInput({
+      month: '2026-10',
+      lines: [
+        { platform: 'META', amount: '120 000' },
+        { platform: 'GOOGLE', amount: '' },
+        { platform: 'SITE', amount: '5000,5' },
+      ],
+    });
+    expect(r).toEqual({
+      month: '2026-10-01',
+      lines: [
+        { platform: 'META', amount: 12000000n },
+        { platform: 'SITE', amount: 500050n },
+      ],
+    });
+  });
+
+  it('пустой список убирает разбивку месяца целиком', () => {
+    expect(parseMarketingBudgetLinesInput({ month: '2026-10', lines: [] }).lines).toEqual([]);
+  });
+
+  it.each([
+    ['неизвестный канал', { month: '2026-10', lines: [{ platform: 'YANDEX', amount: '1' }] }, 'Канал'],
+    ['канал дважды', { month: '2026-10', lines: [{ platform: 'META', amount: '1' }, { platform: 'META', amount: '2' }] }, 'дважды'],
+    ['ноль', { month: '2026-10', lines: [{ platform: 'META', amount: '0' }] }, 'больше нуля'],
+    ['не список', { month: '2026-10', lines: 'META' }, 'список'],
+    ['месяц', { month: '2026-13', lines: [] }, 'Месяц'],
+  ])('отказ: %s', (_name, body, word) => {
+    expect(() => parseMarketingBudgetLinesInput(body as Record<string, unknown>)).toThrow(word);
+  });
+});
+

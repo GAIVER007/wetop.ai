@@ -23,6 +23,9 @@ import {
   ratingSummary,
   foodCostSummary,
   milliText,
+  appointmentPaymentVoidable,
+  orderRefund,
+  type AppointmentStatus,
   foodCashBalances,
   payoutCheck,
   parseFoodPayment,
@@ -59,6 +62,8 @@ const orderInclude = {
   waiter: { select: { id: true, name: true } },
   items: { orderBy: { sortOrder: 'asc' as const } },
   payments: { orderBy: { paidAt: 'asc' as const } },
+  // возвраты после закрытия (§56)
+  refunds: { orderBy: { occurredAt: 'asc' as const }, select: { id: true, method: true, amount: true, status: true, note: true, occurredAt: true } },
   rating: true,
 } as const;
 type OrderRow = Prisma.RestaurantOrderGetPayload<{ include: typeof orderInclude }>;
@@ -75,6 +80,10 @@ function parsed<T>(fn: () => T): T {
 function orderPaid(r: { payments: Array<{ status: string; amount: bigint }> }): bigint {
   return r.payments.reduce((sum, p) => (p.status === 'COMPLETED' ? sum + p.amount : sum), 0n);
 }
+/** Сумма действующих возвратов по закрытому заказу (§56) */
+function orderRefunded(r: { refunds: Array<{ status: string; amount: bigint }> }): bigint {
+  return r.refunds.reduce((sum, p) => (p.status === 'COMPLETED' ? sum + p.amount : sum), 0n);
+}
 
 function orderView(r: OrderRow, now = new Date()) {
   return {
@@ -88,6 +97,7 @@ function orderView(r: OrderRow, now = new Date()) {
     notes: r.notes,
     totalMinor: r.total.toString(),
     paidMinor: orderPaid(r).toString(),
+    refundedMinor: orderRefunded(r).toString(),
     currency: r.currency,
     openedAt: r.openedAt,
     cookingAt: r.cookingAt,
@@ -116,6 +126,14 @@ function orderView(r: OrderRow, now = new Date()) {
       status: p.status,
       paidAt: p.paidAt,
       voidReason: p.voidReason,
+    })),
+    refunds: r.refunds.map((p) => ({
+      id: p.id,
+      method: p.method,
+      amountMinor: p.amount.toString(),
+      status: p.status,
+      note: p.note,
+      occurredAt: p.occurredAt,
     })),
   };
 }
@@ -1132,6 +1150,51 @@ export class RestaurantService {
     });
   }
 
+  /** Возврат по закрытому заказу расходом кассы филиала (§56): причина, не больше чистой оплаты и остатка способа */
+  async refundOrder(idRaw: string, raw: unknown) {
+    return this.write('refunds', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      const { reason: rawReason, ...rest } = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+      const b = parsed(() => parseFoodPayment(rest));
+      const reason = parsed(() => foodText(rawReason, 300));
+      const repeat = await tx.restaurantCashOperation.findFirst({ where: { locationId: s.locationId, idempotencyKey: b.idempotencyKey } });
+      if (repeat) {
+        if (repeat.orderId !== id) throw new ConflictException('Ключ повтора уже использован');
+        return orderView(await tx.restaurantOrder.findUniqueOrThrow({ where: { id }, include: orderInclude }));
+      }
+      await tx.$queryRaw`SELECT id FROM restaurant_orders WHERE id=${id}::uuid AND location_id=${s.locationId}::uuid FOR UPDATE`;
+      const r = await tx.restaurantOrder.findFirst({ where: { id, locationId: s.locationId }, include: orderInclude });
+      if (!r) throw new NotFoundException('Заказ не найден');
+      try {
+        orderRefund(r.status, orderPaid(r) - orderRefunded(r), b.amount);
+      } catch (e) {
+        throw new ConflictException(e instanceof Error ? e.message : 'Возврат недоступен');
+      }
+      await this.spendable(tx, s, b.method, b.amount);
+      const op = await tx.restaurantCashOperation.create({
+        data: {
+          locationId: s.locationId,
+          kind: 'EXPENSE',
+          method: b.method,
+          amount: b.amount,
+          currency: r.currency,
+          note: `Возврат по заказу №${r.number}. Причина: ${reason}`.slice(0, 500),
+          orderId: r.id,
+          idempotencyKey: b.idempotencyKey,
+          createdById: currentUserId(),
+        },
+      });
+      const row = await tx.restaurantOrder.update({ where: { id: r.id }, data: { updatedAt: this.bumped(r) }, include: orderInclude });
+      await this.audit(tx, s, 'restaurant_order', r.id, 'food.order.refunded', {
+        cashOperationId: op.id,
+        method: op.method,
+        amountMinor: op.amount.toString(),
+        reason,
+      });
+      return orderView(row);
+    });
+  }
+
   /** Аннулировать платёж, пока заказ не закрыт (право `refunds`) */
   async voidPayment(idRaw: string, raw: unknown) {
     return this.write('refunds', async (tx, s) => {
@@ -1212,6 +1275,8 @@ export class RestaurantService {
         note: o.note,
         employee: o.employee?.name ?? null,
         period: o.period ? o.period.toISOString().slice(0, 7) : null,
+        // возврат гостю (§54, §56): расход со ссылкой на запись или заказ, в «Финансах» своей строкой (как ADR-176)
+        refund: o.kind === 'EXPENSE' && (o.orderId !== null || o.appointmentId !== null),
         status: o.status,
         occurredAt: o.occurredAt,
       })),
@@ -1280,6 +1345,13 @@ export class RestaurantService {
       const id = parsed(() => foodId(idRaw));
       const op = await tx.restaurantCashOperation.findFirst({ where: { id, locationId: s.locationId } });
       if (!op) throw new NotFoundException('Операция не найдена');
+      if (op.appointmentId && op.kind === 'INCOME') {
+        // оплата записи салона (§49): после «Выполнено» не аннулируется, для этого возврат (§54); ошибочный возврат аннулировать можно
+        await tx.$queryRaw`SELECT id FROM appointments WHERE id = ${op.appointmentId}::uuid FOR UPDATE`;
+        const a = await tx.appointment.findUniqueOrThrow({ where: { id: op.appointmentId }, select: { status: true } });
+        const refused = appointmentPaymentVoidable(a.status as AppointmentStatus);
+        if (refused) throw new ConflictException(refused);
+      }
       if (op.status !== 'COMPLETED') throw new ConflictException('Операция уже аннулирована');
       await tx.restaurantCashOperation.update({
         where: { id },

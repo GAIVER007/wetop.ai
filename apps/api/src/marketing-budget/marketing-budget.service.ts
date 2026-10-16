@@ -1,16 +1,20 @@
 import 'reflect-metadata';
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import {
   MarketingBudgetError,
   parseMarketingBudgetInput,
+  parseMarketingBudgetLinesInput,
   parseMarketingExpenseInput,
   parseMarketingExpensesCsv,
+  type MarketingExpenseInput,
 } from '@pms/domain';
 import {
   MARKETING_BUDGET_REPOSITORY,
   type ExpenseRecord,
   type MarketingBudgetRepository,
 } from './marketing-budget.repository';
+import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
+import { signFiles, type ExpenseFileView } from './expense-files';
 
 /**
  * Учёт бюджета и расходов маркетинга (МКТ-В1/В2, ТЗ «Модуль Маркетинг» 1.0, DATA_MODEL §41).
@@ -31,7 +35,20 @@ export interface ExpenseRow {
   fxRate: string;
   baseAmount: string;
   countedInBudget: boolean;
+  campaignId: string | null;
+  /** Чеки и файлы (§51) с подписанными адресами: в ответе месяца */
+  files?: ExpenseFileView[];
 }
+
+export interface BudgetLineRow {
+  platform: string;
+  amount: string;
+}
+
+const lineRow = (l: { platform: string; amount: bigint }): BudgetLineRow => ({
+  platform: l.platform,
+  amount: l.amount.toString(),
+});
 
 export interface BudgetView {
   /** ГГГГ-ММ окна */
@@ -44,6 +61,10 @@ export interface BudgetView {
   plan: string | null;
   /** Учтённый расход прошлого месяца: динамика на экране аналитики */
   prevSpent: string;
+  /** Разбивка плана по каналам (§52), суммы строками minor units */
+  lines: BudgetLineRow[];
+  /** Разбивка прошлого месяца: «взять из прошлого месяца» */
+  prevLines: BudgetLineRow[];
   expenses: ExpenseRow[];
 }
 
@@ -95,12 +116,14 @@ const toRow = (r: ExpenseRecord): ExpenseRow => ({
   fxRate: r.fxRate,
   baseAmount: r.baseAmount.toString(),
   countedInBudget: r.countedInBudget,
+  campaignId: r.campaignId,
 });
 
 @Injectable()
 export class MarketingBudgetService {
   constructor(
     @Inject(MARKETING_BUDGET_REPOSITORY) private readonly repo: MarketingBudgetRepository,
+    @Optional() @Inject(SITE_ASSET_STORAGE) private readonly storage: SiteAssetStorage | null = null,
   ) {}
 
   /**
@@ -151,15 +174,28 @@ export class MarketingBudgetService {
       locationCurrency: scope.locationCurrency,
       plan: data.plan === null ? null : data.plan.toString(),
       prevSpent: data.prevSpent.toString(),
-      expenses: data.expenses.map(toRow),
+      lines: data.lines.map(lineRow),
+      prevLines: data.prevLines.map(lineRow),
+      expenses: await Promise.all(
+        data.expenses.map(async (r) => ({ ...toRow(r), files: await signFiles(this.storage, r.files ?? []) })),
+      ),
     };
+  }
+
+  /** Кампания расхода (§53): только своего филиала; текстовое поле получает её имя */
+  private async withCampaign(locationId: string, input: MarketingExpenseInput): Promise<MarketingExpenseInput> {
+    if (!input.campaignId) return input;
+    const name = await this.repo.campaignName(locationId, input.campaignId);
+    if (name === null) throw new BadRequestException('Кампания не найдена в этом филиале');
+    return { ...input, campaign: name };
   }
 
   async createExpense(dto: Record<string, unknown>): Promise<ExpenseRow> {
     const scope = await this.repo.scope();
     await this.repo.assertWritable(scope.organizationId);
-    const input = rule(() =>
-      parseMarketingExpenseInput(dto, { reportingCurrency: scope.reportingCurrency }),
+    const input = await this.withCampaign(
+      scope.locationId,
+      rule(() => parseMarketingExpenseInput(dto, { reportingCurrency: scope.reportingCurrency })),
     );
     const row = await this.repo.createExpense(scope.locationId, input, {
       entityType: 'marketing_expense',
@@ -205,8 +241,9 @@ export class MarketingBudgetService {
   async updateExpense(id: string, dto: Record<string, unknown>): Promise<ExpenseRow> {
     const scope = await this.repo.scope();
     await this.repo.assertWritable(scope.organizationId);
-    const input = rule(() =>
-      parseMarketingExpenseInput(dto, { reportingCurrency: scope.reportingCurrency }),
+    const input = await this.withCampaign(
+      scope.locationId,
+      rule(() => parseMarketingExpenseInput(dto, { reportingCurrency: scope.reportingCurrency })),
     );
     const row = await this.repo.updateExpense(scope.locationId, id, input, {
       entityType: 'marketing_expense',
@@ -229,6 +266,23 @@ export class MarketingBudgetService {
     });
     if (!gone) throw new NotFoundException('Расход не найден');
     return { ok: true };
+  }
+
+  /**
+   * Разбивка плана месяца по каналам (§52, ADR-MKT-B7) одним вводом: прежняя разбивка месяца заменяется целиком.
+   * Сумма каналов больше общего плана не запрещается: это предупреждение на экране.
+   */
+  async setLines(dto: Record<string, unknown>): Promise<{ month: string; lines: BudgetLineRow[] }> {
+    const scope = await this.repo.scope();
+    await this.repo.assertWritable(scope.organizationId);
+    const input = rule(() => parseMarketingBudgetLinesInput(dto));
+    const lines = input.lines.map(lineRow);
+    await this.repo.setLines(scope.locationId, input.month, input.lines, {
+      entityType: 'marketing_budget',
+      action: 'marketing_budget.lines_set',
+      after: { month: input.month, lines },
+    });
+    return { month: input.month.slice(0, 7), lines };
   }
 
   async setPlan(dto: Record<string, unknown>): Promise<{ month: string; amount: string }> {

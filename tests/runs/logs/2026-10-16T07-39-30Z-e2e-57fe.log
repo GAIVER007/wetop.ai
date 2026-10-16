@@ -1,0 +1,57 @@
+# Сквозные (e2e) · 16.10.2026 12:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит c8d5ddf (claude/combined-279-port)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/bar.spec.ts' 'tests/ui/bar-payment-methods.spec.ts' 'tests/ui/bar-reference.spec.ts' 'tests/ui/ui-fix-01-access.spec.ts' 'tests/ui/hospitality-read-only.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 38 tests using 1 worker
+
+  ✓   1 tests/ui/bar-payment-methods.spec.ts:25:1 › быстрая продажа: Halyk первым, Kaspi выключен и не предлагается (2.8s)
+  ✓   2 tests/ui/bar-payment-methods.spec.ts:36:1 › оплата поставщику: список по настройке, счёт организации остаётся умолчанием, пока включён (1.1s)
+  ✓   3 tests/ui/bar-payment-methods.spec.ts:45:1 › объект оставил только депозит и гарантию: форма говорит словами, кнопки продажи нет (1.2s)
+  ✓   4 tests/ui/bar-reference.spec.ts:2:32 › bar reference layout 1333 (898ms)
+  ✓   5 tests/ui/bar-reference.spec.ts:2:32 › bar reference layout 390 (939ms)
+  ✓   6 tests/ui/bar-reference.spec.ts:15:1 › inventory direct entry and existing handler (1.7s)
+  ✓   7 tests/ui/bar-reference.spec.ts:21:1 › inventory uses the existing stock and action (932ms)
+  ✓   8 tests/ui/bar-reference.spec.ts:30:1 › sort stock preserves the loaded quantities (902ms)
+  ✓   9 tests/ui/bar-reference.spec.ts:38:1 › mobile quick actions open the existing forms (1.7s)
+  ✓  10 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 light (2.0s)
+  ✓  11 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 dark (1.9s)
+  ✓  12 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 light (1.9s)
+  ✓  13 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 dark (1.9s)
+  ✓  14 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 light (2.0s)
+  ✓  15 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 dark (2.1s)
+  ✓  16 tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 1333 (1.5s)
+  ✓  17 tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 390 (1.4s)
+  ✓  18 tests/ui/bar.spec.ts:23:1 › обзор как на макете: пять KPI, графики, компактная доска и подробности (1.1s)
+  ✓  19 tests/ui/bar.spec.ts:75:1 › быстрая продажа одной строкой и фильтры доски (1.1s)
+  ✓  20 tests/ui/bar.spec.ts:100:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (1.5s)
+  ✓  21 tests/ui/bar.spec.ts:133:1 › N6: товар в архивной категории сохраняет её при правке карточки (ADR-186) (1.1s)
+  ✓  22 tests/ui/bar.spec.ts:174:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (1.2s)
+  ✓  23 tests/ui/bar.spec.ts:191:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (961ms)
+  ✓  24 tests/ui/bar.spec.ts:205:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (1.4s)
+  ✓  25 tests/ui/bar.spec.ts:217:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (1.9s)
+  ✓  26 tests/ui/bar.spec.ts:246:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (803ms)
+  ✓  27 tests/ui/bar.spec.ts:258:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (1.9s)
+  ✓  28 tests/ui/bar.spec.ts:284:1 › операции: списание с причиной, журнал продаж и лента движений (1.2s)
+  ✓  29 tests/ui/bar.spec.ts:310:3 › доступность и телефон: light (2.8s)
+  ✓  30 tests/ui/bar.spec.ts:310:3 › доступность и телефон: dark (2.8s)
+  ✓  31 tests/ui/hospitality-read-only.spec.ts:15:1 › H-01: календарь сохраняет чтение и навигацию, но не предлагает команды записи (2.7s)
+  ✓  32 tests/ui/hospitality-read-only.spec.ts:38:1 › H-01: прямые страницы брони и ячейки не показывают формы записи (2.9s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓  33 tests/ui/hospitality-read-only.spec.ts:56:1 › H-01: фонд и Bar оставляют просмотр без редакторов и submit-команд (3.1s)
+  ✓  34 tests/ui/hospitality-read-only.spec.ts:80:1 › H-01: Channels оставляет события доступными для чтения, но закрывает exchange и retry (2.6s)
+  ✓  35 tests/ui/ui-fix-01-access.spec.ts:2:1 › C-P1-1: failed access structure blocks invitations (1.5s)
+  ✓  36 tests/ui/ui-fix-01-access.spec.ts:20:1 › C-P1-1: recovery allows explicit organization scope (1.8s)
+  ✓  37 tests/ui/ui-fix-01-access.spec.ts:42:1 › C-P1-1 malformed successful response does not allow a broad invitation (1.1s)
+  ✓  38 tests/ui/ui-fix-01-access.spec.ts:61:1 › scope switch closes the old invitation and blocks commands until recovery (1.2s)
+
+  38 passed (1.2m)
+
+# код выхода 0 · 1 мин 12 с

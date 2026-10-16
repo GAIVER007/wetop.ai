@@ -105,6 +105,10 @@ import {
   resolvePaymentMethodSettings,
   MarketingBudgetError,
   parseMarketingBudgetInput,
+  parseMarketingBudgetLinesInput,
+  parseCampaignInput,
+  parseCampaignStatsCsv,
+  parseCampaignStatsInput,
   parseMarketingExpenseInput,
   parseMarketingExpensesCsv,
   type MarketingExpenseInput,
@@ -1019,6 +1023,8 @@ let rejectCreate = false;
 /** ADR-072: режим хранения данных гостей; по умолчанию — как в базе в Казахстане, чтобы прежние экраны не менялись */
 let piiStorage: 'real' | 'pseudonymized' = 'real';
 let failPath = '';
+/** Optional HTTP method restriction; empty preserves legacy path-wide failures. */
+let failMethod = '';
 /** Поля поверх ответов каналов (снимки состояний модуля «Каналы продаж», ADR-112) */
 let channelsOverrides: {
   connection?: Record<string, unknown>;
@@ -4933,9 +4939,27 @@ interface FixtureMarketingExpense {
   fxRate: string;
   baseAmount: string;
   countedInBudget: boolean;
+  campaignId?: string | null;
+  /** Чеки (§51): адреса нет, как у API без хранилища */
+  files?: Array<{ id: string; fileName: string; mimeType: string; byteSize: number; url: null }>;
 }
 const budgetExpenses: FixtureMarketingExpense[] = [];
 const budgetPlans = new Map<string, string>();
+/** Кампании (§53): те же правила, что у API, расход из журнала расходов */
+interface FixtureCampaign {
+  id: string;
+  platform: string;
+  name: string;
+  status: string;
+  startsOn: string | null;
+  endsOn: string | null;
+  days: Map<string, { impressions: number; clicks: number; leads: number }>;
+}
+const fixtureCampaigns: FixtureCampaign[] = [];
+/** Кабинет Meta (§55): приложение «настроено», вход Facebook подставной (state fixture-state), ключа нет вовсе */
+let fixtureMeta: { adAccountId: string; status: 'ACTIVE' | 'FAILED'; lastSyncedAt: string } | null = null;
+/** Разбивка плана по каналам (§52): первое число месяца → строки */
+const budgetLines = new Map<string, Array<{ platform: string; amount: string }>>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
 type FixtureChannelResult = { channel: string; leads: number; bookings: number; revenue: string };
 type FixtureDayResult = { date: string; leads: number; bookings: number; newGuests: number; revenue: string };
@@ -4946,6 +4970,9 @@ const budgetResults = new Map<
 const resetMarketingBudget = () => {
   budgetExpenses.length = 0;
   budgetPlans.clear();
+  fixtureCampaigns.length = 0;
+  fixtureMeta = null;
+  budgetLines.clear();
   budgetResults.clear();
 };
 const BUDGET_RC = 'KZT';
@@ -4967,7 +4994,7 @@ function marketingBudgetRoute(
     path !== '/marketing/results'
   )
     return null;
-  if (!can(uiRole, 'settings')) return [403, { message: accessDeniedMessage('settings') }];
+  if (!can(uiRole, 'marketing')) return [403, { message: accessDeniedMessage('marketing') }];
   try {
     if (path === '/marketing/budget' && method === 'GET') {
       const month = q.get('month') ?? today.slice(0, 7);
@@ -4988,6 +5015,8 @@ function marketingBudgetRoute(
           locationCurrency: BUDGET_RC,
           plan: budgetPlans.get(`${month}-01`) ?? null,
           prevSpent: prevSpent.toString(),
+          lines: budgetLines.get(`${month}-01`) ?? [],
+          prevLines: budgetLines.get(`${prevMonth}-01`) ?? [],
           expenses,
         },
       ];
@@ -5014,6 +5043,12 @@ function marketingBudgetRoute(
         },
       ];
     }
+    if (path === '/marketing/budget/lines' && method === 'PUT') {
+      const input = parseMarketingBudgetLinesInput(body);
+      const lines = input.lines.map((l) => ({ platform: l.platform, amount: l.amount.toString() }));
+      budgetLines.set(input.month, lines);
+      return [200, { month: input.month.slice(0, 7), lines }];
+    }
     if (path === '/marketing/budget' && method === 'PUT') {
       const input = parseMarketingBudgetInput(body);
       budgetPlans.set(input.month, input.amount.toString());
@@ -5032,12 +5067,21 @@ function marketingBudgetRoute(
         fxRate: input.fxRate,
         baseAmount: input.baseAmount.toString(),
         countedInBudget: input.countedInBudget,
+        campaignId: input.campaignId,
       };
       budgetExpenses.push(row);
       return row;
     };
+    // кампания расхода (§53): только своя, имя кампании в текст расхода, как у API
+    const withCampaign = (input: MarketingExpenseInput): MarketingExpenseInput | null => {
+      if (!input.campaignId) return input;
+      const c = fixtureCampaigns.find((x) => x.id === input.campaignId);
+      return c ? { ...input, campaign: c.name } : null;
+    };
     if (path === '/marketing/expenses' && method === 'POST') {
-      return [201, add(parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC }))];
+      const input = withCampaign(parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC }));
+      if (!input) return [400, { message: 'Кампания не найдена в этом филиале' }];
+      return [201, add(input)];
     }
     if (path === '/marketing/expenses/import' && method === 'POST') {
       if (typeof body.csv !== 'string') return [400, { message: 'Нужен текст CSV-файла' }];
@@ -5052,7 +5096,8 @@ function marketingBudgetRoute(
       const index = budgetExpenses.findIndex((e) => e.id === id);
       if (index < 0) return [404, { message: 'Расход не найден' }];
       if (method === 'PATCH') {
-        const input = parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC });
+        const input = withCampaign(parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC }));
+        if (!input) return [400, { message: 'Кампания не найдена в этом филиале' }];
         const row: FixtureMarketingExpense = {
           ...(budgetExpenses[index] as FixtureMarketingExpense),
           date: input.date,
@@ -5065,6 +5110,7 @@ function marketingBudgetRoute(
           fxRate: input.fxRate,
           baseAmount: input.baseAmount.toString(),
           countedInBudget: input.countedInBudget,
+          campaignId: input.campaignId,
         };
         budgetExpenses[index] = row;
         return [200, row];
@@ -5132,7 +5178,7 @@ let salesFixture: SalesFixture = { ...SALES_DEFAULT };
 function salesRoute(path: string, method: string, q: URLSearchParams): [number, unknown] | null {
   if (path !== '/sales/summary' || method !== 'GET') return null;
   // синтетический сбой (`POST /__test/control { failPath }`) тот же, что у остальных маршрутов: сюда он доходит раньше общей проверки
-  if (path === failPath || failPath === '*')
+  if ((path === failPath || failPath === '*') && (!failMethod || method === failMethod))
     return [failStatus, { message: 'Синтетический сбой API' }];
   if (!can(uiRole, 'reports')) return [403, { message: accessDeniedMessage('reports') }];
   const from = q.get('from') ?? '';
@@ -5707,6 +5753,176 @@ createServer(async (req, res) => {
     }
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (marketResponse) return send(marketResponse[0], marketResponse[1]);
+    // чеки расходов (§51): multipart, поэтому до разбора JSON-маршрутов бюджета; правила как у API
+    const fileMatch = /^\/marketing\/expenses\/([^/]+)\/files(?:\/([^/]+))?$/.exec(path);
+    if (fileMatch) {
+      if (!can(uiRole, 'marketing')) return send(403, { message: accessDeniedMessage('marketing') });
+      const expense = budgetExpenses.find((e) => e.id === fileMatch[1]);
+      if (!expense) return send(404, { message: 'Расход не найден' });
+      const list = (expense.files ??= []);
+      if (req.method === 'POST' && !fileMatch[2]) {
+        const text = raw.toString('latin1');
+        const name = /filename="([^"]*)"/.exec(text)?.[1] ?? 'Чек';
+        const pdf = text.includes('%PDF-');
+        if (!pdf && !/Content-Type: image\/(png|jpeg|webp)/i.test(text))
+          return send(415, { message: 'Чек принимается фото (JPEG, PNG, WebP) или PDF' });
+        if (list.length >= 10) return send(400, { message: 'Не больше 10 файлов на расход. Удалите лишние.' });
+        const file = {
+          id: `00000000-0000-4000-a000-${String(++mediaSeq).padStart(12, '0')}`,
+          fileName: Buffer.from(name, 'latin1').toString('utf8'),
+          mimeType: pdf ? 'application/pdf' : 'image/webp',
+          byteSize: raw.length,
+          url: null,
+        };
+        list.push(file);
+        return send(201, { file, created: true });
+      }
+      if (req.method === 'DELETE' && fileMatch[2]) {
+        const at = list.findIndex((f) => f.id === fileMatch[2]);
+        if (at < 0) return send(404, { message: 'Файл не найден' });
+        list.splice(at, 1);
+        return send(200, { deleted: true });
+      }
+    }
+    if (path.startsWith('/marketing/ad-connections/meta')) {
+      if (!can(uiRole, 'marketing')) return send(403, { message: accessDeniedMessage('marketing') });
+      const action = path.slice('/marketing/ad-connections/meta'.length);
+      const cabinetCampaign = () => {
+        let c = fixtureCampaigns.find((x) => x.id === 'cabinet-1');
+        if (!c) {
+          c = { id: 'cabinet-1', platform: 'META', name: 'Meta: брони осень', status: 'ACTIVE', startsOn: null, endsOn: null, days: new Map() };
+          (c as FixtureCampaign & { external?: boolean }).external = true;
+          fixtureCampaigns.push(c);
+        }
+        c.days.set(today, { impressions: 25000, clicks: 300, leads: 12 });
+      };
+      if (action === '' && req.method === 'GET')
+        return send(200, {
+          configured: true,
+          connection: fixtureMeta && {
+            adAccountId: fixtureMeta.adAccountId,
+            accountName: 'Отель на Абая',
+            currency: 'USD',
+            timezone: 'Asia/Almaty',
+            status: fixtureMeta.status,
+            lastSyncedAt: fixtureMeta.lastSyncedAt,
+            lastError: null,
+          },
+        });
+      if (action === '/start' && req.method === 'POST') {
+        // кабинет отмечается в окне Facebook: номер не нужен
+        return send(200, {
+          url: `https://www.facebook.com/v25.0/dialog/oauth?client_id=1&redirect_uri=${encodeURIComponent('http://127.0.0.1/marketing/ads/meta/callback')}&state=fixture-state&config_id=2&response_type=code&override_default_response_type=true`,
+        });
+      }
+      if (action === '/complete' && req.method === 'POST') {
+        if (String(body['state'] ?? '') !== 'fixture-state')
+          return send(403, { message: 'Подключение устарело или начато не здесь: начните заново' });
+        // в окне Facebook отмечено два кабинета: выбор на «Рекламе»
+        return send(200, {
+          connected: false,
+          pending: 'fixture-pending',
+          accounts: [
+            { adAccountId: '1234567890', name: 'Отель на Абая', currency: 'USD' },
+            { adAccountId: '2234567890', name: 'Отель на Сатпаева', currency: 'KZT' },
+          ],
+        });
+      }
+      if (action === '/choose' && req.method === 'POST') {
+        if (body['pending'] !== 'fixture-pending')
+          return send(403, { message: 'Выбор кабинета устарел или начат не здесь: подключите заново' });
+        fixtureMeta = { adAccountId: String(body['adAccountId'] ?? ''), status: 'ACTIVE', lastSyncedAt: new Date().toISOString() };
+        cabinetCampaign();
+        return send(200, { connected: true, accountName: 'Отель на Абая' });
+      }
+      if (action === '/sync' && req.method === 'POST') {
+        if (!fixtureMeta) return send(404, { message: 'Кабинет Meta не подключён' });
+        cabinetCampaign();
+        fixtureMeta.lastSyncedAt = new Date().toISOString();
+        return send(200, { ok: true, days: 1, campaigns: 1, error: null });
+      }
+      if (action === '/disconnect' && req.method === 'POST') {
+        if (!fixtureMeta) return send(404, { message: 'Кабинет Meta не подключён' });
+        fixtureMeta = null;
+        return send(200, { disconnected: true });
+      }
+    }
+    if (path === '/marketing/campaigns' || path.startsWith('/marketing/campaigns/')) {
+      if (!can(uiRole, 'marketing')) return send(403, { message: accessDeniedMessage('marketing') });
+      try {
+        const parts = path.split('/').slice(3);
+        if (parts.length === 0 && req.method === 'GET') {
+          const month = url.searchParams.get('month') ?? today.slice(0, 7);
+          return send(200, {
+            month,
+            today,
+            reportingCurrency: BUDGET_RC,
+            campaigns: fixtureCampaigns.map((c) => {
+              const days = [...c.days.entries()]
+                .filter(([d]) => d.startsWith(month))
+                .sort(([a], [b]) => (a < b ? -1 : 1))
+                .map(([date, v]) => ({ date, ...v }));
+              const spend = budgetExpenses
+                .filter((e) => e.campaignId === c.id && e.countedInBudget && e.date.startsWith(month))
+                .reduce((sum, e) => sum + BigInt(e.baseAmount), 0n);
+              const external = (c as FixtureCampaign & { external?: boolean }).external === true;
+              return {
+                id: c.id,
+                platform: c.platform,
+                name: c.name,
+                status: c.status,
+                startsOn: c.startsOn,
+                endsOn: c.endsOn,
+                fromCabinet: external,
+                cabinetSpend: external ? String(533950 * days.length) : null,
+                cabinetCurrency: external ? 'USD' : null,
+                spend: spend.toString(),
+                impressions: days.reduce((sum, d) => sum + d.impressions, 0),
+                clicks: days.reduce((sum, d) => sum + d.clicks, 0),
+                leads: days.reduce((sum, d) => sum + d.leads, 0),
+                days,
+              };
+            }),
+          });
+        }
+        if (parts.length === 0 && req.method === 'POST') {
+          const input = parseCampaignInput(body);
+          if (fixtureCampaigns.some((c) => c.platform === input.platform && c.name === input.name))
+            return send(409, { message: 'Кампания с таким названием на этой площадке уже есть' });
+          const c = { id: `00000000-0000-4000-b000-${String(++mediaSeq).padStart(12, '0')}`, ...input, days: new Map() };
+          fixtureCampaigns.push(c);
+          return send(201, { id: c.id });
+        }
+        const c = fixtureCampaigns.find((x) => x.id === parts[0]);
+        if (!c) return send(404, { message: 'Кампания не найдена' });
+        if (parts.length === 1 && req.method === 'PATCH') {
+          const input = parseCampaignInput(body);
+          if (fixtureCampaigns.some((x) => x !== c && x.platform === input.platform && x.name === input.name))
+            return send(409, { message: 'Кампания с таким названием на этой площадке уже есть' });
+          Object.assign(c, input);
+          for (const e of budgetExpenses) if (e.campaignId === c.id) e.campaign = input.name;
+          return send(200, { id: c.id });
+        }
+        if (parts[1] === 'stats' && parts.length === 2 && req.method === 'PUT') {
+          const input = parseCampaignStatsInput(body);
+          c.days.set(input.date, { impressions: input.impressions, clicks: input.clicks, leads: input.leads });
+          return send(200, input);
+        }
+        if (parts[1] === 'stats' && parts[2] === 'import' && req.method === 'POST') {
+          if (typeof body['csv'] !== 'string') return send(400, { message: 'Нужен текст CSV-файла' });
+          const rows = parseCampaignStatsCsv(body['csv']);
+          for (const r of rows) c.days.set(r.date, { impressions: r.impressions, clicks: r.clicks, leads: r.leads });
+          return send(200, { imported: rows.length });
+        }
+        if (parts[1] === 'stats' && parts.length === 3 && req.method === 'DELETE') {
+          if (!c.days.delete(parts[2]!)) return send(404, { message: 'За этот день статистики нет' });
+          return send(200, { deleted: true });
+        }
+      } catch (e) {
+        if (e instanceof MarketingBudgetError) return send(400, { message: e.message });
+        throw e;
+      }
+    }
     const budgetResponse = marketingBudgetRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (budgetResponse) return send(budgetResponse[0], budgetResponse[1]);
     // засев бюджета маркетинга для UI-тестов: строки расходов и план месяца
@@ -5732,6 +5948,12 @@ createServer(async (req, res) => {
       if (plan) {
         const input = parseMarketingBudgetInput(plan as Record<string, unknown>);
         budgetPlans.set(input.month, input.amount.toString());
+      }
+      // разбивка по каналам (§52): { month, lines: [{ platform, amount }] }, суммы в тенге, как ввод формы
+      const seededLines = body['lines'] as Record<string, unknown> | undefined;
+      if (seededLines) {
+        const input = parseMarketingBudgetLinesInput(seededLines);
+        budgetLines.set(input.month, input.lines.map((l) => ({ platform: l.platform, amount: l.amount.toString() })));
       }
       const seededResults = body['results'] as
         | { month: string; supported?: boolean; channels?: FixtureChannelResult[]; days?: FixtureDayResult[] }
@@ -5832,6 +6054,7 @@ createServer(async (req, res) => {
       commands = [];
       rejectCreate = false;
       failPath = '';
+      failMethod = '';
       channelsOverrides = {};
       delayPath = '';
       delayMs = 0;
@@ -5918,6 +6141,7 @@ createServer(async (req, res) => {
           ? body['channelCatalog']
           : '';
       failPath = String(body['failPath'] || '');
+      failMethod = String(body['failMethod'] || '').toUpperCase();
       if ('mediaStorageOff' in body) mediaStorageOff = body['mediaStorageOff'] === true;
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
@@ -6168,7 +6392,7 @@ createServer(async (req, res) => {
         message:
           'Каналы продаж, обмен с менеджером каналов и сторож системы ведёт поддержка WETOP.',
       });
-    if (path === failPath || failPath === '*')
+    if ((path === failPath || failPath === '*') && (!failMethod || req.method === failMethod))
       return send(
         failStatus,
         failStatus >= 500
@@ -6958,6 +7182,9 @@ createServer(async (req, res) => {
             status: a.status,
             next: NEXT_STATUS[a.status] ?? [],
             priceMinor: a.priceMinor,
+            // касса филиала (§49) у подставного салона пуста
+            paidMinor: '0',
+            refundedMinor: '0',
             currency: a.currency,
             notes: a.notes,
           }));

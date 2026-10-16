@@ -141,6 +141,14 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // МКТ-В1/В2: учёт бюджета и расходов маркетинга, через Location → Business (DATA_MODEL §41, миграция …097)
   'marketing_expenses',
   'marketing_budgets',
+  // МКТ: план по каналам, файлы расходов, кампании и их статистика, кабинет рекламы и его сверки, через Location →
+  // Business (DATA_MODEL §51–§53, §55; миграции …116, …118, …120, …123): RLS, FORCE и rls_tenant в своих миграциях
+  'marketing_budget_lines',
+  'marketing_expense_files',
+  'marketing_campaigns',
+  'marketing_campaign_stats',
+  'marketing_ad_connections',
+  'marketing_sync_runs',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 16.10.2026 15:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e43de1 (claude/marketing-campaigns-proposal), незакоммиченных файлов набора: 18
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-22-45Z-integration-a140.json' 'tests/integration/marketing-campaigns.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-campaigns.test.ts (2 tests) 233ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  03:22:46
+   Duration  1.82s (import 46%, transform 35%, tests 18%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-22-45Z-integration-a140.json
+
+# код выхода 0 · 3 с

@@ -5,6 +5,7 @@ import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { beautyApi } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
+import { mayAccess } from '../../lib/navigation';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { calendarColumns } from '../beauty/calendar-columns';
 import { AppointmentsList } from './list';
@@ -29,6 +30,7 @@ export default async function AppointmentsPage({
           day={{ ...day, columns: calendarColumns(day, employees.items) }}
           customers={customers.items}
           readOnly={shell.readOnly}
+          canRefund={!shell.readOnly && mayAccess(shell.access, 'refunds')}
         />
       </Page>
     );

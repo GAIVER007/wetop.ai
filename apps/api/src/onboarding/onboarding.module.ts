@@ -257,7 +257,15 @@ export class SharedOnboardingService {
             where: { id: current.id },
             select: {
               property: { select: { id: true } },
-              _count: { select: { services: true, appointments: true, workingHours: true } },
+              // проведённые документы бара в старой валюте (ADR-186): без курса пересчёт невозможен
+              _count: {
+                select: {
+                  services: true,
+                  appointments: true,
+                  workingHours: true,
+                  barStockMovements: true,
+                },
+              },
             },
           });
           if (used?.property || Object.values(used?._count ?? {}).some((n) => n > 0))
@@ -437,6 +445,8 @@ export class SharedOnboardingService {
                     appointments: true,
                     workingHours: true,
                     employees: true,
+                    // проведённые документы бара в старой валюте (ADR-186): без курса пересчёт невозможен
+                    barStockMovements: true,
                   },
                 },
               },

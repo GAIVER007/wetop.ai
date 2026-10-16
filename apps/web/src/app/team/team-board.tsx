@@ -1,5 +1,12 @@
 'use client';
-import { createContext, useContext, useState, useTransition, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useTransition,
+  type ReactNode,
+} from 'react';
 import {
   MEMBERSHIP_ROLES,
   invitableRoles,
@@ -23,7 +30,14 @@ import { useConfirm } from '../../components/use-confirm';
 import type { AuthAccessStructure, AuthInvite, AuthMember } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { ScopeEditor } from './scope-editor';
-import { fromScopes, hasChoice, scopeSummary, toScopes, type ScopeModel } from './scope-model';
+import {
+  fromScopes,
+  hasChoice,
+  scopeSelectionValid,
+  scopeSummary,
+  toScopes,
+  type ScopeModel,
+} from './scope-model';
 import {
   inviteAction,
   removeMemberAction,
@@ -41,20 +55,50 @@ import {
  * профиля. Логика прежняя (ADR-107): зовут и отключают владелец и управляющий, роль меняет владелец;
  * что можно с каждой строкой, решает API — компонент несёт его ответ. Приглашение — панелью из шапки.
  */
-const TeamContext = createContext<{ openInvite: () => void } | null>(null);
+const TeamContext = createContext<{
+  openInvite: () => void;
+  ready: boolean;
+  expectedOrganizationId: string | null;
+} | null>(null);
 
 export function TeamProvider({
   role,
   structure = null,
+  expectedOrganizationId,
   children,
 }: {
   role: MembershipRole | null;
   structure?: AuthAccessStructure | null;
+  expectedOrganizationId: string | null;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [scopeSwitching, setScopeSwitching] = useState(false);
+  useEffect(() => {
+    const switching = () => {
+      setScopeSwitching(true);
+      setOpen(false);
+    };
+    const failed = () => setScopeSwitching(false);
+    window.addEventListener('wetop-scope-switch', switching);
+    window.addEventListener('wetop-scope-switch-failed', failed);
+    return () => {
+      window.removeEventListener('wetop-scope-switch', switching);
+      window.removeEventListener('wetop-scope-switch-failed', failed);
+    };
+  }, []);
+  useEffect(() => setScopeSwitching(false), [expectedOrganizationId, structure]);
+  const ready = expectedOrganizationId !== null && structure !== null && !scopeSwitching;
   return (
-    <TeamContext.Provider value={{ openInvite: () => setOpen(true) }}>
+    <TeamContext.Provider
+      value={{
+        openInvite: () => {
+          if (ready) setOpen(true);
+        },
+        ready,
+        expectedOrganizationId,
+      }}
+    >
       {children}
       {role && (
         <Overlay drawer open={open} onClose={() => setOpen(false)} title="Пригласить сотрудника">
@@ -68,7 +112,12 @@ export function TeamProvider({
 export function InviteButton() {
   const ctx = useContext(TeamContext);
   return (
-    <Button type="button" data-testid="team-invite" onClick={() => ctx?.openInvite()}>
+    <Button
+      type="button"
+      data-testid="team-invite"
+      disabled={!ctx?.ready}
+      onClick={() => ctx?.openInvite()}
+    >
       <Icon name="plus" />
       Пригласить сотрудника
     </Button>
@@ -84,6 +133,7 @@ function InviteForm({
   structure: AuthAccessStructure | null;
   onDone: () => void;
 }) {
+  const team = useContext(TeamContext);
   const roles = invitableRoles(role);
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -99,8 +149,16 @@ function InviteForm({
       className="team-invite-form"
       onSubmit={(event) => {
         event.preventDefault();
+        if (!structure || pending || !team?.ready) {
+          setError('Сначала загрузите структуру доступа.');
+          return;
+        }
         start(async () => {
           setError('');
+          if (restricted && !scopeSelectionValid(structure, model)) {
+            setError('Структура доступа изменилась. Проверьте выбранные филиалы.');
+            return;
+          }
           // область: выбранные места с одной должностью; «вся организация» — без назначений (DATA_MODEL §31.1)
           const scopes =
             structure && restricted
@@ -110,12 +168,17 @@ function InviteForm({
             setError('Отметьте хотя бы один филиал или выберите «Вся организация».');
             return;
           }
-          const result = await inviteAction(email, inviteRole, {
-            ...(firstName.trim() ? { firstName: firstName.trim() } : {}),
-            ...(lastName.trim() ? { lastName: lastName.trim() } : {}),
-            ...(phone.trim() ? { phone: phone.trim() } : {}),
-            ...(scopes.length > 0 ? { scopes } : {}),
-          });
+          const result = await inviteAction(
+            email,
+            inviteRole,
+            {
+              ...(firstName.trim() ? { firstName: firstName.trim() } : {}),
+              ...(lastName.trim() ? { lastName: lastName.trim() } : {}),
+              ...(phone.trim() ? { phone: phone.trim() } : {}),
+              ...(scopes.length > 0 ? { scopes } : {}),
+            },
+            team?.expectedOrganizationId ?? null,
+          );
           if (result.error) setError(result.error);
           else {
             setEmail('');
@@ -195,7 +258,7 @@ function InviteForm({
           onChange={(event) => setPhone(event.target.value)}
         />
       </Field>
-      {structure && hasChoice(structure) && (
+      {structure && (
         <ScopeEditor
           structure={structure}
           roles={roles}
@@ -206,9 +269,10 @@ function InviteForm({
           fixedRole={inviteRole}
         />
       )}
+      {!structure && <Alert>Сначала загрузите структуру доступа.</Alert>}
       {error && <Alert>{error}</Alert>}
       <div className="team-invite-form__actions">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || !structure || !team?.ready}>
           {pending ? 'Отправляю…' : 'Отправить приглашение'}
         </Button>
         <Button type="button" tone="secondary" onClick={onDone}>
@@ -258,6 +322,7 @@ export function MembersTable({
   structure?: AuthAccessStructure | null;
   actorRole?: MembershipRole | null;
 }) {
+  const team = useContext(TeamContext);
   const { error, pending, run } = useTeamActions();
   const { ask, dialog } = useConfirm();
   const [scoping, setScoping] = useState<AuthMember | null>(null);
@@ -355,8 +420,10 @@ export function MembersTable({
                     type="button"
                     tone="secondary"
                     size="sm"
-                    disabled={pending}
-                    onClick={() => setScoping(m)}
+                    disabled={pending || !team?.ready}
+                    onClick={() => {
+                      if (team?.ready) setScoping(m);
+                    }}
                   >
                     Доступ
                   </Button>
@@ -446,6 +513,7 @@ function ScopeForm({
   roles: readonly InviteRole[];
   onDone: () => void;
 }) {
+  const team = useContext(TeamContext);
   const [restricted, setRestricted] = useState(member.scopes.length > 0);
   const [model, setModel] = useState<ScopeModel>(fromScopes(member.scopes));
   const [error, setError] = useState('');
@@ -455,6 +523,14 @@ function ScopeForm({
       className="team-invite-form"
       onSubmit={(event) => {
         event.preventDefault();
+        if (!team?.ready) {
+          setError('Структура доступа изменилась. Обновите страницу и повторите.');
+          return;
+        }
+        if (restricted && !scopeSelectionValid(structure, model)) {
+          setError('Структура доступа изменилась. Проверьте выбранные филиалы.');
+          return;
+        }
         const scopes = restricted ? toScopes(structure, model) : [];
         if (restricted && scopes.length === 0) {
           setError('Выберите хотя бы одно место или «Вся организация».');
@@ -462,7 +538,11 @@ function ScopeForm({
         }
         start(async () => {
           setError('');
-          const result = await setMemberScopesAction(member.userId, scopes);
+          const result = await setMemberScopesAction(
+            member.userId,
+            scopes,
+            team.expectedOrganizationId,
+          );
           if (result.error) setError(result.error);
           else onDone();
         });
@@ -482,7 +562,7 @@ function ScopeForm({
       />
       {error && <Alert>{error}</Alert>}
       <div className="team-invite-form__actions">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || !team?.ready}>
           {pending ? 'Сохраняю…' : 'Сохранить'}
         </Button>
         <Button type="button" tone="secondary" onClick={onDone}>

@@ -1,0 +1,45 @@
+# Интеграционные (integration) · 16.10.2026 13:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7ebf981 (claude/marketing-channel-plan), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T08-45-55Z-integration-24ca.json' 'tests/integration/marketing-budget-lines.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-budget-lines.test.ts (1 test | 1 failed) 1181ms
+   ❯ план по каналам (integration) (1)
+     × замена целиком, соседний месяц цел, прошлый месяц виден для копирования; сбой откатывает замену 324ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-budget-lines.test.ts > план по каналам (integration) > замена целиком, соседний месяц цел, прошлый месяц виден для копирования; сбой откатывает замену
+AssertionError: expected [] to deeply equal [ { platform: 'META', …(1) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "amount": 200000n,
+-     "platform": "META",
+-   },
+- ]
++ []
+
+ ❯ tests/integration/marketing-budget-lines.test.ts:63:47
+     61|       repo.setLines(locationId, '2026-10-01', [{ platform: 'TIKTOK', a…
+     62|     ).rejects.toThrow();
+     63|     expect((await month('2026-10-01')).lines).toEqual([{ platform: 'ME…
+       |                                               ^
+     64|
+     65|     // пустая разбивка убирает каналы месяца
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  01:45:58
+   Duration  8.59s (transform 60%, import 22%, tests 19%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T08-45-55Z-integration-24ca.json
+
+# код выхода 1 · 11 с

@@ -19,6 +19,8 @@ const appt = (id: string, status: string, priceMinor: string, employeeId = 'e1',
     status,
     next: [],
     priceMinor,
+    paidMinor: '0',
+    refundedMinor: '0',
     currency: 'KZT',
     notes: null,
   }) as BeautyDay['appointments'][number];
@@ -111,5 +113,13 @@ describe('финансы салона', () => {
     expect(v.lost).toBe(300000n);
     expect(v.masters.map((m) => m.name)).toEqual(['Дина', 'Мария']);
     expect(v.days.map((d) => d.revenue)).toEqual([500000n, 700000n]);
+  });
+});
+
+describe('финансы салона: возвраты отдельно от выручки (§54, как ADR-176)', () => {
+  it('выручка по выполненным записям не уменьшается, возвраты считаются отдельно', () => {
+    const refunded = { ...appt('r1', 'DONE', '800000'), refundedMinor: '300000' };
+    const v = buildBeautyFinance([day('2026-10-14', [refunded, appt('r2', 'DONE', '200000'), appt('r3', 'BOOKED', '500000')])]);
+    expect([v.revenue, v.refunded]).toEqual([1000000n, 300000n]);
   });
 });

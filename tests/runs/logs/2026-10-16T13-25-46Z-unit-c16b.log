@@ -1,0 +1,29 @@
+# Модульные (unit) · 16.10.2026 18:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 51365c2 (claude/restaurant-refund), незакоммиченных файлов набора: 31
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-25-46Z-unit-c16b.json' 'packages/database/src'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| packages/database/src/schema.test.ts (4 tests) 3ms
+ ✓ |unit| packages/database/src/pool.test.ts (4 tests) 2ms
+ ✓ |unit| packages/database/src/connection-timezone.test.ts (18 tests) 20ms
+ ✓ |unit| packages/database/src/vertical-contract.test.ts (1 test) 5ms
+ ✓ |unit| packages/database/src/rls-startup.test.ts (10 tests) 9ms
+ ✓ |unit| packages/database/src/rls.test.ts (5 tests) 3ms
+ ✓ |unit| packages/database/src/client-errors.test.ts (1 test) 46ms
+ ✓ |unit| packages/database/src/pool-timeouts.test.ts (5 tests) 4144ms
+   ✓ пул соединений: мёртвое соединение не вешает процесс (5)
+     ✓ запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 748ms
+     ✓ запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 678ms
+     ✓ все места пула заняты зависшими запросами — ожидание места ограничено сроком 432ms
+     ✓ сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 718ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1559ms
+
+ Test Files  8 passed (8)
+      Tests  48 passed (48)
+   Start at  06:25:47
+   Duration  4.92s (tests 74%, transform 18%, import 8%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-25-46Z-unit-c16b.json
+
+# код выхода 0 · 7 с

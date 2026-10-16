@@ -22,10 +22,10 @@ async function verifyContext(fd: FormData) {
     throw new Error('Валюта формы не совпадает с выбранным объектом. Обновите данные.');
   return current;
 }
-const saleKey = (fd: FormData) => {
+const saleKey = (fd: FormData, what = 'продажи') => {
   const key = value(fd, 'idempotencyKey');
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key))
-    throw new Error('Ключ продажи отсутствует. Обновите форму.');
+    throw new Error(`Ключ ${what} отсутствует. Обновите форму.`);
   return key;
 };
 const minor = (raw: string, field: string) => {
@@ -222,7 +222,7 @@ export async function payBarSupplierAction(
 ): Promise<BarActionResult> {
   try {
     await verifyContext(fd);
-    await barApi.payReceipt(value(fd, 'receiptId'), { idempotencyKey: value(fd, 'idempotencyKey'), amountMinor: minor(value(fd, 'amount'), 'Сумма'), method: value(fd, 'method'), note: value(fd, 'note') || null });
+    await barApi.payReceipt(value(fd, 'receiptId'), { amountMinor: minor(value(fd, 'amount'), 'Сумма'), method: value(fd, 'method'), note: value(fd, 'note') || null, idempotencyKey: saleKey(fd, 'оплаты') });
     revalidateBar();
     return { error: null, ok: Date.now(), message: 'Оплата поставщику записана в кассе' };
   } catch (error) {

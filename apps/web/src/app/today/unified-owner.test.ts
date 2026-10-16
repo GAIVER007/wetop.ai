@@ -118,7 +118,7 @@ describe('unified owner actual DTO', () => {
     const html=renderToStaticMarkup(createElement(OwnerSummaryView,{summary:d}));
     expect(html).toContain('+1,00 USD');
     expect(html).toContain('+1,25%');
-    expect(html).toContain('Сравнение недоступно');
+    expect(html).toContain('Нет данных для сравнения');
   });
   it('formats big minor units without float loss', () =>
     expect(formatOwnerMoney('900719925474099301', 'KZT').replace(/\s/g, '')).toBe(
@@ -155,5 +155,13 @@ describe('unified owner actual DTO', () => {
     expect(html).toContain('Номеро-ночи');
     expect(html).toContain('Койко-ночи');
     expect(html).not.toContain('40%');
+  });
+  it('keeps the approved home free of developer diagnostics and extra pseudo-tasks', () => {
+    const d = dto();
+    d.classificationReason = 'EXPENSE_DOCUMENT_LINKS_NOT_CONNECTED';
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: d }));
+    expect(html).not.toContain('Автоматические задачи и отклонения API не передаёт');
+    expect(html).not.toContain('Операционные инструменты дня');
+    expect(html).toContain('Нет данных для сравнения');
   });
 });

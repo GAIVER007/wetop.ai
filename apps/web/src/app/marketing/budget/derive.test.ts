@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { byDay, byPlatform, monthDelta, summarize, type BudgetExpense } from './derive';
+import { byDay, byPlatform, channelPlan, monthDelta, summarize, type BudgetExpense } from './derive';
 
 const e = (over: Partial<BudgetExpense>): BudgetExpense => ({
   id: 'x',
@@ -111,3 +111,58 @@ describe('динамика к прошлому месяцу', () => {
     expect(monthDelta(100n, 0n)).toBeNull();
   });
 });
+
+describe('план по каналам: разбивка общего плана (DATA_MODEL §52, ADR-MKT-B7)', () => {
+  const month = { month: '2026-10', today: '2026-10-10' };
+  const spent = [
+    e({ platform: 'META', baseAmount: '100000' }),
+    e({ platform: 'GOOGLE', baseAmount: '30000' }),
+    e({ platform: 'META', baseAmount: '999999', countedInBudget: false }), // вне бюджета не считается
+  ];
+
+  it('план против факта по каждому каналу: остаток и прогноз тем же правилом, что у месяца', () => {
+    const lines = [
+      { platform: 'META', amount: '200000' },
+      { platform: 'SITE', amount: '50000' },
+    ];
+    const c = channelPlan({ ...month, plan: '300000', lines, expenses: spent });
+    expect(c.rows).toEqual([
+      // 1 000 ₸ за 10 дней из 31 → прогноз 3 100 ₸
+      { platform: 'META', plan: 200000n, spent: 100000n, remainder: 100000n, forecast: 310000n, over: true },
+      { platform: 'SITE', plan: 50000n, spent: 0n, remainder: 50000n, forecast: 0n, over: false },
+      // расход без плана канала виден строкой без плана
+      { platform: 'GOOGLE', plan: null, spent: 30000n, remainder: null, forecast: 93000n, over: false },
+    ]);
+    expect(c.allocated).toBe(250000n);
+    expect(c.unallocated).toBe(50000n);
+    expect(c.overAllocated).toBe(false);
+  });
+
+  it('каналы больше общего плана: предупреждение, а не запрет', () => {
+    const c = channelPlan({ ...month, plan: '100000', lines: [{ platform: 'META', amount: '150000' }], expenses: [] });
+    expect(c.overAllocated).toBe(true);
+    expect(c.unallocated).toBe(-50000n);
+  });
+
+  it('без общего плана сумма каналов и есть план месяца: остаток и «в плане» считаются от неё', () => {
+    const lines = [{ platform: 'META', amount: '200000' }];
+    const c = channelPlan({ ...month, plan: null, lines, expenses: spent });
+    expect(c.allocated).toBe(200000n);
+    expect(c.unallocated).toBeNull();
+    expect(c.overAllocated).toBe(false);
+    const t = summarize({ ...month, plan: null, lines, expenses: spent });
+    expect(t.remainder).toBe(70000n);
+    expect(t.planUsedPct).toBe(65);
+  });
+
+  it('без плана и без разбивки: строк плана нет, только расход каналов', () => {
+    const c = channelPlan({ ...month, plan: null, lines: [], expenses: spent });
+    expect(c.allocated).toBe(0n);
+    expect(c.rows.map((r) => [r.platform, r.plan])).toEqual([
+      ['META', null],
+      ['GOOGLE', null],
+    ]);
+    expect(summarize({ ...month, plan: null, lines: [], expenses: spent }).remainder).toBeNull();
+  });
+});
+

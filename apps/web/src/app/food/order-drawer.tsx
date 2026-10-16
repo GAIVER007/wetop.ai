@@ -148,6 +148,26 @@ function PaymentPanel({
   const [voiding, setVoiding] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const open = order.status !== 'CLOSED' && order.status !== 'CANCELLED';
+  // возврат по закрытому заказу (§56): не больше чистой оплаты, право `refunds`
+  const net = BigInt(order.paidMinor) - BigInt(order.refundedMinor);
+  const refundable = ctx.refunds && order.status === 'CLOSED' && net > 0n;
+  const [refundMethod, setRefundMethod] = useState<FoodPaymentMethod>('CASH');
+  const [refundAmount, setRefundAmount] = useState(String(net / 100n));
+  const [refundReason, setRefundReason] = useState('');
+  function refund() {
+    const tenge = Number(refundAmount);
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
+    if (!refundReason.trim()) return setError('Укажите причину возврата');
+    start(async () =>
+      done(
+        await mutateOrder(ctx.scopeKey, {
+          kind: 'refund',
+          id: order.id,
+          body: { method: refundMethod, amount: tenge * 100, reason: refundReason.trim(), idempotencyKey: crypto.randomUUID() },
+        }),
+      ),
+    );
+  }
   const done = (result: { error: string | null; stale?: boolean; order?: OrderView }) => {
     if (result.error) {
       setError(result.error);
@@ -157,6 +177,8 @@ function PaymentPanel({
       setVoiding(null);
       setReason('');
       setAmount(String((BigInt(result.order.totalMinor) - BigInt(result.order.paidMinor)) / 100n));
+      setRefundAmount(String((BigInt(result.order.paidMinor) - BigInt(result.order.refundedMinor)) / 100n));
+      setRefundReason('');
       onSaved(result.order);
       router.refresh();
     }
@@ -188,6 +210,12 @@ function PaymentPanel({
         <dd data-testid="order-paid">{wholeTenge(order.paidMinor, order.currency)}</dd>
         <dt>Осталось</dt>
         <dd data-testid="order-remaining">{wholeTenge(String(remaining), order.currency)}</dd>
+        {BigInt(order.refundedMinor) > 0n && (
+          <>
+            <dt>Возвращено</dt>
+            <dd data-testid="order-refunded">{wholeTenge(order.refundedMinor, order.currency)}</dd>
+          </>
+        )}
       </dl>
       {order.payments.length > 0 && (
         <ul className="rest-pay-list">
@@ -247,6 +275,30 @@ function PaymentPanel({
       )}
       {open && remaining === 0n && order.status !== 'SERVED' && (
         <p className="muted">Оплачено полностью: заказ закроется сам, когда его подадут.</p>
+      )}
+      {refundable && (
+        <section className="food-form" aria-label="Возврат по заказу">
+          <div className="food-form-row">
+            <Field label="Способ возврата">
+              <Select value={refundMethod} onChange={(e) => setRefundMethod(e.target.value as FoodPaymentMethod)}>
+                {FOOD_PAYMENT_METHODS.map((m) => (
+                  <option key={m} value={m}>
+                    {METHOD_RU[m] ?? m}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Сумма возврата, ₸">
+              <Input inputMode="numeric" value={refundAmount} onChange={(e) => setRefundAmount(e.target.value.replace(/\D/g, ''))} />
+            </Field>
+          </div>
+          <Field label="Причина возврата">
+            <Input value={refundReason} maxLength={300} onChange={(e) => setRefundReason(e.target.value)} />
+          </Field>
+          <Button tone="danger" disabled={pending} onClick={refund}>
+            Оформить возврат
+          </Button>
+        </section>
       )}
     </section>
   );

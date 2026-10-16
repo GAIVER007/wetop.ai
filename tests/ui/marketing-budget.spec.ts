@@ -1,4 +1,5 @@
 import { mkdirSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import AxeBuilder from '@axe-core/playwright';
 import type { APIRequestContext } from '@playwright/test';
 import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
@@ -197,6 +198,14 @@ test('аналитика маркетинга: воронка, CPL, стоимо
   await expect(main.getByTestId('man-calendar-total')).toContainText('10 500');
   await expect(main.getByTestId('man-calendar-note')).toContainText('Новые клиенты');
   await expect(main.getByTestId('budget-chart')).toBeVisible();
+
+  // выгрузка в CSV (МКТ-В6): те же числа, что на экране, деньги с запятой для Excel
+  const [download] = await Promise.all([page.waitForEvent('download'), main.getByTestId('man-export').click()]);
+  expect(download.suggestedFilename()).toBe(`wetop-marketing-${month}.csv`);
+  const csv = (await readFile(await download.path(), 'utf8')).replace(/^\uFEFF/, '').split('\r\n');
+  expect(csv).toContain('Итого;51200,00;10;5120,00;4;12800,00;10500,00;-79');
+  expect(csv).toContain(`${today};51200,00;10;5120,00;4;3;10500,00;-79`);
+  expect(csv).toContain('Сайт;0,00;6;;2;;5000,00;');
 });
 
 test('аналитика у филиала без броней гостиницы: только расходы и честное «Скоро»', async ({
@@ -223,6 +232,117 @@ test('переключатель месяца: прошлый месяц пок�
   await page.waitForURL('**month=*');
   await expect(main.getByTestId('budget-spent')).toContainText('600');
   await expect(main.getByTestId('budget-forecast')).toContainText('600');
+});
+
+test('план по каналам: разбивка прошлого месяца, копирование, превышение общего плана предупреждает, план против факта', async ({
+  page,
+  request,
+}) => {
+  const { month } = await seed(request);
+  const prev = monthShift(month, -1);
+  const main = page.getByRole('main');
+
+  // прошлый месяц без общего плана: сумма каналов и есть план месяца
+  await page.goto(`/marketing/budget?month=${prev}`);
+  await expect(main.getByTestId('budget-lines-empty')).toBeVisible();
+  await main.getByTestId('budget-lines-edit').click();
+  let form = page.getByTestId('budget-lines-form');
+  await form.getByTestId('budget-line-META').fill('500');
+  await expect(form.getByTestId('budget-lines-allocated')).toContainText('Сумма каналов: 500 ₸');
+  await form.getByTestId('budget-lines-save').click();
+  await expect(page.getByText('План по каналам сохранён')).toBeVisible();
+  await expect(main.getByTestId('budget-lines-summary')).toContainText('План месяца это сумма каналов: 500 ₸');
+  await expect(main.getByTestId('budget-plan')).toContainText('500 ₸');
+
+  // текущий месяц (общий план 3 000 ₸): взять из прошлого, дописать, превысить план
+  await page.goto(`/marketing/budget?month=${month}`);
+  await main.getByTestId('budget-lines-edit').click();
+  form = page.getByTestId('budget-lines-form');
+  await form.getByTestId('budget-lines-copy').click();
+  await expect(form.getByTestId('budget-line-META')).toHaveValue('500');
+  await form.getByTestId('budget-line-GOOGLE').fill('400');
+  await form.getByTestId('budget-line-SITE').fill('2 500');
+  await expect(form.getByTestId('budget-lines-allocated')).toContainText('Распределено 3 400 ₸ из 3 000 ₸');
+  await expect(form.getByTestId('budget-lines-over')).toContainText('больше общего плана на 400 ₸');
+  await page
+    .locator('.ui-overlay')
+    .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+    .catch(() => undefined);
+  let audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+  await form.getByTestId('budget-lines-save').click();
+  await expect(page.getByText('План по каналам сохранён')).toBeVisible();
+
+  await expect(main.getByTestId('budget-lines-summary')).toContainText('Распределено 3 400 ₸ из 3 000 ₸');
+  await expect(main.getByTestId('budget-lines-over')).toContainText('Каналы больше плана на 400 ₸');
+  const table = main.getByTestId('budget-lines');
+  // каналы с планом по убыванию плана, затем расход без плана
+  await expect(table.locator('tbody tr td:first-child .budget-cell-main')).toHaveText([
+    'Сайт',
+    'Meta Ads',
+    'Google Ads',
+    'TikTok Ads',
+  ]);
+  const meta = table.getByRole('row', { name: /Meta Ads/ });
+  await expect(meta).toContainText('720 ₸'); // факт больше плана 500: остаток в минусе
+  await expect(meta.locator('.budget-td-danger')).toContainText('220');
+  await expect(meta).toContainText('Прогноз выше плана');
+  await expect(table.getByRole('row', { name: /TikTok Ads/ })).toContainText('без плана');
+  audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+  mkdirSync(SHOTS, { recursive: true });
+  await page.screenshot({ path: `${SHOTS}/channel-plan-light-1440.png`, fullPage: true });
+});
+
+test('чеки расхода: приложить PDF, чужой формат отказ словами, счётчик в журнале, удаление с подтверждением', async ({
+  page,
+  request,
+}) => {
+  const { month } = await seed(request);
+  await page.goto(`/marketing/budget/expenses?month=${month}`);
+  const main = page.getByRole('main');
+
+  // новый расход: чек прикладывают после сохранения
+  await main.getByTestId('budget-add').first().click();
+  await expect(page.getByTestId('budget-files-later')).toBeVisible();
+  await page.keyboard.press('Escape');
+
+  await main.getByTestId('budget-table').getByRole('button', { name: /Изменить расход: Meta Ads/ }).click();
+  const files = page.getByTestId('budget-files');
+  await expect(files).toContainText('Чеков пока нет');
+  await files.getByTestId('budget-file-input').setInputFiles({
+    name: 'svg.svg',
+    mimeType: 'image/svg+xml',
+    buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>'),
+  });
+  await files.getByTestId('budget-file-upload').click();
+  await expect(files.getByRole('alert')).toContainText('фото (JPEG, PNG, WebP) или PDF');
+
+  await files.getByTestId('budget-file-input').setInputFiles({
+    name: 'schet-meta.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4\n%%EOF\n'),
+  });
+  await files.getByTestId('budget-file-upload').click();
+  await expect(page.getByText('Файл приложен к расходу')).toBeVisible();
+  // панель остаётся открытой: файлы прикладывают подряд
+  await expect(files.getByTestId('budget-files-list')).toContainText('schet-meta.pdf');
+  await page
+    .locator('.ui-overlay')
+    .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+    .catch(() => undefined);
+  const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+  await page.keyboard.press('Escape');
+
+  const metaRow = main.getByTestId('budget-table').getByRole('row', { name: /Meta Ads/ });
+  await expect(metaRow).toContainText('1 файл');
+
+  await main.getByTestId('budget-table').getByRole('button', { name: /Изменить расход: Meta Ads/ }).click();
+  await page.getByRole('button', { name: 'Удалить файл schet-meta.pdf' }).click();
+  await page.getByRole('button', { name: 'Удалить', exact: true }).click();
+  await expect(page.getByText('Файл удалён', { exact: false })).toBeVisible();
+  await expect(page.getByTestId('budget-files')).toContainText('Чеков пока нет');
 });
 
 /** Кириллица в windows-1251, как сохраняет CSV Excel на Windows: А–я подряд с 0xC0, «ё» и «Ё» отдельно */

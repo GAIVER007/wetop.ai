@@ -89,3 +89,16 @@ END $$;
 GRANT USAGE,SELECT ON SEQUENCE appointment_workload_revisions_revision_seq TO wetop_app;
 REVOKE ALL ON FUNCTION capture_beauty_schedule(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION capture_beauty_schedule(uuid) TO wetop_app;
+
+-- Bind only this migration's owned routines to the actual application schema.
+DO $owner_home_search_path$
+DECLARE target_schema text := current_schema(); routine record;
+BEGIN
+  FOR routine IN SELECT p.oid::regprocedure AS signature FROM pg_proc p
+    JOIN pg_namespace n ON n.oid=p.pronamespace
+    WHERE n.nspname=target_schema AND p.proname=ANY(ARRAY['beauty_appointment_changed','beauty_capacity_changed','beauty_history_tenant_guard','capture_beauty_schedule'])
+  LOOP
+    EXECUTE format('ALTER FUNCTION %s SET search_path TO %I, public, pg_temp',routine.signature,target_schema);
+  END LOOP;
+END
+$owner_home_search_path$;

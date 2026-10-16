@@ -249,7 +249,9 @@ export class BarService {
     const method = typeof body.method === 'string' ? body.method : '';
     if (!(BAR_SUPPLIER_METHODS as readonly string[]).includes(method)) throw new BadRequestException('Способ оплаты не поддерживается');
     await this.assertMethodEnabled(method);
-    const result = await this.repo.payReceipt(id, { amountMinor: integer(body.amountMinor, 'Сумма'), method, note: optionalText(body.note), idempotencyKey: typeof body.idempotencyKey === 'string' ? body.idempotencyKey : undefined });
+    const idempotencyKey = optionalText(body.idempotencyKey);
+    if (!idempotencyKey || idempotencyKey.length > 120) throw new BadRequestException('Нужен ключ повтора оплаты');
+    const result = await this.repo.payReceipt(id, { amountMinor: integer(body.amountMinor, 'Сумма'), method, note: optionalText(body.note), idempotencyKey });
     if (result.kind === 'no_cash') throw new ConflictException(NO_SALON_CASH);
     if (result.kind === 'insufficient_cash') throw new ConflictException('В кассе по этому способу меньше этой суммы');
     if (result.kind === 'not_found') throw new NotFoundException('Приход не найден');

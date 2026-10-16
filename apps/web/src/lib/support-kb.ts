@@ -72,7 +72,7 @@ export function kbFilter(query: Record<string, string>): {
 }
 
 /** Адрес каталога с отбором: пустые части не пишутся */
-export function kbHref(filter: Partial<Record<'status' | 'category' | 'visibility' | 'q' | 'id', string>>): string {
+export function kbHref(filter: Partial<Record<'status' | 'category' | 'visibility' | 'q' | 'id' | 'saved', string>>): string {
   const params = new URLSearchParams();
   for (const [name, value] of Object.entries(filter)) if (value) params.set(name, value);
   const qs = params.toString();

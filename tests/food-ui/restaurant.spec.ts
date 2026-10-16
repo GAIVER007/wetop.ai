@@ -229,6 +229,15 @@ test('заказы: создание с экрана, оплата частям�
   await rating.getByRole('button', { name: 'Отправить оценку' }).click();
   await expect(rating.getByLabel('Оценка 4 из 5')).toBeVisible();
   await expect(rating).toContainText('Вкусно, но долго');
+  // возврат по закрытому заказу (§56): без причины подсказка, с причиной «Возвращено»
+  const refund = payment.getByRole('region', { name: 'Возврат по заказу' });
+  await expect(refund.getByLabel('Сумма возврата, ₸')).toHaveValue('780');
+  await refund.getByLabel('Сумма возврата, ₸').fill('200');
+  await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+  await expect(payment.getByRole('alert')).toContainText('Укажите причину возврата');
+  await refund.getByLabel('Причина возврата').fill('Блюдо остыло');
+  await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+  await expect(payment.getByTestId('order-refunded')).toContainText('200 ₸');
   expect((await new AxeBuilder({ page }).include('[data-testid="order-drawer"]').analyze()).violations).toEqual([]);
   await page.keyboard.press('Escape');
   // вкладки: закрытый заказ в «Закрыты», счётчики совпадают
@@ -258,6 +267,14 @@ test('заказы: создание с экрана, оплата частям�
   await expect(
     page.locator('tbody tr', { hasText: waiter.name }).getByTestId('employee-rating'),
   ).toContainText('4 ★, 1 оценка');
+  // «Финансы»: возврат гостю своей вкладкой, в «Расходах» его нет (§56, как ADR-176)
+  await page.goto('/restaurant-finance');
+  const board = page.getByTestId('finance-board');
+  await board.getByRole('button', { name: 'Возвраты' }).click();
+  await expect(board.locator('tbody')).toContainText('Возврат по заказу');
+  await expect(page.getByTestId('finance-total')).toContainText('200 ₸');
+  await board.getByRole('button', { name: 'Расходы' }).click();
+  await expect(board).not.toContainText('Возврат по заказу');
 });
 
 test('кухня: колонки KDS и переходы кнопками', async ({ page, request }) => {

@@ -49,12 +49,12 @@ const fail = (msg: string): never => {
 };
 
 /** Разделитель по заголовку: Excel в русской раскладке пишет «;», Google Таблицы «,», копия таблицы табуляцию */
-function delimiterOf(header: string): string {
+export function delimiterOf(header: string): string {
   return [';', ',', '\t'].reduce((best, c) => (header.split(c).length > header.split(best).length ? c : best));
 }
 
 /** Записи CSV по RFC 4180: поле в кавычках может содержать разделитель и перевод строки */
-function splitRecords(text: string, delimiter: string): string[][] {
+export function splitRecords(text: string, delimiter: string): string[][] {
   const out: string[][] = [];
   let row: string[] = [];
   let field = '';
@@ -83,7 +83,7 @@ function splitRecords(text: string, delimiter: string): string[][] {
 }
 
 /** «05.10.2026» и «5.10.2026» (так дату пересохраняет Excel) → «2026-10-05»; остальное как есть */
-const isoDate = (s: string): string => {
+export const excelDate = (s: string): string => {
   const m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(s);
   return m ? `${m[3]}-${m[2]!.padStart(2, '0')}-${m[1]!.padStart(2, '0')}` : s;
 };
@@ -135,7 +135,7 @@ export function parseMarketingExpensesCsv(
         line,
         ...parseMarketingExpenseInput(
           {
-            date: isoDate(cell('date')),
+            date: excelDate(cell('date')),
             platform: platformOf(cell('platform')),
             campaign: cell('campaign'),
             category: cell('category'),

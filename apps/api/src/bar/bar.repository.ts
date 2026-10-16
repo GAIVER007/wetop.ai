@@ -56,7 +56,7 @@ export interface BarSupplierInput {
 export interface BarRetailSaleInput { productId: string; quantityUnits: bigint; method: string; idempotencyKey: string }
 export interface BarFolioSaleInput { folioId: string; productId: string; quantityUnits: bigint; idempotencyKey: string }
 export interface BarWriteOffInput { productId: string; quantityUnits: bigint; reason: string }
-export interface BarSupplierPaymentInput { amountMinor: bigint; method: string; note: string | null; idempotencyKey?: string | undefined }
+export interface BarSupplierPaymentInput { amountMinor: bigint; method: string; note: string | null; /** ключ повтора (§50, ADR-186 M6) */ idempotencyKey: string }
 export interface BarInventoryCountInput { productId: string; actualUnits: bigint; reason: string; /** цена излишка вручную, тиын за шт (ADR-175) */ unitCostMinor: bigint | null }
 
 export interface BarRepository {
@@ -112,7 +112,7 @@ export class PrismaBarRepository implements BarRepository {
     const property = await this.prisma.db.property.findUniqueOrThrow({ where: { id: ref.id }, select: { locationId: true, currency: true } });
     return { locationId: property.locationId, propertyId: ref.id, vertical: 'HOSPITALITY', timezone: ref.timezone, currency: property.currency };
   }
-  /** Способы оплаты объекта (§21.6, ADR-185): у бара салона и ресторана объекта нет, настройка к ним не относится */
+  /** Способы оплаты объекта (§21.6, ADR-186): у бара салона и ресторана объекта нет, настройка к ним не относится */
   async enabledPaymentMethods(): Promise<string[] | null> {
     const { propertyId } = await this.scope();
     if (!propertyId) return null;
@@ -173,8 +173,16 @@ export class PrismaBarRepository implements BarRepository {
     const rows = await (this.prisma.db as any).barProduct.findMany({ where: { locationId: (await this.scope()).locationId }, include: { category: true }, orderBy: { name: 'asc' } });
     return rows.map((row: any) => ({ ...row, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString() }));
   }
+  /** N6 (ADR-186): архивная категория остаётся у прежних товаров, новые в неё не попадают */
+  private async activeCategory(locationId: string, categoryId: string | null, keep: string | null = null) {
+    if (!categoryId || categoryId === keep) return;
+    const category = await (this.prisma.db as any).barCategory.findFirst({ where: { id: categoryId, locationId } });
+    if (!category) throw new ConflictException('Категория недоступна в этом объекте');
+    if (!category.active) throw new ConflictException('Категория в архиве: выберите действующую или верните её из архива');
+  }
   async createProduct(input: BarProductInput) {
     const { propertyId, locationId } = await this.scope();
+    await this.activeCategory(locationId, input.categoryId);
     const row = await (this.prisma.db as any).barProduct.create({ data: {
       propertyId, locationId, code: input.code, name: input.name, categoryId: input.categoryId, barcode: input.barcode,
       unitsPerPackage: input.unitsPerPackage, markupBasis: input.markupBasis, salePrice: input.salePriceMinor,
@@ -195,6 +203,7 @@ export class PrismaBarRepository implements BarRepository {
     const { locationId } = await this.scope();
     const existing = await (this.prisma.db as any).barProduct.findFirst({ where: { id, locationId } });
     if (!existing) return null;
+    await this.activeCategory(locationId, patch.categoryId, existing.categoryId);
     const row = await (this.prisma.db as any).barProduct.update({ where: { id }, data: {
       name: patch.name, categoryId: patch.categoryId, barcode: patch.barcode,
       unitsPerPackage: patch.unitsPerPackage, markupBasis: patch.markupBasis,
@@ -306,7 +315,7 @@ export class PrismaBarRepository implements BarRepository {
     // границы месяца для продаж: начало суток в поясе объекта, а не по UTC (AGENTS.md §13)
     const at = (day: string) => zonedStartOfDay(day, timezone);
     const popularFrom = at(shiftDate(today, -29));
-    const [receipts, sales, lots, writeOffs, popularLines] = await Promise.all([
+    const [receipts, sales, lots, writeOffs, popularLines, reversed, returned] = await Promise.all([
       (this.prisma.db as any).barReceipt.findMany({ where: { locationId, status: 'POSTED' }, include: { payments: { where: PrismaBarRepository.COMPLETED_PAYMENTS, select: { amount: true } } } }),
       (this.prisma.db as any).barSale.findMany({ where: { locationId, status: 'POSTED' }, select: { totalRevenue: true, totalCost: true, createdAt: true, currency: true } }),
       (this.prisma.db as any).barStockLot.findMany({ where: { locationId, remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true } }),
@@ -315,8 +324,13 @@ export class PrismaBarRepository implements BarRepository {
         where: { sale: { locationId, status: 'POSTED', createdAt: { gte: popularFrom } } },
         select: { productId: true, quantityUnits: true, product: { select: { name: true } } },
       }),
+      // M9 (ADR-186): отменённая без возврата на склад продажа это потеря товара, её себестоимость идёт в списание
+      (this.prisma.db as any).barSale.findMany({ where: { locationId, status: 'REVERSED' }, select: { id: true, totalCost: true, currency: true } }),
+      (this.prisma.db as any).barStockMovement.findMany({ where: { locationId, sourceType: 'BAR_SALE_RETURN' }, select: { sourceId: true }, distinct: ['sourceId'] }),
     ]);
-    for (const sale of sales) this.compatible(sale.currency, currency);
+    for (const sale of [...sales, ...reversed]) this.compatible(sale.currency, currency);
+    const restocked = new Set(returned.map((row: any) => row.sourceId));
+    const lostCost = reversed.filter((sale: any) => !restocked.has(sale.id)).reduce((sum: bigint, sale: any) => sum + BigInt(sale.totalCost), 0n);
     const inMonth = (from: string, to: string) => (day: string) => day >= from && day < to;
     const thisMonth = inMonth(monthStart, nextMonthStart);
     const lastMonth = inMonth(prevMonthStart, monthStart);
@@ -353,7 +367,7 @@ export class PrismaBarRepository implements BarRepository {
     const revenue = sales.reduce((sum: bigint, row: any) => sum + BigInt(row.totalRevenue), 0n);
     const cost = sales.reduce((sum: bigint, row: any) => sum + BigInt(row.totalCost), 0n);
     const stockCost = lots.reduce((sum: bigint, row: any) => sum + BigInt(row.remainingUnits) * BigInt(row.unitCost), 0n);
-    const writeOff = writeOffs.reduce((sum: bigint, row: any) => sum + (BigInt(row.units) < 0n ? -BigInt(row.units) : BigInt(row.units)) * BigInt(row.unitCost), 0n);
+    const writeOff = lostCost + writeOffs.reduce((sum: bigint, row: any) => sum + (BigInt(row.units) < 0n ? -BigInt(row.units) : BigInt(row.units)) * BigInt(row.unitCost), 0n);
     return { currency, purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString(), month, popular };
   }
   /** Повтор продажи тем же ключом (D-KEY): ключ уникален по филиалу (§44), исходная операция возвращается как есть */
@@ -523,6 +537,7 @@ export class PrismaBarRepository implements BarRepository {
     const supplier = await (tx as any).barSupplier.findFirst({ where: { id: input.supplierId, locationId } });
     const products = await (tx as any).barProduct.count({ where: { locationId, id: { in: [...new Set(input.lines.map(line => line.productId))] } } });
     if (!supplier || products !== new Set(input.lines.map(line => line.productId)).size) throw new ConflictException('Поставщик или товар недоступен в этом объекте');
+    if (!supplier.active) throw new ConflictException('Поставщик в архиве: верните его из архива, чтобы принять приход');
     this.compatible(input.currency, currency);
     if (currency !== 'KZT') throw new ConflictException({ code: 'BAR_AUTO_PRICE_UNDEFINED', message: 'Автоматическая цена для этой валюты еще не утверждена. Используйте операции с заданной ценой.' });
     const totalAmount = input.lines.reduce((s, l) => s + l.quantityUnits * l.unitCostMinor, 0n);
@@ -595,6 +610,19 @@ export class PrismaBarRepository implements BarRepository {
       await tx.$queryRaw`SELECT id FROM bar_receipts WHERE id = ${id}::uuid AND location_id = ${locationId}::uuid FOR UPDATE`;
       const receipt = await (tx as any).barReceipt.findFirst({ where: { id, locationId }, include: { supplier: true, payments: { where: PrismaBarRepository.COMPLETED_PAYMENTS, select: { amount: true } } } });
       if (!receipt) return { kind: 'not_found' as const };
+      // M6 (ADR-186): повтор с тем же ключом возвращает первую оплату; приход заперт выше, второй запрос ждёт первый
+      // пустой ключ Prisma выбросил бы из условия, и «повтором» стала бы любая оплата прихода
+      if (!input.idempotencyKey) throw new BadRequestException('Нужен ключ повтора оплаты');
+      const replay = await (tx as any).barSupplierPayment.findFirst({
+        where: { receiptId: id, idempotencyKey: input.idempotencyKey },
+        include: { cashOperation: { select: { method: true } }, restaurantCashOperation: { select: { method: true } } },
+      });
+      if (replay) {
+        const method = replay.cashOperation?.method ?? replay.restaurantCashOperation?.method;
+        if (BigInt(replay.amount) !== input.amountMinor || method !== input.method) throw new ConflictException('Ключ повтора уже использован для другой оплаты');
+        const paidNow = receipt.payments.reduce((sum: bigint, payment: any) => sum + BigInt(payment.amount), 0n);
+        return { kind: 'paid' as const, id: replay.id, receiptId: id, paidAmount: replay.amount.toString(), dueAmount: (BigInt(receipt.totalAmount) - paidNow).toString() };
+      }
       if (receipt.status !== 'POSTED') return { kind: 'not_posted' as const };
       this.compatible(receipt.currency, await this.currency(tx, locationId));
       const alreadyPaid = receipt.payments.reduce((sum: bigint, payment: any) => sum + BigInt(payment.amount), 0n);
@@ -613,7 +641,7 @@ export class PrismaBarRepository implements BarRepository {
         const cash = await (tx as any).restaurantCashOperation.create({ data: { locationId, kind: 'EXPENSE', method: input.method, amount: input.amountMinor, currency, note, occurredAt: now, createdById: auditUserId() } });
         cashLink = { restaurantCashOperationId: cash.id };
       }
-      const payment = await (tx as any).barSupplierPayment.create({ data: { receiptId: id, ...cashLink, amount: input.amountMinor, paidAt: now, createdById: auditUserId() } });
+      const payment = await (tx as any).barSupplierPayment.create({ data: { receiptId: id, ...cashLink, amount: input.amountMinor, paidAt: now, idempotencyKey: input.idempotencyKey, createdById: auditUserId() } });
       if (enabled) await tx.$executeRaw`INSERT INTO payment_write_intents(id,location_id,intent_key,action,normalized_payload_hash,result_id,created_by_id) VALUES(${randomUUID()}::uuid,${locationId}::uuid,${key},'SUPPLIER_PAYMENT',${hash},${payment.id}::uuid,${auditUserId()}::uuid)`;
       const remaining = dueAmount - input.amountMinor;
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_supplier_payment', entityId: payment.id, action: 'bar.supplier_payment.created', after: { receiptId: id, amount: input.amountMinor.toString(), dueAmount: remaining.toString(), method: input.method } } });

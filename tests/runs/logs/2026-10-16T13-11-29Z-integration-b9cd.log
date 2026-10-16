@@ -1,0 +1,48 @@
+# Интеграционные (integration) · 16.10.2026 18:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит 886cda1 (claude/marketing-meta-simple-login), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-11-29Z-integration-b9cd.json' 'tests/integration/marketing-meta.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-meta.test.ts (5 tests | 1 failed) 557ms
+   ❯ кабинет Meta (integration) (5)
+     ✓ state: подпись, срок, подмена отклоняются 8ms
+     ✓ вход: state другого филиала не принимается; свой подключает кабинет, ключ шифром, первая сверка 97ms
+     ✓ повтор сверки не дублирует; потеря доступа: сбой и «подключите заново»; предел: повторим позже 19ms
+     ✓ отключение стирает ключ, кампании и дни остаются; ручная правка кабинетной кампании закрыта 8ms
+     × простой вход (без номера): один отмеченный кабинет сразу, несколько на выбор, ни одного: отказ словами 46ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-meta.test.ts > кабинет Meta (integration) > простой вход (без номера): один отмеченный кабинет сразу, несколько на выбор, ни одного: отказ словами
+AssertionError: promise resolved "{ connected: true, …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "accountName": "Отель на Абая",
++   "connected": true,
+  }
+
+ ❯ tests/integration/marketing-meta.test.ts:199:100
+    197|     expect(r.pending).not.toContain('suat-for-c4'); // ключ только вну…
+    198|     // заготовка другого филиала и подделка не принимаются
+    199|     await expect(as('other', () => service.choose({ pending: r.pending…
+       |                                                                                                    ^
+    200|     await expect(as('own', () => service.choose({ pending: 'v1:a:b:c',…
+    201|     expect(await as('own', () => service.choose({ pending: r.pending, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  06:11:37
+   Duration  4.27s (transform 39%, import 34%, tests 27%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-11-29Z-integration-b9cd.json
+
+# код выхода 1 · 12 с

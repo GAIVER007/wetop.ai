@@ -22,9 +22,9 @@ function MoneyValue({ value }: { value: OwnerSummaryDto['current']['revenue'] })
   );
 }
 function MoneyComparison({value,reason}:{value:NonNullable<OwnerSummaryDto['comparisons']>['revenue']|undefined;reason:string|null}) {
-  if(!value?.currencies?.length) return <p>Сравнение недоступно: {ownerReason(reason??value?.reason) || 'нет данных за оба периода'}</p>;
+  if(!value?.currencies?.length) return <p title={ownerReason(reason??value?.reason) || undefined}>Нет данных для сравнения</p>;
   return <>{value.currencies.map(c=>{
-    if(c.deltaMinor===null) return <p key={c.currency}>{c.currency}: сравнение недоступно</p>;
+    if(c.deltaMinor===null) return <p key={c.currency}>{value.currencies!.length > 1 ? `${c.currency}: ` : ''}Нет данных для сравнения</p>;
     const amount=BigInt(c.deltaMinor),rate=c.rateBasisPoints===null?null:BigInt(c.rateBasisPoints),absolute=rate===null?null:rate<0n?-rate:rate;
     return <p key={c.currency}>К предыдущему: {amount>0n?'+':''}{formatOwnerMoney(c.deltaMinor,c.currency)}{rate!==null && absolute!==null ? ` (${rate>0n?'+':rate<0n?'-':''}${absolute/100n},${(absolute%100n).toString().padStart(2,'0')}%)` : ' (процент недоступен: предыдущая сумма равна нулю)'}</p>;
   })}</>;
@@ -39,8 +39,8 @@ function WorkloadValue({ value }: { value: Workload }) {
           : 'Нет данных'}
       </div>
       {valid && <progress max={100} value={value.percent!} aria-label="Доля занятой мощности" />}
-      <p>{ownerReason(value.reason)}</p>
-      <p>
+      <p>{value.state === 'UNAVAILABLE' ? 'Нет данных для расчёта' : ownerReason(value.reason)}</p>
+      {valid && <p>
         {value.basis === 'BOOKED_SCHEDULE'
           ? 'Записанное время мастеров / сохранённое расписание'
           : value.basis === 'ACTUAL_TABLE_OCCUPANCY'
@@ -48,7 +48,7 @@ function WorkloadValue({ value }: { value: Workload }) {
             : value.basis === 'SELLABLE_NIGHTS'
               ? 'Наблюдаемая загрузка фонда'
               : ''}
-      </p>
+      </p>}
       {value.funds?.map((f) => (
         <p key={f.unit}>
           {f.unit === 'ROOM_NIGHT' ? 'Номеро-ночи' : 'Койко-ночи'}:{' '}
@@ -95,7 +95,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
               dateStyle: 'medium',
               timeStyle: 'short',
               timeZone: s.period.timezone,
-            }).format(new Date(s.generatedAt))} · {s.period.timezone}
+            }).format(new Date(s.generatedAt))}, {s.period.timezone}
           </p>
         </div>
         <a className="btn btn--secondary" href={finance}>
@@ -175,17 +175,15 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
         <aside className="owner-panel owner-attention" aria-labelledby="owner-attention-title">
           <div className="owner-panel-heading"><h2 id="owner-attention-title">Требуют решения</h2></div>
           <div className="owner-decision">
-          <h3>Покрытие данных</h3>
-          <p>{ownerReason(s.workload.reason) || (s.workload.state === 'COMPLETE' ? 'Загрузка рассчитана за выбранный период.' : 'Полнота загрузки не подтверждена.')}</p>
-          <a href={operational}>Проверить загрузку →</a>
+          <h3>Загрузка</h3>
+          <p>{s.workload.state === 'COMPLETE' ? 'Загрузка рассчитана за выбранный период.' : 'Для расчёта загрузки не хватает данных.'}</p>
+          <a href={operational}>Проверить загрузку</a>
           </div><div className="owner-decision"><h3>Учёт расходов</h3>
           <p>
-            {s.classificationReason === 'EXPENSE_DOCUMENT_LINKS_NOT_CONNECTED' ? 'Классификация расходов не подключена. ' : s.classificationReason === 'UNCLASSIFIED_EXPENSE_SOURCES' ? 'Часть расходов без статьи. ' : ''}Автоматические задачи и отклонения API не передаёт.
+            {s.classificationReason === 'UNCLASSIFIED_EXPENSE_SOURCES' ? 'Есть расходы без статьи.' : s.classificationReason === 'EXPENSE_DOCUMENT_LINKS_NOT_CONNECTED' ? 'Статьи расходов пока недоступны.' : 'Проверьте оплаченные операции за период.'}
           </p>
           <a href={finance}>Открыть операции</a>
-          </div><div className="owner-decision"><p>
-            <a href="/today/operations">Операционные инструменты дня</a>
-          </p></div>
+          </div>
         </aside>
       </div>
       <section className="owner-panel owner-expense-panel">

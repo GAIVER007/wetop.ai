@@ -14,7 +14,7 @@ import '../marketing.css';
 /**
  * «Маркетинг → Публикация сайта» (MKT7, `docs/marketing/site-publication-v0.md` §6). Тонкая страница управления, не
  * редактор (MKT9): состояние, ревизии, адрес, превью, публикация, пауза, журнал с откатом, источник брони для
- * ИИ-продавца (Q-275) и архив. Право `settings` и строгий scope филиала проверяет API.
+ * ИИ-продавца (Q-275) и архив. Право `marketing` и строгий scope филиала проверяет API.
  */
 export default async function MarketingSitePage() {
   await requireVertical(['HOSPITALITY']);

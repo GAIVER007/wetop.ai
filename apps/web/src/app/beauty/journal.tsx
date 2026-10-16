@@ -33,12 +33,15 @@ export function JournalBoard({
   customers,
   employees,
   readOnly,
+  canRefund = false,
   appointmentId,
 }: {
   day: BeautyDay;
   customers: BeautyCustomerRow[];
   employees: BeautyEmployeeRow[];
   readOnly: boolean;
+  /** возврат по выполненной записи (§54): право `refunds` */
+  canRefund?: boolean;
   appointmentId?: string | undefined;
 }) {
   const columns = calendarColumns(day, employees);
@@ -392,6 +395,7 @@ export function JournalBoard({
             day={{ ...day, columns }}
             row={panel.row}
             canEdit={!readOnly}
+            canRefund={canRefund}
             onDone={done}
           />
         )}

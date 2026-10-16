@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { channelsApi } from '../../lib/api';
 import { hotelApi, hotelClock } from '../../lib/hotel-api';
-import { currentMe } from '../../lib/desk-shell';
+import { currentMe, deskShell } from '../../lib/desk-shell';
+import { mayAccess } from '../../lib/navigation';
 import type { PropertyClock } from '../../lib/property-time';
 import { Alert, Badge, Panel, Grid, Fact } from '../../components/ui';
 import { ChannelButtons } from './buttons';
@@ -17,14 +18,17 @@ const settle = <T,>(p: Promise<T>) =>
   );
 const checkedAt = (iso: string | null | undefined, clock: PropertyClock) =>
   iso ? `, проверено ${clock.clock(iso)} по времени объекта` : '';
-export async function ChannelConnectionSetup() {
+export async function ChannelConnectionSetup({ canMutate }: { canMutate?: boolean } = {}) {
   const clock = await hotelClock();
-  const [connection, webhook, me, hotel] = await Promise.all([
+  const [connection, webhook, me, hotel, shell] = await Promise.all([
     channelsApi.connection().catch(() => null),
     channelsApi.webhookStatus().catch(() => null),
     settle(currentMe()),
     hotelApi.settings().catch(() => null),
+    deskShell(),
   ]);
+  const mutationAllowed =
+    (canMutate ?? mayAccess(shell.access, 'channels')) && !shell.readOnly;
   const owner = me.ok && me.r.user?.role === 'OWNER';
   const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
   return (
@@ -110,7 +114,7 @@ export async function ChannelConnectionSetup() {
           </>
         )}
       </Panel>
-      {owner ? (
+      {owner && mutationAllowed ? (
         <ChannelButtons
           group="setup"
           webhookReady={webhookReady}
@@ -121,6 +125,7 @@ export async function ChannelConnectionSetup() {
               .filter((plan) => plan.active)
               .map((plan) => ({ code: plan.code, name: plan.name })) ?? []
           }
+          canMutate
         />
       ) : (
         <p className="note" data-testid="channel-setup-owner-only">

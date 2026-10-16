@@ -1,0 +1,71 @@
+# Интеграционные (integration) · 16.10.2026 12:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5076087 (claude/salon-appointment-payment)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-06-31Z-integration-541d.json' 'tests/integration/beauty-appointment-payment.test.ts' 'tests/integration/bar-api-bootstrap.test.ts' 'tests/integration/bar-archive-currency.test.ts' 'tests/integration/bar-external-parent-ownership.test.ts' 'tests/integration/bar-inventory-surplus.test.ts' 'tests/integration/bar-location-children.test.ts' 'tests/integration/bar-location.test.ts' 'tests/integration/bar-money-fixes.test.ts' 'tests/integration/bar-money-invariants-audit.test.ts' 'tests/integration/bar-overview.test.ts' 'tests/integration/bar-ownership.test.ts' 'tests/integration/bar-parent-concurrency.test.ts' 'tests/integration/bar-payment-methods.test.ts' 'tests/integration/bar-populated-rls.test.ts' 'tests/integration/bar-property-guard.test.ts' 'tests/integration/bar-restaurant-cash.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/restaurant-cash-database.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 1258ms
+ ✓ |integration| tests/integration/beauty-appointment-payment.test.ts (4 tests) 483ms
+(node:68367) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-location-children.test.ts (6 tests) 537ms
+ ✓ |integration| tests/integration/bar-parent-concurrency.test.ts (200 tests) 4019ms
+ ✓ |integration| tests/integration/bar-ownership.test.ts (105 tests) 711ms
+(node:68467) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-payment-methods.test.ts (3 tests) 383ms
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ✓ |integration| tests/integration/bar-populated-rls.test.ts (24 tests) 250ms
+ ✓ |integration| tests/integration/bar-external-parent-ownership.test.ts (29 tests) 314ms
+(node:68619) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-restaurant-cash.test.ts (4 tests) 314ms
+(node:68625) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-inventory-surplus.test.ts (3 tests) 303ms
+ ✓ |integration| tests/integration/restaurant-cash-database.test.ts (6 tests) 55ms
+ ↓ |integration| tests/integration/bar-api-bootstrap.test.ts (5 tests | 5 skipped)
+ ✓ |integration| tests/integration/bar-archive-currency.test.ts (2 tests) 244ms
+ ✓ |integration| tests/integration/bar-overview.test.ts (1 test) 227ms
+ ✓ |integration| tests/integration/bar-property-guard.test.ts (12 tests) 47ms
+ ✓ |integration| tests/integration/bar-location.test.ts (5 tests) 27ms
+ ↓ |integration| tests/integration/bar-money-fixes.test.ts (35 tests | 35 skipped)
+ ↓ |integration| tests/integration/bar-money-invariants-audit.test.ts (31 tests | 31 skipped)
+
+ Test Files  15 passed | 3 skipped (18)
+      Tests  418 passed | 71 skipped (489)
+   Start at  00:06:32
+   Duration  15.84s (tests 68%, import 24%, transform 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-06-31Z-integration-541d.json
+
+# код выхода 0 · 17 с

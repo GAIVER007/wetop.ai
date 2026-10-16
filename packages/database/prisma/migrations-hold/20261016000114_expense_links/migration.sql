@@ -94,7 +94,8 @@ BEGIN
  PERFORM p.id FROM properties p JOIN cash_operations hc ON hc.property_id=p.id WHERE hc.id=NEW.cash_operation_id FOR SHARE OF p;
  SELECT hc.amount,hc.kind,hc.status,hc.currency_snapshot AS currency,p.location_id INTO c FROM cash_operations hc JOIN properties p ON p.id=hc.property_id WHERE hc.id=NEW.cash_operation_id FOR UPDATE OF hc;
  ELSE
- SELECT amount,kind,status,currency,location_id INTO c FROM restaurant_cash_operations WHERE id=NEW.restaurant_cash_operation_id FOR UPDATE;
+ SELECT amount,kind,status,currency,location_id,(appointment_id IS NOT NULL OR order_id IS NOT NULL) AS customer_refund INTO c FROM restaurant_cash_operations WHERE id=NEW.restaurant_cash_operation_id FOR UPDATE;
+ IF c.customer_refund THEN RAISE EXCEPTION 'customer refund is not an expense settlement'; END IF;
  END IF;
  IF c.amount IS NULL OR c.location_id IS DISTINCT FROM d.location_id OR c.currency IS DISTINCT FROM d.currency OR c.kind<>'EXPENSE' THEN RAISE EXCEPTION 'invalid canonical expense source'; END IF;
  SELECT receipt_id INTO supplier FROM bar_supplier_payments WHERE amount=c.amount AND
@@ -209,3 +210,16 @@ BEGIN
  RETURN NEW;
 END $$;
 CREATE TRIGGER expense_marketing_audit AFTER INSERT OR UPDATE ON expense_documents FOR EACH ROW EXECUTE FUNCTION expense_marketing_audit();
+
+-- Bind only this migration's owned routines to the actual application schema.
+DO $owner_home_search_path$
+DECLARE target_schema text := current_schema(); routine record;
+BEGIN
+  FOR routine IN SELECT p.oid::regprocedure AS signature FROM pg_proc p
+    JOIN pg_namespace n ON n.oid=p.pronamespace
+    WHERE n.nspname=target_schema AND p.proname=ANY(ARRAY['expense_cash_guard','expense_document_guard','expense_marketing_audit','expense_marketing_guard','expense_marketing_sync','expense_paid_minor','expense_property_guard','expense_receipt_guard','expense_settlement_guard','expense_supplier_payment_guard','expense_supplier_sync','hotel_cash_currency_guard'])
+  LOOP
+    EXECUTE format('ALTER FUNCTION %s SET search_path TO %I, public, pg_temp',routine.signature,target_schema);
+  END LOOP;
+END
+$owner_home_search_path$;

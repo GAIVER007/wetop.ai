@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 16.10.2026 11:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 73f6227 (claude/salon-appointment-payment), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' 'tests/beauty-ui/beauty.spec.ts' '-g' 'empty setup through real UI'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:23382) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete (10.3s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+    Error: frame.evaluate: Error: No elements found for include in page Context
+        at validateContext (eval at evaluate (:311:30), <anonymous>:19556:15)
+        at new Context (eval at evaluate (:311:30), <anonymous>:19537:7)
+        at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:19578:22)
+        at eval (eval at evaluate (:311:30), <anonymous>:4:27)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at validateContext (eval at evaluate (:311:30), <anonymous>:19556:15)
+        at Context (eval at evaluate (:311:30), <anonymous>:19537:7)
+        at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:19578:22)
+        at eval (eval at evaluate (:311:30), <anonymous>:4:27)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at AxeBuilder.runPartialRecursive (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/node_modules/@axe-core/playwright/dist/index.mjs:280:39)
+        at AxeBuilder.analyze (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/node_modules/@axe-core/playwright/dist/index.mjs:210:39)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/beauty.spec.ts:197:11
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+# код выхода 1 · 17 с

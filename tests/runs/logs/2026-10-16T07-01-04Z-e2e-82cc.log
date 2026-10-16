@@ -1,0 +1,31 @@
+# Сквозные (e2e) · 16.10.2026 12:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит cedb36f (claude/salon-appointment-payment)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/beauty-journal.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/beauty-journal.spec.ts:99:1 › запись из пустой клетки появляется в сетке и в списке дня (13.2s)
+  ✓   2 tests/ui/beauty-journal.spec.ts:115:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок (11.7s)
+  ✓   3 tests/ui/beauty-journal.spec.ts:142:1 › перенос мышью меняет время записи через существующий API (11.3s)
+  ✓   4 tests/ui/beauty-journal.spec.ts:155:1 › занятое время мастера не предлагается и отказ приходит словами (14.0s)
+  ✓   5 tests/ui/beauty-journal.spec.ts:168:1 › вне графика мастера клетки нерабочие (11.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '156259883'
+[WebServer] }
+  ✓   6 tests/ui/beauty-journal.spec.ts:175:1 › состояния записи идут по жизни, из выполненной дороги нет (8.3s)
+  ✓   7 tests/ui/beauty-journal.spec.ts:199:1 › отмена спрашивает и освобождает время мастера (10.7s)
+  ✓   8 tests/ui/beauty-journal.spec.ts:221:1 › перенос меняет время записи (10.6s)
+  ✓   9 tests/ui/beauty-journal.spec.ts:237:1 › журнал на телефоне: день списком, без прокрутки вбок (6.8s)
+  ✓  10 tests/ui/beauty-journal.spec.ts:252:3 › журнал доступен в светлой теме (11.6s)
+  ✓  11 tests/ui/beauty-journal.spec.ts:252:3 › журнал доступен в тёмной теме (11.0s)
+
+  11 passed (2.2m)
+
+# код выхода 0 · 2 мин 11 с

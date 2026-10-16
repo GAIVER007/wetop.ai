@@ -12,7 +12,8 @@ export async function readOwnerMoney(db: Db, s: Scope) {
   const time = { gte: s.from, lte: s.now };
   if (s.vertical === 'BEAUTY') {
     const rows = await db.appointment.findMany({ where: { locationId: s.locationId, status: 'DONE', startsAt: time, createdAt: { lte: s.now } }, select: { id: true, price: true, currency: true, startsAt: true } });
-    return { revenue: summarizeOwnerMoney(rows.map(r => ({sourceType:'APPOINTMENT',sourceId:r.id,amountMinor:r.price,currency:r.currency,occurredAt:r.startsAt}))), receipts: unavailable('PAYMENT_LEDGER_NOT_AVAILABLE') };
+    const payments = await db.restaurantCashOperation.findMany({ where: { locationId: s.locationId, kind: 'INCOME', status: 'COMPLETED', appointmentId: { not: null }, occurredAt: time }, select: { id: true, amount: true, currency: true, occurredAt: true } });
+    return { revenue: summarizeOwnerMoney(rows.map(r => ({sourceType:'APPOINTMENT',sourceId:r.id,amountMinor:r.price,currency:r.currency,occurredAt:r.startsAt}))), receipts: summarizeOwnerMoney(payments.map(r => ({sourceType:'APPOINTMENT_PAYMENT',sourceId:r.id,amountMinor:r.amount,currency:r.currency,occurredAt:r.occurredAt}))) };
   }
   if (s.vertical === 'FOOD_SERVICE') {
     const orders = await db.restaurantOrder.findMany({where:{locationId:s.locationId,status:'CLOSED',closedAt:time},select:{id:true,total:true,currency:true,closedAt:true}});

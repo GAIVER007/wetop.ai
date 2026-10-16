@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, describe, it, expect, vi } from 'vitest';
 import { createPrismaClient } from '@pms/database';
-import { PrismaBarRepository } from '../../apps/api/src/bar/bar.repository';
+import { PrismaBarRepository, type BarSupplierPaymentInput } from '../../apps/api/src/bar/bar.repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import pg from 'pg';
 import { PrismaMarketingBudgetRepository } from '../../apps/api/src/marketing-budget/marketing-budget.repository';
@@ -77,7 +77,7 @@ describe('expense persistence, isolated PostgreSQL', () => {
     const repo = new PrismaBarRepository({db} as PrismaService);
     const scope=vi.spyOn(repo as unknown as {scope:()=>Promise<unknown>},'scope').mockResolvedValue({locationId:location,propertyId:null,vertical:'FOOD_SERVICE',timezone:'Asia/Almaty',currency:'KZT'});
     try {
-      expect(await repo.payReceipt(receipt,{amountMinor:20000n,method:'CASH',note:null})).toMatchObject({kind:'paid',dueAmount:'40000'});
+      expect(await repo.payReceipt(receipt,{amountMinor:20000n,method:'CASH',note:null,idempotencyKey:randomUUID()})).toMatchObject({kind:'paid',dueAmount:'40000'});
       expect((await pool.query('SELECT count(*) FROM bar_supplier_payments WHERE receipt_id=$1',[receipt])).rows[0].count).toBe('2');
       const nextReceipt=randomUUID();
       await pool.query(`INSERT INTO bar_receipts(id,location_id,supplier_id,document_number,document_date,received_date,currency,total_amount,status,posted_at,updated_at) VALUES($1::uuid,$2,$3,$1::text,CURRENT_DATE,CURRENT_DATE,'KZT',100000,'POSTED',now(),now())`,[nextReceipt,location,supplier]);
@@ -88,7 +88,7 @@ describe('expense persistence, isolated PostgreSQL', () => {
       }});
       const payload={categoryId:category,title:'Concurrent supplier',documentDate:'2026-10-16',amountMinor:'100000',currency:'KZT',supplierReceiptId:nextReceipt};
       const key=randomUUID();
-      const [created,paid]=await Promise.all([store.create(location,null,key,payload),repo.payReceipt(nextReceipt,{amountMinor:40000n,method:'CASH',note:null})]);
+      const [created,paid]=await Promise.all([store.create(location,null,key,payload),repo.payReceipt(nextReceipt,{amountMinor:40000n,method:'CASH',note:null,idempotencyKey:randomUUID()})]);
       expect(paid).toMatchObject({kind:'paid',dueAmount:'60000'});
       expect(await store.create(location,null,key,payload)).toEqual(created);
       expect((await pool.query('SELECT expense_paid_minor($1) AS paid',[created.id])).rows[0].paid).toBe('40000');
@@ -114,7 +114,9 @@ describe('expense persistence, isolated PostgreSQL', () => {
       const first=await repos[0]!.payReceipt(receipt,input);
       expect(await repos[1]!.payReceipt(receipt,input)).toEqual(first);
       await expect(repos[0]!.payReceipt(receipt,{...input,amountMinor:1001n})).rejects.toMatchObject({status:409});
-      await expect(repos[0]!.payReceipt(receipt,{...input,idempotencyKey:undefined})).rejects.toMatchObject({status:400});
+      // Deliberately bypass the static contract to check runtime rejection of a missing key.
+      const missingKey={amountMinor:input.amountMinor,method:input.method,note:input.note} as BarSupplierPaymentInput;
+      await expect(repos[0]!.payReceipt(receipt,missingKey)).rejects.toMatchObject({status:400});
       const concurrent={...input,idempotencyKey:randomUUID()};
       const results=await Promise.allSettled(repos.map(repo=>repo.payReceipt(receipt,concurrent)));
       const success=results.find(r=>r.status==='fulfilled');
@@ -129,9 +131,16 @@ describe('expense persistence, isolated PostgreSQL', () => {
         await expect(repos[1]!.payReceipt(receipt,pending)).rejects.toMatchObject({status:409});
       } finally {await blocker.query('ROLLBACK');blocker.release();}
       vi.stubEnv('EXPENSE_LINKS_ENABLED','0');
-      await repos[0]!.payReceipt(receipt,{...input,idempotencyKey:undefined});
-      await repos[0]!.payReceipt(receipt,{...input,idempotencyKey:undefined});
-      expect((await pool.query('SELECT count(*) FROM bar_supplier_payments WHERE receipt_id=$1',[receipt])).rows[0].count).toBe('4');
+      await expect(repos[0]!.payReceipt(receipt,missingKey)).rejects.toMatchObject({status:400});
+      const offInput={...input,idempotencyKey:randomUUID()};
+      const offFirst=await repos[0]!.payReceipt(receipt,offInput);
+      expect(offFirst).toMatchObject({kind:'paid',paidAmount:'1000',dueAmount:'997000'});
+      const cashAfterOff=(await pool.query("SELECT count(*) AS n,sum(amount)::text AS total FROM restaurant_cash_operations WHERE location_id=$1 AND kind='EXPENSE'",[location])).rows[0];
+      expect(await repos[1]!.payReceipt(receipt,offInput)).toEqual(offFirst);
+      await expect(repos[0]!.payReceipt(receipt,{...offInput,amountMinor:1001n})).rejects.toMatchObject({status:409});
+      expect((await pool.query('SELECT count(*) FROM bar_supplier_payments WHERE receipt_id=$1',[receipt])).rows[0].count).toBe('3');
+      expect((await pool.query('SELECT idempotency_key FROM bar_supplier_payments WHERE receipt_id=$1 AND idempotency_key=$2',[receipt,offInput.idempotencyKey])).rows).toEqual([{idempotency_key:offInput.idempotencyKey}]);
+      expect((await pool.query("SELECT count(*) AS n,sum(amount)::text AS total FROM restaurant_cash_operations WHERE location_id=$1 AND kind='EXPENSE'",[location])).rows[0]).toEqual(cashAfterOff);
     } finally {vi.unstubAllEnvs();await Promise.all(clients.map(db=>db.$disconnect()));}
   });
   it('replays identical intents, rejects changed payload, never creates cash', async () => {
@@ -188,7 +197,7 @@ describe('expense persistence, isolated PostgreSQL', () => {
       try {await c.query('BEGIN');const r=await fn(async(sql,values=[]) => (await c.query(sql,values)).rows);await c.query('COMMIT');return r;}
       catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
     }});
-    const input={date:'2026-10-16',platform:'OTHER' as const,campaign:null,category:'Synthetic marketing',description:null,amount:100000n,currency:'KZT',fxRate:'1',baseAmount:100000n,countedInBudget:true};
+    const input={date:'2026-10-16',platform:'OTHER' as const,campaign:null,campaignId:null,category:'Synthetic marketing',description:null,amount:100000n,currency:'KZT',fxRate:'1',baseAmount:100000n,countedInBudget:true};
     const audit={entityType:'MarketingExpense',action:'CREATE',after:{synthetic:true}};
     try {
       const m=await repo.createExpense(location,input,audit);

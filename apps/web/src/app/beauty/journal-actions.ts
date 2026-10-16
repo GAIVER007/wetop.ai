@@ -68,6 +68,43 @@ export async function moveAppointment(
   }
 }
 
+/** Оплата записи в кассу филиала (§49): сумма в тиынах, новый ключ на каждое нажатие */
+export async function payAppointment(
+  id: string,
+  method: string,
+  amountMinor: number,
+  idempotencyKey: string,
+): Promise<JournalResult> {
+  try {
+    await beautyApi.payAppointment(id, { method, amount: amountMinor, idempotencyKey });
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/cashbox');
+    return { message: 'Оплата принята' };
+  } catch (e) {
+    return failed(e, 'Не удалось принять оплату.');
+  }
+}
+
+/** Возврат по выполненной записи (§54): расход кассы филиала с причиной */
+export async function refundAppointment(
+  id: string,
+  method: string,
+  amountMinor: number,
+  reason: string,
+  idempotencyKey: string,
+): Promise<JournalResult> {
+  try {
+    await beautyApi.refundAppointment(id, { method, amount: amountMinor, reason, idempotencyKey });
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/cashbox');
+    return { message: 'Возврат оформлен' };
+  } catch (e) {
+    return failed(e, 'Не удалось оформить возврат.');
+  }
+}
+
 export async function setAppointmentStatus(id: string, status: string): Promise<JournalResult> {
   try {
     await beautyApi.setAppointmentStatus(id, status);

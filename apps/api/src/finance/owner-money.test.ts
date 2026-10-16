@@ -12,10 +12,11 @@ describe('owner source adapters', () => {
   expect(db.restaurantOrder.findMany).toHaveBeenCalledWith(expect.objectContaining({where:{locationId:'branch',status:'CLOSED',closedAt:{gte:from,lte:now}}}));
  });
  it('beauty DONE snapshots are revenue, not payments', async () => {
-  const db = { appointment: model([{id:'a',price:50n,currency:'USD'}]) };
+  const db = { appointment: model([{id:'a',price:50n,currency:'USD'}]), restaurantCashOperation: model([{id:'partial',amount:20n,currency:'USD'}]) };
   const r = await readOwnerMoney(db as never, {...scope,vertical:'BEAUTY'});
   expect(r.revenue.currencies).toEqual([{currency:'USD',amountMinor:'50'}]);
-  expect(r.receipts.reason).toBe('PAYMENT_LEDGER_NOT_AVAILABLE');
+  expect(r.receipts.currencies).toEqual([{currency:'USD',amountMinor:'20'}]);
+  expect(db.restaurantCashOperation.findMany).toHaveBeenCalledWith({where:{locationId:'branch',kind:'INCOME',status:'COMPLETED',appointmentId:{not:null},occurredAt:{gte:from,lte:now}},select:{id:true,amount:true,currency:true,occurredAt:true}});
  });
  it('hotel uses verified property, service dates and payment dates, with unknown cash explicit', async () => {
   const db = {charge:model([{id:'c',amount:60n,folio:{currency:'USD'}}]),payment:model([{id:'p',amount:20n,currency:'USD'}]),$queryRaw:vi.fn().mockResolvedValue([{id:'cash',amount:5n,currency:null,occurredAt:now}])};

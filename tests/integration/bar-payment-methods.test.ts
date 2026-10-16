@@ -82,9 +82,9 @@ describe.skipIf(!url)('бар: способы оплаты объекта (integ
 
   it('оплата поставщику выключенным способом: 400; включённым доходит до прихода (404)', async () => {
     const path = `/bar/receipts/${randomUUID()}/payments`;
-    const refused = await call(base, 'owner', 'POST', path, scope(), { amountMinor: '100', method: 'KASPI' });
+    const refused = await call(base, 'owner', 'POST', path, scope(), { amountMinor: '100', method: 'KASPI', idempotencyKey: randomUUID() });
     expect(refused.status, refused.text).toBe(400);
-    const passed = await call(base, 'owner', 'POST', path, scope(), { amountMinor: '100', method: 'BANK_TRANSFER_LEGAL' });
+    const passed = await call(base, 'owner', 'POST', path, scope(), { amountMinor: '100', method: 'BANK_TRANSFER_LEGAL', idempotencyKey: randomUUID() });
     expect(passed.status, passed.text).toBe(404);
   });
 });

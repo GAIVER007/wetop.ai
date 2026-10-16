@@ -120,6 +120,10 @@ model Location {
   marketingSite          MarketingSite?
   marketingExpenses      MarketingExpense[]
   marketingBudgets       MarketingBudget[]
+  marketingBudgetLines   MarketingBudgetLine[]
+  marketingExpenseFiles  MarketingExpenseFile[]
+  marketingCampaigns     MarketingCampaign[]
+  marketingAdConnections MarketingAdConnection[]
   siteAssets             SiteAsset[]
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement SiteBuilderEntitlement?
@@ -191,12 +195,147 @@ model MarketingExpense {
   createdById     String?           @map("created_by_id") @db.Uuid
   createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  /// §53 (v2.36): кампания расхода; деньги кампании это её расходы
+  campaignId      String?           @map("campaign_id") @db.Uuid
 
-  location  Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  location       Location               @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy      User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  files          MarketingExpenseFile[]
+  campaignEntity MarketingCampaign?     @relation(fields: [campaignId], references: [id], onDelete: SetNull)
 
   @@index([locationId, date])
+  @@index([campaignId])
   @@map("marketing_expenses")
+}
+
+enum MarketingCampaignStatus {
+  ACTIVE
+  PAUSED
+  FINISHED
+}
+
+/// §53 (v2.36, ADR-MKT-B3): рекламная кампания филиала; не удаляется, завершается статусом
+model MarketingCampaign {
+  id         String                  @id @default(uuid()) @db.Uuid
+  locationId String                  @map("location_id") @db.Uuid
+  platform   MarketingPlatform
+  name       String                  @db.VarChar(200)
+  status     MarketingCampaignStatus @default(ACTIVE)
+  startsOn   DateTime?               @map("starts_on") @db.Date
+  endsOn     DateTime?               @map("ends_on") @db.Date
+  createdAt  DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  /// §55 (v2.38): номер кампании в кабинете; у ручных пусто. Уникальность имени только у ручных (частичный индекс в SQL)
+  externalId String?                 @map("external_id") @db.VarChar(64)
+
+  location Location                 @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  stats    MarketingCampaignStat[]
+  expenses MarketingExpense[]
+
+  @@unique([locationId, platform, externalId])
+  @@map("marketing_campaigns")
+}
+
+enum MarketingStatSource {
+  MANUAL
+  META
+}
+
+enum MarketingConnectionStatus {
+  ACTIVE
+  FAILED
+  DISCONNECTED
+}
+
+/// §55 (v2.38, ADR-MKT-META): рекламный кабинет филиала; ключ только зашифрованным
+model MarketingAdConnection {
+  id              String                    @id @default(uuid()) @db.Uuid
+  locationId      String                    @map("location_id") @db.Uuid
+  platform        MarketingPlatform
+  adAccountId     String                    @map("ad_account_id") @db.VarChar(40)
+  accountName     String?                   @map("account_name") @db.VarChar(200)
+  currency        String                    @db.Char(3)
+  timezone        String                    @db.VarChar(64)
+  tokenCiphertext String                    @map("token_ciphertext")
+  status          MarketingConnectionStatus @default(ACTIVE)
+  lastSyncedAt    DateTime?                 @map("last_synced_at") @db.Timestamptz(6)
+  lastError       String?                   @map("last_error") @db.VarChar(500)
+  connectedById   String?                   @map("connected_by_id") @db.Uuid
+  createdAt       DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location    Location           @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  connectedBy User?              @relation(fields: [connectedById], references: [id], onDelete: SetNull)
+  runs        MarketingSyncRun[]
+
+  @@unique([locationId, platform])
+  @@map("marketing_ad_connections")
+}
+
+/// §55: след каждой сверки кабинета (ADR-007)
+model MarketingSyncRun {
+  id           String    @id @default(uuid()) @db.Uuid
+  connectionId String    @map("connection_id") @db.Uuid
+  trigger      String    @db.VarChar(10)
+  since        DateTime  @db.Date
+  until        DateTime  @db.Date
+  status       String    @db.VarChar(10)
+  campaigns    Int?
+  days         Int?
+  error        String?   @db.VarChar(500)
+  startedAt    DateTime  @default(now()) @map("started_at") @db.Timestamptz(6)
+  finishedAt   DateTime? @map("finished_at") @db.Timestamptz(6)
+
+  connection MarketingAdConnection @relation(fields: [connectionId], references: [id], onDelete: Restrict)
+
+  @@index([connectionId, startedAt])
+  @@map("marketing_sync_runs")
+}
+
+/// §53: показы, клики и лиды площадки за день (вручную, позже кабинеты)
+model MarketingCampaignStat {
+  id          String   @id @default(uuid()) @db.Uuid
+  campaignId  String   @map("campaign_id") @db.Uuid
+  date        DateTime @db.Date
+  impressions Int
+  clicks      Int
+  leads       Int
+  /// §55: MANUAL ввод или день из кабинета (только для чтения на экране)
+  source        MarketingStatSource @default(MANUAL)
+  /// §55: расход кабинета в его валюте, minor units; у ручных дней пусто
+  spendMinor    BigInt?             @map("spend_minor")
+  spendCurrency String?             @map("spend_currency") @db.Char(3)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  campaign MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, date])
+  @@map("marketing_campaign_stats")
+}
+
+/// §51 (v2.35, ADR-MKT-B7): чеки и файлы расхода маркетинга; хранилище и обработка как у property_media (§32.3)
+model MarketingExpenseFile {
+  id          String   @id @default(uuid()) @db.Uuid
+  expenseId   String   @map("expense_id") @db.Uuid
+  locationId  String   @map("location_id") @db.Uuid
+  fileName    String   @map("file_name") @db.VarChar(200)
+  mimeType    String   @map("mime_type") @db.VarChar(40)
+  storageRef  String   @unique @map("storage_ref") @db.VarChar(500)
+  byteSize    Int      @map("byte_size")
+  width       Int?
+  height      Int?
+  sha256      String   @db.Char(64)
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  expense   MarketingExpense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  location  Location         @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy User?            @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([expenseId, sha256])
+  @@map("marketing_expense_files")
 }
 
 /// §41.2 (v2.24, ADR-MKT-B1): план бюджета маркетинга филиала на месяц, в валюте отчётности организации.
@@ -212,6 +351,22 @@ model MarketingBudget {
 
   @@unique([locationId, month])
   @@map("marketing_budgets")
+}
+
+/// План бюджета маркетинга по каналам: разбивка общего плана месяца (DATA_MODEL §52, ADR-MKT-B7)
+model MarketingBudgetLine {
+  id         String            @id @default(uuid()) @db.Uuid
+  locationId String            @map("location_id") @db.Uuid
+  month      DateTime          @db.Date
+  platform   MarketingPlatform
+  amount     BigInt
+  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([locationId, month, platform])
+  @@map("marketing_budget_lines")
 }
 
 model Property {
@@ -1303,6 +1458,8 @@ model BarSupplierPayment {
   cashOperationId           String?  @unique @map("cash_operation_id") @db.Uuid
   amount                    BigInt
   paidAt                    DateTime @map("paid_at") @db.Timestamptz(6)
+  /// ключ повтора (§50, ADR-186 M6): тот же ключ у прихода возвращает первую оплату; у прежних оплат пусто
+  idempotencyKey            String?  @map("idempotency_key") @db.VarChar(120)
   createdById               String?  @map("created_by_id") @db.Uuid
   createdAt                 DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -1310,6 +1467,7 @@ model BarSupplierPayment {
   cashOperation           CashOperation?           @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
   restaurantCashOperation RestaurantCashOperation? @relation(fields: [restaurantCashOperationId], references: [id], onDelete: Restrict)
 
+  @@unique([receiptId, idempotencyKey])
   @@index([receiptId, paidAt])
   @@map("bar_supplier_payments")
 }
@@ -2333,6 +2491,8 @@ model User {
   siteAssetsCreated            SiteAsset[]
   propertyMedia                PropertyMedia[]
   marketingExpensesCreated     MarketingExpense[]
+  marketingExpenseFilesCreated MarketingExpenseFile[]
+  marketingAdConnectionsMade   MarketingAdConnection[]
   siteAiRunsRequested          SiteAiRun[]
   siteBookmarksCreated         MarketingSiteVersionBookmark[]
   siteBuilderEntitlementEdits  SiteBuilderEntitlement[]
@@ -3026,6 +3186,7 @@ model Appointment {
   employee  Employee      @relation(fields: [employeeId], references: [id])
   service   BeautyService @relation(fields: [serviceId], references: [id])
   createdBy User?         @relation(fields: [createdById], references: [id])
+  payments  RestaurantCashOperation[]
 
   @@unique([locationId, creationKey])
   @@index([locationId, startsAt])
@@ -3303,6 +3464,8 @@ model RestaurantOrder {
   createdBy            User?                  @relation(fields: [createdById], references: [id])
   items                RestaurantOrderItem[]
   payments             RestaurantPayment[]
+  /// возвраты после закрытия (§56)
+  refunds              RestaurantCashOperation[]
   stockMovements       KitchenStockMovement[]
   rating               RestaurantOrderRating?
 
@@ -3504,16 +3667,27 @@ model RestaurantCashOperation {
   voidedAt    DateTime?         @map("voided_at") @db.Timestamptz(6)
   voidedById  String?           @map("voided_by_id") @db.Uuid
   createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  /// оплата записи салона (§49): только приход без сотрудника
+  appointmentId  String?        @map("appointment_id") @db.Uuid
+  /// повтор того же нажатия оплаты записи (§49)
+  idempotencyKey String?        @map("idempotency_key") @db.VarChar(100)
+  /// возврат по закрытому заказу ресторана (§56): только расход
+  orderId        String?        @map("order_id") @db.Uuid
 
   location           Location            @relation(fields: [locationId], references: [id])
   employee           Employee?           @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  appointment        Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+  order              RestaurantOrder?    @relation(fields: [orderId], references: [id], onDelete: Restrict)
   createdBy          User?               @relation("RestaurantCashOpCreatedBy", fields: [createdById], references: [id])
   barSale            BarSale?
   barSupplierPayment BarSupplierPayment?
   voidedBy           User?               @relation("RestaurantCashOpVoidedBy", fields: [voidedById], references: [id])
 
   @@index([locationId, occurredAt])
+  @@unique([locationId, idempotencyKey])
   @@index([employeeId, period])
+  @@index([appointmentId])
+  @@index([orderId])
   @@map("restaurant_cash_operations")
 }
 

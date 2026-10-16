@@ -1,0 +1,130 @@
+# Сквозные (e2e) · 16.10.2026 15:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/calendar-polish), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-card.spec.ts' '-g' 'подпись плашки не обрезана'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1851ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-zke9ix/worker-0/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] Request timed out after 3000ms
+[WebServer] 
+[WebServer] Retrying 1/3...
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1902ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-zke9ix/worker-1/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✘  1 [main-ui-0] › ../.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › 14 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (54.0s)
+  ✘  2 [main-ui-0] › ../.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › 30 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (59.1s)
+  ✘  3 [main-ui-0] › ../.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › Текущий месяц: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (52.1s)
+
+
+  1) [main-ui-0] › ../.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › 14 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('board-period-button')
+        - locator resolved to <summary aria-label="Выбрать период" data-testid="board-period-button" aria-controls="_R_mj5esndklmlb_-panel">…</summary>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+       at ../../../.wetop-main-ui-zke9ix/worker-0/tests/ui/fixtures.ts:233
+
+      231 |   preset: 'Сегодня' | '7 дней' | '14 дней' | '30 дней' | 'Текущий месяц',
+      232 | ) {
+    > 233 |   await page.getByTestId('board-period-button').click();
+          |                                                 ^
+      234 |   const menu = page.locator('.board-nav .date-range');
+      235 |   await menu.getByRole('button', { name: preset, exact: true }).click();
+      236 |   await menu.getByRole('button', { name: 'Применить', exact: true }).click();
+        at chooseBoardPeriod (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-zke9ix/worker-0/tests/ui/fixtures.ts:233:49)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:310:11
+
+    Error Context: test-results/chessboard-card-14-дней-по-16f9e-дит-в-«Имя-Ф-»-или-инициалы-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-14-дней-по-16f9e-дит-в-«Имя-Ф-»-или-инициалы-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-14-дней-по-16f9e-дит-в-«Имя-Ф-»-или-инициалы-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [main-ui-0] › ../.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › 30 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('board-period-button')
+
+
+       at ../../../.wetop-main-ui-zke9ix/worker-0/tests/ui/fixtures.ts:233
+
+      231 |   preset: 'Сегодня' | '7 дней' | '14 дней' | '30 дней' | 'Текущий месяц',
+      232 | ) {
+    > 233 |   await page.getByTestId('board-period-button').click();
+          |                                                 ^
+      234 |   const menu = page.locator('.board-nav .date-range');
+      235 |   await menu.getByRole('button', { name: preset, exact: true }).click();
+      236 |   await menu.getByRole('button', { name: 'Применить', exact: true }).click();
+        at chooseBoardPeriod (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-zke9ix/worker-0/tests/ui/fixtures.ts:233:49)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:310:11
+
+    Error Context: test-results/chessboard-card-30-дней-по-ba826-дит-в-«Имя-Ф-»-или-инициалы-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-30-дней-по-ba826-дит-в-«Имя-Ф-»-или-инициалы-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-30-дней-по-ba826-дит-в-«Имя-Ф-»-или-инициалы-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [main-ui-0] › ../.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › Текущий месяц: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.evaluate: Test timeout of 45000ms exceeded.
+
+       at ../../../.wetop-main-ui-zke9ix/worker-0/tests/ui/fixtures.ts:125
+
+      123 |     .poll(
+      124 |       () =>
+    > 125 |         target.evaluate((node) => Object.keys(node).some((key) => key.startsWith('__reactProps$'))),
+          |                ^
+      126 |       { message: 'React не оживил элемент: скрипты стойки не дошли или упали', timeout: 30_000 },
+      127 |     )
+      128 |     .toBe(true);
+        at expect.poll.message (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-zke9ix/worker-0/tests/ui/fixtures.ts:125:16)
+        at hydrated (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-zke9ix/worker-0/tests/ui/fixtures.ts:122:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:311:5
+
+    Error Context: test-results/chessboard-card-Текущий-ме-f1d27-дит-в-«Имя-Ф-»-или-инициалы-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-Текущий-ме-f1d27-дит-в-«Имя-Ф-»-или-инициалы-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-Текущий-ме-f1d27-дит-в-«Имя-Ф-»-или-инициалы-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [main-ui-0] › ../.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › 14 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы 
+    [main-ui-0] › ../.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › 30 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы 
+    [main-ui-0] › ../.wetop-main-ui-zke9ix/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › Текущий месяц: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы 
+
+# код выхода 1 · 7 мин 18 с

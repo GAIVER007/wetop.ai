@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 16.10.2026 15:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e43de1 (claude/marketing-campaigns-proposal), незакоммиченных файлов набора: 19
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-23-10Z-integration-4ea9.json' 'tests/integration/marketing-budget-db.test.ts' 'tests/integration/marketing-campaigns.test.ts' 'tests/integration/marketing-expense-files.test.ts' 'tests/integration/marketing-budget-lines.test.ts' 'tests/integration/marketing-import.test.ts' 'tests/integration/marketing-results.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-campaigns.test.ts (2 tests) 190ms
+ ✓ |integration| tests/integration/marketing-expense-files.test.ts (2 tests) 230ms
+ ✓ |integration| tests/integration/marketing-results.test.ts (3 tests) 205ms
+ ✓ |integration| tests/integration/marketing-budget-lines.test.ts (1 test) 467ms
+ ✓ |integration| tests/integration/marketing-import.test.ts (1 test) 332ms
+ ✓ |integration| tests/integration/marketing-budget-db.test.ts (7 tests) 46ms
+
+ Test Files  6 passed (6)
+      Tests  16 passed (16)
+   Start at  03:23:11
+   Duration  4.06s (tests 45%, import 40%, transform 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-23-10Z-integration-4ea9.json
+
+# код выхода 0 · 5 с

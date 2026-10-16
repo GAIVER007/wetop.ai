@@ -16,7 +16,9 @@ import {
 } from '@nestjs/common';
 import {
   appointmentPayment,
+  appointmentRefund,
   appointmentStatusAllowed,
+  foodCashBalances,
   nextStatuses,
   parseAppointmentInput,
   parseFoodPayment,
@@ -109,7 +111,7 @@ export class BeautyAppointmentsService {
         service: { select: { name: true } },
         customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
         // оплата записи в кассу филиала (§49): действующие приходы
-        payments: { where: { status: 'COMPLETED' }, select: { amount: true } },
+        payments: { where: { status: 'COMPLETED' }, select: { kind: true, amount: true } },
       },
     });
 
@@ -154,7 +156,9 @@ export class BeautyAppointmentsService {
       status: r.status,
       next: nextStatuses(r.status as AppointmentStatus),
       priceMinor: r.price.toString(),
-      paidMinor: r.payments.reduce((sum, p) => sum + p.amount, 0n).toString(),
+      paidMinor: r.payments.reduce((sum, p) => (p.kind === 'INCOME' ? sum + p.amount : sum), 0n).toString(),
+      // возвраты по выполненной записи (§54)
+      refundedMinor: r.payments.reduce((sum, p) => (p.kind === 'EXPENSE' ? sum + p.amount : sum), 0n).toString(),
       currency: r.currency,
       notes: r.notes,
     }));
@@ -395,11 +399,80 @@ export class BeautyAppointmentsService {
     return this.day(localDate(row.startsAt, scope.locationTimezone ?? 'UTC'));
   }
 
-  /** Оплачено по записи под замком записи: оплата, отмена и перенос идут по очереди (§49) */
+  /** Возврат по выполненной записи расходом кассы филиала (§54): причина, не больше чистой оплаты и остатка способа */
+  async refund(id: string, raw: unknown) {
+    await mayBeautyWrite(this.prisma, 'refunds');
+    const { scope, row } = await this.own(id);
+    const locationId = scope.locationId as string;
+    const { reason: rawReason, ...rest } = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+    let input: ReturnType<typeof parseFoodPayment>;
+    let reason: string;
+    try {
+      input = parseFoodPayment(rest);
+      reason = String(rawReason ?? '').trim();
+      if (!reason || reason.length > 300) throw new Error('Укажите причину возврата, до 300 знаков');
+    } catch (error) {
+      throw new BadRequestException((error as Error).message);
+    }
+    await beautyTransaction(this.prisma, scope, async (tx) => {
+      const replay = await tx.restaurantCashOperation.findFirst({ where: { locationId, idempotencyKey: input.idempotencyKey } });
+      if (replay) {
+        if (replay.appointmentId !== row.id || replay.kind !== 'EXPENSE') throw new ConflictException('Этот ключ возврата уже использован');
+        return;
+      }
+      const paidNet = await this.paidLocked(tx, row.id);
+      const a = await tx.appointment.findUniqueOrThrow({
+        where: { id: row.id },
+        select: { status: true, currency: true, customer: { select: { firstName: true, lastName: true } } },
+      });
+      try {
+        appointmentRefund(a.status as AppointmentStatus, paidNet, input.amount);
+      } catch (error) {
+        throw new ConflictException((error as Error).message);
+      }
+      // расход кассы не уводит способ в минус (§35.2): тот же расчёт остатков, что у самой кассы
+      const [payments, ops] = await Promise.all([
+        tx.restaurantPayment.groupBy({ by: ['method', 'status'], where: { locationId }, _sum: { amount: true } }),
+        tx.restaurantCashOperation.groupBy({ by: ['kind', 'method', 'methodTo', 'status'], where: { locationId }, _sum: { amount: true } }),
+      ]);
+      const balances = foodCashBalances(
+        payments.map((p) => ({ method: p.method, amount: p._sum.amount ?? 0n, status: p.status })),
+        ops.map((o) => ({ kind: o.kind, method: o.method, methodTo: o.methodTo, amount: o._sum.amount ?? 0n, status: o.status })),
+      );
+      if (input.amount > (balances[input.method] ?? 0n)) throw new ConflictException('В кассе по этому способу меньше этой суммы');
+      const name = [a.customer.firstName, a.customer.lastName].filter(Boolean).join(' ');
+      const op = await tx.restaurantCashOperation.create({
+        data: {
+          locationId,
+          kind: 'EXPENSE',
+          method: input.method,
+          amount: input.amount,
+          currency: a.currency,
+          note: `Возврат по записи: ${name}. Причина: ${reason}`.slice(0, 500),
+          appointmentId: row.id,
+          idempotencyKey: input.idempotencyKey,
+          createdById: currentUserId() ?? null,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          organizationId: scope.organizationId,
+          userId: currentUserId(),
+          entityType: 'appointment',
+          entityId: row.id,
+          action: 'beauty.appointment.refunded',
+          after: { cashOperationId: op.id, method: input.method, amountMinor: input.amount.toString(), reason },
+        },
+      });
+    });
+    return this.day(localDate(row.startsAt, scope.locationTimezone ?? 'UTC'));
+  }
+
+  /** Чистая оплата записи под замком записи (§49, §54): оплаты минус возвраты; оплата, возврат, отмена и перенос по очереди */
   private async paidLocked(tx: DbTx, appointmentId: string): Promise<bigint> {
     await tx.$queryRaw`SELECT id FROM appointments WHERE id = ${appointmentId}::uuid FOR UPDATE`;
-    const sum = await tx.restaurantCashOperation.aggregate({ where: { appointmentId, status: 'COMPLETED' }, _sum: { amount: true } });
-    return sum._sum.amount ?? 0n;
+    const sums = await tx.restaurantCashOperation.groupBy({ by: ['kind'], where: { appointmentId, status: 'COMPLETED' }, _sum: { amount: true } });
+    return sums.reduce((net, s) => (s.kind === 'INCOME' ? net + (s._sum.amount ?? 0n) : net - (s._sum.amount ?? 0n)), 0n);
   }
 
   // ───────────── общее ─────────────
@@ -666,5 +739,9 @@ export class BeautyAppointmentsController {
   /** Оплата записи в кассу филиала салона (§49) */
   @Post('appointments/:id/payments') pay(@Param('id') id: string, @Body() body: unknown) {
     return this.service.pay(id, body);
+  }
+  /** Возврат по выполненной записи (§54): право возвратов, как аннулирование в кассе */
+  @Post('appointments/:id/refunds') @Access('refunds') refund(@Param('id') id: string, @Body() body: unknown) {
+    return this.service.refund(id, body);
   }
 }

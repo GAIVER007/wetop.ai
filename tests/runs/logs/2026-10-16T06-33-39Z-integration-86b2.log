@@ -1,0 +1,64 @@
+# Интеграционные (integration) · 16.10.2026 11:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит e94b46e (claude/bar-ownership-tests)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-33-39Z-integration-86b2.json' 'tests/integration/bar-api-bootstrap.test.ts' 'tests/integration/bar-external-parent-ownership.test.ts' 'tests/integration/bar-inventory-surplus.test.ts' 'tests/integration/bar-location.test.ts' 'tests/integration/bar-money-fixes.test.ts' 'tests/integration/bar-money-invariants-audit.test.ts' 'tests/integration/bar-overview.test.ts' 'tests/integration/bar-ownership.test.ts' 'tests/integration/bar-parent-concurrency.test.ts' 'tests/integration/bar-payment-methods.test.ts' 'tests/integration/bar-populated-rls.test.ts' 'tests/integration/bar-property-guard.test.ts' 'tests/integration/bar-restaurant-cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ↓ |integration| tests/integration/bar-money-fixes.test.ts (35 tests | 35 skipped)
+ ↓ |integration| tests/integration/bar-money-invariants-audit.test.ts (31 tests | 31 skipped)
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ✓ |integration| tests/integration/bar-populated-rls.test.ts (24 tests) 270ms
+ ✓ |integration| tests/integration/bar-external-parent-ownership.test.ts (29 tests) 268ms
+ ✓ |integration| tests/integration/bar-parent-concurrency.test.ts (200 tests) 2718ms
+ ✓ |integration| tests/integration/bar-ownership.test.ts (105 tests) 618ms
+ ↓ |integration| tests/integration/bar-api-bootstrap.test.ts (5 tests | 5 skipped)
+(node:6829) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-restaurant-cash.test.ts (4 tests) 253ms
+ ✓ |integration| tests/integration/bar-property-guard.test.ts (12 tests) 34ms
+(node:6837) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-inventory-surplus.test.ts (3 tests) 215ms
+ ✓ |integration| tests/integration/bar-location.test.ts (5 tests) 23ms
+(node:6843) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-payment-methods.test.ts (3 tests) 575ms
+ ✓ |integration| tests/integration/bar-overview.test.ts (1 test) 193ms
+
+ Test Files  10 passed | 3 skipped (13)
+      Tests  386 passed | 71 skipped (457)
+   Start at  23:33:40
+   Duration  8.28s (tests 73%, import 19%, transform 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-33-39Z-integration-86b2.json
+
+# код выхода 0 · 9 с

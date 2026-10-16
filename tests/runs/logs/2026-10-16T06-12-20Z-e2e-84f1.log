@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 16.10.2026 11:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит e94b46e (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/bar.spec.ts' 'tests/ui/navigation.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/bar.spec.ts:23:1 › обзор как на макете: пять KPI, графики, компактная доска и подробности (18.9s)
+  ✓   2 tests/ui/bar.spec.ts:75:1 › быстрая продажа одной строкой и фильтры доски (8.2s)
+  ✓   3 tests/ui/bar.spec.ts:100:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (9.3s)
+  ✓   4 tests/ui/bar.spec.ts:133:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (17.0s)
+  ✓   5 tests/ui/bar.spec.ts:150:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (6.9s)
+  ✓   6 tests/ui/bar.spec.ts:164:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (15.0s)
+  ✓   7 tests/ui/bar.spec.ts:176:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (17.3s)
+  ✓   8 tests/ui/bar.spec.ts:205:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (7.1s)
+  ✓   9 tests/ui/bar.spec.ts:217:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (15.7s)
+  ✓  10 tests/ui/bar.spec.ts:243:1 › операции: списание с причиной, журнал продаж и лента движений (8.9s)
+  ✓  11 tests/ui/bar.spec.ts:269:3 › доступность и телефон: light (14.5s)
+  ✓  12 tests/ui/bar.spec.ts:269:3 › доступность и телефон: dark (14.6s)
+  ✓  13 tests/ui/navigation.spec.ts:61:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (27.7s)
+  ✓  14 tests/ui/navigation.spec.ts:105:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (27.5s)
+  ✘  15 tests/ui/navigation.spec.ts:132:1 › все пункты меню открывают существующие страницы (2.6m)
+  ✓  16 tests/ui/navigation.spec.ts:176:3 › меню телефона и планшета ровное и доступное: light (49.4s)
+  ✓  17 tests/ui/navigation.spec.ts:176:3 › меню телефона и планшета ровное и доступное: dark (42.1s)
+  ✓  18 tests/ui/navigation.spec.ts:231:1 › «Гости и бронирования»: один пункт меню, список броней под той же вкладкой (18.1s)
+
+
+  1) tests/ui/navigation.spec.ts:132:1 › все пункты меню открывают существующие страницы ───────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/marketing\/content$/
+    Received string:  "http://127.0.0.1:3138/market"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        18 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+           - unexpected value "http://127.0.0.1:3138/market"
+
+
+      146 |       const href = await link.getAttribute('href');
+      147 |       await link.click();
+    > 148 |       await expect(page).toHaveURL(new RegExp(`${href}$`));
+          |                          ^
+      149 |       await expect(
+      150 |         page
+      151 |           .getByRole('main')
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/ui/navigation.spec.ts:148:26
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/navigation.spec.ts:132:1 › все пункты меню открывают существующие страницы ────────────
+  17 passed (8.7m)
+
+# код выхода 1 · 8 мин 52 с

@@ -1,0 +1,99 @@
+# Сквозные (e2e) · 16.10.2026 13:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1433636 (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/search-filter-recovery.spec.ts' 'tests/ui/support-kb.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 30 tests using 1 worker
+
+  ✘   1 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (47.9s)
+  ✓   2 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (12.9s)
+  ✓   3 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 1440 › availability: manual dates and guests do not apply before Find (14.4s)
+  ✓   4 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link (13.0s)
+  ✓   5 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search (12.1s)
+  ✓   6 tests/ui/search-filter-recovery.spec.ts:107:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (17.6s)
+  ✓   7 tests/ui/search-filter-recovery.spec.ts:134:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (30.7s)
+  ✓   8 tests/ui/search-filter-recovery.spec.ts:147:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (36.2s)
+  ✓   9 tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (22.4s)
+  ✓  10 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (6.2s)
+  ✓  11 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (6.4s)
+  ✓  12 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 390 › availability: manual dates and guests do not apply before Find (6.6s)
+  ✓  13 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link (4.8s)
+  ✓  14 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search (7.4s)
+  ✓  15 tests/ui/search-filter-recovery.spec.ts:107:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (14.0s)
+  ✓  16 tests/ui/search-filter-recovery.spec.ts:134:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (6.9s)
+  ✓  17 tests/ui/search-filter-recovery.spec.ts:147:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (15.3s)
+  ✓  18 tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (22.3s)
+  ✓  19 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (37.0s)
+  ✓  20 tests/ui/support-kb.spec.ts:68:1 › не главный администратор: раздела нет, данных базы знаний не видно (5.7s)
+  ✓  21 tests/ui/support-kb.spec.ts:76:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (8.2s)
+  ✓  22 tests/ui/support-kb.spec.ts:105:1 › публикация отменяется: без «да» запись остаётся черновиком (6.0s)
+  ✓  23 tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (8.9s)
+  ✓  24 tests/ui/support-kb.spec.ts:134:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (11.7s)
+  ✓  25 tests/ui/support-kb.spec.ts:155:1 › у открытого обращения кнопки «Создать знание» нет (9.0s)
+  ✓  26 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 1440 (17.1s)
+  ✓  27 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 390 (27.6s)
+(node:56501) TimeoutNegativeWarning: -2208.<телефон> is a negative number.
+Timeout duration was set to 1.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  28 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 1440 (23.4m)
+  ✓  29 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 390 (28.6s)
+  ✓  30 tests/ui/support-kb.spec.ts:181:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (15.4s)
+
+
+  1) tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 1440 ────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Tearing down "context" exceeded the test timeout of 45000ms.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Пароль', { exact: true })
+
+
+      21 |   await page.goto('/auth/fallback');
+      22 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+    > 23 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+         |                                                    ^
+      24 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      25 |   await page.waitForURL('**/today');
+      26 | }
+        at signIn (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/ui/support-kb.spec.ts:23:52)
+        at admin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/ui/support-kb.spec.ts:31:3)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/ui/support-kb.spec.ts:164:7
+
+    Error Context: test-results/support-kb-каталог-и-запись-axe-и-снимок-dark-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-каталог-и-запись-axe-и-снимок-dark-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-каталог-и-запись-axe-и-снимок-dark-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search 
+    tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 1440 ─────────────────
+  28 passed (32.9m)
+
+# код выхода 1 · 33 мин

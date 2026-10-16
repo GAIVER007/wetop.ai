@@ -108,18 +108,19 @@ export function kbSaveRouting({
   };
 }
 
-export function KbEntryEditor({ entry }: { entry: KbEditable }) {
-  return <KbEntryEditorForm key={entry.id ?? 'new'} entry={entry} />;
+/** `saved`: запись только что создана; новая форма на её адресе сразу говорит «Сохранено.» (`?saved=1`) */
+export function KbEntryEditor({ entry, saved = false }: { entry: KbEditable; saved?: boolean }) {
+  return <KbEntryEditorForm key={entry.id ?? 'new'} entry={entry} saved={saved} />;
 }
 
-function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
+function KbEntryEditorForm({ entry, saved }: { entry: KbEditable; saved: boolean }) {
   const router = useRouter();
   const initialValues = kbEditorValues(entry);
   const [values, setValues] = useState(initialValues);
   const [savedValues, setSavedValues] = useState(initialValues);
   const [documentId, setDocumentId] = useState(entry.id);
   const [savedDocumentId, setSavedDocumentId] = useState(entry.id);
-  const [result, setResult] = useState<KbSimpleResult | null>(null);
+  const [result, setResult] = useState<KbSimpleResult | null>(saved ? { error: null, message: 'Сохранено.' } : null);
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
   const valuesRef = useRef(values);
@@ -170,7 +171,8 @@ function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
           savedValuesRef.current = completion.savedValues;
           setSavedValues(completion.savedValues);
         }
-        if (routing.navigateToId) router.replace(kbHref({ id: routing.navigateToId }));
+        // создание уводит на адрес записи, где рисуется другая форма: подтверждение едет пометкой в адресе
+        if (routing.navigateToId) router.replace(kbHref({ id: routing.navigateToId, saved: '1' }));
       } finally {
         busyRef.current = false;
       }

@@ -170,7 +170,7 @@ export async function KbView({ query }: { query: Record<string, string> }) {
           ) : !entry ? (
             <p className="support-desk__hint">Выберите запись в списке или добавьте новую.</p>
           ) : entry.ok ? (
-            <EntryPanel entry={entry.value} back={kbHref(filter)} />
+            <EntryPanel entry={entry.value} back={kbHref(filter)} saved={query.saved === '1'} />
           ) : (
             <LoadError
               testId="kb-entry-error"
@@ -200,7 +200,7 @@ function NewEntry({ filter }: { filter: ReturnType<typeof kbFilter> }) {
   );
 }
 
-function EntryPanel({ entry, back }: { entry: SupportKbEntry; back: string }) {
+function EntryPanel({ entry, back, saved }: { entry: SupportKbEntry; back: string; saved: boolean }) {
   const versions = entry.versions ?? [];
   return (
     <Panel data-testid="kb-entry" key={entry.id}>
@@ -230,6 +230,7 @@ function EntryPanel({ entry, back }: { entry: SupportKbEntry; back: string }) {
       )}
       <KbEntryEditor
         key={entry.id}
+        saved={saved}
         entry={{
           id: entry.id,
           title: entry.title ?? '',

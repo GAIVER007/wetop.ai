@@ -1,0 +1,57 @@
+# Модульные (unit) · 16.10.2026 11:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит bb70067 (claude/marketing-attribution), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-11-43Z-unit-ca30.json' 'apps/api/src/marketing-budget/marketing-budget.service.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (10 tests | 1 failed) 108ms
+   ❯ сервис бюджета маркетинга (МКТ-В1/В2) (10)
+     ✓ view: месяц из запроса, границы окна и сериализация денег строками 9ms
+     ✓ view: границы декабря и января считаются без сдвига 5ms
+     ✓ view: без месяца берётся текущий месяц филиала, в ответе есть today 2ms
+     ✓ view: кривой месяц: отказ словами 3ms
+     ✓ создание: кривой ввод → 400, корректный → строка и журнал 4ms
+     ✓ правка несуществующего: 404 1ms
+     ✓ удаление несуществующего: 404, существующего: журнал 1ms
+     ✓ план: месяц нормализуется, сумма в тиынах, журнал пишется 1ms
+     × results: окно месяца как у бюджета, деньги строками, валюта выручки отдельно 75ms
+     ✓ results: кривой месяц: отказ словами 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts > сервис бюджета маркетинга (МКТ-В1/В2) > results: окно месяца как у бюджета, деньги строками, валюта выручки отдельно
+AssertionError: expected undefined to deeply equal [ { date: '2026-10-02', …(4) } ]
+
+- Expected:
+[
+  {
+    "bookings": 3,
+    "date": "2026-10-02",
+    "leads": 8,
+    "newGuests": 2,
+    "revenue": "1150000",
+  },
+]
+
++ Received:
+undefined
+
+ ❯ apps/api/src/marketing-budget/marketing-budget.service.test.ts:177:20
+    175|       { channel: 'WHATSAPP', leads: 3, bookings: 1, revenue: '250000' …
+    176|     ]);
+    177|     expect(r.days).toEqual([{ date: '2026-10-02', leads: 8, bookings: …
+       |                    ^
+    178|   });
+    179|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  23:12:04
+   Duration  7.48s (transform 71%, import 27%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-11-43Z-unit-ca30.json
+
+# код выхода 1 · 28 с

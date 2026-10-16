@@ -1,0 +1,19 @@
+# Модульные (unit) · 16.10.2026 11:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4114ad6 (claude/marketing-calendar), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-37-22Z-unit-0f3e.json' 'apps/api/src/marketing-budget' 'apps/api/src/body-parsers.test.ts' 'apps/api/src/auth/route-access.test.ts' 'packages/domain/src/marketing/expense-import.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| packages/domain/src/marketing/expense-import.test.ts (5 tests) 6ms
+ ✓ |unit| apps/api/src/body-parsers.test.ts (6 tests) 103ms
+ ✓ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (13 tests) 6ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 37ms
+
+ Test Files  4 passed (4)
+      Tests  27 passed (27)
+   Start at  23:37:23
+   Duration  2.02s (transform 53%, import 42%, tests 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-37-22Z-unit-0f3e.json
+
+# код выхода 0 · 3 с

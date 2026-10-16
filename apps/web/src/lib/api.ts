@@ -4013,6 +4013,9 @@ export const marketingBudgetApi = {
     sendJson<MarketingExpenseRow>('PATCH', `/marketing/expenses/${encodeURIComponent(id)}`, body),
   deleteExpense: (id: string) =>
     deleteJson<{ ok: true }>(`/marketing/expenses/${encodeURIComponent(id)}`),
+  /** Импорт из CSV формата выгрузки: всё или ничего; итог в валюте отчётности строкой тиынов */
+  importExpenses: (csv: string) =>
+    sendJson<{ imported: number; baseTotal: string }>('POST', '/marketing/expenses/import', { csv }),
   results: (month?: string) =>
     getJson<MarketingResultsView>(
       `/marketing/results${month ? `?month=${encodeURIComponent(month)}` : ''}`,
@@ -4027,6 +4030,8 @@ export interface MarketingResultsView {
   /** false: у филиала нет броней гостиницы (салон, ресторан) */
   supported: boolean;
   channels: Array<{ channel: 'SITE' | 'WHATSAPP' | 'INSTAGRAM' | 'PHONE'; leads: number; bookings: number; revenue: string }>;
+  /** Дни с активностью: обращения, живые брони, из них новые гости, выручка; сумма дней равна месяцу */
+  days: Array<{ date: string; leads: number; bookings: number; newGuests: number; revenue: string }>;
 }
 
 export interface SharedOnboardingState {

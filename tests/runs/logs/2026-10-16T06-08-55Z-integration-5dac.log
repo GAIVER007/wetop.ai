@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 16.10.2026 11:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит bb70067 (claude/marketing-attribution), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-08-55Z-integration-5dac.json' 'tests/integration/marketing-results.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-results.test.ts (3 tests) 1693ms
+   ✓ результаты маркетинга по каналам (integration) (3)
+     ✓ октябрь филиала: каналы по правилу Q-MKT-ATTR 520ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  23:09:03
+   Duration  11.83s (transform 57%, tests 23%, import 19%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-08-55Z-integration-5dac.json
+
+# код выхода 0 · 20 с

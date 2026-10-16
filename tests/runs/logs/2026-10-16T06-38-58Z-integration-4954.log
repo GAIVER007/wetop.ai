@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 16.10.2026 11:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4114ad6 (claude/marketing-calendar), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-38-58Z-integration-4954.json' 'tests/integration/marketing-import.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-import.test.ts (1 test | 1 failed) 172ms
+   ❯ импорт расходов маркетинга (integration) (1)
+     × файл из двух строк: два расхода и две записи журнала; строка, отвергнутая базой, откатывает пачку 26ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-import.test.ts > импорт расходов маркетинга (integration) > файл из двух строк: два расхода и две записи журнала; строка, отвергнутая базой, откатывает пачку
+AssertionError: expected { expenses: 3, audits: 3 } to deeply equal { expenses: 2, audits: 2 }
+
+- Expected
++ Received
+
+  {
+-   "audits": 2,
+-   "expenses": 2,
++   "audits": 3,
++   "expenses": 3,
+  }
+
+ ❯ tests/integration/marketing-import.test.ts:70:27
+     68|     const broken = [items[0]!, { input: { ...items[1]!.input, currency…
+     69|     await expect(repo.createExpenses(locationId, broken)).rejects.toTh…
+     70|     expect(await count()).toEqual({ expenses: 2, audits: 2 });
+       |                           ^
+     71|   });
+     72| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  23:38:59
+   Duration  1.22s (transform 50%, import 26%, tests 24%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-38-58Z-integration-4954.json
+
+# код выхода 1 · 2 с

@@ -15,7 +15,7 @@ import '../../marketing.css';
 import '../budget.css';
 import { loadBudget } from '../load';
 import { BudgetTabs, ChooseLocation, MonthNav, PLATFORM_LABELS, platformLabel } from '../parts';
-import { ExpenseButton, ExportCsvButton } from '../drawers';
+import { ExpenseButton, ExportCsvButton, ImportCsvButton } from '../drawers';
 
 /**
  * «Маркетинг → Бюджет → Расходы» (экран 3 макета): журнал месяца с фильтром по платформе, итогом
@@ -84,6 +84,7 @@ export default async function BudgetExpensesPage({
             {pluralRu(rows.length, ['расход', 'расхода', 'расходов'])} на {formatMoney(total, rc)}
           </div>
           <ExportCsvButton rows={rows} month={view.month} reportingCurrency={rc} />
+          {editable && <ImportCsvButton reportingCurrency={rc} />}
         </div>
         {rows.length === 0 ? (
           <EmptyState

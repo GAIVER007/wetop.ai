@@ -144,3 +144,84 @@ export function buildMarketingFunnel(input: {
     },
   };
 }
+
+/**
+ * Результаты одного дня по всем маркетинговым каналам вместе. Обращение относится к дню первого
+ * предложения ИИ-продавца в диалоге или к дню заявки и брони, поэтому сумма дней равна месяцу.
+ */
+export interface DayResult {
+  /** ГГГГ-ММ-ДД в поясе объекта */
+  date: string;
+  leads: number;
+  /** Живые брони дня (без отменённых и незаездов) */
+  bookings: number;
+  /** Из них брони гостей, у которых раньше не было броней у этого объекта */
+  newGuests: number;
+  revenueMinor: bigint;
+}
+
+export interface DayRow extends DayResult {
+  spendMinor: bigint;
+  cplMinor: bigint | null;
+  romiPct: number | null;
+}
+
+export interface MarketingDays {
+  rows: DayRow[];
+  total: Omit<DayRow, 'date'>;
+}
+
+/**
+ * «Календарь маркетинга»: каждый день месяца (до `lastDay`, если месяц текущий) с расходом,
+ * обращениями, CPL, бронями, новыми гостями, выручкой и ROMI по выручке; итог равен сумме дней.
+ * Пустой день без расхода и результата даёт прочерки в CPL и ROMI, а не нули процентов.
+ */
+export function buildMarketingDays(input: {
+  month: string;
+  /** Последний показанный день (сегодня для текущего месяца); без него весь месяц */
+  lastDay?: number;
+  days: DayResult[];
+  spendByDay: Record<string, bigint>;
+  reportingCurrency: string;
+  revenueCurrency: string | null;
+}): MarketingDays {
+  const romiAvailable =
+    input.revenueCurrency === null || input.revenueCurrency === input.reportingCurrency;
+  const [y, m] = input.month.split('-').map(Number);
+  const daysInMonth = new Date(Date.UTC(y!, m!, 0)).getUTCDate();
+  const last = Math.min(input.lastDay ?? daysInMonth, daysInMonth);
+  const byDate = new Map(input.days.map((d) => [d.date, d]));
+  const rows: DayRow[] = [];
+  for (let n = 1; n <= last; n += 1) {
+    const date = `${input.month}-${String(n).padStart(2, '0')}`;
+    const r = byDate.get(date);
+    const spend = input.spendByDay[date] ?? 0n;
+    const leads = r?.leads ?? 0;
+    const revenue = r?.revenueMinor ?? 0n;
+    rows.push({
+      date,
+      spendMinor: spend,
+      leads,
+      bookings: r?.bookings ?? 0,
+      newGuests: r?.newGuests ?? 0,
+      revenueMinor: revenue,
+      cplMinor: perUnit(spend, leads),
+      romiPct: romiAvailable ? romi(revenue, spend) : null,
+    });
+  }
+  const spendMinor = rows.reduce((s, r) => s + r.spendMinor, 0n);
+  const leads = rows.reduce((s, r) => s + r.leads, 0);
+  const revenueMinor = rows.reduce((s, r) => s + r.revenueMinor, 0n);
+  return {
+    rows,
+    total: {
+      spendMinor,
+      leads,
+      bookings: rows.reduce((s, r) => s + r.bookings, 0),
+      newGuests: rows.reduce((s, r) => s + r.newGuests, 0),
+      revenueMinor,
+      cplMinor: perUnit(spendMinor, leads),
+      romiPct: romiAvailable ? romi(revenueMinor, spendMinor) : null,
+    },
+  };
+}

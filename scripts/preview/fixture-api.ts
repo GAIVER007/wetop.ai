@@ -106,6 +106,8 @@ import {
   MarketingBudgetError,
   parseMarketingBudgetInput,
   parseMarketingExpenseInput,
+  parseMarketingExpensesCsv,
+  type MarketingExpenseInput,
   type PriceReading,
   type SiteFacts,
 } from '@pms/domain';
@@ -4936,7 +4938,11 @@ const budgetExpenses: FixtureMarketingExpense[] = [];
 const budgetPlans = new Map<string, string>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
 type FixtureChannelResult = { channel: string; leads: number; bookings: number; revenue: string };
-const budgetResults = new Map<string, { supported: boolean; channels: FixtureChannelResult[] }>();
+type FixtureDayResult = { date: string; leads: number; bookings: number; newGuests: number; revenue: string };
+const budgetResults = new Map<
+  string,
+  { supported: boolean; channels: FixtureChannelResult[]; days: FixtureDayResult[] }
+>();
 const resetMarketingBudget = () => {
   budgetExpenses.length = 0;
   budgetPlans.clear();
@@ -5004,6 +5010,7 @@ function marketingBudgetRoute(
           revenueCurrency: seeded?.supported === false ? null : BUDGET_RC,
           supported: seeded?.supported ?? true,
           channels: seeded?.supported === false ? [] : (seeded?.channels ?? zero),
+          days: seeded?.supported === false ? [] : (seeded?.days ?? []),
         },
       ];
     }
@@ -5012,8 +5019,7 @@ function marketingBudgetRoute(
       budgetPlans.set(input.month, input.amount.toString());
       return [200, { month: input.month.slice(0, 7), amount: input.amount.toString() }];
     }
-    if (path === '/marketing/expenses' && method === 'POST') {
-      const input = parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC });
+    const add = (input: MarketingExpenseInput): FixtureMarketingExpense => {
       const row: FixtureMarketingExpense = {
         id: `00000000-0000-4000-9000-${String(budgetExpenses.length + 1).padStart(12, '0')}`,
         date: input.date,
@@ -5028,7 +5034,17 @@ function marketingBudgetRoute(
         countedInBudget: input.countedInBudget,
       };
       budgetExpenses.push(row);
-      return [201, row];
+      return row;
+    };
+    if (path === '/marketing/expenses' && method === 'POST') {
+      return [201, add(parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC }))];
+    }
+    if (path === '/marketing/expenses/import' && method === 'POST') {
+      if (typeof body.csv !== 'string') return [400, { message: 'Нужен текст CSV-файла' }];
+      const rows = parseMarketingExpensesCsv(body.csv, { reportingCurrency: BUDGET_RC });
+      for (const row of rows) add(row);
+      const baseTotal = rows.reduce((sum, r) => sum + r.baseAmount, 0n);
+      return [200, { imported: rows.length, baseTotal: baseTotal.toString() }];
     }
     const m = /^\/marketing\/expenses\/([^/]+)$/.exec(path);
     if (m) {
@@ -5718,12 +5734,13 @@ createServer(async (req, res) => {
         budgetPlans.set(input.month, input.amount.toString());
       }
       const seededResults = body['results'] as
-        | { month: string; supported?: boolean; channels?: FixtureChannelResult[] }
+        | { month: string; supported?: boolean; channels?: FixtureChannelResult[]; days?: FixtureDayResult[] }
         | undefined;
       if (seededResults)
         budgetResults.set(seededResults.month, {
           supported: seededResults.supported ?? true,
           channels: seededResults.channels ?? [],
+          days: seededResults.days ?? [],
         });
       return send(200, { ok: true, today });
     }

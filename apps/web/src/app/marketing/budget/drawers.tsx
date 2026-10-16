@@ -2,6 +2,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import type { MarketingExpenseRow } from '../../../lib/api';
 import { minorToInput } from '../../../lib/money';
+import { csvField } from '../../finance/csv';
 import { Icon } from '../../../components/icon';
 import { Overlay } from '../../../components/overlay';
 import { useToast } from '../../../components/toast';
@@ -10,6 +11,7 @@ import { Switch } from '../../../components/switch';
 import { Alert, Button, Field, Input, Select, Textarea } from '../../../components/ui';
 import {
   deleteExpenseAction,
+  importExpensesAction,
   saveExpenseAction,
   savePlanAction,
   type BudgetActionResult,
@@ -306,6 +308,60 @@ function PlanForm({
   );
 }
 
+/**
+ * «Загрузить CSV» (МКТ-В2, импорт данных): файл формата выгрузки, колонки по заголовку. Ошибка в любой
+ * строке отклоняет весь файл, поэтому после правки его можно загрузить снова без дублей.
+ */
+export function ImportCsvButton({ reportingCurrency }: { reportingCurrency: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button type="button" tone="secondary" size="sm" onClick={() => setOpen(true)} data-testid="budget-import">
+        Загрузить CSV
+      </Button>
+      {open && (
+        <Overlay open drawer className="settings-service-drawer" title="Загрузка расходов" onClose={() => setOpen(false)}>
+          <ImportForm reportingCurrency={reportingCurrency} onClose={() => setOpen(false)} />
+        </Overlay>
+      )}
+    </>
+  );
+}
+
+function ImportForm({ reportingCurrency, onClose }: { reportingCurrency: string; onClose: () => void }) {
+  const [state, action, pending] = useBudgetAction(importExpensesAction, onClose);
+  return (
+    <form action={action} className="settings-service-form" data-testid="budget-import-form">
+      {state.error && (
+        <Alert boxed className="budget-import-error" data-testid="budget-import-error">
+          {state.error}
+        </Alert>
+      )}
+      <input type="hidden" name="currency" value={reportingCurrency} />
+      <p className="settings-note">
+        Таблица в формате выгрузки «Выгрузить CSV»: обязательны колонки «Дата», «Платформа», «Статья» и «Сумма»,
+        остальные по желанию. Дата ГГГГ-ММ-ДД или ДД.ММ.ГГГГ, платформа подписью или кодом, валюта по умолчанию{' '}
+        {reportingCurrency}, для другой валюты нужен курс. До 1000 строк за раз.
+      </p>
+      <p className="settings-note">
+        Если в строке ошибка, файл не загружается целиком и ничего не записывается: исправьте строки из списка и
+        загрузите снова.
+      </p>
+      <Field label="Файл CSV">
+        <Input type="file" name="file" accept=".csv,text/csv" required data-testid="budget-import-file" />
+      </Field>
+      <div className="settings-service-actions">
+        <Button type="button" tone="secondary" onClick={onClose}>
+          Отмена
+        </Button>
+        <Button type="submit" disabled={pending} aria-busy={pending} data-testid="budget-import-save">
+          {pending ? 'Загружаю…' : 'Загрузить'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 /** Выгрузка журнала месяца в CSV: файл собирается из уже загруженных строк, без запроса */
 export function ExportCsvButton({
   rows,
@@ -320,7 +376,7 @@ export function ExportCsvButton({
     const head = ['Дата', 'Платформа', 'Кампания', 'Статья', 'Описание', 'Сумма', 'Валюта', 'Курс', `Сумма, ${reportingCurrency}`, 'В бюджете'];
     const line = (r: MarketingExpenseRow) =>
       [r.date, platformLabel(r.platform), r.campaign ?? '', r.category, r.description ?? '', minorToInput(r.amount), r.currency, r.fxRate, minorToInput(r.baseAmount), r.countedInBudget ? 'да' : 'нет']
-        .map((c) => `"${String(c).replaceAll('"', '""')}"`)
+        .map((c) => csvField(String(c)))
         .join(';');
     const csv = '﻿' + [head.join(';'), ...rows.map(line)].join('\r\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

@@ -29,8 +29,8 @@ const monthShift = (month: string, shift: number) => {
 /** Месяц с расходами по трём каналам (один в долларах по курсу на дату), план и прошлый месяц */
 async function seed(
   request: APIRequestContext,
-  /** МКТ-В5a: результаты каналов месяца тем же засевом (засев каждый раз всё сбрасывает) */
-  results?: Record<string, unknown>,
+  /** МКТ-В5a: результаты каналов месяца тем же засевом (засев каждый раз всё сбрасывает); `today` стенда */
+  results?: (today: string) => Record<string, unknown>,
 ): Promise<{ today: string; month: string }> {
   const reset = await request.post(`${API}/__test/marketing-budget`, { data: {} });
   const { today } = (await reset.json()) as { today: string };
@@ -38,7 +38,7 @@ async function seed(
   const prev = `${monthShift(month, -1)}-15`;
   await request.post(`${API}/__test/marketing-budget`, {
     data: {
-      ...(results ? { results: { month, ...results } } : {}),
+      ...(results ? { results: { month, ...results(today) } } : {}),
       plan: { month, amount: '3000' },
       expenses: [
         { date: today, platform: 'META', campaign: 'Лиды: Клиника', category: 'Реклама', amount: '720' },
@@ -143,14 +143,16 @@ test('аналитика маркетинга: воронка, CPL, стоимо
   request,
 }) => {
   // результаты каналов месяца (МКТ-В5a): сайт и WhatsApp с бронями, реклама Meta/Google/TikTok без своих результатов
-  const { month } = await seed(request, {
+  const { month, today } = await seed(request, (day) => ({
     channels: [
       { channel: 'SITE', leads: 6, bookings: 2, revenue: '500000' },
       { channel: 'WHATSAPP', leads: 4, bookings: 2, revenue: '550000' },
       { channel: 'INSTAGRAM', leads: 0, bookings: 0, revenue: '0' },
       { channel: 'PHONE', leads: 0, bookings: 0, revenue: '0' },
     ],
-  });
+    // те же результаты одним днём: сумма дней равна месяцу
+    days: [{ date: day, leads: 10, bookings: 4, newGuests: 3, revenue: '1050000' }],
+  }));
   // прежний адрес аналитики бюджета живёт перенаправлением, месяц сохраняется
   await page.goto(`/marketing/budget/analytics?month=${month}`);
   await page.waitForURL(`**/marketing/analytics?month=${month}`);
@@ -185,6 +187,15 @@ test('аналитика маркетинга: воронка, CPL, стоимо
   await expect(tiktok).toContainText('ведёт на сайт и в мессенджеры');
   await expect(main.getByTestId('man-total')).toContainText('51 200');
   await expect(main.getByTestId('man-sources-note')).toContainText('Канал брони это её источник');
+  // календарь маркетинга: строка сегодняшнего дня и итог; дни месяца до сегодня включительно
+  const calendar = main.getByTestId('man-calendar');
+  await expect(calendar.locator('tbody tr')).toHaveCount(Number(today.slice(8, 10)));
+  const todayRow = main.getByTestId(`man-day-${today}`);
+  // расход 51 200 ₸, лиды 10, CPL 5 120 ₸, брони 4, новые клиенты 3, выручка 10 500 ₸, ROMI −79 %
+  for (const text of ['51 200', '10', '5 120', '4', '3', '10 500', '-79 %'])
+    await expect(todayRow).toContainText(text);
+  await expect(main.getByTestId('man-calendar-total')).toContainText('10 500');
+  await expect(main.getByTestId('man-calendar-note')).toContainText('Новые клиенты');
   await expect(main.getByTestId('budget-chart')).toBeVisible();
 });
 
@@ -192,7 +203,7 @@ test('аналитика у филиала без броней гостиниц�
   page,
   request,
 }) => {
-  const { month } = await seed(request, { supported: false });
+  const { month } = await seed(request, () => ({ supported: false }));
   await page.goto(`/marketing/analytics?month=${month}`);
   const main = page.getByRole('main');
   await expect(main.getByTestId('man-results-soon')).toContainText('салона и ресторана');
@@ -212,6 +223,64 @@ test('переключатель месяца: прошлый месяц пок�
   await page.waitForURL('**month=*');
   await expect(main.getByTestId('budget-spent')).toContainText('600');
   await expect(main.getByTestId('budget-forecast')).toContainText('600');
+});
+
+/** Кириллица в windows-1251, как сохраняет CSV Excel на Windows: А–я подряд с 0xC0, «ё» и «Ё» отдельно */
+const cp1251 = (text: string) =>
+  Buffer.from(
+    [...text].map((c) => {
+      const code = c.charCodeAt(0);
+      if (code >= 0x410 && code <= 0x44f) return code - 0x350;
+      if (c === 'ё') return 0xb8;
+      if (c === 'Ё') return 0xa8;
+      if (code > 0x7f) throw new Error(`нет в windows-1251: ${c}`);
+      return code;
+    }),
+  );
+
+test('импорт CSV: файл с ошибкой отклоняется целиком со списком строк, исправленный из Excel загружается', async ({
+  page,
+  request,
+}) => {
+  const { month } = await seed(request);
+  const [y, m] = month.split('-');
+  await page.goto(`/marketing/budget/expenses?month=${month}`);
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('budget-table').locator('tbody tr')).toHaveCount(4);
+
+  await main.getByTestId('budget-import').click();
+  const form = page.getByTestId('budget-import-form');
+  await expect(form).toBeVisible();
+  await page
+    .locator('.ui-overlay')
+    .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+    .catch(() => undefined);
+  const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+
+  const head = 'Дата;Платформа;Кампания;Статья;Сумма';
+  const bad = [head, `${month}-05;Meta Ads;Осень;Реклама;1000`, `${month}-06;Яндекс;;Реклама;500`, `${month}-07;Сайт;;Реклама;0`].join('\r\n');
+  await form.getByTestId('budget-import-file').setInputFiles({ name: 'bad.csv', mimeType: 'text/csv', buffer: Buffer.from('\uFEFF' + bad) });
+  await form.getByTestId('budget-import-save').click();
+  const error = form.getByTestId('budget-import-error');
+  await expect(error).toContainText('ничего не записано');
+  await expect(error).toContainText('Строка 3: Платформа');
+  await expect(error).toContainText('Строка 4: Сумма');
+  await expect(error).not.toContainText('Строка 2');
+  mkdirSync(SHOTS, { recursive: true });
+  await page.screenshot({ path: `${SHOTS}/import-error-light-1440.png` });
+
+  // исправленный файл, пересохранённый Excel: windows-1251, дата ДД.ММ.ГГГГ, пробел в тысячах
+  const good = [head, `05.${m}.${y};Meta Ads;Осень;Реклама;1 000`, `06.${m}.${y};Google Ads;;Реклама;500`].join('\r\n');
+  await form.getByTestId('budget-import-file').setInputFiles({ name: 'good.csv', mimeType: 'text/csv', buffer: cp1251(good) });
+  await form.getByTestId('budget-import-save').click();
+  await expect(page.getByText('Загружено 2 расхода на 1 500 ₸')).toBeVisible();
+  await expect(form).toBeHidden();
+  const table = main.getByTestId('budget-table');
+  await expect(table.locator('tbody tr')).toHaveCount(6);
+  // в засеве уже есть Google Ads: импорт добавил вторую строку, а не заменил первую
+  await expect(table.getByRole('row', { name: /Google Ads/ })).toHaveCount(2);
+  await expect(table.getByRole('row', { name: /Осень/ })).toContainText('1 000');
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -237,12 +306,13 @@ for (const theme of ['light', 'dark'] as const) {
     };
 
     // снимки показывают живую воронку: результаты сайта и WhatsApp за месяц
-    const { month } = await seed(request, {
+    const { month } = await seed(request, (day) => ({
       channels: [
         { channel: 'SITE', leads: 6, bookings: 2, revenue: '500000' },
         { channel: 'WHATSAPP', leads: 4, bookings: 2, revenue: '550000' },
       ],
-    });
+      days: [{ date: day, leads: 10, bookings: 4, newGuests: 3, revenue: '1050000' }],
+    }));
     await page.goto(`/marketing/budget?month=${month}`);
     await expect(page.getByTestId('budget-shares')).toBeVisible();
     await axe();

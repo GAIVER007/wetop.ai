@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 16.10.2026 11:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4114ad6 (claude/marketing-calendar), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-38-33Z-integration-013e.json' 'tests/integration/marketing-import.test.ts' 'tests/integration/marketing-budget-db.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-budget-db.test.ts (4 tests) 43ms
+ ❯ |integration| tests/integration/marketing-import.test.ts (1 test) 215ms
+   ❯ импорт расходов маркетинга (integration) (1)
+     ✓ файл из двух строк: два расхода и две записи журнала; строка, отвергнутая базой, откатывает пачку 26ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-import.test.ts > импорт расходов маркетинга (integration)
+PrismaClientKnownRequestError: 
+Invalid `prisma.auditLog.deleteMany()` invocation:
+
+
+Database error. Code: `P0001`. Message: `audit_logs: журнал только дописывается (append-only), DELETE запрещён; уборка тестовых данных ставит set_config('wetop.audit_purge','on',true) в своей транзакции`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/marketing-import.test.ts:44:5
+     42|   afterAll(async () => {
+     43|     if (!db) return;
+     44|     await db.auditLog.deleteMany({ where: { action: 'marketing_expense…
+       |     ^
+     45|     await db.marketingExpense.deleteMany({ where: { locationId } });
+     46|     await db.property.deleteMany({ where: { organizationId: org } });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  5 passed (5)
+   Start at  23:38:35
+   Duration  1.73s (transform 42%, import 32%, tests 26%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-38-33Z-integration-013e.json
+
+# код выхода 1 · 3 с

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { buildMarketingFunnel, type ChannelResult } from './funnel';
+import {
+  buildMarketingDays,
+  buildMarketingFunnel,
+  type ChannelResult,
+  type DayResult,
+} from './funnel';
 
 const ch = (channel: ChannelResult['channel'], leads: number, bookings: number, revenue: bigint): ChannelResult => ({
   channel,
@@ -117,5 +122,72 @@ describe('воронка маркетинга: расходы → обращен
       revenueCurrency: 'KZT',
     });
     expect(f.rows.map((r) => r.platform)).toEqual(['WHATSAPP', 'SITE', 'TIKTOK', 'META']);
+  });
+});
+
+describe('календарь маркетинга по дням: день, расход, лиды, CPL, брони, новые гости, выручка, ROMI', () => {
+  const day = (date: string, leads: number, bookings: number, newGuests: number, revenue: bigint): DayResult => ({
+    date,
+    leads,
+    bookings,
+    newGuests,
+    revenueMinor: revenue,
+  });
+
+  it('каждый день месяца до последнего показанного, пустые дни нулями; CPL и ROMI по дню', () => {
+    const d = buildMarketingDays({
+      month: '2026-10',
+      lastDay: 5,
+      days: [day('2026-10-02', 4, 1, 1, 300000n)],
+      spendByDay: { '2026-10-02': 100000n, '2026-10-03': 50000n },
+      reportingCurrency: 'KZT',
+      revenueCurrency: 'KZT',
+    });
+    expect(d.rows.map((r) => r.date)).toEqual([
+      '2026-10-01',
+      '2026-10-02',
+      '2026-10-03',
+      '2026-10-04',
+      '2026-10-05',
+    ]);
+    const second = d.rows[1]!;
+    expect(second).toMatchObject({ spendMinor: 100000n, leads: 4, bookings: 1, newGuests: 1, revenueMinor: 300000n });
+    // 100 000 / 4 = 25 000; (300 000 − 100 000) / 100 000 = 200 %
+    expect(second.cplMinor).toBe(25000n);
+    expect(second.romiPct).toBe(200);
+    // расход без результата: CPL нечем делить, ROMI −100 % честно
+    const third = d.rows[2]!;
+    expect(third.cplMinor).toBeNull();
+    expect(third.romiPct).toBe(-100);
+    // ни расхода, ни результата: прочерки, а не нули процентов
+    expect(d.rows[0]!.romiPct).toBeNull();
+    expect(d.rows[0]!.cplMinor).toBeNull();
+  });
+
+  it('итог календаря равен сумме дней; без lastDay показывается весь месяц', () => {
+    const d = buildMarketingDays({
+      month: '2026-02',
+      days: [day('2026-02-10', 3, 2, 1, 500000n), day('2026-02-20', 1, 0, 0, 0n)],
+      spendByDay: { '2026-02-10': 100000n, '2026-02-20': 100000n },
+      reportingCurrency: 'KZT',
+      revenueCurrency: 'KZT',
+    });
+    expect(d.rows).toHaveLength(28);
+    expect(d.total).toMatchObject({ spendMinor: 200000n, leads: 4, bookings: 2, newGuests: 1, revenueMinor: 500000n });
+    expect(d.total.cplMinor).toBe(50000n);
+    expect(d.total.romiPct).toBe(150);
+  });
+
+  it('разные валюты: ROMI по дням не считается', () => {
+    const d = buildMarketingDays({
+      month: '2026-10',
+      lastDay: 1,
+      days: [day('2026-10-01', 1, 1, 1, 100n)],
+      spendByDay: { '2026-10-01': 100n },
+      reportingCurrency: 'USD',
+      revenueCurrency: 'KZT',
+    });
+    expect(d.rows[0]!.romiPct).toBeNull();
+    expect(d.total.romiPct).toBeNull();
   });
 });

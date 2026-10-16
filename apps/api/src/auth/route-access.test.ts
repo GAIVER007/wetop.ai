@@ -113,6 +113,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // МКТ-В5a: результаты каналов для «Аналитики маркетинга», право страницы
   'GET /marketing/results': 'settings',
   'POST /marketing/expenses': 'settings',
+  'POST /marketing/expenses/import': 'settings',
   'PATCH /marketing/expenses/:id': 'settings',
   'DELETE /marketing/expenses/:id': 'settings',
   // ── «Маркетинг → Сайт и SEO», ядро сайта (MKT3): право сайта, филиал строго из scope ──

@@ -1,0 +1,18 @@
+# Модульные (unit) · 16.10.2026 10:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит d949805 (claude/bar-location-web)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-15-56Z-unit-b1b1.json' 'apps/web/src/app/team/session-navigation-a27.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| apps/web/src/app/team/session-navigation-a27.test.ts (2 tests) 6962ms
+   ✓ team navigation preserves the common session redirect 4114ms
+   ✓ a non-session API failure retains the existing safe team fallback 2843ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  22:16:32
+   Duration  8.18s (tests 96%, transform 2%, import 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-15-56Z-unit-b1b1.json
+
+# код выхода 0 · 45 с

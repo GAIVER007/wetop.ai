@@ -24,6 +24,9 @@ const settle = <T,>(promise: Promise<T>) =>
     },
   );
 
+const READ_ONLY_NOTE =
+  'Остаток нельзя менять: режим чтения или нет права. Журналы доступны для просмотра.';
+
 const MOVEMENT_LABEL: Record<string, string> = {
   RECEIPT: 'Приход',
   SALE: 'Продажа',
@@ -43,6 +46,8 @@ export default async function BarOperationsPage() {
   ]);
   // Сохраняем проверку refunds и readOnly из актуального main (ADR-181).
   const canReverse = mayAccess(shell.access, 'refunds') && !shell.readOnly;
+  // UI-FIX-01: списание и инвентаризация пишут остаток, поэтому нужны право desk и не режим чтения.
+  const canMutate = mayAccess(shell.access, 'desk') && !shell.readOnly;
   const failed = [stock, sales, movements].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!stock.ok || !sales.ok || !movements.ok) return null;
@@ -162,13 +167,17 @@ export default async function BarOperationsPage() {
             label: 'Списание',
             content: (
               <>
-                <section className="panel bar-quick-panel">
-                  <h3>Списание</h3>
-                  <p className="bar-muted">
-                    Порча, бой, срок или угощение: остаток уменьшится с причиной в ленте.
-                  </p>
-                  <WriteOffForm stock={stock.value} context={context} />
-                </section>
+                {canMutate ? (
+                  <section className="panel bar-quick-panel">
+                    <h3>Списание</h3>
+                    <p className="bar-muted">
+                      Порча, бой, срок или угощение: остаток уменьшится с причиной в ленте.
+                    </p>
+                    <WriteOffForm stock={stock.value} context={context} />
+                  </section>
+                ) : (
+                  <p className="bar-muted">{READ_ONLY_NOTE}</p>
+                )}
               </>
             ),
           },
@@ -177,13 +186,17 @@ export default async function BarOperationsPage() {
             label: 'Инвентаризация',
             content: (
               <>
-                <section className="panel bar-quick-panel">
-                  <h3>Инвентаризация</h3>
-                  <p className="bar-muted">
-                    Пересчёт по факту: недостача запишется движением с причиной.
-                  </p>
-                  <InventoryCountForm stock={stock.value} context={context} />
-                </section>
+                {canMutate ? (
+                  <section className="panel bar-quick-panel">
+                    <h3>Инвентаризация</h3>
+                    <p className="bar-muted">
+                      Пересчёт по факту: недостача запишется движением с причиной.
+                    </p>
+                    <InventoryCountForm stock={stock.value} context={context} />
+                  </section>
+                ) : (
+                  <p className="bar-muted">{READ_ONLY_NOTE}</p>
+                )}
               </>
             ),
           },

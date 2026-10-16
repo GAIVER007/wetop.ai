@@ -1303,6 +1303,8 @@ model BarSupplierPayment {
   cashOperationId           String?  @unique @map("cash_operation_id") @db.Uuid
   amount                    BigInt
   paidAt                    DateTime @map("paid_at") @db.Timestamptz(6)
+  /// ключ повтора (§50, ADR-186 M6): тот же ключ у прихода возвращает первую оплату; у прежних оплат пусто
+  idempotencyKey            String?  @map("idempotency_key") @db.VarChar(120)
   createdById               String?  @map("created_by_id") @db.Uuid
   createdAt                 DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -1310,6 +1312,7 @@ model BarSupplierPayment {
   cashOperation           CashOperation?           @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
   restaurantCashOperation RestaurantCashOperation? @relation(fields: [restaurantCashOperationId], references: [id], onDelete: Restrict)
 
+  @@unique([receiptId, idempotencyKey])
   @@index([receiptId, paidAt])
   @@map("bar_supplier_payments")
 }

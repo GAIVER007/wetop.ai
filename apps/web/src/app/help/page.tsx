@@ -4,7 +4,14 @@ import { Page } from '../../components/page';
 
 /** Первые шаги по направлению филиала: у каждого свои разделы, справка другого направления сбивает (F5 плана DS2) */
 export default async function HelpPage() {
-  const { vertical } = await deskShell();
+  const { vertical, scopeKey } = await deskShell();
+  if (!scopeKey) return (
+    <Page title="Помощь" subtitle="Выберите филиал">
+      <p>Выберите филиал, чтобы открыть инструкции для его направления.</p>
+      <Link href="/branches">Выбрать филиал</Link>
+      <p>Данные можно просматривать в режиме чтения. Вход и выход доступны через меню профиля.</p>
+    </Page>
+  );
   const access = (
     <p>
       Время показывается в часовом поясе филиала. Доступ сотрудников к WETOP настраивается в разделе{' '}

@@ -11,6 +11,8 @@ import { loadBarContext } from '../load-context';
 import { BarCommandForm } from '../command-form';
 import { SupplierForm } from './supplier-form';
 import { BarTabs } from '../tabs';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 import '../bar.css';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
@@ -18,7 +20,9 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
 /** Поставщики бара (ADR-157): контакты, закуплено и оплачено по каждому, долг; оплата живёт в «Приходах». */
 export default async function BarSuppliersPage() {
   await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
-  const [suppliers, receipts] = await Promise.all([settle(barApi.suppliers()), settle(barApi.receipts())]);
+  const [suppliers, receipts, shell] = await Promise.all([settle(barApi.suppliers()), settle(barApi.receipts()), deskShell()]);
+  // UI-FIX-01: справочник правит право settings, в режиме чтения команд нет.
+  const canMutate = mayAccess(shell.access, 'settings') && !shell.readOnly;
   const failed = [suppliers, receipts].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!suppliers.ok || !receipts.ok) return null;
@@ -38,10 +42,10 @@ export default async function BarSuppliersPage() {
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
   return <Page width="wide" className="bar-subpage" title="Бар: поставщики" subtitle="Контакты и расчёты: закуплено, оплачено и долг по каждому поставщику.">
     <BarTabs current="suppliers" />
-    <details className="panel bar-supplier-panel bar-details">
+    {canMutate && <details className="panel bar-supplier-panel bar-details">
       <summary>Новый поставщик</summary>
       <SupplierForm context={context} />
-    </details>
+    </details>}
     <section className="bar-suppliers-table">
       <SectionTitle>Поставщики и расчёты</SectionTitle>
       {rows.length === 0
@@ -59,12 +63,12 @@ export default async function BarSuppliersPage() {
                 <td><details className="bar-row-details"><summary>Расчёты</summary><p>Приходов: {total?.documents ?? 0}</p><p>Закуплено: {formatMoney((total?.purchased ?? 0n).toString(), context.currency)}</p><p>Оплачено: {formatMoney((total?.paid ?? 0n).toString(), context.currency)}</p></details></td>
                 <td className="bar-supplier-actions">
                   {total && total.due > 0n && <Link className="btn btn--secondary btn--xs" href="/bar/receipts" prefetch={false}>К оплате</Link>}
-                  <BarCommandForm context={context} action={toggleBarCatalogAction}>
+                  {canMutate && <BarCommandForm context={context} action={toggleBarCatalogAction}>
                     <input type="hidden" name="kind" value="supplier" />
                     <input type="hidden" name="id" value={supplier.id} />
                     <input type="hidden" name="active" value={String(!supplier.active)} />
                     <Button type="submit" tone="ghost" size="xs">{supplier.active ? 'В архив' : 'Восстановить'}</Button>
-                  </BarCommandForm>
+                  </BarCommandForm>}
                 </td>
               </tr>;
             })}</tbody>

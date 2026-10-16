@@ -33,9 +33,11 @@ const onSurface = (e: MouseEvent, open: () => void) => {
 export function CategoryCatalog({
   categories,
   units,
+  canMutate,
 }: {
   categories: InventoryCategory[];
   units: InventoryUnit[];
+  canMutate: boolean;
 }) {
   const search = useSearchParams();
   const view = search.get('view') === 'cards' ? 'cards' : 'list';
@@ -62,8 +64,12 @@ export function CategoryCatalog({
     );
   const menu = (c: InventoryCategory): ActionMenuItem[] => [
     { label: 'Открыть', onSelect: () => setPreview(c) },
-    { label: 'Редактировать', onSelect: () => setEditing(c) },
-    { label: addWord(c), onSelect: () => setAdding(c) },
+    ...(canMutate
+      ? [
+          { label: 'Редактировать', onSelect: () => setEditing(c) },
+          { label: addWord(c), onSelect: () => setAdding(c) },
+        ]
+      : []),
     { label: 'Показать в календаре', href: `/chessboard?category=${encodeURIComponent(c.code)}` },
     { label: 'Свободные места', href: `/rooms/availability?category=${encodeURIComponent(c.code)}` },
   ];
@@ -72,6 +78,7 @@ export function CategoryCatalog({
    * с местами или историей уйдёт в архив; с бронями впереди сервер откажет словами
    */
   async function remove(c: InventoryCategory) {
+    if (!canMutate) return;
     const used = memberCount(c) > 0 || c.reservations > 0 || c.channexMapped;
     if (c.upcomingReservations) {
       setOutcome({
@@ -114,24 +121,28 @@ export function CategoryCatalog({
     );
   const operations = (c: InventoryCategory) => (
     <div className="fund-cat-ops">
-      <Button
-        size="sm"
-        tone="secondary"
-        disabled={!c.active}
-        onClick={() => setEditing(c)}
-        aria-label={`Изменить категорию ${c.name}`}
-      >
-        Изменить
-      </Button>
-      <Button
-        size="sm"
-        tone="ghost"
-        disabled={removing || !c.active}
-        onClick={() => void remove(c)}
-        aria-label={`Удалить категорию ${c.name}`}
-      >
-        Удалить
-      </Button>
+      {canMutate && (
+        <>
+          <Button
+            size="sm"
+            tone="secondary"
+            disabled={!c.active}
+            onClick={() => setEditing(c)}
+            aria-label={`Изменить категорию ${c.name}`}
+          >
+            Изменить
+          </Button>
+          <Button
+            size="sm"
+            tone="ghost"
+            disabled={removing || !c.active}
+            onClick={() => void remove(c)}
+            aria-label={`Удалить категорию ${c.name}`}
+          >
+            Удалить
+          </Button>
+        </>
+      )}
       <ActionMenu size="sm" label={`Действия с категорией ${c.name}`} items={menu(c)} />
     </div>
   );
@@ -174,7 +185,7 @@ export function CategoryCatalog({
           Например, «Двухместный номер» или «Койка в общей комнате». Затем добавьте конкретные
           номера и койки.
         </p>
-        <FundEditor categories={categories} mode="category" />
+        {canMutate && <FundEditor categories={categories} mode="category" />}
       </section>
     );
   return (
@@ -307,9 +318,10 @@ export function CategoryCatalog({
             setPreview(null);
             setAdding(preview);
           }}
+          canMutate={canMutate}
         />
       )}
-      {editing && (
+      {canMutate && editing && (
         <FundEditorDialog
           key={`edit-${editing.code}`}
           categories={categories}
@@ -320,7 +332,7 @@ export function CategoryCatalog({
           onClose={() => setEditing(null)}
         />
       )}
-      {adding && (
+      {canMutate && adding && (
         <FundEditorDialog
           key={`add-${adding.code}`}
           categories={categories}

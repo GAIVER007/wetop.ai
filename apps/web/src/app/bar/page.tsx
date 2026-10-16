@@ -20,6 +20,8 @@ import { stockStatusOf } from './stock-status';
 import { AnalyticsDisclosure } from './analytics-disclosure';
 import { SaleDisclosure } from './sale-disclosure';
 import { BarAnalytics } from './bar-analytics';
+import { deskShell } from '../../lib/desk-shell';
+import { mayAccess } from '../../lib/navigation';
 import './bar.css';
 
 const settle = <T,>(promise: Promise<T>) =>
@@ -86,7 +88,7 @@ export default async function BarPage({
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
-  const [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods, today] =
+  const [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods, today, shell] =
     await Promise.all([
       settle(barApi.categories()),
       settle(barApi.stock()),
@@ -98,7 +100,11 @@ export default async function BarPage({
       settle(barApi.report()),
       settle(barApi.paymentMethods()),
       hotelToday(),
+      deskShell(),
     ]);
+  // UI-FIX-01: продажа, приход и остаток пишут по праву desk, каталог по праву settings; в режиме чтения команд нет.
+  const canDeskMutate = mayAccess(shell.access, 'desk') && !shell.readOnly;
+  const canCatalogMutate = mayAccess(shell.access, 'settings') && !shell.readOnly;
   const failed = [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods].find(
     (result) => !result.ok,
   );
@@ -216,19 +222,23 @@ export default async function BarPage({
       subtitle="Товары, остатки и продажи"
       actions={
         <>
-          <Link className="btn" href="/bar/receipts/new" prefetch={false}>
-            <Icon name="plus" width={16} height={16} /> Приход
-          </Link>
-          <a className="btn btn--secondary" href="#bar-quick-sale">
-            <Icon name="plus" width={16} height={16} /> Продажа
-          </a>
-          <Link
-            className="btn btn--secondary"
-            href="/bar/operations#bar-inventory"
-            prefetch={false}
-          >
-            <Icon name="plus" width={16} height={16} /> Инвентаризация
-          </Link>
+          {canDeskMutate && (
+            <>
+              <Link className="btn" href="/bar/receipts/new" prefetch={false}>
+                <Icon name="plus" width={16} height={16} /> Приход
+              </Link>
+              <a className="btn btn--secondary" href="#bar-quick-sale">
+                <Icon name="plus" width={16} height={16} /> Продажа
+              </a>
+              <Link
+                className="btn btn--secondary"
+                href="/bar/operations#bar-inventory"
+                prefetch={false}
+              >
+                <Icon name="plus" width={16} height={16} /> Инвентаризация
+              </Link>
+            </>
+          )}
           <span className="bar-period-label">
             <Icon name="board" width={16} height={16} />
             {r.month
@@ -242,6 +252,7 @@ export default async function BarPage({
         </>
       }
     >
+      {canDeskMutate && (
       <nav className="bar-mobile-actions" aria-label="Быстрые действия бара">
         <Link href="/bar/receipts/new" className="btn btn--secondary" prefetch={false}>
           Приход
@@ -258,6 +269,7 @@ export default async function BarPage({
           Пересчёт
         </Link>
       </nav>
+      )}
       <BarTabs current="overview" />
       <section className="bar-kpis" aria-label="Показатели бара">
         <Kpi icon="cart" tone="info" label="Сумма закупок" value={money(r.month?.purchasesMinor ?? r.purchasesMinor)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />
@@ -276,6 +288,7 @@ export default async function BarPage({
           timezone={timezone}
         />
       </AnalyticsDisclosure>
+      {canDeskMutate && (
       <SaleDisclosure label={vertical === 'HOSPITALITY' ? undefined : 'Продажа напрямую'}>
         <section className="panel bar-sales" aria-label="Продажи бара">
           <Tabs
@@ -300,6 +313,7 @@ export default async function BarPage({
           />
         </section>
       </SaleDisclosure>
+      )}
       {stock.value.length === 0 ? (
         <>
           <EmptyState icon={<Icon name="product" />} title="Товаров пока нет">
@@ -316,7 +330,9 @@ export default async function BarPage({
           suppliers={suppliers.value}
           movements={movements.value}
           today={today}
-          initialProduct={productParam ?? null}
+          initialProduct={canCatalogMutate ? (productParam ?? null) : null}
+          canCatalogMutate={canCatalogMutate}
+          canStockMutate={canDeskMutate}
           bottom={
             <details className="bar-details">
               <summary>Приходы и популярные товары</summary>

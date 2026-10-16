@@ -19,6 +19,7 @@ import { CalendarWorkspace, CalendarExpandButton } from './calendar-workspace';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
+import { mayAccess } from '../../lib/navigation';
 import { weekPeriod } from './week-period';
 import './board.css';
 import { hospitalityStatus } from '../../lib/status/hospitality';
@@ -103,6 +104,7 @@ export default async function ChessboardPage({
   ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
+  const canMutate = !!shell && mayAccess(shell.access, 'desk') && !shell.readOnly;
   const month = monthPeriod(from);
   const isMonth = from === month.from && to === month.to;
   const week = weekPeriod(from);
@@ -211,10 +213,12 @@ export default async function ChessboardPage({
   const actions = (
     <>
       <CalendarExpandButton compact />
-      <Link className="btn board-new" href="/reservations/new">
-        <Icon name="plus" />
-        <span className="board-new__label">Новая бронь</span>
-      </Link>
+      {canMutate && (
+        <Link className="btn board-new" href="/reservations/new">
+          <Icon name="plus" />
+          <span className="board-new__label">Новая бронь</span>
+        </Link>
+      )}
     </>
   );
   const kpis = day ? (
@@ -267,13 +271,13 @@ export default async function ChessboardPage({
           stays={board.unassigned ?? []}
           critical={overbooked.length > 0}
           categories={categoriesOf(board.rows)}
-          readOnly={shell?.readOnly ?? false}
+          readOnly={!canMutate}
         />
         <ChessboardGrid
           board={board}
           today={today}
           fitMonth={isMonth}
-          readOnly={shell?.readOnly ?? false}
+          readOnly={!canMutate}
           kpis={kpis}
           help={help}
         />

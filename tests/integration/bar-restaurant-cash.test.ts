@@ -72,10 +72,10 @@ describe('бар: деньги по направлению филиала (integ
     expect([barSale.propertyId, barSale.cashOperationId, barSale.restaurantCashOperationId]).toEqual([null, null, income[0]!.id]);
     // в кассе 1 200 ₸ наличными: оплатить 3 000 ₸ нельзя, 1 000 ₸ можно
     expect(
-      await as('FOOD_SERVICE', () => repo.payReceipt(receipt, { amountMinor: 300000n, method: 'CASH', note: null })),
+      await as('FOOD_SERVICE', () => repo.payReceipt(receipt, { amountMinor: 300000n, method: 'CASH', note: null , idempotencyKey: randomUUID() })),
     ).toEqual({ kind: 'insufficient_cash', available: 120000n });
     expect(
-      await as('FOOD_SERVICE', () => repo.payReceipt(receipt, { amountMinor: 100000n, method: 'CASH', note: null })),
+      await as('FOOD_SERVICE', () => repo.payReceipt(receipt, { amountMinor: 100000n, method: 'CASH', note: null , idempotencyKey: randomUUID() })),
     ).toMatchObject({ kind: 'paid', paidAmount: '100000' });
     const expense = await prisma.db.restaurantCashOperation.findFirstOrThrow({ where: { locationId: location, kind: 'EXPENSE' } });
     expect(expense.amount).toBe(100000n);
@@ -116,11 +116,11 @@ describe('бар: деньги по направлению филиала (integ
     const location = branches.BEAUTY.location;
     const income = await prisma.db.restaurantCashOperation.findFirstOrThrow({ where: { locationId: location, kind: 'INCOME' } });
     expect([income.method, income.amount]).toEqual(['CASH', 60000n]);
-    expect(await as('BEAUTY', () => repo.payReceipt(receipt, { amountMinor: 70000n, method: 'CASH', note: null }))).toEqual({
+    expect(await as('BEAUTY', () => repo.payReceipt(receipt, { amountMinor: 70000n, method: 'CASH', note: null , idempotencyKey: randomUUID() }))).toEqual({
       kind: 'insufficient_cash',
       available: 60000n,
     });
-    expect(await as('BEAUTY', () => repo.payReceipt(receipt, { amountMinor: 50000n, method: 'CASH', note: null }))).toMatchObject({
+    expect(await as('BEAUTY', () => repo.payReceipt(receipt, { amountMinor: 50000n, method: 'CASH', note: null , idempotencyKey: randomUUID() }))).toMatchObject({
       kind: 'paid',
     });
     expect(

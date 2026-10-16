@@ -1,0 +1,103 @@
+# Интеграционные (integration) · 16.10.2026 12:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 40f94ce (claude/combined-279-port), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-26-48Z-integration-eb30.json' 'tests/integration/bar' 'tests/integration/cash' 'tests/integration/folio' 'tests/integration/finance'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-279
+
+[pms_test] миграций применено 2; данные на месте
+ ↓ |integration| tests/integration/bar-money-fixes.test.ts (35 tests | 35 skipped)
+ ↓ |integration| tests/integration/bar-money-invariants-audit.test.ts (31 tests | 31 skipped)
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ✓ |integration| tests/integration/bar-populated-rls.test.ts (24 tests) 241ms
+ ✓ |integration| tests/integration/bar-external-parent-ownership.test.ts (29 tests) 225ms
+ ✓ |integration| tests/integration/bar-parent-concurrency.test.ts (200 tests) 2942ms
+ ✓ |integration| tests/integration/bar-ownership.test.ts (105 tests) 594ms
+ ✓ |integration| tests/integration/finance-debts.test.ts (2 tests) 188ms
+ ↓ |integration| tests/integration/bar-api-bootstrap.test.ts (5 tests | 5 skipped)
+ ✓ |integration| tests/integration/cash-operations.test.ts (4 tests) 248ms
+(node:17823) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-restaurant-cash.test.ts (4 tests) 245ms
+ ✓ |integration| tests/integration/finance-operations.test.ts (2 tests) 163ms
+ ✓ |integration| tests/integration/bar-archive-currency.test.ts (2 tests) 178ms
+(node:17834) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-location-children.test.ts (6 tests) 181ms
+ ✓ |integration| tests/integration/bar-property-guard.test.ts (12 tests) 35ms
+(node:17842) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-inventory-surplus.test.ts (3 tests) 188ms
+(node:17845) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-payment-replay-loss.test.ts (2 tests) 221ms
+ ✓ |integration| tests/integration/bar-location.test.ts (5 tests) 21ms
+ ✓ |integration| tests/integration/finance-locks.test.ts (3 tests) 146ms
+(node:17856) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/bar-payment-methods.test.ts (3 tests | 1 failed) 301ms
+   ❯ бар: способы оплаты объекта (integration, DATABASE_URL required) (3)
+     ✓ GET /bar/payment-methods: порядок настройки, без выключенного Kaspi, только способы бара 38ms
+     ✓ продажа выключенным способом: 400 словами настройки; включённым проходит до поиска товара (404) 22ms
+     × оплата поставщику выключенным способом: 400; включённым доходит до прихода (404) 12ms
+ ✓ |integration| tests/integration/bar-overview.test.ts (1 test) 164ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 148ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-payment-methods.test.ts > бар: способы оплаты объекта (integration, DATABASE_URL required) > оплата поставщику выключенным способом: 400; включённым доходит до прихода (404)
+AssertionError: {"message":"Нужен ключ повтора оплаты","error":"Bad Request","statusCode":400}: expected 400 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 400
+
+ ❯ tests/integration/bar-payment-methods.test.ts:88:40
+     86|     expect(refused.status, refused.text).toBe(400);
+     87|     const passed = await call(base, 'owner', 'POST', path, scope(), { …
+     88|     expect(passed.status, passed.text).toBe(404);
+       |                                        ^
+     89|   });
+     90| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 17 passed | 3 skipped (21)
+      Tests  1 failed | 407 passed | 71 skipped (479)
+   Start at  00:26:49
+   Duration  10.90s (tests 68%, import 25%, transform 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-26-48Z-integration-eb30.json
+
+# код выхода 1 · 12 с

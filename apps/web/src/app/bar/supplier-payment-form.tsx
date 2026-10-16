@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { useBarAction } from './use-bar-action';
 import { BarContextFields, type BarFormContext } from './context';
 
@@ -25,6 +26,9 @@ export function SupplierPaymentForm({
   methods: string[];
 }) {
   const [state, action, pending] = useBarAction(payBarSupplierAction, initial);
+  // ключ повтора (ADR-186 M6): один на попытку, двойной клик или повтор после обрыва не платит дважды
+  const [key, setKey] = useState('');
+  useEffect(() => setKey(crypto.randomUUID()), [state.ok]);
   // способы из настройки объекта (ADR-185); счёт организации остаётся умолчанием поставщика, пока объект его не выключил
   const preferred = methods.includes('BANK_TRANSFER_LEGAL') ? 'BANK_TRANSFER_LEGAL' : methods[0];
   if (methods.length === 0)
@@ -34,9 +38,10 @@ export function SupplierPaymentForm({
       </p>
     );
   return (
-    <form onSubmit={action} className="bar-payment-form">
+    <form onSubmit={action} onChange={() => setKey(crypto.randomUUID())} className="bar-payment-form">
       <BarContextFields context={context} />
       <input type="hidden" name="receiptId" value={receiptId} />
+      <input type="hidden" name="idempotencyKey" value={key} />
       <Field label={`Сумма, ${context.currency}`}>
         <Input name="amount" inputMode="decimal" defaultValue={tenge(dueAmount)} required />
       </Field>

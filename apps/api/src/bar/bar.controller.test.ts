@@ -151,9 +151,11 @@ describe('бар: приходы (BAR2)', () => {
 
   it('принимает частичную оплату поставщику и запрещает переплату', async () => {
     const id = '10000000-0000-4000-8000-000000000001';
-    const paid = await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '80000', method: 'BANK_TRANSFER_LEGAL' }).expect(201);
+    const paid = await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '80000', method: 'BANK_TRANSFER_LEGAL', idempotencyKey: '00000000-0000-4000-8000-0000000000b1' }).expect(201);
     expect(paid.body).toMatchObject({ paidAmount: '80000', dueAmount: '100000' });
-    await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '180001', method: 'CASH' }).expect(409);
+    await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '180001', method: 'CASH', idempotencyKey: '00000000-0000-4000-8000-0000000000b2' }).expect(409);
+    // ключ повтора обязателен (§50, ADR-186 M6)
+    await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '100', method: 'CASH' }).expect(400);
   });
 
   it('добавляет товар в открытый счет гостя', async () => {

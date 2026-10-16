@@ -1,0 +1,21 @@
+# Модульные (unit) · 16.10.2026 09:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/main-red-after-556), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T04-53-06Z-unit-ccb3.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556
+
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 26ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 21ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 784ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 750ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 10ms
+
+ Test Files  4 passed (4)
+      Tests  53 passed (53)
+   Start at  21:53:20
+   Duration  4.66s (transform 56%, import 32%, tests 11%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T04-53-06Z-unit-ccb3.json
+
+# код выхода 0 · 19 с

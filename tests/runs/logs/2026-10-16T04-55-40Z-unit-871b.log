@@ -1,0 +1,30 @@
+# Модульные (unit) · 16.10.2026 09:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/marketing-attribution), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T04-55-40Z-unit-871b.json' 'packages/domain/src/marketing/funnel.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/domain/src/marketing/funnel.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/funnel.test.ts [ packages/domain/src/marketing/funnel.test.ts ]
+Error: Cannot find module './funnel' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/packages/domain/src/marketing/funnel.test.ts
+ ❯ packages/domain/src/marketing/funnel.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { buildMarketingFunnel, type ChannelResult } from './funnel';
+       | ^
+      3|
+      4| const ch = (channel: ChannelResult['channel'], leads: number, bookings…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  21:56:01
+   Duration  367ms (worker 99%, environment 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T04-55-40Z-unit-871b.json
+
+# код выхода 1 · 22 с

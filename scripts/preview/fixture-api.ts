@@ -4934,9 +4934,13 @@ interface FixtureMarketingExpense {
 }
 const budgetExpenses: FixtureMarketingExpense[] = [];
 const budgetPlans = new Map<string, string>();
+/** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
+type FixtureChannelResult = { channel: string; leads: number; bookings: number; revenue: string };
+const budgetResults = new Map<string, { supported: boolean; channels: FixtureChannelResult[] }>();
 const resetMarketingBudget = () => {
   budgetExpenses.length = 0;
   budgetPlans.clear();
+  budgetResults.clear();
 };
 const BUDGET_RC = 'KZT';
 const budgetMonthShift = (month: string, shift: number) => {
@@ -4951,7 +4955,12 @@ function marketingBudgetRoute(
   q: URLSearchParams,
   body: Record<string, unknown>,
 ): [number, unknown] | null {
-  if (!path.startsWith('/marketing/budget') && !path.startsWith('/marketing/expenses')) return null;
+  if (
+    !path.startsWith('/marketing/budget') &&
+    !path.startsWith('/marketing/expenses') &&
+    path !== '/marketing/results'
+  )
+    return null;
   if (!can(uiRole, 'settings')) return [403, { message: accessDeniedMessage('settings') }];
   try {
     if (path === '/marketing/budget' && method === 'GET') {
@@ -4974,6 +4983,27 @@ function marketingBudgetRoute(
           plan: budgetPlans.get(`${month}-01`) ?? null,
           prevSpent: prevSpent.toString(),
           expenses,
+        },
+      ];
+    }
+    if (path === '/marketing/results' && method === 'GET') {
+      const month = q.get('month') ?? today.slice(0, 7);
+      if (!/^\d{4}-\d{2}$/.test(month)) return [400, { message: 'Месяц: в виде ГГГГ-ММ' }];
+      const seeded = budgetResults.get(month);
+      const zero = ['SITE', 'WHATSAPP', 'INSTAGRAM', 'PHONE'].map((channel) => ({
+        channel,
+        leads: 0,
+        bookings: 0,
+        revenue: '0',
+      }));
+      return [
+        200,
+        {
+          month,
+          reportingCurrency: BUDGET_RC,
+          revenueCurrency: seeded?.supported === false ? null : BUDGET_RC,
+          supported: seeded?.supported ?? true,
+          channels: seeded?.supported === false ? [] : (seeded?.channels ?? zero),
         },
       ];
     }
@@ -5687,6 +5717,14 @@ createServer(async (req, res) => {
         const input = parseMarketingBudgetInput(plan as Record<string, unknown>);
         budgetPlans.set(input.month, input.amount.toString());
       }
+      const seededResults = body['results'] as
+        | { month: string; supported?: boolean; channels?: FixtureChannelResult[] }
+        | undefined;
+      if (seededResults)
+        budgetResults.set(seededResults.month, {
+          supported: seededResults.supported ?? true,
+          channels: seededResults.channels ?? [],
+        });
       return send(200, { ok: true, today });
     }
     const salesResponse = salesRoute(path, req.method ?? 'GET', url.searchParams);

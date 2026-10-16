@@ -1,6 +1,11 @@
 import 'reflect-metadata';
 import { ConflictException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { canWrite, type MarketingExpenseInput, type MarketingPlatform } from '@pms/domain';
+import {
+  canWrite,
+  type ChannelResult,
+  type MarketingExpenseInput,
+  type MarketingPlatform,
+} from '@pms/domain';
 import { auditUserId } from '../accounts/actor';
 import {
   currentLocationId,
@@ -78,6 +83,18 @@ export interface MarketingBudgetRepository {
   /** false: расхода нет у этого филиала */
   deleteExpense(locationId: string, id: string, audit: BudgetAudit): Promise<boolean>;
   setPlan(locationId: string, month: string, amount: bigint, audit: BudgetAudit): Promise<void>;
+  /**
+   * Результаты маркетинговых каналов филиала за месяц [first, nextFirst) по правилу Q-MKT-ATTR (МКТ-В5a).
+   * `supported: false`: у филиала нет объекта размещения (салон, ресторан), броней гостиницы нет.
+   */
+  results(locationId: string, first: string, nextFirst: string): Promise<ResultsData>;
+}
+
+export interface ResultsData {
+  supported: boolean;
+  /** Валюта выручки: валюта объекта; null, когда объекта нет */
+  revenueCurrency: string | null;
+  channels: ChannelResult[];
 }
 export const MARKETING_BUDGET_REPOSITORY = Symbol('MARKETING_BUDGET_REPOSITORY');
 
@@ -265,6 +282,75 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
       });
       await writeAudit(tx, audit);
     });
+  }
+
+  async results(locationId: string, first: string, nextFirst: string): Promise<ResultsData> {
+    const property = await this.prisma.db.property.findUnique({
+      where: { locationId },
+      select: { id: true, timezone: true, currency: true },
+    });
+    if (!property) return { supported: false, revenueCurrency: null, channels: [] };
+    const tz = property.timezone;
+    // Брони маркетинговых каналов: месяц по дню, когда бронь сделали, в поясе объекта. Отмена и незаезд
+    // в брони и выручку не входят; обращением считается и отменённая бронь, сделанная без ИИ-продавца
+    // (обращения ИИ-продавца считаются по его диалогам ниже).
+    const bookingRows = await this.prisma.db.$queryRaw<
+      Array<{ source: string; bookings: bigint; revenue: bigint | string | null; direct: bigint }>
+    >`
+      SELECT r.source::text AS source,
+        count(*) FILTER (WHERE r.status NOT IN ('CANCELLED', 'NO_SHOW')) AS bookings,
+        COALESCE(sum(r.total_amount) FILTER (WHERE r.status NOT IN ('CANCELLED', 'NO_SHOW')), 0) AS revenue,
+        count(*) FILTER (WHERE NOT EXISTS (
+          SELECT 1 FROM seller_booking_intents i WHERE i.reservation_id = r.id)) AS direct
+      FROM reservations r
+      WHERE r.property_id = ${property.id}::uuid
+        AND r.source::text IN ('WEBSITE', 'WHATSAPP', 'INSTAGRAM', 'PHONE')
+        AND (COALESCE(r.booked_at, r.created_at) AT TIME ZONE ${tz})::date >= ${first}::date
+        AND (COALESCE(r.booked_at, r.created_at) AT TIME ZONE ${tz})::date < ${nextFirst}::date
+      GROUP BY r.source`;
+    // Диалоги ИИ-продавца, дошедшие до предложения цены: один диалог одно обращение
+    const dialogRows = await this.prisma.db.$queryRaw<Array<{ channel: string; dialogs: bigint }>>`
+      SELECT i.channel, count(DISTINCT i.conversation_id) AS dialogs
+      FROM seller_booking_intents i
+      WHERE i.property_id = ${property.id}::uuid
+        AND (i.created_at AT TIME ZONE ${tz})::date >= ${first}::date
+        AND (i.created_at AT TIME ZONE ${tz})::date < ${nextFirst}::date
+      GROUP BY i.channel`;
+    // Заявки с сайта филиала, кроме спама
+    const leadRows = await this.prisma.db.$queryRaw<Array<{ leads: bigint }>>`
+      SELECT count(*) AS leads
+      FROM site_leads l
+      WHERE l.location_id = ${locationId}::uuid
+        AND l.status::text <> 'SPAM'
+        AND (l.created_at AT TIME ZONE ${tz})::date >= ${first}::date
+        AND (l.created_at AT TIME ZONE ${tz})::date < ${nextFirst}::date`;
+
+    const bySource = new Map(bookingRows.map((r) => [r.source, r]));
+    const dialogs = new Map(dialogRows.map((r) => [r.channel, Number(r.dialogs)]));
+    const siteLeads = Number(leadRows[0]?.leads ?? 0);
+    const channel = (
+      name: ChannelResult['channel'],
+      source: string,
+      extraLeads: number,
+    ): ChannelResult => {
+      const row = bySource.get(source);
+      return {
+        channel: name,
+        leads: Number(row?.direct ?? 0) + extraLeads,
+        bookings: Number(row?.bookings ?? 0),
+        revenueMinor: BigInt(row?.revenue ?? 0),
+      };
+    };
+    return {
+      supported: true,
+      revenueCurrency: property.currency,
+      channels: [
+        channel('SITE', 'WEBSITE', siteLeads + (dialogs.get('widget') ?? 0)),
+        channel('WHATSAPP', 'WHATSAPP', dialogs.get('whatsapp') ?? 0),
+        channel('INSTAGRAM', 'INSTAGRAM', 0),
+        channel('PHONE', 'PHONE', 0),
+      ],
+    };
   }
 }
 

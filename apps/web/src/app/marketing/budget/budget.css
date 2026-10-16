@@ -165,13 +165,48 @@
     font-size: var(--text-sm);
   }
 
-  /* «Эффективность источников»: полоса доли в ячейке таблицы не схлопывается */
-  .man-share {
-    min-width: 160px;
+  /* «Аналитика маркетинга»: восемь плиток ровно 4 + 4 на компьютере, без сироты во втором ряду */
+  @media (min-width: 961px) {
+    .man-stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 
-  .man-share .share-bar {
-    width: 100%;
+  /* «Воронка маркетинга» (МКТ-В5a): шаги в ряд на компьютере, столбиком на телефоне */
+  .man-funnel {
+    list-style: none;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  .man-funnel__step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .man-funnel__name {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+
+  .man-funnel__value {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 960px) {
+    .man-funnel {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .man-funnel {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   .budget-delete {

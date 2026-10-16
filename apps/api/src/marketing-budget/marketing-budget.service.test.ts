@@ -65,6 +65,18 @@ class FakeRepo implements MarketingBudgetRepository {
     this.audits.push(audit);
     this.planSet = { month, amount };
   }
+  resultsArgs: unknown[] = [];
+  async results(locationId: string, first: string, nextFirst: string) {
+    this.resultsArgs = [locationId, first, nextFirst];
+    return {
+      supported: true,
+      revenueCurrency: 'KZT',
+      channels: [
+        { channel: 'SITE' as const, leads: 5, bookings: 2, revenueMinor: 900000n },
+        { channel: 'WHATSAPP' as const, leads: 3, bookings: 1, revenueMinor: 250000n },
+      ],
+    };
+  }
 }
 
 describe('сервис бюджета маркетинга (МКТ-В1/В2)', () => {
@@ -148,5 +160,22 @@ describe('сервис бюджета маркетинга (МКТ-В1/В2)', ()
     expect(repo.planSet).toEqual({ month: '2026-10-01', amount: 300000n });
     expect(res).toEqual({ month: '2026-10', amount: '300000' });
     expect(repo.audits[0]!.action).toBe('marketing_budget.set');
+  });
+
+  it('results: окно месяца как у бюджета, деньги строками, валюта выручки отдельно', async () => {
+    const r = await service.results('2026-10');
+    expect(repo.resultsArgs).toEqual(['loc-1', '2026-10-01', '2026-11-01']);
+    expect(r.month).toBe('2026-10');
+    expect(r.reportingCurrency).toBe('KZT');
+    expect(r.revenueCurrency).toBe('KZT');
+    expect(r.supported).toBe(true);
+    expect(r.channels).toEqual([
+      { channel: 'SITE', leads: 5, bookings: 2, revenue: '900000' },
+      { channel: 'WHATSAPP', leads: 3, bookings: 1, revenue: '250000' },
+    ]);
+  });
+
+  it('results: кривой месяц: отказ словами', async () => {
+    await expect(service.results('октябрь')).rejects.toBeInstanceOf(BadRequestException);
   });
 });

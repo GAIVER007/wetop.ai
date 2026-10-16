@@ -97,3 +97,24 @@ https://developers.facebook.com/docs/graph-api/results, https://developers.faceb
   `fbtrace_id`. Коды: `190` ключ истёк (нужен новый ключ, повтор бесполезен); `4`, `17` слишком много вызовов (ждать
   и повторить), `613` предел Insights (из справочника Insights, см. выше); `10` и `200`–`299` нет права (повтор
   бесполезен, нужен новый вход); `1`, `2` временный сбой (ждать и повторить).
+
+## Вход клиента и чтение кабинета
+
+Источники, снято 16.10.2026: https://developers.facebook.com/docs/facebook-login/guides/advanced/manual-flow,
+https://developers.facebook.com/docs/facebook-login/facebook-login-for-business/,
+https://developers.facebook.com/docs/marketing-api/reference/ad-account/.
+
+- Окно входа: `https://www.facebook.com/v25.0/dialog/oauth` с параметрами `client_id` (номер приложения),
+  `redirect_uri` (должен совпадать с адресом из «Valid OAuth redirect URIs» в настройках приложения), `state` (строка
+  приложения, возвращается без изменений; служит защитой от подделки запроса, проверяет приложение), `response_type`.
+  Для Facebook Login for Business добавляется `config_id`; для ключа SUAT обязательно `response_type=code` и
+  `override_default_response_type=true` (SUAT выдаётся только через код авторизации).
+- Обмен кода на ключ сервером: `GET https://graph.facebook.com/v25.0/oauth/access_token` с `client_id`,
+  `redirect_uri` (тот же, что в окне), `client_secret`, `code`. Ответ JSON: `access_token`, `token_type`, `expires_in`.
+  Секрет приложения никогда не попадает в браузер.
+- Кабинет по номеру: `GET /act_{ad_account_id}?fields=…`. Поля: `id` («act_{номер}»), `account_id` (номер строкой),
+  `name`, `currency`, `timezone_name`, `account_status` (1 ACTIVE, 2 DISABLED, 3 UNSETTLED, 7 PENDING_RISK_REVIEW,
+  8 PENDING_SETTLEMENT, 9 IN_GRACE_PERIOD, 100 PENDING_CLOSURE, 101 CLOSED, 201 ANY_ACTIVE, 202 ANY_CLOSED).
+- Список кабинетов клиента через API в этих страницах **не описан** (`/me/adaccounts` и подобные не найдены). Поэтому
+  номер кабинета человек вводит сам (он виден в Ads Manager), а сервер проверяет его чтением `act_{номер}` уже с
+  выданным ключом: нет доступа, значит кабинет не подключается.

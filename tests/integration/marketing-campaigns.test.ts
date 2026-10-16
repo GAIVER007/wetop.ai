@@ -110,13 +110,13 @@ describe('рекламные кампании (integration)', () => {
       select: { id: true },
     });
     ids.push(cabinet.id);
-    for (const attemptIt of [
+    const attempts: Array<() => Promise<unknown>> = [
       () => campaigns.update(cabinet.id, { platform: 'META', name: 'Руками' }),
       () => campaigns.setDay(cabinet.id, { date: '2026-10-05', impressions: '1' }),
       () => campaigns.importDays(cabinet.id, { csv: 'Дата;Показы\n2026-10-05;1' }),
       () => campaigns.removeDay(cabinet.id, '2026-10-05'),
-    ])
-      await expect(as('own', attemptIt)).rejects.toMatchObject({ status: 409 });
+    ];
+    for (const attemptIt of attempts) await expect(as('own', attemptIt)).rejects.toMatchObject({ status: 409 });
     expect(await db.marketingCampaign.findUniqueOrThrow({ where: { id: cabinet.id }, select: { name: true } })).toEqual({ name: 'Из кабинета' });
     expect(await db.marketingCampaignStat.count({ where: { campaignId: cabinet.id } })).toBe(0);
   });

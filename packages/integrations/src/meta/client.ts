@@ -45,6 +45,18 @@ export interface MetaCampaignDay {
   currency: string;
 }
 
+/** Рекламный кабинет по номеру (docs/meta/README.md, «Кабинет по номеру») */
+export interface MetaAdAccount {
+  /** Номер без приставки act_ */
+  accountId: string;
+  name: string;
+  currency: string;
+  /** Пояс кабинета: в нём Meta считает дни */
+  timezone: string;
+  /** account_status = 1 (ACTIVE) */
+  active: boolean;
+}
+
 export interface MetaAdsClientOptions {
   accessToken: string;
   fetch?: typeof fetch;
@@ -103,6 +115,28 @@ export class MetaAdsClient {
     this.sleep = options.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
   }
 
+  /** Кабинет по номеру: проверка доступа ключа и его валюта, пояс, статус */
+  async adAccount(adAccountId: string): Promise<MetaAdAccount> {
+    const account = adAccountId.startsWith('act_') ? adAccountId : `act_${adAccountId}`;
+    const url = new URL(`${BASE}/${META_API_VERSION}/${encodeURIComponent(account)}`);
+    url.searchParams.set('fields', 'account_id,name,currency,timezone_name,account_status');
+    url.searchParams.set('access_token', this.options.accessToken);
+    const r = await this.get<{
+      account_id?: string;
+      name?: string;
+      currency?: string;
+      timezone_name?: string;
+      account_status?: number;
+    }>(url.toString());
+    return {
+      accountId: String(r.account_id ?? account.slice(4)),
+      name: String(r.name ?? '').trim(),
+      currency: String(r.currency ?? '').toUpperCase(),
+      timezone: String(r.timezone_name ?? ''),
+      active: r.account_status === 1,
+    };
+  }
+
   /** Кампании кабинета по дням за период [since, until] в часовом поясе кабинета; все страницы */
   async campaignDays(q: { adAccountId: string; since: string; until: string }): Promise<MetaCampaignDay[]> {
     const account = q.adAccountId.startsWith('act_') ? q.adAccountId : `act_${q.adAccountId}`;
@@ -116,21 +150,22 @@ export class MetaAdsClient {
     const out: MetaCampaignDay[] = [];
     let next: string | undefined = first.toString();
     while (next) {
-      const page: InsightsPage = await this.get(next);
+      const page: InsightsPage = await this.get<InsightsPage>(next);
       for (const r of page.data ?? []) out.push(toDay(r));
       next = page.paging?.next;
     }
     return out;
   }
 
-  private async get(url: string): Promise<InsightsPage> {
+  private async get<T>(url: string): Promise<T> {
     for (let attempt = 1; ; attempt += 1) {
       let status = 0;
-      let body: InsightsPage | null = null;
+      type Body = T & { error?: { message?: string; code?: number } };
+      let body: Body | null = null;
       try {
         const res = await this.fetchFn(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
         status = res.status;
-        body = (await res.json().catch(() => null)) as InsightsPage | null;
+        body = (await res.json().catch(() => null)) as Body | null;
       } catch {
         // сеть или таймаут: ответа нет, ниже это повтор с кодом 0
       }

@@ -65,6 +65,11 @@ export interface CampaignView {
   impressions: number;
   clicks: number;
   leads: number;
+  /** Кампания из рекламного кабинета (§54): правит только сверка */
+  fromCabinet: boolean;
+  /** Расход по кабинету за месяц, minor units его валюты; null у ручных кампаний */
+  cabinetSpend: string | null;
+  cabinetCurrency: string | null;
   /** Дни месяца со статистикой, по возрастанию */
   days: Array<{ date: string; impressions: number; clicks: number; leads: number }>;
 }
@@ -127,7 +132,7 @@ export class MarketingCampaignsService {
           stats: {
             where: { date: { gte: first, lt: next } },
             orderBy: { date: 'asc' },
-            select: { date: true, impressions: true, clicks: true, leads: true },
+            select: { date: true, impressions: true, clicks: true, leads: true, spendMinor: true, spendCurrency: true },
           },
         },
       }),
@@ -153,6 +158,9 @@ export class MarketingCampaignsService {
         impressions: c.stats.reduce((s, d) => s + d.impressions, 0),
         clicks: c.stats.reduce((s, d) => s + d.clicks, 0),
         leads: c.stats.reduce((s, d) => s + d.leads, 0),
+        fromCabinet: c.externalId !== null,
+        cabinetSpend: c.externalId === null ? null : c.stats.reduce((s, d) => s + (d.spendMinor ?? 0n), 0n).toString(),
+        cabinetCurrency: c.externalId === null ? null : (c.stats.find((d) => d.spendCurrency)?.spendCurrency ?? null),
         days: c.stats.map((d) => ({ date: iso(d.date)!, impressions: d.impressions, clicks: d.clicks, leads: d.leads })),
       })),
     };

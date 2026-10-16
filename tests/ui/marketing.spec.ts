@@ -202,10 +202,8 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   const metrics = ads.getByTestId('marketing-ads-metrics');
   await expect(metrics.locator('.stat__label')).toHaveText(['Расход кампаний', 'Показы', 'Клики', 'Лиды площадки']);
   await expect(ads.getByTestId('ads-empty')).toContainText('Кампаний пока нет');
-  // кабинет не подключается: кнопка неактивна и объясняет почему; кампанию создать можно (МКТ-В3)
-  const cabinet = ads.getByRole('button', { name: 'Подключить кабинет', exact: true });
-  await expect(cabinet).toBeDisabled();
-  await expect(cabinet).toHaveAttribute('aria-describedby', 'marketing-ads-soon');
+  // кабинет Meta подключается (ADR-MKT-META), кампанию можно создать и вручную (МКТ-В3)
+  await expect(ads.getByRole('button', { name: 'Подключить кабинет Meta', exact: true })).toBeEnabled();
   await expect(ads.getByRole('button', { name: 'Создать кампанию', exact: true })).toBeEnabled();
   await ads.getByRole('tab', { name: 'Аудитории', exact: true }).click();
   await expect(ads.getByRole('tabpanel')).toContainText('Пока пусто');
@@ -240,7 +238,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   const hits = (await (await request.get(`${fixture}/__test/hits`)).json()) as {
     byPath: Record<string, number>;
   };
-  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path))).toEqual(['/marketing/campaigns']);
+  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort()).toEqual(['/marketing/ad-connections/meta', '/marketing/campaigns']);
 });
 
 test('администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб', async ({

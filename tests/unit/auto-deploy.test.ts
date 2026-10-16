@@ -81,6 +81,8 @@ beforeEach(() => {
 echo "docker $*" >> "$FAKE_CALLS"
 # Контейнер CI-раннера есть всегда; задачу он выполняет, когда задан FAKE_CI_BUSY (процесс Runner.Worker)
 if [ "$1" = ps ]; then echo ci1; exit 0; fi
+# Образы отката на «сервере»: теги из FAKE_ROLLBACK_TAGS
+if [ "$1" = images ]; then for t in \${FAKE_ROLLBACK_TAGS:-}; do echo "$t"; done; exit 0; fi
 if [ "$1" = top ]; then
   echo "UID PID CMD"
   echo "runner 10 /home/runner/actions-runner/bin/Runner.Listener run"
@@ -155,6 +157,38 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(readFileSync(`${calls}.curl`, 'utf8')).not.toContain(TOKEN);
     // второй запуск — выкладывать нечего
     expect(run().out).toBe('');
+  });
+
+  it('после выкладки остаётся один образ отката, старые убираются (16.10.2026: пять по 2 ГБ заполнили диск)', () => {
+    const before = head();
+    commit('apps/web/page.txt', 'v2\n', 'new page');
+    const keep = `rollback-${before.slice(0, 8)}`;
+    const r = run({ FAKE_ROLLBACK_TAGS: `rollback-aaaa1111 rollback-bbbb2222 ${keep}` });
+    expect(r.code, r.out).toBe(0);
+    expect(dockerCalls()).toContain('docker image rm pms-lux:rollback-aaaa1111');
+    expect(dockerCalls()).toContain('docker image rm pms-lux:rollback-bbbb2222');
+    expect(dockerCalls()).not.toContain(`docker image rm pms-lux:${keep}`);
+  });
+
+  it('мало места на диске: убирает кэш, не трогает клон, говорит один раз и выкладывает, когда место есть', () => {
+    const before = head();
+    const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+    // подставной df: свободно столько килобайт, сколько в FAKE_DF_AVAIL_KB
+    writeFileSync(join(bin, 'df'), '#!/usr/bin/env bash\necho "Filesystem 1024-blocks Used Available Capacity Mounted"\necho "/dev/sda1 100000000 99000000 $FAKE_DF_AVAIL_KB 99% /"\n');
+    chmodSync(join(bin, 'df'), 0o755);
+    const low = run({ FAKE_DF_AVAIL_KB: String(1024 * 1024) });
+    expect(low.code).toBe(1);
+    expect(low.out).toContain('меньше 6 ГБ');
+    expect(dockerCalls()).toContain('docker builder prune -f');
+    expect(dockerCalls()).not.toContain('up -d');
+    expect(head()).toBe(before);
+    expect(git(server, 'status', '--porcelain', '--untracked-files=no')).toBe('');
+    // пока места нет: без повторной тревоги
+    expect(run({ FAKE_DF_AVAIL_KB: String(1024 * 1024) }).out).toBe('');
+    // место освободили: следующий запуск выкладывает сам, без отметки refused
+    const ok = run({ FAKE_DF_AVAIL_KB: String(50 * 1024 * 1024) });
+    expect(ok.code, ok.out).toBe(0);
+    expect(head()).toBe(target);
   });
 
   it('в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца', () => {

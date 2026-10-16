@@ -1,4 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import type { MarketingExpenseInput } from '@pms/domain';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type {
   BudgetAudit,
@@ -64,6 +65,11 @@ class FakeRepo implements MarketingBudgetRepository {
   async setPlan(_l: string, month: string, amount: bigint, audit: BudgetAudit): Promise<void> {
     this.audits.push(audit);
     this.planSet = { month, amount };
+  }
+  imported: Array<{ input: MarketingExpenseInput; audit: BudgetAudit }> = [];
+  async createExpenses(_l: string, items: Array<{ input: MarketingExpenseInput; audit: BudgetAudit }>) {
+    this.imported = items;
+    return items.length;
   }
   resultsArgs: unknown[] = [];
   async results(locationId: string, first: string, nextFirst: string) {
@@ -179,5 +185,25 @@ describe('сервис бюджета маркетинга (МКТ-В1/В2)', ()
 
   it('results: кривой месяц: отказ словами', async () => {
     await expect(service.results('октябрь')).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('импорт CSV: все строки одной пачкой, у каждой своя запись журнала, итог в валюте отчётности', async () => {
+    const csv = 'Дата;Платформа;Статья;Сумма;Валюта;Курс\n2026-10-05;Meta Ads;Реклама;100;;\n2026-10-06;Google Ads;Реклама;10;USD;500';
+    const r = await service.importExpenses({ csv });
+    expect(r).toEqual({ imported: 2, baseTotal: '510000' });
+    expect(repo.imported.map((i) => i.input.platform)).toEqual(['META', 'GOOGLE']);
+    expect(repo.imported.map((i) => i.audit.action)).toEqual(['marketing_expense.imported', 'marketing_expense.imported']);
+    expect(repo.imported[1]!.audit.after).toMatchObject({ source: 'csv', line: 3, locationId: 'loc-1', amount: '1000', baseAmount: '500000' });
+  });
+
+  it('импорт CSV: ошибка в любой строке или не текст: 400, в базу ничего', async () => {
+    await expect(service.importExpenses({ csv: 'Дата;Платформа;Статья;Сумма\n2026-10-05;Яндекс;Реклама;100' })).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.importExpenses({})).rejects.toBeInstanceOf(BadRequestException);
+    expect(repo.imported).toEqual([]);
+  });
+
+  it('импорт CSV: организация только для чтения: отказ до разбора', async () => {
+    repo.writable = false;
+    await expect(service.importExpenses({ csv: 'x' })).rejects.toThrow('read only');
   });
 });

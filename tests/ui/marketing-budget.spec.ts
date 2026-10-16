@@ -225,6 +225,64 @@ test('переключатель месяца: прошлый месяц пок�
   await expect(main.getByTestId('budget-forecast')).toContainText('600');
 });
 
+/** Кириллица в windows-1251, как сохраняет CSV Excel на Windows: А–я подряд с 0xC0, «ё» и «Ё» отдельно */
+const cp1251 = (text: string) =>
+  Buffer.from(
+    [...text].map((c) => {
+      const code = c.charCodeAt(0);
+      if (code >= 0x410 && code <= 0x44f) return code - 0x350;
+      if (c === 'ё') return 0xb8;
+      if (c === 'Ё') return 0xa8;
+      if (code > 0x7f) throw new Error(`нет в windows-1251: ${c}`);
+      return code;
+    }),
+  );
+
+test('импорт CSV: файл с ошибкой отклоняется целиком со списком строк, исправленный из Excel загружается', async ({
+  page,
+  request,
+}) => {
+  const { month } = await seed(request);
+  const [y, m] = month.split('-');
+  await page.goto(`/marketing/budget/expenses?month=${month}`);
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('budget-table').locator('tbody tr')).toHaveCount(4);
+
+  await main.getByTestId('budget-import').click();
+  const form = page.getByTestId('budget-import-form');
+  await expect(form).toBeVisible();
+  await page
+    .locator('.ui-overlay')
+    .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+    .catch(() => undefined);
+  const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+
+  const head = 'Дата;Платформа;Кампания;Статья;Сумма';
+  const bad = [head, `${month}-05;Meta Ads;Осень;Реклама;1000`, `${month}-06;Яндекс;;Реклама;500`, `${month}-07;Сайт;;Реклама;0`].join('\r\n');
+  await form.getByTestId('budget-import-file').setInputFiles({ name: 'bad.csv', mimeType: 'text/csv', buffer: Buffer.from('\uFEFF' + bad) });
+  await form.getByTestId('budget-import-save').click();
+  const error = form.getByTestId('budget-import-error');
+  await expect(error).toContainText('ничего не записано');
+  await expect(error).toContainText('Строка 3: Платформа');
+  await expect(error).toContainText('Строка 4: Сумма');
+  await expect(error).not.toContainText('Строка 2');
+  mkdirSync(SHOTS, { recursive: true });
+  await page.screenshot({ path: `${SHOTS}/import-error-light-1440.png` });
+
+  // исправленный файл, пересохранённый Excel: windows-1251, дата ДД.ММ.ГГГГ, пробел в тысячах
+  const good = [head, `05.${m}.${y};Meta Ads;Осень;Реклама;1 000`, `06.${m}.${y};Google Ads;;Реклама;500`].join('\r\n');
+  await form.getByTestId('budget-import-file').setInputFiles({ name: 'good.csv', mimeType: 'text/csv', buffer: cp1251(good) });
+  await form.getByTestId('budget-import-save').click();
+  await expect(page.getByText('Загружено 2 расхода на 1 500 ₸')).toBeVisible();
+  await expect(form).toBeHidden();
+  const table = main.getByTestId('budget-table');
+  await expect(table.locator('tbody tr')).toHaveCount(6);
+  // в засеве уже есть Google Ads: импорт добавил вторую строку, а не заменил первую
+  await expect(table.getByRole('row', { name: /Google Ads/ })).toHaveCount(2);
+  await expect(table.getByRole('row', { name: /Осень/ })).toContainText('1 000');
+});
+
 for (const theme of ['light', 'dark'] as const) {
   test(`снимки и доступность: ${theme}`, async ({ page, request }) => {
     test.setTimeout(120_000);

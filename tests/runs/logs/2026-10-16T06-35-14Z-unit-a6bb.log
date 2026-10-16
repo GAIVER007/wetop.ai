@@ -1,0 +1,113 @@
+# Модульные (unit) · 16.10.2026 11:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4114ad6 (claude/marketing-calendar), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-35-14Z-unit-a6bb.json' 'packages/domain/src/marketing/expense-import.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/domain/src/marketing/expense-import.test.ts (5 tests | 5 failed) 6ms
+   ❯ импорт расходов маркетинга из CSV (МКТ-В2) (5)
+     × файл выгрузки читается обратно: BOM, кавычки, подписи платформ, «нет» в бюджете 4ms
+     × после Excel: дата ДД.ММ.ГГГГ, запятая и пробелы в сумме, коды платформ, колонки в другом порядке 1ms
+     × ошибки всех строк одним отказом, с номерами строк файла 0ms
+     × без обязательной колонки и без строк: понятный отказ 0ms
+     × не больше 1000 строк за раз 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/expense-import.test.ts > импорт расходов маркетинга из CSV (МКТ-В2) > файл выгрузки читается обратно: BOM, кавычки, подписи платформ, «нет» в бюджете
+AssertionError: expected [] to have a length of 2 but got +0
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ packages/domain/src/marketing/expense-import.test.ts:28:18
+     26|       ].join('\r\n');
+     27|     const rows = parseMarketingExpensesCsv(csv, ctx);
+     28|     expect(rows).toHaveLength(2);
+       |                  ^
+     29|     expect(rows[0]).toMatchObject({
+     30|       date: '2026-10-05',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/expense-import.test.ts > импорт расходов маркетинга из CSV (МКТ-В2) > после Excel: дата ДД.ММ.ГГГГ, запятая и пробелы в сумме, коды платформ, колонки в другом порядке
+AssertionError: expected [] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+- [
+-   [
+-     "2026-10-05",
+-     "TIKTOK",
+-     1250050n,
+-   ],
+-   [
+-     "2026-10-06",
+-     "OTHER",
+-     700000n,
+-   ],
+- ]
++ []
+
+ ❯ packages/domain/src/marketing/expense-import.test.ts:45:61
+     43|     const csv = ['Сумма;Дата;Статья;Платформа', '12 500,50;05.10.2026;…
+     44|     const rows = parseMarketingExpensesCsv(csv, ctx);
+     45|     expect(rows.map((r) => [r.date, r.platform, r.amount])).toEqual([
+       |                                                             ^
+     46|       ['2026-10-05', 'TIKTOK', 1250050n],
+     47|       ['2026-10-06', 'OTHER', 700000n],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/expense-import.test.ts > импорт расходов маркетинга из CSV (МКТ-В2) > ошибки всех строк одним отказом, с номерами строк файла
+Error: разбор не отказал
+ ❯ errorOf packages/domain/src/marketing/expense-import.test.ts:15:9
+     13|     throw e;
+     14|   }
+     15|   throw new Error('разбор не отказал');
+       |         ^
+     16| };
+     17|
+ ❯ packages/domain/src/marketing/expense-import.test.ts:53:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/expense-import.test.ts > импорт расходов маркетинга из CSV (МКТ-В2) > без обязательной колонки и без строк: понятный отказ
+Error: разбор не отказал
+ ❯ errorOf packages/domain/src/marketing/expense-import.test.ts:15:9
+     13|     throw e;
+     14|   }
+     15|   throw new Error('разбор не отказал');
+       |         ^
+     16| };
+     17|
+ ❯ packages/domain/src/marketing/expense-import.test.ts:60:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/expense-import.test.ts > импорт расходов маркетинга из CSV (МКТ-В2) > не больше 1000 строк за раз
+Error: разбор не отказал
+ ❯ errorOf packages/domain/src/marketing/expense-import.test.ts:15:9
+     13|     throw e;
+     14|   }
+     15|   throw new Error('разбор не отказал');
+       |         ^
+     16| };
+     17|
+ ❯ packages/domain/src/marketing/expense-import.test.ts:67:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  23:35:14
+   Duration  91ms (transform 57%, tests 18%, import 18%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-35-14Z-unit-a6bb.json
+
+# код выхода 1 · 1 с

@@ -4013,6 +4013,9 @@ export const marketingBudgetApi = {
     sendJson<MarketingExpenseRow>('PATCH', `/marketing/expenses/${encodeURIComponent(id)}`, body),
   deleteExpense: (id: string) =>
     deleteJson<{ ok: true }>(`/marketing/expenses/${encodeURIComponent(id)}`),
+  /** Импорт из CSV формата выгрузки: всё или ничего; итог в валюте отчётности строкой тиынов */
+  importExpenses: (csv: string) =>
+    sendJson<{ imported: number; baseTotal: string }>('POST', '/marketing/expenses/import', { csv }),
   results: (month?: string) =>
     getJson<MarketingResultsView>(
       `/marketing/results${month ? `?month=${encodeURIComponent(month)}` : ''}`,

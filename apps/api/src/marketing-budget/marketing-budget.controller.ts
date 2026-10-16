@@ -46,6 +46,13 @@ export class MarketingBudgetController {
     return this.service.createExpense(dto ?? {});
   }
 
+  /** Импорт из CSV: путь объявлен до `expenses/:id`, тело до 1 МБ (body-parsers.ts) */
+  @Post('expenses/import')
+  @HttpCode(200)
+  importCsv(@Body() dto: Record<string, unknown>) {
+    return this.service.importExpenses(dto ?? {});
+  }
+
   @Patch('expenses/:id')
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: Record<string, unknown>) {
     return this.service.updateExpense(id, dto ?? {});

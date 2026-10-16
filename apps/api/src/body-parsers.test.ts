@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import express from 'express';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { BAR_SCAN_BODY_LIMIT, DEFAULT_JSON_LIMIT, SITE_VERSION_BODY_LIMIT, isBarReceiptScan, isSiteVersionSave, useApiBodyParsers } from './body-parsers';
+import { BAR_SCAN_BODY_LIMIT, DEFAULT_JSON_LIMIT, MARKETING_IMPORT_BODY_LIMIT, SITE_VERSION_BODY_LIMIT, isBarReceiptScan, isMarketingImport, isSiteVersionSave, useApiBodyParsers } from './body-parsers';
 
 /** Разбор тела API (MKT3): 300 КБ только у сохранения версии сайта, остальным прежние 100 КБ */
 function app() {
@@ -48,12 +48,23 @@ describe('разбор тела API', () => {
     expect(big.status).toBe(413);
   });
 
+  it('импорт расходов маркетинга принимает CSV до 1 МБ, больше отклоняет 413', async () => {
+    expect(isMarketingImport({ method: 'POST', path: '/marketing/expenses/import' })).toBe(true);
+    expect(isMarketingImport({ method: 'POST', path: '/marketing/expenses' })).toBe(false);
+    expect(isMarketingImport({ method: 'GET', path: '/marketing/expenses/import' })).toBe(false);
+    const ok = await request(app()).post('/marketing/expenses/import').send(body(600 * 1024));
+    expect(ok.status).toBe(200);
+    const big = await request(app()).post('/marketing/expenses/import').send(body(MARKETING_IMPORT_BODY_LIMIT));
+    expect(big.status).toBe(413);
+  });
+
   it('другие маршруты и методы по-прежнему режутся на 100 КБ, и JSON, и urlencoded', async () => {
     for (const [method, path] of [
       ['post', '/marketing/site'],
       ['post', '/reservations'],
       ['patch', '/marketing/site/versions'],
       ['post', '/bar/receipts'],
+      ['post', '/marketing/expenses'],
     ] as const) {
       const r = await request(app())[method](path).send(body(DEFAULT_JSON_LIMIT + 10));
       expect(r.status, `${method} ${path}`).toBe(413);

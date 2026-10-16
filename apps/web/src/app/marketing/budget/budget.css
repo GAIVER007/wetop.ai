@@ -7,6 +7,11 @@
     gap: var(--space-6);
   }
 
+  /* ошибки импорта CSV: каждая строка файла с новой строки */
+  .budget-import-error {
+    white-space: pre-line;
+  }
+
   .budget-head {
     display: flex;
     align-items: center;

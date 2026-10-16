@@ -83,6 +83,11 @@ export interface MarketingBudgetRepository {
   ): Promise<ExpenseRecord | null>;
   /** false: расхода нет у этого филиала */
   deleteExpense(locationId: string, id: string, audit: BudgetAudit): Promise<boolean>;
+  /** Импорт: все расходы одной транзакцией, у каждого своя запись журнала; возвращает число записанных */
+  createExpenses(
+    locationId: string,
+    items: Array<{ input: MarketingExpenseInput; audit: BudgetAudit }>,
+  ): Promise<number>;
   setPlan(locationId: string, month: string, amount: bigint, audit: BudgetAudit): Promise<void>;
   /**
    * Результаты маркетинговых каналов филиала за месяц [first, nextFirst) по правилу Q-MKT-ATTR (МКТ-В5a).
@@ -238,6 +243,22 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
       });
       await writeAudit(tx, audit, row.id);
       return toRecord(row);
+    });
+  }
+
+  async createExpenses(
+    locationId: string,
+    items: Array<{ input: MarketingExpenseInput; audit: BudgetAudit }>,
+  ): Promise<number> {
+    return this.prisma.db.$transaction(async (tx) => {
+      for (const { input, audit } of items) {
+        const row = await tx.marketingExpense.create({
+          data: { locationId, ...expenseData(input), createdById: auditUserId() },
+          select: { id: true },
+        });
+        await writeAudit(tx, audit, row.id);
+      }
+      return items.length;
     });
   }
 

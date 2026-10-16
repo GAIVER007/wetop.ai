@@ -4,6 +4,7 @@ import {
   MarketingBudgetError,
   parseMarketingBudgetInput,
   parseMarketingExpenseInput,
+  parseMarketingExpensesCsv,
 } from '@pms/domain';
 import {
   MARKETING_BUDGET_REPOSITORY,
@@ -166,6 +167,39 @@ export class MarketingBudgetService {
       after: { ...dto, locationId: scope.locationId },
     });
     return toRow(row);
+  }
+
+  /**
+   * Импорт расходов из CSV (МКТ-В2): файл формата выгрузки разбирает домен, запись одной транзакцией.
+   * Ошибка в любой строке: 400 со списком строк, в базу ничего (повторная загрузка того же файла
+   * после правки не даёт половинных дублей).
+   */
+  async importExpenses(dto: Record<string, unknown>): Promise<{ imported: number; baseTotal: string }> {
+    const scope = await this.repo.scope();
+    await this.repo.assertWritable(scope.organizationId);
+    if (typeof dto.csv !== 'string') throw new BadRequestException('Нужен текст CSV-файла');
+    const csv = dto.csv;
+    const rows = rule(() => parseMarketingExpensesCsv(csv, { reportingCurrency: scope.reportingCurrency }));
+    const imported = await this.repo.createExpenses(
+      scope.locationId,
+      rows.map(({ line, ...input }) => ({
+        input,
+        audit: {
+          entityType: 'marketing_expense',
+          action: 'marketing_expense.imported',
+          after: {
+            source: 'csv',
+            line,
+            locationId: scope.locationId,
+            ...input,
+            amount: input.amount.toString(),
+            baseAmount: input.baseAmount.toString(),
+          },
+        },
+      })),
+    );
+    const baseTotal = rows.reduce((sum, r) => sum + r.baseAmount, 0n);
+    return { imported, baseTotal: baseTotal.toString() };
   }
 
   async updateExpense(id: string, dto: Record<string, unknown>): Promise<ExpenseRow> {

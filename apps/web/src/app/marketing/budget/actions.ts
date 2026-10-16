@@ -1,6 +1,8 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, marketingBudgetApi } from '../../../lib/api';
+import { formatMoney } from '../../../lib/money';
+import { pluralRu } from '../../../lib/plural';
 
 /** Результат действия раздела «Бюджет»: ошибка словами у формы, введённое не теряется (как в /market) */
 export interface BudgetActionResult {
@@ -56,6 +58,35 @@ export async function saveExpenseAction(
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
   return done(id ? 'Расход сохранён' : 'Расход добавлен');
+}
+
+/** Предел файла импорта: 1000 строк журнала с запасом; API принимает тело до 1 МБ */
+const IMPORT_MAX_BYTES = 512 * 1024;
+
+/** Excel на Windows сохраняет CSV в windows-1251: не UTF-8, значит, кириллица в однобайтовой кодировке */
+const decodeCsv = (bytes: ArrayBuffer): string => {
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    return new TextDecoder('windows-1251').decode(bytes);
+  }
+};
+
+export async function importExpensesAction(
+  _prev: BudgetActionResult,
+  fd: FormData,
+): Promise<BudgetActionResult> {
+  const file = fd.get('file');
+  if (!(file instanceof File) || file.size === 0) return { error: 'Выберите CSV-файл', ok: 0 };
+  if (file.size > IMPORT_MAX_BYTES) return { error: 'Файл больше 512 КБ: разделите его по месяцам', ok: 0 };
+  let r: { imported: number; baseTotal: string };
+  try {
+    r = await marketingBudgetApi.importExpenses(decodeCsv(await file.arrayBuffer()));
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  const n = pluralRu(r.imported, ['расход', 'расхода', 'расходов']);
+  return done(`Загружено ${n} на ${formatMoney(r.baseTotal, s(fd, 'currency'))}`);
 }
 
 export async function deleteExpenseAction(

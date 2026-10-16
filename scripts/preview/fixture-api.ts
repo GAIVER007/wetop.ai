@@ -106,6 +106,8 @@ import {
   MarketingBudgetError,
   parseMarketingBudgetInput,
   parseMarketingExpenseInput,
+  parseMarketingExpensesCsv,
+  type MarketingExpenseInput,
   type PriceReading,
   type SiteFacts,
 } from '@pms/domain';
@@ -5017,8 +5019,7 @@ function marketingBudgetRoute(
       budgetPlans.set(input.month, input.amount.toString());
       return [200, { month: input.month.slice(0, 7), amount: input.amount.toString() }];
     }
-    if (path === '/marketing/expenses' && method === 'POST') {
-      const input = parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC });
+    const add = (input: MarketingExpenseInput): FixtureMarketingExpense => {
       const row: FixtureMarketingExpense = {
         id: `00000000-0000-4000-9000-${String(budgetExpenses.length + 1).padStart(12, '0')}`,
         date: input.date,
@@ -5033,7 +5034,17 @@ function marketingBudgetRoute(
         countedInBudget: input.countedInBudget,
       };
       budgetExpenses.push(row);
-      return [201, row];
+      return row;
+    };
+    if (path === '/marketing/expenses' && method === 'POST') {
+      return [201, add(parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC }))];
+    }
+    if (path === '/marketing/expenses/import' && method === 'POST') {
+      if (typeof body.csv !== 'string') return [400, { message: 'Нужен текст CSV-файла' }];
+      const rows = parseMarketingExpensesCsv(body.csv, { reportingCurrency: BUDGET_RC });
+      for (const row of rows) add(row);
+      const baseTotal = rows.reduce((sum, r) => sum + r.baseAmount, 0n);
+      return [200, { imported: rows.length, baseTotal: baseTotal.toString() }];
     }
     const m = /^\/marketing\/expenses\/([^/]+)$/.exec(path);
     if (m) {

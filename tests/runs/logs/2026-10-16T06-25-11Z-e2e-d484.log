@@ -1,0 +1,103 @@
+# Сквозные (e2e) · 16.10.2026 11:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит e94b46e (claude/chessboard-fixes), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/cal-local.config.ts' '--workers=1' 'tests/ui/chessboard-card.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/calendar-workspace.spec.ts' 'tests/ui/calendar-feedback.spec.ts' 'tests/ui/chessboard-gate.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-grid.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 48 tests using 1 worker
+
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (3.8s)
+  ✓   2 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1280px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (2.1s)
+  ✓   3 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1366px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (1.4s)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1440px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (1.3s)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/calendar-workspace.spec.ts:7:1 › calendar fills notebook screen without a side summary and keeps frozen headings (1.5s)
+  ✓   6 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/calendar-workspace.spec.ts:29:1 › expanded calendar restores the workspace with Escape and remembers density (2.5s)
+  ✓   7 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/calendar-workspace.spec.ts:53:1 › booking menu and keyboard remain usable in the expanded calendar (1.5s)
+  ✓   8 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:17:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (1.6s)
+  ✓   9 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:45:1 › двойной клик открывает полную карточку брони (2.6s)
+  ✓  10 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:51:1 › живой двойной щелчок по самой правой плашке открывает полную карточку, хотя первый щелчок сужает сетку (1.7s)
+  ✓  11 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:76:1 › действия по статусу: подтверждённой: заселить, проживающему: выселить (1.6s)
+  ✓  12 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:98:1 › повторный щелчок по той же плашке закрывает панель, по другой переключает её (1.7s)
+  ✓  13 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:118:1 › панель брони не висит всегда: нет при загрузке, закрывается щелчком мимо и сменой периода (2.1s)
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:152:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (3.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (5.4s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:232:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (2.8s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:260:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (3.2s)
+  ✓  18 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-card.spec.ts:275:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (3.8s)
+  ✓  19 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (1.9s)
+  ✓  20 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-design.spec.ts:39:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (3.9s)
+  ✓  21 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-design.spec.ts:67:3 › дизайн шахматки: light, компактное управление и доступная сетка (10.2s)
+  ✓  22 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-design.spec.ts:67:3 › дизайн шахматки: dark, компактное управление и доступная сетка (9.4s)
+  ✓  23 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (3.5s)
+  ✓  24 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх (3.6s)
+  ✓  25 [main-ui-0] › ../.wetop-main-ui-Sx52Ix/worker-0/tests/ui/chessboard-gate.spec.ts:104:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (7.2s)
+  ✓  26 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: light, month and booking preview (8.2s)
+  ✓  27 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: dark, month and booking preview (6.5s)
+  ✓  28 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/calendar-feedback.spec.ts:30:1 › new booking cancel returns to the selected month and mobile actions fit (3.8s)
+  ✓  29 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/calendar-feedback.spec.ts:50:1 › calendar has one search and keeps local filtering (3.6s)
+  ✓  30 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/calendar-feedback.spec.ts:69:1 › automated fixture pages exclude the manual annotation toolbar (2.1s)
+  ✓  31 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (1.2s)
+  ✓  32 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-compact-screen.spec.ts:62:1 › свёрнутые категории переживают перезагрузку и разворачиваются (2.2s)
+  ✓  33 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Обычный» (образец владельца 09.10), сохранённые «Компактный» и «Подробный» восстанавливаются (4.5s)
+  ✓  34 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-grid.spec.ts:12:1 › колонка места объясняет себя подсказкой: вид, код и состояние уборки (1.1s)
+  ✓  35 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-grid.spec.ts:23:1 › свёрнутая категория переживает перезагрузку страницы (2.8s)
+  ✓  36 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-grid.spec.ts:39:1 › строка категории прилипает под шапкой дат при вертикальной прокрутке (1.1s)
+  ✘  37 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (3.0s)
+  ✓  38 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (4.1s)
+  ✓  39 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:26:1 › все 31 день помещаются по ширине окна (2.9s)
+  ✓  40 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (4.1s)
+  ✓  41 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (4.1s)
+  ✓  42 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (4.0s)
+  ✓  43 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (4.1s)
+  ✓  44 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:65:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (5.8s)
+  ✓  45 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:88:1 › 30 дней: окно от сегодня и шаг стрелки равен диапазону (3.8s)
+  ✓  46 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:115:1 › в месяце открываются брони, свободные даты и группы номеров (8.2s)
+  ✓  47 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:158:3 › месячная сетка: light, читаемость и адаптивность (17.7s)
+  ✓  48 [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-month.spec.ts:158:3 › месячная сетка: dark, читаемость и адаптивность (16.9s)
+
+
+  1) [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 72
+    Received:    0
+
+      65 |     .nth(5)
+      66 |     .evaluate((el) => el.getBoundingClientRect().width);
+    > 67 |   expect(width).toBeGreaterThanOrEqual(72);
+         |                 ^
+      68 |   // читаемость ценой горизонтальной прокрутки внутри сетки (ТЗ §44)
+      69 |   const scrollable = await page
+      70 |     .locator('.board-wrap')
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-grid.spec.ts:67:17
+
+    Error Context: test-results/chessboard-grid-30-дней-де-df2f7-ивается-вбок-а-не-сжимается-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-grid-30-дней-де-df2f7-ивается-вбок-а-не-сжимается-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-grid-30-дней-де-df2f7-ивается-вбок-а-не-сжимается-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [main-ui-1] › ../.wetop-main-ui-Sx52Ix/worker-1/tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается 
+  47 passed (3.6m)
+
+# код выхода 1 · 3 мин 39 с

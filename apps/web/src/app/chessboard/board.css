@@ -1307,6 +1307,16 @@
       display: inline;
     }
   }
+  /* месяц: клетки ~38 px, и «Имя Ф.» уже 90 px режется в «Посети…»; там инициалы, полное имя
+     в подсказке плашки (владелец 13.10.2026) */
+  @container stay-caption (width < 90px) {
+    .board--month .board-stay-caption .board-stay-name-short {
+      display: none;
+    }
+    .board--month .board-stay-initials {
+      display: inline;
+    }
+  }
 
   /* Предпросмотр брони (§23): окно верхнего слоя, место считает stay-preview.tsx */
   .stay-preview {

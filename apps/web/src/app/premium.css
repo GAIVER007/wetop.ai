@@ -1237,7 +1237,8 @@
   }
   /* A whole calendar month uses the available desktop width; captions follow their stay span. */
   .board.board--month {
-    --month-unit-width: 144px;
+    /* код, вид и статус места в одну строку, имя категории целыми словами (владелец 13.10.2026) */
+    --month-unit-width: 200px;
     width: 100%;
     min-width: var(--month-min-width);
   }

@@ -1676,6 +1676,8 @@ function Cell({
             aria-haspopup="dialog"
             className={cx('board__stay', lifted && 'is-lifted')}
             aria-label={title}
+            // подсказка мышью: на узкой плашке месяца видны только инициалы, полное имя и даты здесь
+            title={title}
             style={{
               backgroundColor: bg,
               borderRadius: radius,

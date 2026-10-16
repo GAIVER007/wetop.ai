@@ -113,6 +113,8 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   page,
   request,
 }) => {
+  // сценарий вырос оплатой и возвратом записи (§49, §54): общего предела 90 с под нагрузкой не хватает
+  test.setTimeout(150_000);
   await reset(page, request);
   await page.goto('/calendar?vertical=HOSPITALITY');
   await expectEmptyCalendar(page);
@@ -206,6 +208,24 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await expect(page.getByRole('dialog')).toBeHidden();
   await page.reload();
   await expect(tile).toContainText('Завершена');
+  // возврат по выполненной записи (§54): часть с причиной, видно «Возвращено»
+  await tile.click();
+  panel = page.getByRole('dialog');
+  const refund = panel.getByRole('region', { name: 'Возврат по записи' });
+  await expect(refund.getByLabel('Сумма возврата, ₸')).toHaveValue('5000');
+  await refund.getByLabel('Способ возврата').selectOption('CARD_TERMINAL');
+  await refund.getByLabel('Сумма возврата, ₸').fill('2000');
+  await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+  await expect(panel.getByRole('alert')).toContainText('Укажите причину возврата');
+  await refund.getByLabel('Причина').fill('Клиент недоволен результатом');
+  await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+  await expect(panel).toBeHidden();
+  await page.reload();
+  await tile.click();
+  panel = page.getByRole('dialog');
+  await expect(panel.getByTestId('beauty-card-refunded')).toHaveText('2 000 ₸');
+  expect((await new AxeBuilder({ page }).include('dialog[open]').analyze()).violations).toEqual([]);
+  await page.keyboard.press('Escape');
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();

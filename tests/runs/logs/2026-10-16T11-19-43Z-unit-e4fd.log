@@ -1,0 +1,17 @@
+# Модульные (unit) · 16.10.2026 16:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит e494ce2 (claude/marketing-meta-connect), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-19-43Z-unit-e4fd.json' 'packages/integrations/src/meta'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| packages/integrations/src/meta/client.test.ts (9 tests) 40ms
+ ✓ |unit| packages/integrations/src/meta/auth.test.ts (5 tests) 41ms
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  04:19:48
+   Duration  286ms (transform 45%, tests 31%, import 12%, worker 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-19-43Z-unit-e4fd.json
+
+# код выхода 0 · 5 с

@@ -103,4 +103,22 @@ describe('рекламные кампании (integration)', () => {
     expect(await db.marketingExpense.count({ where: { campaignId: id, campaign: 'Осень: брони' } })).toBe(4);
     await expect(as('own', () => campaigns.update(id, { platform: 'GOOGLE', name: 'Осень: лиды' }))).rejects.toMatchObject({ status: 409 });
   });
+
+  it('кампания из кабинета (§55): ручная правка, день и CSV отклоняются словами, данные не меняются', async () => {
+    const cabinet = await db.marketingCampaign.create({
+      data: { locationId: branch.own.location, platform: 'META', name: 'Из кабинета', externalId: '120200000000777' },
+      select: { id: true },
+    });
+    ids.push(cabinet.id);
+    const attempts: Array<() => Promise<unknown>> = [
+      () => campaigns.update(cabinet.id, { platform: 'META', name: 'Руками' }),
+      () => campaigns.setDay(cabinet.id, { date: '2026-10-05', impressions: '1' }),
+      () => campaigns.importDays(cabinet.id, { csv: 'Дата;Показы\n2026-10-05;1' }),
+      () => campaigns.removeDay(cabinet.id, '2026-10-05'),
+    ];
+    for (const attemptIt of attempts) await expect(as('own', attemptIt)).rejects.toMatchObject({ status: 409 });
+    expect(await db.marketingCampaign.findUniqueOrThrow({ where: { id: cabinet.id }, select: { name: true } })).toEqual({ name: 'Из кабинета' });
+    expect(await db.marketingCampaignStat.count({ where: { campaignId: cabinet.id } })).toBe(0);
+  });
 });
+

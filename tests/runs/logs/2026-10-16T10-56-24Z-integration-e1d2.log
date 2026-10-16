@@ -1,0 +1,27 @@
+# Интеграционные (integration) · 16.10.2026 15:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 38508b1 (claude/salon-refund), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-56-24Z-integration-e1d2.json' 'tests/integration/beauty-appointment-payment.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/restaurant-cash-database.test.ts' 'tests/integration/bar-restaurant-cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |integration| tests/integration/beauty-appointment-payment.test.ts (5 tests) 5098ms
+   ✓ оплата записи салона (integration, §49) (5)
+     ✓ частями и разными способами до цены; повтор ключа не создаёт второй приход; больше остатка нельзя 1909ms
+     ✓ возврат (§54): только после «Выполнено», с причиной, не больше чистой оплаты и остатка способа, повтор по ключу 747ms
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 2190ms
+(node:2105) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-restaurant-cash.test.ts (4 tests) 5522ms
+   ✓ бар: деньги по направлению филиала (integration) (4)
+     ✓ ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 2879ms
+     ✓ салон: продажа и оплата поставщику через кассу филиала салона (§48), счёт гостя закрыт 1384ms
+ ✓ |integration| tests/integration/restaurant-cash-database.test.ts (6 tests) 1328ms
+
+ Test Files  4 passed (4)
+      Tests  29 passed (29)
+   Start at  03:56:38
+   Duration  49.03s (tests 34%, transform 34%, import 32%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-56-24Z-integration-e1d2.json
+
+# код выхода 0 · 1 мин 5 с

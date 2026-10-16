@@ -6,7 +6,7 @@ import type { BeautyAppointmentRow, BeautyDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { METHOD_RU } from '../../lib/dashboard-format';
 import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
-import { moveAppointment, payAppointment, setAppointmentStatus } from './journal-actions';
+import { moveAppointment, payAppointment, refundAppointment, setAppointmentStatus } from './journal-actions';
 import { clock, instantOf, localInput } from './time';
 import { ACTION_WORD } from './appointment-status';
 import { beautyStatus } from '../../lib/status/beauty';
@@ -15,11 +15,14 @@ export function AppointmentCard({
   day,
   row,
   canEdit,
+  canRefund = false,
   onDone,
 }: {
   day: BeautyDay;
   row: BeautyAppointmentRow;
   canEdit: boolean;
+  /** возврат по выполненной записи (§54): право `refunds` */
+  canRefund?: boolean;
   onDone: () => void;
 }) {
   const [state, action, pending] = useActionState(moveAppointment, null);
@@ -33,8 +36,23 @@ export function AppointmentCard({
     localInput(row.startsAt, day.location.timezone),
   );
   const moved = Boolean(state?.message) && !state?.error;
-  // оплата в кассу филиала (§49): у отменённой и незаезда не принимается
-  const remaining = BigInt(row.priceMinor) - BigInt(row.paidMinor);
+  // оплата в кассу филиала (§49): у отменённой и незаезда не принимается; доплату ограничивает чистая оплата (§54)
+  const net = BigInt(row.paidMinor) - BigInt(row.refundedMinor);
+  const remaining = BigInt(row.priceMinor) - net;
+  const refundable = canRefund && row.status === 'DONE' && net > 0n;
+  const [refundMethod, setRefundMethod] = useState<FoodPaymentMethod>('CASH');
+  const [refundAmount, setRefundAmount] = useState(() => String(net / 100n));
+  const [reason, setReason] = useState('');
+  const refund = () => {
+    const tenge = Number(refundAmount);
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
+    if (!reason.trim()) return setError('Укажите причину возврата');
+    startTransition(async () => {
+      const result = await refundAppointment(row.id, refundMethod, tenge * 100, reason.trim(), crypto.randomUUID());
+      if (result.error) setError(result.error);
+      else onDone();
+    });
+  };
   const payable = canEdit && row.status !== 'CANCELLED' && row.status !== 'NO_SHOW' && remaining > 0n;
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
   const [amount, setAmount] = useState(() => String(remaining / 100n));
@@ -102,6 +120,12 @@ export function AppointmentCard({
             {formatMoney(row.paidMinor, row.currency)} из {formatMoney(row.priceMinor, row.currency)}
           </dd>
         </div>
+        {BigInt(row.refundedMinor) > 0n && (
+          <div>
+            <dt>Возвращено</dt>
+            <dd data-testid="beauty-card-refunded">{formatMoney(row.refundedMinor, row.currency)}</dd>
+          </div>
+        )}
         <div>
           <dt>Состояние</dt>
           <dd data-testid="beauty-card-status">{beautyStatus[row.status].label}</dd>
@@ -150,6 +174,30 @@ export function AppointmentCard({
             Принять оплату
           </Button>
           {BigInt(row.paidMinor) > 0n && <p className="muted">Аннулировать оплату можно в «Кассе».</p>}
+        </section>
+      )}
+
+      {refundable && (
+        <section className="beauty-form" aria-label="Возврат по записи">
+          <h3>Возврат</h3>
+          <Field label="Способ возврата">
+            <Select value={refundMethod} onChange={(e) => setRefundMethod(e.target.value as FoodPaymentMethod)}>
+              {FOOD_PAYMENT_METHODS.map((m) => (
+                <option key={m} value={m}>
+                  {METHOD_RU[m] ?? m}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Сумма возврата, ₸">
+            <Input inputMode="numeric" value={refundAmount} onChange={(e) => setRefundAmount(e.target.value.replace(/\D/g, ''))} />
+          </Field>
+          <Field label="Причина">
+            <Input value={reason} maxLength={300} onChange={(e) => setReason(e.target.value)} />
+          </Field>
+          <Button type="button" tone="danger" disabled={busy} onClick={refund}>
+            Оформить возврат
+          </Button>
         </section>
       )}
 

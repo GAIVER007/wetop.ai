@@ -1,0 +1,77 @@
+# Интеграционные (integration) · 16.10.2026 16:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит e494ce2 (claude/marketing-meta-connect), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-45-42Z-integration-5d55.json' 'tests/integration/marketing-meta.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-meta.test.ts (4 tests | 3 failed) 784ms
+   ❯ кабинет Meta (integration) (4)
+     ✓ state: подпись, срок, подмена отклоняются 4ms
+     × вход: state другого филиала не принимается; свой подключает кабинет, ключ шифром, первая сверка 149ms
+     × повтор сверки не дублирует; потеря доступа: сбой и «подключите заново»; предел: повторим позже 7ms
+     × отключение стирает ключ, кампании и дни остаются; ручная правка кабинетной кампании закрыта 8ms
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  04:45:47
+   Duration  3.36s (tests 36%, transform 35%, import 29%)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-meta.test.ts > кабинет Meta (integration) > вход: state другого филиала не принимается; свой подключает кабинет, ключ шифром, первая сверка
+AssertionError: promise resolved "{ connected: true, …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "accountName": "Отель на Абая",
++   "connected": true,
+  }
+
+ ❯ tests/integration/marketing-meta.test.ts:118:77
+    116|     const { url: dialog } = await as('own', () => service.start({ adAc…
+    117|     const state = new URL(dialog).searchParams.get('state')!;
+    118|     await expect(as('other', () => service.complete({ code: 'c1', stat…
+       |                                                                             ^
+    119|
+    120|     await as('own', () => service.complete({ code: 'c1', state }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/marketing-meta.test.ts > кабинет Meta (integration) > повтор сверки не дублирует; потеря доступа: сбой и «подключите заново»; предел: повторим позже
+NotFoundException: Кабинет Meta не подключён
+ ❯ MarketingMetaService.syncNow apps/api/src/marketing-budget/meta-connection.ts:223:56
+    221|       where: { locationId_platform: { locationId: scope.locationId, pl…
+    222|     });
+    223|     if (!conn || conn.status === 'DISCONNECTED') throw new NotFoundExc…
+       |                                                        ^
+    224|     return this.syncConnection(conn, 7, 'MANUAL');
+    225|   }
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/marketing-meta.test.ts:140:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/marketing-meta.test.ts > кабинет Meta (integration) > отключение стирает ключ, кампании и дни остаются; ручная правка кабинетной кампании закрыта
+NotFoundException: Кабинет Meta не подключён
+ ❯ apps/api/src/marketing-budget/meta-connection.ts:235:52
+    233|         select: { id: true, status: true },
+    234|       });
+    235|       if (!c || c.status === 'DISCONNECTED') throw new NotFoundExcepti…
+       |                                                    ^
+    236|       // ключ стирается; кампании и дни остаются (история)
+    237|       await tx.marketingAdConnection.update({ where: { id: c.id }, dat…
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ MarketingMetaService.disconnect apps/api/src/marketing-budget/meta-connection.ts:230:5
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/marketing-meta.test.ts:165:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-45-42Z-integration-5d55.json
+
+# код выхода 1 · 9 с

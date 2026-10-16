@@ -1,6 +1,12 @@
 import { unstable_rethrow } from 'next/navigation';
 import { campaignMetrics, can } from '@pms/domain';
-import { ApiError, marketingCampaignsApi, type MarketingCampaignsView } from '../../../lib/api';
+import {
+  ApiError,
+  marketingCampaignsApi,
+  metaConnectionApi,
+  type MarketingCampaignsView,
+  type MetaConnectionView,
+} from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
 import { loadErrorProps } from '../../../lib/load-error';
 import { formatMoney } from '../../../lib/money';
@@ -9,15 +15,15 @@ import { requireVertical } from '../../../lib/vertical-guard';
 import { verticalCopy, type VerticalCopy } from '../../../lib/vertical-copy';
 import '../marketing.css';
 import '../budget/budget.css';
-import { Icon } from '../../../components/icon';
 import { LoadError } from '../../../components/load-error';
 import { Page } from '../../../components/page';
 import { Tabs } from '../../../components/tabs';
-import { Badge, Button, EmptyState, Stat, Stats, Table } from '../../../components/ui';
+import { Alert, Badge, EmptyState, Stat, Stats, Table } from '../../../components/ui';
 import { BackToModules, ModuleSoon } from '../parts';
 import { ChooseLocation, MonthNav, platformLabel } from '../budget/parts';
 import { CampaignButton, StatsButton } from './campaigns';
 import { CAMPAIGN_STATUS } from './labels';
+import { MetaCabinet } from './meta';
 
 /**
  * Модуль «Реклама» (макет Marketing 2.0 владельца 09.10.2026, экран 2; MKT10.4–10.6). Вкладка «Кампании» живая с
@@ -45,14 +51,24 @@ const ctrText = (bp: number | null) => (bp === null ? dash : `${(bp / 100).toFix
 function Campaigns({ view, editable, today }: { view: MarketingCampaignsView; editable: boolean; today: string }) {
   const rc = view.reportingCurrency;
   const money = (v: bigint | null) => (v === null ? dash : formatMoney(v, rc));
-  const rows = view.campaigns.map((c) => ({
-    c,
-    spend: BigInt(c.spend),
-    m: campaignMetrics({ spendMinor: BigInt(c.spend), impressions: c.impressions, clicks: c.clicks, leads: c.leads }),
-  }));
+  // у кампании из кабинета показатели считает расход кабинета (ADR-MKT-META), у ручной её расходы из журнала
+  const rows = view.campaigns.map((c) => {
+    const cabinet = c.fromCabinet === true && c.cabinetSpend != null;
+    const spend = cabinet ? BigInt(c.cabinetSpend!) : BigInt(c.spend);
+    const currency = cabinet ? (c.cabinetCurrency ?? rc) : rc;
+    return {
+      c,
+      cabinet,
+      spend,
+      currency,
+      m: campaignMetrics({ spendMinor: spend, impressions: c.impressions, clicks: c.clicks, leads: c.leads }),
+    };
+  });
+  // плитки в валюте отчётности: кабинет в другой валюте в сумму не входит, его числа в таблице
+  const foreign = rows.some((r) => r.currency !== rc);
   const total = rows.reduce(
     (t, r) => ({
-      spend: t.spend + r.spend,
+      spend: t.spend + (r.currency === rc ? r.spend : 0n),
       impressions: t.impressions + r.c.impressions,
       clicks: t.clicks + r.c.clicks,
       leads: t.leads + r.c.leads,
@@ -63,7 +79,12 @@ function Campaigns({ view, editable, today }: { view: MarketingCampaignsView; ed
   return (
     <div className="marketing-screen__stack">
       <Stats min={160} data-testid="marketing-ads-metrics">
-        <Stat label="Расход кампаний" value={formatMoney(total.spend, rc)} testId="ads-spend" />
+        <Stat
+          label="Расход кампаний"
+          value={formatMoney(total.spend, rc)}
+          hint={foreign ? 'без кабинетов в другой валюте: они в таблице' : undefined}
+          testId="ads-spend"
+        />
         <Stat label="Показы" value={total.impressions.toLocaleString('ru-RU')} hint={`CPM ${money(tm.cpmMinor)}`} testId="ads-impressions" />
         <Stat label="Клики" value={total.clicks.toLocaleString('ru-RU')} hint={`CTR ${ctrText(tm.ctrBp)}`} testId="ads-clicks" />
         <Stat label="Лиды площадки" value={String(total.leads)} hint={`CPL ${money(tm.cplMinor)}`} testId="ads-leads" />
@@ -100,27 +121,39 @@ function Campaigns({ view, editable, today }: { view: MarketingCampaignsView; ed
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ c, spend, m }) => (
+              {rows.map(({ c, cabinet, spend, currency, m }) => (
                 <tr key={c.id} data-testid={`campaign-row-${c.id}`}>
                   <td>
                     <span className="budget-cell-main">{c.name}</span>
-                    <span className="budget-cell-sub">{platformLabel(c.platform)}</span>
+                    <span className="budget-cell-sub">
+                      {platformLabel(c.platform)}
+                      {cabinet && <Badge tone="info">Кабинет</Badge>}
+                    </span>
                   </td>
                   <td>
                     <Badge tone={c.status === 'ACTIVE' ? 'ok' : undefined}>{CAMPAIGN_STATUS[c.status]}</Badge>
                   </td>
-                  <td className="budget-td-num">{formatMoney(spend, rc)}</td>
+                  <td className="budget-td-num">
+                    {formatMoney(spend, currency)}
+                    {cabinet && <span className="budget-cell-sub">в журнале {formatMoney(c.spend, rc)}</span>}
+                  </td>
                   <td className="budget-td-num">{c.impressions.toLocaleString('ru-RU')}</td>
                   <td className="budget-td-num">{c.clicks.toLocaleString('ru-RU')}</td>
                   <td className="budget-td-num">{ctrText(m.ctrBp)}</td>
-                  <td className="budget-td-num">{money(m.cpcMinor)}</td>
-                  <td className="budget-td-num">{money(m.cpmMinor)}</td>
+                  <td className="budget-td-num">{m.cpcMinor === null ? dash : formatMoney(m.cpcMinor, currency)}</td>
+                  <td className="budget-td-num">{m.cpmMinor === null ? dash : formatMoney(m.cpmMinor, currency)}</td>
                   <td className="budget-td-num">{c.leads}</td>
-                  <td className="budget-td-num">{money(m.cplMinor)}</td>
+                  <td className="budget-td-num">{m.cplMinor === null ? dash : formatMoney(m.cplMinor, currency)}</td>
                   {editable && (
                     <td>
-                      <StatsButton campaign={c} today={today} />
-                      <CampaignButton campaign={c} />
+                      {cabinet ? (
+                        <span className="budget-cell-sub">обновляет кабинет</span>
+                      ) : (
+                        <>
+                          <StatsButton campaign={c} today={today} />
+                          <CampaignButton campaign={c} />
+                        </>
+                      )}
                     </td>
                   )}
                 </tr>
@@ -130,9 +163,9 @@ function Campaigns({ view, editable, today }: { view: MarketingCampaignsView; ed
         </div>
       )}
       <p className="settings-note" data-testid="ads-note">
-        Расход кампании это её расходы из «Бюджета» за месяц. Показы, клики и лиды площадки вносятся из кабинета вручную:
-        лиды площадки это заявки по данным площадки, а не наши обращения из «Аналитики маркетинга». Связать кампанию с
-        бронями можно будет после подключения кабинетов.
+        Расход ручной кампании это её расходы из «Бюджета» за месяц; у кампании из кабинета расход по кабинету, а «в
+        журнале» показывает привязанные списания. Лиды площадки это заявки по данным площадки, а не наши обращения из
+        «Аналитики маркетинга».
       </p>
     </div>
   );
@@ -145,7 +178,13 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
   const copy: VerticalCopy = verticalCopy(me.context?.vertical);
   const q = normalizeSearchParams(await searchParams);
   const month = /^\d{4}-\d{2}$/.test(q['month'] ?? '') ? q['month'] : undefined;
-  const [loaded, shell] = await Promise.all([loadCampaigns(month), deskShell()]);
+  const [loaded, shell, cabinet] = await Promise.all([
+    loadCampaigns(month),
+    deskShell(),
+    // не загрузилось: плашки кабинета нет, кампании от этого не зависят
+    metaConnectionApi.view().catch((): MetaConnectionView | null => null),
+  ]);
+  const metaResult = q['meta'];
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
   const campaigns =
@@ -160,19 +199,29 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
     <Page
       crumbs={<BackToModules />}
       title="Реклама"
-      subtitle="Кампании, расход и статистика площадок; кабинеты и запуск с ИИ подключатся позже."
-      actions={
-        <Button tone="secondary" disabled aria-describedby={SOON}>
-          <Icon name="link" width={16} aria-hidden="true" />
-          Подключить кабинет
-        </Button>
-      }
+      subtitle="Кампании, кабинет Meta и статистика площадок; запуск кампаний с ИИ появится позже."
     >
       <div className="marketing-screen" data-testid="marketing-ads-screen">
         <ModuleSoon id={SOON} testId={SOON}>
-          Подключение кабинета Facebook и Instagram и запуск кампаний с ИИ появятся в следующих этапах. Кампании и их
-          статистику уже можно вести вручную. Без вашего подтверждения бюджет не тратится.
+          Запуск кампаний с ИИ, аудитории и креативы появятся в следующих этапах. Кабинет Meta уже подключается для
+          отчётов, остальные площадки ведутся вручную. Без вашего подтверждения бюджет не тратится.
         </ModuleSoon>
+        {metaResult === 'connected' && (
+          <Alert tone="success" data-testid="meta-result">
+            Кабинет Meta подключён: кампании и дни за последние 28 дней загружены.
+          </Alert>
+        )}
+        {metaResult === 'failed' && (
+          <Alert boxed data-testid="meta-result">
+            Кабинет не подключён: {q['reason'] ?? 'попробуйте ещё раз'}
+          </Alert>
+        )}
+        {metaResult === 'cancelled' && (
+          <p className="settings-note" data-testid="meta-result">
+            Вход в Facebook отменён: кабинет не подключён.
+          </p>
+        )}
+        {cabinet && <MetaCabinet view={cabinet} editable={editable} />}
         <Tabs
           label="Разделы рекламы"
           panels={[

@@ -65,6 +65,11 @@ export interface CampaignView {
   impressions: number;
   clicks: number;
   leads: number;
+  /** Кампания из рекламного кабинета (§55): правит только сверка */
+  fromCabinet: boolean;
+  /** Расход по кабинету за месяц, minor units его валюты; null у ручных кампаний */
+  cabinetSpend: string | null;
+  cabinetCurrency: string | null;
   /** Дни месяца со статистикой, по возрастанию */
   days: Array<{ date: string; impressions: number; clicks: number; leads: number }>;
 }
@@ -82,10 +87,18 @@ export class MarketingCampaignsService {
     return scope;
   }
 
-  /** Кампания своего филиала; чужая и несуществующая неразличимы: 404 */
+  /**
+   * Ручная кампания своего филиала; чужая и несуществующая неразличимы: 404. Кампанию из кабинета (§55) и её дни
+   * меняет только сверка, иначе ручная правка тихо перезаписалась бы ночью: 409 словами.
+   */
   private async own(locationId: string, id: string) {
-    const c = await this.prisma.db.marketingCampaign.findFirst({ where: { id, locationId }, select: { id: true } });
+    const c = await this.prisma.db.marketingCampaign.findFirst({
+      where: { id, locationId },
+      select: { id: true, externalId: true },
+    });
     if (!c) throw new NotFoundException('Кампания не найдена');
+    if (c.externalId !== null)
+      throw new ConflictException('Кампания из рекламного кабинета обновляется сверкой: меняйте её в кабинете площадки');
     return c.id;
   }
 
@@ -119,7 +132,7 @@ export class MarketingCampaignsService {
           stats: {
             where: { date: { gte: first, lt: next } },
             orderBy: { date: 'asc' },
-            select: { date: true, impressions: true, clicks: true, leads: true },
+            select: { date: true, impressions: true, clicks: true, leads: true, spendMinor: true, spendCurrency: true },
           },
         },
       }),
@@ -145,6 +158,9 @@ export class MarketingCampaignsService {
         impressions: c.stats.reduce((s, d) => s + d.impressions, 0),
         clicks: c.stats.reduce((s, d) => s + d.clicks, 0),
         leads: c.stats.reduce((s, d) => s + d.leads, 0),
+        fromCabinet: c.externalId !== null,
+        cabinetSpend: c.externalId === null ? null : c.stats.reduce((s, d) => s + (d.spendMinor ?? 0n), 0n).toString(),
+        cabinetCurrency: c.externalId === null ? null : (c.stats.find((d) => d.spendCurrency)?.spendCurrency ?? null),
         days: c.stats.map((d) => ({ date: iso(d.date)!, impressions: d.impressions, clicks: d.clicks, leads: d.leads })),
       })),
     };

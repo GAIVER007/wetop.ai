@@ -4956,6 +4956,8 @@ interface FixtureCampaign {
   days: Map<string, { impressions: number; clicks: number; leads: number }>;
 }
 const fixtureCampaigns: FixtureCampaign[] = [];
+/** Кабинет Meta (§55): приложение «настроено», вход Facebook подставной (state fixture-state), ключа нет вовсе */
+let fixtureMeta: { adAccountId: string; status: 'ACTIVE' | 'FAILED'; lastSyncedAt: string } | null = null;
 /** Разбивка плана по каналам (§52): первое число месяца → строки */
 const budgetLines = new Map<string, Array<{ platform: string; amount: string }>>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
@@ -4969,6 +4971,7 @@ const resetMarketingBudget = () => {
   budgetExpenses.length = 0;
   budgetPlans.clear();
   fixtureCampaigns.length = 0;
+  fixtureMeta = null;
   budgetLines.clear();
   budgetResults.clear();
 };
@@ -5781,6 +5784,57 @@ createServer(async (req, res) => {
         return send(200, { deleted: true });
       }
     }
+    if (path.startsWith('/marketing/ad-connections/meta')) {
+      if (!can(uiRole, 'marketing')) return send(403, { message: accessDeniedMessage('marketing') });
+      const action = path.slice('/marketing/ad-connections/meta'.length);
+      const cabinetCampaign = () => {
+        let c = fixtureCampaigns.find((x) => x.id === 'cabinet-1');
+        if (!c) {
+          c = { id: 'cabinet-1', platform: 'META', name: 'Meta: брони осень', status: 'ACTIVE', startsOn: null, endsOn: null, days: new Map() };
+          (c as FixtureCampaign & { external?: boolean }).external = true;
+          fixtureCampaigns.push(c);
+        }
+        c.days.set(today, { impressions: 25000, clicks: 300, leads: 12 });
+      };
+      if (action === '' && req.method === 'GET')
+        return send(200, {
+          configured: true,
+          connection: fixtureMeta && {
+            adAccountId: fixtureMeta.adAccountId,
+            accountName: 'Отель на Абая',
+            currency: 'USD',
+            timezone: 'Asia/Almaty',
+            status: fixtureMeta.status,
+            lastSyncedAt: fixtureMeta.lastSyncedAt,
+            lastError: null,
+          },
+        });
+      if (action === '/start' && req.method === 'POST') {
+        const m = /^(?:act_)?(\d{5,40})$/.exec(String(body['adAccountId'] ?? '').trim());
+        if (!m) return send(400, { message: 'Номер рекламного кабинета: цифры из Ads Manager, например 1234567890' });
+        return send(200, {
+          url: `https://www.facebook.com/v25.0/dialog/oauth?client_id=1&redirect_uri=${encodeURIComponent('http://127.0.0.1/marketing/ads/meta/callback')}&state=fixture-state-${m[1]}&config_id=2&response_type=code&override_default_response_type=true`,
+        });
+      }
+      if (action === '/complete' && req.method === 'POST') {
+        const state = String(body['state'] ?? '');
+        if (!state.startsWith('fixture-state-')) return send(403, { message: 'Подключение устарело или начато не здесь: начните заново' });
+        fixtureMeta = { adAccountId: state.slice('fixture-state-'.length), status: 'ACTIVE', lastSyncedAt: new Date().toISOString() };
+        cabinetCampaign();
+        return send(200, { connected: true, accountName: 'Отель на Абая' });
+      }
+      if (action === '/sync' && req.method === 'POST') {
+        if (!fixtureMeta) return send(404, { message: 'Кабинет Meta не подключён' });
+        cabinetCampaign();
+        fixtureMeta.lastSyncedAt = new Date().toISOString();
+        return send(200, { ok: true, days: 1, campaigns: 1, error: null });
+      }
+      if (action === '/disconnect' && req.method === 'POST') {
+        if (!fixtureMeta) return send(404, { message: 'Кабинет Meta не подключён' });
+        fixtureMeta = null;
+        return send(200, { disconnected: true });
+      }
+    }
     if (path === '/marketing/campaigns' || path.startsWith('/marketing/campaigns/')) {
       if (!can(uiRole, 'marketing')) return send(403, { message: accessDeniedMessage('marketing') });
       try {
@@ -5799,6 +5853,7 @@ createServer(async (req, res) => {
               const spend = budgetExpenses
                 .filter((e) => e.campaignId === c.id && e.countedInBudget && e.date.startsWith(month))
                 .reduce((sum, e) => sum + BigInt(e.baseAmount), 0n);
+              const external = (c as FixtureCampaign & { external?: boolean }).external === true;
               return {
                 id: c.id,
                 platform: c.platform,
@@ -5806,6 +5861,9 @@ createServer(async (req, res) => {
                 status: c.status,
                 startsOn: c.startsOn,
                 endsOn: c.endsOn,
+                fromCabinet: external,
+                cabinetSpend: external ? String(533950 * days.length) : null,
+                cabinetCurrency: external ? 'USD' : null,
                 spend: spend.toString(),
                 impressions: days.reduce((sum, d) => sum + d.impressions, 0),
                 clicks: days.reduce((sum, d) => sum + d.clicks, 0),
@@ -7114,6 +7172,7 @@ createServer(async (req, res) => {
             priceMinor: a.priceMinor,
             // касса филиала (§49) у подставного салона пуста
             paidMinor: '0',
+            refundedMinor: '0',
             currency: a.currency,
             notes: a.notes,
           }));

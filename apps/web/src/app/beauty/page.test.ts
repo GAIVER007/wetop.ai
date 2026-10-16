@@ -4,7 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { day } = vi.hoisted(() => ({ day: vi.fn() }));
 vi.mock('../../lib/vertical-guard', () => ({ requireVertical: async () => ({}) }));
-vi.mock('../../lib/desk-shell', () => ({ deskShell: async () => ({ readOnly: false }) }));
+// оболочка как у настоящей: права нужны странице (возврат по записи, §54)
+vi.mock('../../lib/desk-shell', async () => {
+  const { UNKNOWN_SHELL } = await import('../../lib/desk-person');
+  return { deskShell: async () => ({ ...UNKNOWN_SHELL, readOnly: false }) };
+});
 vi.mock('../../lib/api', () => ({ beautyApi: {
   day, customers: async () => ({ items: [] }), employees: async () => ({ items: [] }),
 } }));

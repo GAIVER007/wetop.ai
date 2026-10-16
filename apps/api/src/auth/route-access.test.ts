@@ -112,6 +112,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /marketing/budget': 'marketing',
   'PUT /marketing/budget/lines': 'marketing',
   'GET /marketing/campaigns': 'marketing',
+  'GET /marketing/ad-connections/meta': 'marketing',
+  'POST /marketing/ad-connections/meta/start': 'marketing',
+  'POST /marketing/ad-connections/meta/complete': 'marketing',
+  'POST /marketing/ad-connections/meta/sync': 'marketing',
+  'POST /marketing/ad-connections/meta/disconnect': 'marketing',
   'POST /marketing/campaigns': 'marketing',
   'PATCH /marketing/campaigns/:id': 'marketing',
   'PUT /marketing/campaigns/:id/stats': 'marketing',
@@ -256,6 +261,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /beauty/appointments/:id/status': 'desk',
   // оплата записи в кассу филиала (§49): принимает смена, как оплату заказа ресторана
   'POST /beauty/appointments/:id/payments': 'desk',
+  // возврат по выполненной записи (§54): право возвратов
+  'POST /beauty/appointments/:id/refunds': 'refunds',
   'GET /availability/nearest': 'desk',
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',

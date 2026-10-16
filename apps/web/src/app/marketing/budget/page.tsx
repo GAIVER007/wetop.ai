@@ -9,14 +9,14 @@ import { pluralRu } from '../../../lib/plural';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
 import { ShareBar } from '../../../components/share-bar';
-import { Badge, SectionTitle, Stat, Stats } from '../../../components/ui';
+import { Badge, SectionTitle, Stat, Stats, Table } from '../../../components/ui';
 import { BackToModules } from '../parts';
 import '../marketing.css';
 import './budget.css';
 import { loadBudget } from './load';
-import { summarize } from './derive';
+import { channelPlan, summarize } from './derive';
 import { BudgetTabs, ChooseLocation, MonthNav, PlatformShares, platformLabel } from './parts';
-import { ExpenseButton, PlanButton } from './drawers';
+import { ExpenseButton, LinesButton, PlanButton } from './drawers';
 
 /**
  * «Маркетинг → Бюджет», обзор месяца (МКТ-В1/В2, ТЗ «Модуль Маркетинг» 1.0, экран 2 макета):
@@ -38,7 +38,11 @@ export default async function BudgetPage({ searchParams }: { searchParams: Promi
     );
   const view = loaded.view!;
   const t = summarize(view);
+  const channels = channelPlan(view);
   const rc = view.reportingCurrency;
+  // §52: без общего плана план месяца это сумма каналов
+  const planValue = view.plan ?? (channels.allocated > 0n ? channels.allocated.toString() : null);
+  const money = (v: bigint | null) => (v === null ? '–' : formatMoney(v, rc));
   const recent = view.expenses.slice(0, 6);
   return (
     <Page
@@ -62,10 +66,10 @@ export default async function BudgetPage({ searchParams }: { searchParams: Promi
         <Stats min={200}>
           <Stat
             label="Общий бюджет"
-            value={view.plan === null ? 'Не задан' : formatMoney(view.plan, rc)}
+            value={planValue === null ? 'Не задан' : formatMoney(planValue, rc)}
             testId="budget-plan"
             hint={
-              view.plan !== null && t.planUsedPct !== null ? (
+              planValue !== null && t.planUsedPct !== null ? (
                 <span className="budget-plan-used">
                   <ShareBar
                     label="Израсходовано от плана"
@@ -109,6 +113,85 @@ export default async function BudgetPage({ searchParams }: { searchParams: Promi
             ))}
           {editable && <PlanButton month={view.month} plan={view.plan} currency={rc} />}
         </div>
+        <section aria-labelledby="budget-lines-title">
+          <div className="budget-recent-head">
+            <SectionTitle id="budget-lines-title">План по каналам</SectionTitle>
+            {editable && (
+              <LinesButton
+                month={view.month}
+                plan={view.plan}
+                lines={view.lines}
+                prevLines={view.prevLines}
+                currency={rc}
+              />
+            )}
+          </div>
+          {view.lines.length === 0 ? (
+            <p className="settings-note" data-testid="budget-lines-empty">
+              Распишите план месяца по каналам, и здесь появится план против факта по каждому.
+            </p>
+          ) : (
+            <>
+              <p className="budget-meta" data-testid="budget-lines-summary">
+                <span>
+                  {channels.unallocated === null
+                    ? `План месяца это сумма каналов: ${formatMoney(channels.allocated, rc)}`
+                    : `Распределено ${formatMoney(channels.allocated, rc)} из ${formatMoney(view.plan!, rc)}`}
+                </span>
+                {channels.overAllocated ? (
+                  <Badge tone="warn" data-testid="budget-lines-over">
+                    Каналы больше плана на {formatMoney(-channels.unallocated!, rc)}
+                  </Badge>
+                ) : (
+                  channels.unallocated !== null &&
+                  channels.unallocated > 0n && <span>Не распределено {formatMoney(channels.unallocated, rc)}</span>
+                )}
+              </p>
+              <div className="tbl-wrap" role="region" aria-label="План по каналам" tabIndex={0}>
+                <Table density="normal" aria-label="План по каналам" data-testid="budget-lines">
+                  <thead>
+                    <tr>
+                      <th scope="col">Канал</th>
+                      <th scope="col" className="budget-td-num">
+                        План
+                      </th>
+                      <th scope="col" className="budget-td-num">
+                        Факт
+                      </th>
+                      <th scope="col" className="budget-td-num">
+                        Остаток
+                      </th>
+                      <th scope="col" className="budget-td-num">
+                        Прогноз
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {channels.rows.map((r) => (
+                      <tr key={r.platform}>
+                        <td>
+                          <span className="budget-cell-main">{platformLabel(r.platform)}</span>
+                          {r.plan === null && <span className="budget-cell-sub">без плана</span>}
+                          {r.over && (
+                            <span className="budget-cell-sub">
+                              <Badge tone="warn">Прогноз выше плана</Badge>
+                            </span>
+                          )}
+                        </td>
+                        <td className="budget-td-num">{money(r.plan)}</td>
+                        <td className="budget-td-num">{formatMoney(r.spent, rc)}</td>
+                        <td className={`budget-td-num${r.remainder !== null && r.remainder < 0n ? ' budget-td-danger' : ''}`}>
+                          {money(r.remainder)}
+                        </td>
+                        <td className="budget-td-num">{money(r.forecast)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            </>
+          )}
+        </section>
         <section aria-labelledby="budget-shares-title">
           <SectionTitle id="budget-shares-title">Распределение по каналам</SectionTitle>
           <div className="panel panel--lg">

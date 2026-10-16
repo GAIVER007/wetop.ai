@@ -234,6 +234,66 @@ test('переключатель месяца: прошлый месяц пок�
   await expect(main.getByTestId('budget-forecast')).toContainText('600');
 });
 
+test('план по каналам: разбивка прошлого месяца, копирование, превышение общего плана предупреждает, план против факта', async ({
+  page,
+  request,
+}) => {
+  const { month } = await seed(request);
+  const prev = monthShift(month, -1);
+  const main = page.getByRole('main');
+
+  // прошлый месяц без общего плана: сумма каналов и есть план месяца
+  await page.goto(`/marketing/budget?month=${prev}`);
+  await expect(main.getByTestId('budget-lines-empty')).toBeVisible();
+  await main.getByTestId('budget-lines-edit').click();
+  let form = page.getByTestId('budget-lines-form');
+  await form.getByTestId('budget-line-META').fill('500');
+  await expect(form.getByTestId('budget-lines-allocated')).toContainText('Сумма каналов: 500 ₸');
+  await form.getByTestId('budget-lines-save').click();
+  await expect(page.getByText('План по каналам сохранён')).toBeVisible();
+  await expect(main.getByTestId('budget-lines-summary')).toContainText('План месяца это сумма каналов: 500 ₸');
+  await expect(main.getByTestId('budget-plan')).toContainText('500 ₸');
+
+  // текущий месяц (общий план 3 000 ₸): взять из прошлого, дописать, превысить план
+  await page.goto(`/marketing/budget?month=${month}`);
+  await main.getByTestId('budget-lines-edit').click();
+  form = page.getByTestId('budget-lines-form');
+  await form.getByTestId('budget-lines-copy').click();
+  await expect(form.getByTestId('budget-line-META')).toHaveValue('500');
+  await form.getByTestId('budget-line-GOOGLE').fill('400');
+  await form.getByTestId('budget-line-SITE').fill('2 500');
+  await expect(form.getByTestId('budget-lines-allocated')).toContainText('Распределено 3 400 ₸ из 3 000 ₸');
+  await expect(form.getByTestId('budget-lines-over')).toContainText('больше общего плана на 400 ₸');
+  await page
+    .locator('.ui-overlay')
+    .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+    .catch(() => undefined);
+  let audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+  await form.getByTestId('budget-lines-save').click();
+  await expect(page.getByText('План по каналам сохранён')).toBeVisible();
+
+  await expect(main.getByTestId('budget-lines-summary')).toContainText('Распределено 3 400 ₸ из 3 000 ₸');
+  await expect(main.getByTestId('budget-lines-over')).toContainText('Каналы больше плана на 400 ₸');
+  const table = main.getByTestId('budget-lines');
+  // каналы с планом по убыванию плана, затем расход без плана
+  await expect(table.locator('tbody tr td:first-child .budget-cell-main')).toHaveText([
+    'Сайт',
+    'Meta Ads',
+    'Google Ads',
+    'TikTok Ads',
+  ]);
+  const meta = table.getByRole('row', { name: /Meta Ads/ });
+  await expect(meta).toContainText('720 ₸'); // факт больше плана 500: остаток в минусе
+  await expect(meta.locator('.budget-td-danger')).toContainText('220');
+  await expect(meta).toContainText('Прогноз выше плана');
+  await expect(table.getByRole('row', { name: /TikTok Ads/ })).toContainText('без плана');
+  audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+  mkdirSync(SHOTS, { recursive: true });
+  await page.screenshot({ path: `${SHOTS}/channel-plan-light-1440.png`, fullPage: true });
+});
+
 /** Кириллица в windows-1251, как сохраняет CSV Excel на Windows: А–я подряд с 0xC0, «ё» и «Ё» отдельно */
 const cp1251 = (text: string) =>
   Buffer.from(

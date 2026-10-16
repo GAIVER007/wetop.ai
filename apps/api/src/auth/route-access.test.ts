@@ -110,6 +110,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── «Маркетинг → Бюджет», учёт расходов (МКТ-В1/В2, ADR-MKT-B1): право раздела, филиал строго из scope ──
   'GET /marketing/budget': 'marketing',
   'PUT /marketing/budget': 'marketing',
+  'PUT /marketing/budget/lines': 'marketing',
   // МКТ-В5a: результаты каналов для «Аналитики маркетинга», право страницы
   'GET /marketing/results': 'marketing',
   'POST /marketing/expenses': 'marketing',

@@ -1,7 +1,7 @@
 'use client';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import type { MarketingExpenseRow } from '../../../lib/api';
-import { minorToInput } from '../../../lib/money';
+import { formatMoney, minorToInput } from '../../../lib/money';
 import { csvField } from '../../finance/csv';
 import { Icon } from '../../../components/icon';
 import { Overlay } from '../../../components/overlay';
@@ -13,6 +13,7 @@ import {
   deleteExpenseAction,
   importExpensesAction,
   saveExpenseAction,
+  saveLinesAction,
   savePlanAction,
   type BudgetActionResult,
 } from './actions';
@@ -236,6 +237,131 @@ function ExpenseForm({
 }
 
 /** План месяца: одна сумма в валюте отчётности (экран 2, вкладка «Планы») */
+/**
+ * «Распределить план» (DATA_MODEL §52, ADR-MKT-B7): поле суммы на каждый канал, пустое значит «канала в плане нет».
+ * Сумма каналов больше общего плана не запрещается: форма показывает «распределено N из M» и предупреждает.
+ */
+export function LinesButton({
+  month,
+  plan,
+  lines,
+  prevLines,
+  currency,
+}: {
+  month: string;
+  plan: string | null;
+  lines: Array<{ platform: string; amount: string }>;
+  prevLines: Array<{ platform: string; amount: string }>;
+  currency: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button type="button" tone="secondary" size="sm" onClick={() => setOpen(true)} data-testid="budget-lines-edit">
+        {lines.length === 0 ? 'Распределить план' : 'Изменить план по каналам'}
+      </Button>
+      {open && (
+        <Overlay
+          open
+          drawer
+          className="settings-service-drawer"
+          title={`План по каналам на ${monthTitle(month).toLowerCase()}`}
+          onClose={() => setOpen(false)}
+        >
+          <LinesForm
+            month={month}
+            plan={plan}
+            lines={lines}
+            prevLines={prevLines}
+            currency={currency}
+            onClose={() => setOpen(false)}
+          />
+        </Overlay>
+      )}
+    </>
+  );
+}
+
+/** Тиыны строкой → тиыны bigint из поля ввода («120 000,5»); неразборчивое считается нулём, отказ даст сервер */
+const inputMinor = (v: string): bigint => {
+  const m = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(v.replace(/\s/g, ''));
+  return m ? BigInt(m[1]!) * 100n + BigInt((m[2] ?? '').padEnd(2, '0')) : 0n;
+};
+
+function LinesForm({
+  month,
+  plan,
+  lines,
+  prevLines,
+  currency,
+  onClose,
+}: {
+  month: string;
+  plan: string | null;
+  lines: Array<{ platform: string; amount: string }>;
+  prevLines: Array<{ platform: string; amount: string }>;
+  currency: string;
+  onClose: () => void;
+}) {
+  const [state, action, pending] = useBudgetAction(saveLinesAction, onClose);
+  const fill = (source: Array<{ platform: string; amount: string }>) =>
+    Object.fromEntries(Object.keys(PLATFORM_LABELS).map((p) => {
+      const line = source.find((l) => l.platform === p);
+      return [p, line ? minorToInput(line.amount) : ''];
+    }));
+  const [values, setValues] = useState<Record<string, string>>(() =>
+    state.values
+      ? Object.fromEntries(Object.keys(PLATFORM_LABELS).map((p) => [p, state.values?.[`amount-${p}`] ?? '']))
+      : fill(lines),
+  );
+  const allocated = Object.values(values).reduce((sum, v) => sum + inputMinor(v), 0n);
+  const total = plan === null ? null : BigInt(plan);
+  return (
+    <form action={action} className="settings-service-form" data-testid="budget-lines-form">
+      {state.error && <Alert boxed>{state.error}</Alert>}
+      <input type="hidden" name="month" value={month} />
+      <p className="settings-note">
+        Разбивка общего плана месяца по каналам в {currency}. Пустое поле: канала в плане нет. Без общего плана
+        сумма каналов и есть план месяца.
+      </p>
+      {prevLines.length > 0 && (
+        <Button type="button" tone="secondary" size="sm" onClick={() => setValues(fill(prevLines))} data-testid="budget-lines-copy">
+          Взять из прошлого месяца
+        </Button>
+      )}
+      {Object.entries(PLATFORM_LABELS).map(([platform, label]) => (
+        <Field key={platform} label={label}>
+          <Input
+            name={`amount-${platform}`}
+            inputMode="decimal"
+            value={values[platform] ?? ''}
+            onChange={(e) => setValues((prev) => ({ ...prev, [platform]: e.target.value }))}
+            data-testid={`budget-line-${platform}`}
+          />
+        </Field>
+      ))}
+      <p className="settings-note" aria-live="polite" data-testid="budget-lines-allocated">
+        {total === null
+          ? `Сумма каналов: ${formatMoney(allocated, currency)}`
+          : `Распределено ${formatMoney(allocated, currency)} из ${formatMoney(total, currency)}`}
+      </p>
+      {total !== null && allocated > total && (
+        <Alert tone="warning" data-testid="budget-lines-over">
+          Каналы расписаны больше общего плана на {formatMoney(allocated - total, currency)}. Сохранить можно.
+        </Alert>
+      )}
+      <div className="settings-service-actions">
+        <Button type="button" tone="secondary" onClick={onClose}>
+          Отмена
+        </Button>
+        <Button type="submit" disabled={pending} aria-busy={pending} data-testid="budget-lines-save">
+          {pending ? 'Сохраняю…' : 'Сохранить'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 export function PlanButton({
   month,
   plan,

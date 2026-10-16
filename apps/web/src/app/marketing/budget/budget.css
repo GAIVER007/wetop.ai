@@ -164,6 +164,11 @@
     display: block;
   }
 
+  /* остаток канала ушёл в минус: план против факта (§52) */
+  .budget-td-danger {
+    color: var(--danger);
+  }
+
   .budget-cell-sub {
     display: block;
     color: var(--muted);

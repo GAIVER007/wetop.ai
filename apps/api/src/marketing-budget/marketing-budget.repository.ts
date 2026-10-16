@@ -63,12 +63,7 @@ export interface MarketingBudgetRepository {
   /** Организация не только для чтения (пробный период, приостановка) */
   assertWritable(organizationId: string): Promise<void>;
   /** Месяц [first, nextFirst): план, строки расходов и учтённый расход прошлого месяца */
-  monthData(
-    locationId: string,
-    first: string,
-    nextFirst: string,
-    prevFirst: string,
-  ): Promise<{ plan: bigint | null; expenses: ExpenseRecord[]; prevSpent: bigint }>;
+  monthData(locationId: string, first: string, nextFirst: string, prevFirst: string): Promise<MonthData>;
   createExpense(
     locationId: string,
     input: MarketingExpenseInput,
@@ -89,11 +84,28 @@ export interface MarketingBudgetRepository {
     items: Array<{ input: MarketingExpenseInput; audit: BudgetAudit }>,
   ): Promise<number>;
   setPlan(locationId: string, month: string, amount: bigint, audit: BudgetAudit): Promise<void>;
+  /** Разбивка плана месяца по каналам (§52) заменяется целиком одной транзакцией */
+  setLines(locationId: string, month: string, lines: BudgetLineRecord[], audit: BudgetAudit): Promise<void>;
   /**
    * Результаты маркетинговых каналов филиала за месяц [first, nextFirst) по правилу Q-MKT-ATTR (МКТ-В5a).
    * `supported: false`: у филиала нет объекта размещения (салон, ресторан), броней гостиницы нет.
    */
   results(locationId: string, first: string, nextFirst: string): Promise<ResultsData>;
+}
+
+export interface BudgetLineRecord {
+  platform: MarketingPlatform;
+  amount: bigint;
+}
+
+export interface MonthData {
+  plan: bigint | null;
+  expenses: ExpenseRecord[];
+  prevSpent: bigint;
+  /** Разбивка плана месяца по каналам (§52) */
+  lines: BudgetLineRecord[];
+  /** Разбивка прошлого месяца: «взять из прошлого месяца» на экране */
+  prevLines: BudgetLineRecord[];
 }
 
 export interface ResultsData {
@@ -206,8 +218,14 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
     first: string,
     nextFirst: string,
     prevFirst: string,
-  ): Promise<{ plan: bigint | null; expenses: ExpenseRecord[]; prevSpent: bigint }> {
-    const [plan, rows, prev] = await Promise.all([
+  ): Promise<MonthData> {
+    const linesOf = (month: string) =>
+      this.prisma.db.marketingBudgetLine.findMany({
+        where: { locationId, month: asDate(month) },
+        select: { platform: true, amount: true },
+        orderBy: [{ amount: 'desc' }, { platform: 'asc' }],
+      });
+    const [plan, rows, prev, lines, prevLines] = await Promise.all([
       this.prisma.db.marketingBudget.findUnique({
         where: { locationId_month: { locationId, month: asDate(first) } },
         select: { amount: true },
@@ -224,11 +242,15 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
         },
         _sum: { baseAmount: true },
       }),
+      linesOf(first),
+      linesOf(prevFirst),
     ]);
     return {
       plan: plan?.amount ?? null,
       expenses: rows.map(toRecord),
       prevSpent: prev._sum.baseAmount ?? 0n,
+      lines,
+      prevLines,
     };
   }
 
@@ -304,6 +326,17 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
         create: { locationId, month: asDate(month), amount },
         update: { amount },
       });
+      await writeAudit(tx, audit);
+    });
+  }
+
+  async setLines(locationId: string, month: string, lines: BudgetLineRecord[], audit: BudgetAudit): Promise<void> {
+    await this.prisma.db.$transaction(async (tx) => {
+      await tx.marketingBudgetLine.deleteMany({ where: { locationId, month: asDate(month) } });
+      if (lines.length > 0)
+        await tx.marketingBudgetLine.createMany({
+          data: lines.map((l) => ({ locationId, month: asDate(month), platform: l.platform, amount: l.amount })),
+        });
       await writeAudit(tx, audit);
     });
   }

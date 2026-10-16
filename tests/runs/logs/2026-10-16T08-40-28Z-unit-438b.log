@@ -1,0 +1,223 @@
+# Модульные (unit) · 16.10.2026 13:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7ebf981 (claude/marketing-channel-plan), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T08-40-28Z-unit-438b.json' 'packages/domain/src/marketing/budget.test.ts' 'apps/web/src/app/marketing/budget/derive.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/web/src/app/marketing/budget/derive.test.ts (12 tests | 4 failed) 41ms
+   ✓ сводка бюджета месяца (экран «Бюджет», МКТ-В2) (4)
+     ✓ текущий месяц: израсходовано, остаток, прогноз и дни 2ms
+     ✓ прошлый месяц: прогноз равен факту, дней до конца ноль 0ms
+     ✓ будущий месяц: прогноза нет, дни впереди целиком 0ms
+     ✓ первый день месяца без расходов: деление на ноль не случается 0ms
+   ✓ распределение по платформам (2)
+     ✓ доли считаются от учтённых расходов и сортируются по убыванию 2ms
+     ✓ пусто: пустой список 0ms
+   ✓ расходы по дням для графика (1)
+     ✓ каждый день месяца на месте, суммы в тиынах 1ms
+   ✓ динамика к прошлому месяцу (1)
+     ✓ рост и падение в процентах, без прошлого месяца: null 0ms
+   ❯ план по каналам: разбивка общего плана (DATA_MODEL §52, ADR-MKT-B7) (4)
+     × план против факта по каждому каналу: остаток и прогноз тем же правилом, что у месяца 20ms
+     × каналы больше общего плана: предупреждение, а не запрет 1ms
+     × без общего плана сумма каналов и есть план месяца: остаток и «в плане» считаются от неё 11ms
+     × без плана и без разбивки: строк плана нет, только расход каналов 1ms
+ ❯ |unit| packages/domain/src/marketing/budget.test.ts (31 tests | 7 failed) 49ms
+   ✓ расход маркетинга: разбор ввода (DATA_MODEL §41.1) (18)
+     ✓ валюта отчётности: курс 1, base_amount равен сумме 7ms
+     ✓ чужая валюта: base_amount по курсу на дату операции, округление к ближайшему 0ms
+     ✓ курс с шестью знаками: целочисленная арифметика без float 1ms
+     ✓ чужая валюта без курса: отказ словами 0ms
+     ✓ совпадающая валюта: присланный курс не ломает пересчёт, принудительно 1 0ms
+     ✓ переключатель бюджета и необязательные поля 0ms
+     ✓ отказ: дата 0ms
+     ✓ отказ: дата 0ms
+     ✓ отказ: платформа 0ms
+     ✓ отказ: сумма 0ms
+     ✓ отказ: сумма 0ms
+     ✓ отказ: сумма 0ms
+     ✓ отказ: курс 0ms
+     ✓ отказ: курс 0ms
+     ✓ отказ: валюта 0ms
+     ✓ отказ: статья 0ms
+     ✓ длина полей ограничена как в базе 0ms
+     ✓ каналы ТЗ §4 на месте 1ms
+   ✓ план бюджета месяца: разбор ввода (DATA_MODEL §41.2) (6)
+     ✓ месяц нормализуется к первому числу, сумма в валюте отчётности 0ms
+     ✓ полная дата тоже принимается и усечётся к месяцу 0ms
+     ✓ отказ: месяц 0ms
+     ✓ отказ: месяц 0ms
+     ✓ отказ: сумма 0ms
+     ✓ отказ: сумма 0ms
+   ❯ план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7) (7)
+     × месяц к первому числу, суммы в тиынах, пустая сумма значит «канала в плане нет» 17ms
+     × пустой список убирает разбивку месяца целиком 1ms
+     × отказ: неизвестный канал 14ms
+     × отказ: канал дважды 1ms
+     × отказ: ноль 1ms
+     × отказ: не список 1ms
+     × отказ: месяц 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/budget.test.ts > план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7) > месяц к первому числу, суммы в тиынах, пустая сумма значит «канала в плане нет»
+TypeError: parseMarketingBudgetLinesInput is not a function
+ ❯ packages/domain/src/marketing/budget.test.ts:137:15
+    135| describe('план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7)',…
+    136|   it('месяц к первому числу, суммы в тиынах, пустая сумма значит «кана…
+    137|     const r = parseMarketingBudgetLinesInput({
+       |               ^
+    138|       month: '2026-10',
+    139|       lines: [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/budget.test.ts > план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7) > пустой список убирает разбивку месяца целиком
+TypeError: parseMarketingBudgetLinesInput is not a function
+ ❯ packages/domain/src/marketing/budget.test.ts:155:12
+    153|
+    154|   it('пустой список убирает разбивку месяца целиком', () => {
+    155|     expect(parseMarketingBudgetLinesInput({ month: '2026-10', lines: […
+       |            ^
+    156|   });
+    157|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/budget.test.ts > план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7) > отказ: неизвестный канал
+AssertionError: expected [Function] to throw error including 'Канал' but got '(0 , __vite_ssr_import_1__.parseMarke…'
+
+Expected: "Канал"
+Received: "(0 , __vite_ssr_import_1__.parseMarketingBudgetLinesInput) is not a function"
+
+ ❯ packages/domain/src/marketing/budget.test.ts:165:83
+    163|     ['месяц', { month: '2026-13', lines: [] }, 'Месяц'],
+    164|   ])('отказ: %s', (_name, body, word) => {
+    165|     expect(() => parseMarketingBudgetLinesInput(body as Record<string,…
+       |                                                                                   ^
+    166|   });
+    167| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/budget.test.ts > план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7) > отказ: канал дважды
+AssertionError: expected [Function] to throw error including 'дважды' but got '(0 , __vite_ssr_import_1__.parseMarke…'
+
+Expected: "дважды"
+Received: "(0 , __vite_ssr_import_1__.parseMarketingBudgetLinesInput) is not a function"
+
+ ❯ packages/domain/src/marketing/budget.test.ts:165:83
+    163|     ['месяц', { month: '2026-13', lines: [] }, 'Месяц'],
+    164|   ])('отказ: %s', (_name, body, word) => {
+    165|     expect(() => parseMarketingBudgetLinesInput(body as Record<string,…
+       |                                                                                   ^
+    166|   });
+    167| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/budget.test.ts > план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7) > отказ: ноль
+AssertionError: expected [Function] to throw error including 'больше нуля' but got '(0 , __vite_ssr_import_1__.parseMarke…'
+
+Expected: "больше нуля"
+Received: "(0 , __vite_ssr_import_1__.parseMarketingBudgetLinesInput) is not a function"
+
+ ❯ packages/domain/src/marketing/budget.test.ts:165:83
+    163|     ['месяц', { month: '2026-13', lines: [] }, 'Месяц'],
+    164|   ])('отказ: %s', (_name, body, word) => {
+    165|     expect(() => parseMarketingBudgetLinesInput(body as Record<string,…
+       |                                                                                   ^
+    166|   });
+    167| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/budget.test.ts > план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7) > отказ: не список
+AssertionError: expected [Function] to throw error including 'список' but got '(0 , __vite_ssr_import_1__.parseMarke…'
+
+Expected: "список"
+Received: "(0 , __vite_ssr_import_1__.parseMarketingBudgetLinesInput) is not a function"
+
+ ❯ packages/domain/src/marketing/budget.test.ts:165:83
+    163|     ['месяц', { month: '2026-13', lines: [] }, 'Месяц'],
+    164|   ])('отказ: %s', (_name, body, word) => {
+    165|     expect(() => parseMarketingBudgetLinesInput(body as Record<string,…
+       |                                                                                   ^
+    166|   });
+    167| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/budget.test.ts > план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7) > отказ: месяц
+AssertionError: expected [Function] to throw error including 'Месяц' but got '(0 , __vite_ssr_import_1__.parseMarke…'
+
+Expected: "Месяц"
+Received: "(0 , __vite_ssr_import_1__.parseMarketingBudgetLinesInput) is not a function"
+
+ ❯ packages/domain/src/marketing/budget.test.ts:165:83
+    163|     ['месяц', { month: '2026-13', lines: [] }, 'Месяц'],
+    164|   ])('отказ: %s', (_name, body, word) => {
+    165|     expect(() => parseMarketingBudgetLinesInput(body as Record<string,…
+       |                                                                                   ^
+    166|   });
+    167| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  |unit| apps/web/src/app/marketing/budget/derive.test.ts > план по каналам: разбивка общего плана (DATA_MODEL §52, ADR-MKT-B7) > план против факта по каждому каналу: остаток и прогноз тем же правилом, что у месяца
+TypeError: channelPlan is not a function
+ ❯ apps/web/src/app/marketing/budget/derive.test.ts:128:15
+    126|       { platform: 'SITE', amount: '50000' },
+    127|     ];
+    128|     const c = channelPlan({ ...month, plan: '300000', lines, expenses:…
+       |               ^
+    129|     expect(c.rows).toEqual([
+    130|       // 1 000 ₸ за 10 дней из 31 → прогноз 3 100 ₸
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  |unit| apps/web/src/app/marketing/budget/derive.test.ts > план по каналам: разбивка общего плана (DATA_MODEL §52, ADR-MKT-B7) > каналы больше общего плана: предупреждение, а не запрет
+TypeError: channelPlan is not a function
+ ❯ apps/web/src/app/marketing/budget/derive.test.ts:142:15
+    140|
+    141|   it('каналы больше общего плана: предупреждение, а не запрет', () => {
+    142|     const c = channelPlan({ ...month, plan: '100000', lines: [{ platfo…
+       |               ^
+    143|     expect(c.overAllocated).toBe(true);
+    144|     expect(c.unallocated).toBe(-50000n);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  |unit| apps/web/src/app/marketing/budget/derive.test.ts > план по каналам: разбивка общего плана (DATA_MODEL §52, ADR-MKT-B7) > без общего плана сумма каналов и есть план месяца: остаток и «в плане» считаются от неё
+TypeError: channelPlan is not a function
+ ❯ apps/web/src/app/marketing/budget/derive.test.ts:149:15
+    147|   it('без общего плана сумма каналов и есть план месяца: остаток и «в …
+    148|     const lines = [{ platform: 'META', amount: '200000' }];
+    149|     const c = channelPlan({ ...month, plan: null, lines, expenses: spe…
+       |               ^
+    150|     expect(c.allocated).toBe(200000n);
+    151|     expect(c.unallocated).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  |unit| apps/web/src/app/marketing/budget/derive.test.ts > план по каналам: разбивка общего плана (DATA_MODEL §52, ADR-MKT-B7) > без плана и без разбивки: строк плана нет, только расход каналов
+TypeError: channelPlan is not a function
+ ❯ apps/web/src/app/marketing/budget/derive.test.ts:159:15
+    157|
+    158|   it('без плана и без разбивки: строк плана нет, только расход каналов…
+    159|     const c = channelPlan({ ...month, plan: null, lines: [], expenses:…
+       |               ^
+    160|     expect(c.allocated).toBe(0n);
+    161|     expect(c.rows.map((r) => [r.platform, r.plan])).toEqual([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  11 failed | 32 passed (43)
+   Start at  01:40:33
+   Duration  781ms (transform 58%, import 16%, tests 16%, worker 10%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T08-40-28Z-unit-438b.json
+
+# код выхода 1 · 7 с

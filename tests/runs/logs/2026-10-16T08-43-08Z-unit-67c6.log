@@ -1,0 +1,37 @@
+# Модульные (unit) · 16.10.2026 13:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7ebf981 (claude/marketing-channel-plan), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T08-43-08Z-unit-67c6.json' 'apps/api/src/marketing-budget' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (16 tests) 11ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 7738ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 5560ms
+     ✓ MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 1996ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/api/src/auth/route-access.test.ts:597:3
+    595|
+    596| describe('права маршрутов API (ADR-107)', () => {
+    597|   it('у каждого маршрута — право из таблицы, и в таблице нет лишних ст…
+       |   ^
+    598|     const actual = await routes();
+    599|     const unannotated = Object.entries(actual)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 18 passed (19)
+   Start at  01:43:10
+   Duration  12.91s (tests 59%, transform 26%, import 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T08-43-08Z-unit-67c6.json
+
+# код выхода 1 · 17 с

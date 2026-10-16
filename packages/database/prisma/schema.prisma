@@ -120,6 +120,7 @@ model Location {
   marketingSite          MarketingSite?
   marketingExpenses      MarketingExpense[]
   marketingBudgets       MarketingBudget[]
+  marketingBudgetLines   MarketingBudgetLine[]
   siteAssets             SiteAsset[]
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement SiteBuilderEntitlement?
@@ -212,6 +213,22 @@ model MarketingBudget {
 
   @@unique([locationId, month])
   @@map("marketing_budgets")
+}
+
+/// План бюджета маркетинга по каналам: разбивка общего плана месяца (DATA_MODEL §52, ADR-MKT-B7)
+model MarketingBudgetLine {
+  id         String            @id @default(uuid()) @db.Uuid
+  locationId String            @map("location_id") @db.Uuid
+  month      DateTime          @db.Date
+  platform   MarketingPlatform
+  amount     BigInt
+  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([locationId, month, platform])
+  @@map("marketing_budget_lines")
 }
 
 model Property {

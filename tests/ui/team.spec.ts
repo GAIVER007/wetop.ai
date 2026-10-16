@@ -227,7 +227,8 @@ test('«Роли и права»: вкладка только на чтение,
   await expect(page).toHaveURL(/\/team\/roles$/);
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
-  await expect(main.getByTestId('roles-row')).toHaveCount(13);
+  // 14 прав: с ADR-MKT-B7 у маркетинга своё право `marketing`
+  await expect(main.getByTestId('roles-row')).toHaveCount(14);
   const owner = main
     .getByTestId('roles-row')
     .filter({ hasText: 'Управляющие, роли и платные расширения' });

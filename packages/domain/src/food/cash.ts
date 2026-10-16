@@ -30,6 +30,13 @@ export function orderPayment(
   return { paidAfter, close: status === 'SERVED' && paidAfter === total };
 }
 
+/** Возврат по закрытому заказу (§56): только после закрытия, не больше чистой оплаты */
+export function orderRefund(status: OrderStatus, paidNet: bigint, amount: bigint): void {
+  if (status !== 'CLOSED') throw new Error('Возврат оформляют по закрытому заказу: до этого аннулируйте платёж');
+  if (amount <= 0n) throw new Error('Сумма больше нуля');
+  if (amount > paidNet) throw new Error('Сумма больше оплаченного по заказу');
+}
+
 /** Остаток кассы по способам: платежи + приход − расход ± перевод; аннулированное не считается */
 export function foodCashBalances(
   payments: Array<{ method: string; amount: bigint; status: Status }>,

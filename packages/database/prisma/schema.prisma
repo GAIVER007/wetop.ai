@@ -3464,6 +3464,8 @@ model RestaurantOrder {
   createdBy            User?                  @relation(fields: [createdById], references: [id])
   items                RestaurantOrderItem[]
   payments             RestaurantPayment[]
+  /// возвраты после закрытия (§56)
+  refunds              RestaurantCashOperation[]
   stockMovements       KitchenStockMovement[]
   rating               RestaurantOrderRating?
 
@@ -3669,10 +3671,13 @@ model RestaurantCashOperation {
   appointmentId  String?        @map("appointment_id") @db.Uuid
   /// повтор того же нажатия оплаты записи (§49)
   idempotencyKey String?        @map("idempotency_key") @db.VarChar(100)
+  /// возврат по закрытому заказу ресторана (§56): только расход
+  orderId        String?        @map("order_id") @db.Uuid
 
   location           Location            @relation(fields: [locationId], references: [id])
   employee           Employee?           @relation(fields: [employeeId], references: [id], onDelete: Restrict)
   appointment        Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+  order              RestaurantOrder?    @relation(fields: [orderId], references: [id], onDelete: Restrict)
   createdBy          User?               @relation("RestaurantCashOpCreatedBy", fields: [createdById], references: [id])
   barSale            BarSale?
   barSupplierPayment BarSupplierPayment?
@@ -3682,6 +3687,7 @@ model RestaurantCashOperation {
   @@unique([locationId, idempotencyKey])
   @@index([employeeId, period])
   @@index([appointmentId])
+  @@index([orderId])
   @@map("restaurant_cash_operations")
 }
 

@@ -90,6 +90,33 @@ export async function importExpensesAction(
   return done(`Загружено ${n} на ${formatMoney(r.baseTotal, s(fd, 'currency'))}`);
 }
 
+/** Чек к расходу (§51): файл из формы уходит в API, ответ пересобирает страницу, панель остаётся открытой */
+export async function uploadExpenseFileAction(
+  _prev: BudgetActionResult,
+  fd: FormData,
+): Promise<BudgetActionResult> {
+  const file = fd.get('file');
+  if (!(file instanceof File) || file.size === 0) return { error: 'Выберите фото чека или PDF', ok: 0 };
+  try {
+    await marketingBudgetApi.uploadFile(s(fd, 'expenseId'), file);
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  return done('Файл приложен к расходу');
+}
+
+export async function removeExpenseFileAction(
+  _prev: BudgetActionResult,
+  fd: FormData,
+): Promise<BudgetActionResult> {
+  try {
+    await marketingBudgetApi.removeFile(s(fd, 'expenseId'), s(fd, 'fileId'));
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  return done('Файл удалён, запись осталась в журнале организации');
+}
+
 export async function deleteExpenseAction(
   _prev: BudgetActionResult,
   fd: FormData,

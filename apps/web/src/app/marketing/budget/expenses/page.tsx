@@ -8,6 +8,7 @@ import { formatMoney } from '../../../../lib/money';
 import { displayDate } from '../../../../lib/display-date';
 import { pluralRu } from '../../../../lib/plural';
 import { Page } from '../../../../components/page';
+import { Icon } from '../../../../components/icon';
 import { LoadError } from '../../../../components/load-error';
 import { Badge, EmptyState, Table, cx } from '../../../../components/ui';
 import { BackToModules } from '../../parts';
@@ -127,6 +128,12 @@ export default async function BudgetExpensesPage({
                       <span className="budget-cell-main">{e.campaign ?? e.category}</span>
                       {e.campaign && <span className="budget-cell-sub">{e.category}</span>}
                       {e.description && <span className="budget-cell-sub">{e.description}</span>}
+                      {(e.files?.length ?? 0) > 0 && (
+                        <span className="budget-cell-sub budget-files__count" data-testid={`budget-files-count-${e.id}`}>
+                          <Icon name="receipt" width={14} aria-hidden="true" />
+                          {pluralRu(e.files!.length, ['файл', 'файла', 'файлов'])}
+                        </span>
+                      )}
                     </td>
                     <td className="budget-td-num">
                       {formatMoney(e.amount, e.currency)}

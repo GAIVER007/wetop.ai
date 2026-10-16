@@ -115,6 +115,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /marketing/results': 'marketing',
   'POST /marketing/expenses': 'marketing',
   'POST /marketing/expenses/import': 'marketing',
+  'POST /marketing/expenses/:id/files': 'marketing',
+  'DELETE /marketing/expenses/:id/files/:fileId': 'marketing',
   'PATCH /marketing/expenses/:id': 'marketing',
   'DELETE /marketing/expenses/:id': 'marketing',
   // ── «Маркетинг → Сайт и SEO», ядро сайта (MKT3): право сайта, филиал строго из scope ──

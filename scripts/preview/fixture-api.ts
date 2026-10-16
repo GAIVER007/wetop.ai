@@ -4936,6 +4936,8 @@ interface FixtureMarketingExpense {
   fxRate: string;
   baseAmount: string;
   countedInBudget: boolean;
+  /** Чеки (§51): адреса нет, как у API без хранилища */
+  files?: Array<{ id: string; fileName: string; mimeType: string; byteSize: number; url: null }>;
 }
 const budgetExpenses: FixtureMarketingExpense[] = [];
 const budgetPlans = new Map<string, string>();
@@ -5721,6 +5723,37 @@ createServer(async (req, res) => {
     }
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (marketResponse) return send(marketResponse[0], marketResponse[1]);
+    // чеки расходов (§51): multipart, поэтому до разбора JSON-маршрутов бюджета; правила как у API
+    const fileMatch = /^\/marketing\/expenses\/([^/]+)\/files(?:\/([^/]+))?$/.exec(path);
+    if (fileMatch) {
+      if (!can(uiRole, 'marketing')) return send(403, { message: accessDeniedMessage('marketing') });
+      const expense = budgetExpenses.find((e) => e.id === fileMatch[1]);
+      if (!expense) return send(404, { message: 'Расход не найден' });
+      const list = (expense.files ??= []);
+      if (req.method === 'POST' && !fileMatch[2]) {
+        const text = raw.toString('latin1');
+        const name = /filename="([^"]*)"/.exec(text)?.[1] ?? 'Чек';
+        const pdf = text.includes('%PDF-');
+        if (!pdf && !/Content-Type: image\/(png|jpeg|webp)/i.test(text))
+          return send(415, { message: 'Чек принимается фото (JPEG, PNG, WebP) или PDF' });
+        if (list.length >= 10) return send(400, { message: 'Не больше 10 файлов на расход. Удалите лишние.' });
+        const file = {
+          id: `00000000-0000-4000-a000-${String(++mediaSeq).padStart(12, '0')}`,
+          fileName: Buffer.from(name, 'latin1').toString('utf8'),
+          mimeType: pdf ? 'application/pdf' : 'image/webp',
+          byteSize: raw.length,
+          url: null,
+        };
+        list.push(file);
+        return send(201, { file, created: true });
+      }
+      if (req.method === 'DELETE' && fileMatch[2]) {
+        const at = list.findIndex((f) => f.id === fileMatch[2]);
+        if (at < 0) return send(404, { message: 'Файл не найден' });
+        list.splice(at, 1);
+        return send(200, { deleted: true });
+      }
+    }
     const budgetResponse = marketingBudgetRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (budgetResponse) return send(budgetResponse[0], budgetResponse[1]);
     // засев бюджета маркетинга для UI-тестов: строки расходов и план месяца

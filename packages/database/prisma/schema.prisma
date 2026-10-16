@@ -121,6 +121,7 @@ model Location {
   marketingExpenses      MarketingExpense[]
   marketingBudgets       MarketingBudget[]
   marketingBudgetLines   MarketingBudgetLine[]
+  marketingExpenseFiles  MarketingExpenseFile[]
   siteAssets             SiteAsset[]
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement SiteBuilderEntitlement?
@@ -193,11 +194,35 @@ model MarketingExpense {
   createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  location  Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  location  Location               @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  files     MarketingExpenseFile[]
 
   @@index([locationId, date])
   @@map("marketing_expenses")
+}
+
+/// §51 (v2.35, ADR-MKT-B7): чеки и файлы расхода маркетинга; хранилище и обработка как у property_media (§32.3)
+model MarketingExpenseFile {
+  id          String   @id @default(uuid()) @db.Uuid
+  expenseId   String   @map("expense_id") @db.Uuid
+  locationId  String   @map("location_id") @db.Uuid
+  fileName    String   @map("file_name") @db.VarChar(200)
+  mimeType    String   @map("mime_type") @db.VarChar(40)
+  storageRef  String   @unique @map("storage_ref") @db.VarChar(500)
+  byteSize    Int      @map("byte_size")
+  width       Int?
+  height      Int?
+  sha256      String   @db.Char(64)
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  expense   MarketingExpense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  location  Location         @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy User?            @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([expenseId, sha256])
+  @@map("marketing_expense_files")
 }
 
 /// §41.2 (v2.24, ADR-MKT-B1): план бюджета маркетинга филиала на месяц, в валюте отчётности организации.
@@ -2353,6 +2378,7 @@ model User {
   siteAssetsCreated            SiteAsset[]
   propertyMedia                PropertyMedia[]
   marketingExpensesCreated     MarketingExpense[]
+  marketingExpenseFilesCreated MarketingExpenseFile[]
   siteAiRunsRequested          SiteAiRun[]
   siteBookmarksCreated         MarketingSiteVersionBookmark[]
   siteBuilderEntitlementEdits  SiteBuilderEntitlement[]

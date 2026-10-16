@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import {
   MarketingBudgetError,
   parseMarketingBudgetInput,
@@ -12,6 +12,8 @@ import {
   type ExpenseRecord,
   type MarketingBudgetRepository,
 } from './marketing-budget.repository';
+import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
+import { signFiles, type ExpenseFileView } from './expense-files';
 
 /**
  * Учёт бюджета и расходов маркетинга (МКТ-В1/В2, ТЗ «Модуль Маркетинг» 1.0, DATA_MODEL §41).
@@ -32,6 +34,8 @@ export interface ExpenseRow {
   fxRate: string;
   baseAmount: string;
   countedInBudget: boolean;
+  /** Чеки и файлы (§51) с подписанными адресами: в ответе месяца */
+  files?: ExpenseFileView[];
 }
 
 export interface BudgetLineRow {
@@ -116,6 +120,7 @@ const toRow = (r: ExpenseRecord): ExpenseRow => ({
 export class MarketingBudgetService {
   constructor(
     @Inject(MARKETING_BUDGET_REPOSITORY) private readonly repo: MarketingBudgetRepository,
+    @Optional() @Inject(SITE_ASSET_STORAGE) private readonly storage: SiteAssetStorage | null = null,
   ) {}
 
   /**
@@ -168,7 +173,9 @@ export class MarketingBudgetService {
       prevSpent: data.prevSpent.toString(),
       lines: data.lines.map(lineRow),
       prevLines: data.prevLines.map(lineRow),
-      expenses: data.expenses.map(toRow),
+      expenses: await Promise.all(
+        data.expenses.map(async (r) => ({ ...toRow(r), files: await signFiles(this.storage, r.files ?? []) })),
+      ),
     };
   }
 

@@ -1,0 +1,51 @@
+# Интеграционные (integration) · 16.10.2026 14:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 823661d (claude/marketing-expense-files), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-35-29Z-integration-361b.json' 'tests/integration/marketing-budget-db.test.ts' 'tests/integration/marketing-expense-files.test.ts' 'tests/integration/marketing-budget-lines.test.ts' 'tests/integration/marketing-import.test.ts' 'tests/integration/marketing-results.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-budget-lines.test.ts (1 test) 175ms
+ ✓ |integration| tests/integration/marketing-expense-files.test.ts (2 tests) 227ms
+ ✓ |integration| tests/integration/marketing-results.test.ts (3 tests) 191ms
+ ✓ |integration| tests/integration/marketing-import.test.ts (1 test) 139ms
+ ❯ |integration| tests/integration/marketing-budget-db.test.ts (6 tests | 1 failed) 39ms
+   ❯ МКТ-В1/В2 marketing accounting: инварианты базы (6)
+     ✓ CHECK: суммы и курс больше нуля, валюта кодом, статья не пустая 5ms
+     ✓ план: только первое число месяца и один план на месяц филиала 2ms
+     ✓ RLS: чужая организация не видит расходы и планы и не может писать в чужой филиал 5ms
+     ✓ права ролей: у плана месяца нет DELETE, он меняется правкой 3ms
+     ✓ план по каналам (§52): первое число, один канал на месяц филиала, сумма больше нуля, RLS, DELETE есть 4ms
+     × чеки (§51): ключ хранилища выводится из строки, только WebP и PDF, RLS, без UPDATE, уходят с расходом 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-budget-db.test.ts > МКТ-В1/В2 marketing accounting: инварианты базы > чеки (§51): ключ хранилища выводится из строки, только WebP и PDF, RLS, без UPDATE, уходят с расходом
+AssertionError: expected [Function] to throw error matching /marketing_expense_files_size/ but got 'new row for relation "marketing_expen…'
+
+- Expected:
+/marketing_expense_files_size/
+
++ Received:
+"new row for relation \"marketing_expense_files\" violates check constraint \"marketing_expense_files_ref\""
+
+ ❯ tests/integration/marketing-budget-db.test.ts:211:67
+    209|       await expect(file({ storage_ref: `marketing-expense-files/${locB…
+    210|       await expect(file({ mime_type: 'image/svg+xml', sha256: 'b'.repe…
+    211|       await expect(file({ sha256: 'b'.repeat(64), byte_size: 0 })).rej…
+       |                                                                   ^
+    212|       await expect(file()).rejects.toThrow(/marketing_expense_files_ex…
+    213|       await asApp(attempt, orgB);
+ ❯ probe tests/integration/marketing-budget-db.test.ts:28:7
+ ❯ tests/integration/marketing-budget-db.test.ts:185:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 12 passed (13)
+   Start at  02:35:29
+   Duration  2.82s (import 43%, tests 36%, transform 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-35-29Z-integration-361b.json
+
+# код выхода 1 · 4 с

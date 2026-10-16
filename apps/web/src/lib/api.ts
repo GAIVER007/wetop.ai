@@ -3979,6 +3979,14 @@ export const marketApi = {
 };
 
 /** Расход маркетинга (МКТ-В1/В2, DATA_MODEL §41.1). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
+/** Чек или файл расхода маркетинга (DATA_MODEL §51); url null: хранилище не включено */
+export interface MarketingExpenseFile {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  byteSize: number;
+  url: string | null;
+}
 export interface MarketingExpenseRow {
   id: string;
   date: string;
@@ -3993,6 +4001,8 @@ export interface MarketingExpenseRow {
   /** Сумма в валюте отчётности организации, minor units, по курсу на дату операции */
   baseAmount: string;
   countedInBudget: boolean;
+  /** Чеки и файлы (§51) с подписанными адресами на время; есть в ответе месяца */
+  files?: MarketingExpenseFile[];
 }
 
 export interface MarketingBudgetView {
@@ -4028,6 +4038,17 @@ export const marketingBudgetApi = {
   /** Импорт из CSV формата выгрузки: всё или ничего; итог в валюте отчётности строкой тиынов */
   importExpenses: (csv: string) =>
     sendJson<{ imported: number; baseTotal: string }>('POST', '/marketing/expenses/import', { csv }),
+  /** Чек или файл к расходу (§51): фото или PDF до 10 МиБ, файл идёт в API, оттуда в закрытое хранилище */
+  uploadFile: async (expenseId: string, file: File): Promise<void> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch(`/marketing/expenses/${encodeURIComponent(expenseId)}/files`, { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  removeFile: (expenseId: string, fileId: string) =>
+    deleteJson<{ deleted: true }>(
+      `/marketing/expenses/${encodeURIComponent(expenseId)}/files/${encodeURIComponent(fileId)}`,
+    ),
   results: (month?: string) =>
     getJson<MarketingResultsView>(
       `/marketing/results${month ? `?month=${encodeURIComponent(month)}` : ''}`,

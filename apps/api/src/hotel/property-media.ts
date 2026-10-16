@@ -61,8 +61,8 @@ type Row = Prisma.PropertyMediaGetPayload<{ select: typeof ROW }>;
 const isUnique = (e: unknown) =>
   typeof e === 'object' && e !== null && (e as { code?: string }).code === 'P2002';
 
-/** Имя файла для показа: без пути и управляющих знаков, не длиннее 200 */
-export function safeFileName(raw: unknown): string {
+/** Имя файла для показа: без пути и управляющих знаков, не длиннее 200; пустое заменяется `fallback` */
+export function safeFileName(raw: unknown, fallback = 'Договор.pdf'): string {
   const base = String(raw ?? '')
     .split(/[\\/]/)
     .pop()!
@@ -70,7 +70,7 @@ export function safeFileName(raw: unknown): string {
     .replace(/[\u0000-\u001f\u007f]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
-  return (base || 'Договор.pdf').slice(-200);
+  return (base || fallback).slice(-200);
 }
 
 @Injectable()

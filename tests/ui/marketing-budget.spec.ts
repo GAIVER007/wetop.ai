@@ -294,6 +294,57 @@ test('план по каналам: разбивка прошлого месяц
   await page.screenshot({ path: `${SHOTS}/channel-plan-light-1440.png`, fullPage: true });
 });
 
+test('чеки расхода: приложить PDF, чужой формат отказ словами, счётчик в журнале, удаление с подтверждением', async ({
+  page,
+  request,
+}) => {
+  const { month } = await seed(request);
+  await page.goto(`/marketing/budget/expenses?month=${month}`);
+  const main = page.getByRole('main');
+
+  // новый расход: чек прикладывают после сохранения
+  await main.getByTestId('budget-add').first().click();
+  await expect(page.getByTestId('budget-files-later')).toBeVisible();
+  await page.keyboard.press('Escape');
+
+  await main.getByTestId('budget-table').getByRole('button', { name: /Изменить расход: Meta Ads/ }).click();
+  const files = page.getByTestId('budget-files');
+  await expect(files).toContainText('Чеков пока нет');
+  await files.getByTestId('budget-file-input').setInputFiles({
+    name: 'svg.svg',
+    mimeType: 'image/svg+xml',
+    buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>'),
+  });
+  await files.getByTestId('budget-file-upload').click();
+  await expect(files.getByRole('alert')).toContainText('фото (JPEG, PNG, WebP) или PDF');
+
+  await files.getByTestId('budget-file-input').setInputFiles({
+    name: 'schet-meta.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4\n%%EOF\n'),
+  });
+  await files.getByTestId('budget-file-upload').click();
+  await expect(page.getByText('Файл приложен к расходу')).toBeVisible();
+  // панель остаётся открытой: файлы прикладывают подряд
+  await expect(files.getByTestId('budget-files-list')).toContainText('schet-meta.pdf');
+  await page
+    .locator('.ui-overlay')
+    .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+    .catch(() => undefined);
+  const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+  await page.keyboard.press('Escape');
+
+  const metaRow = main.getByTestId('budget-table').getByRole('row', { name: /Meta Ads/ });
+  await expect(metaRow).toContainText('1 файл');
+
+  await main.getByTestId('budget-table').getByRole('button', { name: /Изменить расход: Meta Ads/ }).click();
+  await page.getByRole('button', { name: 'Удалить файл schet-meta.pdf' }).click();
+  await page.getByRole('button', { name: 'Удалить', exact: true }).click();
+  await expect(page.getByText('Файл удалён', { exact: false })).toBeVisible();
+  await expect(page.getByTestId('budget-files')).toContainText('Чеков пока нет');
+});
+
 /** Кириллица в windows-1251, как сохраняет CSV Excel на Windows: А–я подряд с 0xC0, «ё» и «Ё» отдельно */
 const cp1251 = (text: string) =>
   Buffer.from(

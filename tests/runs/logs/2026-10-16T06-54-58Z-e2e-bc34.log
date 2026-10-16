@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 16.10.2026 11:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит d995c44 (claude/bar-o4-decisions-20261016), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/bar.spec.ts' '--workers=1' '-g' 'N6'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/bar.spec.ts:162:1 › N6: товар в архивной категории сохраняет её при правке карточки (ADR-185) (18.4s)
+
+
+  1) tests/ui/bar.spec.ts:162:1 › N6: товар в архивной категории сохраняет её при правке карточки (ADR-185) 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('main').visible().getByRole('complementary', { name: 'Карточка товара Сок Rich 0.2' }).getByLabel('Категория', { exact: true })
+    Expected: "c0000000-0000-4000-8000-000000000002"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').visible().getByRole('complementary', { name: 'Карточка товара Сок Rich 0.2' }).getByLabel('Категория', { exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('complementary', { name: 'Карточка товара Сок Rich 0.2' }).getByLabel('Категория', { exact: true })
+        33 × locator resolved to <select class="inp" name="categoryId" id="bar-card-category">…</select>
+           - unexpected value ""
+
+
+      190 |   const card = m.getByRole('complementary', { name: 'Карточка товара Сок Rich 0.2' });
+      191 |   const select = card.getByLabel('Категория', { exact: true });
+    > 192 |   await expect(select).toHaveValue(juices.id);
+          |                        ^
+      193 |   await expect(select.locator('option:checked')).toHaveText('Соки (в архиве)');
+      194 |   await card.getByLabel('Мин. остаток').fill('6');
+      195 |   await card.getByRole('button', { name: 'Сохранить' }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/bar.spec.ts:192:24
+
+    Error Context: test-results/bar-N6-товар-в-архивной-ка-83062-ри-правке-карточки-ADR-185-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-N6-товар-в-архивной-ка-83062-ри-правке-карточки-ADR-185-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-N6-товар-в-архивной-ка-83062-ри-правке-карточки-ADR-185-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/bar.spec.ts:162:1 › N6: товар в архивной категории сохраняет её при правке карточки (ADR-185) 
+
+# код выхода 1 · 24 с

@@ -678,7 +678,8 @@ export const foodMenuSections: MenuSection[] = [
     id: 'money',
     label: 'Финансы',
     icon: 'money' as IconName,
-    items: [menuItem('/restaurant-finance'), menuItem('/cashbox'), menuItem('/finance', 'Оплаты и касса')],
+    // бар филиала (ADR-178): деньги бара ресторана в кассе ресторана (§45)
+    items: [menuItem('/restaurant-finance'), menuItem('/cashbox'), menuItem('/finance', 'Оплаты и касса'), menuItem('/bar', 'Бар')],
   },
   {
     id: 'team',

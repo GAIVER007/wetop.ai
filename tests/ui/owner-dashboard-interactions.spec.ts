@@ -61,39 +61,40 @@ test('unavailable inventory stays explicit and can be retried', async ({ page, r
   await expect(load.getByTestId('c-occupancy')).not.toHaveText('Нет данных');
 });
 
-test('slow inventory keeps daily events usable and shows a stable loading card', async ({
-  page,
-  request,
-}) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/today');
-  const readyCard = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
-  await expect(readyCard).toBeVisible();
-  const ready = await readyCard.boundingBox();
-  await request.post(`${FIXTURE_API}/__test/control`, {
-    data: { delayPath: '/chessboard', delayMs: 6000 },
+for (const width of [390, 1440])
+  test(`slow inventory keeps daily events usable and shows a stable loading card at ${width} px`, async ({
+    page,
+    request,
+  }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/today');
+    const readyCard = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
+    await expect(readyCard).toBeVisible();
+    const ready = await readyCard.boundingBox();
+    await request.post(`${FIXTURE_API}/__test/control`, {
+      data: { delayPath: '/chessboard', delayMs: 6000 },
+    });
+    await page.goto('/today', { waitUntil: 'commit' });
+    await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+    const loading = page.getByRole('status', { name: 'Загружаем загрузку…', exact: true });
+    await expect(loading).toBeVisible({ timeout: 2000 });
+    // слот карточки измеряем сам по себе: заглушку может успеть сменить настоящая карточка
+    // Измеряем видимый слот один раз, чтобы смена streamed-узла не дала null между вызовами.
+    const slot = page.locator('.owner-load:visible').first();
+    let loadingHeight: number | null = null;
+    await expect
+      .poll(async () => {
+        loadingHeight = (await slot.boundingBox())?.height ?? null;
+        return loadingHeight;
+      })
+      .not.toBeNull();
+    expect(Math.abs(loadingHeight! - ready!.height)).toBeLessThan(24);
+    await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible({
+      timeout: 2000,
+    });
+    if (width === 390) await page.screenshot({ caret: 'initial', path: `${SHOTS}/loading.png` });
+    await expect(page.getByTestId('c-occupancy')).toBeVisible();
   });
-  await page.goto('/today', { waitUntil: 'commit' });
-  await expect(page.getByTestId('owner-dashboard')).toBeVisible();
-  const loading = page.getByRole('status', { name: 'Загружаем загрузку…', exact: true });
-  await expect(loading).toBeVisible({ timeout: 2000 });
-  // слот карточки измеряем сам по себе: заглушку может успеть сменить настоящая карточка
-  // Измеряем видимый слот один раз, чтобы смена streamed-узла не дала null между вызовами.
-  const slot = page.locator('.owner-load:visible').first();
-  let loadingHeight: number | null = null;
-  await expect
-    .poll(async () => {
-      loadingHeight = (await slot.boundingBox())?.height ?? null;
-      return loadingHeight;
-    })
-    .not.toBeNull();
-  expect(Math.abs(loadingHeight! - ready!.height)).toBeLessThan(24);
-  await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible({
-    timeout: 2000,
-  });
-  await page.screenshot({ caret: 'initial', path: `${SHOTS}/loading.png` });
-  await expect(page.getByTestId('c-occupancy')).toBeVisible();
-});
 
 for (const theme of ['light', 'dark'] as const) {
   test(`forecast drawer stays accessible at 320 px in ${theme} theme`, async ({ page }) => {

@@ -1251,7 +1251,8 @@ model BarStockLot {
   locationId     String    @map("location_id") @db.Uuid
   propertyId     String?   @map("property_id") @db.Uuid
   productId      String    @map("product_id") @db.Uuid
-  receiptLineId  String    @unique @map("receipt_line_id") @db.Uuid
+  /// NULL только у партии излишка инвентаризации (§47)
+  receiptLineId  String?   @unique @map("receipt_line_id") @db.Uuid
   receivedUnits  BigInt    @map("received_units")
   remainingUnits BigInt    @map("remaining_units")
   unitCost       BigInt    @map("unit_cost")
@@ -1261,7 +1262,7 @@ model BarStockLot {
   property    Property?          @relation(fields: [propertyId], references: [id], onDelete: Restrict)
   location    Location           @relation(fields: [locationId], references: [id], onDelete: Restrict)
   product     BarProduct         @relation(fields: [productId], references: [id], onDelete: Restrict)
-  receiptLine BarReceiptLine     @relation(fields: [receiptLineId], references: [id], onDelete: Restrict)
+  receiptLine BarReceiptLine?    @relation(fields: [receiptLineId], references: [id], onDelete: Restrict)
   movements   BarStockMovement[]
 
   @@index([locationId, productId, receivedAt])

@@ -1,0 +1,225 @@
+# Сквозные (e2e) · 16.10.2026 10:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (main), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/search-filter-recovery.spec.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1475ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (33.6s)
+  ✓   2 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (16.3s)
+  ✓   3 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 1440 › availability: manual dates and guests do not apply before Find (14.2s)
+  ✓   4 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link (13.4s)
+  ✓   5 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search (11.0s)
+  ✓   6 tests/ui/search-filter-recovery.spec.ts:107:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (16.8s)
+  ✘   7 tests/ui/search-filter-recovery.spec.ts:134:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (50.6s)
+  ✘   8 tests/ui/search-filter-recovery.spec.ts:147:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (54.8s)
+  ✘   9 tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (49.5s)
+  ✘  10 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (46.5s)
+  ✘  11 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (55.9s)
+  ✓  12 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 390 › availability: manual dates and guests do not apply before Find (26.1s)
+  ✘  13 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link (1.0m)
+  ✓  14 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search (15.2s)
+  ✘  15 tests/ui/search-filter-recovery.spec.ts:107:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (46.2s)
+  ✓  16 tests/ui/search-filter-recovery.spec.ts:134:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (7.3s)
+  ✓  17 tests/ui/search-filter-recovery.spec.ts:147:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (21.6s)
+  ✓  18 tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (38.9s)
+
+
+  1) tests/ui/search-filter-recovery.spec.ts:134:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: /^Свободно .*Найти места$/ })
+        - locator resolved to <a class="stat stat--tone-success stat--link stat--icon" href="/rooms/availability?arrival=2026-10-10&departure=2026-10-13&category=MALE">…</a>
+
+
+      137 |       const link = page.getByRole('link', { name: /^Свободно .*Найти места$/ });
+      138 |       await expect(link).toBeVisible();
+    > 139 |       await link.click();
+          |                  ^
+      140 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+      141 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+      142 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/search-filter-recovery.spec.ts:139:18
+
+    Error Context: test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/search-filter-recovery.spec.ts:147:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3108/finance?from=2026-10-05&to=2026-10-05&op=refund&method=CASH&src=cash#operations", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/fixtures.ts:166:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/search-filter-recovery.spec.ts:152:7
+
+    Error Context: test-results/search-filter-recovery-sea-424aa--it-preserves-other-filters/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-424aa--it-preserves-other-filters/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-424aa--it-preserves-other-filters/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/search-filter-recovery-sea-5cd33--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-5cd33--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-5cd33--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3108/rooms/availability?arrival=2026-10-16&departure=2026-10-18&guests=2"
+    Received: ""
+
+
+      40 |         );
+      41 |         await page.getByRole('button', { name: 'Найти', exact: true }).click();
+    > 42 |         await expect(page).toHaveURL(target.href);
+         |                            ^
+      43 |       });
+      44 |     }
+      45 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/search-filter-recovery.spec.ts:42:28
+
+    Error Context: test-results/search-filter-recovery-sea-04905--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-04905--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-04905--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('.fund-availability summary').first()
+
+
+      78 |       );
+      79 |       const applied = new URL(page.url()).searchParams;
+    > 80 |       await page.locator('.fund-availability summary').first().click();
+         |                                                                ^
+      81 |       const book = page.locator('.fund-availability a[href^="/reservations/new"]').first();
+      82 |       await expect(book).toBeVisible();
+      83 |       const target = new URL((await book.getAttribute('href'))!, page.url()).searchParams;
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/search-filter-recovery.spec.ts:80:64
+
+    Error Context: test-results/search-filter-recovery-sea-88f5e-ick-period-and-booking-link/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-88f5e-ick-period-and-booking-link/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-88f5e-ick-period-and-booking-link/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/search-filter-recovery.spec.ts:107:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Выезд', { exact: true })
+    Expected: "2026-10-16"
+    Received: ""
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Выезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Выезд', { exact: true })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      128 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(arrival);
+      129 |       await page.goForward();
+    > 130 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-16');
+          |                                                               ^
+      131 |       await expect(category).toHaveValue('MALE');
+      132 |     });
+      133 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/search-filter-recovery.spec.ts:130:63
+
+    Error Context: test-results/search-filter-recovery-sea-def90-survives-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-def90-survives-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-def90-survives-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/ui/search-filter-recovery.spec.ts:134:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+    tests/ui/search-filter-recovery.spec.ts:147:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters 
+    tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history 
+    tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link 
+    tests/ui/search-filter-recovery.spec.ts:107:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history 
+  11 passed (12.4m)
+
+# код выхода 1 · 12 мин 39 с

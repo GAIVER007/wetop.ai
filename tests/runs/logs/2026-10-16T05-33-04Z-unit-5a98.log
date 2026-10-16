@@ -1,0 +1,94 @@
+# Модульные (unit) · 16.10.2026 10:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит b6e59e0 (claude/bar-surplus), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-33-04Z-unit-5a98.json' 'apps/web/src/app/bar/actions.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ❯ |unit| apps/web/src/app/bar/actions.test.ts (19 tests | 2 failed) 20ms
+   ❯ форма прихода бара (15)
+     ✓ переводит тенге и процент в целые младшие единицы 4ms
+     ✓ строка «новый товар» сначала создаёт карточку с ценой по наценке, вверх до 10 тенге 1ms
+     ✓ объект не в тенге: приход отклоняется до записи, карточка нового товара не создаётся (D-CUR) 1ms
+     ✓ строка без товара и без названия не уходит в API 0ms
+     ✓ не пропускает float и не отправляет запрос 0ms
+     ✓ передает розничную продажу с ключом повтора 0ms
+     ✓ переводит частичную оплату поставщику в minor units 0ms
+     ✓ передает продажу в счет гостя с ключом повтора 0ms
+     × передает фактический остаток без float 7ms
+     × излишек: цена вручную уходит в тиынах, ответ называет принятый излишек (ADR-175) 2ms
+     ✓ хранит наценку категории в basis points 0ms
+     ✓ скан: принимает только картинки и отдаёт разобранный документ 1ms
+     ✓ скан: PDF и пустой файл не уходят в API 0ms
+     ✓ карточка товара: поля уходят в PATCH, цена отдельным маршрутом в minor units 0ms
+     ✓ сохраняет свою цену продажи в minor units 0ms
+   ✓ Bar scope/currency/replay regressions (4)
+     ✓ sends verified USD instead of substituting KZT 0ms
+     ✓ rejects a draft from another property before mutation 0ms
+     ✓ preserves the submitted sale key across retries 0ms
+     ✓ does not announce REVERSED replay as a new sale 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > форма прихода бара > передает фактический остаток без float
+AssertionError: expected "vi.fn()" to be called with arguments: [ { productId: 'product-1', …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    {
+      "actualUnits": "10",
+      "productId": "product-1",
+      "reason": "Пересчет",
+-     "unitCostMinor": null,
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/app/bar/actions.test.ts:219:35
+    217|     const result = await inventoryBarAction({ error: null, ok: 0 }, fd…
+    218|     expect(result.message).toContain('2 шт.');
+    219|     expect(barApi.inventoryCount).toHaveBeenCalledWith({
+       |                                   ^
+    220|       productId: 'product-1',
+    221|       actualUnits: '10',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > форма прихода бара > излишек: цена вручную уходит в тиынах, ответ называет принятый излишек (ADR-175)
+AssertionError: expected last "vi.fn()" call to have been called with [ { productId: 'product-1', …(3) } ]
+
+- Expected
++ Received
+
+  [
+    {
+      "actualUnits": "3",
+      "productId": "product-1",
+      "reason": "Нашли ящик",
+-     "unitCostMinor": "25000",
+    },
+  ]
+
+ ❯ apps/web/src/app/bar/actions.test.ts:242:35
+    240|     );
+    241|     const result = await inventoryBarAction({ error: null, ok: 0 }, fd…
+    242|     expect(barApi.inventoryCount).toHaveBeenLastCalledWith({
+       |                                   ^
+    243|       productId: 'product-1',
+    244|       actualUnits: '3',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 17 passed (19)
+   Start at  22:33:10
+   Duration  2.37s (transform 77%, import 22%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-33-04Z-unit-5a98.json
+
+# код выхода 1 · 9 с

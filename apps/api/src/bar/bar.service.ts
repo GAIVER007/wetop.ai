@@ -206,9 +206,10 @@ export class BarService {
     const reason = optionalText(body.reason);
     if (!uuid.test(productId)) throw new BadRequestException('Товар не выбран');
     if (!reason) throw new BadRequestException('Укажите причину пересчета');
-    const result = await this.repo.inventoryCount({ productId, actualUnits: nonnegativeInteger(body.actualUnits, 'Фактический остаток'), reason });
+    const unitCostMinor = body.unitCostMinor === undefined || body.unitCostMinor === null || body.unitCostMinor === '' ? null : integer(body.unitCostMinor, 'Цена излишка');
+    const result = await this.repo.inventoryCount({ productId, actualUnits: nonnegativeInteger(body.actualUnits, 'Фактический остаток'), reason, unitCostMinor });
     if (result.kind === 'not_found') throw new NotFoundException('Товар не найден');
-    if (result.kind === 'surplus_requires_cost') throw new ConflictException(`Излишек не приходуем без решения о себестоимости. По системе ${result.systemUnits}`);
+    if (result.kind === 'surplus_requires_cost') throw new ConflictException('На складе пусто: укажите цену излишка за штуку, по ней он будет принят');
     return result;
   }
   createReceipt(raw: unknown) {

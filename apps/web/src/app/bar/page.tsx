@@ -81,7 +81,9 @@ export default async function BarPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireVertical(['HOSPITALITY', 'BEAUTY']);
+  const me = await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
+  // бар филиала (ADR-178): «в счёт гостя» только у гостиницы, у салона продажи откроются с кассой салона (§45)
+  const vertical = me.context?.vertical ?? 'HOSPITALITY';
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
   const [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods, today] =
@@ -274,7 +276,7 @@ export default async function BarPage({
           timezone={timezone}
         />
       </AnalyticsDisclosure>
-      <SaleDisclosure>
+      <SaleDisclosure label={vertical === 'HOSPITALITY' ? undefined : 'Продажа напрямую'}>
         <section className="panel bar-sales" aria-label="Продажи бара">
           <Tabs
             label="Способ продажи"
@@ -282,9 +284,16 @@ export default async function BarPage({
               {
                 id: 'bar-retail',
                 label: 'Продажа напрямую',
-                content: <SaleForm stock={stock.value} context={context} methods={paymentMethods.value.sale} />,
+                content:
+                  vertical === 'BEAUTY' ? (
+                    <p className="bar-muted">
+                      Продажи бара салона откроются вместе с кассой салона. Приходы, остатки и инвентаризация уже работают.
+                    </p>
+                  ) : (
+                    <SaleForm stock={stock.value} context={context} methods={paymentMethods.value.sale} />
+                  ),
               },
-              {
+              ...(vertical !== 'HOSPITALITY' ? [] : [{
                 id: 'bar-folio',
                 label: 'В счёт гостя',
                 content:
@@ -293,7 +302,7 @@ export default async function BarPage({
                   ) : (
                     <FolioSaleForm stock={stock.value} folios={folios.value} context={context} />
                   ),
-              },
+              }]),
             ]}
           />
         </section>

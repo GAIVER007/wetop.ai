@@ -236,9 +236,20 @@ export async function inventoryBarAction(
 ): Promise<BarActionResult> {
   try {
     await verifyContext(fd);
-    const result = await barApi.inventoryCount({ productId: value(fd, 'productId'), actualUnits: value(fd, 'actualUnits'), reason: value(fd, 'reason') });
+    const surplusCost = value(fd, 'surplusCost');
+    const result = await barApi.inventoryCount({
+      productId: value(fd, 'productId'),
+      actualUnits: value(fd, 'actualUnits'),
+      reason: value(fd, 'reason'),
+      unitCostMinor: surplusCost ? minor(surplusCost, 'Цена излишка') : null,
+    });
     revalidateBar();
-    return { error: null, ok: Date.now(), message: result.differenceUnits === '0' ? 'Остаток сошелся' : `Недостача ${result.differenceUnits.replace('-', '')} шт. зафиксирована` };
+    const diff = result.differenceUnits;
+    return {
+      error: null,
+      ok: Date.now(),
+      message: diff === '0' ? 'Остаток сошелся' : diff.startsWith('-') ? `Недостача ${diff.slice(1)} шт. зафиксирована` : `Излишек ${diff} шт. принят на склад`,
+    };
   } catch (error) {
     return { error: describe(error), ok: _previous.ok };
   }

@@ -180,5 +180,46 @@ describe.skipIf(!url)('МКТ-В1/В2 marketing accounting: инварианты
       expect(gone.rowCount).toBe(1);
     });
   });
+
+  it('чеки (§51): ключ хранилища выводится из строки, только WebP и PDF, RLS, без UPDATE, уходят с расходом', async () => {
+    await probe(async (attempt) => {
+      const expenseId = randomUUID();
+      await expense(attempt, locA, { id: expenseId });
+      const sha = 'a'.repeat(64);
+      const file = (over: Record<string, unknown> = {}) => {
+        const id = (over.id as string | undefined) ?? randomUUID();
+        const hash = (over.sha256 as string | undefined) ?? sha;
+        const row: Record<string, unknown> = {
+          id,
+          expense_id: expenseId,
+          location_id: locA,
+          file_name: 'чек.pdf',
+          mime_type: 'application/pdf',
+          storage_ref: `marketing-expense-files/${locA}/${id}/${hash}.pdf`,
+          byte_size: 100,
+          sha256: hash,
+          ...over,
+        };
+        const keys = Object.keys(row);
+        return attempt(
+          `INSERT INTO marketing_expense_files (${keys.join(', ')}) VALUES (${keys.map((_, i) => `$${i + 1}`).join(', ')})`,
+          keys.map((k) => row[k]),
+        );
+      };
+      await file();
+      await expect(file({ storage_ref: `marketing-expense-files/${locB}/x/${sha}.pdf` })).rejects.toThrow(/marketing_expense_files_ref/);
+      await expect(file({ mime_type: 'image/svg+xml', sha256: 'b'.repeat(64) })).rejects.toThrow(/marketing_expense_files_mime/);
+      await expect(file({ sha256: 'b'.repeat(64), byte_size: 0 })).rejects.toThrow(/marketing_expense_files_size/);
+      await expect(file()).rejects.toThrow(/marketing_expense_files_expense_id_sha256_key/);
+      await asApp(attempt, orgB);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_expense_files`)).rows[0].n).toBe(0);
+      await attempt('RESET ROLE');
+      await asApp(attempt, orgA);
+      await expect(attempt(`UPDATE marketing_expense_files SET file_name = 'другое'`)).rejects.toThrow(/permission denied/);
+      await attempt('RESET ROLE');
+      await attempt(`DELETE FROM marketing_expenses WHERE id = $1`, [expenseId]);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_expense_files`)).rows[0].n).toBe(0);
+    });
+  });
 });
 

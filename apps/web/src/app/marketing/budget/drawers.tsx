@@ -11,6 +11,8 @@ import { Switch } from '../../../components/switch';
 import { Alert, Button, Field, Input, Select, Textarea } from '../../../components/ui';
 import {
   deleteExpenseAction,
+  removeExpenseFileAction,
+  uploadExpenseFileAction,
   importExpensesAction,
   saveExpenseAction,
   saveLinesAction,
@@ -206,6 +208,13 @@ function ExpenseForm({
           </Button>
         </div>
       </form>
+      {expense ? (
+        <ExpenseFiles expense={expense} />
+      ) : (
+        <p className="settings-note" data-testid="budget-files-later">
+          Чек или файл можно приложить после сохранения расхода.
+        </p>
+      )}
       {expense && (
         <form ref={deleteForm} action={remove} className="budget-delete">
           <input type="hidden" name="id" value={expense.id} />
@@ -233,6 +242,96 @@ function ExpenseForm({
         </form>
       )}
     </>
+  );
+}
+
+/** Те же действия, что у форм раздела, но панель не закрывается: файлы прикладывают по одному подряд */
+function useFileAction(serverAction: (prev: BudgetActionResult, fd: FormData) => Promise<BudgetActionResult>) {
+  const { toast } = useToast();
+  return useActionState(async (prev: BudgetActionResult, fd: FormData) => {
+    const next = await serverAction(prev, fd);
+    if (next.ok) toast({ text: next.message ?? 'Сохранено', tone: 'success' });
+    return next;
+  }, NONE);
+}
+
+const sizeText = (bytes: number) =>
+  bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} КБ` : `${(bytes / 1024 / 1024).toFixed(1).replace('.', ',')} МБ`;
+
+/** «Чеки и файлы» расхода (DATA_MODEL §51, ADR-MKT-B7): фото чека или PDF до 10 МиБ, до 10 файлов, удаление в журнал */
+function ExpenseFiles({ expense }: { expense: MarketingExpenseRow }) {
+  const [uploaded, upload, uploading] = useFileAction(uploadExpenseFileAction);
+  const [removed, remove, removing] = useFileAction(removeExpenseFileAction);
+  const { ask, dialog } = useConfirm();
+  const files = expense.files ?? [];
+  const error = uploaded.error ?? removed.error;
+  return (
+    <section className="budget-files" aria-labelledby={`budget-files-${expense.id}`} data-testid="budget-files">
+      <h3 id={`budget-files-${expense.id}`} className="budget-files__title">
+        Чеки и файлы
+      </h3>
+      {error && <Alert boxed>{error}</Alert>}
+      {files.length === 0 ? (
+        <p className="settings-note">Чеков пока нет: приложите фото чека, скриншот или PDF.</p>
+      ) : (
+        <ul className="budget-files__list" data-testid="budget-files-list">
+          {files.map((f) => (
+            <li key={f.id} className="budget-files__item">
+              <Icon name="receipt" width={16} aria-hidden="true" />
+              {f.url ? (
+                <a href={f.url} target="_blank" rel="noopener noreferrer" className="budget-files__name">
+                  {f.fileName}
+                </a>
+              ) : (
+                <span className="budget-files__name">{f.fileName}</span>
+              )}
+              <span className="budget-files__size">{sizeText(f.byteSize)}</span>
+              <form action={remove}>
+                <input type="hidden" name="expenseId" value={expense.id} />
+                <input type="hidden" name="fileId" value={f.id} />
+                <Button
+                  type="button"
+                  tone="ghost"
+                  size="xs"
+                  disabled={removing}
+                  aria-label={`Удалить файл ${f.fileName}`}
+                  onClick={async (e) => {
+                    const form = e.currentTarget.form;
+                    const yes = await ask({
+                      title: 'Удалить файл?',
+                      body: 'Файл исчезнет из расхода; запись об удалении останется в журнале организации.',
+                      confirmLabel: 'Удалить',
+                      tone: 'danger',
+                    });
+                    if (yes) form?.requestSubmit();
+                  }}
+                >
+                  Удалить
+                </Button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      )}
+      {files.length < 10 && (
+        <form action={upload} className="budget-files__add" key={files.length}>
+          <input type="hidden" name="expenseId" value={expense.id} />
+          <Field label="Фото чека или PDF, до 10 МБ">
+            <Input
+              type="file"
+              name="file"
+              accept="image/jpeg,image/png,image/webp,application/pdf"
+              required
+              data-testid="budget-file-input"
+            />
+          </Field>
+          <Button type="submit" tone="secondary" size="sm" disabled={uploading} aria-busy={uploading} data-testid="budget-file-upload">
+            {uploading ? 'Загружаю…' : 'Приложить файл'}
+          </Button>
+        </form>
+      )}
+      {dialog}
+    </section>
   );
 }
 

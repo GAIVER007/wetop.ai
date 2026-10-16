@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 16.10.2026 14:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 823661d (claude/marketing-expense-files), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-33-43Z-integration-fafe.json' 'tests/integration/marketing-expense-files.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-expense-files.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-expense-files.test.ts [ tests/integration/marketing-expense-files.test.ts ]
+Error: Transform failed with 1 error:
+
+[PARSE_ERROR] `await` is only allowed within async functions and at the top levels of modules
+    ╭─[ tests/integration/marketing-expense-files.test.ts:83:75 ]
+    │
+ 83 │     const photo = await as('own', () => files.upload(expenseId, { buffer: await png(10), originalname: 'чек-мета.png' }));
+    │                                                                           ──┬──  
+    │                                                                             ╰──── 
+    │ 
+    │ Help: Either remove this `await` or add the `async` keyword to the enclosing function
+────╯
+
+  Plugin: vite:oxc
+  File: /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/integration/marketing-expense-files.test.ts
+ ❯ transformWithOxc ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/vite/dist/node/chunks/node.js:4103:19
+ ❯ TransformPluginContext.transform ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/vite/dist/node/chunks/node.js:4174:26
+ ❯ EnvironmentPluginContainer.transform ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/vite/dist/node/chunks/node.js:30932:51
+ ❯ loadAndTransform ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/vite/dist/node/chunks/node.js:20671:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  02:33:47
+   Duration  3.38s (worker 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-33-43Z-integration-fafe.json
+
+# код выхода 1 · 8 с

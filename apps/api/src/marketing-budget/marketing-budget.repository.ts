@@ -14,6 +14,7 @@ import {
   hasSignedInActor,
 } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import type { ExpenseFileRow } from './expense-files';
 
 /**
  * Учёт бюджета и расходов маркетинга (МКТ-В1/В2, DATA_MODEL §41, ADR-MKT-B1).
@@ -47,6 +48,8 @@ export interface ExpenseRecord {
   baseAmount: bigint;
   countedInBudget: boolean;
   createdAt: Date;
+  /** Чеки и файлы (§51): только в чтении месяца */
+  files?: ExpenseFileRow[];
 }
 
 /** Строка журнала, которую запись пишет той же транзакцией (аудит, ТЗ §8.7) */
@@ -148,6 +151,7 @@ const toRecord = (r: {
   baseAmount: bigint;
   countedInBudget: boolean;
   createdAt: Date;
+  files?: ExpenseFileRow[];
 }): ExpenseRecord => ({
   id: r.id,
   date: iso(r.date),
@@ -160,6 +164,7 @@ const toRecord = (r: {
   fxRate: r.fxRate.toString(),
   baseAmount: r.baseAmount,
   countedInBudget: r.countedInBudget,
+  ...(r.files ? { files: r.files } : {}),
   createdAt: r.createdAt,
 });
 
@@ -233,6 +238,12 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
       this.prisma.db.marketingExpense.findMany({
         where: { locationId, date: { gte: asDate(first), lt: asDate(nextFirst) } },
         orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+        include: {
+          files: {
+            select: { id: true, fileName: true, mimeType: true, byteSize: true, storageRef: true },
+            orderBy: { createdAt: 'asc' },
+          },
+        },
       }),
       this.prisma.db.marketingExpense.aggregate({
         where: {

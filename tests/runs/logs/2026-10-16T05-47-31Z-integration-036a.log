@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 16.10.2026 10:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит c534c35 (claude/salon-cash), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-47-31Z-integration-036a.json' 'tests/integration/bar-restaurant-cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+(node:82640) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-restaurant-cash.test.ts (4 tests) 1177ms
+   ✓ бар: деньги по направлению филиала (integration) (4)
+     ✓ ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 412ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  22:47:36
+   Duration  5.99s (transform 37%, import 34%, tests 29%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-47-31Z-integration-036a.json
+
+# код выхода 0 · 12 с

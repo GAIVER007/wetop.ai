@@ -46,7 +46,7 @@ import {
 import type { DbTx, Prisma } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
-import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
+import { BRANCH_CASH_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { StockService } from './stock.service';
 
@@ -186,11 +186,12 @@ export class RestaurantService {
   private async write<T>(
     permission: Permission,
     fn: (tx: DbTx, s: FoodScope) => Promise<T>,
+    verticals?: typeof BRANCH_CASH_VERTICALS,
   ): Promise<T> {
     foodMay(permission);
     await foodWritable(this.prisma.db);
-    const s = await foodScope(this.prisma.db);
-    return foodTransaction(this.prisma, s, fn);
+    const s = await foodScope(this.prisma.db, verticals);
+    return foodTransaction(this.prisma, s, fn, verticals);
   }
 
   private async audit(
@@ -1162,7 +1163,7 @@ export class RestaurantService {
   /** Касса филиала: остатки по способам, последние операции и сверки (§35.2) */
   async cash(query: unknown = {}) {
     foodMay('desk');
-    const s = await foodScope(this.prisma.db);
+    const s = await foodScope(this.prisma.db, BRANCH_CASH_VERTICALS);
     const db = this.prisma.db;
     // период считает сервер (ADR-181): фильтр последних 100 строк в браузере занижал итоги
     const q = parsed(() => foodObject(query, ['from', 'to']));
@@ -1256,7 +1257,7 @@ export class RestaurantService {
         amountMinor: row.amount.toString(),
       });
       return { id: row.id };
-    });
+    }, BRANCH_CASH_VERTICALS);
   }
 
   async voidCashOperation(idRaw: string) {
@@ -1271,7 +1272,7 @@ export class RestaurantService {
       });
       await this.audit(tx, s, 'restaurant_cash', id, 'food.cash.voided', { amountMinor: op.amount.toString() });
       return { id };
-    });
+    }, BRANCH_CASH_VERTICALS);
   }
 
   /** Сверка: остаток по системе фиксируется в момент пересчёта */
@@ -1295,7 +1296,7 @@ export class RestaurantService {
         countedMinor: row.counted.toString(),
       });
       return { id: row.id, expectedMinor: row.expected.toString(), countedMinor: row.counted.toString() };
-    });
+    }, BRANCH_CASH_VERTICALS);
   }
 
   /** Выплата зарплаты из кассы: не больше «осталось» за месяц (§35.3) */

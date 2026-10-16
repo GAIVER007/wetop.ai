@@ -54,12 +54,15 @@ export function CashBoard({
   write,
   refunds,
   cash,
+  orders = true,
 }: {
   scopeKey: string;
   timezone: string;
   write: boolean;
   refunds: boolean;
   cash: FoodCashView;
+  /** Вкладка «Оплаты заказов»: у салона заказов нет (§48) */
+  orders?: boolean;
 }) {
   const router = useRouter();
   const { ask, dialog } = useConfirm();
@@ -282,7 +285,7 @@ export function CashBoard({
         label="Касса"
         panels={[
           { id: 'operations', label: 'Операции', content: operations },
-          { id: 'payments', label: 'Оплаты заказов', content: payments },
+          ...(orders ? [{ id: 'payments', label: 'Оплаты заказов', content: payments }] : []),
           { id: 'checks', label: 'Сверки', content: checks },
         ]}
       />

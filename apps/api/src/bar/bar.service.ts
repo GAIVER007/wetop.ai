@@ -4,8 +4,8 @@ import { BadRequestException, ConflictException, Inject, Injectable, NotFoundExc
 import { BAR_REPOSITORY, type BarCategoryInput, type BarProductInput, type BarReceiptInput, type BarRepository, type BarSupplierInput } from './bar.repository';
 import { BAR_SALE_METHODS, BAR_SUPPLIER_METHODS, FinanceRuleError, assertPaymentMethodEnabled, barPaymentMethods } from '@pms/domain';
 
-/** Бар салона (§45): продажи и оплаты откроются вместе с кассой салона, склад работает */
-const NO_SALON_CASH = 'Продажи и оплаты бара салона откроются вместе с кассой салона';
+/** Деньги бара идут в кассу гостиницы или филиала (§45, §48); без кассы склад работает, продажи и оплаты нет */
+const NO_SALON_CASH = 'У этого филиала нет кассы: продажи и оплаты бара недоступны';
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const date = (value: string): boolean => {

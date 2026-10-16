@@ -42,6 +42,8 @@ describe('меню салона', () => {
       '/beauty/schedule',
       '/services',
       '/finance',
+      // касса филиала, общая с рестораном (§48, ADR-178 этап 0)
+      '/cashbox',
       '/bar',
       '/team',
       '/sales',

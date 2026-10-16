@@ -203,6 +203,22 @@ export class FoodOrdersController {
   ) {
     return this.service.voidPayment(id, b);
   }
+  @Post('tables/:id/cleaning') cleaning(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.tableCleaning(id, b);
+  }
+  @Get('report') report(@Query() q: Record<string, unknown>) {
+    return this.service.report(q);
+  }
+  @Get('period-report') @Access('reports') periodReport(@Query() q: Record<string, unknown>) {
+    return this.service.periodReport(q);
+  }
+}
+/** Касса филиала (§35.2): общая у ресторана и салона (§48, ADR-178 этап 0); адреса прежние */
+@Controller('food-service')
+@Access('desk')
+@RequiresBusinessCapability('branch.cash')
+export class BranchCashController {
+  constructor(@Inject(RestaurantService) private readonly service: RestaurantService) {}
   @Get('cash') cash(@Query() q: Record<string, unknown>) {
     return this.service.cash(q);
   }
@@ -216,15 +232,6 @@ export class FoodOrdersController {
   }
   @Post('cash/reconciliations') cashReconciliation(@Body() b: unknown) {
     return this.service.cashReconciliation(b);
-  }
-  @Post('tables/:id/cleaning') cleaning(@Param('id') id: string, @Body() b: unknown) {
-    return this.service.tableCleaning(id, b);
-  }
-  @Get('report') report(@Query() q: Record<string, unknown>) {
-    return this.service.report(q);
-  }
-  @Get('period-report') @Access('reports') periodReport(@Query() q: Record<string, unknown>) {
-    return this.service.periodReport(q);
   }
 }
 @Controller('food-service')
@@ -313,6 +320,7 @@ export class FoodStockController {
     FoodReservationsController,
     FoodMenuController,
     FoodOrdersController,
+    BranchCashController,
     FoodStaffController,
     FoodStockController,
     OrderRatingLinkController,

@@ -71,7 +71,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       // Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS)
       { href: '/stock', label: 'Склад', icon: 'stock', requires: 'desk', description: 'Склад кухни: ингредиенты и остатки' },
       { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
-      { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса ресторана' },
+      { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса филиала' },
       // макет ресторана из 14 экранов (12.10.2026): бар, финансы и настройки ресторана своими экранами
       { href: '/drinks', label: 'Бар', icon: 'breakfast', requires: 'desk', description: 'Бар: напитки и заказы' },
       { href: '/restaurant-finance', label: 'Финансы', icon: 'money', requires: 'reports', description: 'Выручка, расходы и поступления ресторана' },
@@ -610,7 +610,8 @@ export const beautyMenuSections: MenuSection[] = [
     id: 'money',
     label: 'Финансы',
     icon: 'money' as IconName,
-    items: [menuItem('/finance', 'Оплаты и касса'), menuItem('/bar', 'Бар')],
+    // касса салона: касса филиала §35.2, общая с рестораном (§48); бар продаёт в неё
+    items: [menuItem('/finance', 'Выручка'), menuItem('/cashbox'), menuItem('/bar', 'Бар')],
   },
   {
     id: 'team',

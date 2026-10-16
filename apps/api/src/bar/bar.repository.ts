@@ -385,8 +385,8 @@ export class PrismaBarRepository implements BarRepository {
   }
   async sellRetail(input: BarRetailSaleInput) {
     const { propertyId, locationId, vertical } = await this.scope();
-    // деньги бара: касса гостиницы, касса ресторана (§45); у салона кассы пока нет
-    if (!propertyId && vertical !== 'FOOD_SERVICE') return { kind: 'no_cash' as const };
+    // деньги бара: касса гостиницы или касса филиала ресторана и салона (§45, §48)
+    if (!propertyId && vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY') return { kind: 'no_cash' as const };
     return this.saleTransaction(locationId, input, async (tx) => {
       // касса ресторана: одна запись за раз на филиал, как у самой кассы
       if (!propertyId) await tx.$queryRaw`SELECT id FROM locations WHERE id = ${locationId}::uuid FOR UPDATE`;
@@ -570,7 +570,7 @@ export class PrismaBarRepository implements BarRepository {
   }
   async payReceipt(id: string, input: BarSupplierPaymentInput) {
     const { propertyId, locationId, vertical, currency } = await this.scope();
-    if (!propertyId && vertical !== 'FOOD_SERVICE') return { kind: 'no_cash' as const };
+    if (!propertyId && vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY') return { kind: 'no_cash' as const };
     return this.prisma.db.$transaction(async (tx) => {
       if (!propertyId) await tx.$queryRaw`SELECT id FROM locations WHERE id = ${locationId}::uuid FOR UPDATE`;
       await tx.$queryRaw`SELECT id FROM bar_receipts WHERE id = ${id}::uuid AND location_id = ${locationId}::uuid FOR UPDATE`;

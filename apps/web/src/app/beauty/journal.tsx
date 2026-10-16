@@ -54,7 +54,9 @@ export function JournalBoard({
   const [master, setMaster] = useState('');
   const [service, setService] = useState('');
   const [status, setStatus] = useState('');
-  const selected = columns.some((column) => column.id === chosen) ? chosen : (columns[0]?.id ?? '');
+  const selected = columns.some((column) => column.id === master)
+    ? master
+    : columns.some((column) => column.id === chosen) ? chosen : (columns[0]?.id ?? '');
   const router = useRouter();
   const [dragged, setDragged] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
@@ -210,8 +212,20 @@ export function JournalBoard({
   );
   return (
     <>
-      <div className="beauty-bar">
+      <div className="beauty-bar beauty-calendar-toolbar">
+        <div className="beauty-calendar-actions">
+          <DateBar date={day.date} path="/calendar" />
+          <Button
+            disabled={readOnly || !day.columns.length || !day.services.length}
+            onClick={() =>
+              setPanel({ kind: 'new', employeeId: selected, time: clock(day.bounds.fromMinutes) })
+            }
+          >
+            + Новая запись
+          </Button>
+        </div>
         <div className="beauty-filters">
+          <Field label={<span>Мастер</span>}>
           <Select
             aria-label="Мастер"
             value={master}
@@ -224,6 +238,8 @@ export function JournalBoard({
               </option>
             ))}
           </Select>
+          </Field>
+          <Field label={<span>Услуга</span>}>
           <Select aria-label="Услуга" value={service} onChange={(e) => setService(e.target.value)}>
             <option value="">Все услуги</option>
             {day.services.map((sv) => (
@@ -232,6 +248,8 @@ export function JournalBoard({
               </option>
             ))}
           </Select>
+          </Field>
+          <Field label={<span>Статус</span>}>
           <Select aria-label="Статус записи" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">Все статусы</option>
             {Object.entries(beautyStatus)
@@ -242,16 +260,8 @@ export function JournalBoard({
                 </option>
               ))}
           </Select>
+          </Field>
         </div>
-        <DateBar date={day.date} path="/calendar" />
-        <Button
-          disabled={readOnly || !day.columns.length || !day.services.length}
-          onClick={() =>
-            setPanel({ kind: 'new', employeeId: selected, time: clock(day.bounds.fromMinutes) })
-          }
-        >
-          + Новая запись
-        </Button>
       </div>
       <p className="beauty-note" data-testid="beauty-day-summary">
         {live.length ? `Записей: ${live.length}` : 'Записей на этот день нет'}
@@ -347,7 +357,10 @@ export function JournalBoard({
           )}
           {!!columns.length && (
             <Field label="Мастер календаря">
-              <Select value={selected} onChange={(e) => setSelected(e.target.value)}>
+              <Select value={selected} onChange={(e) => {
+                setSelected(e.target.value);
+                if (master) setMaster(e.target.value);
+              }}>
                 {columns.map((e) => (
                   <option key={e.id} value={e.id}>
                     {e.name}
@@ -361,6 +374,7 @@ export function JournalBoard({
             .filter((e) => e.id === selected)
             .map((e) => (
               <div key={e.id}>
+                <p className="beauty-current-master">{e.name}</p>
                 <p className="beauty-note">
                   {e.timeOff
                     ? e.timeOffReason || 'Отсутствие'

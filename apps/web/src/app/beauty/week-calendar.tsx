@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { Panel, StatusBadge } from '../../components/ui';
-import type { BeautyDay } from '../../lib/api';
+import type { BeautyDay, BeautyEmployeeRow } from '../../lib/api';
 import { displayDate, displayPeriod } from '../../lib/display-date';
 import { CalendarLegend } from './calendar-legend';
 import { clock } from './time';
+import { calendarColumns } from './calendar-columns';
 
-export function WeekCalendar({ days }: { days: BeautyDay[] }) {
+export function WeekCalendar({ days, employees }: { days: BeautyDay[]; employees: BeautyEmployeeRow[] }) {
   const first = days[0]!;
   const shift = (delta: number) => {
     const at = new Date(`${first.date}T12:00:00Z`);
@@ -22,7 +23,7 @@ export function WeekCalendar({ days }: { days: BeautyDay[] }) {
       <CalendarLegend />
       <div className="beauty-week-calendar">
         {days.map((day) => {
-          const masters = new Map(day.columns.map((master) => [master.id, master.name]));
+          const masters = new Map(calendarColumns(day, employees).map((master) => [master.id, master.name]));
           const rows = [...day.appointments].sort((a, b) => a.startMinutes - b.startMinutes || a.id.localeCompare(b.id));
           return (
             <Panel key={day.date} title={displayDate(day.date, 'full')}>

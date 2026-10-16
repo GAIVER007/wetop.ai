@@ -15,7 +15,8 @@ const ATTEMPTS = 3;
 const BACKOFF_MS = [5_000, 30_000];
 
 const LEAD_ACTIONS = new Set(['lead', 'onsite_conversion.messaging_conversation_started_7d']);
-const FIELDS = 'campaign_id,campaign_name,date_start,date_stop,spend,impressions,clicks,actions,account_currency';
+const FIELDS =
+  'campaign_id,campaign_name,date_start,date_stop,spend,impressions,clicks,actions,account_currency';
 /** Предел вызовов и временный сбой: ждать и повторить (docs/meta/README.md, «Ошибки») */
 const RETRYABLE = new Set([1, 2, 4, 17, 613]);
 
@@ -26,6 +27,8 @@ export class MetaApiError extends Error {
     readonly code: number,
     /** Есть смысл повторить позже (предел, временный сбой); false: нужен новый ключ или право */
     readonly retryable: boolean,
+    /** `error_subcode` Graph API; 0: не пришёл (docs/meta/create.md §13) */
+    readonly subcode = 0,
   ) {
     super(message);
     this.name = 'MetaApiError';
@@ -107,7 +110,8 @@ export function metaSpendMinor(spend: string): bigint {
 
 const count = (v: string | undefined): number => {
   const n = Number(v ?? '0');
-  if (!Number.isInteger(n) || n < 0) throw new MetaApiError('Meta вернула счётчик не целым числом', 0, false);
+  if (!Number.isInteger(n) || n < 0)
+    throw new MetaApiError('Meta вернула счётчик не целым числом', 0, false);
   return n;
 };
 
@@ -117,7 +121,9 @@ const toDay = (r: InsightsRow): MetaCampaignDay => ({
   date: String(r.date_start ?? ''),
   impressions: count(r.impressions),
   clicks: count(r.clicks),
-  leads: (r.actions ?? []).filter((a) => LEAD_ACTIONS.has(a.action_type ?? '')).reduce((s, a) => s + count(a.value), 0),
+  leads: (r.actions ?? [])
+    .filter((a) => LEAD_ACTIONS.has(a.action_type ?? ''))
+    .reduce((s, a) => s + count(a.value), 0),
   spendMinor: metaSpendMinor(r.spend ?? '0'),
   currency: String(r.account_currency ?? '').toUpperCase(),
 });
@@ -141,7 +147,9 @@ export class MetaAdsClient {
     me.searchParams.set('access_token', this.options.accessToken);
     const who = await this.get<{ id?: string }>(me.toString());
     if (!who.id) throw new MetaApiError('Meta не назвала системного пользователя входа', 0, false);
-    const first = new URL(`${BASE}/${META_API_VERSION}/${encodeURIComponent(who.id)}/assigned_ad_accounts`);
+    const first = new URL(
+      `${BASE}/${META_API_VERSION}/${encodeURIComponent(who.id)}/assigned_ad_accounts`,
+    );
     first.searchParams.set('fields', ACCOUNT_FIELDS);
     first.searchParams.set('access_token', this.options.accessToken);
     const out: MetaAdAccount[] = [];
@@ -164,7 +172,11 @@ export class MetaAdsClient {
   }
 
   /** Кампании кабинета по дням за период [since, until] в часовом поясе кабинета; все страницы */
-  async campaignDays(q: { adAccountId: string; since: string; until: string }): Promise<MetaCampaignDay[]> {
+  async campaignDays(q: {
+    adAccountId: string;
+    since: string;
+    until: string;
+  }): Promise<MetaCampaignDay[]> {
     const account = q.adAccountId.startsWith('act_') ? q.adAccountId : `act_${q.adAccountId}`;
     const first = new URL(`${BASE}/${META_API_VERSION}/${encodeURIComponent(account)}/insights`);
     first.searchParams.set('level', 'campaign');
@@ -183,27 +195,66 @@ export class MetaAdsClient {
     return out;
   }
 
-  private async get<T>(url: string): Promise<T> {
-    for (let attempt = 1; ; attempt += 1) {
-      let status = 0;
-      type Body = T & { error?: { message?: string; code?: number } };
-      let body: Body | null = null;
-      try {
-        const res = await this.fetchFn(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
-        status = res.status;
-        body = (await res.json().catch(() => null)) as Body | null;
-      } catch {
-        // сеть или таймаут: ответа нет, ниже это повтор с кодом 0
-      }
-      if (status === 200 && body && !body.error) return body;
-      const code = body?.error?.code ?? 0;
-      const retryable = code === 0 || RETRYABLE.has(code);
-      if (retryable && attempt < ATTEMPTS) {
-        await this.sleep(BACKOFF_MS[attempt - 1] ?? BACKOFF_MS[BACKOFF_MS.length - 1]!);
-        continue;
-      }
-      const text = (body?.error?.message ?? `HTTP ${status || 'нет ответа'}`).split(this.options.accessToken).join('***');
-      throw new MetaApiError(`Meta: ${text}`, code, retryable);
+  private get<T>(url: string): Promise<T> {
+    return graphCall<T>(
+      { accessToken: this.options.accessToken, fetch: this.fetchFn, sleep: this.sleep },
+      url,
+    );
+  }
+}
+
+export interface GraphTransport {
+  accessToken: string;
+  fetch: typeof fetch;
+  sleep: (ms: number) => Promise<void>;
+}
+
+interface GraphError {
+  message?: string;
+  code?: number;
+  error_subcode?: number;
+  error_user_msg?: string;
+  is_transient?: boolean;
+}
+
+/**
+ * Один вызов Graph API с повтором (docs/meta/README.md, «Ошибки»; create.md §0). Повтор при пределе вызовов и
+ * временном сбое (`is_transient`): Meta отказала, объект не создан. Обрыв сети или таймаут повторяется только при
+ * `retryNoAnswer`: на создании ответа нет, а объект мог появиться, и повтор дал бы вторую кампанию.
+ * Текст ошибки для человека (`error_user_msg`, иначе `message`), ключ из него вырезается.
+ */
+export async function graphCall<T>(
+  t: GraphTransport,
+  url: string,
+  init: RequestInit = {},
+  retryNoAnswer = true,
+): Promise<T> {
+  for (let attempt = 1; ; attempt += 1) {
+    let status = 0;
+    type Body = T & { error?: GraphError };
+    let body: Body | null = null;
+    try {
+      const res = await t.fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) });
+      status = res.status;
+      body = (await res.json().catch(() => null)) as Body | null;
+    } catch {
+      // сеть или таймаут: ответа нет, ниже это код 0
     }
+    if (status === 200 && body && !body.error) return body;
+    const error = body?.error;
+    const code = error?.code ?? 0;
+    const retryable =
+      code === 0 ? retryNoAnswer : RETRYABLE.has(code) || error?.is_transient === true;
+    if (retryable && attempt < ATTEMPTS) {
+      await t.sleep(BACKOFF_MS[attempt - 1] ?? BACKOFF_MS[BACKOFF_MS.length - 1]!);
+      continue;
+    }
+    const raw = error?.error_user_msg || error?.message || `HTTP ${status || 'нет ответа'}`;
+    throw new MetaApiError(
+      `Meta: ${raw.split(t.accessToken).join('***')}`,
+      code,
+      retryable,
+      error?.error_subcode ?? 0,
+    );
   }
 }

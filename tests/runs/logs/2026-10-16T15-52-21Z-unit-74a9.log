@@ -1,0 +1,54 @@
+# Модульные (unit) · 16.10.2026 20:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит 73d2b26 (claude/marketing-ad-proposal), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-52-21Z-unit-74a9.json' 'apps/api/src/marketing-ads' 'apps/api/src/body-parsers.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/api/src/body-parsers.test.ts (6 tests | 1 failed) 36ms
+   ❯ разбор тела API (6)
+     ✓ большой предел только у POST /marketing/site/versions 1ms
+     ✓ сохранение версии принимает 200 КБ, а больше 300 КБ отклоняет 413 18ms
+     × скан накладной бара принимает фото в base64, а больше 12 МБ отклоняет 413 1ms
+     ✓ импорт расходов маркетинга принимает CSV до 1 МБ, больше отклоняет 413 6ms
+     ✓ другие маршруты и методы по-прежнему режутся на 100 КБ, и JSON, и urlencoded 9ms
+     ✓ main.ts выключает встроенные парсеры Nest и ставит свои 0ms
+ ❯ |unit| apps/api/src/marketing-ads/ad-proposal.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/marketing-ads/ad-proposal.test.ts [ apps/api/src/marketing-ads/ad-proposal.test.ts ]
+Error: Cannot find module './marketing-ads.module' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/api/src/marketing-ads/ad-proposal.test.ts
+ ❯ apps/api/src/marketing-ads/ad-proposal.test.ts:7:1
+      5| import { afterAll, beforeAll, beforeEach, describe, expect, it } from …
+      6| import { assistant } from '@pms/integrations';
+      7| import { MarketingAdsModule } from './marketing-ads.module';
+       | ^
+      8| import { AD_PROPOSAL_BOT, ADS_LOCATION, type AdProposalBotRequest } fr…
+      9| import { PrismaService } from '../database/prisma.provider';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/body-parsers.test.ts > разбор тела API > скан накладной бара принимает фото в base64, а больше 12 МБ отклоняет 413
+TypeError: isAdProposal is not a function
+ ❯ apps/api/src/body-parsers.test.ts:45:12
+     43|     expect(isBarReceiptScan({ method: 'GET', path: '/bar/receipts/scan…
+     44|     // предложение ИИ-таргетолога несёт фото креатива или кадры видео …
+     45|     expect(isAdProposal({ method: 'POST', path: '/marketing/ads/propos…
+       |            ^
+     46|     expect(isAdProposal({ method: 'GET', path: '/marketing/ads/proposa…
+     47|     expect((await request(app()).post('/marketing/ads/proposal').send(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 5 passed (6)
+   Start at  08:52:22
+   Duration  408ms (import 65%, tests 18%, transform 14%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-52-21Z-unit-74a9.json
+
+# код выхода 1 · 1 с

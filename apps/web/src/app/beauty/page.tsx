@@ -69,7 +69,7 @@ export default async function BeautyPage({
         <Link className="btn btn--secondary" aria-current={view !== 'week' ? 'page' : undefined} href={`/calendar?date=${loaded.value.date}`}>День</Link>
         <Link className="btn btn--secondary" aria-current={view === 'week' ? 'page' : undefined} href={`/calendar?date=${loaded.value.date}&view=week`}>Неделя</Link>
       </nav>
-      {loaded.week ? <WeekCalendar days={loaded.week} /> : (
+      {loaded.week ? <WeekCalendar days={loaded.week} employees={loaded.employees} /> : (
         <JournalBoard
           key={`${loaded.value.date}:${appointment ?? ''}`}
           day={loaded.value}

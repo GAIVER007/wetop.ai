@@ -161,6 +161,8 @@ const SITE_EDIT_PATH = '/internal/site-edit';
 const SITE_ASSISTANT_PATH = '/internal/site-assistant';
 /** ADR-157: скан накладной бара (контракт `bar-receipt-scan/0`), вход без состояния, ключ только платформы */
 const BAR_RECEIPT_SCAN_PATH = '/internal/bar-receipt-scan';
+/** ADR-MKT-LAUNCH: предложение ИИ-таргетолога (контракт `ad-proposal/0`), вход без состояния, ключ только платформы */
+const AD_PROPOSAL_PATH = '/internal/ad-proposal';
 
 export class BotPanelClient {
   private readonly base: string;
@@ -341,6 +343,14 @@ export class BotPanelClient {
    */
   barReceiptScan(body: Json): Promise<Json> {
     return this.request('POST', BAR_RECEIPT_SCAN_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
+  }
+
+  /**
+   * Предложение ИИ-таргетолога (ADR-MKT-LAUNCH, `ad-proposal/0`): креатив картинками и данные филиала внутрь,
+   * строгий JSON текста и аудитории наружу. Как скан накладной: без организации и агента, ключ модели только платформы.
+   */
+  adProposal(body: Json): Promise<Json> {
+    return this.request('POST', AD_PROPOSAL_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
   }
 
   /** Завести или поправить гостиницу у продавца (Э4): имя, действует ли, домены, публичный ключ виджета */

@@ -1380,6 +1380,7 @@ export function ChessboardGrid({
                               unitCode={row.unit.code}
                               today={today}
                               month={fitMonth}
+                              dayWidth={fitMonth || fitWeek ? null : dayWidth}
                               ghost={ghost?.date === c.date ? ghost : undefined}
                               match={stayMatch(c, row.unit, filters, today, needle)}
                               free={
@@ -1499,6 +1500,7 @@ function Cell({
   unitCode,
   today,
   month,
+  dayWidth,
   ghost,
   match,
   free,
@@ -1523,6 +1525,8 @@ function Cell({
   unitCode: string;
   today: string;
   month: boolean;
+  /** ширина дня в px, если колонки фиксированы (7–30 дней); null, когда сетка вписана в экран */
+  dayWidth: number | null;
   ghost: Ghost | undefined;
   /** §41: плашка подходит под поиск (подсвечена) или не подходит под поиск и условия (приглушена) */
   match: Match;
@@ -1597,8 +1601,11 @@ function Cell({
   const arrivalToday = !!label && !label.continues && cell.date === today;
   const departureToday = !!label && label.ends && nextDay(label.lastDate) === today;
   // Однодневная плашка: «⋯» уступает место имени — те же действия в предпросмотре по щелчку (ТЗ §58).
+  // Так же и любая плашка уже 200 px (две ночи в «30 днях»): «⋯» с запасом съедал 40 px, и вместо
+  // «Посетитель Д.» оставались инициалы (владелец 16.10.2026).
   // Ручка продления остаётся (это перетаскивание, PR 4): ей нужно место, если последняя ночь в окне.
-  const withMenu = !readOnly && !!label && label.span > 1;
+  const withMenu =
+    !readOnly && !!label && label.span > 1 && (dayWidth == null || label.span * dayWidth >= 200);
   const withResize =
     !readOnly && !!label && label.ends && DRAGGABLE.has(cell.itemStatus ?? '') && !month;
   const captionEnd = withMenu

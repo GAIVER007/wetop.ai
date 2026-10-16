@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 16.10.2026 21:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/plate-menu-hover), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-card.spec.ts' '-g' 'две ночи без'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] Request timed out after 3000ms
+[WebServer] 
+[WebServer] Retrying 1/3...
+
+Running 1 test using 1 worker
+
+  ✘  1 [main-ui-0] › ../.wetop-main-ui-KRsVi0/worker-0/tests/ui/chessboard-card.spec.ts:333:1 › 30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами (21.2s)
+
+
+  1) [main-ui-0] › ../.wetop-main-ui-KRsVi0/worker-0/tests/ui/chessboard-card.spec.ts:333:1 › 30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('td').filter({ has: locator('[data-testid="stay-cell"]').filter({ hasText: 'Посетитель' }) }).first().locator('.board-stay-menu')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('td').filter({ has: locator('[data-testid="stay-cell"]').filter({ hasText: 'Посетитель' }) }).first().locator('.board-stay-menu') with timeout 15000ms
+      - waiting for locator('td').filter({ has: locator('[data-testid="stay-cell"]').filter({ hasText: 'Посетитель' }) }).first().locator('.board-stay-menu')
+        29 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      346 |     .filter({ has: page.locator('[data-testid="stay-cell"]', { hasText: 'Посетитель' }) })
+      347 |     .first();
+    > 348 |   await expect(cell.locator('.board-stay-menu')).toHaveCount(0);
+          |                                                  ^
+      349 |   await expect(cell.locator('.board-stay-name-short')).toBeVisible();
+      350 |   await expect(cell.locator('.board-stay-name-short')).toHaveText('Посетитель Д.');
+      351 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-KRsVi0/worker-0/tests/ui/chessboard-card.spec.ts:348:50
+
+    Error Context: test-results/chessboard-card-30-дней-пл-9f1c8--«Имя-Ф-»-а-не-с-инициалами-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-30-дней-пл-9f1c8--«Имя-Ф-»-а-не-с-инициалами-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-30-дней-пл-9f1c8--«Имя-Ф-»-а-не-с-инициалами-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [main-ui-0] › ../.wetop-main-ui-KRsVi0/worker-0/tests/ui/chessboard-card.spec.ts:333:1 › 30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами 
+
+# код выхода 1 · 56 с

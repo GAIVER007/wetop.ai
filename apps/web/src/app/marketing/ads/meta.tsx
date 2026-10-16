@@ -116,8 +116,9 @@ export function MetaChoose({ accounts }: { accounts: Array<{ adAccountId: string
           {accounts.map((a, i) => (
             <label key={a.adAccountId} className="budget-files__item">
               <input type="radio" name="adAccountId" value={a.adAccountId} defaultChecked={i === 0} />
-              <span className="budget-files__name">
-                {a.name || a.adAccountId}, {a.adAccountId}, {a.currency}
+              <span className="budget-files__name">{a.name || a.adAccountId}</span>
+              <span className="budget-files__size">
+                Номер {a.adAccountId}, {a.currency}
               </span>
             </label>
           ))}

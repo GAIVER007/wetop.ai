@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 16.10.2026 20:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 73d2b26 (claude/marketing-ad-proposal), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing-campaigns.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓  1 tests/ui/marketing-campaigns.spec.ts:20:1 › кампания: создать, день вручную и CSV, расход из бюджета, показатели площадки (6.9s)
+  ✓  2 tests/ui/marketing-campaigns.spec.ts:89:1 › кабинет Meta: одна кнопка в окно Facebook, выбор из отмеченных кабинетов, обновление, отключение; подделка отклонена (3.1s)
+
+  2 passed (15.4s)
+
+# код выхода 0 · 16 с

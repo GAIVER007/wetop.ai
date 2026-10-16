@@ -50,6 +50,7 @@ v2.11 (06.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; MKT1A,
 v2.15 (09.10.2026): §31 область доступа сотрудника (`membership_scopes`), приостановка членства, данные приглашения: утверждено владельцем 09.10.2026 («давай да делай дальше», Q-286…Q-290, ADR-156); миграции `20261009000072_membership_scopes` и `…073_membership_scopes_grants` на рабочей базе применяет владелец
 v2.13 (07.10.2026; **решения владельца Q-271 и Q-275 от 07.10.2026**; MKT7, `plans/mkt7-publication-preview-domains-2026-10-07.md`): §29.4 `marketing_site_publications` и §29.6 `site_domains` в базе, новый §29.11 `locations.booking_tracked_site_id` (канонический сайт брони филиала) с начальным заполнением; миграции `20261007000064_marketing_publication_domains` и `20261007000065_marketing_publication_grants`
 v2.14 (09.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; O5a, ADR-153, `plans/guest-onboarding-ai-seller-2026-10-09.md`): §13.11 `email_verifications.wizard_session_id`: серверная связь подтверждения почты с гостевым черновиком (nullable FK на `wizard_sessions`, `ON DELETE SET NULL`, частичный уникальный индекс «одна живая связь на сессию»). Кода и миграции нет; миграцию применяет владелец до выкладки O5b
+v2.40 (16.10.2026; утверждено владельцем 16.10.2026: «Да, по проекту» на `plans/marketing-ai-targetolog-tech-2026-10-16.md` §3, предел бюджета «остаток плана / дни»; ADR-MKT-LAUNCH): §57 запуск рекламы из WETOP: креативы `marketing_ad_creatives`, запуски `marketing_ad_launches`, журнал шагов `marketing_ad_launch_steps`, активы по умолчанию у кабинета §55, право `ads_launch`; миграции `20261016000126_marketing_ad_launches` и `…127_…_grants`, на рабочей базе применяет владелец
 v2.39 (16.10.2026; владелец поручил решить самому «давай сделай», тот же подход, что §54; поправка к ADR-165): §56 возврат по закрытому заказу ресторана расходом кассы филиала, `restaurant_cash_operations.order_id`; миграция `20261016000125_order_refunds`, на рабочей базе применяет владелец
 v2.38 (16.10.2026; утверждено владельцем 16.10.2026: план `plans/marketing-meta-ads-integration-2026-10-16.md` («Да, начинай»), развилки Д = расход кабинета в статистике, журнал вручную; Л = заявки и начатые переписки; ADR-MKT-META): §55 подключение рекламного кабинета `marketing_ad_connections` (ключ зашифрован), журнал сверок `marketing_sync_runs`; §53 поправки: `marketing_campaigns.external_id` (имя уникально только у ручных кампаний), у дня статистики источник `MANUAL | META` и расход кабинета; миграции `20261016000123_marketing_ad_connections` и `…124_…_grants`, на рабочей базе применяет владелец
 v2.37 (16.10.2026; владелец поручил решить самому «подумай как это должно быть и продолжай», Q-BEAUTY-PAY-1, поправка к ADR-APPOINTMENT-PAYMENT-20261016): §54 возврат по выполненной записи салона расходом кассы филиала со ссылкой на запись; миграция `20261016000122_appointment_refunds`, на рабочей базе применяет владелец
@@ -1554,6 +1555,7 @@ u.id = m.user_id order by o.name, m.created_at;` — у каждой орган�
 | `channels` | Менеджер каналов и синхронизация Channex | да | да | — |
 | `settings` | Настройки гостиницы, правила отмены, услуги, интеграции, первичная настройка объекта | да | да | — |
 | `marketing` | Раздел «Маркетинг» и «Продвижение»: сайт и его аналитика, бюджет и расходы, аналитика маркетинга, реклама, контент (v2.35, ADR-MKT-B7; прежде под `settings`) | да | да | — |
+| `ads_launch` | Запуск рекламы в подключённом кабинете и её остановка: креатив, предложение ИИ, «Запустить кампанию», «Остановить» и «Включить» (v2.40, ADR-MKT-LAUNCH, §57) | да | да | нет |
 | `journal` | Журнал операций (решение владельца 05.10.2026) | да | нет | нет |
 | `seller` | ИИ-продавец: инструкция, знания, подключения, проверка, агенты | да | да | — |
 | `staff` | Сотрудники и приглашения; управляющий приглашает и отключает только администраторов | да | да | — |
@@ -4426,3 +4428,63 @@ UPDATE`, сверки `SELECT, INSERT, UPDATE`; отдельной миграц�
   («Возвращено»).
 - **Миграция** `20261016000125_order_refunds` (+ `down.sql`): колонка, индекс, внешний ключ, CHECK, новая функция
   `restaurant_cash_guard` с закреплённым `search_path`. Откат отказывает, если возвраты по заказам есть.
+
+
+## 57. Запуск рекламы из WETOP (v2.40, ADR-MKT-LAUNCH; утверждено владельцем 16.10.2026: «Да, по проекту» на `plans/marketing-ai-targetolog-tech-2026-10-16.md` §3, предел бюджета «остаток плана / дни»)
+
+ИИ-таргетолог: мастер на «Рекламе» готовит кампанию (текст предлагает ИИ, человек правит) и создаёт её в подключённом
+кабинете (§55) сразу `ACTIVE` (решение владельца). Документация: `docs/meta/create.md`; код площадки только в
+`packages/integrations/src/meta` (ADR-004). Заявки и авторежим по KPI сюда не входят (отдельным «да», проект §3.6).
+
+**Поправка §55.** `marketing_ad_connections`: `page_id`, `instagram_user_id`, `pixel_id` varchar(40) NULL (только цифры):
+выбор по умолчанию для мастера, не ключи; меняются в мастере.
+
+`marketing_ad_creatives` (файл креатива; хранилище то же, что у чеков §51, в базе только ключ объекта): `id`,
+`location_id` FK (RESTRICT), `kind` `MarketingCreativeKind` (`IMAGE` | `VIDEO`), `file_name` varchar(200), `mime_type`
+varchar(40) CHECK `image/jpeg` | `image/png` у `IMAGE`, `video/mp4` | `video/quicktime` у `VIDEO`, `storage_ref`
+varchar(500) UNIQUE (выводится из строки: `marketing-ad-creatives/<филиал>/<id>/<sha256>.<расширение>`), `byte_size`
+int (фото до 8 МБ, видео до 200 МБ), `width`, `height`, `duration_ms` int NULL, `sha256` char(64), `created_by_id` FK
+users SET NULL, `created_at`. UNIQUE (`location_id`, `sha256`): тот же файл второй раз не хранится. Не удаляется и не
+меняется. Номер картинки или видео в Meta здесь не хранится (он свой у кабинета): он в шаге запуска.
+
+`marketing_ad_launches` (запуск):
+
+- `id`, `location_id` FK, `connection_id` FK `marketing_ad_connections` (RESTRICT), `request_key` uuid UNIQUE (повтор
+  того же нажатия возвращает прежний запуск), `source` varchar(10) CHECK `SCREEN` | `TELEGRAM`;
+- `goal` `MarketingAdGoal` (`LEADS` | `MESSAGES` | `WEBSITE`), `destination` `MarketingAdDestination` (`LEAD_FORM` |
+  `WHATSAPP` | `MESSENGER` | `INSTAGRAM_DIRECT` | `WEBSITE`); пары: `LEADS` только `LEAD_FORM`, `WEBSITE` только
+  `WEBSITE`, `MESSAGES` только переписка (CHECK);
+- деньги: `daily_budget_minor` bigint CHECK > 0 и `currency` char(3) (валюта кабинета), `fx_rate` decimal(14,6) CHECK > 0
+  (курс к валюте отчётности, вводится вручную как у расходов, Q-MKT-FX; 1 при той же валюте), `daily_budget_base_minor`
+  bigint CHECK > 0 (бюджет дня в валюте отчётности, им проверяется план);
+- `settings` jsonb (итоговые проверенные настройки: тексты, призыв, аудитория, город, страница, Instagram, форма, адрес,
+  UTM; без ключей), `proposal` jsonb NULL (предложение ИИ после схемы, для сравнения и обучения), `creative_id` FK
+  `marketing_ad_creatives` NULL (NULL у продвижения поста Instagram);
+- ход: `status` `MarketingLaunchStatus` (`RUNNING` | `SUCCEEDED` | `FAILED`), `step` varchar(10) CHECK `MEDIA` |
+  `CAMPAIGN` | `ADSET` | `CREATIVE` | `AD` | `DONE`, `external_campaign_id`, `external_adset_id`, `external_creative_id`,
+  `external_ad_id` varchar(64) NULL, `campaign_id` FK `marketing_campaigns` NULL (кампания WETOP после успеха: статистика
+  идёт ночной сверкой §55), `error` varchar(500) NULL (ошибка Meta словами, без ключа);
+- `created_by_id` FK users SET NULL, `created_at`, `finished_at` timestamptz NULL; `SUCCEEDED` требует `DONE`, всех
+  номеров и `campaign_id`, `FAILED` требует `error`, оба требуют `finished_at` (CHECK).
+
+`marketing_ad_launch_steps` (ADR-007, только дописывается): `id`, `launch_id` FK (RESTRICT), `step` (как выше), `attempt`
+smallint CHECK 1–5, `status` varchar(12) CHECK `OK` | `FAILED` | `ROLLED_BACK`, `external_id` varchar(64) NULL (что
+создано: номер кампании, группы, креатива, объявления, хеш картинки, номер видео), `error_code` int NULL, `error`
+varchar(500) NULL, `at` timestamptz.
+
+**Правила базы** (триггер `marketing_ad_launch_guard`, закреплённый `search_path`): кабинет, креатив и кампания запуска
+того же филиала; у запуска не меняются филиал, кабинет, ключ повтора, цель, деньги, настройки, предложение, креатив и
+автор; номер в Meta, раз записанный, не меняется; завершённый запуск (`SUCCEEDED` | `FAILED`) не меняется совсем.
+
+**Правило денег** (домен, вариант «остаток плана / дни»): запуск разрешён, если
+`(сумма daily_budget_base_minor действующих запусков кабинета + новый) × оставшиеся дни месяца, включая сегодня, в поясе
+филиала ≤ план канала Meta на месяц (§52) − учтённый расход канала за месяц (§41.1, base_amount)`. Действующий запуск:
+`SUCCEEDED`, его кампания `ACTIVE`. Нет плана канала Meta на месяц: запуск запрещён с подсказкой задать план.
+
+**Право** `ads_launch` «Запуск и остановка рекламы»: загрузка креатива, предложение ИИ, запуск, «Остановить» и
+«Включить» кампании кабинета. Владелец и управляющий получают его со всеми правами (§16.5), администратор нет.
+Смотреть запуски: `marketing`.
+
+RLS: креативы и запуски через филиал → бизнес → организация, шаги через запуск. Права: креативы `SELECT, INSERT`,
+запуски `SELECT, INSERT, UPDATE`, шаги `SELECT, INSERT`; отдельной миграцией. Миграции
+`20261016000126_marketing_ad_launches` и `…127_…_grants` (+ `down.sql`), на рабочей базе применяет владелец.

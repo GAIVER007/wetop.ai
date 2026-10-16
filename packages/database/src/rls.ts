@@ -149,6 +149,10 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'marketing_campaign_stats',
   'marketing_ad_connections',
   'marketing_sync_runs',
+  // МКТ: запуск рекламы в кабинете, его шаги и креативы (миграция …126): RLS, FORCE и rls_tenant в своей миграции
+  'marketing_ad_launches',
+  'marketing_ad_launch_steps',
+  'marketing_ad_creatives',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

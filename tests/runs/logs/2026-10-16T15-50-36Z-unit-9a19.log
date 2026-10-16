@@ -1,0 +1,45 @@
+# Модульные (unit) · 16.10.2026 20:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит 73d2b26 (claude/marketing-ad-proposal), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-50-36Z-unit-9a19.json' 'packages/domain/src/marketing/ad-proposal.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/domain/src/marketing/ad-proposal.test.ts (6 tests | 1 failed) 7ms
+   ❯ предложение ИИ-таргетолога: правила домена (6)
+     ✓ годный ответ проходит как есть, приветствие у переписки 1ms
+     ✓ форма заявок и сайт: приветствия нет, даже если модель его написала 0ms
+     ✓ возраст в 18–65, перевёрнутый меняется местами, не число: широкая аудитория 0ms
+     ✓ пол: только [], [1] или [2]; прочее значит все 0ms
+     ✓ длины по пределам Meta и экрана; длинное тире убирается; лишние интересы и пояснения отрезаются 1ms
+     × без заголовка или текста предложения нет: модель не ответила по схеме 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/ad-proposal.test.ts > предложение ИИ-таргетолога: правила домена > без заголовка или текста предложения нет: модель не ответила по схеме
+AssertionError: expected [Function] to throw error matching /заголовк/ but got 'ИИ не предложил заголовок'
+
+- Expected:
+/заголовк/
+
++ Received:
+"ИИ не предложил заголовок"
+
+ ❯ packages/domain/src/marketing/ad-proposal.test.ts:80:80
+     78|
+     79|   it('без заголовка или текста предложения нет: модель не ответила по …
+     80|     expect(() => normalizeAdProposal({ ...good, headline: '  ' }, 'WHA…
+       |                                                                                ^
+     81|     expect(() => normalizeAdProposal({ ...good, primaryText: 42 }, 'WH…
+     82|     expect(() => normalizeAdProposal('строка', 'WHATSAPP')).toThrow();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  08:50:37
+   Duration  100ms (transform 60%, import 18%, tests 17%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-50-36Z-unit-9a19.json
+
+# код выхода 1 · 1 с

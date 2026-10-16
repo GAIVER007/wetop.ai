@@ -1,0 +1,18 @@
+# Модульные (unit) · 16.10.2026 20:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 73d2b26 (claude/marketing-ad-proposal), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-53-01Z-unit-e65d.json' 'apps/api/src/marketing-ads' 'apps/api/src/body-parsers.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| apps/api/src/body-parsers.test.ts (6 tests) 128ms
+ ✓ |unit| apps/api/src/marketing-ads/ad-proposal.test.ts (4 tests) 89ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 35ms
+
+ Test Files  3 passed (3)
+      Tests  13 passed (13)
+   Start at  08:53:02
+   Duration  1.98s (transform 52%, import 39%, tests 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-53-01Z-unit-e65d.json
+
+# код выхода 0 · 3 с

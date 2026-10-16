@@ -12,7 +12,7 @@ const day = (() => {
   while (d.getUTCDay() !== 1);
   return d.toISOString().slice(0, 10);
 })();
-const shots = 'reports/mv5-beauty-ui-2026-10-04/screenshots';
+const shots = process.env.BEAUTY_UI_SCREENSHOT_DIR || 'reports/mv5-beauty-ui-2026-10-04/screenshots';
 type Fixture = { business: string; otherBusiness: string; locations: string[] };
 const pointer = (business: string, location: string) => `business=${business};location=${location}`;
 async function scope(page: Page, business: string, location: string) {
@@ -411,6 +411,10 @@ test('archived service and employee preserve historical calendar appointments', 
   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByTestId('beauty-mobile-calendar')).toContainText('Тестовая клиентка');
+  await page.goto(`/calendar?date=${day}&view=week`);
+  await expect(
+    page.getByTestId('beauty-week').getByRole('link').filter({ hasText: 'Тестовая клиентка' }),
+  ).toContainText('Тестовый мастер Анна');
   await page.goto(`/appointments?date=${day}`);
   await expect(page.getByRole('table')).toContainText('Тестовый мастер Анна');
   await page.getByLabel('Мастер').selectOption({ label: 'Тестовый мастер Анна (не принимает)' });

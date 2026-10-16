@@ -1,0 +1,17 @@
+# Модульные (unit) · 16.10.2026 19:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9f59cf6 (claude/marketing-ai-targetolog-design), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T14-26-06Z-unit-4713.json' 'apps/api/src/ai-seller/business-agents.controller.test.ts' 'apps/api/src/web-booking/bot-quote.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| apps/api/src/ai-seller/business-agents.controller.test.ts (32 tests) 164ms
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (20 tests) 127ms
+
+ Test Files  2 passed (2)
+      Tests  52 passed (52)
+   Start at  07:26:07
+   Duration  1.28s (transform 50%, import 37%, tests 13%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T14-26-06Z-unit-4713.json
+
+# код выхода 0 · 2 с

@@ -20,3 +20,4 @@ export * from './starter';
 export * from './funnel';
 export * from './expense-import';
 export * from './campaigns';
+export * from './ad-proposal';

@@ -1,0 +1,29 @@
+# Типы (typecheck) · 16.10.2026 19:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9f59cf6 (claude/marketing-ai-targetolog-design), незакоммиченных файлов набора: 8
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/food-service/restaurant.service.ts(129,24): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/food-service/restaurant.service.ts(129,29): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1161,20): error TS2339: Property 'orderId' does not exist on type '{ locationId: string; id: string; currency: string; createdAt: Date; status: PaymentStatus; kind: CashOperationKind; amount: bigint; voidedAt: Date | null; ... 9 more ...; appointmentId: string | null; }'.
+apps/api/src/food-service/restaurant.service.ts(1278,44): error TS2339: Property 'orderId' does not exist on type '{ employee: { name: string; } | null; } & { locationId: string; id: string; currency: string; createdAt: Date; status: PaymentStatus; kind: CashOperationKind; ... 11 more ...; appointmentId: string | null; }'.
+tests/integration/restaurant-order-refund.test.ts(69,77): error TS2353: Object literal may only specify known properties, and 'orderId' does not exist in type 'RestaurantCashOperationWhereInput'.
+tests/integration/restaurant-order-refund.test.ts(73,96): error TS2353: Object literal may only specify known properties, and 'refunds' does not exist in type 'RestaurantOrderInclude<DefaultArgs>'.
+tests/integration/restaurant-order-refund.test.ts(74,18): error TS2339: Property 'refunds' does not exist on type '{ number: number; locationId: string; id: string; currency: string; createdAt: Date; updatedAt: Date; status: RestaurantOrderStatus; closedAt: Date | null; ... 11 more ...; ratingTokenExpiresAt: Date | null; }'.
+tests/integration/restaurant-order-refund.test.ts(74,31): error TS7006: Parameter 'r' implicitly has an 'any' type.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/food-service/restaurant.service.ts(129,24): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/food-service/restaurant.service.ts(129,29): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1161,20): error TS2339: Property 'orderId' does not exist on type '{ locationId: string; id: string; currency: string; createdAt: Date; status: PaymentStatus; kind: CashOperationKind; amount: bigint; voidedAt: Date | null; ... 9 more ...; appointmentId: string | null; }'.
+apps/api/src/food-service/restaurant.service.ts(1278,44): error TS2339: Property 'orderId' does not exist on type '{ employee: { name: string; } | null; } & { locationId: string; id: string; currency: string; createdAt: Date; status: PaymentStatus; kind: CashOperationKind; ... 11 more ...; appointmentId: string | null; }'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 27 с

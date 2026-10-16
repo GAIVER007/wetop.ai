@@ -1,0 +1,50 @@
+# Интеграционные (integration) · 16.10.2026 23:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 05b0ad8 (claude/fix-rls-registry)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T18-13-32Z-integration-80a1.json' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design
+
+ ❯ |integration| tests/integration/rls-isolation.test.ts (6 tests | 1 failed) 296ms
+   ❯ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     × каждая таблица схемы названа: арендаторская под RLS или осознанно без него 8ms
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 135ms
+     ✓ гость чужой организации не виден своей; без переменной не видно ничего 4ms
+     ✓ записать бронь в объект чужой организации нельзя — отказ базы 2ms
+     ✓ служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 2ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 113ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > каждая таблица схемы названа: арендаторская под RLS или осознанно без него
+AssertionError: expected [ 'marketing_ad_creatives', …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "marketing_ad_creatives",
++   "marketing_ad_launch_steps",
++   "marketing_ad_launches",
++ ]
+
+ ❯ tests/integration/rls-isolation.test.ts:112:83
+    110|     );
+    111|     const known = new Set([...RLS_TENANT_TABLES, ...RLS_NO_TENANT_TABL…
+    112|     expect(res.rows.map((r) => r.table_name).filter((t) => !known.has(…
+       |                                                                                   ^
+    113|     const rls = await client.query<{ relname: string; relforcerowsecur…
+    114|       `SELECT c.relname, c.relforcerowsecurity FROM pg_class c JOIN pg…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  11:13:33
+   Duration  1.26s (transform 46%, tests 40%, import 14%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T18-13-32Z-integration-80a1.json
+
+# код выхода 1 · 2 с

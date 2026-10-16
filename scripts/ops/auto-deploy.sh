@@ -29,6 +29,7 @@
 # DEPLOY_HEALTH_WAIT сколько секунд ждать, пока новые контейнеры ответят (180); DEPLOY_HEALTH_STEP — шаг опроса (5)
 # DEPLOY_CI_PROJECT  проект compose CI-раннера (pms-lux-ci); пока он выполняет задачу, сборка ждёт. Пусто — не ждать
 # DEPLOY_CI_MAX_WAIT сколько минут ждать раннер (30), потом выкладывать всё равно и писать дежурным
+# DEPLOY_MIN_FREE_GB сколько гигабайт должно быть свободно до сборки (6); меньше: сначала уборка образов отката и кэша
 # DEPLOY_NOTIFY=off  не писать в Telegram (тесты)
 # TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID — из окружения или .env клона; в журнал и сообщения не попадают
 set -euo pipefail
@@ -46,6 +47,7 @@ WAIT="${DEPLOY_HEALTH_WAIT:-180}"
 STEP="${DEPLOY_HEALTH_STEP:-5}"
 CI_PROJECT="${DEPLOY_CI_PROJECT-pms-lux-ci}"
 CI_MAX_WAIT="${DEPLOY_CI_MAX_WAIT:-30}"
+MIN_FREE_GB="${DEPLOY_MIN_FREE_GB:-6}"
 ENV_FILE="$REPO/.env"
 APPLIED_SHA=""
 if [ "${1:-}" = --migrations-applied ]; then
@@ -192,6 +194,33 @@ if [ -n "$CI_PROJECT" ] && ci_busy; then
 fi
 rm -f "$STATE/ci-wait"
 
+# Место на диске до обновления клона. 16.10.2026 сборка забрала последние гигабайты: git checkout оборвался посреди
+# файлов, клон остался «с локальными правками», и следующая вершина не выкладывалась. Образ отката нужен один,
+# на прежнюю выкладку; копились все (пять по 2 ГБ). Пока места мало, говорим один раз и ждём, без отметки refused:
+# освободили место, и следующий запуск cron выкладывает сам.
+free_gb() { df -Pk "$REPO" | awk 'NR == 2 { print int($4 / 1048576) }'; }
+prune_rollbacks() {
+  local tag
+  for tag in $(docker images "$IMAGE" --format '{{.Tag}}' 2>/dev/null | grep '^rollback-' || true); do
+    [ "$IMAGE:$tag" = "$1" ] || docker image rm "$IMAGE:$tag" >/dev/null 2>&1 || true
+  done
+}
+if [ "$(free_gb)" -lt "$MIN_FREE_GB" ]; then
+  prune_rollbacks "$IMAGE:rollback-$(short "$current")"
+  docker builder prune -f >/dev/null 2>&1 || true
+  docker image prune -f >/dev/null 2>&1 || true
+  if [ "$(free_gb)" -ge "$MIN_FREE_GB" ]; then
+    say "было меньше $MIN_FREE_GB ГБ: убраны старые образы отката и кэш сборки, свободно $(free_gb) ГБ"
+  else
+    if [ "$(cat "$STATE/low-disk" 2>/dev/null || true)" != "$target" ]; then
+      printf '%s\n' "$target" >"$STATE/low-disk" || true
+      notify "$(short "$target") ждёт: на диске сервера меньше $MIN_FREE_GB ГБ и после уборки кэша сборки; освободите место, выкладка пойдёт сама. На сервере по-прежнему $(short "$current")."
+    fi
+    exit 1
+  fi
+fi
+rm -f "$STATE/low-disk"
+
 # Точка отката: прежний коммит и прежний образ под своим именем
 previous_tag="$IMAGE:rollback-$(short "$current")"
 docker image tag "$IMAGE:latest" "$previous_tag" 2>/dev/null || previous_tag=""
@@ -203,6 +232,7 @@ git checkout --quiet -B "$BRANCH" "$target"
 if "${compose[@]}" up -d --build api web && healthy; then
   printf '%s\n' "$target" >"$STATE/deployed"
   rm -f "$STATE/refused"
+  [ -z "$previous_tag" ] || prune_rollbacks "$previous_tag"
   notify "$(short "$target") выложен за $((SECONDS - started)) с: $(git log -1 --format=%s "$target")"
   exit 0
 fi

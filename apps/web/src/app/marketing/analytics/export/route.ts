@@ -6,7 +6,7 @@ const text = (status: number, body: string) =>
 
 /**
  * «Аналитика маркетинга» в CSV (МКТ-В6, отчёты и экспорт): каналы и календарь по дням тем же расчётом, что экран.
- * Права и филиал проверяет API (`settings`, 409 без филиала). Имён гостей в отчёте нет по построению.
+ * Права и филиал проверяет API (`marketing`, 409 без филиала). Имён гостей в отчёте нет по построению.
  */
 export async function GET(request: Request) {
   const month = new URL(request.url).searchParams.get('month') ?? '';

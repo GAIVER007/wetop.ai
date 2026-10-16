@@ -18,7 +18,7 @@ import {
 describe('права ролей', () => {
   const all = Object.keys(PERMISSIONS) as Permission[];
 
-  it('двенадцать прав и своё; у каждого — название', () => {
+  it('тринадцать прав и своё; у каждого — название', () => {
     expect(all).toEqual([
       'self',
       'desk',
@@ -29,6 +29,7 @@ describe('права ролей', () => {
       'rates',
       'channels',
       'settings',
+      'marketing',
       'journal',
       'seller',
       'staff',
@@ -61,12 +62,19 @@ describe('права ролей', () => {
       'rates',
       'channels',
       'settings',
+      'marketing',
       'journal',
       'seller',
       'staff',
       'owner',
     ] as const)
       expect(can('STAFF', p)).toBe(false);
+  });
+
+  it('маркетинг (ADR-MKT-B7): своё право у владельца и управляющего, не у администратора', () => {
+    expect(can('OWNER', 'marketing')).toBe(true);
+    expect(can('MANAGER', 'marketing')).toBe(true);
+    expect(can('STAFF', 'marketing')).toBe(false);
   });
 
   it('неизвестная роль не открывает ничего — даже своё', () => {

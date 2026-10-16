@@ -41,7 +41,7 @@ import { ScopeAware } from '../auth/scope-aware.decorator';
  * гостиничный путь по умолчанию, а здесь нужен ответ «Выберите филиал»; направление проверяет `siteScope`.
  */
 @Controller('marketing/site')
-@Access('settings')
+@Access('marketing')
 export class MarketingSiteController {
   constructor(
     @Inject(MarketingSiteService) private readonly service: MarketingSiteService,

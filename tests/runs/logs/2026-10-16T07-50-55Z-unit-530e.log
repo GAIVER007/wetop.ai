@@ -1,0 +1,18 @@
+# Модульные (unit) · 16.10.2026 12:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2f3b7eb (claude/marketing-model-proposal), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-50-55Z-unit-530e.json' 'apps/api/src/auth/auth.service.test.ts' 'apps/api/src/finance/finance.controller.test.ts' 'apps/api/src/platform/support.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 108ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (39 tests) 210ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (62 tests) 3170ms
+
+ Test Files  3 passed (3)
+      Tests  121 passed (121)
+   Start at  00:50:56
+   Duration  3.98s (tests 57%, transform 22%, import 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-50-55Z-unit-530e.json
+
+# код выхода 0 · 5 с

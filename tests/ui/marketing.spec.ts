@@ -245,7 +245,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path))).toEqual([]);
 });
 
-test('администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб', async ({
+test('администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб', async ({
   page,
   request,
 }) => {

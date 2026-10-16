@@ -31,7 +31,7 @@ export default async function BudgetExpensesPage({
   const sp = await searchParams;
   const [loaded, shell] = await Promise.all([loadBudget(sp), deskShell()]);
   const role = shell.access.role;
-  const editable = !shell.readOnly && (role === null || can(role, 'settings'));
+  const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
   const subtitle = 'Журнал всех расходов на продвижение за месяц.';
   if (loaded.chooseLocation || loaded.error)
     return (

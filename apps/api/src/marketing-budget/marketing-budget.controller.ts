@@ -17,10 +17,10 @@ import { Access } from '../auth/access.decorator';
 import { MarketingBudgetService } from './marketing-budget.service';
 
 /**
- * Бюджет и расходы маркетинга (МКТ-В1/В2). Право как у всего раздела «Маркетинг»: `settings`
- * (своего права у маркетинга нет, Q-273; матрица ролей ТЗ §3: этап В7, Q-MKT-ROLES).
+ * Бюджет и расходы маркетинга (МКТ-В1/В2). Право всего раздела «Маркетинг»: `marketing`
+ * (ADR-MKT-B7, Q-MKT-ROLES закрыт: своё право вместо `settings`, роли маркетолога пока нет).
  */
-@Access('settings')
+@Access('marketing')
 @Controller('marketing')
 export class MarketingBudgetController {
   constructor(@Inject(MarketingBudgetService) private readonly service: MarketingBudgetService) {}

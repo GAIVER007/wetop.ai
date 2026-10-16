@@ -333,7 +333,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     items: [
       {
         href: '/marketing',
-        requires: 'settings',
+        requires: 'marketing',
         label: 'Продвижение',
         icon: 'send',
         description: 'Сайт и SEO, реклама, конкуренты, контент и бюджет в одном разделе.',
@@ -341,7 +341,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         // МКТ-В1/В2 (ADR-MKT-B1): учёт рекламного бюджета и расходов; право раздела, как у хаба
         href: '/marketing/budget',
-        requires: 'settings',
+        requires: 'marketing',
         label: 'Бюджет маркетинга',
         icon: 'money',
         description: 'План месяца и расходы на продвижение по каналам.',
@@ -349,7 +349,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         // «Маркетинг → Аналитика» (10.10.2026): эффективность источников; лиды и выручка с этапов В3/В5/В6
         href: '/marketing/analytics',
-        requires: 'settings',
+        requires: 'marketing',
         label: 'Аналитика маркетинга',
         icon: 'analytics',
         description: 'Расходы, лиды и продажи по источникам: куда уходят деньги и что они приносят.',
@@ -357,14 +357,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         // «Продвижение» (ADR-184): ИИ-таргетолог, пункт меню у всех направлений
         href: '/marketing/ads',
-        requires: 'settings',
+        requires: 'marketing',
         label: 'Реклама',
         icon: 'channels',
         description: 'ИИ-таргетолог: кампании Facebook и Instagram, запуск по вашему подтверждению.',
       },
       {
         href: '/marketing/content',
-        requires: 'settings',
+        requires: 'marketing',
         label: 'Контент',
         icon: 'journal',
         description: 'Посты, фото и план публикаций.',
@@ -381,7 +381,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         // ADR-117: сайт объекта — одно место (раньше «Аналитика сайта», «Настройки сайта» и панель в «Интеграциях»)
         href: '/website',
-        requires: 'settings',
+        requires: 'marketing',
         label: 'Сайт и онлайн-бронирование',
         icon: 'analytics',
         description: 'Домен сайта, счётчик посещений, бронирование с сайта и его аналитика.',

@@ -27,13 +27,18 @@ const monthShift = (month: string, shift: number) => {
 };
 
 /** Месяц с расходами по трём каналам (один в долларах по курсу на дату), план и прошлый месяц */
-async function seed(request: APIRequestContext): Promise<{ today: string; month: string }> {
+async function seed(
+  request: APIRequestContext,
+  /** МКТ-В5a: результаты каналов месяца тем же засевом (засев каждый раз всё сбрасывает) */
+  results?: Record<string, unknown>,
+): Promise<{ today: string; month: string }> {
   const reset = await request.post(`${API}/__test/marketing-budget`, { data: {} });
   const { today } = (await reset.json()) as { today: string };
   const month = today.slice(0, 7);
   const prev = `${monthShift(month, -1)}-15`;
   await request.post(`${API}/__test/marketing-budget`, {
     data: {
+      ...(results ? { results: { month, ...results } } : {}),
       plan: { month, amount: '3000' },
       expenses: [
         { date: today, platform: 'META', campaign: 'Лиды: Клиника', category: 'Реклама', amount: '720' },
@@ -133,30 +138,67 @@ test('журнал: чужая валюта по курсу, фильтр чип
   await expect(main.getByTestId('budget-empty')).toBeVisible();
 });
 
-test('аналитика маркетинга: расходы с динамикой, эффективность источников, честные «Недостаточно данных»', async ({
+test('аналитика маркетинга: воронка, CPL, стоимость брони и ROMI из результатов каналов; реклама без кабинетов только расход', async ({
   page,
   request,
 }) => {
-  const { month } = await seed(request);
+  // результаты каналов месяца (МКТ-В5a): сайт и WhatsApp с бронями, реклама Meta/Google/TikTok без своих результатов
+  const { month } = await seed(request, {
+    channels: [
+      { channel: 'SITE', leads: 6, bookings: 2, revenue: '500000' },
+      { channel: 'WHATSAPP', leads: 4, bookings: 2, revenue: '550000' },
+      { channel: 'INSTAGRAM', leads: 0, bookings: 0, revenue: '0' },
+      { channel: 'PHONE', leads: 0, bookings: 0, revenue: '0' },
+    ],
+  });
   // прежний адрес аналитики бюджета живёт перенаправлением, месяц сохраняется
   await page.goto(`/marketing/budget/analytics?month=${month}`);
   await page.waitForURL(`**/marketing/analytics?month=${month}`);
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика маркетинга');
-  // учтено 720 + 480 + 50 000 = 51 200; прошлый месяц 600 → рост
+  // учтено 720 + 480 + 50 000 = 51 200 ₸; прошлый месяц 600 → рост
   await expect(main.getByTestId('man-spent')).toContainText('51 200');
-  // testId у Stat лежит на значении; подпись «к прошлому месяцу»: соседний элемент той же плитки
   await expect(main.getByText('к прошлому месяцу')).toBeVisible();
-  // эффективность источников: расход и доля настоящие, лиды и выручка прочерком до Meta и ИИ-продавца
-  const tiktok = main.getByTestId('man-sources').getByRole('row', { name: /TikTok Ads/ });
+  // обращения 10, брони 4 (40 % обращений), выручка 10 500 ₸
+  await expect(main.getByTestId('man-leads')).toHaveText('10');
+  await expect(main.getByTestId('man-bookings')).toHaveText('4');
+  await expect(main.getByText('40 % обращений')).toBeVisible();
+  await expect(main.getByTestId('man-revenue')).toContainText('10 500');
+  // CPL 51 200 / 10 = 5 120 ₸; стоимость брони 51 200 / 4 = 12 800 ₸; ROMI (10 500 − 51 200) / 51 200 = −79 %
+  await expect(main.getByTestId('man-cpl')).toContainText('5 120');
+  await expect(main.getByTestId('man-cpb')).toContainText('12 800');
+  await expect(main.getByTestId('man-romi')).toHaveText('-79 %');
+  // квалификацию не имитируем
+  await expect(main.getByText('Недостаточно данных')).toHaveCount(1);
+  await expect(main.getByTestId('man-funnel')).toBeVisible();
+
+  const table = main.getByTestId('man-sources');
+  // сначала каналы с результатом, затем реклама по расходу
+  const site = table.getByRole('row', { name: /^Сайт/ });
+  await expect(site).toContainText('6');
+  await expect(site).toContainText('5 000');
+  const wa = table.getByRole('row', { name: /^WhatsApp/ });
+  await expect(wa).toContainText('5 500');
+  // TikTok: только расход, результаты прочерком и подпись, куда ведёт реклама
+  const tiktok = table.getByRole('row', { name: /TikTok Ads/ });
   await expect(tiktok).toContainText('50 000');
-  await expect(tiktok).toContainText('98 %');
-  await expect(main.getByTestId('man-sources-note')).toContainText('ИИ-продавца');
+  await expect(tiktok).toContainText('ведёт на сайт и в мессенджеры');
+  await expect(main.getByTestId('man-total')).toContainText('51 200');
+  await expect(main.getByTestId('man-sources-note')).toContainText('Канал брони это её источник');
   await expect(main.getByTestId('budget-chart')).toBeVisible();
-  // лиды, квалифицированные, продажи, выручка, ROMI: пять честных плиток без цифр
-  const insufficient = main.getByText('Недостаточно данных');
-  await expect(insufficient).toHaveCount(5);
-  await expect(main.getByTestId('man-soon')).toContainText('Воронка маркетинга');
+});
+
+test('аналитика у филиала без броней гостиницы: только расходы и честное «Скоро»', async ({
+  page,
+  request,
+}) => {
+  const { month } = await seed(request, { supported: false });
+  await page.goto(`/marketing/analytics?month=${month}`);
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('man-results-soon')).toContainText('салона и ресторана');
+  await expect(main.getByTestId('man-leads')).toHaveText('–');
+  await expect(main.getByTestId('man-funnel')).toHaveCount(0);
+  await expect(main.getByTestId('man-spent')).toContainText('51 200');
 });
 
 test('переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту', async ({
@@ -194,7 +236,13 @@ for (const theme of ['light', 'dark'] as const) {
       await page.setViewportSize({ width: 1440, height: 900 });
     };
 
-    const { month } = await seed(request);
+    // снимки показывают живую воронку: результаты сайта и WhatsApp за месяц
+    const { month } = await seed(request, {
+      channels: [
+        { channel: 'SITE', leads: 6, bookings: 2, revenue: '500000' },
+        { channel: 'WHATSAPP', leads: 4, bookings: 2, revenue: '550000' },
+      ],
+    });
     await page.goto(`/marketing/budget?month=${month}`);
     await expect(page.getByTestId('budget-shares')).toBeVisible();
     await axe();

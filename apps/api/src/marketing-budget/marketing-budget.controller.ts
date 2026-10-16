@@ -30,6 +30,11 @@ export class MarketingBudgetController {
     return this.service.view(month);
   }
 
+  @Get('results')
+  results(@Query('month') month?: string) {
+    return this.service.results(month);
+  }
+
   @Put('budget')
   @HttpCode(200)
   setPlan(@Body() dto: Record<string, unknown>) {

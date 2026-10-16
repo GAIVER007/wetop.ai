@@ -4013,7 +4013,21 @@ export const marketingBudgetApi = {
     sendJson<MarketingExpenseRow>('PATCH', `/marketing/expenses/${encodeURIComponent(id)}`, body),
   deleteExpense: (id: string) =>
     deleteJson<{ ok: true }>(`/marketing/expenses/${encodeURIComponent(id)}`),
+  results: (month?: string) =>
+    getJson<MarketingResultsView>(
+      `/marketing/results${month ? `?month=${encodeURIComponent(month)}` : ''}`,
+    ),
 };
+
+/** Результаты маркетинговых каналов за месяц (МКТ-В5a, Q-MKT-ATTR); выручка строкой тиынов в валюте объекта */
+export interface MarketingResultsView {
+  month: string;
+  reportingCurrency: string;
+  revenueCurrency: string | null;
+  /** false: у филиала нет броней гостиницы (салон, ресторан) */
+  supported: boolean;
+  channels: Array<{ channel: 'SITE' | 'WHATSAPP' | 'INSTAGRAM' | 'PHONE'; leads: number; bookings: number; revenue: string }>;
+}
 
 export interface SharedOnboardingState {
   vertical: BusinessVertical;

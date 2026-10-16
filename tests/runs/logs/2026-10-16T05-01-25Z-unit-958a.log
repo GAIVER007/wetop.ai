@@ -1,0 +1,54 @@
+# Модульные (unit) · 16.10.2026 10:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/marketing-attribution), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-01-25Z-unit-958a.json' 'apps/api/src/marketing-budget/marketing-budget.service.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (10 tests | 2 failed) 198ms
+   ❯ сервис бюджета маркетинга (МКТ-В1/В2) (10)
+     ✓ view: месяц из запроса, границы окна и сериализация денег строками 169ms
+     ✓ view: границы декабря и января считаются без сдвига 1ms
+     ✓ view: без месяца берётся текущий месяц филиала, в ответе есть today 0ms
+     ✓ view: кривой месяц: отказ словами 2ms
+     ✓ создание: кривой ввод → 400, корректный → строка и журнал 12ms
+     ✓ правка несуществующего: 404 2ms
+     ✓ удаление несуществующего: 404, существующего: журнал 0ms
+     ✓ план: месяц нормализуется, сумма в тиынах, журнал пишется 1ms
+     × results: окно месяца как у бюджета, деньги строками, валюта выручки отдельно 9ms
+     × results: кривой месяц: отказ словами 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts > сервис бюджета маркетинга (МКТ-В1/В2) > results: окно месяца как у бюджета, деньги строками, валюта выручки отдельно
+TypeError: service.results is not a function
+ ❯ apps/api/src/marketing-budget/marketing-budget.service.test.ts:166:29
+    164|
+    165|   it('results: окно месяца как у бюджета, деньги строками, валюта выру…
+    166|     const r = await service.results('2026-10');
+       |                             ^
+    167|     expect(repo.resultsArgs).toEqual(['loc-1', '2026-10-01', '2026-11-…
+    168|     expect(r.month).toBe('2026-10');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts > сервис бюджета маркетинга (МКТ-В1/В2) > results: кривой месяц: отказ словами
+TypeError: service.results is not a function
+ ❯ apps/api/src/marketing-budget/marketing-budget.service.test.ts:179:26
+    177|
+    178|   it('results: кривой месяц: отказ словами', async () => {
+    179|     await expect(service.results('октябрь')).rejects.toBeInstanceOf(Ba…
+       |                          ^
+    180|   });
+    181| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed (10)
+   Start at  22:02:07
+   Duration  9.51s (transform 57%, import 41%, tests 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-01-25Z-unit-958a.json
+
+# код выхода 1 · 52 с

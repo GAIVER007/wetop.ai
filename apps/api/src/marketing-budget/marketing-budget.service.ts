@@ -46,6 +46,16 @@ export interface BudgetView {
   expenses: ExpenseRow[];
 }
 
+/** Результаты каналов для «Аналитики маркетинга»; выручка строкой minor units в валюте объекта */
+export interface ResultsView {
+  month: string;
+  reportingCurrency: string;
+  revenueCurrency: string | null;
+  /** false: у филиала нет броней гостиницы (салон, ресторан) */
+  supported: boolean;
+  channels: Array<{ channel: string; leads: number; bookings: number; revenue: string }>;
+}
+
 const MONTH = /^(\d{4})-(\d{2})$/;
 
 function rule<T>(fn: () => T): T {
@@ -89,6 +99,29 @@ export class MarketingBudgetService {
   constructor(
     @Inject(MARKETING_BUDGET_REPOSITORY) private readonly repo: MarketingBudgetRepository,
   ) {}
+
+  /**
+   * Результаты маркетинговых каналов за месяц (МКТ-В5a, Q-MKT-ATTR): обращения, брони и выручка.
+   * Воронку с расходами и CPL/ROMI собирает стойка доменной `buildMarketingFunnel`.
+   */
+  async results(month?: string): Promise<ResultsView> {
+    const scope = await this.repo.scope();
+    const window = month ?? todayIn(scope.timezone).slice(0, 7);
+    if (!MONTH.test(window)) throw new BadRequestException('Месяц: в виде ГГГГ-ММ');
+    const data = await this.repo.results(scope.locationId, firstOf(window, 0), firstOf(window, 1));
+    return {
+      month: window,
+      reportingCurrency: scope.reportingCurrency,
+      revenueCurrency: data.revenueCurrency,
+      supported: data.supported,
+      channels: data.channels.map((c) => ({
+        channel: c.channel,
+        leads: c.leads,
+        bookings: c.bookings,
+        revenue: c.revenueMinor.toString(),
+      })),
+    };
+  }
 
   async view(month?: string): Promise<BudgetView> {
     const scope = await this.repo.scope();

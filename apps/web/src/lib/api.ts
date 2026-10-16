@@ -3693,6 +3693,8 @@ export interface BeautyAppointmentRow {
   status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
   next: Array<'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED'>;
   priceMinor: string;
+  /** оплачено в кассу филиала (§49), действующие приходы */
+  paidMinor: string;
   currency: string;
   notes: string | null;
 }
@@ -3794,6 +3796,9 @@ export const beautyApi = {
     sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, {
       status,
     }),
+  /** Оплата записи в кассу филиала (§49) */
+  payAppointment: (id: string, body: { method: string; amount: number; idempotencyKey: string }) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/payments`, body),
 };
 
 // ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────

@@ -37,6 +37,7 @@ const appointment = (
   status,
   next: [],
   priceMinor: '0',
+  paidMinor: '0',
   currency: 'KZT',
   notes: null,
 });

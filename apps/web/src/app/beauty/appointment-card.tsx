@@ -4,7 +4,9 @@ import { useConfirm } from '../../components/use-confirm';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
 import type { BeautyAppointmentRow, BeautyDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
-import { moveAppointment, setAppointmentStatus } from './journal-actions';
+import { METHOD_RU } from '../../lib/dashboard-format';
+import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
+import { moveAppointment, payAppointment, setAppointmentStatus } from './journal-actions';
 import { clock, instantOf, localInput } from './time';
 import { ACTION_WORD } from './appointment-status';
 import { beautyStatus } from '../../lib/status/beauty';
@@ -31,6 +33,20 @@ export function AppointmentCard({
     localInput(row.startsAt, day.location.timezone),
   );
   const moved = Boolean(state?.message) && !state?.error;
+  // оплата в кассу филиала (§49): у отменённой и незаезда не принимается
+  const remaining = BigInt(row.priceMinor) - BigInt(row.paidMinor);
+  const payable = canEdit && row.status !== 'CANCELLED' && row.status !== 'NO_SHOW' && remaining > 0n;
+  const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  const [amount, setAmount] = useState(() => String(remaining / 100n));
+  const pay = () => {
+    const tenge = Number(amount);
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
+    startTransition(async () => {
+      const result = await payAppointment(row.id, method, tenge * 100, crypto.randomUUID());
+      if (result.error) setError(result.error);
+      else onDone();
+    });
+  };
   useEffect(() => {
     if (moved) onDone();
   }, [moved, onDone]);
@@ -81,6 +97,12 @@ export function AppointmentCard({
           <dd>{formatMoney(row.priceMinor, row.currency)}</dd>
         </div>
         <div>
+          <dt>Оплачено</dt>
+          <dd data-testid="beauty-card-paid">
+            {formatMoney(row.paidMinor, row.currency)} из {formatMoney(row.priceMinor, row.currency)}
+          </dd>
+        </div>
+        <div>
           <dt>Состояние</dt>
           <dd data-testid="beauty-card-status">{beautyStatus[row.status].label}</dd>
         </div>
@@ -107,6 +129,28 @@ export function AppointmentCard({
             </Button>
           ))}
         </div>
+      )}
+
+      {payable && (
+        <section className="beauty-form" aria-label="Оплата записи">
+          <h3>Оплата</h3>
+          <Field label="Способ">
+            <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
+              {FOOD_PAYMENT_METHODS.map((m) => (
+                <option key={m} value={m}>
+                  {METHOD_RU[m] ?? m}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Сумма, ₸">
+            <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} />
+          </Field>
+          <Button type="button" disabled={busy} onClick={pay}>
+            Принять оплату
+          </Button>
+          {BigInt(row.paidMinor) > 0n && <p className="muted">Аннулировать оплату можно в «Кассе».</p>}
+        </section>
       )}
 
       {canEdit && row.next.length > 0 && (

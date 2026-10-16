@@ -3026,6 +3026,7 @@ model Appointment {
   employee  Employee      @relation(fields: [employeeId], references: [id])
   service   BeautyService @relation(fields: [serviceId], references: [id])
   createdBy User?         @relation(fields: [createdById], references: [id])
+  payments  RestaurantCashOperation[]
 
   @@unique([locationId, creationKey])
   @@index([locationId, startsAt])
@@ -3504,16 +3505,23 @@ model RestaurantCashOperation {
   voidedAt    DateTime?         @map("voided_at") @db.Timestamptz(6)
   voidedById  String?           @map("voided_by_id") @db.Uuid
   createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  /// оплата записи салона (§49): только приход без сотрудника
+  appointmentId  String?        @map("appointment_id") @db.Uuid
+  /// повтор того же нажатия оплаты записи (§49)
+  idempotencyKey String?        @map("idempotency_key") @db.VarChar(100)
 
   location           Location            @relation(fields: [locationId], references: [id])
   employee           Employee?           @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  appointment        Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
   createdBy          User?               @relation("RestaurantCashOpCreatedBy", fields: [createdById], references: [id])
   barSale            BarSale?
   barSupplierPayment BarSupplierPayment?
   voidedBy           User?               @relation("RestaurantCashOpVoidedBy", fields: [voidedById], references: [id])
 
   @@index([locationId, occurredAt])
+  @@unique([locationId, idempotencyKey])
   @@index([employeeId, period])
+  @@index([appointmentId])
   @@map("restaurant_cash_operations")
 }
 

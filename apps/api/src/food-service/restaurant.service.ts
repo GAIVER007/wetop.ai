@@ -22,6 +22,8 @@ import {
   ratingSummary,
   foodCostSummary,
   milliText,
+  appointmentPaymentVoidable,
+  type AppointmentStatus,
   foodCashBalances,
   payoutCheck,
   parseFoodPayment,
@@ -1265,6 +1267,13 @@ export class RestaurantService {
       const id = parsed(() => foodId(idRaw));
       const op = await tx.restaurantCashOperation.findFirst({ where: { id, locationId: s.locationId } });
       if (!op) throw new NotFoundException('Операция не найдена');
+      if (op.appointmentId) {
+        // оплата записи салона (§49): после «Выполнено» не аннулируется (Q-BEAUTY-PAY-1)
+        await tx.$queryRaw`SELECT id FROM appointments WHERE id = ${op.appointmentId}::uuid FOR UPDATE`;
+        const a = await tx.appointment.findUniqueOrThrow({ where: { id: op.appointmentId }, select: { status: true } });
+        const refused = appointmentPaymentVoidable(a.status as AppointmentStatus);
+        if (refused) throw new ConflictException(refused);
+      }
       if (op.status !== 'COMPLETED') throw new ConflictException('Операция уже аннулирована');
       await tx.restaurantCashOperation.update({
         where: { id },

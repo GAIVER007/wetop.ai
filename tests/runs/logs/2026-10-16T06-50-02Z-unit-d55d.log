@@ -1,0 +1,30 @@
+# Модульные (unit) · 16.10.2026 11:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит c9e8346 (claude/salon-appointment-payment), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-50-02Z-unit-d55d.json' 'packages/domain/src/beauty/payment.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ❯ |unit| packages/domain/src/beauty/payment.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/beauty/payment.test.ts [ packages/domain/src/beauty/payment.test.ts ]
+Error: Cannot find module './payment' imported from /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/packages/domain/src/beauty/payment.test.ts
+ ❯ packages/domain/src/beauty/payment.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { appointmentPayment, appointmentPaymentVoidable, appointmentSt…
+       | ^
+      3|
+      4| describe('оплата записи салона (§49)', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  23:50:02
+   Duration  89ms (worker 98%, environment 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-50-02Z-unit-d55d.json
+
+# код выхода 1 · 1 с

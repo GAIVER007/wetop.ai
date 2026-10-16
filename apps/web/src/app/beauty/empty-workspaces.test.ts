@@ -42,7 +42,7 @@ describe('Пустые рабочие экраны салона', () => {
         customer: { id: 'customer', name: 'Тестовый клиент', phone: null },
         startsAt: '2026-10-11T05:00:00Z', endsAt: '2026-10-11T06:00:00Z',
         startMinutes: 600, endMinutes: 660, status: 'BOOKED' as const, next: [],
-        priceMinor: '800000', currency: 'KZT', notes: null }],
+        priceMinor: '800000', paidMinor: '0', currency: 'KZT', notes: null }],
     } satisfies BeautyDay;
     const editable = renderToStaticMarkup(createElement(JournalBoard, { day: populated, customers: [], employees: [], readOnly: false }));
     expect(editable).toContain('draggable="true"');

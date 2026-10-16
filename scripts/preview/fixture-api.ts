@@ -6958,6 +6958,8 @@ createServer(async (req, res) => {
             status: a.status,
             next: NEXT_STATUS[a.status] ?? [],
             priceMinor: a.priceMinor,
+            // касса филиала (§49) у подставного салона пуста
+            paidMinor: '0',
             currency: a.currency,
             notes: a.notes,
           }));

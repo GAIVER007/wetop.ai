@@ -1,0 +1,35 @@
+# Модульные (unit) · 16.10.2026 11:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 73f6227 (claude/salon-appointment-payment), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-55-38Z-unit-79be.json' 'apps/web/src/app/beauty' 'apps/web/src/app/growth' 'apps/web/src/app/today' 'apps/api/src/beauty' 'packages/domain/src/beauty'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| packages/domain/src/beauty/catalog.test.ts (15 tests) 6ms
+ ✓ |unit| packages/domain/src/beauty/beauty.test.ts (17 tests) 17ms
+ ✓ |unit| packages/domain/src/beauty/appointments.test.ts (16 tests) 15ms
+ ✓ |unit| packages/domain/src/beauty/schedule.test.ts (22 tests) 19ms
+ ✓ |unit| apps/web/src/app/beauty/employee-workspace.test.ts (4 tests) 26ms
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (22 tests) 21ms
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (10 tests) 3ms
+ ✓ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests) 18ms
+ ✓ |unit| packages/domain/src/beauty/slots.test.ts (6 tests) 19ms
+ ✓ |unit| apps/web/src/app/beauty/actions.test.ts (6 tests) 17ms
+ ✓ |unit| apps/web/src/app/beauty/page.test.ts (2 tests) 8ms
+ ✓ |unit| apps/api/src/beauty/scope.test.ts (7 tests) 4ms
+ ✓ |unit| apps/web/src/app/growth/business-screen.test.ts (7 tests) 51ms
+ ✓ |unit| apps/api/src/beauty/customers.test.ts (1 test) 5ms
+ ✓ |unit| apps/api/src/beauty/services-popularity.test.ts (1 test) 6ms
+ ✓ |unit| apps/web/src/app/beauty/services/popularity.test.ts (2 tests) 17ms
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (5 tests) 16ms
+ ✓ |unit| packages/domain/src/beauty/payment.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/app/growth/business-sales.test.ts (7 tests) 3ms
+
+ Test Files  20 passed (20)
+      Tests  162 passed (162)
+   Start at  23:55:39
+   Duration  1.25s (transform 64%, import 31%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-55-38Z-unit-79be.json
+
+# код выхода 0 · 2 с

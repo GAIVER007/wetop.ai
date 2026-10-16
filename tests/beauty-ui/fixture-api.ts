@@ -176,6 +176,8 @@ app.use(
               if (marker.name !== `MV5-browser-${org}`) throw new Error('Marker mismatch');
               const b = { organizationId: org };
               await db.$transaction(async (tx) => {
+                // оплаты записей (§49) держат запись RESTRICT: касса филиала первой
+                await tx.restaurantCashOperation.deleteMany({ where: { location: { business: b } } });
                 await tx.appointment.deleteMany({ where: { location: { business: b } } });
                 await tx.timeOff.deleteMany({ where: { employee: { business: b } } });
                 await tx.workingHours.deleteMany({ where: { employee: { business: b } } });

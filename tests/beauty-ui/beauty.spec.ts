@@ -433,7 +433,7 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
     .getByRole('button', { name: 'Открыть' })
     .click();
   const panel = page.getByRole('dialog');
-  await panel.getByRole('tab', { name: 'Отсутствия', exact: true }).click();
+  await panel.getByRole('tab', { name: 'График', exact: true }).click();
   await panel.getByLabel('С какого дня').fill(day);
   await panel.getByLabel('По какой день включительно').fill(day);
   await panel.getByLabel(/Причина/).fill('Тестовое обучение');

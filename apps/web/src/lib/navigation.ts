@@ -61,6 +61,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
     label: 'Рабочее место',
     items: [
+      { href: '/my-work', label: 'Моя работа', icon: 'person', requires: 'desk', description: 'Личный профиль, собственный график и оплата труда.' },
       { href: '/floor-plan', label: 'План зала', icon: 'board', requires: 'desk', description: 'Столы зала сейчас: свободны, забронированы, заняты, ждут уборки.' },
       { href: '/table-reservations', label: 'Бронирования', icon: 'booking', requires: 'desk', description: 'Брони столов на день: время, гости, стол и статус.' },
       { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы, столы и их вместимость.' },
@@ -617,7 +618,7 @@ export const beautyMenuSections: MenuSection[] = [
     id: 'team',
     label: 'Команда',
     icon: 'guests' as IconName,
-    items: [menuItem('/team', 'Сотрудники и доступ')],
+    items: [menuItem('/my-work'), menuItem('/team', 'Сотрудники и доступ')],
     match: ['/staff'],
   },
   {
@@ -687,7 +688,7 @@ export const foodMenuSections: MenuSection[] = [
     label: 'Команда',
     icon: 'guests' as IconName,
     // «Сотрудники и доступ» ведут прямо на `/team`; старый `/staff` только перенаправляет сюда (DS2 §14)
-    items: [menuItem('/employees', 'Сотрудники'), menuItem('/payroll'), menuItem('/team', 'Сотрудники и доступ')],
+    items: [menuItem('/my-work'), menuItem('/employees', 'Сотрудники'), menuItem('/payroll'), menuItem('/team', 'Сотрудники и доступ')],
     match: ['/staff'],
   },
   {

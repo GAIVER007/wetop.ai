@@ -130,19 +130,19 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
 
       <section className="beauty-section">
         <div className="beauty-bar">
-          <h2>Отсутствия</h2>
+          <h2>Нерабочие дни</h2>
           {canEdit && (
             <Button type="button" tone="secondary" onClick={() => setEditing('timeOff')}>
-              Добавить отсутствие
+              Добавить нерабочие дни
             </Button>
           )}
         </div>
         <p className="beauty-note">
-          Отсутствие ставится на всю сеть: мастера нет ни в одном филиале. Уже созданные записи оно
-          не отменяет, их показывает отдельно.
+          Исключения на даты: отпуск, больничный, обучение. Действуют во всех филиалах.
+          Регулярные выходные задаются в разделе «График». Уже созданные записи не отменяются автоматически.
         </p>
         {data.timeOffs.length === 0 ? (
-          <p data-testid="beauty-timeoffs-empty">Отсутствий впереди нет</p>
+          <p data-testid="beauty-timeoffs-empty">Нерабочих периодов впереди нет</p>
         ) : (
           <TimeOffTable employeeId={master.id} rows={data.timeOffs} canEdit={canEdit} />
         )}
@@ -185,7 +185,7 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
       <Overlay
         open={editing === 'timeOff'}
         onClose={() => setEditing(null)}
-        title={`Отсутствие: ${master.name}`}
+        title={`Нерабочие дни: ${master.name}`}
         drawer
       >
         {editing === 'timeOff' && <TimeOffForm employeeId={master.id} />}
@@ -272,6 +272,7 @@ export function WeekForm({
       {(originalRevision ?? state?.revision) && (
         <input type="hidden" name="expectedRevision" value={originalRevision ?? state?.revision} />
       )}
+      <p className="beauty-note">Это обычный недельный график: он повторяется каждую неделю. Дни без интервалов: регулярные выходные. Отпуск и другие исключения на даты задайте в разделе «Нерабочие дни».</p>
       {week.map((day) => {
         const rows = slots[day.weekday] ?? [];
         return (
@@ -286,6 +287,7 @@ export function WeekForm({
               {rows.length === 0 && <span className="beauty-note">Выходной</span>}
               {rows.map((slot, index) => (
                 <span key={index} className="beauty-week-slot">
+                  <span aria-hidden="true">С</span>
                   <Input
                     className="beauty-time"
                     value={slot.timeFrom}
@@ -294,7 +296,7 @@ export function WeekForm({
                     aria-label={`${DAYS[day.weekday]}: начало`}
                     onChange={(e) => change(day.weekday, index, { timeFrom: e.target.value })}
                   />
-                  <span aria-hidden="true">до</span>
+                  <span aria-hidden="true">До</span>
                   <Input
                     className="beauty-time"
                     value={slot.timeTo}
@@ -426,6 +428,7 @@ export function TimeOffForm({
         setError(null);
       }}
     >
+      <p className="beauty-note">Исключения на даты: отпуск, больничный, обучение. Регулярные выходные: в разделе «График». Уже созданные записи не отменяются автоматически. После удаления исключения обычный недельный график продолжает действовать.</p>
       <input type="hidden" name="id" value={employeeId} />
       <Field label="С какого дня">
         <Input name="dateFrom" type="date" required />

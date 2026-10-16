@@ -330,7 +330,7 @@ export class MarketingMetaService {
   }
 }
 
-/** Как часто проверяем, не пора ли (сама сверка раз в сутки после 05:00 Алматы) */
+/** Как часто проверяем, не пора ли (сама сверка раз в сутки UTC, с 00:00 UTC) */
 const CHECK_MS = 60 * 60_000;
 
 /** Ночная сверка кабинетов; выключатель `MARKETING_META_SYNC=off`, в тестах таймера нет */
@@ -354,11 +354,9 @@ export class MarketingMetaNightly implements OnModuleInit, OnModuleDestroy {
   }
 
   async tick(now: Date = new Date()): Promise<void> {
-    const almaty = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty', hour: '2-digit', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit' })
-      .formatToParts(now)
-      .reduce<Record<string, string>>((acc, p) => ({ ...acc, [p.type]: p.value }), {});
-    const day = `${almaty.year}-${almaty.month}-${almaty.day}`;
-    if (this.running || !this.service || this.lastDay === day || Number(almaty.hour) < 5) return;
+    // раз в сутки UTC: 00:00 UTC это прежние 05:00 Алматы (UTC+5); день каждого кабинета считается по его поясу (dayIn)
+    const day = now.toISOString().slice(0, 10);
+    if (this.running || !this.service || this.lastDay === day) return;
     this.running = true;
     try {
       const r = await this.service.syncAll(now);

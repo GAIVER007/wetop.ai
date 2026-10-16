@@ -4,6 +4,7 @@ import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef, propertyToday } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
+import { PrismaReservationsRepository } from '../reservations/reservations.repository';
 
 export type BlockType = 'MAINTENANCE' | 'MANAGEMENT' | 'OUT_OF_ORDER' | 'OTHER';
 export type HousekeepingStatus = 'DIRTY' | 'CLEAN' | 'INSPECTED';
@@ -238,9 +239,49 @@ export class PrismaUnitsRepository implements UnitsRepository {
       if (busy.length)
         throw new ConflictException(
           `В ячейке есть проживание: ${busy
-            .map((a) => `${a.reservationItem.reservation.confirmationNumber} (${iso(a.startDate)} → ${iso(a.endDate)})`)
+            .map(
+              (a) =>
+                `${a.reservationItem.reservation.confirmationNumber} (${iso(a.startDate)} → ${iso(a.endDate)})`,
+            )
             .join(', ')} — сначала переселите`,
         );
+      // Проверяем проданные проживания, включая ещё не назначенные на ячейку.
+      // Уже закрытые ночи повторный блок не расходует: проверяем только новые интервалы.
+      // Всё выполняется под тем же категорийным замком, что и создание брони.
+      const target = await tx.inventoryUnit.findUniqueOrThrow({
+        where: { id: unitId },
+        select: { active: true },
+      });
+      if (target.active) {
+        const existing = await tx.inventoryBlock.findMany({
+          where: {
+            inventoryUnitId: unitId,
+            dateFrom: { lt: asDate(b.dateTo) },
+            dateTo: { gt: asDate(b.dateFrom) },
+          },
+          orderBy: { dateFrom: 'asc' },
+          select: { dateFrom: true, dateTo: true },
+        });
+        const gaps: Array<{ from: string; to: string }> = [];
+        let cursor = b.dateFrom;
+        for (const prior of existing) {
+          const start = iso(prior.dateFrom);
+          if (cursor < start) gaps.push({ from: cursor, to: start });
+          if (cursor < iso(prior.dateTo)) cursor = iso(prior.dateTo);
+          if (cursor >= b.dateTo) break;
+        }
+        if (cursor < b.dateTo) gaps.push({ from: cursor, to: b.dateTo });
+        const availability = new PrismaReservationsRepository(tx);
+        for (const gap of gaps) {
+          if (
+            (await availability.categoryAvailability(unit.accommodationTypeId, gap.from, gap.to)) <
+            1
+          )
+            throw new ConflictException(
+              'Нельзя заблокировать место: фонд категории уже продан на выбранные даты',
+            );
+        }
+      }
       const row = await tx.inventoryBlock.create({
         data: {
           inventoryUnitId: unitId,

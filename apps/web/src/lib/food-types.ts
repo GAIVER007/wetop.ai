@@ -258,6 +258,8 @@ export interface FoodCashView {
     note: string | null;
     employee: string | null;
     period: string | null;
+    /** возврат гостю по записи или заказу (§54, §56) */
+    refund?: boolean;
     status: 'COMPLETED' | 'VOIDED';
     occurredAt: string;
   }>;

@@ -8,7 +8,7 @@ import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
 import type { FoodCashView } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
 
-type Tab = 'revenue' | 'expenses' | 'income';
+type Tab = 'revenue' | 'refunds' | 'expenses' | 'income';
 interface Row {
   id: string;
   at: string;
@@ -19,7 +19,7 @@ interface Row {
 
 /**
  * «Финансы» ресторана (макет, экран 12): вкладки «Выручка», «Расходы», «Поступления», «Отчёты», период,
- * экспорт и таблица «Дата, Тип, Сумма, Описание». Выручка это оплаты заказов, расходы и поступления это
+ * экспорт и таблица «Дата, Тип, Сумма, Описание». Выручка это оплаты заказов, возвраты гостям своей вкладкой (§56, как ADR-176), расходы и поступления это
  * операции кассы (§35); аннулированное не показывается. Отчёты живут в «Аналитике».
  */
 export function FinanceBoard({
@@ -52,8 +52,12 @@ export function FinanceBoard({
         minor: BigInt(p.amountMinor),
         note: `Оплата заказа №${p.orderNumber}, ${method(p.method)}`,
       })),
+    // возвраты гостям отдельной вкладкой, не в расходах (как ADR-176 у гостиницы)
+    refunds: cash.operations
+      .filter((o) => o.status === 'COMPLETED' && o.kind === 'EXPENSE' && o.refund)
+      .map((o) => ({ id: o.id, at: o.occurredAt, kind: 'Возврат', minor: -BigInt(o.amountMinor), note: o.note || method(o.method) })),
     expenses: cash.operations
-      .filter((o) => o.status === 'COMPLETED' && o.kind === 'EXPENSE')
+      .filter((o) => o.status === 'COMPLETED' && o.kind === 'EXPENSE' && !o.refund)
       .map((o) => ({
         id: o.id,
         at: o.occurredAt,
@@ -97,6 +101,7 @@ export function FinanceBoard({
   }
   const TABS: Array<[Tab, string]> = [
     ['revenue', 'Выручка'],
+    ['refunds', 'Возвраты'],
     ['expenses', 'Расходы'],
     ['income', 'Поступления'],
   ];

@@ -115,6 +115,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /marketing/ad-connections/meta': 'marketing',
   'POST /marketing/ad-connections/meta/start': 'marketing',
   'POST /marketing/ad-connections/meta/complete': 'marketing',
+  'POST /marketing/ad-connections/meta/choose': 'marketing',
   'POST /marketing/ad-connections/meta/sync': 'marketing',
   'POST /marketing/ad-connections/meta/disconnect': 'marketing',
   'POST /marketing/campaigns': 'marketing',

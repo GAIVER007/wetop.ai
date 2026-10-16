@@ -203,7 +203,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   await expect(metrics.locator('.stat__label')).toHaveText(['Расход кампаний', 'Показы', 'Клики', 'Лиды площадки']);
   await expect(ads.getByTestId('ads-empty')).toContainText('Кампаний пока нет');
   // кабинет Meta подключается (ADR-MKT-META), кампанию можно создать и вручную (МКТ-В3)
-  await expect(ads.getByRole('button', { name: 'Подключить кабинет Meta', exact: true })).toBeEnabled();
+  await expect(ads.getByRole('button', { name: 'Подключить кабинет через Facebook', exact: true })).toBeEnabled();
   await expect(ads.getByRole('button', { name: 'Создать кампанию', exact: true })).toBeEnabled();
   await ads.getByRole('tab', { name: 'Аудитории', exact: true }).click();
   await expect(ads.getByRole('tabpanel')).toContainText('Пока пусто');

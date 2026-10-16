@@ -23,7 +23,9 @@ import { BackToModules, ModuleSoon } from '../parts';
 import { ChooseLocation, MonthNav, platformLabel } from '../budget/parts';
 import { CampaignButton, StatsButton } from './campaigns';
 import { CAMPAIGN_STATUS } from './labels';
-import { MetaCabinet } from './meta';
+import { cookies } from 'next/headers';
+import { MetaCabinet, MetaChoose } from './meta';
+import { META_ACCOUNTS_COOKIE } from './meta-cookies';
 
 /**
  * Модуль «Реклама» (макет Marketing 2.0 владельца 09.10.2026, экран 2; MKT10.4–10.6). Вкладка «Кампании» живая с
@@ -185,6 +187,15 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
     metaConnectionApi.view().catch((): MetaConnectionView | null => null),
   ]);
   const metaResult = q['meta'];
+  // выбор из нескольких кабинетов: список из закрытой cookie адреса возврата (заготовка входа живёт 10 минут)
+  let choices: Array<{ adAccountId: string; name: string; currency: string }> = [];
+  if (metaResult === 'choose') {
+    try {
+      choices = JSON.parse((await cookies()).get(META_ACCOUNTS_COOKIE)?.value ?? '[]') as typeof choices;
+    } catch {
+      choices = [];
+    }
+  }
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
   const campaigns =
@@ -221,7 +232,13 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
             Вход в Facebook отменён: кабинет не подключён.
           </p>
         )}
-        {cabinet && <MetaCabinet view={cabinet} editable={editable} />}
+        {metaResult === 'choose' && editable && choices.length > 0 && <MetaChoose accounts={choices} />}
+        {metaResult === 'choose' && choices.length === 0 && (
+          <p className="settings-note" data-testid="meta-result">
+            Выбор кабинета устарел: подключите заново.
+          </p>
+        )}
+        {cabinet && !(metaResult === 'choose' && choices.length > 0) && <MetaCabinet view={cabinet} editable={editable} />}
         <Tabs
           label="Разделы рекламы"
           panels={[

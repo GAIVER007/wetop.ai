@@ -16,6 +16,7 @@ describe('бар: дочерние строки не пересекают фил
   if (!url || !isLocalDatabase(url)) throw new Error('Бар проверяется только на локальной PostgreSQL');
   const prisma = new PrismaService();
   const repo = new PrismaBarRepository(prisma as never);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- клиент с охраной RLS без своего типа, как в соседних integration-тестах
   const db = prisma.db as any;
   const tag = randomUUID().slice(0, 8);
   const user = randomUUID();

@@ -1274,6 +1274,8 @@ export class RestaurantService {
         note: o.note,
         employee: o.employee?.name ?? null,
         period: o.period ? o.period.toISOString().slice(0, 7) : null,
+        // возврат гостю (§54, §56): расход со ссылкой на запись или заказ, в «Финансах» своей строкой (как ADR-176)
+        refund: o.kind === 'EXPENSE' && (o.orderId !== null || o.appointmentId !== null),
         status: o.status,
         occurredAt: o.occurredAt,
       })),

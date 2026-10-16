@@ -42,6 +42,8 @@ export interface BeautyFinanceView {
   currency: string;
   timezone: string;
   revenue: bigint;
+  /** возвраты по выполненным записям периода (§54), отдельно от выручки, как ADR-176 */
+  refunded: bigint;
   expected: bigint;
   lost: bigint;
   done: BeautyAppointmentRow[];
@@ -77,6 +79,7 @@ export function buildBeautyFinance(days: BeautyDay[]): BeautyFinanceView {
     // пояс филиала приходит в каждом ответе дня; без ответов строк нет и пояс не нужен
     timezone: sorted.at(-1)?.location.timezone ?? 'UTC',
     revenue: sum(done.map((x) => x.a)),
+    refunded: done.reduce((acc, x) => acc + BigInt(x.a.refundedMinor ?? '0'), 0n),
     expected: sum(
       all.filter((x) => x.a.status === 'BOOKED' || x.a.status === 'CONFIRMED').map((x) => x.a),
     ),
@@ -126,7 +129,13 @@ export async function BeautyFinanceScreen() {
     >
       <div data-testid="beauty-finance">
         <div className="kpi-row" data-testid="beauty-finance-kpis">
-          <KpiTile icon="money" label="Выручка за 7 дней" value={money(view.revenue)} caption="выполненные записи" testId="beauty-revenue" />
+          <KpiTile
+            icon="money"
+            label="Выручка за 7 дней"
+            value={money(view.revenue)}
+            caption={view.refunded > 0n ? `выполненные записи, возвраты ${money(view.refunded)}` : 'выполненные записи'}
+            testId="beauty-revenue"
+          />
           <KpiTile
             icon="check"
             label="Оказано услуг"

@@ -134,7 +134,7 @@ export function CashBoard({
           {cash.operations.map((o) => (
             <tr key={o.id} data-status={o.status}>
               <td>{when(o.occurredAt)}</td>
-              <td>{o.employee ? 'Зарплата' : KIND_LABEL[o.kind]}</td>
+              <td>{o.employee ? 'Зарплата' : o.refund ? 'Возврат' : KIND_LABEL[o.kind]}</td>
               <td>
                 {methodName(o.method)}
                 {o.methodTo ? ` → ${methodName(o.methodTo)}` : ''}

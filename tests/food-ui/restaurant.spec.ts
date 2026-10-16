@@ -267,6 +267,14 @@ test('заказы: создание с экрана, оплата частям�
   await expect(
     page.locator('tbody tr', { hasText: waiter.name }).getByTestId('employee-rating'),
   ).toContainText('4 ★, 1 оценка');
+  // «Финансы»: возврат гостю своей вкладкой, в «Расходах» его нет (§56, как ADR-176)
+  await page.goto('/restaurant-finance');
+  const board = page.getByTestId('finance-board');
+  await board.getByRole('button', { name: 'Возвраты' }).click();
+  await expect(board.locator('tbody')).toContainText('Возврат по заказу');
+  await expect(page.getByTestId('finance-total')).toContainText('200 ₸');
+  await board.getByRole('button', { name: 'Расходы' }).click();
+  await expect(board).not.toContainText('Возврат по заказу');
 });
 
 test('кухня: колонки KDS и переходы кнопками', async ({ page, request }) => {

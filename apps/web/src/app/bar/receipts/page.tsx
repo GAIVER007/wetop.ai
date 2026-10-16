@@ -18,9 +18,7 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
 
 /** Приходы бара (ADR-157): журнал документов поставщиков, проведение черновиков, оплата и долги. */
 export default async function BarReceiptsPage() {
-  const me = await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
-  // у салона кассы пока нет (§45): оплата поставщику откроется вместе с ней
-  const canPay = me.context?.vertical !== 'BEAUTY';
+  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
   const [receipts, methods] = await Promise.all([settle(barApi.receipts()), settle(barApi.paymentMethods())]);
   if (!receipts.ok) throw receipts.error;
   if (!methods.ok) throw methods.error;
@@ -43,8 +41,6 @@ export default async function BarReceiptsPage() {
             <td data-label="Статус"><Badge tone={receipt.status === 'POSTED' ? 'ok' : 'neutral'}>{receipt.status === 'POSTED' ? 'Проведён' : 'Черновик'}</Badge></td>
             <td>{receipt.status === 'DRAFT'
               ? <BarCommandForm context={context} action={postBarReceiptAction}><input type="hidden" name="id" value={receipt.id} /><Button size="xs" type="submit">Провести</Button></BarCommandForm>
-              : BigInt(receipt.dueAmount) > 0n && !canPay
-                ? <span className="bar-muted">Оплата откроется с кассой салона</span>
               : BigInt(receipt.dueAmount) > 0n
                 ? <SupplierPaymentForm receiptId={receipt.id} dueAmount={receipt.dueAmount} context={context} methods={methods.value.supplier} />
                 : <Badge tone="ok">Оплачено</Badge>}</td>

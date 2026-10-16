@@ -1,0 +1,25 @@
+# Модульные (unit) · 16.10.2026 10:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2f4ef80 (claude/salon-cash)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-51-17Z-unit-1df1.json' 'apps/api/src/channels/inbound.controller.test.ts' 'apps/api/src/hotel/hotel.controller.test.ts' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+[Nest] 86776  - 10/15/2026, 10:51:21 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 86775  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+[Nest] 86776  - 10/15/2026, 10:51:21 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 86776  - 10/15/2026, 10:51:21 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 86776  - 10/15/2026, 10:51:21 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 86776  - 10/15/2026, 10:51:21 PM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 86776  - 10/15/2026, 10:51:21 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 202ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests) 45ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (55 tests) 282ms
+
+ Test Files  3 passed (3)
+      Tests  91 passed (91)
+   Start at  22:51:19
+   Duration  2.13s (transform 52%, import 39%, tests 9%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-51-17Z-unit-1df1.json
+
+# код выхода 0 · 4 с

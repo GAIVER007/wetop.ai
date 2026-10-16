@@ -111,7 +111,8 @@ describe('Food workspace isolation', () => {
     expect(routeVertical('/stock')).toBe('FOOD_SERVICE');
     expect(routeVertical('/menu')).toBe('FOOD_SERVICE');
     expect(routeVertical('/payroll')).toBe('FOOD_SERVICE');
-    expect(routeVertical('/cashbox')).toBe('FOOD_SERVICE');
+    // касса филиала общая у ресторана и салона (§48)
+    expect(routeVertical('/cashbox')).toBeNull();
     // `/employees` общий у салона и ресторана (ADR-159): принадлежности нет, страницу делит requireVertical
     expect(routeVertical('/employees')).toBeNull();
     expect(routeVertical('/calendar')).toBe('BEAUTY');

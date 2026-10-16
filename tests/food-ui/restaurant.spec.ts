@@ -739,7 +739,7 @@ test('схема зала (Q-REST-8): расстановка зоны стрел
   expect(tables.find((t) => t.id === foreign.id)!.posX).toBeNull();
 });
 
-test('бар филиала (ADR-178): ресторан продаёт в кассу ресторана, у салона только склад', async ({ page, request }) => {
+test('бар филиала (ADR-178): ресторан и салон продают в кассу своего филиала', async ({ page, request }) => {
   const { f, headers } = await seed(page, request);
   const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
   const stockUp = async (h: Record<string, string>, code: string) => {
@@ -775,20 +775,31 @@ test('бар филиала (ADR-178): ресторан продаёт в кас
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
 
-  // салон: склад виден, продажи нет до кассы салона
+  // салон: продаёт в кассу филиала салона (§48), у кассы нет вкладки оплат заказов
   const beauty = { 'x-wetop-scope': pointer(f.beauty, f.locations[3]!) };
-  const product = await stockUp(beauty, 'B1');
+  await stockUp(beauty, 'B1');
   await scope(page, f.beauty, f.locations[3]!);
   // тот же адрес с якорем браузер не перезагружает: салон открывается заново через другой адрес
   await page.goto('/today');
   await page.goto('/bar#bar-quick-sale');
-  await expect(main).toContainText('Продажи бара салона откроются вместе с кассой салона');
-  await expect(main.locator('#bar-quick-sale').getByRole('button', { name: 'Продать' })).toHaveCount(0);
-  const refused = await request.post(`${api}/bar/sales/retail`, {
-    headers: beauty,
-    data: { productId: product.id, quantityUnits: '1', method: 'CASH', idempotencyKey: 'b-1' },
-  });
-  expect(refused.status()).toBe(409);
+  await expect(main.getByRole('tab', { name: 'В счёт гостя' })).toHaveCount(0);
+  const salonSale = main.locator('#bar-quick-sale');
+  await salonSale.getByLabel('Товар').selectOption({ label: 'Кола B1, остаток 10 шт.' });
+  await salonSale.getByLabel('Количество, шт.').fill('1');
+  await salonSale.getByRole('button', { name: 'Продать' }).click();
+  await expect
+    .poll(async () => {
+      const cash = await (await request.get(`${api}/food-service/cash`, { headers: beauty })).json();
+      return cash.balances?.find((b: { method: string }) => b.method === 'CASH')?.balanceMinor;
+    })
+    .toBe('60000');
+  await page.goto('/cashbox');
+  await expect(main.getByRole('heading', { name: 'Касса', level: 1 })).toBeVisible();
+  await expect(main).toContainText('Деньги салона по способам оплаты');
+  await expect(main.getByRole('tab', { name: 'Оплаты заказов' })).toHaveCount(0);
+  await expect(main.getByRole('tab', { name: 'Операции' })).toBeVisible();
+  const salonAxe = await new AxeBuilder({ page }).include('main').analyze();
+  expect(salonAxe.violations).toEqual([]);
 });
 
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({

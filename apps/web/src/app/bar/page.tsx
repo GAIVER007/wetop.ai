@@ -82,7 +82,7 @@ export default async function BarPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
-  // бар филиала (ADR-178): «в счёт гостя» только у гостиницы, у салона продажи откроются с кассой салона (§45)
+  // бар филиала (ADR-178): «в счёт гостя» только у гостиницы; ресторан и салон продают в кассу филиала (§45, §48)
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
@@ -284,14 +284,7 @@ export default async function BarPage({
               {
                 id: 'bar-retail',
                 label: 'Продажа напрямую',
-                content:
-                  vertical === 'BEAUTY' ? (
-                    <p className="bar-muted">
-                      Продажи бара салона откроются вместе с кассой салона. Приходы, остатки и инвентаризация уже работают.
-                    </p>
-                  ) : (
-                    <SaleForm stock={stock.value} context={context} methods={paymentMethods.value.sale} />
-                  ),
+                content: <SaleForm stock={stock.value} context={context} methods={paymentMethods.value.sale} />,
               },
               ...(vertical !== 'HOSPITALITY' ? [] : [{
                 id: 'bar-folio',

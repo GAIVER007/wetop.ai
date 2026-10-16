@@ -1,0 +1,158 @@
+# Модульные (unit) · 16.10.2026 10:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит c534c35 (claude/salon-cash), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-46-13Z-unit-69bb.json' 'apps/web/src/lib' 'packages/domain/src/verticals' 'apps/api/src/food-service' 'apps/api/src/bar'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 213ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 87ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 93ms
+ ✓ |unit| apps/web/src/lib/workspace-session-a27.test.ts (8 tests) 3129ms
+   ✓ workspace session boundary (8)
+     ✓ redirects an API 401 using the existing login contract 3122ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests) 3163ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 3149ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 3607ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 3510ms
+ ✓ |unit| apps/api/src/bar/bar-folio-service-date.test.ts (1 test) 20ms
+ ✓ |unit| apps/web/src/lib/registration-context-client.test.ts (1 test) 168ms
+ ✓ |unit| apps/api/src/bar/bar.runtime.test.ts (1 test) 359ms
+   ✓ loads every empty Bar section without compiler-emitted constructor metadata, as in tsx production 358ms
+ ✓ |unit| apps/api/src/bar/bar-scan.test.ts (8 tests) 557ms
+ ✓ |unit| apps/api/src/bar/bar.controller.test.ts (12 tests) 628ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 180ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 8ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/navigation-rights.test.ts (2 tests) 113ms
+ ✓ |unit| apps/web/src/lib/branch-report-api.test.ts (2 tests) 42ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 92ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 99ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/navigation-registry.test.ts (6 tests) 18ms
+ ✓ |unit| apps/web/src/lib/site-preview-spec.test.ts (5 tests) 42ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 42ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 11ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (6 tests) 48ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/lib/sales.test.ts (5 tests) 20ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 21ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 120ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 160ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 8ms
+ ✓ |unit| apps/api/src/bar/bar-period.test.ts (3 tests) 8ms
+ ✓ |unit| apps/web/src/lib/status/status.test.ts (13 tests) 86ms
+ ✓ |unit| apps/web/src/lib/site-facts.test.ts (12 tests) 61ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (9 tests) 9ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (11 tests) 10ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 37ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 8ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 5ms
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 1 failed) 38ms
+   ❯ Food workspace isolation (4)
+     ✓ exposes exactly accepted Food menu 2ms
+     ✓ does not expose Food to existing verticals 1ms
+     ✓ uses canonical landings and verified scope 0ms
+     × identifies isolated routes before API access 33ms
+ ✓ |unit| apps/web/src/lib/report-query.test.ts (12 tests) 13ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (30 tests) 12ms
+ ✓ |unit| apps/web/src/lib/navigation-growth.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/bar/bar-payment-methods.test.ts (5 tests) 8ms
+ ✓ |unit| apps/api/src/food-service/boundary.test.ts (2 tests) 11ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 15ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 16ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 7ms
+ ✓ |unit| apps/web/src/lib/line-geometry.test.ts (5 tests) 11ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 86ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (20 tests) 174ms
+ ✓ |unit| apps/web/src/lib/food-data.test.ts (4 tests) 88ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 7ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 5ms
+ ❯ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests | 1 failed) 102ms
+   ❯ меню салона (8)
+     ✓ у филиала салона нет гостиничных разделов 15ms
+     × у филиала салона есть только то, что в нём работает 67ms
+     ✓ вертикаль не передана: меню гостиницы, как было до среза 2ms
+     ✓ нижняя панель телефона тоже идёт по вертикали 0ms
+     ✓ первый пункт салона «Сегодня» на общем адресе /today (MV8) 1ms
+     ✓ «Мастера» и «Сотрудники и доступ» в меню салона не путаются 2ms
+     ✓ у каждого пункта салона есть право: закрытую страницу меню не обещает 5ms
+     ✓ администратору смены платформа не видна, а своё рабочее место видно 6ms
+ ✓ |unit| apps/web/src/lib/occupancy-kinds.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (9 tests) 5ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 8ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 132ms
+ ✓ |unit| apps/web/src/lib/navigation-place.test.ts (23 tests) 81ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (3 tests) 18ms
+ ✓ |unit| apps/web/src/lib/donut.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 130ms
+ ✓ |unit| packages/domain/src/verticals/registry.test.ts (12 tests) 9ms
+ ✓ |unit| apps/web/src/lib/food-api.test.ts (1 test) 4ms
+ ✓ |unit| apps/web/src/lib/public-entry.test.ts (1 test) 3ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 11ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 8ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > у филиала салона есть только то, что в нём работает
+AssertionError: expected [ '/today', '/calendar', …(23) ] to deeply equal [ '/today', '/calendar', …(22) ]
+
+- Expected
++ Received
+
+@@ -5,10 +5,11 @@
+    "/customers",
+    "/employees",
+    "/beauty/schedule",
+    "/services",
+    "/finance",
++   "/cashbox",
+    "/bar",
+    "/team",
+    "/sales",
+    "/ai-agents",
+    "/marketing",
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:35:29
+     33|   it('у филиала салона есть только то, что в нём работает', () => {
+     34|     // MV5 exposes only accepted operational screens.
+     35|     expect(hrefs('BEAUTY')).toEqual([
+       |                             ^
+     36|       '/today',
+     37|       '/calendar',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > identifies isolated routes before API access
+AssertionError: expected null to be 'FOOD_SERVICE' // Object.is equality
+
+- Expected:
+"FOOD_SERVICE"
+
++ Received:
+null
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:114:39
+    112|     expect(routeVertical('/menu')).toBe('FOOD_SERVICE');
+    113|     expect(routeVertical('/payroll')).toBe('FOOD_SERVICE');
+    114|     expect(routeVertical('/cashbox')).toBe('FOOD_SERVICE');
+       |                                       ^
+    115|     // `/employees` общий у салона и ресторана (ADR-159): принадлежнос…
+    116|     expect(routeVertical('/employees')).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 70 passed (72)
+      Tests  2 failed | 517 passed (519)
+   Start at  22:46:15
+   Duration  9.58s (import 41%, tests 29%, transform 28%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-46-13Z-unit-69bb.json
+
+# код выхода 1 · 12 с

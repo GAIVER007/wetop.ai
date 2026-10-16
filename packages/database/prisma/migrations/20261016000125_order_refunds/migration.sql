@@ -1,4 +1,4 @@
--- Возврат по закрытому заказу ресторана (DATA_MODEL §55, v2.38): расход кассы филиала со ссылкой на заказ
+-- Возврат по закрытому заказу ресторана (DATA_MODEL §56, v2.39): расход кассы филиала со ссылкой на заказ
 ALTER TABLE "restaurant_cash_operations" ADD COLUMN "order_id" UUID;
 CREATE INDEX "restaurant_cash_operations_order_id_idx" ON "restaurant_cash_operations"("order_id");
 ALTER TABLE "restaurant_cash_operations" ADD CONSTRAINT "restaurant_cash_operations_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "restaurant_orders"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -26,7 +26,7 @@ BEGIN
   IF NEW.employee_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM employees e WHERE e.id = NEW.employee_id AND e.business_id = loc_biz) THEN RAISE EXCEPTION 'Payout employee belongs to another business'; END IF;
   -- оплата записи салона (§49): запись того же филиала, филиал салона
   IF NEW.appointment_id IS NOT NULL AND (loc_vertical <> 'BEAUTY' OR NOT EXISTS (SELECT 1 FROM appointments a WHERE a.id = NEW.appointment_id AND a.location_id = NEW.location_id)) THEN RAISE EXCEPTION 'Appointment payment belongs to another location'; END IF;
-  -- возврат по закрытому заказу (§55): заказ того же филиала ресторана
+  -- возврат по закрытому заказу (§56): заказ того же филиала ресторана
   IF NEW.order_id IS NOT NULL AND (loc_vertical <> 'FOOD_SERVICE' OR NOT EXISTS (SELECT 1 FROM restaurant_orders o WHERE o.id = NEW.order_id AND o.location_id = NEW.location_id)) THEN RAISE EXCEPTION 'Order refund belongs to another location'; END IF;
   IF TG_OP = 'UPDATE' THEN
    IF (NEW.kind, NEW.method, NEW.method_to, NEW.amount, NEW.currency, NEW.note, NEW.employee_id, NEW.period, NEW.occurred_at, NEW.created_at, NEW.appointment_id, NEW.idempotency_key, NEW.order_id)

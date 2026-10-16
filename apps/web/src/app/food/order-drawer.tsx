@@ -148,7 +148,7 @@ function PaymentPanel({
   const [voiding, setVoiding] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const open = order.status !== 'CLOSED' && order.status !== 'CANCELLED';
-  // возврат по закрытому заказу (§55): не больше чистой оплаты, право `refunds`
+  // возврат по закрытому заказу (§56): не больше чистой оплаты, право `refunds`
   const net = BigInt(order.paidMinor) - BigInt(order.refundedMinor);
   const refundable = ctx.refunds && order.status === 'CLOSED' && net > 0n;
   const [refundMethod, setRefundMethod] = useState<FoodPaymentMethod>('CASH');

@@ -1,8 +1,8 @@
--- Откат §55: отказ, если возвраты по заказам уже есть
+-- Откат §56: отказ, если возвраты по заказам уже есть
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM restaurant_cash_operations WHERE order_id IS NOT NULL) THEN
-    RAISE EXCEPTION 'Order refunds exist: rollback of 123 would lose them';
+    RAISE EXCEPTION 'Order refunds exist: rollback of 125 would lose them';
   END IF;
 END $$;
 CREATE OR REPLACE FUNCTION restaurant_cash_guard() RETURNS trigger LANGUAGE plpgsql AS $$

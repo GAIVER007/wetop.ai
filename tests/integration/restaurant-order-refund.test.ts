@@ -8,11 +8,11 @@ import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { isLocalDatabase } from '../tools/seed-local';
 
 /**
- * Возврат по закрытому заказу ресторана (DATA_MODEL §55): расход кассы филиала со ссылкой на заказ, только после
+ * Возврат по закрытому заказу ресторана (DATA_MODEL §56): расход кассы филиала со ссылкой на заказ, только после
  * закрытия, с причиной, не больше чистой оплаты и остатка способа, повтор по ключу; ошибочный возврат аннулируется.
  * Вымышленные данные (ADR-010).
  */
-describe('возврат по закрытому заказу (integration, §55)', () => {
+describe('возврат по закрытому заказу (integration, §56)', () => {
   const url = process.env.DATABASE_URL;
   if (!url || !isLocalDatabase(url)) throw new Error('Проверяется только на локальной PostgreSQL');
   let db: Db, svc: RestaurantService;

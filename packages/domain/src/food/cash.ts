@@ -30,7 +30,7 @@ export function orderPayment(
   return { paidAfter, close: status === 'SERVED' && paidAfter === total };
 }
 
-/** Возврат по закрытому заказу (§55): только после закрытия, не больше чистой оплаты */
+/** Возврат по закрытому заказу (§56): только после закрытия, не больше чистой оплаты */
 export function orderRefund(status: OrderStatus, paidNet: bigint, amount: bigint): void {
   if (status !== 'CLOSED') throw new Error('Возврат оформляют по закрытому заказу: до этого аннулируйте платёж');
   if (amount <= 0n) throw new Error('Сумма больше нуля');

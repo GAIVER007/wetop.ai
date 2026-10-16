@@ -229,7 +229,7 @@ test('заказы: создание с экрана, оплата частям�
   await rating.getByRole('button', { name: 'Отправить оценку' }).click();
   await expect(rating.getByLabel('Оценка 4 из 5')).toBeVisible();
   await expect(rating).toContainText('Вкусно, но долго');
-  // возврат по закрытому заказу (§55): без причины подсказка, с причиной «Возвращено»
+  // возврат по закрытому заказу (§56): без причины подсказка, с причиной «Возвращено»
   const refund = payment.getByRole('region', { name: 'Возврат по заказу' });
   await expect(refund.getByLabel('Сумма возврата, ₸')).toHaveValue('780');
   await refund.getByLabel('Сумма возврата, ₸').fill('200');

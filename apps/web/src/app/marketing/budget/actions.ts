@@ -1,7 +1,8 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { MARKETING_PLATFORMS } from '@pms/domain';
-import { ApiError, marketingBudgetApi, marketingCampaignsApi } from '../../../lib/api';
+import { redirect } from 'next/navigation';
+import { ApiError, marketingBudgetApi, marketingCampaignsApi, metaConnectionApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { pluralRu } from '../../../lib/plural';
 
@@ -178,6 +179,39 @@ export async function importCampaignDaysAction(_prev: BudgetActionResult, fd: Fo
   }
   revalidatePath('/marketing/ads');
   return done(`Загружено ${pluralRu(r.imported, ['день', 'дня', 'дней'])} статистики`);
+}
+
+/** «Подключить кабинет»: номер кабинета → окно входа Facebook (§54); дальше браузер уходит на facebook.com */
+export async function startMetaAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  let url: string;
+  try {
+    url = (await metaConnectionApi.start(s(fd, 'adAccountId'))).url;
+  } catch (e) {
+    return { error: describe(e), ok: 0, values: echo(fd) };
+  }
+  redirect(url);
+}
+
+export async function syncMetaAction(): Promise<BudgetActionResult> {
+  let r: { ok: boolean; days: number; campaigns: number; error: string | null };
+  try {
+    r = await metaConnectionApi.sync();
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  revalidatePath('/marketing/ads');
+  if (!r.ok) return { error: r.error, ok: 0 };
+  return done(`Кабинет обновлён: ${pluralRu(r.campaigns, ['кампания', 'кампании', 'кампаний'])}, ${pluralRu(r.days, ['день', 'дня', 'дней'])}`);
+}
+
+export async function disconnectMetaAction(): Promise<BudgetActionResult> {
+  try {
+    await metaConnectionApi.disconnect();
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  revalidatePath('/marketing/ads');
+  return done('Кабинет отключён: ключ стёрт, кампании и статистика остались');
 }
 
 export async function deleteExpenseAction(

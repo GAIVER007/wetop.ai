@@ -61,7 +61,7 @@ const orderInclude = {
   waiter: { select: { id: true, name: true } },
   items: { orderBy: { sortOrder: 'asc' as const } },
   payments: { orderBy: { paidAt: 'asc' as const } },
-  // возвраты после закрытия (§55)
+  // возвраты после закрытия (§56)
   refunds: { orderBy: { occurredAt: 'asc' as const }, select: { id: true, method: true, amount: true, status: true, note: true, occurredAt: true } },
   rating: true,
 } as const;
@@ -79,7 +79,7 @@ function parsed<T>(fn: () => T): T {
 function orderPaid(r: { payments: Array<{ status: string; amount: bigint }> }): bigint {
   return r.payments.reduce((sum, p) => (p.status === 'COMPLETED' ? sum + p.amount : sum), 0n);
 }
-/** Сумма действующих возвратов по закрытому заказу (§55) */
+/** Сумма действующих возвратов по закрытому заказу (§56) */
 function orderRefunded(r: { refunds: Array<{ status: string; amount: bigint }> }): bigint {
   return r.refunds.reduce((sum, p) => (p.status === 'COMPLETED' ? sum + p.amount : sum), 0n);
 }
@@ -1149,7 +1149,7 @@ export class RestaurantService {
     });
   }
 
-  /** Возврат по закрытому заказу расходом кассы филиала (§55): причина, не больше чистой оплаты и остатка способа */
+  /** Возврат по закрытому заказу расходом кассы филиала (§56): причина, не больше чистой оплаты и остатка способа */
   async refundOrder(idRaw: string, raw: unknown) {
     return this.write('refunds', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));

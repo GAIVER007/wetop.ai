@@ -130,7 +130,7 @@ export const restaurantApi = {
     sendJson<{ token: string; expiresAt: string }>('POST', `${idPath('orders', id)}/rating-link`, {}),
   voidPayment: (id: string, reason: string) =>
     sendJson<OrderView>('POST', `${idPath('payments', id)}/void`, { reason }),
-  /** Возврат по закрытому заказу (§55) */
+  /** Возврат по закрытому заказу (§56) */
   refundOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; reason: string; idempotencyKey: string }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/refunds`, body),
   // период считает сервер (ADR-181); без дат прежние последние 100 строк для экрана «Касса»

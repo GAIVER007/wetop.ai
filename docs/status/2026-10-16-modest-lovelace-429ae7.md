@@ -45,9 +45,25 @@ function bindNext() {
 for (let i = 0; i < 50; i++) bindNext();
 ```
 
-Не сделано: ещё около 47 файлов `apps/api/src` зовут `request(app.getHttpServer())` без `listen` и открыты тому же
-флейку; `tests/unit/channex-tunnel-guard.test.ts` (`closedPort()`) может получить «пустой» порт, занятый таким
-сервером. Предложено отдельной сессией.
+**Второй шаг тем же днём: то же правило во всех тестах API.** 47 файлов `apps/api/src` и 13 в `tests/integration`
+(с помощником `core-security/scope-world.ts`) поднимали приложение через `app.init()` без `listen`; заменено на
+`app.listen(0, '127.0.0.1')` (67 мест, закрытий столько же). `body-parsers.test.ts` отдавал supertest голое приложение
+Express: теперь один сервер на 127.0.0.1 на файл. Сторож `tests/unit/supertest-loopback.test.ts`: файл с supertest
+или `getHttpServer()` без `listen(0, '127.0.0.1')` или с `.init()` краснеет списком.
+
+- сторож красный, 60 файлов (`…16-28-41Z-unit-421c`), зелёный после замены (`…16-31-08Z-unit-1fbc`);
+- `unit apps/api` под тем же скриптом: до замены 41 файл и 366 тестов красные, из них 307 «got 405»
+  (`…16-29-03Z-unit-49f0`, среди них `body-parsers`); после 1692/1692 дважды (`…16-31-09Z-unit-b20c`, `…9258`);
+- `integration` на 16 файлах (12 правленых и 4 на `scope-world`): 169/169 (`…16-32-45Z-integration-b4c6`),
+  локальная база на своём каталоге и порту 55435: каталог по умолчанию занят кластером другой сессии;
+- lint чистый (`…2574`); typecheck: 2 ошибки «Cannot find module» в `apps/web` (`qrcode-generator`, `agentation`),
+  файлы не тронуты, пакетов нет в установке основной папки (`…9fef`);
+- полный `unit` (`…16-34-09Z-unit-c36b`): supertest зелёный весь; красные 6 тестов `auto-deploy` и `guard-run`,
+  все «Test timed out in 5000ms» на скриптах bash под нагрузкой, отдельно 26/26 (`…9445`). Это отдельный флейк.
+
+`channex-tunnel-guard.test.ts` (`closedPort()`) не правился: закрытый порт и ответ с ошибкой дают скрипту один
+исход (код 3, «статус webhook недоступен»), чужой сервер на этом порту сломает тест, только ответив 200 с JSON
+этого API.
 
 Для запуска в worktree без своей установки: `node_modules/@pms/*` указывают на пакеты основной папки (другая ветка),
 код домена оттуда даёт 500 «Right-hand side of 'instanceof'». Ссылки `node_modules/@pms/*` на свои пакеты и

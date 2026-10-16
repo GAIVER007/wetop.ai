@@ -78,7 +78,7 @@ describe.skipIf(!url)('audit author from session (integration, DATABASE_URL requ
       .useValue({ db })
       .compile();
     app = moduleRef.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
 
   afterAll(async () => {

@@ -46,7 +46,7 @@ describe('бар: скан накладной', () => {
       .overrideProvider(PrismaService).useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => app.close());
 
@@ -158,7 +158,7 @@ describe('бар: скан накладной без настроенного б
       .overrideProvider(PrismaService).useValue({})
       .compile();
     const app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     const res = await request(app.getHttpServer()).post('/bar/receipts/scan').send({
       fileName: 'invoice.jpg', mediaType: 'image/jpeg', dataBase64: Buffer.from('x').toString('base64'),
     });

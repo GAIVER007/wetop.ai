@@ -41,7 +41,7 @@ describe('реклама: предложение ИИ', () => {
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => app.close());
   beforeEach(() => {

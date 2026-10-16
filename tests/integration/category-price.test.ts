@@ -37,7 +37,7 @@ describe.skipIf(!process.env.DATABASE_URL)('category price and removal', () => {
     app.use((_req: unknown, _res: unknown, next: () => void) => {
       void withSignedInUser({ userId: user.id, organizationId: org.id }, async () => next());
     });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     try {
       await withSignedInUser({ userId: user.id, organizationId: org.id }, async () => {
         const http = () => request(app.getHttpServer());

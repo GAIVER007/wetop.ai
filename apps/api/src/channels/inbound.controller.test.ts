@@ -541,7 +541,7 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       .compile();
     app = m.createNestApplication();
     inbound = m.get(InboundBookingsService);
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => {
     await app.close();

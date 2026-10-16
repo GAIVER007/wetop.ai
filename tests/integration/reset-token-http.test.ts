@@ -80,7 +80,7 @@ describe('password reset over real AuthModule HTTP and PostgreSQL', () => {
       .compile();
     app = module.createNestApplication({ logger: false });
     app.useGlobalGuards(new SessionGuard(app.get(Reflector), app.get(AuthService)));
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
 
   afterEach(() => { readGate = undefined; loginGate = undefined; issuanceGate = undefined; });

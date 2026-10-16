@@ -72,7 +72,7 @@ describe('бар: приходы (BAR2)', () => {
       .overrideProvider(PrismaService).useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => app.close());
 
@@ -209,7 +209,7 @@ describe('бар: права на сторно (FOOD-FIX-01)', () => {
     const { RoleGuard } = await import('../auth/role.guard');
     const { Reflector } = await import('@nestjs/core');
     app.useGlobalGuards(new RoleGuard(new Reflector()));
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => app.close());
 

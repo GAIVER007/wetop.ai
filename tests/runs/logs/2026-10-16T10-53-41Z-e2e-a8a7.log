@@ -1,0 +1,66 @@
+# Сквозные (e2e) · 16.10.2026 15:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/calendar-polish), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-card.spec.ts' '-g' 'подпись подстраивается|узкая плашка'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1158ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-WSklB2/worker-0/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1941ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-WSklB2/worker-1/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 [main-ui-0] › ../.wetop-main-ui-WSklB2/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (57.6s)
+  ✓  2 [main-ui-0] › ../.wetop-main-ui-WSklB2/worker-0/tests/ui/chessboard-card.spec.ts:260:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (11.6s)
+
+
+  1) [main-ui-0] › ../.wetop-main-ui-WSklB2/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('date-col')
+    Expected: 30
+    Received: undefined
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('date-col') with timeout 15000ms
+      - waiting for getByTestId('date-col')
+      - Protocol error (Runtime.evaluate): Internal server error, session closed.
+
+
+      211 |   // 30 дней: одна ночь — «Имя Ф.», полное имя спрятано; долг на узкой — точкой
+      212 |   await chooseBoardPeriod(page, '30 дней');
+    > 213 |   await expect(page.getByTestId('date-col')).toHaveCount(30);
+          |                                              ^
+      214 |   // M04: однодневная «Гость Букинг»; в той же строке с 1-го числа — длинная бронь следующего месяца
+      215 |   const oneNight = page.locator('[data-number="20260916-DSG-BDC"] .board-stay-caption');
+      216 |   await expect(oneNight.locator('.board-stay-name-short')).toHaveText('Гость Б.');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-WSklB2/worker-0/tests/ui/chessboard-card.spec.ts:213:46
+
+    Error Context: test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [main-ui-0] › ../.wetop-main-ui-WSklB2/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой 
+  1 passed (4.4m)
+
+# код выхода 1 · 4 мин 36 с

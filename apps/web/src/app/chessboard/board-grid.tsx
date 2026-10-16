@@ -20,6 +20,7 @@ import { Alert, Button, EmptyState, Input, Select, cx } from '../../components/u
 import { messengerLinks } from '../../lib/format';
 import { guestNames, isGuestPseudonym, sourceBadge, stayLabels } from './stay-labels';
 import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-preview';
+import { useCaptionFit } from './board-caption-fit';
 import { StayResize } from './stay-resize';
 import { FreeMenuPopover } from './free-menu';
 import { useBoardPosition, type BoardSelection } from './board-position';
@@ -280,6 +281,7 @@ export function ChessboardGrid({
     setFilters(saved.filters);
   }, []);
   useBoardPosition(wrapRef, searchParams.toString(), { query, filters }, restoreSelection);
+  useCaptionFit(wrapRef, [board, filters, query, collapsed]);
   useEffect(() => {
     const wrap = wrapRef.current;
     const head = wrap?.querySelector('thead');

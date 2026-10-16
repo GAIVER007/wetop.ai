@@ -299,3 +299,30 @@ test('служебный код скрыт на плашке, источник �
     page.getByRole('link', { name: 'Редактировать бронь', exact: true }),
   ).toHaveAttribute('href', `/reservations/${number}#booking-actions`);
 });
+
+for (const preset of ['14 дней', '30 дней', 'Текущий месяц'] as const) {
+  test(`${preset}: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы`, async ({
+    page,
+  }) => {
+    // владелец 13.10.2026: «Посети…» и «заезд се» вместо подписи; длину имени меряет board-caption-fit.ts
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/chessboard');
+    await chooseBoardPeriod(page, preset);
+    await hydrated(page.locator('.board-stage'));
+    await expect
+      .poll(() =>
+        page.locator('[data-testid="stay-cell"] .board-stay-caption').evaluateAll((caps) =>
+          caps.flatMap((cap) =>
+            [
+              ...cap.querySelectorAll<HTMLElement>(
+                '.board-stay-name, .board-stay-name-short, .board-stay-initials, .board-stay-line--meta',
+              ),
+            ]
+              .filter((el) => el.getClientRects().length > 0 && el.scrollWidth > el.clientWidth)
+              .map((el) => `${el.className}: ${el.textContent}`),
+          ),
+        ),
+      )
+      .toEqual([]);
+  });
+}

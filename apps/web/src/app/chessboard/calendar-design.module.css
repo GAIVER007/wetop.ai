@@ -245,3 +245,28 @@
 .caption :global(.board-stay-source) { flex-shrink: 0; }
 
 .bookingTooltip[data-below] { transform: translateY(var(--space-2)); }
+
+/* Длину имени CSS не знает: обрезанный текст ловит замер board-caption-fit.ts и ставит data-fit
+   (владелец 13.10.2026: «Посети…» вместо подписи). Последним в модуле и сильнее правил выше:
+   с 72 px они всегда ставят полное имя. */
+.caption[data-fit='short'] :global(.board-stay-name),
+.caption[data-fit='short'] :global(.board-stay-glyph),
+.caption[data-fit='initials'] :global(.board-stay-name),
+.caption[data-fit='initials'] :global(.board-stay-glyph),
+.caption[data-fit='initials'] :global(.board-stay-name-short) {
+  display: none;
+}
+.caption[data-fit='short'] :global(.board-stay-name-short),
+.caption[data-fit='initials'] :global(.board-stay-initials) {
+  display: inline;
+}
+.caption[data-meta] :global(.board-stay-today),
+.caption[data-meta='2'] :global(.board-stay-due),
+.caption[data-meta='3'] :global(.board-stay-due),
+.caption[data-meta='3'] :global(.board-stay-dates) {
+  display: none;
+}
+.caption[data-meta='2'] :global(.board-stay-due-dot),
+.caption[data-meta='3'] :global(.board-stay-due-dot) {
+  display: inline-block;
+}

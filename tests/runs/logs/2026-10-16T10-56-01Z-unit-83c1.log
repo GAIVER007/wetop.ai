@@ -1,0 +1,83 @@
+# Модульные (unit) · 16.10.2026 15:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/auto-deploy-disk-cleanup), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-56-01Z-unit-83c1.json' 'tests/unit/auto-deploy.test.ts' '-t' 'две последние точки отката|мало места на диске'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-disk
+
+ ❯ |unit| tests/unit/auto-deploy.test.ts (18 tests | 2 failed | 16 skipped) 6135ms
+   ❯ scripts/ops/auto-deploy.sh (18)
+     ↓ checked-out source stays readable by the container user under a private caller umask
+     ↓ ветка не ушла вперёд — ничего не делает и молчит
+     ↓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает
+     × после выкладки остаются две последние точки отката, старые образы убираются 3811ms
+     × мало места на диске: не начинает сборку и checkout, говорит один раз, место появилось — выкладывает 2319ms
+     ↓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца
+     ↓ владелец применил миграции и назвал вершину — выкладывает ровно её
+     ↓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине
+     ↓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено
+     ↓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет
+     ↓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает
+     ↓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую
+     ↓ локальные правки в клоне — не затирает их
+     ↓ историю ветки переписали — не выкладывает поверх
+     ↓ после сборки не отвечает — возвращает прежний коммит и прежний образ
+     ↓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает
+     ↓ раннер занят дольше предела — выкладывает всё равно и говорит об этом
+     ↓ миграции проверяются раньше раннера: занятый раннер не прячет отказ
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > после выкладки остаются две последние точки отката, старые образы убираются
+AssertionError: expected 'docker ps -q --filter label=com.docke…' to contain 'docker image rm pms-lux:rollback-aaaa…'
+
+- Expected
++ Received
+
+- docker image rm pms-lux:rollback-aaaaaaaa
++ docker ps -q --filter label=com.docker.compose.project=pms-lux-ci
++ docker top ci1
++ docker image tag pms-lux:latest pms-lux:rollback-0078f235
++ docker compose -f deploy/compose.yml up -d --build api web
++ docker compose -f deploy/compose.yml exec -T api wget -qO- http://127.0.0.1:3001/health
++ docker compose -f deploy/compose.yml exec -T web node -e 
++         const pages = ['/auth/fallback', '/today', '/chessboard', '/reservations'];
++         Promise.all(pages.map((p) => fetch('http://127.0.0.1:3000' + p, { redirect: 'manual' }).then((r) => [p, r.status])))
++           .then((all) => process.exit(all[0][1] === 200 && all.every(([, s]) => s < 500) ? 0 : 1))
++           .catch(() => process.exit(1));
++
+
+ ❯ tests/unit/auto-deploy.test.ts:174:17
+    172|     expect(r.code, r.out).toBe(0);
+    173|     const log = dockerCalls();
+    174|     expect(log).toContain('docker image rm pms-lux:rollback-aaaaaaaa');
+       |                 ^
+    175|     expect(log).toContain('docker image rm pms-lux:rollback-99999999');
+    176|     expect(log).not.toContain('docker image rm pms-lux:rollback-cccccc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > мало места на диске: не начинает сборку и checkout, говорит один раз, место появилось — выкладывает
+AssertionError: expected '4a479ab06bb14071cb657dbdf26c56f874c24…' to be '23bef2dfecfe22c775707a97c780c794adce4…' // Object.is equality
+
+Expected: "23bef2dfecfe22c775707a97c780c794adce4eb3"
+Received: "4a479ab06bb14071cb657dbdf26c56f874c2439c"
+
+ ❯ tests/unit/auto-deploy.test.ts:188:20
+    186|     const low = run({ DEPLOY_MIN_FREE_GB: '1000000' });
+    187|     expect(low.code, low.out).toBe(0);
+    188|     expect(head()).toBe(before);
+       |                    ^
+    189|     expect(dockerCalls()).toContain('docker builder prune -f');
+    190|     expect(dockerCalls()).not.toContain('up -d --build');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 16 skipped (18)
+   Start at  03:56:09
+   Duration  6.58s (tests 98%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-56-01Z-unit-83c1.json
+
+# код выхода 1 · 15 с

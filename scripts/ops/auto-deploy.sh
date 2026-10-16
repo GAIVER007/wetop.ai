@@ -29,6 +29,7 @@
 # DEPLOY_HEALTH_WAIT сколько секунд ждать, пока новые контейнеры ответят (180); DEPLOY_HEALTH_STEP — шаг опроса (5)
 # DEPLOY_CI_PROJECT  проект compose CI-раннера (pms-lux-ci); пока он выполняет задачу, сборка ждёт. Пусто — не ждать
 # DEPLOY_CI_MAX_WAIT сколько минут ждать раннер (30), потом выкладывать всё равно и писать дежурным
+# DEPLOY_MIN_FREE_GB сколько гигабайт должно быть свободно перед сборкой (8); меньше: сборка ждёт места
 # DEPLOY_NOTIFY=off  не писать в Telegram (тесты)
 # TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID — из окружения или .env клона; в журнал и сообщения не попадают
 set -euo pipefail
@@ -46,6 +47,7 @@ WAIT="${DEPLOY_HEALTH_WAIT:-180}"
 STEP="${DEPLOY_HEALTH_STEP:-5}"
 CI_PROJECT="${DEPLOY_CI_PROJECT-pms-lux-ci}"
 CI_MAX_WAIT="${DEPLOY_CI_MAX_WAIT:-30}"
+MIN_FREE_GB="${DEPLOY_MIN_FREE_GB:-8}"
 ENV_FILE="$REPO/.env"
 APPLIED_SHA=""
 if [ "${1:-}" = --migrations-applied ]; then
@@ -192,6 +194,35 @@ if [ -n "$CI_PROJECT" ] && ci_busy; then
 fi
 rm -f "$STATE/ci-wait"
 
+# Место на диске. 01.10 и 16.10.2026 сервер заполнялся образами отката и кэшем сборки: сборка и checkout на полном
+# диске бросали клон недописанным, и следующие запуски отказывали из-за «локальных правок». Если места мало, сначала
+# убираем неиспользуемый кэш сборки; если всё равно мало, не начинаем, говорим один раз и пробуем снова следующим
+# запуском cron.
+free_gb() { df -Pk "$REPO" | awk 'NR == 2 { print int($4 / 1048576) }'; }
+if [ "$(free_gb)" -lt "$MIN_FREE_GB" ]; then
+  docker builder prune -f >/dev/null 2>&1 || true
+  docker image prune -f >/dev/null 2>&1 || true
+fi
+if [ "$(free_gb)" -lt "$MIN_FREE_GB" ]; then
+  if [ "$(cat "$STATE/disk-low" 2>/dev/null || true)" != "$target" ]; then
+    printf '%s\n' "$target" >"$STATE/disk-low"
+    notify "$(short "$target") ждёт места на диске: свободно $(free_gb) ГБ при пороге $MIN_FREE_GB. Уберите старые образы (docker image ls), выкладка продолжится сама"
+  fi
+  exit 0
+fi
+rm -f "$STATE/disk-low"
+
+# После выкладки точки отката копились по 2 ГБ на каждую (16.10.2026 их было пять). Оставляем две последние,
+# прежний образ для отката и ещё один; висячие слои и кэш сборки старше суток убираем.
+cleanup_images() {
+  local tags
+  tags="$(docker image ls "$IMAGE" --format '{{.CreatedAt}}|{{.Repository}}:{{.Tag}}' 2>/dev/null |
+    grep ':rollback-' | sort -r | tail -n +3 | cut -d'|' -f2 || true)"
+  for tag in $tags; do docker image rm "$tag" >/dev/null 2>&1 || true; done
+  docker image prune -f >/dev/null 2>&1 || true
+  docker builder prune -f --filter until=24h >/dev/null 2>&1 || true
+}
+
 # Точка отката: прежний коммит и прежний образ под своим именем
 previous_tag="$IMAGE:rollback-$(short "$current")"
 docker image tag "$IMAGE:latest" "$previous_tag" 2>/dev/null || previous_tag=""
@@ -204,6 +235,7 @@ if "${compose[@]}" up -d --build api web && healthy; then
   printf '%s\n' "$target" >"$STATE/deployed"
   rm -f "$STATE/refused"
   notify "$(short "$target") выложен за $((SECONDS - started)) с: $(git log -1 --format=%s "$target")"
+  cleanup_images
   exit 0
 fi
 

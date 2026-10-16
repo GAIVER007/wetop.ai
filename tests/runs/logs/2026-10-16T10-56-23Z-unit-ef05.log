@@ -1,0 +1,77 @@
+# Модульные (unit) · 16.10.2026 15:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/auto-deploy-disk-cleanup), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-56-23Z-unit-ef05.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-disk
+
+ ❯ |unit| tests/unit/auto-deploy.test.ts (18 tests | 3 failed) 82087ms
+   ❯ scripts/ops/auto-deploy.sh (18)
+     ✓ checked-out source stays readable by the container user under a private caller umask 3687ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 824ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 3762ms
+     ✓ после выкладки остаются две последние точки отката, старые образы убираются 5275ms
+     ✓ мало места на диске: не начинает сборку и checkout, говорит один раз, место появилось — выкладывает 3398ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 2868ms
+     × владелец применил миграции и назвал вершину — выкладывает ровно её 9037ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 4358ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 3113ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 4727ms
+     × прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 8924ms
+     × release перемотали после отказа — флаг со старой вершиной не выкладывает новую 14254ms
+     ✓ локальные правки в клоне — не затирает их 6157ms
+     ✓ историю ветки переписали — не выкладывает поверх 2599ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2770ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 2112ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1990ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 2192ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и назвал вершину — выкладывает ровно её
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:219:3
+    217|   });
+    218|
+    219|   it('владелец применил миграции и назвал вершину — выкладывает ровно …
+       |   ^
+    220|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    221|     const refusal = run();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:275:3
+    273|   // Аудит 26.09, С-67: клон переключался на новую вершину до сборки. …
+    274|   // оставлял клон на новой вершине с прежними контейнерами, и следующ…
+    275|   it('прерванная выкладка: клон уже на новой вершине, но она не выложе…
+       |   ^
+    276|     expect(run().code).toBe(0); // первый запуск запоминает выложенное
+    277|     const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > release перемотали после отказа — флаг со старой вершиной не выкладывает новую
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:286:3
+    284|   });
+    285|
+    286|   it('release перемотали после отказа — флаг со старой вершиной не вык…
+       |   ^
+    287|     const applied = commit('packages/database/prisma/migrations/0002_m…
+    288|     expect(run().code).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 15 passed (18)
+   Start at  03:56:34
+   Duration  83.17s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-56-23Z-unit-ef05.json
+
+# код выхода 1 · 1 мин 35 с

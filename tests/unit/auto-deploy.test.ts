@@ -87,6 +87,8 @@ if [ "$1" = top ]; then
   [ -n "\${FAKE_CI_BUSY:-}" ] && echo "runner 11 /home/runner/actions-runner/bin/Runner.Worker spawnclient 1 2"
   exit 0
 fi
+# Список образов для уборки после выкладки: строки «дата|образ:метка» из FAKE_IMAGES
+if [ "$1" = image ] && [ "$2" = ls ]; then printf '%b' "\${FAKE_IMAGES:-}"; exit 0; fi
 if [ "$1" = compose ] && [[ " $* " == *" exec "* ]]; then
   [ -n "\${FAKE_BAD_SHA:-}" ] && [ "$(git -C "$DEPLOY_REPO" rev-parse HEAD)" = "$FAKE_BAD_SHA" ] && exit 1
   [[ " $* " == *" api "* ]] && echo '{"status":"ok","database":"up"}'
@@ -155,6 +157,46 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(readFileSync(`${calls}.curl`, 'utf8')).not.toContain(TOKEN);
     // второй запуск — выкладывать нечего
     expect(run().out).toBe('');
+  });
+
+  it('после выкладки остаются две последние точки отката, старые образы убираются', () => {
+    commit('apps/web/page.txt', 'v2\n', 'new page');
+    const images = [
+      '2026-10-16 10:25:13 +0000 UTC|pms-lux:rollback-cccccccc',
+      '2026-10-15 09:00:00 +0000 UTC|pms-lux:rollback-bbbbbbbb',
+      '2026-10-14 08:00:00 +0000 UTC|pms-lux:rollback-aaaaaaaa',
+      '2026-10-13 07:00:00 +0000 UTC|pms-lux:rollback-99999999',
+      '2026-10-16 10:30:00 +0000 UTC|pms-lux:latest',
+    ].join('\n');
+    const r = run({ FAKE_IMAGES: `${images}\n` });
+    expect(r.code, r.out).toBe(0);
+    const log = dockerCalls();
+    expect(log).toContain('docker image rm pms-lux:rollback-aaaaaaaa');
+    expect(log).toContain('docker image rm pms-lux:rollback-99999999');
+    expect(log).not.toContain('docker image rm pms-lux:rollback-cccccccc');
+    expect(log).not.toContain('docker image rm pms-lux:rollback-bbbbbbbb');
+    expect(log).not.toContain('docker image rm pms-lux:latest');
+    expect(log).toContain('docker image prune -f');
+    expect(log).toContain('docker builder prune -f --filter until=24h');
+  });
+
+  it('мало места на диске: не начинает сборку и checkout, говорит один раз, место появилось — выкладывает', () => {
+    const before = head();
+    const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+    const low = run({ DEPLOY_MIN_FREE_GB: '1000000' });
+    expect(low.code, low.out).toBe(0);
+    expect(head()).toBe(before);
+    expect(dockerCalls()).toContain('docker builder prune -f');
+    expect(dockerCalls()).not.toContain('up -d --build');
+    expect(low.out).toContain('ждёт места на диске');
+    expect(existsSync(join(state, 'refused'))).toBe(false);
+    // повтор того же запуска cron — без второго сообщения
+    expect(run({ DEPLOY_MIN_FREE_GB: '1000000' }).out).toBe('');
+    // место освободилось — та же вершина выкладывается без участия человека
+    const ok = run({ DEPLOY_MIN_FREE_GB: '0' });
+    expect(ok.code, ok.out).toBe(0);
+    expect(head()).toBe(target);
+    expect(existsSync(join(state, 'disk-low'))).toBe(false);
   });
 
   it('в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца', () => {

@@ -32,9 +32,14 @@ class FakeGateway implements MetaGateway {
   async exchangeCode(code: string) {
     return `suat-for-${code}`;
   }
+  assigned: meta.MetaAdAccount[] = [];
   async adAccount(token: string, id: string) {
     this.tokens.push(token);
     return { accountId: id, name: 'Отель на Абая', currency: 'USD', timezone: 'Asia/Almaty', active: true };
+  }
+  async assignedAdAccounts(token: string) {
+    this.tokens.push(token);
+    return this.assigned;
   }
   async campaignDays(token: string) {
     this.tokens.push(token);
@@ -169,4 +174,35 @@ describe('кабинет Meta (integration)', () => {
     expect(await db.marketingCampaign.count({ where: { locationId: branch.own.location, externalId: { not: null } } })).toBe(2);
     await expect(as('own', () => service.syncNow())).rejects.toMatchObject({ status: 404 });
   });
+
+  it('простой вход (без номера): один отмеченный кабинет сразу, несколько на выбор, ни одного: отказ словами', async () => {
+    const account = (id: string, active = true): meta.MetaAdAccount => ({ accountId: id, name: `Кабинет ${id}`, currency: 'KZT', timezone: 'Asia/Almaty', active });
+    const login = async () => new URL((await as('own', () => service.start({}))).url).searchParams.get('state')!;
+
+    gateway.assigned = [account('5550001', false)];
+    await expect(as('own', async () => service.complete({ code: 'c2', state: await login() }))).rejects.toMatchObject({ status: 409 });
+
+    gateway.assigned = [account('5550001'), account('5550002', false)];
+    expect(await as('own', async () => service.complete({ code: 'c3', state: await login() }))).toMatchObject({ connected: true });
+    expect(await db.marketingAdConnection.findFirstOrThrow({ where: { locationId: branch.own.location } })).toMatchObject({
+      adAccountId: '5550001',
+      status: 'ACTIVE',
+    });
+
+    gateway.assigned = [account('5550001'), account('5550003')];
+    const r = await as('own', async () => service.complete({ code: 'c4', state: await login() }));
+    expect(r.connected).toBe(false);
+    if (r.connected) return;
+    expect(r.accounts.map((a) => a.adAccountId)).toEqual(['5550001', '5550003']);
+    expect(r.pending).not.toContain('suat-for-c4'); // ключ только внутри шифра
+    // заготовка другого филиала и подделка не принимаются
+    await expect(as('other', () => service.choose({ pending: r.pending, adAccountId: '5550003' }))).rejects.toMatchObject({ status: 403 });
+    await expect(as('own', () => service.choose({ pending: 'v1:a:b:c', adAccountId: '5550003' }))).rejects.toMatchObject({ status: 403 });
+    expect(await as('own', () => service.choose({ pending: r.pending, adAccountId: '5550003' }))).toMatchObject({ connected: true });
+    expect(await db.marketingAdConnection.findFirstOrThrow({ where: { locationId: branch.own.location } })).toMatchObject({
+      adAccountId: '5550003',
+    });
+    expect(gateway.tokens.at(-1)).toBe('suat-for-c4');
+  });
 });
+

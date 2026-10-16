@@ -57,6 +57,22 @@ export interface MetaAdAccount {
   active: boolean;
 }
 
+const ACCOUNT_FIELDS = 'account_id,name,currency,timezone_name,account_status';
+interface AccountRow {
+  account_id?: string;
+  name?: string;
+  currency?: string;
+  timezone_name?: string;
+  account_status?: number;
+}
+const toAccount = (r: AccountRow, fallbackId: string): MetaAdAccount => ({
+  accountId: String(r.account_id ?? fallbackId),
+  name: String(r.name ?? '').trim(),
+  currency: String(r.currency ?? '').toUpperCase(),
+  timezone: String(r.timezone_name ?? ''),
+  active: r.account_status === 1,
+});
+
 export interface MetaAdsClientOptions {
   accessToken: string;
   fetch?: typeof fetch;
@@ -115,26 +131,36 @@ export class MetaAdsClient {
     this.sleep = options.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
   }
 
+  /**
+   * Кабинеты, которые клиент отметил в окне входа: ключ SUAT видит только их (docs/meta/README.md, «Какие кабинеты
+   * выбрал клиент»). Сначала `/me` даёт системного пользователя интеграции, затем его `assigned_ad_accounts`, все страницы.
+   */
+  async assignedAdAccounts(): Promise<MetaAdAccount[]> {
+    const me = new URL(`${BASE}/${META_API_VERSION}/me`);
+    me.searchParams.set('fields', 'id,client_business_id');
+    me.searchParams.set('access_token', this.options.accessToken);
+    const who = await this.get<{ id?: string }>(me.toString());
+    if (!who.id) throw new MetaApiError('Meta не назвала системного пользователя входа', 0, false);
+    const first = new URL(`${BASE}/${META_API_VERSION}/${encodeURIComponent(who.id)}/assigned_ad_accounts`);
+    first.searchParams.set('fields', ACCOUNT_FIELDS);
+    first.searchParams.set('access_token', this.options.accessToken);
+    const out: MetaAdAccount[] = [];
+    let next: string | undefined = first.toString();
+    while (next) {
+      const page: { data?: AccountRow[]; paging?: { next?: string } } = await this.get(next);
+      for (const r of page.data ?? []) out.push(toAccount(r, ''));
+      next = page.paging?.next;
+    }
+    return out;
+  }
+
   /** Кабинет по номеру: проверка доступа ключа и его валюта, пояс, статус */
   async adAccount(adAccountId: string): Promise<MetaAdAccount> {
     const account = adAccountId.startsWith('act_') ? adAccountId : `act_${adAccountId}`;
     const url = new URL(`${BASE}/${META_API_VERSION}/${encodeURIComponent(account)}`);
-    url.searchParams.set('fields', 'account_id,name,currency,timezone_name,account_status');
+    url.searchParams.set('fields', ACCOUNT_FIELDS);
     url.searchParams.set('access_token', this.options.accessToken);
-    const r = await this.get<{
-      account_id?: string;
-      name?: string;
-      currency?: string;
-      timezone_name?: string;
-      account_status?: number;
-    }>(url.toString());
-    return {
-      accountId: String(r.account_id ?? account.slice(4)),
-      name: String(r.name ?? '').trim(),
-      currency: String(r.currency ?? '').toUpperCase(),
-      timezone: String(r.timezone_name ?? ''),
-      active: r.account_status === 1,
-    };
+    return toAccount(await this.get<AccountRow>(url.toString()), account.slice(4));
   }
 
   /** Кампании кабинета по дням за период [since, until] в часовом поясе кабинета; все страницы */

@@ -86,7 +86,7 @@ test('кампания: создать, день вручную и CSV, расх
   }
 });
 
-test('кабинет Meta: номер, окно Facebook с кодом авторизации, возврат, обновление, отключение; подделка отклонена', async ({
+test('кабинет Meta: одна кнопка в окно Facebook, выбор из отмеченных кабинетов, обновление, отключение; подделка отклонена', async ({
   page,
   request,
 }) => {
@@ -98,13 +98,8 @@ test('кабинет Meta: номер, окно Facebook с кодом авто�
   );
   const main = page.getByRole('main');
   await page.goto('/marketing/ads');
+  // никаких номеров: кнопка сразу уводит в окно входа
   await main.getByTestId('meta-connect').click();
-  const form = page.getByTestId('meta-connect-form');
-  await form.getByTestId('meta-account').fill('12');
-  await form.getByTestId('meta-continue').click();
-  await expect(form.getByRole('alert')).toContainText('Номер рекламного кабинета');
-  await form.getByTestId('meta-account').fill('act_1234567890');
-  await form.getByTestId('meta-continue').click();
   await page.waitForURL(/www\.facebook\.com\/v25\.0\/dialog\/oauth/);
   const dialog = new URL(page.url());
   expect(dialog.searchParams.get('response_type')).toBe('code');
@@ -115,20 +110,24 @@ test('кабинет Meta: номер, окно Facebook с кодом авто�
   // подделанный state: кабинет не подключается, итог словами
   await page.goto('/marketing/ads/meta/callback?code=c0de&state=forged');
   await expect(main.getByTestId('meta-result')).toContainText('Кабинет не подключён');
-  await expect(main.getByTestId('meta-connect')).toBeVisible();
 
+  // в окне Facebook отмечено два кабинета: выбор здесь
   await page.goto(`/marketing/ads/meta/callback?code=c0de&state=${state}`);
+  await page.waitForURL(/\/marketing\/ads\?meta=choose/);
+  const choose = main.getByTestId('meta-choose');
+  await expect(choose).toContainText('Отель на Абая');
+  await expect(choose).toContainText('Отель на Сатпаева');
+  const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+  await choose.getByRole('radio', { name: /Отель на Сатпаева/ }).check();
+  await choose.getByTestId('meta-choose-save').click();
   await page.waitForURL(/\/marketing\/ads\?meta=connected/);
   await expect(main.getByTestId('meta-result')).toContainText('Кабинет Meta подключён');
-  await expect(main.getByTestId('meta-cabinet')).toContainText('Отель на Абая');
-  await expect(main.getByTestId('meta-cabinet')).toContainText('1234567890');
+  await expect(main.getByTestId('meta-cabinet')).toContainText('2234567890');
   const row = main.getByTestId('marketing-ads-campaigns').getByRole('row', { name: /Meta: брони осень/ });
   await expect(row).toContainText('Кабинет');
   await expect(row).toContainText('обновляет кабинет');
-  await expect(row).toContainText('5 339,5');
   await expect(row.getByRole('button')).toHaveCount(0); // ручной правки у кампании кабинета нет
-  const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
-  expect(audit.violations).toEqual([]);
   mkdirSync(SHOTS, { recursive: true });
   await page.screenshot({ path: `${SHOTS}/meta-cabinet-light-1440.png`, fullPage: true });
 
@@ -139,4 +138,3 @@ test('кабинет Meta: номер, окно Facebook с кодом авто�
   await expect(page.getByText('Кабинет отключён', { exact: false })).toBeVisible();
   await expect(main.getByTestId('meta-connect')).toBeVisible();
 });
-

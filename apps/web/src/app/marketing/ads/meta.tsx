@@ -1,16 +1,14 @@
 'use client';
-import { useState } from 'react';
 import type { MetaConnectionView } from '../../../lib/api';
 import { Icon } from '../../../components/icon';
-import { Overlay } from '../../../components/overlay';
 import { useConfirm } from '../../../components/use-confirm';
-import { Alert, Badge, Button, Field, Input } from '../../../components/ui';
-import { disconnectMetaAction, startMetaAction, syncMetaAction } from '../budget/actions';
-import { useBudgetAction, useFileAction } from '../budget/drawers';
+import { Alert, Badge, Button } from '../../../components/ui';
+import { chooseMetaAction, disconnectMetaAction, startMetaAction, syncMetaAction } from '../budget/actions';
+import { useFileAction } from '../budget/drawers';
 
 /**
- * Кабинет Meta на «Рекламе» (DATA_MODEL §55, ADR-MKT-META): подключение по номеру кабинета через вход Facebook,
- * состояние, «Обновить» и «Отключить». Ключ на стойку не приходит никогда.
+ * Кабинет Meta на «Рекламе» (DATA_MODEL §55, ADR-MKT-META): подключение одной кнопкой через вход Facebook (кабинет
+ * отмечается в окне Facebook, несколько: выбор здесь), состояние, «Обновить» и «Отключить». Ключ на стойку не приходит.
  */
 export function MetaCabinet({ view, editable }: { view: MetaConnectionView; editable: boolean }) {
   const c = view.connection;
@@ -88,51 +86,46 @@ export function MetaCabinet({ view, editable }: { view: MetaConnectionView; edit
   );
 }
 
+/** «Подключить через Facebook»: сразу окно входа, кабинет человек отмечает там (никаких номеров) */
 function ConnectButton({ again = false }: { again?: boolean }) {
-  const [open, setOpen] = useState(false);
+  const [state, action, pending] = useFileAction(startMetaAction);
   return (
-    <>
-      <Button type="button" tone="secondary" onClick={() => setOpen(true)} data-testid="meta-connect">
+    <form action={action} data-testid="meta-connect-form">
+      {state.error && <Alert boxed>{state.error}</Alert>}
+      <Button type="submit" tone="secondary" disabled={pending} aria-busy={pending} data-testid="meta-connect">
         <Icon name="link" width={16} aria-hidden="true" />
-        {again ? 'Подключить заново' : 'Подключить кабинет Meta'}
+        {pending ? 'Открываю Facebook…' : again ? 'Подключить заново через Facebook' : 'Подключить кабинет через Facebook'}
       </Button>
-      {open && (
-        <Overlay open drawer className="settings-service-drawer" title="Кабинет Meta" onClose={() => setOpen(false)}>
-          <ConnectForm onClose={() => setOpen(false)} />
-        </Overlay>
-      )}
-    </>
+    </form>
   );
 }
 
-function ConnectForm({ onClose }: { onClose: () => void }) {
-  const [state, action, pending] = useBudgetAction(startMetaAction, onClose);
+/** Отмечено несколько кабинетов: выбор одного; список из закрытой cookie адреса возврата */
+export function MetaChoose({ accounts }: { accounts: Array<{ adAccountId: string; name: string; currency: string }> }) {
+  const [state, action, pending] = useFileAction(chooseMetaAction);
   return (
-    <form action={action} className="settings-service-form" data-testid="meta-connect-form">
+    <section className="panel budget-files" aria-labelledby="meta-choose-title" data-testid="meta-choose">
+      <h2 id="meta-choose-title" className="budget-files__title">
+        Какой рекламный кабинет подключить?
+      </h2>
+      <p className="settings-note">В окне Facebook отмечено несколько кабинетов. Статистика пойдёт по выбранному.</p>
       {state.error && <Alert boxed>{state.error}</Alert>}
-      <p className="settings-note">
-        Номер рекламного кабинета виден в Ads Manager рядом с его названием (цифры, иногда с приставкой act_). Дальше
-        откроется вход Facebook: разрешите WETOP читать отчёты этого кабинета. Тратить деньги и менять рекламу WETOP не
-        сможет.
-      </p>
-      <Field label="Номер рекламного кабинета">
-        <Input
-          name="adAccountId"
-          required
-          inputMode="numeric"
-          autoFocus
-          defaultValue={state.values?.['adAccountId'] ?? ''}
-          data-testid="meta-account"
-        />
-      </Field>
-      <div className="settings-service-actions">
-        <Button type="button" tone="secondary" onClick={onClose}>
-          Отмена
+      <form action={action} className="budget-files__add">
+        <fieldset className="budget-files__list">
+          <legend className="sr-only">Рекламный кабинет</legend>
+          {accounts.map((a, i) => (
+            <label key={a.adAccountId} className="budget-files__item">
+              <input type="radio" name="adAccountId" value={a.adAccountId} defaultChecked={i === 0} />
+              <span className="budget-files__name">
+                {a.name || a.adAccountId} · {a.adAccountId} · {a.currency}
+              </span>
+            </label>
+          ))}
+        </fieldset>
+        <Button type="submit" disabled={pending} aria-busy={pending} data-testid="meta-choose-save">
+          {pending ? 'Подключаю…' : 'Подключить этот кабинет'}
         </Button>
-        <Button type="submit" disabled={pending} aria-busy={pending} data-testid="meta-continue">
-          {pending ? 'Открываю Facebook…' : 'Продолжить в Facebook'}
-        </Button>
-      </div>
-    </form>
+      </form>
+    </section>
   );
 }

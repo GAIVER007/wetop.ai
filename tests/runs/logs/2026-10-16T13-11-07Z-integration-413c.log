@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 16.10.2026 18:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит 886cda1 (claude/marketing-meta-simple-login), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-11-07Z-integration-413c.json' 'tests/integration/marketing-meta.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-meta.test.ts (5 tests) 1197ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  06:11:11
+   Duration  5.38s (import 34%, tests 33%, transform 33%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-11-07Z-integration-413c.json
+
+# код выхода 0 · 9 с

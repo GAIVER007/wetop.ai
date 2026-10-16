@@ -1,0 +1,53 @@
+# Модульные (unit) · 16.10.2026 12:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит c9e8346 (claude/marketing-analytics-export), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-00-08Z-unit-77d4.json' 'apps/web/src/app/marketing/analytics/report.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/web/src/app/marketing/analytics/report.test.ts (2 tests | 2 failed) 15ms
+   ❯ «Аналитика маркетинга» в CSV (МКТ-В6: отчёты и экспорт) (2)
+     × два блока, как на экране: каналы с итогом и календарь по дням с итогом; деньги с запятой 10ms
+     × результаты не загрузились: расходы есть, обращения, брони и выручка пустые, а не нули 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/marketing/analytics/report.test.ts > «Аналитика маркетинга» в CSV (МКТ-В6: отчёты и экспорт) > два блока, как на экране: каналы с итогом и календарь по дням с итогом; деньги с запятой
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/web/src/app/marketing/analytics/report.test.ts:48:33
+     46|   it('два блока, как на экране: каналы с итогом и календарь по дням с …
+     47|     const csv = analyticsCsv(buildAnalyticsReport(VIEW, RESULTS));
+     48|     expect(csv.startsWith('﻿')).toBe(true);
+       |                                 ^
+     49|     const l = lines(csv);
+     50|     expect(l[0]).toBe('Канал;Расход, KZT;Обращения;CPL, KZT;Брони;Стои…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/marketing/analytics/report.test.ts > «Аналитика маркетинга» в CSV (МКТ-В6: отчёты и экспорт) > результаты не загрузились: расходы есть, обращения, брони и выручка пустые, а не нули
+AssertionError: expected [ '' ] to include 'Итого;12000,00;;;;;;'
+ ❯ apps/web/src/app/marketing/analytics/report.test.ts:70:15
+     68|   it('результаты не загрузились: расходы есть, обращения, брони и выру…
+     69|     const l = lines(analyticsCsv(buildAnalyticsReport(VIEW, 'error')));
+     70|     expect(l).toContain('Итого;12000,00;;;;;;');
+       |               ^
+     71|     expect(l).toContain('2026-09-02;10000,00;;;;;;');
+     72|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  00:00:11
+   Duration  279ms (transform 50%, import 19%, tests 18%, worker 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-00-08Z-unit-77d4.json
+
+# код выхода 1 · 3 с

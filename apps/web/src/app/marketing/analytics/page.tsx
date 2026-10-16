@@ -1,5 +1,4 @@
 import { unstable_rethrow } from 'next/navigation';
-import { buildMarketingDays, buildMarketingFunnel, type ChannelResult } from '@pms/domain';
 import type { SearchParams } from '../../../lib/search-params';
 import { requireVertical } from '../../../lib/vertical-guard';
 import { marketingBudgetApi, type MarketingResultsView } from '../../../lib/api';
@@ -18,6 +17,7 @@ import { loadBudget } from '../budget/load';
 import { byDay, summarize } from '../budget/derive';
 import { DailyChart } from '../budget/chart';
 import { ChooseLocation, MonthNav, platformLabel } from '../budget/parts';
+import { buildAnalyticsReport } from './report';
 
 /**
  * «Маркетинг → Аналитика» (МКТ-В5a, ADR-MKT-B5a, Q-MKT-ATTR): воронка «Расходы → Обращения → Брони → Выручка»
@@ -59,45 +59,8 @@ export default async function MarketingAnalyticsPage({
   const t = summarize(view);
   const prev = BigInt(view.prevSpent);
   const results = await loadResults(view.month);
-  const ok = results !== 'error' && results.supported;
-
-  const spendByPlatform: Record<string, bigint> = {};
-  for (const e of view.expenses)
-    if (e.countedInBudget)
-      spendByPlatform[e.platform] = (spendByPlatform[e.platform] ?? 0n) + BigInt(e.baseAmount);
-  const channels: ChannelResult[] = ok
-    ? results.channels.map((c) => ({ ...c, revenueMinor: BigInt(c.revenue) }))
-    : [];
-  const funnel = buildMarketingFunnel({
-    spendByPlatform,
-    channels,
-    reportingCurrency: rc,
-    revenueCurrency: ok ? results.revenueCurrency : null,
-  });
-  const revenueCurrency = (ok && results.revenueCurrency) || rc;
-  // «Календарь маркетинга»: текущий месяц до сегодняшнего дня, прошлый целиком, будущий пуст
-  const todayMonth = view.today.slice(0, 7);
-  const lastDay =
-    view.month === todayMonth ? Number(view.today.slice(8, 10)) : view.month > todayMonth ? 0 : undefined;
-  const spendByDay: Record<string, bigint> = {};
-  for (const e of view.expenses)
-    if (e.countedInBudget) spendByDay[e.date] = (spendByDay[e.date] ?? 0n) + BigInt(e.baseAmount);
-  const calendar = buildMarketingDays({
-    month: view.month,
-    ...(lastDay === undefined ? {} : { lastDay }),
-    days: ok
-      ? results.days.map((d) => ({
-          date: d.date,
-          leads: d.leads,
-          bookings: d.bookings,
-          newGuests: d.newGuests,
-          revenueMinor: BigInt(d.revenue),
-        }))
-      : [],
-    spendByDay,
-    reportingCurrency: rc,
-    revenueCurrency: ok ? results.revenueCurrency : null,
-  });
+  const report = buildAnalyticsReport(view, results);
+  const { ok, funnel, calendar, revenueCurrency } = report;
   const total = funnel.total;
   const conversion =
     total.leads > 0 ? Math.round((total.bookings * 100) / total.leads) : null;
@@ -108,7 +71,18 @@ export default async function MarketingAnalyticsPage({
         <div className="budget-head">
           {/* у плашки nowrap: коротко, откуда что берётся, сказано в заметке под таблицей */}
           <Badge tone="info">Данные филиала</Badge>
-          <MonthNav base="/marketing/analytics" month={view.month} />
+          <div className="budget-month">
+            <MonthNav base="/marketing/analytics" month={view.month} />
+            {/* файл собирает тот же расчёт, что экран (report.ts); обычная ссылка, без JS */}
+            <a
+              className="btn btn--secondary btn--sm"
+              href={`/marketing/analytics/export?month=${view.month}`}
+              download
+              data-testid="man-export"
+            >
+              Выгрузить CSV
+            </a>
+          </div>
         </div>
         {/* восемь плиток: 4 + 4 на компьютере (`.man-stats`), по две на телефоне */}
         <Stats min={160} className="man-stats">

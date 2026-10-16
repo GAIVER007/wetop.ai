@@ -1,4 +1,5 @@
 import { mkdirSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import AxeBuilder from '@axe-core/playwright';
 import type { APIRequestContext } from '@playwright/test';
 import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
@@ -197,6 +198,14 @@ test('аналитика маркетинга: воронка, CPL, стоимо
   await expect(main.getByTestId('man-calendar-total')).toContainText('10 500');
   await expect(main.getByTestId('man-calendar-note')).toContainText('Новые клиенты');
   await expect(main.getByTestId('budget-chart')).toBeVisible();
+
+  // выгрузка в CSV (МКТ-В6): те же числа, что на экране, деньги с запятой для Excel
+  const [download] = await Promise.all([page.waitForEvent('download'), main.getByTestId('man-export').click()]);
+  expect(download.suggestedFilename()).toBe(`wetop-marketing-${month}.csv`);
+  const csv = (await readFile(await download.path(), 'utf8')).replace(/^\uFEFF/, '').split('\r\n');
+  expect(csv).toContain('Итого;51200,00;10;5120,00;4;12800,00;10500,00;-79');
+  expect(csv).toContain(`${today};51200,00;10;5120,00;4;3;10500,00;-79`);
+  expect(csv).toContain('Сайт;0,00;6;;2;;5000,00;');
 });
 
 test('аналитика у филиала без броней гостиницы: только расходы и честное «Скоро»', async ({

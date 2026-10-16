@@ -4027,6 +4027,8 @@ export interface MarketingResultsView {
   /** false: у филиала нет броней гостиницы (салон, ресторан) */
   supported: boolean;
   channels: Array<{ channel: 'SITE' | 'WHATSAPP' | 'INSTAGRAM' | 'PHONE'; leads: number; bookings: number; revenue: string }>;
+  /** Дни с активностью: обращения, живые брони, из них новые гости, выручка; сумма дней равна месяцу */
+  days: Array<{ date: string; leads: number; bookings: number; newGuests: number; revenue: string }>;
 }
 
 export interface SharedOnboardingState {

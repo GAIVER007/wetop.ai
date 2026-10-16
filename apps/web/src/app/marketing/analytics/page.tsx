@@ -1,11 +1,12 @@
 import { unstable_rethrow } from 'next/navigation';
-import { buildMarketingFunnel, type ChannelResult } from '@pms/domain';
+import { buildMarketingDays, buildMarketingFunnel, type ChannelResult } from '@pms/domain';
 import type { SearchParams } from '../../../lib/search-params';
 import { requireVertical } from '../../../lib/vertical-guard';
 import { marketingBudgetApi, type MarketingResultsView } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { deltaPercent } from '../../../lib/dashboard-format';
 import { pluralRu } from '../../../lib/plural';
+import { displayDate } from '../../../lib/display-date';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
 import { ShareBar } from '../../../components/share-bar';
@@ -74,6 +75,29 @@ export default async function MarketingAnalyticsPage({
     revenueCurrency: ok ? results.revenueCurrency : null,
   });
   const revenueCurrency = (ok && results.revenueCurrency) || rc;
+  // «Календарь маркетинга»: текущий месяц до сегодняшнего дня, прошлый целиком, будущий пуст
+  const todayMonth = view.today.slice(0, 7);
+  const lastDay =
+    view.month === todayMonth ? Number(view.today.slice(8, 10)) : view.month > todayMonth ? 0 : undefined;
+  const spendByDay: Record<string, bigint> = {};
+  for (const e of view.expenses)
+    if (e.countedInBudget) spendByDay[e.date] = (spendByDay[e.date] ?? 0n) + BigInt(e.baseAmount);
+  const calendar = buildMarketingDays({
+    month: view.month,
+    ...(lastDay === undefined ? {} : { lastDay }),
+    days: ok
+      ? results.days.map((d) => ({
+          date: d.date,
+          leads: d.leads,
+          bookings: d.bookings,
+          newGuests: d.newGuests,
+          revenueMinor: BigInt(d.revenue),
+        }))
+      : [],
+    spendByDay,
+    reportingCurrency: rc,
+    revenueCurrency: ok ? results.revenueCurrency : null,
+  });
   const total = funnel.total;
   const conversion =
     total.leads > 0 ? Math.round((total.bookings * 100) / total.leads) : null;
@@ -258,6 +282,86 @@ export default async function MarketingAnalyticsPage({
             в брони и выручку не входят, OTA и стойка в маркетинг не входят. Реклама в Meta, Google и
             TikTok пока показывает только расход: связать её с бронями можно будет после подключения
             кабинетов.
+          </p>
+        </section>
+
+        <section aria-labelledby="man-calendar-title">
+          <SectionTitle id="man-calendar-title">Календарь маркетинга</SectionTitle>
+          {calendar.rows.length === 0 ? (
+            <p className="settings-note" data-testid="man-calendar-empty">
+              Месяц ещё не начался: дни появятся по мере того, как он идёт.
+            </p>
+          ) : (
+            <div className="tbl-wrap" role="region" aria-label="Календарь маркетинга по дням" tabIndex={0}>
+              <Table density="compact" aria-label="Календарь маркетинга по дням" data-testid="man-calendar">
+                <thead>
+                  <tr>
+                    <th scope="col">День</th>
+                    <th scope="col" className="budget-td-num">
+                      Расход
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      Лиды
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      CPL
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      Брони
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      Новые клиенты
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      Выручка
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      ROMI
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {calendar.rows.map((d) => (
+                    <tr key={d.date} data-testid={`man-day-${d.date}`}>
+                      <td>
+                        <time dateTime={d.date}>{displayDate(d.date)}</time>
+                      </td>
+                      <td className="budget-td-num">{formatMoney(d.spendMinor, rc)}</td>
+                      <td className="budget-td-num">{ok ? d.leads : dash}</td>
+                      <td className="budget-td-num">{money(d.cplMinor, rc)}</td>
+                      <td className="budget-td-num">{ok ? d.bookings : dash}</td>
+                      <td className="budget-td-num">{ok ? d.newGuests : dash}</td>
+                      <td className="budget-td-num">
+                        {ok ? formatMoney(d.revenueMinor, revenueCurrency) : dash}
+                      </td>
+                      <td className="budget-td-num">{romiText(d.romiPct)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr data-testid="man-calendar-total">
+                    <td>
+                      <strong>Итого</strong>
+                    </td>
+                    <td className="budget-td-num">{formatMoney(calendar.total.spendMinor, rc)}</td>
+                    <td className="budget-td-num">{ok ? calendar.total.leads : dash}</td>
+                    <td className="budget-td-num">{money(calendar.total.cplMinor, rc)}</td>
+                    <td className="budget-td-num">{ok ? calendar.total.bookings : dash}</td>
+                    <td className="budget-td-num">{ok ? calendar.total.newGuests : dash}</td>
+                    <td className="budget-td-num">
+                      {ok ? formatMoney(calendar.total.revenueMinor, revenueCurrency) : dash}
+                    </td>
+                    <td className="budget-td-num">{romiText(calendar.total.romiPct)}</td>
+                  </tr>
+                </tfoot>
+              </Table>
+            </div>
+          )}
+          <p className="settings-note" data-testid="man-calendar-note">
+            По дням: расход в день оплаты, обращение в день заявки или первого предложения ИИ-продавца,
+            бронь и выручка в день, когда бронь сделали. Новые клиенты: брони гостей, у которых раньше не
+            было броней у объекта. ROMI одного дня шумный, потому что реклама окупается не в тот же день;
+            смотрите итог месяца.
           </p>
         </section>
 

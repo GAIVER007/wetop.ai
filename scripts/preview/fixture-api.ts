@@ -4936,7 +4936,11 @@ const budgetExpenses: FixtureMarketingExpense[] = [];
 const budgetPlans = new Map<string, string>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
 type FixtureChannelResult = { channel: string; leads: number; bookings: number; revenue: string };
-const budgetResults = new Map<string, { supported: boolean; channels: FixtureChannelResult[] }>();
+type FixtureDayResult = { date: string; leads: number; bookings: number; newGuests: number; revenue: string };
+const budgetResults = new Map<
+  string,
+  { supported: boolean; channels: FixtureChannelResult[]; days: FixtureDayResult[] }
+>();
 const resetMarketingBudget = () => {
   budgetExpenses.length = 0;
   budgetPlans.clear();
@@ -5004,6 +5008,7 @@ function marketingBudgetRoute(
           revenueCurrency: seeded?.supported === false ? null : BUDGET_RC,
           supported: seeded?.supported ?? true,
           channels: seeded?.supported === false ? [] : (seeded?.channels ?? zero),
+          days: seeded?.supported === false ? [] : (seeded?.days ?? []),
         },
       ];
     }
@@ -5718,12 +5723,13 @@ createServer(async (req, res) => {
         budgetPlans.set(input.month, input.amount.toString());
       }
       const seededResults = body['results'] as
-        | { month: string; supported?: boolean; channels?: FixtureChannelResult[] }
+        | { month: string; supported?: boolean; channels?: FixtureChannelResult[]; days?: FixtureDayResult[] }
         | undefined;
       if (seededResults)
         budgetResults.set(seededResults.month, {
           supported: seededResults.supported ?? true,
           channels: seededResults.channels ?? [],
+          days: seededResults.days ?? [],
         });
       return send(200, { ok: true, today });
     }

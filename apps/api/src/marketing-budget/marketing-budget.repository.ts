@@ -3,6 +3,7 @@ import { ConflictException, ForbiddenException, Inject, Injectable } from '@nest
 import {
   canWrite,
   type ChannelResult,
+  type DayResult,
   type MarketingExpenseInput,
   type MarketingPlatform,
 } from '@pms/domain';
@@ -95,6 +96,8 @@ export interface ResultsData {
   /** Валюта выручки: валюта объекта; null, когда объекта нет */
   revenueCurrency: string | null;
   channels: ChannelResult[];
+  /** Дни месяца с активностью, по возрастанию; сумма по дням равна сумме по каналам */
+  days: DayResult[];
 }
 export const MARKETING_BUDGET_REPOSITORY = Symbol('MARKETING_BUDGET_REPOSITORY');
 
@@ -289,67 +292,116 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
       where: { locationId },
       select: { id: true, timezone: true, currency: true },
     });
-    if (!property) return { supported: false, revenueCurrency: null, channels: [] };
+    if (!property) return { supported: false, revenueCurrency: null, channels: [], days: [] };
     const tz = property.timezone;
-    // Брони маркетинговых каналов: месяц по дню, когда бронь сделали, в поясе объекта. Отмена и незаезд
-    // в брони и выручку не входят; обращением считается и отменённая бронь, сделанная без ИИ-продавца
-    // (обращения ИИ-продавца считаются по его диалогам ниже).
+    // Брони маркетинговых каналов по дню, когда их сделали, в поясе объекта. Отмена и незаезд в брони и
+    // выручку не входят; обращением считается и отменённая бронь, сделанная без ИИ-продавца (обращения
+    // ИИ-продавца считаются по его диалогам ниже). Новый гость: живая бронь, у основного гостя которой раньше
+    // не было ни одной брони у этого объекта из любого канала; бронь без гостя новым не считается.
     const bookingRows = await this.prisma.db.$queryRaw<
-      Array<{ source: string; bookings: bigint; revenue: bigint | string | null; direct: bigint }>
+      Array<{
+        day: string;
+        source: string;
+        bookings: bigint;
+        revenue: bigint | string | null;
+        direct: bigint;
+        new_guests: bigint;
+      }>
     >`
-      SELECT r.source::text AS source,
+      SELECT (COALESCE(r.booked_at, r.created_at) AT TIME ZONE ${tz})::date::text AS day,
+        r.source::text AS source,
         count(*) FILTER (WHERE r.status NOT IN ('CANCELLED', 'NO_SHOW')) AS bookings,
         COALESCE(sum(r.total_amount) FILTER (WHERE r.status NOT IN ('CANCELLED', 'NO_SHOW')), 0) AS revenue,
         count(*) FILTER (WHERE NOT EXISTS (
-          SELECT 1 FROM seller_booking_intents i WHERE i.reservation_id = r.id)) AS direct
+          SELECT 1 FROM seller_booking_intents i WHERE i.reservation_id = r.id)) AS direct,
+        count(*) FILTER (WHERE r.status NOT IN ('CANCELLED', 'NO_SHOW')
+          AND r.primary_guest_id IS NOT NULL
+          AND NOT EXISTS (
+            SELECT 1 FROM reservations p
+            WHERE p.property_id = r.property_id
+              AND p.primary_guest_id = r.primary_guest_id
+              AND p.id <> r.id
+              AND COALESCE(p.booked_at, p.created_at) < COALESCE(r.booked_at, r.created_at))) AS new_guests
       FROM reservations r
       WHERE r.property_id = ${property.id}::uuid
         AND r.source::text IN ('WEBSITE', 'WHATSAPP', 'INSTAGRAM', 'PHONE')
         AND (COALESCE(r.booked_at, r.created_at) AT TIME ZONE ${tz})::date >= ${first}::date
         AND (COALESCE(r.booked_at, r.created_at) AT TIME ZONE ${tz})::date < ${nextFirst}::date
-      GROUP BY r.source`;
-    // Диалоги ИИ-продавца, дошедшие до предложения цены: один диалог одно обращение
-    const dialogRows = await this.prisma.db.$queryRaw<Array<{ channel: string; dialogs: bigint }>>`
-      SELECT i.channel, count(DISTINCT i.conversation_id) AS dialogs
-      FROM seller_booking_intents i
-      WHERE i.property_id = ${property.id}::uuid
-        AND (i.created_at AT TIME ZONE ${tz})::date >= ${first}::date
-        AND (i.created_at AT TIME ZONE ${tz})::date < ${nextFirst}::date
-      GROUP BY i.channel`;
+      GROUP BY 1, 2`;
+    // Диалог ИИ-продавца одно обращение в день своего первого предложения цены (по всем его предложениям у
+    // объекта): тогда диалог, начатый в прошлом месяце, не попадает в этот второй раз, а сумма дней равна месяцу
+    const dialogRows = await this.prisma.db.$queryRaw<
+      Array<{ day: string; channel: string; dialogs: bigint }>
+    >`
+      SELECT (f.first_at AT TIME ZONE ${tz})::date::text AS day, f.channel, count(*) AS dialogs
+      FROM (
+        SELECT DISTINCT ON (i.agent_id, i.conversation_id) i.channel, i.created_at AS first_at
+        FROM seller_booking_intents i
+        WHERE i.property_id = ${property.id}::uuid
+        ORDER BY i.agent_id, i.conversation_id, i.created_at
+      ) f
+      WHERE (f.first_at AT TIME ZONE ${tz})::date >= ${first}::date
+        AND (f.first_at AT TIME ZONE ${tz})::date < ${nextFirst}::date
+      GROUP BY 1, 2`;
     // Заявки с сайта филиала, кроме спама
-    const leadRows = await this.prisma.db.$queryRaw<Array<{ leads: bigint }>>`
-      SELECT count(*) AS leads
+    const leadRows = await this.prisma.db.$queryRaw<Array<{ day: string; leads: bigint }>>`
+      SELECT (l.created_at AT TIME ZONE ${tz})::date::text AS day, count(*) AS leads
       FROM site_leads l
       WHERE l.location_id = ${locationId}::uuid
         AND l.status::text <> 'SPAM'
         AND (l.created_at AT TIME ZONE ${tz})::date >= ${first}::date
-        AND (l.created_at AT TIME ZONE ${tz})::date < ${nextFirst}::date`;
+        AND (l.created_at AT TIME ZONE ${tz})::date < ${nextFirst}::date
+      GROUP BY 1`;
 
-    const bySource = new Map(bookingRows.map((r) => [r.source, r]));
-    const dialogs = new Map(dialogRows.map((r) => [r.channel, Number(r.dialogs)]));
-    const siteLeads = Number(leadRows[0]?.leads ?? 0);
-    const channel = (
-      name: ChannelResult['channel'],
-      source: string,
-      extraLeads: number,
-    ): ChannelResult => {
-      const row = bySource.get(source);
-      return {
-        channel: name,
-        leads: Number(row?.direct ?? 0) + extraLeads,
-        bookings: Number(row?.bookings ?? 0),
-        revenueMinor: BigInt(row?.revenue ?? 0),
-      };
+    const SOURCE_CHANNEL: Record<string, ChannelResult['channel']> = {
+      WEBSITE: 'SITE',
+      WHATSAPP: 'WHATSAPP',
+      INSTAGRAM: 'INSTAGRAM',
+      PHONE: 'PHONE',
     };
+    const DIALOG_CHANNEL: Record<string, ChannelResult['channel']> = { widget: 'SITE', whatsapp: 'WHATSAPP' };
+    const channels = new Map<ChannelResult['channel'], ChannelResult>(
+      (['SITE', 'WHATSAPP', 'INSTAGRAM', 'PHONE'] as const).map((c) => [
+        c,
+        { channel: c, leads: 0, bookings: 0, revenueMinor: 0n },
+      ]),
+    );
+    const days = new Map<string, DayResult>();
+    const dayOf = (date: string) => {
+      let d = days.get(date);
+      if (!d) {
+        d = { date, leads: 0, bookings: 0, newGuests: 0, revenueMinor: 0n };
+        days.set(date, d);
+      }
+      return d;
+    };
+    for (const r of bookingRows) {
+      const c = channels.get(SOURCE_CHANNEL[r.source]!)!;
+      const d = dayOf(r.day);
+      const revenue = BigInt(r.revenue ?? 0);
+      c.leads += Number(r.direct);
+      c.bookings += Number(r.bookings);
+      c.revenueMinor += revenue;
+      d.leads += Number(r.direct);
+      d.bookings += Number(r.bookings);
+      d.newGuests += Number(r.new_guests);
+      d.revenueMinor += revenue;
+    }
+    for (const r of dialogRows) {
+      const channel = DIALOG_CHANNEL[r.channel];
+      if (!channel) continue;
+      channels.get(channel)!.leads += Number(r.dialogs);
+      dayOf(r.day).leads += Number(r.dialogs);
+    }
+    for (const r of leadRows) {
+      channels.get('SITE')!.leads += Number(r.leads);
+      dayOf(r.day).leads += Number(r.leads);
+    }
     return {
       supported: true,
       revenueCurrency: property.currency,
-      channels: [
-        channel('SITE', 'WEBSITE', siteLeads + (dialogs.get('widget') ?? 0)),
-        channel('WHATSAPP', 'WHATSAPP', dialogs.get('whatsapp') ?? 0),
-        channel('INSTAGRAM', 'INSTAGRAM', 0),
-        channel('PHONE', 'PHONE', 0),
-      ],
+      channels: [...channels.values()],
+      days: [...days.values()].sort((a, b) => a.date.localeCompare(b.date)),
     };
   }
 }

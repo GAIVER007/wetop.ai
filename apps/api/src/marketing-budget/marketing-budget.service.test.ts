@@ -75,6 +75,7 @@ class FakeRepo implements MarketingBudgetRepository {
         { channel: 'SITE' as const, leads: 5, bookings: 2, revenueMinor: 900000n },
         { channel: 'WHATSAPP' as const, leads: 3, bookings: 1, revenueMinor: 250000n },
       ],
+      days: [{ date: '2026-10-02', leads: 8, bookings: 3, newGuests: 2, revenueMinor: 1150000n }],
     };
   }
 }
@@ -173,6 +174,7 @@ describe('сервис бюджета маркетинга (МКТ-В1/В2)', ()
       { channel: 'SITE', leads: 5, bookings: 2, revenue: '900000' },
       { channel: 'WHATSAPP', leads: 3, bookings: 1, revenue: '250000' },
     ]);
+    expect(r.days).toEqual([{ date: '2026-10-02', leads: 8, bookings: 3, newGuests: 2, revenue: '1150000' }]);
   });
 
   it('results: кривой месяц: отказ словами', async () => {

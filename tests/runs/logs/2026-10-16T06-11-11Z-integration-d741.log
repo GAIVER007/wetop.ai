@@ -1,0 +1,48 @@
+# Интеграционные (integration) · 16.10.2026 11:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит bb70067 (claude/marketing-attribution), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-11-11Z-integration-d741.json' 'tests/integration/marketing-results.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-results.test.ts (3 tests | 1 failed) 2550ms
+   ❯ результаты маркетинга по каналам (integration) (3)
+     ✓ октябрь филиала: каналы по правилу Q-MKT-ATTR 246ms
+     ✓ филиал без объекта размещения: результатов нет, а не ошибка 42ms
+     × календарь по дням: сумма дней равна месяцу, новые гости, диалог считается в день первого предложения 87ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-results.test.ts > результаты маркетинга по каналам (integration) > календарь по дням: сумма дней равна месяцу, новые гости, диалог считается в день первого предложения
+AssertionError: expected { date: '2026-12-03', leads: 2, …(3) } to deeply equal { date: '2026-12-03', leads: 2, …(3) }
+
+- Expected
++ Received
+
+  {
+    "bookings": 2,
+    "date": "2026-12-03",
+    "leads": 2,
+-   "newGuests": 1,
++   "newGuests": 2,
+    "revenueMinor": 500000n,
+  }
+
+ ❯ tests/integration/marketing-results.test.ts:254:31
+    252|     const r = await repo.results(locationId, '2026-12-01', '2027-01-01…
+    253|     const day = (d: string) => r.days.find((x) => x.date === d);
+    254|     expect(day('2026-12-03')).toEqual({ date: '2026-12-03', leads: 2, …
+       |                               ^
+    255|     // 04.12: заявка сайта + первое предложение диалога dec-two
+    256|     expect(day('2026-12-04')).toEqual({ date: '2026-12-04', leads: 2, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  23:11:12
+   Duration  7.34s (tests 53%, transform 32%, import 14%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-11-11Z-integration-d741.json
+
+# код выхода 1 · 9 с

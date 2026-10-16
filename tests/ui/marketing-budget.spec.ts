@@ -29,8 +29,8 @@ const monthShift = (month: string, shift: number) => {
 /** Месяц с расходами по трём каналам (один в долларах по курсу на дату), план и прошлый месяц */
 async function seed(
   request: APIRequestContext,
-  /** МКТ-В5a: результаты каналов месяца тем же засевом (засев каждый раз всё сбрасывает) */
-  results?: Record<string, unknown>,
+  /** МКТ-В5a: результаты каналов месяца тем же засевом (засев каждый раз всё сбрасывает); `today` стенда */
+  results?: (today: string) => Record<string, unknown>,
 ): Promise<{ today: string; month: string }> {
   const reset = await request.post(`${API}/__test/marketing-budget`, { data: {} });
   const { today } = (await reset.json()) as { today: string };
@@ -38,7 +38,7 @@ async function seed(
   const prev = `${monthShift(month, -1)}-15`;
   await request.post(`${API}/__test/marketing-budget`, {
     data: {
-      ...(results ? { results: { month, ...results } } : {}),
+      ...(results ? { results: { month, ...results(today) } } : {}),
       plan: { month, amount: '3000' },
       expenses: [
         { date: today, platform: 'META', campaign: 'Лиды: Клиника', category: 'Реклама', amount: '720' },
@@ -143,14 +143,16 @@ test('аналитика маркетинга: воронка, CPL, стоимо
   request,
 }) => {
   // результаты каналов месяца (МКТ-В5a): сайт и WhatsApp с бронями, реклама Meta/Google/TikTok без своих результатов
-  const { month } = await seed(request, {
+  const { month, today } = await seed(request, (day) => ({
     channels: [
       { channel: 'SITE', leads: 6, bookings: 2, revenue: '500000' },
       { channel: 'WHATSAPP', leads: 4, bookings: 2, revenue: '550000' },
       { channel: 'INSTAGRAM', leads: 0, bookings: 0, revenue: '0' },
       { channel: 'PHONE', leads: 0, bookings: 0, revenue: '0' },
     ],
-  });
+    // те же результаты одним днём: сумма дней равна месяцу
+    days: [{ date: day, leads: 10, bookings: 4, newGuests: 3, revenue: '1050000' }],
+  }));
   // прежний адрес аналитики бюджета живёт перенаправлением, месяц сохраняется
   await page.goto(`/marketing/budget/analytics?month=${month}`);
   await page.waitForURL(`**/marketing/analytics?month=${month}`);
@@ -185,6 +187,15 @@ test('аналитика маркетинга: воронка, CPL, стоимо
   await expect(tiktok).toContainText('ведёт на сайт и в мессенджеры');
   await expect(main.getByTestId('man-total')).toContainText('51 200');
   await expect(main.getByTestId('man-sources-note')).toContainText('Канал брони это её источник');
+  // календарь маркетинга: строка сегодняшнего дня и итог; дни месяца до сегодня включительно
+  const calendar = main.getByTestId('man-calendar');
+  await expect(calendar.locator('tbody tr')).toHaveCount(Number(today.slice(8, 10)));
+  const todayRow = main.getByTestId(`man-day-${today}`);
+  // расход 51 200 ₸, лиды 10, CPL 5 120 ₸, брони 4, новые клиенты 3, выручка 10 500 ₸, ROMI −79 %
+  for (const text of ['51 200', '10', '5 120', '4', '3', '10 500', '-79 %'])
+    await expect(todayRow).toContainText(text);
+  await expect(main.getByTestId('man-calendar-total')).toContainText('10 500');
+  await expect(main.getByTestId('man-calendar-note')).toContainText('Новые клиенты');
   await expect(main.getByTestId('budget-chart')).toBeVisible();
 });
 
@@ -192,7 +203,7 @@ test('аналитика у филиала без броней гостиниц�
   page,
   request,
 }) => {
-  const { month } = await seed(request, { supported: false });
+  const { month } = await seed(request, () => ({ supported: false }));
   await page.goto(`/marketing/analytics?month=${month}`);
   const main = page.getByRole('main');
   await expect(main.getByTestId('man-results-soon')).toContainText('салона и ресторана');
@@ -237,12 +248,13 @@ for (const theme of ['light', 'dark'] as const) {
     };
 
     // снимки показывают живую воронку: результаты сайта и WhatsApp за месяц
-    const { month } = await seed(request, {
+    const { month } = await seed(request, (day) => ({
       channels: [
         { channel: 'SITE', leads: 6, bookings: 2, revenue: '500000' },
         { channel: 'WHATSAPP', leads: 4, bookings: 2, revenue: '550000' },
       ],
-    });
+      days: [{ date: day, leads: 10, bookings: 4, newGuests: 3, revenue: '1050000' }],
+    }));
     await page.goto(`/marketing/budget?month=${month}`);
     await expect(page.getByTestId('budget-shares')).toBeVisible();
     await axe();

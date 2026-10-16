@@ -54,6 +54,8 @@ export interface ResultsView {
   /** false: у филиала нет броней гостиницы (салон, ресторан) */
   supported: boolean;
   channels: Array<{ channel: string; leads: number; bookings: number; revenue: string }>;
+  /** Дни с активностью: обращения, живые брони, из них новые гости, выручка */
+  days: Array<{ date: string; leads: number; bookings: number; newGuests: number; revenue: string }>;
 }
 
 const MONTH = /^(\d{4})-(\d{2})$/;
@@ -119,6 +121,13 @@ export class MarketingBudgetService {
         leads: c.leads,
         bookings: c.bookings,
         revenue: c.revenueMinor.toString(),
+      })),
+      days: data.days.map((d) => ({
+        date: d.date,
+        leads: d.leads,
+        bookings: d.bookings,
+        newGuests: d.newGuests,
+        revenue: d.revenueMinor.toString(),
       })),
     };
   }

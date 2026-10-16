@@ -80,6 +80,7 @@ describe.skipIf(!url)('результаты маркетинга по канал
     await db.siteLead.deleteMany({ where: { organizationId: org } });
     await db.sellerBookingIntent.deleteMany({ where: { organizationId: org } });
     await db.reservation.deleteMany({ where: { propertyId: { in: [propertyId, otherPropertyId] } } });
+    await db.guest.deleteMany({ where: { organizationId: org } });
     await db.trackedSite.deleteMany({ where: { id: siteId } });
     await db.sellerAgent.deleteMany({ where: { organizationId: org } });
     await db.ratePlan.deleteMany({ where: { propertyId } });
@@ -97,11 +98,13 @@ describe.skipIf(!url)('результаты маркетинга по канал
     total: bigint;
     bookedAt: string;
     property?: string;
+    guest?: string;
   }): Promise<string> {
     seq += 1;
     return (
       await db.reservation.create({
         data: {
+          primaryGuestId: opts.guest ?? null,
           propertyId: opts.property ?? propertyId,
           confirmationNumber: `M${org.slice(0, 6)}${seq}`,
           source: opts.source,
@@ -220,8 +223,46 @@ describe.skipIf(!url)('результаты маркетинга по канал
       select: { id: true },
     });
     const r = await repo.results(salon.id, '2026-10-01', '2026-11-01');
-    expect(r).toEqual({ supported: false, revenueCurrency: null, channels: [] });
+    expect(r).toEqual({ supported: false, revenueCurrency: null, channels: [], days: [] });
     await db.location.delete({ where: { id: salon.id } });
     await db.business.delete({ where: { id: business.id } });
+  });
+
+  it('календарь по дням: сумма дней равна месяцу, новые гости, диалог считается в день первого предложения', async () => {
+    const guest = async (name: string) =>
+      (await db.guest.create({ data: { organizationId: org, firstName: name, lastName: 'Тестовый' }, select: { id: true } })).id;
+    const returning = await guest('Вернувшийся');
+    const fresh = await guest('Новый');
+    // гость приезжал раньше через Booking.com: он уже не новый клиент
+    await booking({ source: 'OTA', total: 1n, bookedAt: '2026-08-01T08:00:00Z', guest: returning });
+    // декабрь 2026, 03-е: две брони сайта, одна от нового гостя, одна от вернувшегося, одна без гостя
+    await booking({ source: 'WEBSITE', total: 300_000n, bookedAt: '2026-12-03T08:00:00Z', guest: fresh });
+    await booking({ source: 'WEBSITE', total: 200_000n, bookedAt: '2026-12-03T09:00:00Z', guest: returning });
+    await booking({ source: 'PHONE', total: 50_000n, bookedAt: '2026-12-05T09:00:00Z' });
+    // вторая бронь того же нового гостя позже в месяце: уже не новый
+    await booking({ source: 'WHATSAPP', total: 70_000n, bookedAt: '2026-12-09T09:00:00Z', guest: fresh });
+    // диалог начат 30.11 и продолжен 02.12: обращение ноября, в декабре не считается
+    await intent('dec-span', 'whatsapp', '2026-11-30T08:00:00Z');
+    await intent('dec-span', 'whatsapp', '2026-12-02T08:00:00Z');
+    // диалог с двумя предложениями в разные дни декабря: одно обращение в день первого
+    await intent('dec-two', 'widget', '2026-12-04T08:00:00Z');
+    await intent('dec-two', 'widget', '2026-12-06T08:00:00Z');
+    await lead('NEW', '2026-12-04T10:00:00Z');
+
+    const r = await repo.results(locationId, '2026-12-01', '2027-01-01');
+    const day = (d: string) => r.days.find((x) => x.date === d);
+    expect(day('2026-12-03')).toEqual({ date: '2026-12-03', leads: 2, bookings: 2, newGuests: 1, revenueMinor: 500_000n });
+    // 04.12: заявка сайта + первое предложение диалога dec-two
+    expect(day('2026-12-04')).toEqual({ date: '2026-12-04', leads: 2, bookings: 0, newGuests: 0, revenueMinor: 0n });
+    // бронь без гостя: бронь есть, новым гостем не считается
+    expect(day('2026-12-05')).toEqual({ date: '2026-12-05', leads: 1, bookings: 1, newGuests: 0, revenueMinor: 50_000n });
+    expect(day('2026-12-06')).toBeUndefined();
+    expect(day('2026-12-09')).toEqual({ date: '2026-12-09', leads: 1, bookings: 1, newGuests: 0, revenueMinor: 70_000n });
+    expect(day('2026-12-02')).toBeUndefined();
+    // месяц ровно сумма дней
+    const sum = (k: 'leads' | 'bookings') => r.days.reduce((s, d) => s + d[k], 0);
+    expect(r.channels.reduce((s, c) => s + c.leads, 0)).toBe(sum('leads'));
+    expect(r.channels.reduce((s, c) => s + c.bookings, 0)).toBe(sum('bookings'));
+    expect(r.channels.find((c) => c.channel === 'WHATSAPP')!.leads).toBe(1);
   });
 });

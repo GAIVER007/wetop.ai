@@ -729,17 +729,23 @@ test('UI-10 normal STAFF read and settings permission refusal', async ({ page })
     expect(report.revenueMinor).toBe('60000');
     await overview(page, 'KZT');
     await expect(stat(page, 'Выручка бара')).toHaveText('600 ₸');
+    // UI-FIX-01: без права settings формы цены нет, цена видна текстом; сервер отказывает и прямому запросу
     await page.goto('/bar/products');
-    const form = page.locator('.bar-price-form').first();
-    const price = (await call('KZT', '/bar/stock'))[0].salePrice;
-    await form.locator('input[name=salePrice]').fill('200');
-    await form.getByRole('button', { name: 'Сохранить', exact: true }).click();
-    await expect(form.getByRole('alert')).toBeVisible();
-    await expect(form.getByRole('status')).toHaveCount(0);
-    expect((await call('KZT', '/bar/stock'))[0].salePrice).toBe(price);
+    await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.locator('.bar-price-form')).toHaveCount(0);
+    const item = (await call('KZT', '/bar/stock'))[0];
+    const s = scope('KZT');
+    const refused = await fetch(`${api}/bar/products/${item.id}/price`, {
+      method: 'PATCH',
+      headers: { authorization: `Bearer ${token}`, 'x-wetop-scope': `business=${s.business};location=${s.location}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ salePriceMinor: '20000' }),
+    });
+    const error = (await refused.json()) as { message?: string };
+    expect(refused.status).toBe(403);
+    expect((await call('KZT', '/bar/stock'))[0].salePrice).toBe(item.salePrice);
     writeFileSync(
       evidence + '/staff-permission.json',
-      JSON.stringify({ role: 'STAFF', readAllowed: true, revenueMinor: report.revenueMinor, settingsRejected: true, priceUnchanged: true, error: await form.getByRole('alert').innerText() }),
+      JSON.stringify({ role: 'STAFF', readAllowed: true, revenueMinor: report.revenueMinor, settingsRejected: true, priceUnchanged: true, priceFormShown: false, error: error.message ?? null }),
     );
   } finally {
     await query("UPDATE memberships SET role='OWNER' WHERE user_id=$1 AND organization_id=$2", [privateData.user, privateData.org]);

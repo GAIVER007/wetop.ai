@@ -108,18 +108,19 @@ export function kbSaveRouting({
   };
 }
 
-export function KbEntryEditor({ entry }: { entry: KbEditable }) {
-  return <KbEntryEditorForm key={entry.id ?? 'new'} entry={entry} />;
+export function KbEntryEditor({ entry, justCreated = false }: { entry: KbEditable; justCreated?: boolean }) {
+  return <KbEntryEditorForm key={entry.id ?? 'new'} entry={entry} justCreated={justCreated} />;
 }
 
-function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
+function KbEntryEditorForm({ entry, justCreated }: { entry: KbEditable; justCreated: boolean }) {
   const router = useRouter();
   const initialValues = kbEditorValues(entry);
   const [values, setValues] = useState(initialValues);
   const [savedValues, setSavedValues] = useState(initialValues);
   const [documentId, setDocumentId] = useState(entry.id);
   const [savedDocumentId, setSavedDocumentId] = useState(entry.id);
-  const [result, setResult] = useState<KbSimpleResult | null>(null);
+  // после создания форма открывается заново по адресу записи: «Сохранено» приходит пометкой saved=1, иначе терялось бы
+  const [result, setResult] = useState<KbSimpleResult | null>(justCreated ? { error: null, message: 'Сохранено.' } : null);
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
   const valuesRef = useRef(values);
@@ -133,6 +134,10 @@ function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
     aliveRef.current = true;
     return () => { aliveRef.current = false; };
   }, []);
+  // пометку убираем из адреса, чтобы перезагрузка не показала «Сохранено» снова; ключ формы тот же, сообщение остаётся
+  useEffect(() => {
+    if (justCreated && entry.id) router.replace(kbHref({ id: entry.id }));
+  }, [justCreated, entry.id, router]);
 
   const set = (name: keyof KbEditorValues) => (e: { target: { value: string } }) => {
     const value = e.target.value;
@@ -170,7 +175,7 @@ function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
           savedValuesRef.current = completion.savedValues;
           setSavedValues(completion.savedValues);
         }
-        if (routing.navigateToId) router.replace(kbHref({ id: routing.navigateToId }));
+        if (routing.navigateToId) router.replace(kbHref({ id: routing.navigateToId, saved: '1' }));
       } finally {
         busyRef.current = false;
       }

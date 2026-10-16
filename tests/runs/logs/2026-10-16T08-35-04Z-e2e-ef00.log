@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 16.10.2026 13:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит f779ceb (claude/main-red-after-570), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/support-kb.spec.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1741ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (27.9s)
+  ✓   2 tests/ui/support-kb.spec.ts:68:1 › не главный администратор: раздела нет, данных базы знаний не видно (11.2s)
+  ✓   3 tests/ui/support-kb.spec.ts:76:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (6.6s)
+  ✓   4 tests/ui/support-kb.spec.ts:105:1 › публикация отменяется: без «да» запись остаётся черновиком (4.2s)
+  ✓   5 tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (2.0s)
+  ✓   6 tests/ui/support-kb.spec.ts:134:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (3.5s)
+  ✓   7 tests/ui/support-kb.spec.ts:155:1 › у открытого обращения кнопки «Создать знание» нет (2.0s)
+  ✓   8 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 1440 (18.0s)
+  ✓   9 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 390 (9.8s)
+  ✓  10 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 1440 (15.5s)
+  ✓  11 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 390 (5.0s)
+  ✓  12 tests/ui/support-kb.spec.ts:181:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (6.1s)
+
+  12 passed (2.6m)
+
+# код выхода 0 · 2 мин 47 с

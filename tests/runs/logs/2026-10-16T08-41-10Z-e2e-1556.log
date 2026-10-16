@@ -1,0 +1,41 @@
+# Сквозные (e2e) · 16.10.2026 13:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит f779ceb (claude/main-red-after-570), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/support-kb.spec.ts' 'tests/ui/ui-fix-01-kb.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 17 tests using 1 worker
+
+  ✓   1 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (5.6s)
+  ✓   2 tests/ui/support-kb.spec.ts:68:1 › не главный администратор: раздела нет, данных базы знаний не видно (2.0s)
+  ✓   3 tests/ui/support-kb.spec.ts:76:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (4.3s)
+  ✓   4 tests/ui/support-kb.spec.ts:105:1 › публикация отменяется: без «да» запись остаётся черновиком (2.6s)
+  ✓   5 tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (2.9s)
+  ✓   6 tests/ui/support-kb.spec.ts:136:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (3.4s)
+  ✓   7 tests/ui/support-kb.spec.ts:157:1 › у открытого обращения кнопки «Создать знание» нет (1.7s)
+  ✓   8 tests/ui/support-kb.spec.ts:165:5 › каталог и запись: axe и снимок, light, 1440 (2.8s)
+  ✓   9 tests/ui/support-kb.spec.ts:165:5 › каталог и запись: axe и снимок, light, 390 (5.0s)
+  ✓  10 tests/ui/support-kb.spec.ts:165:5 › каталог и запись: axe и снимок, dark, 1440 (3.9s)
+  ✓  11 tests/ui/support-kb.spec.ts:165:5 › каталог и запись: axe и снимок, dark, 390 (3.1s)
+  ✓  12 tests/ui/support-kb.spec.ts:183:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (2.1s)
+  ✓  13 tests/ui/ui-fix-01-kb.spec.ts:35:1 › C-P1-2 unsaved text cannot publish (1.5s)
+  ✓  14 tests/ui/ui-fix-01-kb.spec.ts:42:1 › C-P1-2 save then publish B survives reload (2.5s)
+  ✓  15 tests/ui/ui-fix-01-kb.spec.ts:56:1 › C-P1-2 editing C during save B preserves C as dirty (4.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1729473843'
+[WebServer] }
+  ✓  16 tests/ui/ui-fix-01-kb.spec.ts:74:1 › C-P1-2 initial create B keeps typed C, then PATCHes the same document (14.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1729473843'
+[WebServer] }
+  ✓  17 tests/ui/ui-fix-01-kb.spec.ts:126:1 › C-P1-2 save and publish failures preserve text without false success (6.4s)
+
+  17 passed (1.3m)
+
+# код выхода 0 · 1 мин 18 с

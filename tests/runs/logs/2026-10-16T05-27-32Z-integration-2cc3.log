@@ -1,0 +1,29 @@
+# Интеграционные (integration) · 16.10.2026 10:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит b6e59e0 (claude/bar-surplus), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-27-32Z-integration-2cc3.json' 'tests/integration/bar-money-fixes.test.ts' 'tests/integration/bar-money-invariants-audit.test.ts' 'tests/integration/bar-restaurant-cash.test.ts' 'tests/integration/bar-inventory-surplus.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ↓ |integration| tests/integration/bar-money-fixes.test.ts (35 tests | 35 skipped)
+ ↓ |integration| tests/integration/bar-money-invariants-audit.test.ts (31 tests | 31 skipped)
+(node:70858) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-inventory-surplus.test.ts (3 tests) 3181ms
+   ✓ бар: излишек при инвентаризации (integration) (3)
+     ✓ излишек при остатке: партия по средней себестоимости, без строки прихода, продаётся последней 900ms
+     ✓ излишек на пустом складе: без цены отказ без следа, с ценой новая партия по ней 553ms
+     ✓ база не пускает партию без строки прихода на чужой филиал 335ms
+(node:70975) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-restaurant-cash.test.ts (3 tests) 1660ms
+   ✓ бар: деньги по направлению филиала (integration) (3)
+     ✓ ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 593ms
+
+ Test Files  2 passed | 2 skipped (4)
+      Tests  6 passed | 66 skipped (72)
+   Start at  22:27:43
+   Duration  29.68s (transform 54%, import 23%, tests 23%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-27-32Z-integration-2cc3.json
+
+# код выхода 0 · 42 с

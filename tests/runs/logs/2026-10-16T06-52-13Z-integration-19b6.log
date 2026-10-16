@@ -1,0 +1,106 @@
+# Интеграционные (integration) · 16.10.2026 11:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит d995c44 (claude/bar-o4-decisions-20261016), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-52-13Z-integration-19b6.json' 'tests/integration/bar-archive-currency.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main
+
+ ❯ |integration| tests/integration/bar-archive-currency.test.ts (2 tests | 2 failed) 188ms
+   ❯ бар: архив справочников и валюта филиала (integration) (2)
+     × N6: архивные поставщик и категория видны в старых документах, в новые не попадают 82ms
+     × валюта: при проведённых документах бара онбординг не меняет валюту филиала 23ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-archive-currency.test.ts > бар: архив справочников и валюта филиала (integration) > N6: архивные поставщик и категория видны в старых документах, в новые не попадают
+AssertionError: promise resolved "{ …(17) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "createdAt": 2026-10-16T06:52:15.687Z,
++   "createdById": "70fedc9e-4c1f-4f8f-ad4e-0dd4baa304e3",
++   "currency": "KZT",
++   "documentDate": 2026-10-16T00:00:00.000Z,
++   "documentNumber": "AR-7fbedba6-2",
++   "id": "1497de4f-c367-4ec4-82dd-96c6932d4a72",
++   "lines": [
++     {
++       "amount": "150000",
++       "calculatedPrice": "60000",
++       "id": "9de34a72-9fe9-435e-8b0d-1ab1f4dcf6d7",
++       "markupBasis": 10000,
++       "productId": "6d879cf7-d05d-42d4-bbce-af50d7630703",
++       "quantityUnits": "5",
++       "receiptId": "1497de4f-c367-4ec4-82dd-96c6932d4a72",
++       "unitCost": "30000",
++     },
++   ],
++   "locationId": "d53ad9bc-17e3-407e-8f59-d7ee15a2c2b5",
++   "note": null,
++   "postedAt": null,
++   "propertyId": null,
++   "receivedDate": 2026-10-16T00:00:00.000Z,
++   "reversedAt": null,
++   "status": "DRAFT",
++   "supplierId": "e5fc167c-d233-44d1-b50f-beeb987e83c6",
++   "totalAmount": "150000",
++   "updatedAt": 2026-10-16T06:52:15.687Z,
+  }
+
+ ❯ tests/integration/bar-archive-currency.test.ts:76:91
+     74|     // новый приход с архивным поставщиком не создаётся
+     75|     const before = await prisma.db.barReceipt.count({ where: { locatio…
+     76|     await expect(as(() => repo.createReceipt(receiptInput(supplier.id,…
+       |                                                                                           ^
+     77|     expect(await prisma.db.barReceipt.count({ where: { locationId: loc…
+     78|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/bar-archive-currency.test.ts > бар: архив справочников и валюта филиала (integration) > валюта: при проведённых документах бара онбординг не меняет валюту филиала
+AssertionError: promise resolved "{ vertical: 'FOOD_SERVICE', …(8) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "businessId": "02dda1af-d40a-4090-8b24-da2bafc755d8",
++   "canEdit": true,
++   "completedAt": "2026-10-16T06:52:15.713Z",
++   "currentStep": "review",
++   "draft": {
++     "businessName": "Бар архив 7fbedba6",
++     "currency": "USD",
++     "locationName": "Филиал 7fbedba6",
++     "timezone": "Asia/Almaty",
++   },
++   "flowVersion": 1,
++   "locationId": "d53ad9bc-17e3-407e-8f59-d7ee15a2c2b5",
++   "updatedAt": "2026-10-16T06:52:15.713Z",
++   "vertical": "FOOD_SERVICE",
+  }
+
+ ❯ tests/integration/bar-archive-currency.test.ts:109:6
+    107|     await expect(
+    108|       as(() => onboarding.save({ action: 'complete', draft: { ...draft…
+    109|     ).rejects.toThrow(/рабочие данные/);
+       |      ^
+    110|     expect((await prisma.db.location.findUniqueOrThrow({ where: { id: …
+    111|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  23:52:14
+   Duration  1.28s (transform 46%, import 29%, tests 25%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-52-13Z-integration-19b6.json
+
+# код выхода 1 · 3 с

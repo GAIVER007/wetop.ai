@@ -38,6 +38,8 @@ export interface MetaGateway {
   config(): meta.MetaAppConfig | null;
   exchangeCode(code: string): Promise<string>;
   adAccount(token: string, adAccountId: string): Promise<meta.MetaAdAccount>;
+  /** Кабинеты, отмеченные клиентом в окне входа */
+  assignedAdAccounts(token: string): Promise<meta.MetaAdAccount[]>;
   campaignDays(token: string, q: { adAccountId: string; since: string; until: string }): Promise<meta.MetaCampaignDay[]>;
 }
 
@@ -53,6 +55,9 @@ export class EnvMetaGateway implements MetaGateway {
   }
   adAccount(token: string, adAccountId: string) {
     return new meta.MetaAdsClient({ accessToken: token }).adAccount(adAccountId);
+  }
+  assignedAdAccounts(token: string) {
+    return new meta.MetaAdsClient({ accessToken: token }).assignedAdAccounts();
   }
   campaignDays(token: string, q: { adAccountId: string; since: string; until: string }) {
     return new meta.MetaAdsClient({ accessToken: token }).campaignDays(q);
@@ -109,6 +114,10 @@ export interface ConnectionView {
   } | null;
 }
 
+export type CompleteResult =
+  | { connected: true; accountName: string }
+  | { connected: false; pending: string; accounts: Array<{ adAccountId: string; name: string; currency: string }> };
+
 type ConnectionRow = { id: string; locationId: string; adAccountId: string; timezone: string; currency: string; tokenCiphertext: string };
 
 @Injectable()
@@ -152,21 +161,29 @@ export class MarketingMetaService {
     };
   }
 
-  /** Шаг 1: номер кабинета → адрес окна входа Facebook с подписанным state */
+  /**
+   * Шаг 1: адрес окна входа Facebook с подписанным state. Кабинет человек отмечает в самом окне Facebook; номер
+   * передаётся, только если его назвали заранее (тогда подключится именно он).
+   */
   async start(dto: Record<string, unknown>): Promise<{ url: string }> {
     const config = this.requireConfig();
     const scope = await this.repo.scope();
     await this.repo.assertWritable(scope.organizationId);
-    const m = ACCOUNT.exec(String(dto.adAccountId ?? '').trim());
-    if (!m) throw new BadRequestException('Номер рекламного кабинета: цифры из Ads Manager, например 1234567890');
+    const raw = String(dto.adAccountId ?? '').trim();
+    const m = raw === '' ? null : ACCOUNT.exec(raw);
+    if (raw !== '' && !m) throw new BadRequestException('Номер рекламного кабинета: цифры из Ads Manager, например 1234567890');
     const user = currentUserId();
     if (!user) throw new ForbiddenException('Войдите, чтобы подключить кабинет');
-    const state = signMetaState({ o: scope.organizationId, l: scope.locationId, u: user, a: m[1]! }, config.appSecret);
+    const state = signMetaState({ o: scope.organizationId, l: scope.locationId, u: user, a: m?.[1] ?? '' }, config.appSecret);
     return { url: meta.metaLoginUrl({ ...config, state }) };
   }
 
-  /** Шаг 2: код из адреса возврата → ключ, проверка кабинета, шифр ключа, первая сверка за 28 дней */
-  async complete(dto: Record<string, unknown>): Promise<{ connected: true; accountName: string }> {
+  /**
+   * Шаг 2: код из адреса возврата → ключ → кабинеты, отмеченные в окне Facebook. Один действующий подключается сразу;
+   * несколько: ответ со списком и шифрованной заготовкой входа на 10 минут (ключ внутри шифра, привязан к человеку и
+   * филиалу), выбор завершает `choose`.
+   */
+  async complete(dto: Record<string, unknown>): Promise<CompleteResult> {
     const config = this.requireConfig();
     const scope = await this.repo.scope();
     await this.repo.assertWritable(scope.organizationId);
@@ -179,8 +196,48 @@ export class MarketingMetaService {
     const token = await this.gateway.exchangeCode(code).catch((e: unknown) => {
       throw new BadRequestException(errorText(e));
     });
-    const account = await this.gateway.adAccount(token, state.a).catch((e: unknown) => {
-      throw new ConflictException(`Кабинет ${state.a} недоступен этому входу: ${errorText(e)}`);
+    if (state.a) return this.connect(scope.locationId, token, state.a);
+    const accounts = (
+      await this.gateway.assignedAdAccounts(token).catch((e: unknown) => {
+        throw new ConflictException(`Meta не отдала список кабинетов: ${errorText(e)}`);
+      })
+    ).filter((a) => a.active);
+    if (accounts.length === 0)
+      throw new ConflictException(
+        'В окне Facebook не отмечен ни один действующий рекламный кабинет: подключите заново и отметьте кабинет',
+      );
+    if (accounts.length === 1) return this.connect(scope.locationId, token, accounts[0]!.accountId);
+    const pending = encryptPii(
+      JSON.stringify({ t: token, o: scope.organizationId, l: scope.locationId, u: currentUserId(), e: Date.now() + STATE_TTL_MS }),
+    );
+    return {
+      connected: false,
+      pending,
+      accounts: accounts.map((a) => ({ adAccountId: a.accountId, name: a.name, currency: a.currency })),
+    };
+  }
+
+  /** Выбор кабинета из нескольких отмеченных: заготовка того же человека и филиала, не старше 10 минут */
+  async choose(dto: Record<string, unknown>): Promise<CompleteResult> {
+    const scope = await this.repo.scope();
+    await this.repo.assertWritable(scope.organizationId);
+    let p: { t?: string; o?: string; l?: string; u?: string; e?: number } = {};
+    try {
+      p = JSON.parse(decryptPii(String(dto.pending ?? ''))) as typeof p;
+    } catch {
+      p = {};
+    }
+    if (!p.t || p.o !== scope.organizationId || p.l !== scope.locationId || p.u !== currentUserId() || !p.e || p.e < Date.now())
+      throw new ForbiddenException('Выбор кабинета устарел или начат не здесь: подключите заново');
+    const m = ACCOUNT.exec(String(dto.adAccountId ?? '').trim());
+    if (!m) throw new BadRequestException('Выберите кабинет из списка');
+    return this.connect(scope.locationId, p.t, m[1]!);
+  }
+
+  /** Кабинет проверяется ключом (доступ и статус), ключ шифруется, первая сверка за 28 дней */
+  private async connect(locationId: string, token: string, adAccountId: string): Promise<CompleteResult> {
+    const account = await this.gateway.adAccount(token, adAccountId).catch((e: unknown) => {
+      throw new ConflictException(`Кабинет ${adAccountId} недоступен этому входу: ${errorText(e)}`);
     });
     if (!account.active) throw new ConflictException('Кабинет закрыт или отключён в Meta: подключите действующий');
     const data = {
@@ -195,8 +252,8 @@ export class MarketingMetaService {
     };
     const conn = await this.prisma.db.$transaction(async (tx) => {
       const c = await tx.marketingAdConnection.upsert({
-        where: { locationId_platform: { locationId: scope.locationId, platform: 'META' } },
-        create: { locationId: scope.locationId, platform: 'META', ...data },
+        where: { locationId_platform: { locationId, platform: 'META' } },
+        create: { locationId, platform: 'META', ...data },
         update: data,
       });
       await tx.auditLog.create({
@@ -391,6 +448,12 @@ export class MarketingMetaController {
   @HttpCode(200)
   complete(@Body() dto: Record<string, unknown>) {
     return this.service.complete(dto ?? {});
+  }
+
+  @Post('choose')
+  @HttpCode(200)
+  choose(@Body() dto: Record<string, unknown>) {
+    return this.service.choose(dto ?? {});
   }
 
   @Post('sync')

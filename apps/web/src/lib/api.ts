@@ -4068,11 +4068,19 @@ export interface MetaConnectionView {
   } | null;
 }
 
+export type MetaCompleteResult =
+  | { connected: true; accountName: string }
+  | { connected: false; pending: string; accounts: Array<{ adAccountId: string; name: string; currency: string }> };
+
 export const metaConnectionApi = {
   view: () => getJson<MetaConnectionView>('/marketing/ad-connections/meta'),
-  start: (adAccountId: string) => sendJson<{ url: string }>('POST', '/marketing/ad-connections/meta/start', { adAccountId }),
+  /** Окно входа Facebook; кабинет человек отмечает в самом окне */
+  start: () => sendJson<{ url: string }>('POST', '/marketing/ad-connections/meta/start', {}),
   complete: (code: string, state: string) =>
-    sendJson<{ connected: true; accountName: string }>('POST', '/marketing/ad-connections/meta/complete', { code, state }),
+    sendJson<MetaCompleteResult>('POST', '/marketing/ad-connections/meta/complete', { code, state }),
+  /** Выбор одного из нескольких отмеченных кабинетов; `pending` это шифрованная заготовка входа на 10 минут */
+  choose: (pending: string, adAccountId: string) =>
+    sendJson<MetaCompleteResult>('POST', '/marketing/ad-connections/meta/choose', { pending, adAccountId }),
   sync: () =>
     sendJson<{ ok: boolean; days: number; campaigns: number; error: string | null }>('POST', '/marketing/ad-connections/meta/sync', {}),
   disconnect: () => sendJson<{ disconnected: true }>('POST', '/marketing/ad-connections/meta/disconnect', {}),

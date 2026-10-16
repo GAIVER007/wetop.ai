@@ -73,3 +73,32 @@ describe('кабинет по номеру', () => {
     expect((await new MetaAdsClient({ accessToken: 't', fetch: fn }).adAccount('1')).active).toBe(false);
   });
 });
+
+describe('кабинеты, выбранные в окне входа', () => {
+  it('/me даёт системного пользователя, его assigned_ad_accounts по всем страницам; закрытые помечены', async () => {
+    const urls: URL[] = [];
+    const pages = [
+      { id: '9000000000009', client_business_id: '8000000000008' },
+      {
+        data: [{ account_id: '111', name: 'Отель', currency: 'KZT', timezone_name: 'Asia/Almaty', account_status: 1 }],
+        paging: { next: 'https://graph.facebook.com/v25.0/9000000000009/assigned_ad_accounts?after=c1&access_token=t' },
+      },
+      { data: [{ account_id: '222', name: 'Старый', currency: 'USD', timezone_name: 'Asia/Almaty', account_status: 101 }], paging: {} },
+    ];
+    const fn = (async (input: string | URL) => {
+      urls.push(new URL(String(input)));
+      return new Response(JSON.stringify(pages.shift()), { status: 200 });
+    }) as typeof fetch;
+    const accounts = await new MetaAdsClient({ accessToken: 't', fetch: fn }).assignedAdAccounts();
+    expect(urls[0]!.pathname).toBe('/v25.0/me');
+    expect(urls[0]!.searchParams.get('fields')).toBe('id,client_business_id');
+    expect(urls[1]!.pathname).toBe('/v25.0/9000000000009/assigned_ad_accounts');
+    expect(urls[1]!.searchParams.get('fields')).toBe('account_id,name,currency,timezone_name,account_status');
+    expect(urls[2]!.searchParams.get('after')).toBe('c1');
+    expect(accounts).toEqual([
+      { accountId: '111', name: 'Отель', currency: 'KZT', timezone: 'Asia/Almaty', active: true },
+      { accountId: '222', name: 'Старый', currency: 'USD', timezone: 'Asia/Almaty', active: false },
+    ]);
+  });
+});
+

@@ -115,6 +115,11 @@ https://developers.facebook.com/docs/marketing-api/reference/ad-account/.
 - Кабинет по номеру: `GET /act_{ad_account_id}?fields=…`. Поля: `id` («act_{номер}»), `account_id` (номер строкой),
   `name`, `currency`, `timezone_name`, `account_status` (1 ACTIVE, 2 DISABLED, 3 UNSETTLED, 7 PENDING_RISK_REVIEW,
   8 PENDING_SETTLEMENT, 9 IN_GRACE_PERIOD, 100 PENDING_CLOSURE, 101 CLOSED, 201 ANY_ACTIVE, 202 ANY_CLOSED).
-- Список кабинетов клиента через API в этих страницах **не описан** (`/me/adaccounts` и подобные не найдены). Поэтому
-  номер кабинета человек вводит сам (он виден в Ads Manager), а сервер проверяет его чтением `act_{номер}` уже с
-  выданным ключом: нет доступа, значит кабинет не подключается.
+- **Какие кабинеты выбрал клиент** (снято 16.10.2026: https://developers.facebook.com/documentation/facebook-login/facebook-login-for-business,
+  https://developers.facebook.com/documentation/ads-commerce/marketing-api/reference/system-user/assigned_ad_accounts):
+  ключ SUAT видит только активы, которые клиент отметил в окне входа. `GET /me?fields=client_business_id` с этим ключом
+  возвращает `id` (системный пользователь интеграции) и `client_business_id`. `GET /{system-user-id}/assigned_ad_accounts`
+  возвращает `data`: список кабинетов (узлы AdAccount, поля просятся через `fields`, плюс `tasks`), `paging`,
+  `summary.total_count`; параметров у ребра нет, права в справочнике не названы, ошибка `100` «Invalid parameter».
+  Поэтому номер кабинета человек не вводит: после входа сервер читает этот список; один кабинет подключается сразу,
+  несколько показываются на выбор.

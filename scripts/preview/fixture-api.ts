@@ -5810,16 +5810,28 @@ createServer(async (req, res) => {
           },
         });
       if (action === '/start' && req.method === 'POST') {
-        const m = /^(?:act_)?(\d{5,40})$/.exec(String(body['adAccountId'] ?? '').trim());
-        if (!m) return send(400, { message: 'Номер рекламного кабинета: цифры из Ads Manager, например 1234567890' });
+        // кабинет отмечается в окне Facebook: номер не нужен
         return send(200, {
-          url: `https://www.facebook.com/v25.0/dialog/oauth?client_id=1&redirect_uri=${encodeURIComponent('http://127.0.0.1/marketing/ads/meta/callback')}&state=fixture-state-${m[1]}&config_id=2&response_type=code&override_default_response_type=true`,
+          url: `https://www.facebook.com/v25.0/dialog/oauth?client_id=1&redirect_uri=${encodeURIComponent('http://127.0.0.1/marketing/ads/meta/callback')}&state=fixture-state&config_id=2&response_type=code&override_default_response_type=true`,
         });
       }
       if (action === '/complete' && req.method === 'POST') {
-        const state = String(body['state'] ?? '');
-        if (!state.startsWith('fixture-state-')) return send(403, { message: 'Подключение устарело или начато не здесь: начните заново' });
-        fixtureMeta = { adAccountId: state.slice('fixture-state-'.length), status: 'ACTIVE', lastSyncedAt: new Date().toISOString() };
+        if (String(body['state'] ?? '') !== 'fixture-state')
+          return send(403, { message: 'Подключение устарело или начато не здесь: начните заново' });
+        // в окне Facebook отмечено два кабинета: выбор на «Рекламе»
+        return send(200, {
+          connected: false,
+          pending: 'fixture-pending',
+          accounts: [
+            { adAccountId: '1234567890', name: 'Отель на Абая', currency: 'USD' },
+            { adAccountId: '2234567890', name: 'Отель на Сатпаева', currency: 'KZT' },
+          ],
+        });
+      }
+      if (action === '/choose' && req.method === 'POST') {
+        if (body['pending'] !== 'fixture-pending')
+          return send(403, { message: 'Выбор кабинета устарел или начат не здесь: подключите заново' });
+        fixtureMeta = { adAccountId: String(body['adAccountId'] ?? ''), status: 'ACTIVE', lastSyncedAt: new Date().toISOString() };
         cabinetCampaign();
         return send(200, { connected: true, accountName: 'Отель на Абая' });
       }

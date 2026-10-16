@@ -1,7 +1,9 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { MARKETING_PLATFORMS } from '@pms/domain';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { META_ACCOUNTS_COOKIE, META_PENDING_COOKIE } from '../ads/meta-cookies';
 import { ApiError, marketingBudgetApi, marketingCampaignsApi, metaConnectionApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { pluralRu } from '../../../lib/plural';
@@ -181,15 +183,31 @@ export async function importCampaignDaysAction(_prev: BudgetActionResult, fd: Fo
   return done(`Загружено ${pluralRu(r.imported, ['день', 'дня', 'дней'])} статистики`);
 }
 
-/** «Подключить кабинет»: номер кабинета → окно входа Facebook (§54); дальше браузер уходит на facebook.com */
-export async function startMetaAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+/** «Подключить через Facebook» (§55): сразу окно входа, кабинет человек отмечает там; браузер уходит на facebook.com */
+export async function startMetaAction(): Promise<BudgetActionResult> {
   let url: string;
   try {
-    url = (await metaConnectionApi.start(s(fd, 'adAccountId'))).url;
+    url = (await metaConnectionApi.start()).url;
   } catch (e) {
-    return { error: describe(e), ok: 0, values: echo(fd) };
+    return { error: describe(e), ok: 0 };
   }
   redirect(url);
+}
+
+/** Выбор кабинета из нескольких, отмеченных в окне Facebook */
+export async function chooseMetaAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  const jar = await cookies();
+  const pending = jar.get(META_PENDING_COOKIE)?.value ?? '';
+  if (!pending) return { error: 'Выбор кабинета устарел: подключите заново', ok: 0 };
+  try {
+    await metaConnectionApi.choose(pending, s(fd, 'adAccountId'));
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  jar.delete(META_PENDING_COOKIE);
+  jar.delete(META_ACCOUNTS_COOKIE);
+  revalidatePath('/marketing/ads');
+  redirect('/marketing/ads?meta=connected');
 }
 
 export async function syncMetaAction(): Promise<BudgetActionResult> {

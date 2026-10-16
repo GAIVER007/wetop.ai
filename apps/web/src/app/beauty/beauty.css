@@ -624,4 +624,175 @@
     height: 10px;
     border-radius: var(--radius-full);
   }
+
+  /* Salon usability pilot: existing controls grouped by task, no new modes or calculations. */
+  .beauty-page .beauty-calendar-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+  .beauty-calendar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    min-width: 0;
+  }
+  .beauty-calendar-actions .date-bar .inp {
+    width: 10rem;
+    max-width: 100%;
+  }
+  .beauty-page .beauty-calendar-toolbar .beauty-filters {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-2);
+    width: 100%;
+  }
+  .beauty-calendar-toolbar .beauty-filters .field {
+    min-width: 0;
+    gap: var(--space-1);
+  }
+  .beauty-calendar-toolbar .beauty-filters .field > span {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .beauty-page .beauty-calendar-toolbar .beauty-filters .inp {
+    width: 100%;
+    min-width: 0;
+  }
+  .beauty-page .beauty-col-head,
+  .beauty-masters button > span:last-child {
+    overflow-wrap: anywhere;
+  }
+  .beauty-current-master {
+    margin: var(--space-2) 0 0;
+    overflow-wrap: anywhere;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+  .beauty-current-master + .beauty-note {
+    margin: var(--space-1) 0 var(--space-2);
+    font-size: var(--text-xs);
+  }
+  @media (max-width: 600px) {
+    .beauty-calendar-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .beauty-calendar-actions .date-bar {
+      gap: var(--space-1);
+    }
+    .beauty-calendar-actions .date-bar > .btn:first-child {
+      padding-inline: var(--space-2);
+    }
+    .beauty-calendar-actions .date-bar .inp {
+      width: 100%;
+    }
+    .beauty-page .beauty-calendar-toolbar .beauty-filters {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2);
+    }
+    .beauty-calendar-toolbar .beauty-filters .field:last-child {
+      grid-column: 1 / -1;
+    }
+    .beauty-calendar-actions .date-bar {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+    .beauty-calendar-actions .date-bar > .btn:first-child {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      justify-self: start;
+    }
+  }
+
+  /* B05: intrinsic select widths must not widen the mobile page. The time grid is unchanged. */
+  @media (max-width: 600px) {
+    .beauty-page .beauty-bar,
+    .beauty-page .beauty-filters,
+    .beauty-page .beauty-mobile-calendar,
+    .beauty-page .beauty-mobile-calendar .field {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .beauty-page .beauty-bar {
+      padding: var(--space-2);
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+    }
+    .beauty-page .beauty-filters {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+    }
+    .beauty-page .beauty-filters .inp,
+    .beauty-page .beauty-mobile-calendar .inp {
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+    }
+    .beauty-page .beauty-filters .inp:last-child {
+      grid-column: 1 / -1;
+    }
+    .beauty-page .beauty-calendar-views {
+      margin-bottom: var(--space-2);
+    }
+  }
+
+  /* Desktop working space: keep controls together instead of stacking six rows above the day. */
+  @media (min-width: 1280px) {
+    .beauty-page:has(.beauty-calendar-toolbar) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) max-content;
+      align-content: start;
+      gap: var(--space-2) var(--space-4);
+    }
+    .beauty-page:has(.beauty-calendar-toolbar) > * {
+      grid-column: 1 / -1;
+    }
+    .beauty-page:has(.beauty-calendar-toolbar) > .page__head {
+      grid-column: 1;
+      grid-row: 1;
+      margin-bottom: 0;
+    }
+    .beauty-page:has(.beauty-calendar-toolbar) > .beauty-calendar-views {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: center;
+      justify-content: flex-end;
+      margin-bottom: 0;
+    }
+    .beauty-page .beauty-calendar-toolbar {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: flex-end;
+      gap: var(--space-4);
+      margin-bottom: 0;
+      padding: var(--space-2) var(--space-4);
+    }
+    .beauty-calendar-toolbar .beauty-calendar-actions {
+      flex: none;
+      flex-wrap: nowrap;
+    }
+    .beauty-page .beauty-calendar-toolbar .beauty-filters {
+      flex: 1;
+      min-width: 0;
+      width: auto;
+    }
+    .beauty-page:has(.beauty-calendar-toolbar) > [data-testid='beauty-day-summary'] {
+      grid-column: 1;
+      grid-row: 3;
+      align-self: center;
+      margin: 0;
+    }
+    .beauty-page:has(.beauty-calendar-toolbar) > .beauty-calendar-legend {
+      grid-column: 2;
+      grid-row: 3;
+      align-self: center;
+      justify-content: flex-end;
+      margin: 0;
+    }
+  }
 }

@@ -1267,8 +1267,8 @@ export class RestaurantService {
       const id = parsed(() => foodId(idRaw));
       const op = await tx.restaurantCashOperation.findFirst({ where: { id, locationId: s.locationId } });
       if (!op) throw new NotFoundException('Операция не найдена');
-      if (op.appointmentId) {
-        // оплата записи салона (§49): после «Выполнено» не аннулируется (Q-BEAUTY-PAY-1)
+      if (op.appointmentId && op.kind === 'INCOME') {
+        // оплата записи салона (§49): после «Выполнено» не аннулируется, для этого возврат (§54); ошибочный возврат аннулировать можно
         await tx.$queryRaw`SELECT id FROM appointments WHERE id = ${op.appointmentId}::uuid FOR UPDATE`;
         const a = await tx.appointment.findUniqueOrThrow({ where: { id: op.appointmentId }, select: { status: true } });
         const refused = appointmentPaymentVoidable(a.status as AppointmentStatus);

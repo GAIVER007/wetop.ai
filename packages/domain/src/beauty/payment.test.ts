@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { appointmentPayment, appointmentPaymentVoidable, appointmentStatusAllowed } from './payment';
+import { appointmentPayment, appointmentPaymentVoidable, appointmentRefund, appointmentStatusAllowed } from './payment';
 
 describe('оплата записи салона (§49)', () => {
   it('частями до цены, не больше остатка', () => {
@@ -20,6 +20,12 @@ describe('оплата записи салона (§49)', () => {
   });
   it('аннулировать оплату можно, пока запись не выполнена', () => {
     expect(appointmentPaymentVoidable('CONFIRMED')).toBeNull();
-    expect(appointmentPaymentVoidable('DONE')).toBe('Запись выполнена: оплату уже не аннулируют, возврат делается расходом кассы');
+    expect(appointmentPaymentVoidable('DONE')).toBe('Запись выполнена: оплату уже не аннулируют, оформите возврат в карточке записи');
+  });
+  it('возврат (§54): только после «Выполнено», больше нуля и не больше чистой оплаты', () => {
+    expect(() => appointmentRefund('CONFIRMED', 500000n, 1n)).toThrow('Возврат оформляют по выполненной записи');
+    expect(() => appointmentRefund('DONE', 500000n, 0n)).toThrow('Сумма больше нуля');
+    expect(() => appointmentRefund('DONE', 500000n, 500001n)).toThrow('Сумма больше оплаченного по записи');
+    expect(() => appointmentRefund('DONE', 500000n, 500000n)).not.toThrow();
   });
 });

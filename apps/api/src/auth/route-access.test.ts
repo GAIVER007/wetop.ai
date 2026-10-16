@@ -261,6 +261,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /beauty/appointments/:id/status': 'desk',
   // оплата записи в кассу филиала (§49): принимает смена, как оплату заказа ресторана
   'POST /beauty/appointments/:id/payments': 'desk',
+  // возврат по выполненной записи (§54): право возвратов
+  'POST /beauty/appointments/:id/refunds': 'refunds',
   'GET /availability/nearest': 'desk',
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',

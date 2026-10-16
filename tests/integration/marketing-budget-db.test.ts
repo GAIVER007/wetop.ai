@@ -255,7 +255,7 @@ describe.skipIf(!url)('МКТ-В1/В2 marketing accounting: инварианты
     });
   });
 
-  it('кабинет (§54): имя уникально только у ручных, расход только у дней кабинета, ключ только шифром, сверки без DELETE', async () => {
+  it('кабинет (§55): имя уникально только у ручных, расход только у дней кабинета, ключ только шифром, сверки без DELETE', async () => {
     await probe(async (attempt) => {
       const campaign = (name: string, external: string | null) =>
         attempt(

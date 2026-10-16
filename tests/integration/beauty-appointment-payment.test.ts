@@ -113,10 +113,11 @@ describe('оплата записи салона (integration, §49)', () => {
     expect((await db.restaurantCashOperation.findUniqueOrThrow({ where: { id: op.id } })).status).toBe('COMPLETED');
   });
 
-  it('база: оплата записи только приходом, только своего филиала, и после вставки не меняется', async () => {
+  it('база: со ссылкой на запись только приход и возврат, только своего филиала, и после вставки не меняется', async () => {
     const a = await book('16:00');
     const base = { locationId: own.location, method: 'CASH' as const, amount: 1n, currency: 'KZT', appointmentId: a.id };
-    await expect(db.restaurantCashOperation.create({ data: { ...base, kind: 'EXPENSE' } })).rejects.toThrow(/restaurant_cash_operations_appointment/);
+    // §54: расход со ссылкой на запись это возврат и разрешён; перевод и выплата с записью нет
+    await expect(db.restaurantCashOperation.create({ data: { ...base, kind: 'TRANSFER', methodTo: 'KASPI' } })).rejects.toThrow(/restaurant_cash_operations_appointment/);
     // второй филиал того же салона: RLS тут не поможет, держит триггер
     const foreign = await db.location.create({ data: { businessId: own.business, name: 'Второй филиал', timezone: 'Asia/Almaty', currency: 'KZT' } });
     await expect(db.restaurantCashOperation.create({ data: { ...base, kind: 'INCOME', locationId: foreign.id } })).rejects.toThrow(
@@ -124,5 +125,33 @@ describe('оплата записи салона (integration, §49)', () => {
     );
     const op = await db.restaurantCashOperation.create({ data: { ...base, kind: 'INCOME' } });
     await expect(db.restaurantCashOperation.update({ where: { id: op.id }, data: { appointmentId: null } })).rejects.toThrow(/immutable/);
+  });
+
+  it('возврат (§54): только после «Выполнено», с причиной, не больше чистой оплаты и остатка способа, повтор по ключу', async () => {
+    const a = await book('17:00');
+    await pay(a.id, 800000, 'CASH');
+    const refund = (amount: number, method = 'CASH', reason: unknown = 'Клиент недоволен', idempotencyKey: string = randomUUID()) =>
+      as(() => service.refund(a.id, { amount, method, reason, idempotencyKey }));
+    await expect(refund(1000)).rejects.toThrow('Возврат оформляют по выполненной записи');
+    await as(() => service.setStatus(a.id, { status: 'DONE' }));
+    await expect(refund(1000, 'CASH', '  ')).rejects.toThrow('Укажите причину возврата');
+    const key = randomUUID();
+    await refund(300000, 'CASH', 'Клиент недоволен', key);
+    const day = await refund(300000, 'CASH', 'Клиент недоволен', key);
+    expect(day.appointments.find((r) => r.id === a.id)).toMatchObject({ paidMinor: '800000', refundedMinor: '300000' });
+    await expect(refund(500001)).rejects.toThrow('Сумма больше оплаченного по записи');
+    await expect(refund(1000, 'HALYK')).rejects.toThrow('В кассе по этому способу меньше этой суммы');
+    // чистая оплата 500 000 ограничивает и доплату: ещё 300 000 можно, 300 001 уже нет
+    await expect(pay(a.id, 300001)).rejects.toThrow('Сумма больше остатка к оплате');
+    const ops = await db.restaurantCashOperation.findMany({ where: { appointmentId: a.id }, orderBy: { createdAt: 'asc' } });
+    expect(ops.map((o) => [o.kind, o.amount, o.status])).toEqual([
+      ['INCOME', 800000n, 'COMPLETED'],
+      ['EXPENSE', 300000n, 'COMPLETED'],
+    ]);
+    expect(ops[1]!.note).toContain('Причина: Клиент недоволен');
+    // ошибочный возврат аннулируется в кассе; оплату после «Выполнено» по-прежнему нет
+    await as(() => cash.voidCashOperation(ops[1]!.id));
+    await expect(as(() => cash.voidCashOperation(ops[0]!.id))).rejects.toThrow('оформите возврат в карточке записи');
+    expect((await as(() => service.day(DATE))).appointments.find((r) => r.id === a.id)).toMatchObject({ refundedMinor: '0' });
   });
 });

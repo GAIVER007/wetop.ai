@@ -104,7 +104,7 @@ describe('рекламные кампании (integration)', () => {
     await expect(as('own', () => campaigns.update(id, { platform: 'GOOGLE', name: 'Осень: лиды' }))).rejects.toMatchObject({ status: 409 });
   });
 
-  it('кампания из кабинета (§54): ручная правка, день и CSV отклоняются словами, данные не меняются', async () => {
+  it('кампания из кабинета (§55): ручная правка, день и CSV отклоняются словами, данные не меняются', async () => {
     const cabinet = await db.marketingCampaign.create({
       data: { locationId: branch.own.location, platform: 'META', name: 'Из кабинета', externalId: '120200000000777' },
       select: { id: true },

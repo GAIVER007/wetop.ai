@@ -22,6 +22,8 @@ describe('Food workspace isolation', () => {
       '/restaurant-finance',
       '/cashbox',
       '/finance',
+      // бар филиала (ADR-178): деньги бара ресторана в кассе ресторана (§45)
+      '/bar',
       '/employees',
       '/payroll',
       '/team',
@@ -57,7 +59,7 @@ describe('Food workspace isolation', () => {
       'Помощь',
       'Профиль',
     ]);
-    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 3, 3, 2, 5, 2, 4]);
+    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 4, 3, 2, 5, 2, 4]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],
@@ -115,6 +117,8 @@ describe('Food workspace isolation', () => {
     expect(routeVertical('/calendar')).toBe('BEAUTY');
     expect(routeVertical('/chessboard')).toBe('HOSPITALITY');
     expect(routeVertical('/customers')).toBeNull();
+    // бар у всех направлений (ADR-178): страница сама зовёт requireVertical
+    expect(routeVertical('/bar')).toBeNull();
     expect(routeVertical('/today')).toBeNull();
   });
 });

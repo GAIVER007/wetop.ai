@@ -3,7 +3,7 @@ import { FolioClosedError, lockOpenFolios } from '@pms/database';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
 import { randomUUID } from 'node:crypto';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { allocateFifo, enabledPaymentMethods, foodCashBalances, foodLocal, LUXX_APARTS_PROPERTY, resolvePaymentMethodSettings, salePriceFromMarkup, zonedStartOfDay } from '@pms/domain';
+import { allocateFifo, enabledPaymentMethods, foodCashBalances, foodLocal, LUXX_APARTS_PROPERTY, resolvePaymentMethodSettings, salePriceFromMarkup, surplusUnitCost, zonedStartOfDay } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyRef } from '../database/property-ref';
 import { currentLocationId, currentOrganizationId } from '../auth/request-context';
@@ -56,7 +56,7 @@ export interface BarRetailSaleInput { productId: string; quantityUnits: bigint; 
 export interface BarFolioSaleInput { folioId: string; productId: string; quantityUnits: bigint; idempotencyKey: string }
 export interface BarWriteOffInput { productId: string; quantityUnits: bigint; reason: string }
 export interface BarSupplierPaymentInput { amountMinor: bigint; method: string; note: string | null }
-export interface BarInventoryCountInput { productId: string; actualUnits: bigint; reason: string }
+export interface BarInventoryCountInput { productId: string; actualUnits: bigint; reason: string; /** цена излишка вручную, тиын за шт (ADR-175) */ unitCostMinor: bigint | null }
 
 export interface BarRepository {
   categories(): Promise<unknown[]>;
@@ -610,10 +610,18 @@ export class PrismaBarRepository implements BarRepository {
       await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE location_id = ${locationId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
       const lots = await (tx as any).barStockLot.findMany({ where: { locationId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
       const systemUnits = lots.reduce((sum: bigint, lot: any) => sum + BigInt(lot.remainingUnits), 0n);
-      if (input.actualUnits > systemUnits) return { kind: 'surplus_requires_cost' as const, systemUnits };
       const difference = input.actualUnits - systemUnits;
       const sourceId = randomUUID();
       let cost = 0n;
+      let surplusCost: bigint | null = null;
+      if (difference > 0n) {
+        // излишек (ADR-175, §47): новая партия без прихода по средней себестоимости остатка, без остатка по цене человека
+        surplusCost = input.unitCostMinor ?? surplusUnitCost(lots.map((lot: any) => ({ remaining: BigInt(lot.remainingUnits), unitCost: BigInt(lot.unitCost) })));
+        if (surplusCost === null) return { kind: 'surplus_requires_cost' as const, systemUnits };
+        cost = difference * surplusCost;
+        const lot = await (tx as any).barStockLot.create({ data: { propertyId, locationId, productId: product.id, receiptLineId: null, receivedUnits: difference, remainingUnits: difference, unitCost: surplusCost, receivedAt: new Date() } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: product.id, lotId: lot.id, kind: 'INVENTORY_ADJUSTMENT', units: difference, unitCost: surplusCost, sourceType: 'BAR_INVENTORY_COUNT', sourceId, note: `${input.reason}; по системе ${systemUnits}; факт ${input.actualUnits}`, createdById: auditUserId() } });
+      }
       if (difference < 0n) {
         const fifo = allocateFifo(lots.map((lot: any) => ({ lotId: lot.id, receivedAt: lot.receivedAt.toISOString(), availableUnits: lot.remainingUnits, unitCostMinor: lot.unitCost })), -difference);
         cost = fifo.totalCostMinor;
@@ -622,7 +630,7 @@ export class PrismaBarRepository implements BarRepository {
           await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: product.id, lotId: allocation.lotId, kind: 'INVENTORY_ADJUSTMENT', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_INVENTORY_COUNT', sourceId, note: `${input.reason}; по системе ${systemUnits}; факт ${input.actualUnits}`, createdById: auditUserId() } });
         }
       }
-      await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_inventory_count', entityId: sourceId, action: 'bar.inventory.counted', after: { productId: product.id, systemUnits: systemUnits.toString(), actualUnits: input.actualUnits.toString(), differenceUnits: difference.toString(), cost: cost.toString(), reason: input.reason } } });
+      await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_inventory_count', entityId: sourceId, action: 'bar.inventory.counted', after: { productId: product.id, systemUnits: systemUnits.toString(), actualUnits: input.actualUnits.toString(), differenceUnits: difference.toString(), cost: cost.toString(), reason: input.reason, ...(surplusCost === null ? {} : { unitCost: surplusCost.toString(), manualPrice: input.unitCostMinor !== null }) } } });
       return { kind: 'adjusted' as const, id: sourceId, systemUnits: systemUnits.toString(), actualUnits: input.actualUnits.toString(), differenceUnits: difference.toString(), costMinor: cost.toString() };
     });
   }

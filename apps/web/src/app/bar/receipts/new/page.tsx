@@ -18,7 +18,7 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
  * карточка заводится прямо из строки и создаётся вместе с приходом.
  */
 export default async function BarNewReceiptPage() {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
   const [products, suppliers, today] = await Promise.all([
     settle(barApi.products()), settle(barApi.suppliers()), hotelToday(),
   ]);

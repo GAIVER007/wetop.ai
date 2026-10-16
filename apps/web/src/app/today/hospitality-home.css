@@ -32,6 +32,8 @@
      общие высоты скелета рассчитаны на прежнюю карточку, и на 1440 он был выше на 133 px, на 390 ниже на 32 */
   .hospitality-home .owner-placeholder--load { min-height: 198px; }
   .hospitality-home .owner-load-counts { margin-block: var(--space-2); }
+  /* скелет равен компактной карточке (около 230 px на любой ширине), иначе «Главная» прыгает при загрузке */
+  .hospitality-home .owner-placeholder--load { min-height: 196px; }
   .hospitality-home .owner-section-head { align-items: baseline; }
   .hospitality-home .owner-section-head h2 { font-size: var(--text-lg); }
   .hospitality-home .biz-today__tiles { gap: var(--space-2); }

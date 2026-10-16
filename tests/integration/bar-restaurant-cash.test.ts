@@ -94,6 +94,9 @@ describe('бар: деньги по направлению филиала (integ
         repo.sellToFolio({ folioId: randomUUID(), productId: product, quantityUnits: 1n, idempotencyKey: `folio-${tag}` }),
       ),
     ).toEqual({ kind: 'no_folio' });
+    // ответы журналов уходят в JSON целиком: вложенный товар не должен нести BigInt (иначе HTTP 500 на /bar/sales и /bar/movements)
+    for (const rows of [await as('FOOD_SERVICE', () => repo.sales()), await as('FOOD_SERVICE', () => repo.movements())])
+      expect(() => JSON.stringify(rows)).not.toThrow();
     expect(await as('FOOD_SERVICE', () => repo.reverseSale(barSale.id, true, 'Ошибка кассира'))).toMatchObject({ kind: 'reversed' });
     const voided = await prisma.db.restaurantCashOperation.findUniqueOrThrow({ where: { id: income[0]!.id } });
     expect(voided.status).toBe('VOIDED');

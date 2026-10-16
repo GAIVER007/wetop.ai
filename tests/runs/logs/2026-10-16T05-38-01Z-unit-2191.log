@@ -1,0 +1,32 @@
+# Модульные (unit) · 16.10.2026 10:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит b6e59e0 (claude/bar-surplus), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-38-01Z-unit-2191.json' 'tests/unit/migrations-hold.test.ts' 'tests/unit/migrations-rollback.test.ts' 'tests/unit/organization-migration-order.test.ts' 'packages/database/src'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 67ms
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (119 tests) 65ms
+ ✓ |unit| packages/database/src/pool.test.ts (4 tests) 9ms
+ ✓ |unit| packages/database/src/rls.test.ts (5 tests) 8ms
+ ✓ |unit| packages/database/src/rls-startup.test.ts (10 tests) 17ms
+ ✓ |unit| packages/database/src/connection-timezone.test.ts (18 tests) 88ms
+ ✓ |unit| packages/database/src/vertical-contract.test.ts (1 test) 12ms
+ ✓ |unit| packages/database/src/schema.test.ts (4 tests) 8ms
+ ✓ |unit| tests/unit/organization-migration-order.test.ts (1 test) 35ms
+ ✓ |unit| packages/database/src/client-errors.test.ts (1 test) 91ms
+ ✓ |unit| packages/database/src/pool-timeouts.test.ts (5 tests) 3735ms
+   ✓ пул соединений: мёртвое соединение не вешает процесс (5)
+     ✓ запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 1051ms
+     ✓ запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 726ms
+     ✓ все места пула заняты зависшими запросами — ожидание места ограничено сроком 351ms
+     ✓ сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 360ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1244ms
+
+ Test Files  11 passed (11)
+      Tests  172 passed (172)
+   Start at  22:38:04
+   Duration  5.54s (tests 45%, transform 31%, import 23%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-38-01Z-unit-2191.json
+
+# код выхода 0 · 9 с

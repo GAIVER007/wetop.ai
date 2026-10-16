@@ -29,6 +29,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { FoodModule } from './food-service/food.module';
 import { MarketingBudgetModule } from './marketing-budget/marketing-budget.module';
+import { MarketingAdsModule } from './marketing-ads/marketing-ads.module';
 import { MarketingSiteModule } from './marketing-site/marketing-site.module';
 import { SitesRuntimeModule } from './sites-runtime/sites-runtime.module';
 import { BeautyModule } from './beauty/beauty.module';
@@ -59,6 +60,7 @@ import { DataConnectionModule } from './database/connection';
     FoodModule,
     MarketingSiteModule,
     MarketingBudgetModule,
+    MarketingAdsModule,
     SitesRuntimeModule,
     HotelModule,
     PropertyMediaModule,

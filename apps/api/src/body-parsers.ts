@@ -1,4 +1,9 @@
-import express, { type NextFunction, type Request, type RequestHandler, type Response } from 'express';
+import express, {
+  type NextFunction,
+  type Request,
+  type RequestHandler,
+  type Response,
+} from 'express';
 
 /**
  * Разбор тела запросов API (MKT3, решение владельца 06.10.2026). Nest запускается с `bodyParser: false`, а парсеры
@@ -17,6 +22,9 @@ import express, { type NextFunction, type Request, type RequestHandler, type Res
  * в base64 это ~10,7 МБ плюс конверт JSON, транспортный предел 12 МБ. Продуктовый предел файла держит
  * `bar-scan.service.ts` (SCAN_MAX_BASE64), это разные числа, как у версии сайта.
  *
+ * Предложение ИИ-таргетолога (ADR-MKT-LAUNCH): `POST /marketing/ads/proposal` несёт фото креатива или кадры видео
+ * тем же пределом 12 МБ; продуктовый предел держит `marketing-ads/ad-proposal.ts`.
+ *
  * Импорт расходов маркетинга (МКТ-В2): `POST /marketing/expenses/import` несёт CSV до 1000 строк текстом,
  * кириллица и экранирование JSON не влезают в 100 КБ; транспортный предел 1 МБ, файл стойка режет на 512 КБ.
  */
@@ -27,6 +35,7 @@ export const MARKETING_IMPORT_BODY_LIMIT = 1024 * 1024;
 const SITE_VERSIONS_PATH = '/marketing/site/versions';
 const BAR_SCAN_PATH = '/bar/receipts/scan';
 const MARKETING_IMPORT_PATH = '/marketing/expenses/import';
+const AD_PROPOSAL_PATH = '/marketing/ads/proposal';
 
 /** Сохранение версии сайта: только POST и только этот путь (хвостовую косую черту Express тоже ведёт в маршрут) */
 export function isSiteVersionSave(req: Pick<Request, 'method' | 'path'>): boolean {
@@ -36,6 +45,11 @@ export function isSiteVersionSave(req: Pick<Request, 'method' | 'path'>): boolea
 /** Скан накладной бара: только POST и только этот путь */
 export function isBarReceiptScan(req: Pick<Request, 'method' | 'path'>): boolean {
   return req.method === 'POST' && req.path.replace(/\/+$/, '') === BAR_SCAN_PATH;
+}
+
+/** Предложение ИИ-таргетолога: только POST и только этот путь */
+export function isAdProposal(req: Pick<Request, 'method' | 'path'>): boolean {
+  return req.method === 'POST' && req.path.replace(/\/+$/, '') === AD_PROPOSAL_PATH;
 }
 
 /** Импорт расходов маркетинга из CSV: только POST и только этот путь */
@@ -52,7 +66,7 @@ export function apiBodyParsers(): RequestHandler[] {
     (req: Request, res: Response, next: NextFunction) =>
       (isSiteVersionSave(req)
         ? siteVersionJson
-        : isBarReceiptScan(req)
+        : isBarReceiptScan(req) || isAdProposal(req)
           ? barScanJson
           : isMarketingImport(req)
             ? importJson

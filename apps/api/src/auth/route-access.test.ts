@@ -123,6 +123,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /marketing/campaigns/:id/stats': 'marketing',
   'POST /marketing/campaigns/:id/stats/import': 'marketing',
   'DELETE /marketing/campaigns/:id/stats/:date': 'marketing',
+  // ИИ-таргетолог (ADR-MKT-LAUNCH, §57): предложение ИИ ничего не создаёт, но готовит запуск, право запуска
+  'POST /marketing/ads/proposal': 'ads_launch',
   // МКТ-В5a: результаты каналов для «Аналитики маркетинга», право страницы
   'GET /marketing/results': 'marketing',
   'POST /marketing/expenses': 'marketing',

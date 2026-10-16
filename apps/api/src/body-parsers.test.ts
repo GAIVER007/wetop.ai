@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import express from 'express';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { BAR_SCAN_BODY_LIMIT, DEFAULT_JSON_LIMIT, MARKETING_IMPORT_BODY_LIMIT, SITE_VERSION_BODY_LIMIT, isBarReceiptScan, isMarketingImport, isSiteVersionSave, useApiBodyParsers } from './body-parsers';
+import { BAR_SCAN_BODY_LIMIT, DEFAULT_JSON_LIMIT, MARKETING_IMPORT_BODY_LIMIT, SITE_VERSION_BODY_LIMIT, isAdProposal, isBarReceiptScan, isMarketingImport, isSiteVersionSave, useApiBodyParsers } from './body-parsers';
 
 /** Разбор тела API (MKT3): 300 КБ только у сохранения версии сайта, остальным прежние 100 КБ */
 function app() {
@@ -41,6 +41,10 @@ describe('разбор тела API', () => {
     expect(isBarReceiptScan({ method: 'POST', path: '/bar/receipts/scan' })).toBe(true);
     expect(isBarReceiptScan({ method: 'POST', path: '/bar/receipts/scan/' })).toBe(true);
     expect(isBarReceiptScan({ method: 'GET', path: '/bar/receipts/scan' })).toBe(false);
+    // предложение ИИ-таргетолога несёт фото креатива или кадры видео тем же пределом (ADR-MKT-LAUNCH)
+    expect(isAdProposal({ method: 'POST', path: '/marketing/ads/proposal' })).toBe(true);
+    expect(isAdProposal({ method: 'GET', path: '/marketing/ads/proposal' })).toBe(false);
+    expect((await request(app()).post('/marketing/ads/proposal').send(body(8 * 1024 * 1024))).status).toBe(200);
     expect(isBarReceiptScan({ method: 'POST', path: '/bar/receipts' })).toBe(false);
     const ok = await request(app()).post('/bar/receipts/scan').send(body(8 * 1024 * 1024));
     expect(ok.status).toBe(200);

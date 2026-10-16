@@ -1,0 +1,25 @@
+# Модульные (unit) · 16.10.2026 20:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 73d2b26 (claude/marketing-ad-proposal), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-57-19Z-unit-edbc.json' 'tests/unit/design-slop.test.ts' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 4ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 7006ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1642ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 995ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1320ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 1336ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 1053ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 643ms
+
+ Test Files  2 passed (2)
+      Tests  26 passed (26)
+   Start at  08:57:20
+   Duration  7.10s (tests 97%, import 3%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-57-19Z-unit-edbc.json
+
+# код выхода 0 · 8 с

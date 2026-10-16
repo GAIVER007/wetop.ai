@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 16.10.2026 16:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/calendar-polish), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--repeat-each=2' 'tests/ui/chessboard-card.spec.ts' '-g' 'подпись подстраивается'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] Request timed out after 3000ms
+[WebServer] 
+[WebServer] Retrying 1/3...
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 [main-ui-0] › ../.wetop-main-ui-zOwUX9/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (49.9s)
+  ✓  2 [main-ui-0] › ../.wetop-main-ui-zOwUX9/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (33.6s)
+
+
+  1) [main-ui-0] › ../.wetop-main-ui-zOwUX9/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('.board-stay-caption[data-span="3"] .board-stay-name').first()
+    Expected: visible
+    Received: undefined
+
+
+      207 |   await expect(
+      208 |     page.locator('.board-stay-caption[data-span="3"] .board-stay-name').first(),
+    > 209 |   ).toBeVisible();
+          |     ^
+      210 |   await expect(page.getByTestId('cell-due').filter({ visible: true }).first()).toContainText('₸');
+      211 |   // 30 дней: одна ночь — «Имя Ф.», полное имя спрятано; долг на узкой — точкой
+      212 |   await chooseBoardPeriod(page, '30 дней');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-zOwUX9/worker-0/tests/ui/chessboard-card.spec.ts:209:5
+
+    Error Context: test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [main-ui-0] › ../.wetop-main-ui-zOwUX9/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой 
+  1 passed (3.2m)
+
+# код выхода 1 · 3 мин 14 с

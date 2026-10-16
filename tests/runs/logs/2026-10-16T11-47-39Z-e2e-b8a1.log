@@ -1,0 +1,668 @@
+# Сквозные (e2e) · 16.10.2026 16:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит e33e8b7 (claude/calendar-polish), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/calendar-workspace.spec.ts' 'tests/ui/calendar-feedback.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-blocks.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-card.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/chessboard-extend.spec.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/chessboard-focus.spec.ts' 'tests/ui/chessboard-gate-pr3.spec.ts' 'tests/ui/chessboard-gate-pr4.spec.ts' 'tests/ui/chessboard-gate-pr5.spec.ts' 'tests/ui/chessboard-gate-pr6.spec.ts' 'tests/ui/chessboard-gate-pr7.spec.ts' 'tests/ui/chessboard-gate.spec.ts' 'tests/ui/chessboard-grid.spec.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-range.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-unassigned.spec.ts' 'tests/ui/chessboard-week.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 138 tests using 1 worker
+
+  ✓    1 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (16.0s)
+  ✓    2 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1280px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (14.4s)
+  ✓    3 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1366px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (5.3s)
+  ✓    4 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1440px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (2.0s)
+  ✓    5 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/calendar-workspace.spec.ts:7:1 › calendar fills notebook screen without a side summary and keeps frozen headings (1.6s)
+  ✓    6 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/calendar-workspace.spec.ts:29:1 › expanded calendar restores the workspace with Escape and remembers density (3.7s)
+  ✓    7 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/calendar-workspace.spec.ts:53:1 › booking menu and keyboard remain usable in the expanded calendar (2.5s)
+  ✓    8 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки залита плашкой и называет тип словом (2.3s)
+  ✓    9 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-blocks.spec.ts:48:1 › блокировка «с X до X+1» закрывает одну ночь X, как API; пустой период стенд отклоняет (2.6s)
+  ✓   10 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:17:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (4.5s)
+  ✓   11 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:45:1 › двойной клик открывает полную карточку брони (17.6s)
+  ✓   12 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:51:1 › живой двойной щелчок по самой правой плашке открывает полную карточку, хотя первый щелчок сужает сетку (25.1s)
+  ✓   13 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:76:1 › действия по статусу: подтверждённой: заселить, проживающему: выселить (15.0s)
+  ✓   14 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:98:1 › повторный щелчок по той же плашке закрывает панель, по другой переключает её (10.8s)
+  ✓   15 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:118:1 › панель брони не висит всегда: нет при загрузке, закрывается щелчком мимо и сменой периода (6.4s)
+  ✓   16 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:152:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (13.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+  ✓   17 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (13.5s)
+  ✓   18 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:232:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (7.1s)
+  ✓   19 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:260:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (17.4s)
+  ✘   20 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:275:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (28.4s)
+  ✓   21 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › 14 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (9.9s)
+  ✓   22 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › 30 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (7.2s)
+  ✓   23 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › Текущий месяц: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (5.3s)
+  ✓   24 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (5.8s)
+  ✓   25 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-design.spec.ts:39:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (13.9s)
+  ✓   26 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-design.spec.ts:67:3 › дизайн шахматки: light, компактное управление и доступная сетка (18.8s)
+  ✓   27 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-design.spec.ts:67:3 › дизайн шахматки: dark, компактное управление и доступная сетка (39.5s)
+  ✓   28 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-extend.spec.ts:27:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (10.7s)
+  ✓   29 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-extend.spec.ts:46:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (11.9s)
+  ✓   30 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-extend.spec.ts:85:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (5.8s)
+  ✓   31 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-extend.spec.ts:118:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (8.6s)
+  ✓   32 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 escape: restores cell focus without scrolling (5.3s)
+  ✓   33 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 button: restores cell focus without scrolling (2.6s)
+  ✓   34 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 escape: restores cell focus without scrolling (2.0s)
+  ✓   35 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 button: restores cell focus without scrolling (1.8s)
+  ✓   36 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 escape: restores cell focus without scrolling (1.7s)
+  ✓   37 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 button: restores cell focus without scrolling (1.8s)
+  ✓   38 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling (2.2s)
+  ✓   39 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling (2.5s)
+  ✓   40 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-focus.spec.ts:64:1 › free panel outside click leaves focus on the selected control (2.1s)
+  ✓   41 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: light (11.0s)
+  ✓   42 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: dark (12.8s)
+  ✓   43 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-gate-pr6.spec.ts:47:3 › гейт PR 6: light (8.4s)
+  ✓   44 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-gate-pr6.spec.ts:47:3 › гейт PR 6: dark (8.9s)
+  ✓   45 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (4.9s)
+  ✓   46 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх (9.9s)
+  ✓   47 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-gate.spec.ts:104:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (52.8s)
+  ✘   48 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (24.1s)
+  ✓   49 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (20.1s)
+  ✓   50 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (17.5s)
+  ✓   51 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (14.0s)
+  ✓   52 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (36.7s)
+  ✓   53 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (9.2s)
+  ✓   54 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:160:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (7.1s)
+  ✓   55 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 360: виджеты дня перед календарём и вертикальная прокрутка (9.9s)
+  ✓   56 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 390: виджеты дня перед календарём и вертикальная прокрутка (9.0s)
+  ✓   57 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 430: виджеты дня перед календарём и вертикальная прокрутка (5.5s)
+  ✓   58 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:222:1 › мобильная панель меняет заезд без закрытия и показывает выезд (16.8s)
+  ✘   59 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:242:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (56.5s)
+  ✓   60 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:274:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (25.4s)
+  ✓   61 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:297:3 › телефон light: длинное имя и бронь на 28 ночей (18.4s)
+  ✓   62 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:297:3 › телефон dark: длинное имя и бронь на 28 ночей (21.4s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   63 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:330:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (21.7s)
+  ✘   64 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-range.spec.ts:58:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена (47.2s)
+  ✓   65 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-range.spec.ts:92:1 › выделение не заходит на занятую или закрытую ночь — ни вправо, ни влево (18.9s)
+  ✘   66 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-range.spec.ts:134:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом (22.6s)
+  ✓   67 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-range.spec.ts:157:1 › «только чтение» (ADR-102): окошко говорит, что свободно, но действий не предлагает (21.9s)
+  ✓   68 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) (15.8s)
+  ✓   69 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-unassigned.spec.ts:116:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом (7.5s)
+  ✓   70 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-unassigned.spec.ts:157:1 › «Разрешить» у «Продано сверх мест» и ссылка с Главной открывают ящик; тон critical (4.8s)
+  ✓   71 [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-unassigned.spec.ts:175:1 › «только чтение» (ADR-102): места видны, назначить нельзя, бронь открывается (10.4s)
+  ✘   72 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: light, month and booking preview (47.8s)
+  ✓   73 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: dark, month and booking preview (24.3s)
+  ✘   74 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:30:1 › new booking cancel returns to the selected month and mobile actions fit (35.5s)
+  ✓   75 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:50:1 › calendar has one search and keeps local filtering (17.7s)
+  ✓   76 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:69:1 › automated fixture pages exclude the manual annotation toolbar (6.3s)
+  ✓   77 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (3.6s)
+  ✓   78 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-calendar.spec.ts:49:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (1.7s)
+  ✓   79 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-calendar.spec.ts:62:3 › гейт «Календарь»: light (4.7s)
+  ✓   80 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-calendar.spec.ts:62:3 › гейт «Календарь»: dark (10.6s)
+  ✓   81 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-calendar.spec.ts:75:1 › пустая клетка не дублирует дату из шапки календаря (2.8s)
+  ✓   82 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-calendar.spec.ts:83:1 › даты в шапке не повторяют свободные и занятые места (5.1s)
+  ✓   83 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (6.7s)
+  ✓   84 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-compact-screen.spec.ts:62:1 › свёрнутые категории переживают перезагрузку и разворачиваются (5.5s)
+  ✓   85 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Обычный» (образец владельца 09.10), сохранённые «Компактный» и «Подробный» восстанавливаются (26.9s)
+  ✓   86 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (16.1s)
+  ✓   87 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (11.0s)
+  ✓   88 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (12.9s)
+  ✓   89 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (19.5s)
+  ✓   90 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (15.4s)
+  ✓   91 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (18.3s)
+  ✓   92 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:147:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (18.5s)
+  ✘   93 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:178:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (52.1s)
+  ✓   94 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:243:1 › §37: ничего не найдено — «Сбросить фильтры» (20.9s)
+  ✓   95 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:256:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (5.8s)
+  ✓   96 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:288:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (2.6s)
+  ✓   97 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:306:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (3.5s)
+  ✓   98 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:333:1 › доступность: окошко «Фильтры» открыто (3.2s)
+  ✓   99 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: light (6.7s)
+  ✓  100 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: dark (6.9s)
+  ✓  101 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light (10.0s)
+  ✓  102 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: dark (14.9s)
+  ✓  103 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: light (19.1s)
+  ✓  104 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: dark (10.8s)
+  ✓  105 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-grid.spec.ts:12:1 › колонка места объясняет себя подсказкой: вид, код и состояние уборки (2.3s)
+  ✓  106 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-grid.spec.ts:23:1 › свёрнутая категория переживает перезагрузку страницы (5.8s)
+  ✓  107 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-grid.spec.ts:39:1 › строка категории прилипает под шапкой дат при вертикальной прокрутке (2.3s)
+  ✓  108 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (4.5s)
+  ✓  109 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (10.0s)
+  ✓  110 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:26:1 › все 31 день помещаются по ширине окна (9.7s)
+  ✓  111 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (27.9s)
+  ✓  112 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (13.4s)
+  ✓  113 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (9.5s)
+  ✓  114 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (14.7s)
+  ✘  115 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:65:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (50.2s)
+  ✘  116 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:88:1 › 30 дней: окно от сегодня и шаг стрелки равен диапазону (53.5s)
+  ✘  117 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:115:1 › в месяце открываются брони, свободные даты и группы номеров (48.0s)
+  ✓  118 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:158:3 › месячная сетка: light, читаемость и адаптивность (1.4m)
+  ✓  119 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:158:3 › месячная сетка: dark, читаемость и адаптивность (1.2m)
+  ✓  120 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (15.4s)
+  ✓  121 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (11.5s)
+  ✓  122 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (15.5s)
+  ✓  123 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-statistics.spec.ts:76:1 › today statistics stay available when the calendar shows another month (28.6s)
+  ✓  124 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-statistics.spec.ts:90:1 › empty booking base shows zero occupancy and no urgent bookings (10.7s)
+  ✓  125 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-statistics.spec.ts:104:3 › daily widgets light: accessible labels and contrasts (16.5s)
+  ✓  126 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-statistics.spec.ts:104:3 › daily widgets dark: accessible labels and contrasts (30.1s)
+  ✓  127 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-statistics.spec.ts:121:3 › desktop daily widgets light: accessible pointer targets (29.8s)
+  ✓  128 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-statistics.spec.ts:121:3 › desktop daily widgets dark: accessible pointer targets (45.0s)
+  ✓  129 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:20:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (21.7s)
+  ✘  130 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:39:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (47.9s)
+  ✘  131 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:94:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (46.6s)
+  ✘  132 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (57.9s)
+  ✘  133 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (47.0s)
+  ✓  134 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (30.7s)
+  ✓  135 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:146:1 › в неделе работают бронь, категории и создание на воскресенье (19.3s)
+  ✓  136 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:186:3 › неделя помещается на экране: light, обе панели и телефон (1.8m)
+  ✘  137 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:186:3 › неделя помещается на экране: dark, обе панели и телефон (2.0m)
+  ✓  138 [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:225:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (14.7s)
+
+
+  1) [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:275:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/20260913-NEW\d+$/
+    Received string:  "http://127.0.0.1:3100/reservations/new?unit=M03"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        24 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__8mga2G__variable">…</html>
+           - unexpected value "http://127.0.0.1:3100/reservations/new?unit=M03"
+
+
+      282 |   await form.getByRole('button', { name: '3 ночи', exact: true }).click();
+      283 |   await form.getByRole('button', { name: 'Создать бронь', exact: true }).click();
+    > 284 |   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
+          |                      ^
+      285 |   const number = page.url().split('/').pop()!;
+      286 |   await page.goto('/chessboard');
+      287 |   const stay = page
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:284:22
+
+    Error Context: test-results/chessboard-card-служебный--a0ddd-вторяется-бронь-открывается-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-служебный--a0ddd-вторяется-бронь-открывается-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-служебный--a0ddd-вторяется-бронь-открывается-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/new\?arrival=2026-10-16&departure=2026-10-19&unit=R07/
+    Received string:  "http://127.0.0.1:3100/chessboard?from=2026-10-16&to=2026-10-22"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        27 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__8mga2G__variable">…</html>
+           - unexpected value "http://127.0.0.1:3100/chessboard?from=2026-10-16&to=2026-10-22"
+
+
+      85 |     });
+      86 |     await menu.getByRole('link', { name: 'Создать бронь', exact: true }).tap();
+    > 87 |     await expect(page).toHaveURL(
+         |                        ^
+      88 |       new RegExp(`/reservations/new\\?arrival=${from}&departure=${add(from, 3)}&unit=R07`),
+      89 |     );
+      90 |     await context.close();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:87:24
+
+    Error Context: test-results/chessboard-mobile-телефон--41ffa--и-бронь-на-несколько-ночей-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--41ffa--и-бронь-на-несколько-ночей-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--41ffa--и-бронь-на-несколько-ночей-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:242:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Target page, context or browser has been closed
+
+       at ../../../.wetop-main-ui-9VRGDK/worker-0/tests/ui/fixtures.ts:235
+
+      233 |   await page.getByTestId('board-period-button').click();
+      234 |   const menu = page.locator('.board-nav .date-range');
+    > 235 |   await menu.getByRole('button', { name: preset, exact: true }).click();
+          |                                                                 ^
+      236 |   await menu.getByRole('button', { name: 'Применить', exact: true }).click();
+      237 | }
+      238 |
+        at chooseBoardPeriod (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-0/tests/ui/fixtures.ts:235:65)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:258:3
+
+    Error Context: test-results/chessboard-mobile-календар-c3c9b--и-сбрасывает-их-по-Сегодня-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-календар-c3c9b--и-сбрасывает-их-по-Сегодня-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-календар-c3c9b--и-сбрасывает-их-по-Сегодня-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-range.spec.ts:58:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/chessboard-range-протянул--00ca9-атами-форма-брони-заполнена-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-range-протянул--00ca9-атами-форма-брони-заполнена-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-range-протянул--00ca9-атами-форма-брони-заполнена-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-range.spec.ts:134:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/units\/R07\?blockFrom=2026-10-17&blockTo=2026-10-18/
+    Received string:  "http://127.0.0.1:3100/chessboard?from=2026-10-15&to=2026-10-21"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        23 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__8mga2G__variable">…</html>
+           - unexpected value "http://127.0.0.1:3100/chessboard?from=2026-10-15&to=2026-10-21"
+
+
+      147 |   );
+      148 |   await menu.getByRole('link', { name: 'Блокировка', exact: true }).click();
+    > 149 |   await expect(page).toHaveURL(
+          |                      ^
+      150 |     new RegExp(`/units/R07\\?blockFrom=${night}&blockTo=${add(night, 1)}`),
+      151 |   );
+      152 |   const form = page.getByTestId('block-form');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-range.spec.ts:149:22
+
+    Error Context: test-results/chessboard-range-щелчок-по-fb414--карточка-ячейки-с-периодом-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-range-щелчок-по-fb414--карточка-ячейки-с-периодом-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-range-щелчок-по-fb414--карточка-ячейки-с-периодом-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: light, month and booking preview 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: frame.evaluate: Test timeout of 45000ms exceeded.
+
+      20 |     await expect(page.getByTestId('stay-preview')).toBeVisible();
+      21 |     expect(
+    > 22 |       (await new AxeBuilder({ page }).include('[data-testid="stay-preview"]').analyze()).violations,
+         |        ^
+      23 |     ).toEqual([]);
+      24 |     await page.getByTestId('stay-preview').screenshot({ path: `${evidence}/${theme}-preview.jpg` });
+      25 |     await page.getByRole('button', { name: 'Закрыть предпросмотр', exact: true }).click();
+        at AxeBuilder.runPartialRecursive (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/node_modules/@axe-core/playwright/dist/index.mjs:283:34)
+        at AxeBuilder.analyze (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/node_modules/@axe-core/playwright/dist/index.mjs:210:28)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:22:8
+
+    Error Context: test-results/calendar-feedback-calendar-43805-t-month-and-booking-preview-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/calendar-feedback-calendar-43805-t-month-and-booking-preview-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/calendar-feedback-calendar-43805-t-month-and-booking-preview-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:30:1 › new booking cancel returns to the selected month and mobile actions fit 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByTestId('new-reservation-form')
+    Expected: visible
+    Received: hidden
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('new-reservation-form') with timeout 15000ms
+      - waiting for getByTestId('new-reservation-form')
+        - locator resolved to <form data-testid="new-reservation-form" class="panel panel--lg booking-form new-reservation-module__Eh0RPa__form" action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')">…</form>
+        - unexpected value "hidden"
+
+
+      35 |   await page.getByRole('link', { name: 'Новая бронь', exact: true }).click();
+      36 |   const form = page.getByTestId('new-reservation-form');
+    > 37 |   await expect(form).toBeVisible();
+         |                      ^
+      38 |   const cancel = form.getByRole('button', { name: 'Отмена', exact: true });
+      39 |   await expect(cancel).toBeEnabled();
+      40 |   await cancel.scrollIntoViewIfNeeded();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:37:22
+
+    Error Context: test-results/calendar-feedback-new-book-4baf8-onth-and-mobile-actions-fit-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/calendar-feedback-new-book-4baf8-onth-and-mobile-actions-fit-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/calendar-feedback-new-book-4baf8-onth-and-mobile-actions-fit-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:178:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/20260913-NEW1/
+    Received string:  "http://127.0.0.1:3101/chessboard?from=2026-10-15&to=2026-10-21"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        30 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__D7Rv7G__variable">…</html>
+           - unexpected value "http://127.0.0.1:3101/chessboard?from=2026-10-15&to=2026-10-21"
+
+
+      224 |   await search.fill('Поискова');
+      225 |   await search.press('Enter');
+    > 226 |   await expect(page).toHaveURL(new RegExp(`/reservations/${near}`));
+          |                      ^
+      227 |   await expect(
+      228 |     page
+      229 |       .getByRole('dialog', { name: 'Бронирование', exact: true })
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:226:22
+
+    Error Context: test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:65:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('date-col')
+    Expected: 31
+    Received: 0
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('date-col') with timeout 15000ms
+      - waiting for getByTestId('date-col')
+        8 × locator resolved to 0 elements
+          - unexpected value "0"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      78 |   const monthStart = `${currentMonth.toISOString().slice(0, 7)}-01`;
+      79 |   currentMonth.setUTCMonth(currentMonth.getUTCMonth() + 1, 0);
+    > 80 |   await expect(page.getByTestId('date-col')).toHaveCount(currentMonth.getUTCDate());
+         |                                              ^
+      81 |   await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', monthStart);
+      82 |   await chooseBoardPeriod(page, 'Сегодня');
+      83 |   await expect(page.getByTestId('date-col')).toHaveCount(1);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:80:46
+
+    Error Context: test-results/chessboard-month-7-дней-14-8cdbf-й-период-и-возврат-к-месяцу-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-7-дней-14-8cdbf-й-период-и-возврат-к-месяцу-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-7-дней-14-8cdbf-й-период-и-возврат-к-месяцу-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:88:1 › 30 дней: окно от сегодня и шаг стрелки равен диапазону 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3101/chessboard", waiting until "load"
+
+
+       at ../../../.wetop-main-ui-9VRGDK/worker-1/tests/ui/fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/fixtures.ts:166:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:90:3
+
+    Error Context: test-results/chessboard-month-30-дней-о-ba5ba-шаг-стрелки-равен-диапазону-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-30-дней-о-ba5ba-шаг-стрелки-равен-диапазону-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-30-дней-о-ba5ba-шаг-стрелки-равен-диапазону-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:115:1 › в месяце открываются брони, свободные даты и группы номеров 
+
+    Error: React не оживил элемент: скрипты стойки не дошли или упали
+
+    Test timeout of 45000ms exceeded
+
+       at ../../../.wetop-main-ui-9VRGDK/worker-1/tests/ui/fixtures.ts:128
+
+      126 |       { message: 'React не оживил элемент: скрипты стойки не дошли или упали', timeout: 30_000 },
+      127 |     )
+    > 128 |     .toBe(true);
+          |      ^
+      129 | }
+      130 |
+      131 | /**
+        at hydrated (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/fixtures.ts:128:6)
+        at openFullCard (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/fixtures.ts:210:9)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:124:9
+
+    Error Context: test-results/chessboard-month-в-месяце--4ca2d-одные-даты-и-группы-номеров-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-в-месяце--4ca2d-одные-даты-и-группы-номеров-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-в-месяце--4ca2d-одные-даты-и-группы-номеров-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:39:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('unit-row')
+    Expected: 16
+    Received: undefined
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('unit-row') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('unit-row')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      78 |     await filters.getByLabel('Категория в календаре').selectOption('ROOM');
+      79 |     await filters.getByRole('button', { name: 'Применить', exact: true }).click();
+    > 80 |     await expect(main.getByTestId('unit-row')).toHaveCount(16);
+         |                                                ^
+      81 |     // заданная категория — чипом с крестиком: поля категории в строке на телефоне нет
+      82 |     const chip = main.getByRole('button', { name: /^Убрать условие: / });
+      83 |     await expect(chip).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:80:48
+
+    Error Context: test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:94:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/chessboard-week-C1-подсказ-3366f--места-доступны-на-телефоне-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-C1-подсказ-3366f--места-доступны-на-телефоне-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-C1-подсказ-3366f--места-доступны-на-телефоне-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2026-09-28 → 2026-10-05 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3101/chessboard?from=2026-09-28&to=2026-10-04", waiting until "load"
+
+
+       at ../../../.wetop-main-ui-9VRGDK/worker-1/tests/ui/fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/fixtures.ts:166:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:127:5
+
+    Error Context: test-results/chessboard-week-переход-ка-ff445-ели-2026-09-28-→-2026-10-05-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-переход-ка-ff445-ели-2026-09-28-→-2026-10-05-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-переход-ка-ff445-ели-2026-09-28-→-2026-10-05-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2026-12-28 → 2027-01-04 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Фильтры календаря' }).getByLabel('Категория в календаре')
+        - locator resolved to <select class="inp" aria-label="Категория в календаре">…</select>
+      - attempting select option action
+        - waiting for element to be visible and enabled
+
+
+       at ../../../.wetop-main-ui-9VRGDK/worker-1/tests/ui/fixtures.ts:243
+
+      241 |   const pop = await openBoardFilters(page);
+      242 |   if (pick.category !== undefined)
+    > 243 |     await pop.getByLabel('Категория в календаре').selectOption(pick.category);
+          |                                                   ^
+      244 |   if (pick.state !== undefined) await pop.getByLabel('Места в календаре').selectOption(pick.state);
+      245 |   await pop.getByRole('button', { name: 'Применить', exact: true }).click();
+      246 |   await expect(pop).toBeHidden();
+        at boardFilter (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/fixtures.ts:243:51)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:138:5
+
+    Error Context: test-results/chessboard-week-переход-ка-ef388-ели-2026-12-28-→-2027-01-04-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-переход-ка-ef388-ели-2026-12-28-→-2027-01-04-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-переход-ка-ef388-ели-2026-12-28-→-2027-01-04-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:186:3 › неделя помещается на экране: dark, обе панели и телефон 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 120000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      206 |       }
+      207 |       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
+    > 208 |       const result = await new AxeBuilder({ page })
+          |                      ^
+      209 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+      210 |         .analyze();
+      211 |       report.push({ width, overflow, violations: result.violations });
+        at AxeBuilder.analyze (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/node_modules/@axe-core/playwright/dist/index.mjs:218:13)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:208:22
+
+    Error Context: test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16 failed
+    [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-card.spec.ts:275:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается 
+    [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей 
+    [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-mobile.spec.ts:242:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня 
+    [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-range.spec.ts:58:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена 
+    [main-ui-0] › ../.wetop-main-ui-9VRGDK/worker-0/tests/ui/chessboard-range.spec.ts:134:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:7:3 › calendar feedback: light, month and booking preview 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/calendar-feedback.spec.ts:30:1 › new booking cancel returns to the selected month and mobile actions fit 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-filters.spec.ts:178:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:65:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:88:1 › 30 дней: окно от сегодня и шаг стрелки равен диапазону 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-month.spec.ts:115:1 › в месяце открываются брони, свободные даты и группы номеров 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:39:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:94:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2026-09-28 → 2026-10-05 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2026-12-28 → 2027-01-04 
+    [main-ui-1] › ../.wetop-main-ui-9VRGDK/worker-1/tests/ui/chessboard-week.spec.ts:186:3 › неделя помещается на экране: dark, обе панели и телефон 
+  122 passed (47.9m)
+
+# код выхода 1 · 47 мин 59 с

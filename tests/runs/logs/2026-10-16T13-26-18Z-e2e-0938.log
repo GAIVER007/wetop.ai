@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 16.10.2026 18:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 51365c2 (claude/restaurant-refund), незакоммиченных файлов набора: 34
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/team.spec.ts' '-g' 'Роли и права'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1680ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/team.spec.ts:218:1 › «Роли и права»: вкладка только на чтение, права трёх ролей по таблице API (35.1s)
+  ✓  2 tests/ui/team.spec.ts:245:1 › «Роли и права»: администратору закрыто (3.3s)
+
+  2 passed (54.6s)
+
+# код выхода 0 · 1 мин 7 с

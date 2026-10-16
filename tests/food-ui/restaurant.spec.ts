@@ -229,6 +229,15 @@ test('заказы: создание с экрана, оплата частям�
   await rating.getByRole('button', { name: 'Отправить оценку' }).click();
   await expect(rating.getByLabel('Оценка 4 из 5')).toBeVisible();
   await expect(rating).toContainText('Вкусно, но долго');
+  // возврат по закрытому заказу (§56): без причины подсказка, с причиной «Возвращено»
+  const refund = payment.getByRole('region', { name: 'Возврат по заказу' });
+  await expect(refund.getByLabel('Сумма возврата, ₸')).toHaveValue('780');
+  await refund.getByLabel('Сумма возврата, ₸').fill('200');
+  await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+  await expect(payment.getByRole('alert')).toContainText('Укажите причину возврата');
+  await refund.getByLabel('Причина возврата').fill('Блюдо остыло');
+  await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+  await expect(payment.getByTestId('order-refunded')).toContainText('200 ₸');
   expect((await new AxeBuilder({ page }).include('[data-testid="order-drawer"]').analyze()).violations).toEqual([]);
   await page.keyboard.press('Escape');
   // вкладки: закрытый заказ в «Закрыты», счётчики совпадают

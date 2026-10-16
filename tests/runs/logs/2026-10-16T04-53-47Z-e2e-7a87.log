@@ -1,0 +1,380 @@
+# Сквозные (e2e) · 16.10.2026 09:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/main-red-after-556), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/owner-dashboard-interactions.spec.ts' 'tests/ui/search-filter-recovery.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' 'tests/ui/finance-home-merge.spec.ts' 'tests/ui/owner-dashboard.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 51 tests using 1 worker
+
+  ✘   1 tests/ui/dashboard-design.spec.ts:28:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (51.8s)
+  ✓   2 tests/ui/dashboard-design.spec.ts:68:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (10.1s)
+  ✓   3 tests/ui/dashboard-design.spec.ts:107:1 › финансы: «Требуют внимания» разбито по важности, сумма равна счётчику; быстрых действий нет (14.0s)
+  ✓   4 tests/ui/dashboard-desk.spec.ts:19:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез (18.0s)
+  ✓   5 tests/ui/dashboard-desk.spec.ts:29:1 › 5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди (23.4s)
+  ✓   6 tests/ui/dashboard-desk.spec.ts:37:1 › 6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка (9.0s)
+  ✓   7 tests/ui/dashboard-desk.spec.ts:46:1 › 7. краткие подписи без декоративных разделителей (20.0s)
+  ✓   8 tests/ui/dashboard-desk.spec.ts:50:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (28.8s)
+  ✘   9 tests/ui/dashboard-desk.spec.ts:84:1 › 9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки (56.4s)
+  ✘  10 tests/ui/dashboard-desk.spec.ts:126:1 › 10. заголовок страницы и панели брони — по шкале §6 (53.7s)
+  ✘  11 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (58.4s)
+  ✓  12 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (27.4s)
+  ✓  13 tests/ui/dashboard-resilience.spec.ts:37:1 › «Финансы» открываются и с упавшими показателями периода: риски остаются доступны (14.7s)
+  ✓  14 tests/ui/finance-home-merge.spec.ts:19:1 › финансы: четыре плитки эталона из тех же API, блоки без заглушек (25.8s)
+  ✓  15 tests/ui/finance-home-merge.spec.ts:92:1 › главная гостиницы: /today с загрузкой, «Сегодня» и «Что требует внимания» (8.0s)
+  ✓  16 tests/ui/finance-home-merge.spec.ts:120:1 › очередь «Требуют внимания» открывается из «Все задачи» на главной (4.4s)
+  ✓  17 tests/ui/finance-home-merge.spec.ts:127:1 › меню: «Главная» первой вкладкой, «Финансы» группой после фонда (#501) (4.7s)
+  ✓  18 tests/ui/finance-home-merge.spec.ts:139:1 › телефон: плитки денег первым экраном, фильтры достижимы (2.9s)
+  ✓  19 tests/ui/owner-dashboard-interactions.spec.ts:11:1 › forecast details expose availability and open the selected calendar day (22.9s)
+  ✓  20 tests/ui/owner-dashboard-interactions.spec.ts:40:1 › forecast can recover in place after a temporary API failure (15.0s)
+  ✓  21 tests/ui/owner-dashboard-interactions.spec.ts:54:1 › unavailable inventory stays explicit and can be retried (8.6s)
+  ✓  22 tests/ui/owner-dashboard-interactions.spec.ts:64:1 › slow inventory keeps daily events usable and shows a stable loading card (15.1s)
+  ✓  23 tests/ui/owner-dashboard-interactions.spec.ts:99:3 › forecast drawer stays accessible at 320 px in light theme (10.5s)
+  ✓  24 tests/ui/owner-dashboard-interactions.spec.ts:99:3 › forecast drawer stays accessible at 320 px in dark theme (6.7s)
+  ✓  25 tests/ui/owner-dashboard-interactions.spec.ts:124:1 › weekly outlook opens a calendar day directly (7.8s)
+  ✓  26 tests/ui/owner-dashboard-interactions.spec.ts:138:1 › compact owner summary fits a 360 by 800 phone first screen (10.6s)
+  ✓  27 tests/ui/owner-dashboard.spec.ts:10:1 › owner blocks: operational widgets on home, money on finance (ADR-180) (10.3s)
+  ✓  28 tests/ui/owner-dashboard.spec.ts:38:1 › period changes through cash presets and mobile retains content (6.2s)
+  ✓  29 tests/ui/owner-dashboard.spec.ts:52:1 › attention stays available when dashboard API fails; cash on finance (17.7s)
+  ✓  30 tests/ui/owner-dashboard.spec.ts:64:1 › owner blocks dark desktop and mobile remain usable (39.4s)
+  ✓  31 tests/ui/owner-dashboard.spec.ts:95:1 › owner mobile summary fits the first screen and omits removed metrics (13.9s)
+  ✓  32 tests/ui/owner-dashboard.spec.ts:114:1 › owner summary stays usable at narrow widths and custom dates remain accessible (15.8s)
+  ✓  33 tests/ui/owner-dashboard.spec.ts:134:1 › approved owner concept groups forecast with occupancy and matches attention count (10.5s)
+  ✘  34 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (56.2s)
+  ✘  35 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (50.5s)
+  ✓  36 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 1440 › availability: manual dates and guests do not apply before Find (27.8s)
+  ✘  37 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link (53.1s)
+  ✓  38 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search (30.4s)
+  ✓  39 tests/ui/search-filter-recovery.spec.ts:107:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (44.7s)
+  ✘  40 tests/ui/search-filter-recovery.spec.ts:134:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (46.3s)
+  ✓  41 tests/ui/search-filter-recovery.spec.ts:147:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (33.0s)
+  ✘  42 tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (52.7s)
+  ✓  43 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (15.1s)
+  ✓  44 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (34.8s)
+  ✓  45 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 390 › availability: manual dates and guests do not apply before Find (20.8s)
+  ✓  46 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link (3.6s)
+  ✓  47 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search (22.2s)
+  ✓  48 tests/ui/search-filter-recovery.spec.ts:107:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (28.5s)
+  ✓  49 tests/ui/search-filter-recovery.spec.ts:134:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (17.4s)
+  ✓  50 tests/ui/search-filter-recovery.spec.ts:147:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (13.1s)
+  ✘  51 tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (48.3s)
+
+
+  1) tests/ui/dashboard-design.spec.ts:28:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3138/management/analytics?period=week", waiting until "load"
+
+
+      57 |
+      58 |   // период больше дня: полос по категориям нет, и колонка «Загрузка» в таблице нужна
+    > 59 |   await page.goto(`${OVERVIEW}?period=week`);
+         |              ^
+      60 |   await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();
+      61 |   await expect(main.getByTestId('pa-chart-categories')).toHaveCount(0);
+      62 |   await details(main);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/dashboard-design.spec.ts:59:14
+
+    Error Context: test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/dashboard-desk.spec.ts:84:1 › 9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3138/management/analytics/occupancy", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/fixtures.ts:166:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/dashboard-desk.spec.ts:116:5
+
+    Error Context: test-results/dashboard-desk-9-размеры-ш-7a506-тверждённый-акцент-загрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-9-размеры-ш-7a506-тверждённый-акцент-загрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-9-размеры-ш-7a506-тверждённый-акцент-загрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/dashboard-desk.spec.ts:126:1 › 10. заголовок страницы и панели брони — по шкале §6 ───
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3138/today", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/fixtures.ts:166:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/dashboard-desk.spec.ts:135:5
+
+    Error Context: test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3138/management/analytics?period=month", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/fixtures.ts:166:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/dashboard-resilience.spec.ts:21:3
+
+    Error Context: test-results/dashboard-resilience-показ-02671--выбирается-причина-названа/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-resilience-показ-02671--выбирается-причина-названа/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-resilience-показ-02671--выбирается-причина-названа/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3138/rooms/availability?arrival=2026-10-10&departure=2026-10-12&guests=2", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/fixtures.ts:166:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/search-filter-recovery.spec.ts:28:9
+
+    Error Context: test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3138/rooms/availability?arrival=2026-10-10&departure=2026-10-12&guests=2", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/fixtures.ts:166:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/search-filter-recovery.spec.ts:28:9
+
+    Error Context: test-results/search-filter-recovery-sea-be7b5--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-be7b5--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-be7b5--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.getAttribute: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('.fund-availability a[href^="/reservations/new"]').first()
+
+
+      81 |       const book = page.locator('.fund-availability a[href^="/reservations/new"]').first();
+      82 |       await expect(book).toBeVisible();
+    > 83 |       const target = new URL((await book.getAttribute('href'))!, page.url()).searchParams;
+         |                                          ^
+      84 |       expect(target.get('arrival')).toBe(applied.get('arrival'));
+      85 |       expect(target.get('departure')).toBe(applied.get('departure'));
+      86 |       expect(target.get('category')).toBe('MALE');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/search-filter-recovery.spec.ts:83:42
+
+    Error Context: test-results/search-filter-recovery-sea-1a7c9-ick-period-and-booking-link/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-1a7c9-ick-period-and-booking-link/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-1a7c9-ick-period-and-booking-link/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/search-filter-recovery.spec.ts:134:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3138/chessboard?from=2026-10-10&to=2026-10-12&category=MALE", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/fixtures.ts:166:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/search-filter-recovery.spec.ts:135:7
+
+    Error Context: test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'KZ', exact: true })
+        - locator resolved to <a href="?form=day&date=2026-10-05&lang=kz">KZ</a>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      173 |     test('print: KZ and RU survive form changes, reload and history', async ({ page }) => {
+      174 |       await page.goto('/reports/print?form=day&date=2026-10-05');
+    > 175 |       await page.getByRole('link', { name: 'KZ', exact: true }).click();
+          |                                                                 ^
+      176 |       await settleStreaming(page);
+      177 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Күн бойынша жиынтық');
+      178 |       await page.getByRole('link', { name: 'Список проживающих', exact: true }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/search-filter-recovery.spec.ts:175:65
+
+    Error Context: test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'Сводка дня', exact: true })
+
+
+      193 |         'Тұрып жатқан қонақтар тізімі',
+      194 |       );
+    > 195 |       await page.getByRole('link', { name: 'Сводка дня', exact: true }).click();
+          |                                                                         ^
+      196 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Күн бойынша жиынтық');
+      197 |       await page.getByRole('link', { name: 'RU', exact: true }).click();
+      198 |       // как после KZ: дождаться перехода на RU, иначе следующий щелчок теряется в идущем переходе (гейт 15.10.2026)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-556/tests/ui/search-filter-recovery.spec.ts:195:73
+
+    Error Context: test-results/search-filter-recovery-sea-53c92--changes-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-53c92--changes-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-53c92--changes-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests/ui/dashboard-design.spec.ts:28:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек 
+    tests/ui/dashboard-desk.spec.ts:84:1 › 9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки 
+    tests/ui/dashboard-desk.spec.ts:126:1 › 10. заголовок страницы и панели брони — по шкале §6 ────
+    tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа 
+    tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link 
+    tests/ui/search-filter-recovery.spec.ts:134:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+    tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history 
+    tests/ui/search-filter-recovery.spec.ts:173:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history 
+  41 passed (24.8m)
+
+# код выхода 1 · 25 мин 17 с

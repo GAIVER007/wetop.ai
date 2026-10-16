@@ -1,0 +1,177 @@
+# Интеграционные (integration) · 16.10.2026 12:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 30e9791 (claude/fix-audit-n6), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-46-33Z-integration-8a3e.json' 'tests/integration/connection-schema-a29.test.ts' 'tests/integration/bar-api-bootstrap.test.ts' 'tests/integration/bar-money-fixes.test.ts' 'tests/integration/auth-timezone-a26.test.ts' 'tests/integration/auth-timezone-matrix-a26.test.ts' 'tests/integration/auth-date-consumers-a26.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |integration| tests/integration/bar-api-bootstrap.test.ts (5 tests) 1484ms
+ ❯ |integration| tests/integration/bar-money-fixes.test.ts (35 tests | 7 failed) 4798ms
+   ❯ A3 approved money audit through real workspace HTTP and PostgreSQL (35)
+     ✓ D-KEY distinct keys allow independent legitimate sales 223ms
+     × SHIFT / A3-1: independently reconciled KZT shift 186ms
+     ✓ A3-2 new currency writes and Folio mismatch reject atomically 90ms
+     × A3-3 legacy mixed documents and drafts are guarded 148ms
+     ✓ A3-3 same-product mixed lots block ambiguous cost paths 117ms
+     × A3-5: own scope excludes a different property and currency 139ms
+     ✓ A3-4 foreign property retail: sale currency follows its actual property 67ms
+     × D-CUR legacy cash sources never produce a false scalar total 52ms
+     ✓ A3-6: malformed currency rejected atomically; cross-currency rejection branch recorded 26ms
+     ✓ M1: repeated and concurrent receipt posting has one effective posting 100ms
+     ✓ M2 sequential: identical retail replay has one cash and stock effect 81ms
+     ✓ M2 concurrent: same-key copies replay the one source without a 500 83ms
+     ✓ M2 payload identity: product, quantity, method and retail/Folio reuse 265ms
+     ✓ D-KEY Folio identical and changed concurrent replays 260ms
+     ✓ M3: replay after reversal reports the persisted terminal status 86ms
+     ✓ M4 retail/retail: controlled race cannot oversell last unit 76ms
+     ✓ M4 retail/writeoff: controlled shared stock race is atomic 78ms
+     × M5: partial payments, overpayment and concurrent debt limit 49ms
+     × M5 cash void: supplier debt agrees with surviving settlement 52ms
+     × M6: payment replay has no operation identity contract 64ms
+     ✓ M7: Folio Charge, real guest payment, no duplicate cash/sale 263ms
+     ✓ M7: closed/foreign Folio rejected atomically; payment currency mismatch 91ms
+     ✓ M8: retail return restocks original lots and repeats have no effect 87ms
+     ✓ M9: return without restock keeps depletion; cost accounting gap explicit 71ms
+     ✓ M10: unpaid Folio reversal cancels Charge without fictitious refund 66ms
+     ✓ M10: paid Folio reversal and explicit Refund remain distinct 113ms
+     ✓ M11: controlled real DB constraint failure after cash creation rolls back 62ms
+     ✓ N1: price preview, persisted receipt calculatedPrice and posted salePrice 88ms
+     ✓ N2: category default, product override, line override and zero markup 140ms
+     ✓ N3 quantities/UUID: invalid inputs rejected with zero partial effect 90ms
+     ✓ N3 calendar: both dates exist and preserve calendar day 122ms
+     ✓ N3 integer/bigint bounds: schema-invalid values do not become unhandled 500 51ms
+     ✓ N3 exact bigint: valid money above JS safe integer persists exactly 24ms
+     ✓ N4/5: writeoff FIFO, inventory shortage, no-op and surplus at average cost 106ms
+     ✓ N6: archived product rejected; archived supplier takes no new receipt, stocked product still sells 111ms
+ ✓ |integration| tests/integration/connection-schema-a29.test.ts (7 tests) 319ms
+ ✓ |integration| tests/integration/auth-timezone-matrix-a26.test.ts (1 test) 6527ms
+   ✓ A26 timezone matrix, application roles and pools (1)
+     ✓ keeps epochs, HTTP expiry and tenant isolation across database defaults and process zones 6527ms
+ ✓ |integration| tests/integration/auth-date-consumers-a26.test.ts (1 test) 151ms
+ ✓ |integration| tests/integration/auth-timezone-a26.test.ts (1 test) 147ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-money-fixes.test.ts > A3 approved money audit through real workspace HTTP and PostgreSQL > SHIFT / A3-1: independently reconciled KZT shift
+AssertionError: expected 400 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 400
+
+ ❯ tests/integration/bar-money-fixes.test.ts:43:59
+     41|     expect(ordered.map(r => r.id)).toEqual([p1.id, p2.id]); expect(new…
+     42|     await ok(a, `/bar/products/${c.product}/price`, 'PATCH', { salePri…
+     43|     expect((await pay(a, String(p1.id), '20000')).status).toBe(201); a…
+       |                                                           ^
+     44|     expect((await pay(a, String(p1.id), '10000')).status).toBe(201); a…
+     45|     const sold = await sell(a, c.product, '4'); expect(sold.status).to…
+ ❯ tests/integration/bar-money-fixes.harness.ts:41:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |integration| tests/integration/bar-money-fixes.test.ts > A3 approved money audit through real workspace HTTP and PostgreSQL > A3-3 legacy mixed documents and drafts are guarded
+AssertionError: expected 400 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 400
+
+ ❯ tests/integration/bar-money-fixes.test.ts:63:173
+
+ ❯ tests/integration/bar-money-fixes.harness.ts:41:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |integration| tests/integration/bar-money-fixes.test.ts > A3 approved money audit through real workspace HTTP and PostgreSQL > A3-5: own scope excludes a different property and currency
+AssertionError: expected 400 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 400
+
+ ❯ tests/integration/bar-money-fixes.test.ts:79:78
+     77|     const ownReceipts = rows((await request(a, '/bar/receipts')).body)…
+     78|     expect(await ok(a, '/bar/report')).toMatchObject({ purchasesMinor:…
+     79|     const foreign = await pay(a, cb.receipt, '1000'); expect(foreign.s…
+       |                                                                              ^
+     80|     const foreignState = await snapshot(b, 'foreign property after den…
+     81|   });
+ ❯ tests/integration/bar-money-fixes.harness.ts:41:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |integration| tests/integration/bar-money-fixes.test.ts > A3 approved money audit through real workspace HTTP and PostgreSQL > D-CUR legacy cash sources never produce a false scalar total
+AssertionError: expected 400 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 400
+
+ ❯ tests/integration/bar-money-fixes.test.ts:91:100
+
+ ❯ tests/integration/bar-money-fixes.harness.ts:41:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |integration| tests/integration/bar-money-fixes.test.ts > A3 approved money audit through real workspace HTTP and PostgreSQL > M5: partial payments, overpayment and concurrent debt limit
+AssertionError: expected 400 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 400
+
+ ❯ tests/integration/bar-money-fixes.test.ts:160:113
+
+ ❯ tests/integration/bar-money-fixes.harness.ts:41:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |integration| tests/integration/bar-money-fixes.test.ts > A3 approved money audit through real workspace HTTP and PostgreSQL > M5 cash void: supplier debt agrees with surviving settlement
+AssertionError: expected 400 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 400
+
+ ❯ tests/integration/bar-money-fixes.test.ts:167:108
+
+ ❯ tests/integration/bar-money-fixes.harness.ts:41:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |integration| tests/integration/bar-money-fixes.test.ts > A3 approved money audit through real workspace HTTP and PostgreSQL > M6: payment replay has no operation identity contract
+AssertionError: expected 400 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 400
+
+ ❯ tests/integration/bar-money-fixes.test.ts:180:176
+
+ ❯ tests/integration/bar-money-fixes.harness.ts:41:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  7 failed | 43 passed (50)
+   Start at  00:46:34
+   Duration  14.72s (tests 96%, import 2%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-46-33Z-integration-8a3e.json
+
+# код выхода 1 · 16 с

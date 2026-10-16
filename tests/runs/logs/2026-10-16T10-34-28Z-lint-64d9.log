@@ -1,0 +1,14 @@
+# Линтер (lint) · 16.10.2026 15:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e43de1 (claude/marketing-campaigns-proposal), незакоммиченных файлов набора: 30
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/api/src/marketing-budget/campaigns.ts
+  242:26  error  '_line' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-campaigns.spec.ts
+  57:26  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 19 с

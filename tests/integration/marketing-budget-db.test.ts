@@ -221,5 +221,38 @@ describe.skipIf(!url)('МКТ-В1/В2 marketing accounting: инварианты
       expect((await attempt(`SELECT count(*)::int AS n FROM marketing_expense_files`)).rows[0].n).toBe(0);
     });
   });
+
+  it('кампании (§53): клики не больше показов, даты по порядку, статистика за кампанией в RLS, кампанию не удалить', async () => {
+    await probe(async (attempt) => {
+      const campaign = randomUUID();
+      await attempt(
+        `INSERT INTO marketing_campaigns (id, location_id, platform, name, updated_at) VALUES ($1, $2, 'META', 'Осень', now())`,
+        [campaign, locA],
+      );
+      await expect(
+        attempt(
+          `INSERT INTO marketing_campaigns (id, location_id, platform, name, starts_on, ends_on, updated_at)
+           VALUES ($1, $2, 'META', 'Зима', '2026-12-10', '2026-12-01', now())`,
+          [randomUUID(), locA],
+        ),
+      ).rejects.toThrow(/marketing_campaigns_dates/);
+      const day = (date: string, impressions: number, clicks: number) =>
+        attempt(
+          `INSERT INTO marketing_campaign_stats (id, campaign_id, date, impressions, clicks, leads, updated_at)
+           VALUES ($1, $2, $3, $4, $5, 0, now())`,
+          [randomUUID(), campaign, date, impressions, clicks],
+        );
+      await day('2026-10-05', 100, 10);
+      await expect(day('2026-10-06', 10, 11)).rejects.toThrow(/marketing_campaign_stats_clicks/);
+      await expect(day('2026-10-05', 1, 1)).rejects.toThrow(/marketing_campaign_stats_campaign_id_date_key/);
+      await asApp(attempt, orgB);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_campaign_stats`)).rows[0].n).toBe(0);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_campaigns`)).rows[0].n).toBe(0);
+      await attempt('RESET ROLE');
+      await asApp(attempt, orgA);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_campaign_stats`)).rows[0].n).toBe(1);
+      await expect(attempt(`DELETE FROM marketing_campaigns`)).rejects.toThrow(/permission denied/);
+    });
+  });
 });
 

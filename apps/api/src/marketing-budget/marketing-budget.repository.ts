@@ -47,6 +47,7 @@ export interface ExpenseRecord {
   fxRate: string;
   baseAmount: bigint;
   countedInBudget: boolean;
+  campaignId: string | null;
   createdAt: Date;
   /** Чеки и файлы (§51): только в чтении месяца */
   files?: ExpenseFileRow[];
@@ -94,6 +95,8 @@ export interface MarketingBudgetRepository {
    * `supported: false`: у филиала нет объекта размещения (салон, ресторан), броней гостиницы нет.
    */
   results(locationId: string, first: string, nextFirst: string): Promise<ResultsData>;
+  /** Имя кампании этого филиала; null: кампании нет или она чужая */
+  campaignName(locationId: string, id: string): Promise<string | null>;
 }
 
 export interface BudgetLineRecord {
@@ -150,6 +153,7 @@ const toRecord = (r: {
   fxRate: { toString(): string };
   baseAmount: bigint;
   countedInBudget: boolean;
+  campaignId: string | null;
   createdAt: Date;
   files?: ExpenseFileRow[];
 }): ExpenseRecord => ({
@@ -164,6 +168,7 @@ const toRecord = (r: {
   fxRate: r.fxRate.toString(),
   baseAmount: r.baseAmount,
   countedInBudget: r.countedInBudget,
+  campaignId: r.campaignId,
   ...(r.files ? { files: r.files } : {}),
   createdAt: r.createdAt,
 });
@@ -179,6 +184,7 @@ const expenseData = (input: MarketingExpenseInput) => ({
   fxRate: input.fxRate,
   baseAmount: input.baseAmount,
   countedInBudget: input.countedInBudget,
+  campaignId: input.campaignId,
 });
 
 @Injectable()
@@ -350,6 +356,11 @@ export class PrismaMarketingBudgetRepository implements MarketingBudgetRepositor
         });
       await writeAudit(tx, audit);
     });
+  }
+
+  async campaignName(locationId: string, id: string): Promise<string | null> {
+    const c = await this.prisma.db.marketingCampaign.findFirst({ where: { id, locationId }, select: { name: true } });
+    return c?.name ?? null;
   }
 
   async results(locationId: string, first: string, nextFirst: string): Promise<ResultsData> {

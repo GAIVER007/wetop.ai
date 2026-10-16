@@ -4001,6 +4001,8 @@ export interface MarketingExpenseRow {
   /** Сумма в валюте отчётности организации, minor units, по курсу на дату операции */
   baseAmount: string;
   countedInBudget: boolean;
+  /** Кампания расхода (§53) */
+  campaignId?: string | null;
   /** Чеки и файлы (§51) с подписанными адресами на время; есть в ответе месяца */
   files?: MarketingExpenseFile[];
 }
@@ -4018,6 +4020,42 @@ export interface MarketingBudgetView {
   prevLines: Array<{ platform: string; amount: string }>;
   expenses: MarketingExpenseRow[];
 }
+
+/** Рекламная кампания филиала за месяц (DATA_MODEL §53, ADR-MKT-B3): расход строкой тиынов, статистика площадки */
+export interface MarketingCampaignView {
+  id: string;
+  platform: string;
+  name: string;
+  status: 'ACTIVE' | 'PAUSED' | 'FINISHED';
+  startsOn: string | null;
+  endsOn: string | null;
+  spend: string;
+  impressions: number;
+  clicks: number;
+  leads: number;
+  days: Array<{ date: string; impressions: number; clicks: number; leads: number }>;
+}
+export interface MarketingCampaignsView {
+  month: string;
+  /** Сегодня в поясе филиала */
+  today: string;
+  reportingCurrency: string;
+  campaigns: MarketingCampaignView[];
+}
+
+export const marketingCampaignsApi = {
+  list: (month?: string) =>
+    getJson<MarketingCampaignsView>(`/marketing/campaigns${month ? `?month=${encodeURIComponent(month)}` : ''}`),
+  create: (body: unknown) => sendJson<{ id: string }>('POST', '/marketing/campaigns', body),
+  update: (id: string, body: unknown) =>
+    sendJson<{ id: string }>('PATCH', `/marketing/campaigns/${encodeURIComponent(id)}`, body),
+  setDay: (id: string, body: unknown) =>
+    sendJson<unknown>('PUT', `/marketing/campaigns/${encodeURIComponent(id)}/stats`, body),
+  importDays: (id: string, csv: string) =>
+    sendJson<{ imported: number }>('POST', `/marketing/campaigns/${encodeURIComponent(id)}/stats/import`, { csv }),
+  removeDay: (id: string, date: string) =>
+    deleteJson<{ deleted: true }>(`/marketing/campaigns/${encodeURIComponent(id)}/stats/${encodeURIComponent(date)}`),
+};
 
 export const marketingBudgetApi = {
   view: (month?: string) =>

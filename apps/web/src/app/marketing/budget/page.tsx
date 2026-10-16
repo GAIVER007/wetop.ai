@@ -4,6 +4,7 @@ import type { SearchParams } from '../../../lib/search-params';
 import { requireVertical } from '../../../lib/vertical-guard';
 import { deskShell } from '../../../lib/desk-shell';
 import { formatMoney } from '../../../lib/money';
+import { marketingCampaignsApi } from '../../../lib/api';
 import { displayDate } from '../../../lib/display-date';
 import { pluralRu } from '../../../lib/plural';
 import { Page } from '../../../components/page';
@@ -37,6 +38,8 @@ export default async function BudgetPage({ searchParams }: { searchParams: Promi
       </Page>
     );
   const view = loaded.view!;
+  // кампании для выбора в форме расхода (§53); не загрузились: форма без выбора, обзор от этого не зависит
+  const campaigns = await marketingCampaignsApi.list(view.month).then((r) => r.campaigns, () => []);
   const t = summarize(view);
   const channels = channelPlan(view);
   const rc = view.reportingCurrency;
@@ -53,7 +56,7 @@ export default async function BudgetPage({ searchParams }: { searchParams: Promi
         editable ? (
           <ExpenseButton
             primary
-            defaults={{ today: view.today, reportingCurrency: rc, locationCurrency: view.locationCurrency }}
+            defaults={{ today: view.today, reportingCurrency: rc, locationCurrency: view.locationCurrency, campaigns }}
           />
         ) : undefined
       }

@@ -5,6 +5,7 @@ import { normalizeSearchParams } from '../../../../lib/search-params';
 import { requireVertical } from '../../../../lib/vertical-guard';
 import { deskShell } from '../../../../lib/desk-shell';
 import { formatMoney } from '../../../../lib/money';
+import { marketingCampaignsApi } from '../../../../lib/api';
 import { displayDate } from '../../../../lib/display-date';
 import { pluralRu } from '../../../../lib/plural';
 import { Page } from '../../../../components/page';
@@ -47,7 +48,9 @@ export default async function BudgetExpensesPage({
   const rows = platform ? view.expenses.filter((e) => e.platform === platform) : view.expenses;
   const present = [...new Set(view.expenses.map((e) => e.platform))];
   const total = rows.reduce((s, e) => s + BigInt(e.baseAmount), 0n);
-  const defaults = { today: view.today, reportingCurrency: rc, locationCurrency: view.locationCurrency };
+  // кампании для выбора в форме расхода (§53); не загрузились: форма без выбора
+  const campaigns = await marketingCampaignsApi.list(view.month).then((r) => r.campaigns, () => []);
+  const defaults = { today: view.today, reportingCurrency: rc, locationCurrency: view.locationCurrency, campaigns };
   const chip = (href: string, label: string, current: boolean) => (
     <Link
       key={href}

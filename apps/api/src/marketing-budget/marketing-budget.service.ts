@@ -6,6 +6,7 @@ import {
   parseMarketingBudgetLinesInput,
   parseMarketingExpenseInput,
   parseMarketingExpensesCsv,
+  type MarketingExpenseInput,
 } from '@pms/domain';
 import {
   MARKETING_BUDGET_REPOSITORY,
@@ -34,6 +35,7 @@ export interface ExpenseRow {
   fxRate: string;
   baseAmount: string;
   countedInBudget: boolean;
+  campaignId: string | null;
   /** Чеки и файлы (§51) с подписанными адресами: в ответе месяца */
   files?: ExpenseFileView[];
 }
@@ -114,6 +116,7 @@ const toRow = (r: ExpenseRecord): ExpenseRow => ({
   fxRate: r.fxRate,
   baseAmount: r.baseAmount.toString(),
   countedInBudget: r.countedInBudget,
+  campaignId: r.campaignId,
 });
 
 @Injectable()
@@ -179,11 +182,20 @@ export class MarketingBudgetService {
     };
   }
 
+  /** Кампания расхода (§53): только своего филиала; текстовое поле получает её имя */
+  private async withCampaign(locationId: string, input: MarketingExpenseInput): Promise<MarketingExpenseInput> {
+    if (!input.campaignId) return input;
+    const name = await this.repo.campaignName(locationId, input.campaignId);
+    if (name === null) throw new BadRequestException('Кампания не найдена в этом филиале');
+    return { ...input, campaign: name };
+  }
+
   async createExpense(dto: Record<string, unknown>): Promise<ExpenseRow> {
     const scope = await this.repo.scope();
     await this.repo.assertWritable(scope.organizationId);
-    const input = rule(() =>
-      parseMarketingExpenseInput(dto, { reportingCurrency: scope.reportingCurrency }),
+    const input = await this.withCampaign(
+      scope.locationId,
+      rule(() => parseMarketingExpenseInput(dto, { reportingCurrency: scope.reportingCurrency })),
     );
     const row = await this.repo.createExpense(scope.locationId, input, {
       entityType: 'marketing_expense',
@@ -229,8 +241,9 @@ export class MarketingBudgetService {
   async updateExpense(id: string, dto: Record<string, unknown>): Promise<ExpenseRow> {
     const scope = await this.repo.scope();
     await this.repo.assertWritable(scope.organizationId);
-    const input = rule(() =>
-      parseMarketingExpenseInput(dto, { reportingCurrency: scope.reportingCurrency }),
+    const input = await this.withCampaign(
+      scope.locationId,
+      rule(() => parseMarketingExpenseInput(dto, { reportingCurrency: scope.reportingCurrency })),
     );
     const row = await this.repo.updateExpense(scope.locationId, id, input, {
       entityType: 'marketing_expense',

@@ -1,0 +1,48 @@
+# Интеграционные (integration) · 16.10.2026 15:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e43de1 (claude/marketing-campaigns-proposal), незакоммиченных файлов набора: 18
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-22-56Z-integration-e135.json' 'tests/integration/marketing-campaigns.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-campaigns.test.ts (2 tests | 1 failed) 200ms
+   ❯ рекламные кампании (integration) (2)
+     × кампания, расход к ней, статистика дня, CSV и сводка месяца 78ms
+     ✓ чужой филиал: кампании не видно, расход к ней не привязать; переименование доходит до расходов 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-campaigns.test.ts > рекламные кампании (integration) > кампания, расход к ней, статистика дня, CSV и сводка месяца
+AssertionError: expected { …(11) } to match object { spend: '1500000', …(4) }
+(6 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "clicks": 360,
+    "impressions": 31000,
+    "leads": 12,
+-   "spend": "1500000",
++   "spend": "1599900",
+    "startsOn": "2026-10-01",
+  }
+
+ ❯ tests/integration/marketing-campaigns.test.ts:86:18
+     84|     const oct = await as('own', () => campaigns.list('2026-10'));
+     85|     const meta = oct.campaigns.find((c) => c.id === id)!;
+     86|     expect(meta).toMatchObject({ spend: '1500000', impressions: 31000,…
+       |                  ^
+     87|     expect(meta.days.map((d) => d.date)).toEqual(['2026-10-05', '2026-…
+     88|     expect((await as('own', () => campaigns.list('2026-09'))).campaign…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  03:22:57
+   Duration  1.77s (transform 45%, import 39%, tests 16%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-22-56Z-integration-e135.json
+
+# код выхода 1 · 2 с

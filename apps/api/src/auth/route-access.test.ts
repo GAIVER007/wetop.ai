@@ -111,6 +111,12 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /marketing/budget': 'marketing',
   'PUT /marketing/budget': 'marketing',
   'PUT /marketing/budget/lines': 'marketing',
+  'GET /marketing/campaigns': 'marketing',
+  'POST /marketing/campaigns': 'marketing',
+  'PATCH /marketing/campaigns/:id': 'marketing',
+  'PUT /marketing/campaigns/:id/stats': 'marketing',
+  'POST /marketing/campaigns/:id/stats/import': 'marketing',
+  'DELETE /marketing/campaigns/:id/stats/:date': 'marketing',
   // МКТ-В5a: результаты каналов для «Аналитики маркетинга», право страницы
   'GET /marketing/results': 'marketing',
   'POST /marketing/expenses': 'marketing',

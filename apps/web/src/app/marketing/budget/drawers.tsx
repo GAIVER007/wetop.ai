@@ -24,7 +24,7 @@ import { CATEGORY_HINTS, PLATFORM_LABELS, monthTitle, platformLabel } from './pa
 const NONE: BudgetActionResult = { error: null, ok: 0 };
 
 /** То же устройство, что у /market: уведомление сразу по ответу, панель закрывается эффектом */
-function useBudgetAction(
+export function useBudgetAction(
   serverAction: (prev: BudgetActionResult, fd: FormData) => Promise<BudgetActionResult>,
   close: () => void,
 ) {
@@ -46,6 +46,14 @@ function useBudgetAction(
   return [state, action, pending] as const;
 }
 
+/** Умолчания формы расхода; `campaigns`: кампании филиала для выбора (§53), без них поле выбора не показывается */
+export interface ExpenseDefaults {
+  today: string;
+  reportingCurrency: string;
+  locationCurrency: string;
+  campaigns?: Array<{ id: string; name: string; platform: string; status: string }> | undefined;
+}
+
 /** «Добавить расход» и «Изменить»: одна форма (экран 4 макета); при правке внизу «Удалить» */
 export function ExpenseButton({
   expense,
@@ -53,7 +61,7 @@ export function ExpenseButton({
   primary,
 }: {
   expense?: MarketingExpenseRow | undefined;
-  defaults: { today: string; reportingCurrency: string; locationCurrency: string };
+  defaults: ExpenseDefaults;
   primary?: boolean | undefined;
 }) {
   const [open, setOpen] = useState(false);
@@ -91,7 +99,7 @@ function ExpenseForm({
   onClose,
 }: {
   expense?: MarketingExpenseRow | undefined;
-  defaults: { today: string; reportingCurrency: string; locationCurrency: string };
+  defaults: ExpenseDefaults;
   onClose: () => void;
 }) {
   const [state, action, pending] = useBudgetAction(saveExpenseAction, onClose);
@@ -132,6 +140,20 @@ function ExpenseForm({
             ))}
           </Select>
         </Field>
+        {(defaults.campaigns?.length ?? 0) > 0 && (
+          <Field label="Кампания из «Рекламы»" controlId="budget-campaign-id" hint="Расход войдёт в расход кампании; её имя запишется в поле ниже">
+            <Select id="budget-campaign-id" name="campaignId" defaultValue={v('campaignId', expense?.campaignId)} data-testid="budget-campaign-id">
+              <option value="">Без кампании</option>
+              {defaults.campaigns!
+                .filter((c) => c.status !== 'FINISHED' || c.id === expense?.campaignId)
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {platformLabel(c.platform)}: {c.name}
+                  </option>
+                ))}
+            </Select>
+          </Field>
+        )}
         <Field label="Кампания" controlId="budget-campaign-input" hint="Необязательно: название кампании или поста">
           <Input name="campaign" maxLength={200} defaultValue={v('campaign', expense?.campaign)} data-testid="budget-campaign" />
         </Field>
@@ -246,7 +268,7 @@ function ExpenseForm({
 }
 
 /** Те же действия, что у форм раздела, но панель не закрывается: файлы прикладывают по одному подряд */
-function useFileAction(serverAction: (prev: BudgetActionResult, fd: FormData) => Promise<BudgetActionResult>) {
+export function useFileAction(serverAction: (prev: BudgetActionResult, fd: FormData) => Promise<BudgetActionResult>) {
   const { toast } = useToast();
   return useActionState(async (prev: BudgetActionResult, fd: FormData) => {
     const next = await serverAction(prev, fd);

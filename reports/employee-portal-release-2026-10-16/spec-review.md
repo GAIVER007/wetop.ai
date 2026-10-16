@@ -70,4 +70,3 @@ Tenant enforcement also has real-role regression source in `tests/integration/em
 ## Disposition
 
 **PASS. Required source gaps: none found.** R1 and R2 are closed by the inspected implementation and targeted regression source. Final gate execution and owner-only production prerequisites are separate from this SPEC source verdict.
-

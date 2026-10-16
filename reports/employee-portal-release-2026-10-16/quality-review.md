@@ -75,4 +75,3 @@ All five entries record `codeChangedDuringRun: false`, zero skips and zero flaky
 ## Disposition
 
 **APPROVED for the Q1/Q2 quality rereview.** No remaining Critical or Important source finding. Final execution gates and owner-only release prerequisites still apply.
-

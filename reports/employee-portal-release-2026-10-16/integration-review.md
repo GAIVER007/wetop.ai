@@ -57,4 +57,3 @@ Logical media removal does not reclaim old blobs, and deleted portfolio metadata
 ## Final disposition
 
 **Required remaining source fixes: none identified in this integration review. Conditional commit readiness: yes, after real final gates and evidence/source correspondence are confirmed. Production readiness or publication: not claimed.**
-

@@ -11,6 +11,8 @@ export interface CategoryUnits {
 }
 export interface CategoryBlock {
   accommodationTypeCode: string;
+  /** Stable inventory identity. Legacy anonymous blocks each count as a separate cell. */
+  unitId?: string;
   /** [dateFrom, dateTo) — ночи */
   dateFrom: string;
   dateTo: string;
@@ -34,9 +36,11 @@ export function categoryAvailability(input: {
   for (const u of input.units) {
     const perDate = new Map<string, number>();
     for (const d of dates) {
-      const blocked = input.blocks.filter(
-        (b) => b.accommodationTypeCode === u.code && b.dateFrom <= d && d < b.dateTo,
-      ).length;
+      const blocked = new Set(
+        input.blocks
+          .filter((b) => b.accommodationTypeCode === u.code && b.dateFrom <= d && d < b.dateTo)
+          .map((b, index) => b.unitId ?? index),
+      ).size;
       const sold = input.items.filter(
         (i) => i.accommodationTypeCode === u.code && i.arrivalDate <= d && d < i.departureDate,
       ).length;

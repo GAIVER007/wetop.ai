@@ -14,10 +14,13 @@ export function AppointmentsList({
   day,
   customers,
   readOnly,
+  canRefund = false,
 }: {
   day: BeautyDay;
   customers: BeautyCustomerRow[];
   readOnly: boolean;
+  /** возврат по выполненной записи (§54) */
+  canRefund?: boolean;
 }) {
   const [creating, setCreating] = useState(false);
   const [status, setStatus] = useState('');
@@ -155,6 +158,7 @@ export function AppointmentsList({
             day={day}
             row={selected}
             canEdit={!readOnly}
+            canRefund={canRefund}
             onDone={() => {
               setSelected(null);
               router.refresh();

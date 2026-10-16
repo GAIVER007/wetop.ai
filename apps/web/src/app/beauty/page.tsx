@@ -7,6 +7,7 @@ import { loadErrorProps } from '../../lib/load-error';
 import { beautyApi } from '../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { deskShell } from '../../lib/desk-shell';
+import { mayAccess } from '../../lib/navigation';
 import { JournalBoard } from './journal';
 import { WeekCalendar } from './week-calendar';
 import './beauty.css';
@@ -75,6 +76,7 @@ export default async function BeautyPage({
           customers={loaded.customers}
           employees={loaded.employees}
           readOnly={shell.readOnly}
+          canRefund={!shell.readOnly && mayAccess(shell.access, 'refunds')}
           appointmentId={appointment}
         />
       )}

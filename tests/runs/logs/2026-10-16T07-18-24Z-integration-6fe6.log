@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 16.10.2026 12:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3d14b28 (claude/fix-lint-bar-children), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-18-24Z-integration-6fe6.json' 'tests/integration/bar-location-children.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+(node:13661) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-location-children.test.ts (6 tests) 1384ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  00:18:27
+   Duration  4.33s (tests 44%, import 31%, transform 25%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-18-24Z-integration-6fe6.json
+
+# код выхода 0 · 8 с

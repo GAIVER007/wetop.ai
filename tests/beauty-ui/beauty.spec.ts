@@ -180,6 +180,27 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await tile.click();
   await page.getByRole('dialog').getByRole('button', { name: 'Подтвердить', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
+  // оплата записи в кассу филиала (§49): часть картой, отмена с оплатой закрыта
+  await tile.click();
+  panel = page.getByRole('dialog');
+  await expect(panel.getByTestId('beauty-card-paid')).toHaveText('0 ₸ из 12 000 ₸');
+  const payment = panel.getByRole('region', { name: 'Оплата записи' });
+  await payment.getByLabel('Способ').selectOption('CARD_TERMINAL');
+  await payment.getByLabel('Сумма, ₸').fill('5000');
+  await payment.getByRole('button', { name: 'Принять оплату' }).click();
+  await expect(panel).toBeHidden();
+  await page.reload();
+  await tile.click();
+  panel = page.getByRole('dialog');
+  await expect(panel.getByTestId('beauty-card-paid')).toHaveText('5 000 ₸ из 12 000 ₸');
+  await expect(panel.getByRole('region', { name: 'Оплата записи' }).getByLabel('Сумма, ₸')).toHaveValue('7000');
+  expect((await new AxeBuilder({ page }).include('dialog[open]').analyze()).violations).toEqual([]);
+  await panel.getByRole('button', { name: 'Отменить запись', exact: true }).click();
+  // окно вопроса живёт внутри панели: берём его по своему признаку, как в beauty-journal.spec
+  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Отменить запись', exact: true }).click();
+  await expect(panel.getByRole('alert')).toContainText('Сначала аннулируйте оплату записи в кассе');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
   await tile.click();
   await page.getByRole('dialog').getByRole('button', { name: 'Завершить', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeHidden();

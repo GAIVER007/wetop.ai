@@ -15,8 +15,11 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  appointmentPayment,
+  appointmentStatusAllowed,
   nextStatuses,
   parseAppointmentInput,
+  parseFoodPayment,
   planAppointment,
   statusChange,
   timeOffWindow,
@@ -105,6 +108,8 @@ export class BeautyAppointmentsService {
         notes: true,
         service: { select: { name: true } },
         customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
+        // оплата записи в кассу филиала (§49): действующие приходы
+        payments: { where: { status: 'COMPLETED' }, select: { amount: true } },
       },
     });
 
@@ -149,6 +154,7 @@ export class BeautyAppointmentsService {
       status: r.status,
       next: nextStatuses(r.status as AppointmentStatus),
       priceMinor: r.price.toString(),
+      paidMinor: r.payments.reduce((sum, p) => sum + p.amount, 0n).toString(),
       currency: r.currency,
       notes: r.notes,
     }));
@@ -265,6 +271,8 @@ export class BeautyAppointmentsService {
     await this.assertFree(employeeId, plan.startsAt, plan.endsAt, row.id);
 
     await beautyTransaction(this.prisma, scope, async (tx) => {
+      if (plan.priceMinor < (await this.paidLocked(tx, row.id)))
+        throw new ConflictException('Цена услуги меньше уже оплаченного: сначала аннулируйте оплату в кассе');
       const changed = await tx.appointment.updateMany({
         where: { id: row.id, status: row.status, updatedAt: row.updatedAt },
         data: {
@@ -312,6 +320,8 @@ export class BeautyAppointmentsService {
     if (!change.ok) throw new ConflictException(change.reason);
 
     await beautyTransaction(this.prisma, scope, async (tx) => {
+      const refused = appointmentStatusAllowed(to, await this.paidLocked(tx, row.id));
+      if (refused) throw new ConflictException(refused);
       const changed = await tx.appointment.updateMany({ where: { id: row.id, status: row.status, updatedAt: row.updatedAt }, data: { status: to } });
       if (changed.count !== 1) throw new ConflictException('Запись уже изменена, обновите данные');
       await tx.auditLog.create({
@@ -327,6 +337,69 @@ export class BeautyAppointmentsService {
       });
     });
     return this.day(localDate(row.startsAt, scope.locationTimezone ?? 'UTC'));
+  }
+
+  /** Оплата записи приходом кассы филиала (§49): частями, не больше цены, повтор по ключу без второго прихода */
+  async pay(id: string, raw: unknown) {
+    await mayBeautyWrite(this.prisma, 'desk');
+    const { scope, row } = await this.own(id);
+    const locationId = scope.locationId as string;
+    let input: ReturnType<typeof parseFoodPayment>;
+    try {
+      input = parseFoodPayment(raw);
+    } catch (error) {
+      throw new BadRequestException((error as Error).message);
+    }
+    await beautyTransaction(this.prisma, scope, async (tx) => {
+      const replay = await tx.restaurantCashOperation.findFirst({ where: { locationId, idempotencyKey: input.idempotencyKey } });
+      if (replay) {
+        if (replay.appointmentId !== row.id) throw new ConflictException('Этот ключ оплаты уже использован');
+        return;
+      }
+      const paid = await this.paidLocked(tx, row.id);
+      const a = await tx.appointment.findUniqueOrThrow({
+        where: { id: row.id },
+        select: { status: true, price: true, currency: true, customer: { select: { firstName: true, lastName: true } } },
+      });
+      if (a.currency !== scope.locationCurrency) throw new ConflictException('Валюта записи не совпадает с валютой филиала');
+      try {
+        appointmentPayment(a.status as AppointmentStatus, a.price, paid, input.amount);
+      } catch (error) {
+        throw new ConflictException((error as Error).message);
+      }
+      const name = [a.customer.firstName, a.customer.lastName].filter(Boolean).join(' ');
+      const op = await tx.restaurantCashOperation.create({
+        data: {
+          locationId,
+          kind: 'INCOME',
+          method: input.method,
+          amount: input.amount,
+          currency: a.currency,
+          note: `Оплата записи: ${name}`.slice(0, 500),
+          appointmentId: row.id,
+          idempotencyKey: input.idempotencyKey,
+          createdById: currentUserId() ?? null,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          organizationId: scope.organizationId,
+          userId: currentUserId(),
+          entityType: 'appointment',
+          entityId: row.id,
+          action: 'beauty.appointment.paid',
+          after: { cashOperationId: op.id, method: input.method, amountMinor: input.amount.toString(), paidMinor: (paid + input.amount).toString() },
+        },
+      });
+    });
+    return this.day(localDate(row.startsAt, scope.locationTimezone ?? 'UTC'));
+  }
+
+  /** Оплачено по записи под замком записи: оплата, отмена и перенос идут по очереди (§49) */
+  private async paidLocked(tx: DbTx, appointmentId: string): Promise<bigint> {
+    await tx.$queryRaw`SELECT id FROM appointments WHERE id = ${appointmentId}::uuid FOR UPDATE`;
+    const sum = await tx.restaurantCashOperation.aggregate({ where: { appointmentId, status: 'COMPLETED' }, _sum: { amount: true } });
+    return sum._sum.amount ?? 0n;
   }
 
   // ───────────── общее ─────────────
@@ -589,5 +662,9 @@ export class BeautyAppointmentsController {
   }
   @Post('appointments/:id/status') setStatus(@Param('id') id: string, @Body() body: unknown) {
     return this.service.setStatus(id, body);
+  }
+  /** Оплата записи в кассу филиала салона (§49) */
+  @Post('appointments/:id/payments') pay(@Param('id') id: string, @Body() body: unknown) {
+    return this.service.pay(id, body);
   }
 }

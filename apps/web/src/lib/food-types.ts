@@ -195,6 +195,8 @@ export interface OrderView {
   totalMinor: string;
   /** Сумма действующих платежей (§35.1) */
   paidMinor: string;
+  /** Сумма действующих возвратов после закрытия (§55) */
+  refundedMinor: string;
   currency: string;
   openedAt: string;
   cookingAt: string | null;
@@ -206,6 +208,8 @@ export interface OrderView {
   nextStatuses: OrderStatus[];
   items: OrderItemView[];
   payments: OrderPaymentView[];
+  /** §55: возвраты после закрытия, операции кассы */
+  refunds: OrderRefundView[];
   /** §39: оценка гостя после оплаты */
   rating?: { stars: number; comment: string | null; createdAt: string } | null;
 }
@@ -231,6 +235,15 @@ export interface OrderPaymentView {
   status: 'COMPLETED' | 'VOIDED';
   paidAt: string;
   voidReason: string | null;
+}
+/** Возврат по закрытому заказу (§55): расход кассы филиала */
+export interface OrderRefundView {
+  id: string;
+  method: FoodPaymentMethod;
+  amountMinor: string;
+  status: 'COMPLETED' | 'VOIDED';
+  note: string | null;
+  occurredAt: string;
 }
 /** Касса филиала (§35.2) */
 export interface FoodCashView {

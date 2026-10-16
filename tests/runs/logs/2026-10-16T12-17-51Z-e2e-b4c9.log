@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 16.10.2026 17:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0d4d3f6 (claude/restaurant-refund), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' '-g' 'заказы: создание с экрана|касса: остатки'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1339ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:73310) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (32.6s)
+  ✓  2 tests/food-ui/restaurant.spec.ts:814:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (33.8s)
+
+  2 passed (1.8m)
+
+# код выхода 0 · 1 мин 54 с

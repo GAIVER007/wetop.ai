@@ -1,0 +1,62 @@
+# Интеграционные (integration) · 16.10.2026 10:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит c534c35 (claude/salon-cash), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-46-56Z-integration-4045.json' 'tests/integration/bar-restaurant-cash.test.ts' 'tests/integration/bar-inventory-surplus.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+[pms_test] миграций применено 1; данные на месте
+(node:82180) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/bar-restaurant-cash.test.ts (4 tests | 1 failed) 871ms
+   ❯ бар: деньги по направлению филиала (integration) (4)
+     ✓ ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 328ms
+     ✓ салон: продажа и оплата поставщику через кассу филиала салона (§48), счёт гостя закрыт 38ms
+     × касса филиала: салон да, гостиница нет; платёж заказа только у ресторана 8ms
+     ✓ филиал ресторана не видит бар салона и наоборот 4ms
+(node:82217) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-inventory-surplus.test.ts (3 tests) 801ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-restaurant-cash.test.ts > бар: деньги по направлению филиала (integration) > касса филиала: салон да, гостиница нет; платёж заказа только у ресторана
+PrismaClientValidationError: 
+Invalid `prisma.restaurantCashOperation.create()` invocation:
+
+{
+  data: {
+    locationId: "1a56f30b-98d9-46fb-bab8-1f6d4ecd7d39",
+    kind: "INCOME",
+    method: "CARD",
+            ~~~~~~
+    amount: 100n,
+    currency: "KZT",
+    note: "Синтетика"
+  }
+}
+
+Invalid value for argument `method`. Expected PaymentMethod.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/bar-restaurant-cash.test.ts:137:16
+    135|         prisma.db.restaurantCashOperation.create({ data: { locationId:…
+    136|       ).rejects.toThrow(/Branch cash location required/);
+    137|     const op = await prisma.db.restaurantCashOperation.create({
+       |                ^
+    138|       data: { locationId: branches.BEAUTY.location, kind: 'INCOME', me…
+    139|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 6 passed (7)
+   Start at  22:47:00
+   Duration  9.15s (transform 40%, tests 30%, import 30%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-46-56Z-integration-4045.json
+
+# код выхода 1 · 13 с

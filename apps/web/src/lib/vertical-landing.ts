@@ -39,7 +39,7 @@ const routes: Record<WebVertical, string[]> = {
     '/menu',
     '/stock',
     '/payroll',
-    '/cashbox',
+    // `/cashbox` общий для ресторана и салона (касса филиала §48): страница сама зовёт requireVertical
     '/drinks',
     '/restaurant-finance',
     '/restaurant-settings',

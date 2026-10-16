@@ -1,0 +1,71 @@
+# Интеграционные (integration) · 16.10.2026 10:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит c534c35 (claude/salon-cash), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-42-39Z-integration-e85b.json' 'tests/integration/bar-restaurant-cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+(node:78698) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/bar-restaurant-cash.test.ts (4 tests | 2 failed) 572ms
+   ❯ бар: деньги по направлению филиала (integration) (4)
+     ✓ ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 175ms
+     × салон: продажа и оплата поставщику через кассу филиала салона (§48), счёт гостя закрыт 25ms
+     × касса филиала: салон да, гостиница нет; платёж заказа только у ресторана 4ms
+     ✓ филиал ресторана не видит бар салона и наоборот 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-restaurant-cash.test.ts > бар: деньги по направлению филиала (integration) > салон: продажа и оплата поставщику через кассу филиала салона (§48), счёт гостя закрыт
+AssertionError: expected { kind: 'no_cash' } to match object { kind: 'posted', …(1) }
+
+- Expected
++ Received
+
+  {
+-   "kind": "posted",
+-   "revenueMinor": "60000",
++   "kind": "no_cash",
+  }
+
+ ❯ tests/integration/bar-restaurant-cash.test.ts:115:7
+    113|     expect(
+    114|       await as('BEAUTY', () => repo.sellRetail({ productId: product, q…
+    115|     ).toMatchObject({ kind: 'posted', revenueMinor: '60000' });
+       |       ^
+    116|     const location = branches.BEAUTY.location;
+    117|     const income = await prisma.db.restaurantCashOperation.findFirstOr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/bar-restaurant-cash.test.ts > бар: деньги по направлению филиала (integration) > касса филиала: салон да, гостиница нет; платёж заказа только у ресторана
+AssertionError: expected [Function] to throw error matching /Branch cash location required/ but got '\nInvalid `prisma.restaurantCashOpera…'
+
+- Expected:
+/Branch cash location required/
+
++ Received:
+"
+Invalid `prisma.restaurantCashOperation.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Restaurant location required`"
+
+ ❯ tests/integration/bar-restaurant-cash.test.ts:136:8
+    134|       await expect(
+    135|         prisma.db.restaurantCashOperation.create({ data: { locationId:…
+    136|       ).rejects.toThrow(/Branch cash location required/);
+       |        ^
+    137|     const op = await prisma.db.restaurantCashOperation.create({
+    138|       data: { locationId: branches.BEAUTY.location, kind: 'INCOME', me…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  22:42:42
+   Duration  2.99s (transform 37%, import 33%, tests 30%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-42-39Z-integration-e85b.json
+
+# код выхода 1 · 6 с

@@ -16,11 +16,17 @@ export interface RestaurantShell {
   canStaff: boolean;
   /** Аннулировать платёж и операцию кассы (§35) */
   canRefunds: boolean;
+  /** Направление филиала: касса (§48) открыта и салону */
+  vertical: 'FOOD_SERVICE' | 'BEAUTY';
 }
 
-export async function restaurantShell(dateParam?: string): Promise<RestaurantShell> {
-  const me = await requireVertical(['FOOD_SERVICE']);
-  if (me.context?.vertical !== 'FOOD_SERVICE' || !me.context.businessId || !me.context.locationId)
+export async function restaurantShell(
+  dateParam?: string,
+  verticals: ReadonlyArray<'FOOD_SERVICE' | 'BEAUTY'> = ['FOOD_SERVICE'],
+): Promise<RestaurantShell> {
+  const me = await requireVertical([...verticals]);
+  const vertical = me.context?.vertical;
+  if ((vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY') || !verticals.includes(vertical) || !me.context?.businessId || !me.context.locationId)
     throw new Error('Выберите ресторан и филиал');
   const [shell, branch] = await Promise.all([deskShell(), selectedWorkspaceBranch()]);
   if (!branch) throw new Error('Выбранный филиал недоступен');
@@ -39,5 +45,6 @@ export async function restaurantShell(dateParam?: string): Promise<RestaurantShe
     canProperty: mayAccess(shell.access, 'property'),
     canStaff: mayAccess(shell.access, 'staff'),
     canRefunds: mayAccess(shell.access, 'refunds'),
+    vertical,
   };
 }

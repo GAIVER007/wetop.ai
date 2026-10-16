@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 16.10.2026 17:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит fd9ab85 (claude/restaurant-refund), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T12-07-14Z-integration-b769.json' 'tests/integration/restaurant-order-refund.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+[pms_test] миграций применено 1; данные на месте
+(node:67990) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/restaurant-order-refund.test.ts (2 tests) 1132ms
+   ✓ возврат по закрытому заказу (integration, §55) (2)
+     ✓ до закрытия возврата нет; после: с причиной, не больше чистой оплаты и остатка способа, повтор по ключу 376ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  05:07:26
+   Duration  12.47s (transform 56%, import 27%, tests 16%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T12-07-14Z-integration-b769.json
+
+# код выхода 0 · 25 с

@@ -197,6 +197,10 @@ export class FoodOrdersController {
   @Post('orders/:id/payments') pay(@Param('id') id: string, @Body() b: unknown) {
     return this.service.payOrder(id, b);
   }
+  /** Возврат по закрытому заказу (§55): право возвратов */
+  @Post('orders/:id/refunds') @Access('refunds') refundOrder(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.refundOrder(id, b);
+  }
   @Post('payments/:id/void') @Access('refunds') @HttpCode(200) voidPayment(
     @Param('id') id: string,
     @Body() b: unknown,

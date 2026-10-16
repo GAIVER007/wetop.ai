@@ -1,0 +1,17 @@
+# Модульные (unit) · 16.10.2026 21:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/plate-menu-hover), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-30-39Z-unit-d37d.json' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 35ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 3ms
+
+ Test Files  2 passed (2)
+      Tests  33 passed (33)
+   Start at  09:30:40
+   Duration  294ms (import 69%, transform 17%, tests 13%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-30-39Z-unit-d37d.json
+
+# код выхода 0 · 1 с

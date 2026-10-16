@@ -63,7 +63,8 @@ test('живой двойной щелчок по самой правой пла
       const box = el.getBoundingClientRect();
       const x = box.left + box.width / 2;
       if (box.width === 0 || x < wrap.left || x > wrap.right - 4) continue;
-      if (!best || x > best.x) best = { x, y: box.top + box.height / 2, number: el.getAttribute('data-number')! };
+      if (!best || x > best.x)
+        best = { x, y: box.top + box.height / 2, number: el.getAttribute('data-number')! };
     }
     return best;
   });
@@ -311,18 +312,40 @@ for (const preset of ['14 дней', '30 дней', 'Текущий месяц']
     await hydrated(page.locator('.board-stage'));
     await expect
       .poll(() =>
-        page.locator('[data-testid="stay-cell"] .board-stay-caption').evaluateAll((caps) =>
-          caps.flatMap((cap) =>
-            [
-              ...cap.querySelectorAll<HTMLElement>(
-                '.board-stay-name, .board-stay-name-short, .board-stay-initials, .board-stay-line--meta',
-              ),
-            ]
-              .filter((el) => el.getClientRects().length > 0 && el.scrollWidth > el.clientWidth)
-              .map((el) => `${el.className}: ${el.textContent}`),
+        page
+          .locator('[data-testid="stay-cell"] .board-stay-caption')
+          .evaluateAll((caps) =>
+            caps.flatMap((cap) =>
+              [
+                ...cap.querySelectorAll<HTMLElement>(
+                  '.board-stay-name, .board-stay-name-short, .board-stay-initials, .board-stay-line--meta',
+                ),
+              ]
+                .filter((el) => el.getClientRects().length > 0 && el.scrollWidth > el.clientWidth)
+                .map((el) => `${el.className}: ${el.textContent}`),
+            ),
           ),
-        ),
       )
       .toEqual([]);
   });
 }
+
+test('30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами', async ({ page }) => {
+  // владелец 16.10.2026: «⋯» с запасом съедал 40 px, и «Посетитель Д.» превращался в «ПД»;
+  // действия остаются в предпросмотре по щелчку, как у однодневной плашки (ТЗ §58)
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/chessboard');
+  const first = page.locator('[data-testid="stay-cell"]').filter({ hasText: 'Посетитель' }).first();
+  const arrival = (await first.locator('xpath=ancestor::td[1]').getAttribute('data-date'))!;
+  const end = new Date(`${arrival}T00:00:00Z`);
+  end.setUTCDate(end.getUTCDate() + 29);
+  await page.goto(`/chessboard?from=${arrival}&to=${end.toISOString().slice(0, 10)}`);
+  await expect(page.getByTestId('date-col')).toHaveCount(30);
+  const cell = page
+    .locator('td')
+    .filter({ has: page.locator('[data-testid="stay-cell"]', { hasText: 'Посетитель' }) })
+    .first();
+  await expect(cell.locator('.board-stay-menu')).toHaveCount(0);
+  await expect(cell.locator('.board-stay-name-short')).toBeVisible();
+  await expect(cell.locator('.board-stay-name-short')).toHaveText('Посетитель Д.');
+});

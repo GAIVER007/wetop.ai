@@ -1,0 +1,20 @@
+# Линтер (lint) · 16.10.2026 12:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит c9e8346 (claude/marketing-analytics-export), незакоммиченных файлов набора: 5
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/web/src/app/marketing/analytics/report.test.ts
+  43:46  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/web/src/app/marketing/analytics/report.ts
+  114:11  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/integration/bar-location-children.test.ts
+  19:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts
+  205:73  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+✖ 4 problems (4 errors, 0 warnings)
+
+
+# код выхода 1 · 22 с

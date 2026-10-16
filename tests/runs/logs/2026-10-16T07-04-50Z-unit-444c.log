@@ -1,0 +1,36 @@
+# Модульные (unit) · 16.10.2026 12:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит c9e8346 (claude/marketing-analytics-export), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-04-50Z-unit-444c.json' 'apps/web/src/app/marketing' 'packages/domain/src/marketing'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| packages/domain/src/marketing/builder.test.ts (18 tests) 13ms
+ ✓ |unit| packages/domain/src/marketing/design-presets.test.ts (10 tests) 13ms
+ ✓ |unit| packages/domain/src/marketing/site-templates.test.ts (7 tests) 13ms
+ ✓ |unit| packages/domain/src/marketing/editor.test.ts (14 tests) 19ms
+ ✓ |unit| packages/domain/src/marketing/site-spec-v1.test.ts (17 tests) 31ms
+ ✓ |unit| packages/domain/src/marketing/edit.test.ts (30 tests) 46ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (40 tests) 47ms
+ ✓ |unit| packages/domain/src/marketing/diff.test.ts (9 tests) 12ms
+ ✓ |unit| packages/domain/src/marketing/generation.test.ts (18 tests) 22ms
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 13ms
+ ✓ |unit| packages/domain/src/marketing/funnel.test.ts (10 tests) 10ms
+ ✓ |unit| packages/domain/src/marketing/budget.test.ts (24 tests) 7ms
+ ✓ |unit| packages/domain/src/marketing/expense-import.test.ts (5 tests) 9ms
+ ✓ |unit| packages/domain/src/marketing/starter.test.ts (14 tests) 16ms
+ ✓ |unit| packages/domain/src/marketing/host.test.ts (26 tests) 5ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 4ms
+ ✓ |unit| apps/web/src/app/marketing/budget/derive.test.ts (8 tests) 4ms
+ ✓ |unit| packages/domain/src/marketing/conversation.test.ts (9 tests) 5ms
+ ✓ |unit| packages/domain/src/marketing/assets.test.ts (10 tests) 3ms
+ ✓ |unit| packages/domain/src/marketing/site-lead.test.ts (9 tests) 5ms
+ ✓ |unit| apps/web/src/app/marketing/analytics/report.test.ts (2 tests) 3ms
+
+ Test Files  21 passed (21)
+      Tests  328 passed (328)
+   Start at  00:04:51
+   Duration  757ms (transform 56%, import 28%, tests 13%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-04-50Z-unit-444c.json
+
+# код выхода 0 · 2 с

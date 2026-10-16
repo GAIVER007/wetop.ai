@@ -3695,6 +3695,8 @@ export interface BeautyAppointmentRow {
   priceMinor: string;
   /** оплачено в кассу филиала (§49), действующие приходы */
   paidMinor: string;
+  /** возвращено по выполненной записи (§54), действующие расходы */
+  refundedMinor: string;
   currency: string;
   notes: string | null;
 }
@@ -3799,6 +3801,9 @@ export const beautyApi = {
   /** Оплата записи в кассу филиала (§49) */
   payAppointment: (id: string, body: { method: string; amount: number; idempotencyKey: string }) =>
     sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/payments`, body),
+  /** Возврат по выполненной записи (§54) */
+  refundAppointment: (id: string, body: { method: string; amount: number; reason: string; idempotencyKey: string }) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/refunds`, body),
 };
 
 // ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────

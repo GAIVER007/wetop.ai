@@ -20,6 +20,7 @@ const appt = (id: string, status: string, priceMinor: string, employeeId = 'e1',
     next: [],
     priceMinor,
     paidMinor: '0',
+    refundedMinor: '0',
     currency: 'KZT',
     notes: null,
   }) as BeautyDay['appointments'][number];

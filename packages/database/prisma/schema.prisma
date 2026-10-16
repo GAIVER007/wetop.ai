@@ -226,7 +226,7 @@ model MarketingCampaign {
   createdAt  DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  /// §54 (v2.37): номер кампании в кабинете; у ручных пусто. Уникальность имени только у ручных (частичный индекс в SQL)
+  /// §55 (v2.38): номер кампании в кабинете; у ручных пусто. Уникальность имени только у ручных (частичный индекс в SQL)
   externalId String?                 @map("external_id") @db.VarChar(64)
 
   location Location                 @relation(fields: [locationId], references: [id], onDelete: Restrict)
@@ -248,7 +248,7 @@ enum MarketingConnectionStatus {
   DISCONNECTED
 }
 
-/// §54 (v2.37, ADR-MKT-META): рекламный кабинет филиала; ключ только зашифрованным
+/// §55 (v2.38, ADR-MKT-META): рекламный кабинет филиала; ключ только зашифрованным
 model MarketingAdConnection {
   id              String                    @id @default(uuid()) @db.Uuid
   locationId      String                    @map("location_id") @db.Uuid
@@ -273,7 +273,7 @@ model MarketingAdConnection {
   @@map("marketing_ad_connections")
 }
 
-/// §54: след каждой сверки кабинета (ADR-007)
+/// §55: след каждой сверки кабинета (ADR-007)
 model MarketingSyncRun {
   id           String    @id @default(uuid()) @db.Uuid
   connectionId String    @map("connection_id") @db.Uuid
@@ -301,9 +301,9 @@ model MarketingCampaignStat {
   impressions Int
   clicks      Int
   leads       Int
-  /// §54: MANUAL ввод или день из кабинета (только для чтения на экране)
+  /// §55: MANUAL ввод или день из кабинета (только для чтения на экране)
   source        MarketingStatSource @default(MANUAL)
-  /// §54: расход кабинета в его валюте, minor units; у ручных дней пусто
+  /// §55: расход кабинета в его валюте, minor units; у ручных дней пусто
   spendMinor    BigInt?             @map("spend_minor")
   spendCurrency String?             @map("spend_currency") @db.Char(3)
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)

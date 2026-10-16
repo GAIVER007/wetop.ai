@@ -16,5 +16,12 @@ export function appointmentStatusAllowed(to: AppointmentStatus, paid: bigint): s
 
 /** Аннулировать оплату можно, пока запись не выполнена (Q-BEAUTY-PAY-1); null: можно */
 export function appointmentPaymentVoidable(status: AppointmentStatus): string | null {
-  return status === 'DONE' ? 'Запись выполнена: оплату уже не аннулируют, возврат делается расходом кассы' : null;
+  return status === 'DONE' ? 'Запись выполнена: оплату уже не аннулируют, оформите возврат в карточке записи' : null;
+}
+
+/** Возврат по выполненной записи (§54): только после «Выполнено», не больше чистой оплаты */
+export function appointmentRefund(status: AppointmentStatus, paidNet: bigint, amount: bigint): void {
+  if (status !== 'DONE') throw new Error('Возврат оформляют по выполненной записи: до этого аннулируйте оплату в кассе');
+  if (amount <= 0n) throw new Error('Сумма больше нуля');
+  if (amount > paidNet) throw new Error('Сумма больше оплаченного по записи');
 }

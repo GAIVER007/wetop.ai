@@ -1,0 +1,510 @@
+{
+  "records": [
+    {
+      "source": "baseline",
+      "id": "2026-10-12T10-30-56Z-e2e-951d",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-access.spec.ts"
+      ],
+      "startedAt": "2026-10-12T10:30:56.381Z",
+      "durationMs": 98839,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "f1b801e6a10b9524b3b42838e7b24ea52fe70309ad112406f171e49a4bddcb2c",
+      "codeChangedDuringRun": true
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T10-32-37Z-unit-8ca7",
+      "suite": "unit",
+      "args": [
+        "apps/web/src/app/help/help.test.ts"
+      ],
+      "startedAt": "2026-10-12T10:32:37.374Z",
+      "durationMs": 4135,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 4,
+        "passed": 3,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "f0697b8dc1a8b69dd85e3af13fb4d5a3094c3a3b5ceecc46b0a521ea906a5cc2",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T10-34-01Z-e2e-2bb0",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-access.spec.ts"
+      ],
+      "startedAt": "2026-10-12T10:34:01.182Z",
+      "durationMs": 55101,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "a46be13663463497cab98be3b173dcb430733f4144766f01e4abc85bcd39b975",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T10-37-39Z-e2e-28e9",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-kb.spec.ts:19"
+      ],
+      "startedAt": "2026-10-12T10:37:39.031Z",
+      "durationMs": 13150,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "4339c892c178160d14b77469beabce82ca4349644814edc2970a793bebdcff08",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T10-38-09Z-e2e-b067",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-kb.spec.ts",
+        "-g",
+        "unsaved text"
+      ],
+      "startedAt": "2026-10-12T10:38:09.070Z",
+      "durationMs": 80443,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "4339c892c178160d14b77469beabce82ca4349644814edc2970a793bebdcff08",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T10-41-19Z-e2e-d7f5",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/hospitality-read-only.spec.ts"
+      ],
+      "startedAt": "2026-10-12T10:41:19.233Z",
+      "durationMs": 207137,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 4,
+        "passed": 0,
+        "failed": 4,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "57ff6ceade7a05c6841a1f0095a722fbaf1a262f186f9ab8eb2f775ece0bef51",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T10-47-07Z-e2e-a96d",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-visual.spec.ts"
+      ],
+      "startedAt": "2026-10-12T10:47:07.546Z",
+      "durationMs": 614609,
+      "exitCode": 130,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 4,
+        "passed": 0,
+        "failed": 2,
+        "skipped": 2,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "b29be7b83ba97ad05f0d38969ae37ff76a2cb44b4de95fcf88e4d74d478d3824",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T10-58-01Z-e2e-32f5",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-visual.spec.ts"
+      ],
+      "startedAt": "2026-10-12T10:58:01.751Z",
+      "durationMs": 412006,
+      "exitCode": 130,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 68,
+        "passed": 6,
+        "failed": 2,
+        "skipped": 60,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "b591189ed26a2a04bd6fb0aa8a6574b656700a00aaaf91a38ac8b62258f82af0",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T11-09-50Z-unit-342c",
+      "suite": "unit",
+      "args": [
+        "tests/unit/food-customer-update.test.ts"
+      ],
+      "startedAt": "2026-10-12T11:09:50.377Z",
+      "durationMs": 2104,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "fd0eb0bcfbd8d79bd483652e339c9a04f1fcc75716bd0dbb4f9b358609a2a1d3",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate-intermediate",
+      "id": "2026-10-12T10-31-22Z-unit-f6bc",
+      "suite": "unit",
+      "args": [
+        "apps/web/src/app/help/help.test.tsx"
+      ],
+      "startedAt": "2026-10-12T10:31:22.536Z",
+      "durationMs": 3830,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "98d992cd9abc1967668807ae704ef69a0960a05d21a706a5f78eb4618088b4fe",
+      "codeChangedDuringRun": true
+    },
+    {
+      "source": "candidate-intermediate",
+      "id": "2026-10-12T11-08-40Z-unit-39aa",
+      "suite": "unit",
+      "args": [
+        "tests/unit/food-customer-update.test.ts",
+        "apps/web/src/app/team/scope-model.test.ts",
+        "apps/web/src/app/help/help.test.ts",
+        "apps/web/src/app/platform/support/kb-forms.test.ts",
+        "tests/unit/ci-runner.test.ts"
+      ],
+      "startedAt": "2026-10-12T11:08:40.059Z",
+      "durationMs": 5655,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 43,
+        "passed": 43,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "554e2c30224b8e05c441a1661b9e1e3334d9e246b6da6581d9f67fd6d1bbdad8",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate-intermediate",
+      "id": "2026-10-12T11-23-09Z-unit-27b8",
+      "suite": "unit",
+      "args": [
+        "tests/unit/food-customer-update.test.ts",
+        "apps/web/src/app/team/scope-model.test.ts",
+        "apps/web/src/app/help/help.test.ts",
+        "apps/web/src/app/platform/support/kb-forms.test.ts",
+        "tests/unit/ci-runner.test.ts"
+      ],
+      "startedAt": "2026-10-12T11:23:09.109Z",
+      "durationMs": 13082,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 43,
+        "passed": 43,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "17c4a98779f211fad29ca80a1d16b8711fa271ca3e45edbec6a11d60fe7728ca",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate-intermediate",
+      "id": "2026-10-12T11-45-43Z-unit-6448",
+      "suite": "unit",
+      "args": [
+        "apps/web/src/app/login/actions.test.ts"
+      ],
+      "startedAt": "2026-10-12T11:45:43.755Z",
+      "durationMs": 3715,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "f017bf704554d34048cbbdf8d31b95a44784f1bc",
+      "fingerprint": "6d5ff88ff431e50808d13fa06410c9df72381876ef21d231cb8f5836f909bb9a",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate-intermediate",
+      "id": "2026-10-12T11-46-43Z-unit-84ab",
+      "suite": "unit",
+      "args": [
+        "apps/web/src/app/login/actions.test.ts"
+      ],
+      "startedAt": "2026-10-12T11:46:43.901Z",
+      "durationMs": 4000,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "f017bf704554d34048cbbdf8d31b95a44784f1bc",
+      "fingerprint": "6f08fd03d2aa248604b791161adef73018256b782547ef7104cfe3e174f5db35",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate-intermediate",
+      "id": "2026-10-12T11-48-58Z-unit-7dd3",
+      "suite": "unit",
+      "args": [
+        "apps/web/src/app/login/actions.test.ts"
+      ],
+      "startedAt": "2026-10-12T11:48:58.651Z",
+      "durationMs": 1423,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "f017bf704554d34048cbbdf8d31b95a44784f1bc",
+      "fingerprint": "6b166651043f89613a572295731b583cdc4d9cd414bec2a31494c5a4bc148f13",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate-intermediate",
+      "id": "2026-10-12T11-56-25Z-unit-bacd",
+      "suite": "unit",
+      "args": [
+        "apps/web/src/app/login/actions.test.ts",
+        "tests/unit/ci-runner.test.ts"
+      ],
+      "startedAt": "2026-10-12T11:56:25.004Z",
+      "durationMs": 10831,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 32,
+        "passed": 32,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "f017bf704554d34048cbbdf8d31b95a44784f1bc",
+      "fingerprint": "5a3210d2a9c1d8b060134411c130e6c319c260a28b5ba3bc25dfdab1ed3722bd",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate-intermediate",
+      "id": "2026-10-12T12-08-54Z-unit-b350",
+      "suite": "unit",
+      "args": [
+        "apps/web/src/app/login/actions.test.ts",
+        "tests/unit/ci-runner.test.ts"
+      ],
+      "startedAt": "2026-10-12T12:08:54.657Z",
+      "durationMs": 2514,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 32,
+        "passed": 32,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "f017bf704554d34048cbbdf8d31b95a44784f1bc",
+      "fingerprint": "5a3210d2a9c1d8b060134411c130e6c319c260a28b5ba3bc25dfdab1ed3722bd",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate-intermediate",
+      "id": "2026-10-12T12-53-29Z-unit-566f",
+      "suite": "unit",
+      "args": [
+        "apps/web/src/app/platform/support/kb-forms.test.ts",
+        "apps/web/src/app/login/actions.test.ts",
+        "tests/unit/ci-runner.test.ts"
+      ],
+      "startedAt": "2026-10-12T12:53:29.281Z",
+      "durationMs": 4310,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 40,
+        "passed": 40,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "ddba4e1bc35ff43fb8cd681725257bd95a414b65",
+      "fingerprint": "13479edd4c48c2b1881e43aaf0c282590b7186da963e205ee585f6421d9f2c3d",
+      "codeChangedDuringRun": false
+    }
+  ],
+  "acceptance": "Intermediate local results; remote exact-SHA evidence pending. Failed and interrupted attempts retained.",
+  "pythonStorageAttempts": [
+    {
+      "environment": "inherited C locale",
+      "status": "setup-error",
+      "total": 1,
+      "passed": 0,
+      "errors": 1,
+      "reason": "Alembic config UnicodeDecodeError"
+    },
+    {
+      "environment": "PYTHONUTF8=1 with inherited C locale",
+      "status": "setup-error",
+      "total": 1,
+      "passed": 0,
+      "errors": 1,
+      "reason": "explicit encoding=locale remains ASCII"
+    },
+    {
+      "environment": "LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8",
+      "status": "passed",
+      "total": 1,
+      "passed": 1,
+      "errors": 0,
+      "warnings": 2
+    }
+  ],
+  "staleOrgDirectRed": [
+    {
+      "type": "NEW direct stdout, no recorded fingerprint",
+      "test": "invite expected org",
+      "total": 6,
+      "passed": 5,
+      "failed": 1,
+      "commandSpyCalls": 2,
+      "fileArtifact": null,
+      "acceptance": "Supplemental agent report; final frozen baseline RED required in CI"
+    },
+    {
+      "type": "NEW direct stdout, no recorded fingerprint",
+      "test": "member scopes expected org",
+      "total": 7,
+      "passed": 6,
+      "failed": 1,
+      "commandSpyCalls": 1,
+      "fileArtifact": null,
+      "acceptance": "Supplemental agent report; final frozen baseline RED required in CI"
+    }
+  ],
+  "kbRoutingStructuralRed": {
+    "execution": "NEW direct unit stdout",
+    "total": 8,
+    "passed": 6,
+    "failed": 2,
+    "reason": "kbSaveRouting export absent before implementation",
+    "acceptance": "SUPPLEMENTAL_STRUCTURAL_ONLY; behavioral RED required on ddba4e1bc35ff43fb8cd681725257bd95a414b65 in CI"
+  }
+}

@@ -1019,6 +1019,8 @@ let rejectCreate = false;
 /** ADR-072: режим хранения данных гостей; по умолчанию — как в базе в Казахстане, чтобы прежние экраны не менялись */
 let piiStorage: 'real' | 'pseudonymized' = 'real';
 let failPath = '';
+/** Optional HTTP method restriction; empty preserves legacy path-wide failures. */
+let failMethod = '';
 /** Поля поверх ответов каналов (снимки состояний модуля «Каналы продаж», ADR-112) */
 let channelsOverrides: {
   connection?: Record<string, unknown>;
@@ -5132,7 +5134,7 @@ let salesFixture: SalesFixture = { ...SALES_DEFAULT };
 function salesRoute(path: string, method: string, q: URLSearchParams): [number, unknown] | null {
   if (path !== '/sales/summary' || method !== 'GET') return null;
   // синтетический сбой (`POST /__test/control { failPath }`) тот же, что у остальных маршрутов: сюда он доходит раньше общей проверки
-  if (path === failPath || failPath === '*')
+  if ((path === failPath || failPath === '*') && (!failMethod || method === failMethod))
     return [failStatus, { message: 'Синтетический сбой API' }];
   if (!can(uiRole, 'reports')) return [403, { message: accessDeniedMessage('reports') }];
   const from = q.get('from') ?? '';
@@ -5832,6 +5834,7 @@ createServer(async (req, res) => {
       commands = [];
       rejectCreate = false;
       failPath = '';
+      failMethod = '';
       channelsOverrides = {};
       delayPath = '';
       delayMs = 0;
@@ -5918,6 +5921,7 @@ createServer(async (req, res) => {
           ? body['channelCatalog']
           : '';
       failPath = String(body['failPath'] || '');
+      failMethod = String(body['failMethod'] || '').toUpperCase();
       if ('mediaStorageOff' in body) mediaStorageOff = body['mediaStorageOff'] === true;
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
@@ -6168,7 +6172,7 @@ createServer(async (req, res) => {
         message:
           'Каналы продаж, обмен с менеджером каналов и сторож системы ведёт поддержка WETOP.',
       });
-    if (path === failPath || failPath === '*')
+    if ((path === failPath || failPath === '*') && (!failMethod || req.method === failMethod))
       return send(
         failStatus,
         failStatus >= 500

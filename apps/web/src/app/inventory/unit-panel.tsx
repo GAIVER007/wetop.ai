@@ -48,6 +48,8 @@ export function UnitPanel({
   createdAt,
   updatedAt,
   channels,
+  canEditCatalog,
+  canOperate,
 }: {
   unit: UnitCard;
   today: string;
@@ -60,6 +62,8 @@ export function UnitPanel({
   updatedAt: string;
   /** Каналы, на которые продаётся категория места; пусто, если сопоставления нет или канал не отвечает */
   channels: ChannelMark[];
+  canEditCatalog: boolean;
+  canOperate: boolean;
 }) {
   const { current, next } = unitNow(unit.stays, today);
   const block = unit.blocks.find((b) => b.dateFrom <= today && today < b.dateTo) ?? null;
@@ -117,14 +121,20 @@ export function UnitPanel({
       </dl>
       <h3 className="unit-subhead">Быстрые действия</h3>
       <div className="unit-quick">
-        <FundEditor categories={[]} room={{ code: unit.code, roomNumber: unit.roomNumber }} />
-        <Link
-          className="btn btn--secondary"
-          href={`/reservations/new?unit=${encodeURIComponent(unit.code)}`}
-        >
-          <Icon name="booking" />
-          Создать бронь
-        </Link>
+        {canEditCatalog && (
+          <FundEditor categories={[]} room={{ code: unit.code, roomNumber: unit.roomNumber }} />
+        )}
+        {canOperate && (
+          <>
+            <Link
+              className="btn btn--secondary"
+              href={`/reservations/new?unit=${encodeURIComponent(unit.code)}`}
+            >
+              <Icon name="booking" />
+              Создать бронь
+            </Link>
+          </>
+        )}
         <Link
           className="btn btn--secondary"
           href={`/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`}
@@ -137,8 +147,12 @@ export function UnitPanel({
           Полная карточка
         </a>
       </div>
-      <h3 className="unit-subhead">Уборка и блокировки</h3>
-      <UnitActions unit={unit} today={today} />
+      {canOperate && (
+        <>
+          <h3 className="unit-subhead">Уборка и блокировки</h3>
+          <UnitActions unit={unit} today={today} />
+        </>
+      )}
     </div>
   );
   const beds = (

@@ -1,0 +1,473 @@
+{
+  "sha": "0e2d69e1739678852d7745d2ca9f4e74ec595b0f",
+  "confirmedCounts": {
+    "P1": 12,
+    "P2": 35,
+    "P3": 9
+  },
+  "contractQuestions": 1,
+  "findings": [
+    {
+      "id": "B-01",
+      "priority": "P1",
+      "title": "Принятый контур S1 для `/today` не завершён",
+      "status": "static+live",
+      "file": "beauty-code-review.md",
+      "line": 105
+    },
+    {
+      "id": "B-02",
+      "priority": "P1",
+      "title": "Принятый расширенный контур S3 для `/customers` не завершён",
+      "status": "static+live",
+      "file": "beauty-code-review.md",
+      "line": 125
+    },
+    {
+      "id": "B-03",
+      "priority": "P2",
+      "title": "`/employees` остаётся таблицей и не показывает принятые данные S2",
+      "status": "static+live",
+      "file": "beauty-code-review.md",
+      "line": 145
+    },
+    {
+      "id": "B-04",
+      "priority": "P1",
+      "title": "Профиль мастера и список услуг сохраняются неатомарно",
+      "status": "static",
+      "file": "beauty-code-review.md",
+      "line": 161
+    },
+    {
+      "id": "B-05",
+      "priority": "P1",
+      "title": "Гонка между снятием мастера с филиала и созданием записи",
+      "status": "static",
+      "file": "beauty-code-review.md",
+      "line": 182
+    },
+    {
+      "id": "B-06",
+      "priority": "P2",
+      "title": "Форма новой записи предлагает заведомо недопустимые значения",
+      "status": "static",
+      "file": "beauty-code-review.md",
+      "line": 212
+    },
+    {
+      "id": "B-07",
+      "priority": "P2",
+      "title": "Кнопка «Новая запись» может быть активной без единой допустимой записи",
+      "status": "static",
+      "file": "beauty-code-review.md",
+      "line": 234
+    },
+    {
+      "id": "B-08",
+      "priority": "P2",
+      "title": "Отказы в Beauty используют гостиничные названия прав",
+      "status": "static",
+      "file": "beauty-code-review.md",
+      "line": 251
+    },
+    {
+      "id": "B-09",
+      "priority": "P2",
+      "title": "Числовые поля услуг не имеют верхних доменных границ",
+      "status": "static",
+      "file": "beauty-code-review.md",
+      "line": 268
+    },
+    {
+      "id": "B-10",
+      "priority": "P3",
+      "title": "Некорректная дата запроса молча заменяется сегодняшней",
+      "status": "static+live",
+      "file": "beauty-code-review.md",
+      "line": 284
+    },
+    {
+      "id": "C-P1-1",
+      "priority": "P1",
+      "title": "Сбой загрузки структуры доступа превращает приглашение в доступ ко всей организации",
+      "status": "static+local",
+      "file": "common-code-review.md",
+      "line": 62,
+      "runtimeEvidence": "audit-probes.spec.ts:17, enabled invitation after access-structure failure; no invite sent"
+    },
+    {
+      "id": "C-P1-2",
+      "priority": "P1",
+      "title": "Кнопка публикации знания публикует сохранённую версию, а не текущий текст редактора",
+      "status": "static+local",
+      "file": "common-code-review.md",
+      "line": 69,
+      "runtimeEvidence": "audit-probes.spec.ts:27, after confirmed publication and reload editor contains old synthetic content"
+    },
+    {
+      "id": "C-P1-3",
+      "priority": "P1",
+      "title": "Публичный status сообщает `ok`, если журнал incidents не читается, но `SELECT 1` успешен",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 76
+    },
+    {
+      "id": "C-P2-1",
+      "priority": "P2",
+      "title": "Повторная отправка приглашения сначала безвозвратно отзывает рабочую ссылку",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 85
+    },
+    {
+      "id": "C-P2-2",
+      "priority": "P2",
+      "title": "Повторная owner link гасит старую ссылку до результата отправки письма",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 92
+    },
+    {
+      "id": "C-P2-3",
+      "priority": "P2",
+      "title": "Подтверждение email запускается автоматически при mount вопреки контракту явной кнопки",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 99
+    },
+    {
+      "id": "C-P2-4",
+      "priority": "P2",
+      "title": "Несуществующий номер брони бесшумно превращает связанную задачу в обычную",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 106
+    },
+    {
+      "id": "C-P2-5",
+      "priority": "P2",
+      "title": "Список задач молча обрезается до 500 записей",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 113
+    },
+    {
+      "id": "C-P2-6",
+      "priority": "P2",
+      "title": "Platform admin не может создать организацию Food Service из UI",
+      "status": "static+live",
+      "file": "common-code-review.md",
+      "line": 120
+    },
+    {
+      "id": "C-P2-7",
+      "priority": "P2",
+      "title": "Цена онбординга вычисляется через JavaScript float вопреки денежной политике проекта",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 127
+    },
+    {
+      "id": "C-P2-8",
+      "priority": "P2",
+      "title": "Профиль сообщает устаревшую и неверную модель прав",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 135
+    },
+    {
+      "id": "C-P2-9",
+      "priority": "P2",
+      "title": "Ошибки `currentMe` маскируются как выход или отсутствие прав",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 142
+    },
+    {
+      "id": "C-P2-10",
+      "priority": "P2",
+      "title": "Onboarding gate пропускает пользователя при любом API error, кроме специально распознанного 404",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 149
+    },
+    {
+      "id": "C-P3-1",
+      "priority": "P3",
+      "title": "Форма нового пароля не отражает минимальную длину в HTML-валидации",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 158
+    },
+    {
+      "id": "C-P3-2",
+      "priority": "P3",
+      "title": "Wizard предполагает JSON для любого ответа proxy",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 164
+    },
+    {
+      "id": "C-P3-3",
+      "priority": "P3",
+      "title": "Ошибка загрузки summary на Support полностью скрыта",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 171
+    },
+    {
+      "id": "C-P3-4",
+      "priority": "P3",
+      "title": "Редактор KB не использует native required для обязательных полей",
+      "status": "static",
+      "file": "common-code-review.md",
+      "line": 177
+    },
+    {
+      "id": "F-01",
+      "priority": "P1",
+      "title": "Код допускает полную выплату одному сотруднику из нескольких филиалов",
+      "status": "contract-question",
+      "file": "food-code-review.md",
+      "line": 78
+    },
+    {
+      "id": "F-02",
+      "priority": "P1",
+      "title": "Денежные повторы не защищены стабильным ключом операции",
+      "status": "static",
+      "file": "food-code-review.md",
+      "line": 117
+    },
+    {
+      "id": "F-03",
+      "priority": "P1",
+      "title": "Бизнесное меню допускает продажу цены одной валюты как суммы другой валюты филиала",
+      "status": "static",
+      "file": "food-code-review.md",
+      "line": 136
+    },
+    {
+      "id": "F-04",
+      "priority": "P2",
+      "title": "Формы денег работают только с целой основной единицей и теряют minor units",
+      "status": "static",
+      "file": "food-code-review.md",
+      "line": 161
+    },
+    {
+      "id": "F-05",
+      "priority": "P2",
+      "title": "Одна кнопка сохранения техкарты выполняет две независимые транзакции",
+      "status": "static",
+      "file": "food-code-review.md",
+      "line": 181
+    },
+    {
+      "id": "F-06",
+      "priority": "P2",
+      "title": "Ошибка кнопки уборки стола скрывается от пользователя",
+      "status": "static",
+      "file": "food-code-review.md",
+      "line": 197
+    },
+    {
+      "id": "F-07",
+      "priority": "P2",
+      "title": "В Food отсутствует управление сменами, хотя оно включено в утверждённый план",
+      "status": "static",
+      "file": "food-code-review.md",
+      "line": 213
+    },
+    {
+      "id": "F-08",
+      "priority": "P2",
+      "title": "Финансовая история кассы необратимо обрезана для UI без пагинации",
+      "status": "static",
+      "file": "food-code-review.md",
+      "line": 230
+    },
+    {
+      "id": "F-09",
+      "priority": "P2",
+      "title": "Категории меню нельзя изменить, архивировать или упорядочить из UI",
+      "status": "static",
+      "file": "food-code-review.md",
+      "line": 246
+    },
+    {
+      "id": "F-10",
+      "priority": "P3",
+      "title": "Аннулирование кассовой операции выполняется одним нажатием без причины",
+      "status": "static",
+      "file": "food-code-review.md",
+      "line": 264
+    },
+    {
+      "id": "H-01",
+      "priority": "P2",
+      "title": "Read-only режим не закрывает все гостиничные мутации",
+      "status": "static+local",
+      "file": "hospitality-code-review.md",
+      "line": 120,
+      "runtimeEvidence": "audit-probes.spec.ts:42, read-only banner visible, add inventory button enabled; no mutation sent"
+    },
+    {
+      "id": "H-02",
+      "priority": "P1",
+      "title": "Ошибка поиска гостя маскируется под отсутствие совпадений и позволяет создать дубликат",
+      "status": "static",
+      "file": "hospitality-code-review.md",
+      "line": 165
+    },
+    {
+      "id": "H-03",
+      "priority": "P1",
+      "title": "Составные Bar-операции неатомарны и оставляют частичные записи",
+      "status": "static",
+      "file": "hospitality-code-review.md",
+      "line": 183
+    },
+    {
+      "id": "H-04",
+      "priority": "P2",
+      "title": "Bar показывает STAFF действия каталога, которые API разрешает только `settings`",
+      "status": "static",
+      "file": "hospitality-code-review.md",
+      "line": 210
+    },
+    {
+      "id": "H-05",
+      "priority": "P2",
+      "title": "Переключение категории кассы безусловно проглатывает ошибку API",
+      "status": "static",
+      "file": "hospitality-code-review.md",
+      "line": 230
+    },
+    {
+      "id": "H-06",
+      "priority": "P2",
+      "title": "Прямые reservation и unit routes не проверяют Hospitality vertical",
+      "status": "static",
+      "file": "hospitality-code-review.md",
+      "line": 245
+    },
+    {
+      "id": "H-07",
+      "priority": "P3",
+      "title": "Ссылки на договор и счёт не раскрывают черновой статус до открытия",
+      "status": "static",
+      "file": "hospitality-code-review.md",
+      "line": 263
+    },
+    {
+      "id": "MKT-AI-01",
+      "priority": "P1",
+      "title": "отказ API цен рынка маскируется под отсутствие данных",
+      "status": "static",
+      "file": "marketing-ai-code-review.md",
+      "line": 73
+    },
+    {
+      "id": "MKT-AI-02",
+      "priority": "P2",
+      "title": "`/sales` сообщает «ИИ-продавец не подключён» при техническом отказе status API",
+      "status": "static",
+      "file": "marketing-ai-code-review.md",
+      "line": 89
+    },
+    {
+      "id": "MKT-AI-03",
+      "priority": "P2",
+      "title": "STAFF открывает страницу агента с активными запрещёнными настройками",
+      "status": "static",
+      "file": "marketing-ai-code-review.md",
+      "line": 101
+    },
+    {
+      "id": "MKT-AI-04",
+      "priority": "P2",
+      "title": "поиск диалогов проверяет только последние 50 разговоров",
+      "status": "static",
+      "file": "marketing-ai-code-review.md",
+      "line": 121
+    },
+    {
+      "id": "MKT-AI-05",
+      "priority": "P2",
+      "title": "выбор более 20 фото Channex импортирует только первые 20 и очищает весь выбор",
+      "status": "static",
+      "file": "marketing-ai-code-review.md",
+      "line": 139
+    },
+    {
+      "id": "MKT-AI-06",
+      "priority": "P2",
+      "title": "режим организации «только чтение» не отражён на Website и Channex mutations",
+      "status": "static",
+      "file": "marketing-ai-code-review.md",
+      "line": 154
+    },
+    {
+      "id": "MKT-AI-07",
+      "priority": "P2",
+      "title": "редактор сайта превращает ошибки зависимых API в пустые данные и остаётся активным",
+      "status": "static",
+      "file": "marketing-ai-code-review.md",
+      "line": 174
+    },
+    {
+      "id": "MKT-AI-08",
+      "priority": "P3",
+      "title": "ошибка загрузки версий инструкции AI seller полностью скрыта",
+      "status": "static",
+      "file": "marketing-ai-code-review.md",
+      "line": 186
+    },
+    {
+      "id": "L-01",
+      "priority": "P2",
+      "title": "чат перекрывает мобильную кнопку «Ещё»",
+      "status": "live",
+      "file": "shared-ui-review.md",
+      "line": 5
+    },
+    {
+      "id": "L-02",
+      "priority": "P2",
+      "title": "гостиничная помощь показывает салон",
+      "status": "live+local",
+      "file": "shared-ui-review.md",
+      "line": 22,
+      "runtimeEvidence": "audit-probes.spec.ts:53, Hospitality help contains salon instructions"
+    },
+    {
+      "id": "L-03",
+      "priority": "P3",
+      "title": "журнал не имеет словаря событий Beauty",
+      "status": "static",
+      "file": "shared-ui-review.md",
+      "line": 32
+    },
+    {
+      "id": "L-04",
+      "priority": "P2",
+      "title": "аналитика ресторана сообщает, что финансовый учёт не подключён",
+      "status": "static",
+      "file": "shared-ui-review.md",
+      "line": 42
+    },
+    {
+      "id": "D-01",
+      "priority": "P2",
+      "title": "Ответ PATCH после очистки даты рождения возвращает прежнюю дату",
+      "status": "production-static",
+      "file": "production-delta-review.md",
+      "line": 20,
+      "sha": "b23467063bd8b5d4e37aa24c146d83e8c6e0eca7"
+    }
+  ],
+  "productionDeltaSha": "b23467063bd8b5d4e37aa24c146d83e8c6e0eca7"
+}

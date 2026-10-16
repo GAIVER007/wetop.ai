@@ -9,6 +9,8 @@ import { Page, BackCrumb } from '../../../components/page';
 import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { UnitActions } from './unit-actions';
 import { UnitFacts } from './unit-facts';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 import '../../inventory/inventory.css';
 
 /**
@@ -34,8 +36,12 @@ export default async function UnitPage({
     q.blockTo > q.blockFrom
       ? { dateFrom: q.blockFrom, dateTo: q.blockTo }
       : undefined;
-  const unit = await unitsApi.card(decodeURIComponent(code)).catch(notFoundOn404);
-  const today = await hotelToday();
+  const [unit, today, shell] = await Promise.all([
+    unitsApi.card(decodeURIComponent(code)).catch(notFoundOn404),
+    hotelToday(),
+    deskShell(),
+  ]);
+  const canMutate = mayAccess(shell.access, 'desk') && !shell.readOnly;
   return (
     <Page
       width="medium"
@@ -44,7 +50,7 @@ export default async function UnitPage({
       subtitle={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'}, категория «${unit.accommodationTypeName}», комната ${unit.roomNumber}${unit.active ? '' : ', выведена из фонда'}`}
     >
       <UnitFacts unit={unit} today={today} />
-      <UnitActions unit={unit} today={today} blockPeriod={blockPeriod} />
+      {canMutate && <UnitActions unit={unit} today={today} blockPeriod={blockPeriod} />}
       <SectionTitle>Ближайшие проживания, 60 дней</SectionTitle>
       <Table size="sm" data-testid="unit-stays">
         <thead>

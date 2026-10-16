@@ -1,0 +1,19 @@
+# Типы (typecheck) · 16.10.2026 12:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит dd6bb5d (claude/combined-431-279), незакоммиченных файлов набора: 59
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/team/page.tsx(1,10): error TS2300: Duplicate identifier 'unstable_rethrow'.
+apps/web/src/app/team/page.tsx(3,10): error TS2300: Duplicate identifier 'unstable_rethrow'.
+
+# код выхода 1 · 25 с

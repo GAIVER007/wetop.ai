@@ -12,6 +12,8 @@ import { FundEditor } from '../../inventory/fund-editor';
 import { AvailabilityFinder } from '../availability-finder';
 import '../../inventory/inventory.css';
 import '../../inventory/fund.css';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 export default async function RoomsPage({
   params,
   searchParams,
@@ -25,10 +27,12 @@ export default async function RoomsPage({
   if (section.length !== 1 || !['categories', 'availability'].includes(section[0]!)) notFound();
   const categories = section[0] === 'categories';
   if (categories) {
-    const [types, units] = await Promise.all([
+    const [types, units, shell] = await Promise.all([
       inventoryEditorApi.categories(),
       api.inventoryUnits(),
+      deskShell(),
     ]);
+    const canMutate = mayAccess(shell.access, 'property') && !shell.readOnly;
     const rooms = units.filter((u) => u.kind === 'ROOM').length;
     const beds = units.length - rooms;
     // разделитель — запятая, а не точка-разделитель: сторож ИИ-слопа, DESIGN.md §14
@@ -47,10 +51,10 @@ export default async function RoomsPage({
             ? summary
             : 'Категория объединяет номера или койки с одинаковым типом размещения и вместимостью.'
         }
-        actions={<FundEditor categories={types} mode="category" />}
+        actions={canMutate ? <FundEditor categories={types} mode="category" /> : undefined}
       >
         <FundTabs active="categories" />
-        <CategoryCatalog categories={types} units={units} />
+        <CategoryCatalog categories={types} units={units} canMutate={canMutate} />
       </Page>
     );
   }

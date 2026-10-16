@@ -16,17 +16,18 @@
 |---|---|---|
 | Все активные миграции, Prisma drift, каждый down | 133 миграции, RESULT OK, drift отсутствует | [final-migrations.log](final-migrations.log) |
 | Настоящий stock restore с восстановлением ACL/RLS | 2/2, необязательные роли отсутствуют/присутствуют | [final-restore.log](final-restore.log) |
-| Все portal integration плюс Beauty/workspace/payment regression | 76/76, 10 файлов | `tests/runs/entries/2026-10-16T19-59-31Z-integration-c7b4.json` |
-| Все portal и managed Beauty form браузерные сценарии | 22/22, без skip | `tests/runs/entries/2026-10-16T19-59-56Z-e2e-9e02.json` |
-| Типы root, API, web | exit0 всех трёх | `tests/runs/entries/2026-10-16T20-01-51Z-typecheck-91e2.json` |
-| Полный lint | exit0, без ошибок | `tests/runs/entries/2026-10-16T20-02-56Z-lint-c7a0.json` |
-| Production web build | exit0, Next16.3.6, 108 страниц | внешний `final3-build-web.log` |
-| Worker source bundle | esbuild exit0, ESM97.7kb | внешний `final3-build-sites.log` |
-| Полный unit, один worker | 5289 passed, 7 skipped, 0 failed; 559 файлов прошли, 1 пропущен | `tests/runs/entries/2026-10-16T20-04-39Z-unit-d4b1.json` |
+| Полный integration | 1469 passed, 81 существующий условный skip, 0 failed; 185 файлов прошли | `tests/runs/entries/2026-10-16T20-20-22Z-integration-f368.json` |
+| Все portal и managed Beauty form браузерные сценарии | 22/22, без skip | `tests/runs/entries/2026-10-16T20-56-20Z-e2e-9e9b.json` |
+| Дополнительная доступность и клавиатура | 4/4 сценария, 72 комбинации ролей/вкладок/ширин/тем, 0 axe violations и overflow | `tests/runs/entries/2026-10-16T20-54-20Z-e2e-4022.json`, [матрица](a11y-role-matrix.json) |
+| Типы root, API, web | exit0 всех трёх | `tests/runs/entries/2026-10-16T20-57-56Z-typecheck-a150.json` |
+| Полный lint | exit0, без ошибок | `tests/runs/entries/2026-10-16T20-58-50Z-lint-9d7b.json` |
+| Production web build | exit0, Next16.3.6, 108 страниц | внешний `final6-build-web.log` |
+| Worker source bundle | esbuild exit0, ESM97.7kb | внешний `final6-build-sites.log` |
+| Полный unit, один worker | 5289 passed, 7 skipped, 0 failed; 559 файлов прошли, 1 пропущен | `tests/runs/entries/2026-10-16T20-59-50Z-unit-f7bf.json` |
 
 Семь существующих условных пропусков: db-backup-offsite1, launchd-install3 и server-bootstrap3. Новые portal/booking/restore сценарии не пропущены. Сборка esbuild не является Wrangler dry-run или Cloudflare deployment. Next сообщает существующую deprecated middleware convention; это предупреждение, не упавший build.
 
-Точные команды/исходные логи и реальные снимки desktop/mobile обеих тем сохранены в `/srv/hermes/workspace/wetop-portal-release-evidence-61af/`: `final3-gates.sh`, `final3-*.log`, `final-browser/`. Тестовый PNG фиксирует только синтетические данные. Фотопровайдер стенда не доказывает private production S3 или срок действия реальных подписей.
+Точные команды/исходные логи и реальные снимки desktop/mobile обеих тем сохранены в `/srv/hermes/workspace/wetop-portal-release-evidence-61af/`: `final4-gates.sh`, `final6-gates.sh`, `final6-*.log`, `final6-browser/`. Тестовый PNG фиксирует только синтетические данные. Фотопровайдер стенда не доказывает private production S3 или срок действия реальных подписей.
 
 Локальные journal entries записаны до коммита поверх main с перечисленной dirty-дельтой. Привязка к итоговому commit должна проверяться по неизменившимся fingerprint набора, а удалённый полный `release-checks` должен выполняться на точном SHA PR. Не выдавать зелёный main до этой дельты за зелёный кандидат.
 
@@ -43,3 +44,25 @@
 Этот кандидат не слит и не объявляется выложенным. Владелец сливает PR после зелёного точного SHA. Производственные SQL, реальная свежая копия и её восстановление, KZ private S3/backup и штатная Cloudflare авторизация требуют владельца/администратора. Root helper старого финансового пакета не использован и не переделан. Новых deployment механизмов, seed в production или расширения hermes rights нет.
 
 Подробные безопасные действия и откат: [owner-handoff.md](owner-handoff.md). Логическое снятие фото/работы не означает физическое удаление всех старых объектов/backup; очистка требует отдельного согласованного retention-порядка. Откат приложения не заменяет восстановление БД и объектов.
+
+## Дополнительные дефекты, найденные полными прогонами
+
+Полный integration сначала выявил четыре отсутствующих имени portal-таблиц в `RLS_TENANT_TABLES`. Их реальные политики уже существовали в128. В реестр добавлены только эти четыре таблицы, без изменения прав/политик. Существующая проверка инвентаря и изоляции сначала была красной, затем зелёной. Отдельные lock-тесты требовали три одновременных соединения (держатель, ожидающий, наблюдатель); установленный нами лимит2 на своём стенде вызывал таймауты. После изменения только локального окружения на pool5 те же финансовые/auth assertions прошли без правок. Последующий полный integration зелёный.
+
+Полный unit после включения новых файлов в Git выявил несуществующий `--space-3`: старый тест ищет CSS через git ls-files, поэтому прежняя проверка до включения untracked CSS этого не видела. Восемь вхождений в семи правилах заменены на существующий компактный8px `--space-2`, дизайн-шкала и assertions не менялись. После исправления:15 focused token tests,22 browser tests и новый полный unit зелёные. Сохранены68 новых PNG в `final6-browser/`, включая реальные mobile/desktop обеих тем.
+
+Оба исправления отдельно прошли независимые SPEC и QUALITY review: `rls-registry-spec-review.md`, `rls-registry-quality-review.md`, `token-spec-review.md`, `token-quality-source-review.md`.
+
+81 integration skip относятся к существующим отдельным runtime-аудитам auth-date/timezone, BAR и connection-schema. Они не становятся доказанными этим локальным прогоном. Штатный полный GitHub gate с runtime-аудитом остаётся обязательным.
+
+## Состояние удалённого кандидата
+
+Обычный push отклонён GitHub из-за отсутствующего workflow scope у текущего OAuth-доступа. Убирать новые restore/UI проверки ради push запрещено. Удалённая ветка, PR и candidate release-checks пока отсутствуют. Проверка SSH остановилась на строгой проверке host key, она не отключалась. Полная передача владельцу через проверенный Git bundle и его существующий доверенный доступ описана в [github-blocker.md](github-blocker.md). Production-публикации нет.
+
+## Проверка 320px и окончательное состояние
+
+Дополнительный реальный браузерный прогон с axe и клавиатурой проверил руководителя, мастера, официанта и публичную страницу на320/390/1440 в обеих темах. Он выявил настоящий overflow341px формы выбора месяца при ширине320. DOM-замеры установили причину: поле месяца и кнопка стояли в flex-строке без переноса. До исправления добавлена постоянная регрессия320/390 в существующий сценарий финансов, получен RED341>320. Единственное исправление: `flex-wrap: wrap` у формы месяца. Денежная логика не менялась, assertions не ослаблялись. После исправления72 комбинации дали0 переполнений и0 нарушений axe; клавиатурная навигация прошла. Сценариев portal по-прежнему10, вместе с site-booking их22.
+
+Финальный полный unit после этого исправления прошёл5289 тестов с7 существующими условными пропусками. Все22 браузерных сценария, типы, lint, production web build и Worker source bundle повторены на финальном исходном коде. Новые68 снимков сохранены в final6-browser. SPEC и QUALITY этого исправления: `narrow-finance-spec-review.md`, `narrow-finance-quality-review.md`.
+
+Публичная версия кабинета, реальная production SQL/schema, private KZ S3, Cloudflare Worker deployment и обязательный полный GitHub release-checks не подтверждены. Передача не превращает эти блокеры в зелёные проверки.

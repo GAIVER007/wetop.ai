@@ -72,7 +72,7 @@
 .employee-portal { gap: var(--space-2); }
 .employee-portal .portal-section { padding: var(--space-4); }
 .employee-portal .portal-section:not(.portal-heading) { display: block; }
-.employee-portal .portal-heading { padding-block: var(--space-3); }
+.employee-portal .portal-heading { padding-block: var(--space-2); }
 .portal-identity-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .portal-identity-meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); list-style: none; padding: 0; margin: var(--space-1) 0 0; color: var(--text-2); font-size: var(--text-sm); }
 .employee-portal .portal-service-meta { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
@@ -93,27 +93,27 @@
 .portal-time-field > span { font-size: var(--text-sm); color: var(--text-2); }
 .portal-time-field .inp { width: 132px; min-width: 0; }
 .employee-portal .portal-week-row .btn { width: 44px; min-width: 44px; min-height: 44px; padding: 0; }
-.employee-portal .portal-week-row > .btn { width: auto; padding-inline: var(--space-3); white-space: nowrap; }
+.employee-portal .portal-week-row > .btn { width: auto; padding-inline: var(--space-2); white-space: nowrap; }
 .employee-portal .portal-schedule { justify-items: start; }
 .employee-portal [data-testid='portal-week'] { width: fit-content; max-width: 100%; }
 .portal-service-picker { margin-top: var(--space-4); }
 .employee-portal .portal-service-picker > summary { display: inline-flex; align-items: center; padding: var(--space-2) var(--space-4); }
 .portal-finance-top { display: flex; justify-content: space-between; align-items: end; gap: var(--space-4); margin-bottom: var(--space-4); flex-wrap: wrap; }
-.portal-finance-period { display: flex; align-items: end; gap: var(--space-2); }
+.portal-finance-period { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
 .portal-finance-period .field { margin: 0; }
-.portal-finance-kpis { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: var(--space-3); }
+.portal-finance-kpis { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: var(--space-2); }
 .portal-finance-kpis article { display: grid; gap: var(--space-2); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-muted); min-width: 0; }
 .portal-finance-kpis article:first-child { border-color: var(--primary); }
 .portal-finance-kpis strong { font-size: var(--text-2xl); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
 .portal-finance-kpis :is(span,small) { color: var(--text-2); }
-.employee-portal .portal-finance-notice { padding: var(--space-3); background: var(--surface-muted); border-radius: var(--radius-sm); margin-block: var(--space-3); }
+.employee-portal .portal-finance-notice { padding: var(--space-2); background: var(--surface-muted); border-radius: var(--radius-sm); margin-block: var(--space-2); }
 .portal-finance-extras { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-4); border-bottom: 1px solid var(--border); padding-bottom: var(--space-2); }
 .portal-finance-extras p { display: flex; justify-content: space-between; gap: var(--space-2); }
 .portal-finance-extras strong { color: var(--text); }
 .portal-finance-footer { font-size: var(--text-sm); }
 .employee-portal [data-testid='portal-week'] fieldset > .btn { margin-top: var(--space-2); }
 .portal-day-short { display: none; text-decoration: none; }
-.employee-portal summary { cursor: pointer; min-height: 44px; padding-block: var(--space-3); color: var(--primary); font-weight: var(--weight-semibold); }
+.employee-portal summary { cursor: pointer; min-height: 44px; padding-block: var(--space-2); color: var(--primary); font-weight: var(--weight-semibold); }
 .employee-portal summary:focus-visible { outline: var(--focus-ring-w) solid var(--focus); }
 .employee-portal .portal-gallery img { max-height: 144px; margin-bottom: var(--space-2); }
 @media (min-width: 961px) {
@@ -127,14 +127,14 @@
   .employee-portal .portal-pay-grid { grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto; }
 }
 @media (max-width: 600px) {
-  .employee-portal .portal-section { padding: var(--space-3); }
+  .employee-portal .portal-section { padding: var(--space-2); }
   .employee-portal .portal-heading h2 { font-size: var(--text-lg); }
   .employee-portal .portal-heading .badge { display: none; }
   .employee-portal .portal-week-row { grid-template-columns: 28px minmax(0,1fr) 44px; gap: var(--space-1); }
   .employee-portal .portal-week-row > .btn { padding: 0; width: 44px; }
   .portal-add-label { display: none; }
   .portal-finance-kpis { grid-template-columns: 1fr; }
-  .portal-finance-kpis article { padding: var(--space-3); }
+  .portal-finance-kpis article { padding: var(--space-2); }
   .portal-finance-extras { grid-template-columns: 1fr; gap: 0; }
   .portal-day-full { display: none; }
   .portal-day-short { display: inline; }

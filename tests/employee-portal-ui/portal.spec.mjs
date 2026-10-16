@@ -168,7 +168,9 @@ test('personal finance shows real server amounts and never invents unavailable e
   const earned=page.getByTestId('finance-earned');if(data.pay.status==='AVAILABLE'){await expect(earned).toHaveAttribute('data-amount',data.pay.earnedMinor);}else{await expect(earned).toContainText('Нет расчёта');await expect(earned).not.toHaveAttribute('data-amount');}
   if(data.pay.paidMinor===null)await expect(page.getByTestId('finance-paid')).not.toHaveAttribute('data-amount');else await expect(page.getByTestId('finance-paid')).toHaveAttribute('data-amount',data.pay.paidMinor);await expect(page.getByTestId('portal-pay').locator('input[name="fixedMinor"],input[name="percent"]')).toHaveCount(0);
   for(const theme of ['light','dark']){await page.evaluate(t=>{document.documentElement.dataset.theme=t;window.scrollTo(0,0);},theme);await page.screenshot({path:`${dir}/finance-${vertical.toLowerCase()}-${theme}.png`,fullPage:false,animations:'disabled',timeout:20000});}
-  await page.getByLabel('Месяц расчёта',{exact:true}).fill('2026-09');await page.getByTestId('portal-pay').getByRole('button',{name:'Показать',exact:true}).click();await expect(page.getByTestId('personal-finance')).toHaveAttribute('data-month','2026-09');await expect(page.getByRole('tab',{name:'Оплата труда',exact:true})).toHaveAttribute('aria-selected','true');await c.close();
+  await page.getByLabel('Месяц расчёта',{exact:true}).fill('2026-09');await page.getByTestId('portal-pay').getByRole('button',{name:'Показать',exact:true}).click();await expect(page.getByTestId('personal-finance')).toHaveAttribute('data-month','2026-09');await expect(page.getByRole('tab',{name:'Оплата труда',exact:true})).toHaveAttribute('aria-selected','true');
+  for(const width of [320,390]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth),'finance month form fits narrow mobile').toBeLessThanOrEqual(width);await expect(page.getByLabel('Месяц расчёта',{exact:true})).toBeVisible();await expect(page.getByTestId('portal-pay').getByRole('button',{name:'Показать',exact:true})).toBeVisible();}
+  await c.close();
  }
 });
 

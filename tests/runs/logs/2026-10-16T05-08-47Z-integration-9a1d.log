@@ -1,0 +1,46 @@
+# Интеграционные (integration) · 16.10.2026 10:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/marketing-attribution), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-08-47Z-integration-9a1d.json' 'tests/integration/marketing-results.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-results.test.ts (2 tests | 1 failed) 3729ms
+   ❯ результаты маркетинга по каналам (integration) (2)
+     × октябрь филиала: каналы по правилу Q-MKT-ATTR 286ms
+     ✓ филиал без объекта размещения: результатов нет, а не ошибка 132ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-results.test.ts > результаты маркетинга по каналам (integration) > октябрь филиала: каналы по правилу Q-MKT-ATTR
+AssertionError: expected { channel: 'SITE', leads: 7, …(2) } to deeply equal { channel: 'SITE', leads: 6, …(2) }
+
+- Expected
++ Received
+
+  {
+    "bookings": 2,
+    "channel": "SITE",
+-   "leads": 6,
++   "leads": 7,
+    "revenueMinor": 500000n,
+  }
+
+ ❯ tests/integration/marketing-results.test.ts:198:21
+    196|
+    197|     // Сайт: обращения = 3 брони без ИИ (в т. ч. отменённая) + 2 заявк…
+    198|     expect(by.SITE).toEqual({ channel: 'SITE', leads: 6, bookings: 2, …
+       |                     ^
+    199|     // WhatsApp: обращения = 2 диалога + 2 брони без ИИ (незаезд и пря…
+    200|     expect(by.WHATSAPP).toEqual({ channel: 'WHATSAPP', leads: 4, booki…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  22:09:04
+   Duration  27.55s (tests 40%, transform 31%, import 29%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-08-47Z-integration-9a1d.json
+
+# код выхода 1 · 46 с

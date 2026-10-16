@@ -1,0 +1,129 @@
+# Сквозные (e2e) · 16.10.2026 10:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/marketing-attribution), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/marketing-budget.spec.ts' 'tests/ui/marketing.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+  ✓   1 tests/ui/marketing-budget.spec.ts:60:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный (37.1s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   2 tests/ui/marketing-budget.spec.ts:74:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают (31.4s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   3 tests/ui/marketing-budget.spec.ts:104:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление (37.1s)
+  ✓   4 tests/ui/marketing-budget.spec.ts:141:1 › аналитика маркетинга: воронка, CPL, стоимость брони и ROMI из результатов каналов; реклама без кабинетов только расход (21.2s)
+  ✓   5 tests/ui/marketing-budget.spec.ts:191:1 › аналитика у филиала без броней гостиницы: только расходы и честное «Скоро» (6.0s)
+  ✓   6 tests/ui/marketing-budget.spec.ts:204:1 › переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту (12.6s)
+  ✘   7 tests/ui/marketing-budget.spec.ts:218:3 › снимки и доступность: light (37.1s)
+  ✘   8 tests/ui/marketing-budget.spec.ts:218:3 › снимки и доступность: dark (41.2s)
+  ✓   9 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (19.5s)
+  ✓  10 tests/ui/marketing.spec.ts:77:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (15.5s)
+  ✓  11 tests/ui/marketing.spec.ts:97:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», из данных только бюджет месяца (5.5s)
+  ✓  12 tests/ui/marketing.spec.ts:190:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (10.1s)
+  ✓  13 tests/ui/marketing.spec.ts:248:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (12.7s)
+  ✓  14 tests/ui/marketing.spec.ts:274:3 › хаб на компьютере и телефоне, доступность: light (52.0s)
+  ✓  15 tests/ui/marketing.spec.ts:274:3 › хаб на компьютере и телефоне, доступность: dark (1.1m)
+  ✘  16 tests/ui/marketing.spec.ts:329:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (46.3s)
+
+
+  1) tests/ui/marketing-budget.spec.ts:218:3 › снимки и доступность: light ─────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      231 |       for (const width of [1440, 390]) {
+      232 |         await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    > 233 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+          |                                                                                                   ^
+      234 |         await page.screenshot({ path: `${SHOTS}/${name}-${theme}-${width}.png`, fullPage: true });
+      235 |       }
+      236 |       await page.setViewportSize({ width: 1440, height: 900 });
+        at shot (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:233:99)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:264:5
+
+    Error Context: test-results/marketing-budget-снимки-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-снимки-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-снимки-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing-budget.spec.ts:218:3 › снимки и доступность: dark ──────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      231 |       for (const width of [1440, 390]) {
+      232 |         await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    > 233 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+          |                                                                                                   ^
+      234 |         await page.screenshot({ path: `${SHOTS}/${name}-${theme}-${width}.png`, fullPage: true });
+      235 |       }
+      236 |       await page.setViewportSize({ width: 1440, height: 900 });
+        at shot (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:233:99)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:264:5
+
+    Error Context: test-results/marketing-budget-снимки-и-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-снимки-и-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-снимки-и-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/marketing.spec.ts:329:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/marketing$/
+    Received string:  ""
+
+
+      348 |   await expect(page.getByTestId('beauty-today')).toBeVisible();
+      349 |   await page.goto('/marketing');
+    > 350 |   await expect(page).toHaveURL(/\/marketing$/);
+          |                      ^
+      351 |   const hub = main(page).getByTestId('business-marketing');
+      352 |   await expect(hub).toBeVisible();
+      353 |   // единая система (14.10.2026): бюджет ведётся по филиалу любого направления; SITE-1: «Сайт и SEO» открыт всем,
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing.spec.ts:350:22
+
+    Error Context: test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/marketing-budget.spec.ts:218:3 › снимки и доступность: light ──────────────────────────
+    tests/ui/marketing-budget.spec.ts:218:3 › снимки и доступность: dark ───────────────────────────
+    tests/ui/marketing.spec.ts:329:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен 
+  13 passed (8.8m)
+
+# код выхода 1 · 8 мин 59 с

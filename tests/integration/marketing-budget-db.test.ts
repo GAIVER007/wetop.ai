@@ -254,5 +254,54 @@ describe.skipIf(!url)('МКТ-В1/В2 marketing accounting: инварианты
       await expect(attempt(`DELETE FROM marketing_campaigns`)).rejects.toThrow(/permission denied/);
     });
   });
+
+  it('кабинет (§54): имя уникально только у ручных, расход только у дней кабинета, ключ только шифром, сверки без DELETE', async () => {
+    await probe(async (attempt) => {
+      const campaign = (name: string, external: string | null) =>
+        attempt(
+          `INSERT INTO marketing_campaigns (id, location_id, platform, name, external_id, updated_at)
+           VALUES ($1, $2, 'META', $3, $4, now()) RETURNING id`,
+          [randomUUID(), locA, name, external],
+        );
+      await campaign('Осень', null);
+      await expect(campaign('Осень', null)).rejects.toThrow(/marketing_campaigns_manual_name_key/);
+      // площадка разрешает одинаковые имена: у кампаний кабинета уникален номер
+      const meta = (await campaign('Осень', '120200000000001')).rows[0].id as string;
+      await campaign('Осень', '120200000000002');
+      await expect(campaign('Другое', '120200000000001')).rejects.toThrow(/marketing_campaigns_location_id_platform_external_id_key/);
+
+      const day = (date: string, source: string, spend: string | null, currency: string | null) =>
+        attempt(
+          `INSERT INTO marketing_campaign_stats (id, campaign_id, date, impressions, clicks, leads, source, spend_minor, spend_currency, updated_at)
+           VALUES ($1, $2, $3, 10, 1, 0, $4::"MarketingStatSource", $5, $6, now())`,
+          [randomUUID(), meta, date, source, spend, currency],
+        );
+      await day('2026-10-05', 'META', '533950', 'USD');
+      await expect(day('2026-10-06', 'META', null, null)).rejects.toThrow(/marketing_campaign_stats_spend/);
+      await expect(day('2026-10-07', 'MANUAL', '100', 'KZT')).rejects.toThrow(/marketing_campaign_stats_spend/);
+
+      const connection = (token: string, status = 'ACTIVE', account = '1234567890') =>
+        attempt(
+          `INSERT INTO marketing_ad_connections (id, location_id, platform, ad_account_id, currency, timezone, token_ciphertext, status, updated_at)
+           VALUES ($1, $2, 'META', $3, 'USD', 'Asia/Almaty', $4, $5::"MarketingConnectionStatus", now()) RETURNING id`,
+          [randomUUID(), locA, account, token, status],
+        );
+      await expect(connection('EAAB-plain-token')).rejects.toThrow(/marketing_ad_connections_token/);
+      await expect(connection('v1:a:b:c', 'ACTIVE', 'act_123')).rejects.toThrow(/marketing_ad_connections_account/);
+      const conn = (await connection('v1:a:b:c')).rows[0].id as string;
+      await expect(connection('v1:a:b:c')).rejects.toThrow(/marketing_ad_connections_location_id_platform_key/);
+      await attempt(
+        `INSERT INTO marketing_sync_runs (id, connection_id, trigger, since, until, status) VALUES ($1, $2, 'MANUAL', '2026-10-01', '2026-10-07', 'RUNNING')`,
+        [randomUUID(), conn],
+      );
+      await asApp(attempt, orgB);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_ad_connections`)).rows[0].n).toBe(0);
+      expect((await attempt(`SELECT count(*)::int AS n FROM marketing_sync_runs`)).rows[0].n).toBe(0);
+      await attempt('RESET ROLE');
+      await asApp(attempt, orgA);
+      await expect(attempt(`DELETE FROM marketing_sync_runs`)).rejects.toThrow(/permission denied/);
+      await expect(attempt(`DELETE FROM marketing_ad_connections`)).rejects.toThrow(/permission denied/);
+    });
+  });
 });
 

@@ -1,0 +1,93 @@
+# Модульные (unit) · 16.10.2026 15:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/marketing-meta-plan), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-44-47Z-unit-eff7.json' 'packages/integrations/src/meta'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/integrations/src/meta/client.test.ts (9 tests | 8 failed) 4ms
+   ❯ клиент Meta: отчёт по кампаниям по дням (4)
+     × один запрос на страницу: версия в пути, уровень кампаний, по дням, период, ключ параметром 2ms
+     × страницы читаются, пока есть paging.next, даже пустые 0ms
+     × предел вызовов: ждёт и повторяет; ключ истёк или нет права: отказ сразу и без ключа в тексте 0ms
+     × предел держится дольше попыток: отказ с признаком «повторить позже» 0ms
+   ❯ расход Meta в тиынах (5)
+     × 5339.5 → 533950n 0ms
+     × 0 → 0n 0ms
+     × 12.345 → 1235n 0ms
+     × 7.004 → 700n 0ms
+     ✓ не число: отказ, а не ноль 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/meta/client.test.ts > клиент Meta: отчёт по кампаниям по дням > один запрос на страницу: версия в пути, уровень кампаний, по дням, период, ключ параметром
+TypeError: MetaAdsClient is not a constructor
+ ❯ packages/integrations/src/meta/client.test.ts:43:20
+     41|   it('один запрос на страницу: версия в пути, уровень кампаний, по дня…
+     42|     const { fn, calls } = fakeFetch([{ body: { data: [row()], paging: …
+     43|     const client = new MetaAdsClient({ accessToken: TOKEN, fetch: fn }…
+       |                    ^
+     44|     const rows = await client.campaignDays({ adAccountId: '1234567890'…
+     45|     const url = calls[0]!.url;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |unit| packages/integrations/src/meta/client.test.ts > клиент Meta: отчёт по кампаниям по дням > страницы читаются, пока есть paging.next, даже пустые
+TypeError: MetaAdsClient is not a constructor
+ ❯ packages/integrations/src/meta/client.test.ts:76:24
+     74|       { body: { data: [row({ date_start: '2026-10-06', actions: undefi…
+     75|     ]);
+     76|     const rows = await new MetaAdsClient({ accessToken: TOKEN, fetch: …
+       |                        ^
+     77|     expect(calls.map((c) => c.url.searchParams.get('after'))).toEqual(…
+     78|     expect(calls[0]!.url.pathname).toBe('/v25.0/act_1/insights'); // п…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |unit| packages/integrations/src/meta/client.test.ts > клиент Meta: отчёт по кампаниям по дням > предел вызовов: ждёт и повторяет; ключ истёк или нет права: отказ сразу и без ключа в тексте
+TypeError: MetaAdsClient is not a constructor
+ ❯ packages/integrations/src/meta/client.test.ts:93:11
+     91|     const ok = { body: { data: [row()], paging: {} } };
+     92|     const retry = fakeFetch([limited, ok]);
+     93|     await new MetaAdsClient({ accessToken: TOKEN, fetch: retry.fn, sle…
+       |           ^
+     94|     expect(waits.length).toBe(1);
+     95|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |unit| packages/integrations/src/meta/client.test.ts > клиент Meta: отчёт по кампаниям по дням > предел держится дольше попыток: отказ с признаком «повторить позже»
+TypeError: MetaAdsClient is not a constructor
+ ❯ packages/integrations/src/meta/client.test.ts:112:23
+    110|     const limited = { status: 400, body: { error: { message: 'limit', …
+    111|     const { fn, calls } = fakeFetch([limited, limited, limited]);
+    112|     const err = await new MetaAdsClient({ accessToken: TOKEN, fetch: f…
+       |                       ^
+    113|       .campaignDays({ adAccountId: '1', since: '2026-10-05', until: '2…
+    114|       .catch((e: unknown) => e);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |unit| packages/integrations/src/meta/client.test.ts > расход Meta в тиынах > 5339.5 → 533950n
+ FAIL  |unit| packages/integrations/src/meta/client.test.ts > расход Meta в тиынах > 0 → 0n
+ FAIL  |unit| packages/integrations/src/meta/client.test.ts > расход Meta в тиынах > 12.345 → 1235n
+ FAIL  |unit| packages/integrations/src/meta/client.test.ts > расход Meta в тиынах > 7.004 → 700n
+TypeError: metaSpendMinor is not a function
+ ❯ packages/integrations/src/meta/client.test.ts:127:12
+    125|     ['7.004', 700n],
+    126|   ])('%s → %s', (spend, minor) => {
+    127|     expect(metaSpendMinor(spend)).toBe(minor);
+       |            ^
+    128|   });
+    129|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 1 passed (9)
+   Start at  03:44:48
+   Duration  97ms (transform 54%, import 23%, tests 15%, worker 9%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-44-47Z-unit-eff7.json
+
+# код выхода 1 · 1 с

@@ -50,6 +50,7 @@ v2.11 (06.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; MKT1A,
 v2.15 (09.10.2026): §31 область доступа сотрудника (`membership_scopes`), приостановка членства, данные приглашения: утверждено владельцем 09.10.2026 («давай да делай дальше», Q-286…Q-290, ADR-156); миграции `20261009000072_membership_scopes` и `…073_membership_scopes_grants` на рабочей базе применяет владелец
 v2.13 (07.10.2026; **решения владельца Q-271 и Q-275 от 07.10.2026**; MKT7, `plans/mkt7-publication-preview-domains-2026-10-07.md`): §29.4 `marketing_site_publications` и §29.6 `site_domains` в базе, новый §29.11 `locations.booking_tracked_site_id` (канонический сайт брони филиала) с начальным заполнением; миграции `20261007000064_marketing_publication_domains` и `20261007000065_marketing_publication_grants`
 v2.14 (09.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; O5a, ADR-153, `plans/guest-onboarding-ai-seller-2026-10-09.md`): §13.11 `email_verifications.wizard_session_id`: серверная связь подтверждения почты с гостевым черновиком (nullable FK на `wizard_sessions`, `ON DELETE SET NULL`, частичный уникальный индекс «одна живая связь на сессию»). Кода и миграции нет; миграцию применяет владелец до выкладки O5b
+v2.37 (16.10.2026; утверждено владельцем 16.10.2026: план `plans/marketing-meta-ads-integration-2026-10-16.md` («Да, начинай»), развилки Д = расход кабинета в статистике, журнал вручную; Л = заявки и начатые переписки; ADR-MKT-META): §54 подключение рекламного кабинета `marketing_ad_connections` (ключ зашифрован), журнал сверок `marketing_sync_runs`; §53 поправки: `marketing_campaigns.external_id` (имя уникально только у ручных кампаний), у дня статистики источник `MANUAL | META` и расход кабинета; миграции `20261016000122_marketing_ad_connections` и `…123_…_grants`, на рабочей базе применяет владелец
 v2.36 (16.10.2026; утверждено владельцем 16.10.2026 выбором «Да, по проекту» на `plans/marketing-campaigns-mkt-b3-2026-10-16.md`, ADR-MKT-B3): §53 рекламные кампании `marketing_campaigns` и их статистика по дням `marketing_campaign_stats` (ручной ввод, позже кабинеты), `marketing_expenses.campaign_id`; миграции при реализации, на рабочей базе применяет владелец
 v2.35 (16.10.2026; утверждено владельцем 16.10.2026 выбором рекомендованных вариантов на вопросы по `plans/marketing-model-files-plan-roles-2026-10-16.md`, ADR-MKT-B7): §51 чеки и файлы расходов маркетинга `marketing_expense_files` (общее закрытое хранилище, как §32.3), §52 план бюджета по каналам `marketing_budget_lines` (разбивка общего плана месяца), §16.5 новое право `marketing` вместо `settings` у раздела «Маркетинг» (без миграции); миграции при реализации, на рабочей базе применяет владелец
 v2.34 (16.10.2026; решения владельца 16.10.2026 по остатку O-4, ADR-186): §50 ключ повтора оплаты поставщику бара `bar_supplier_payments.idempotency_key` (M6) и потеря себестоимости при отмене продажи без возврата на склад в списании отчёта бара (M9, без схемы); миграция `20261016000115_bar_supplier_payment_key`, на рабочей базе применяет владелец
@@ -4288,3 +4289,31 @@ RLS `rls_tenant`: кампании через филиал → бизнес → 
 
 Считаются на стойке, не хранятся: CTR = клики / показы, CPC = расход / клики, CPM = расход / показы × 1000, CPL
 площадки = расход / лиды площадки. Связи кампании с конкретной бронью нет (атрибуция, Q-MKT-ATTR).
+
+## 54. Рекламный кабинет: подключение и сверки (v2.37, ADR-MKT-META; утверждено владельцем 16.10.2026: план `plans/marketing-meta-ads-integration-2026-10-16.md` («Да, начинай»), развилки Д = расход кабинета в статистике, журнал вручную; Л = заявки и начатые переписки)
+
+Кабинет площадки (сейчас Meta) подключается к филиалу и каждую ночь и по кнопке пишет кампании и дни в §53.
+Документация площадки: `docs/meta/README.md`; код площадки только в `packages/integrations/src/meta` (ADR-004).
+
+`marketing_ad_connections`: `id`, `location_id` FK (RESTRICT), `platform` `MarketingPlatform` (сейчас только `META`),
+`ad_account_id` varchar(40) (номер кабинета без приставки `act_`), `account_name` varchar(200) NULL, `currency` char(3)
+(валюта кабинета), `timezone` varchar(64) (пояс кабинета: в нём считаются дни), `token_ciphertext` text (ключ SUAT,
+AES-256-GCM как `pii-crypto.ts`; наружу не отдаётся, в журнал не пишется), `status` `MarketingConnectionStatus`
+(`ACTIVE` | `FAILED` | `DISCONNECTED`), `last_synced_at` timestamptz NULL, `last_error` varchar(500) NULL,
+`connected_by_id` FK users SET NULL, `created_at`, `updated_at`. UNIQUE (`location_id`, `platform`): один кабинет
+площадки на филиал. Не удаляется: отключение это статус и стёртый ключ.
+
+`marketing_sync_runs` (ADR-007: у каждого внешнего обмена свой след): `id`, `connection_id` FK (RESTRICT), `trigger`
+varchar(10) CHECK `NIGHTLY` | `MANUAL`, `since`, `until` DATE, `status` varchar(10) CHECK `RUNNING` | `OK` | `FAILED`,
+`campaigns` int NULL, `days` int NULL, `error` varchar(500) NULL, `started_at`, `finished_at` timestamptz NULL.
+Только дописывается и закрывается (без `DELETE`).
+
+**Поправки §53.** `marketing_campaigns.external_id` varchar(64) NULL: номер кампании в кабинете; UNIQUE (`location_id`,
+`platform`, `external_id`) среди кампаний кабинета, а UNIQUE имени (`location_id`, `platform`, `name`) остаётся только
+у ручных (`external_id IS NULL`): площадка разрешает одинаковые имена. У `marketing_campaign_stats`: `source`
+`MarketingStatSource` (`MANUAL` | `META`, DEFAULT `MANUAL`), `spend_minor` bigint NULL и `spend_currency` char(3) NULL:
+у дней кабинета обязательны (расход кабинета в его валюте, развилка Д = А), у ручных пустые. Дни кабинета на экране
+только для чтения; журнал «Бюджета» по-прежнему ведёт фактические списания вручную.
+
+RLS: подключения через филиал → бизнес → организация, сверки через подключение. Права: подключения `SELECT, INSERT,
+UPDATE`, сверки `SELECT, INSERT, UPDATE`; отдельной миграцией.

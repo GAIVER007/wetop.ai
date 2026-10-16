@@ -82,10 +82,18 @@ export class MarketingCampaignsService {
     return scope;
   }
 
-  /** Кампания своего филиала; чужая и несуществующая неразличимы: 404 */
+  /**
+   * Ручная кампания своего филиала; чужая и несуществующая неразличимы: 404. Кампанию из кабинета (§54) и её дни
+   * меняет только сверка, иначе ручная правка тихо перезаписалась бы ночью: 409 словами.
+   */
   private async own(locationId: string, id: string) {
-    const c = await this.prisma.db.marketingCampaign.findFirst({ where: { id, locationId }, select: { id: true } });
+    const c = await this.prisma.db.marketingCampaign.findFirst({
+      where: { id, locationId },
+      select: { id: true, externalId: true },
+    });
     if (!c) throw new NotFoundException('Кампания не найдена');
+    if (c.externalId !== null)
+      throw new ConflictException('Кампания из рекламного кабинета обновляется сверкой: меняйте её в кабинете площадки');
     return c.id;
   }
 

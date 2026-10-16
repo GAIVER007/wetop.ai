@@ -16,7 +16,7 @@ describe('бар: дочерние строки не пересекают фил
   if (!url || !isLocalDatabase(url)) throw new Error('Бар проверяется только на локальной PostgreSQL');
   const prisma = new PrismaService();
   const repo = new PrismaBarRepository(prisma as never);
-  const db = prisma.db as any;
+  const db = prisma.db;
   const tag = randomUUID().slice(0, 8);
   const user = randomUUID();
   const org = randomUUID();
@@ -54,6 +54,7 @@ describe('бар: дочерние строки не пересекают фил
         const line = await db.barReceiptLine.findFirstOrThrow({ where: { receiptId: receipt.id } });
         const lot = await db.barStockLot.findFirstOrThrow({ where: { receiptLineId: line.id } });
         const saleRow = await db.barSale.findUniqueOrThrow({ where: { id: sale.id } });
+        if (!saleRow.restaurantCashOperationId) throw new Error('Expected posted sale to have restaurant cash operation');
         return { product: product.id, receipt: receipt.id, line: line.id, lot: lot.id, sale: sale.id, cash: saleRow.restaurantCashOperationId };
       });
     }

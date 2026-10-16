@@ -11,13 +11,16 @@ import {
 } from './payment-requests.repository';
 import { PaymentRequestsService } from './payment-requests.service';
 import { UnitsModule } from '../units/units.module';
+import { ExpenseDocumentsController } from './expense-documents';
+import { OwnerSummaryController, OwnerSummaryService } from './owner-summary';
 
 @Module({
   imports: [UnitsModule],
-  controllers: [FinanceController, PaymentRequestsController],
+  controllers: [FinanceController, PaymentRequestsController, OwnerSummaryController, ExpenseDocumentsController],
   providers: [
     PrismaService,
     FinanceService,
+    OwnerSummaryService,
     { provide: FINANCE_REPOSITORY, useClass: PrismaFinanceRepository },
     // Запросы оплаты (DATA_MODEL §24, ADR-144)
     PaymentRequestsService,

@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useRef, type FormEvent } from 'react';
 import { useBarAction } from './use-bar-action';
 import { BarContextFields, type BarFormContext } from './context';
 
@@ -25,6 +26,25 @@ export function SupplierPaymentForm({
   methods: string[];
 }) {
   const [state, action, pending] = useBarAction(payBarSupplierAction, initial);
+  const intentSlot = useRef<string | null>(null);
+  useEffect(() => {
+    if (state.ok && !state.error && intentSlot.current) {
+      sessionStorage.removeItem(intentSlot.current);
+      intentSlot.current = null;
+    }
+  }, [state.ok, state.error]);
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    // The same draft survives transport errors and remount/navigation in this tab.
+    const slot = JSON.stringify(['supplier-payment', context, receiptId, data.get('amount'), data.get('method')]);
+    const key = sessionStorage.getItem(slot) || crypto.randomUUID();
+    sessionStorage.setItem(slot, key);
+    intentSlot.current = slot;
+    (form.elements.namedItem('idempotencyKey') as HTMLInputElement).value = key;
+    action(event);
+  };
   // способы из настройки объекта (ADR-185); счёт организации остаётся умолчанием поставщика, пока объект его не выключил
   const preferred = methods.includes('BANK_TRANSFER_LEGAL') ? 'BANK_TRANSFER_LEGAL' : methods[0];
   if (methods.length === 0)
@@ -34,7 +54,8 @@ export function SupplierPaymentForm({
       </p>
     );
   return (
-    <form onSubmit={action} className="bar-payment-form">
+    <form onSubmit={submit} className="bar-payment-form">
+      <input type="hidden" name="idempotencyKey" defaultValue="" />
       <BarContextFields context={context} />
       <input type="hidden" name="receiptId" value={receiptId} />
       <Field label={`Сумма, ${context.currency}`}>

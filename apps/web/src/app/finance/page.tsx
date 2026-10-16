@@ -818,6 +818,7 @@ export default async function FinanceReportPage({
             {cashError !== null && <LoadError testId="cash-error" {...loadErrorProps(cashError)} />}
             {cashBalances && (
               <CashPanel
+                scopeKey={shell.scopeKey ?? 'local-stand'}
                 cash={cashBalances}
                 categories={cashBalances.categories}
                 cashOpsHref={opsHref({ src: 'cash' })}

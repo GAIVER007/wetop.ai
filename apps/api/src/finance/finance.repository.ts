@@ -1,6 +1,8 @@
 import 'reflect-metadata';
+import {createHash,randomUUID} from 'node:crypto';
+import { createHotelCash } from './hotel-cash';
 import { lockOpenFolios } from '@pms/database';
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@pms/database';
 import {
   FinanceRuleError,
@@ -221,6 +223,7 @@ export interface CashCategoryRecord {
   active: boolean;
 }
 export interface NewCashOperation {
+  idempotencyKey?: string | undefined;
   kind: CashKind;
   method: PaymentMethod;
   methodTo: PaymentMethod | null;
@@ -254,6 +257,8 @@ export interface CashReconciliationRecord {
   note: string | null;
 }
 export interface NewCashReconciliation {
+  idempotencyKey?: string | undefined;
+  intentAdjust?: boolean;
   method: PaymentMethod;
   expectedMinor: bigint;
   countedMinor: bigint;
@@ -334,14 +339,14 @@ export interface FinanceRepository {
     audit?: AuditEntry,
   ): Promise<boolean>;
   /** Операция кассы вместе с комиссией — одной транзакцией; возвращает id основной */
-  createCashOperation(op: NewCashOperation, audit?: AuditEntry): Promise<string>;
+  createCashOperation(op: NewCashOperation, audit?: AuditEntry, capture?: CashResultCapture): Promise<string>;
   cashOperationById(id: string): Promise<CashOperationRecord | null>;
   /** Аннулирование под блокировкой строки; комиссия аннулируется вместе с основной */
   voidCashOperation(id: string, audit?: AuditEntry): Promise<void>;
   /** Последняя сверка по каждому способу (§21.4) */
   latestCashReconciliations(): Promise<CashReconciliationRecord[]>;
   /** Запись сверки вместе с поправкой — одной транзакцией */
-  createCashReconciliation(r: NewCashReconciliation, audit?: AuditEntry): Promise<string>;
+  createCashReconciliation(r: NewCashReconciliation, audit?: AuditEntry, capture?: CashResultCapture): Promise<string>;
   /** Сегодня по часам объекта (С-13): дата услуги по умолчанию */
   today(): Promise<string>;
   addCharge(folioId: string, c: NewCharge, audit?: AuditEntry): Promise<string>;
@@ -373,6 +378,7 @@ export interface FinanceRepository {
     after: unknown,
   ): Promise<void>;
 }
+export type CashResultCapture = (repo: FinanceRepository | null, saved?: unknown) => Promise<unknown>;
 export const FINANCE_REPOSITORY = Symbol('FINANCE_REPOSITORY');
 
 /**
@@ -1305,11 +1311,39 @@ export class PrismaFinanceRepository implements FinanceRepository {
       throw e;
     }
   }
-  async createCashOperation(op: NewCashOperation, audit?: AuditEntry): Promise<string> {
+  /** Direct repository callers share the same atomic guard as HTTP commands. */
+  private async cashIntent(propertyId: string, key: string | undefined, action: string, payload: unknown, audit: AuditEntry | undefined, write: (tx: TxClient) => Promise<{id:string}>, capture?: CashResultCapture) {
+    if (process.env.EXPENSE_LINKS_ENABLED !== '1') return this.withAudit(audit,write);
+    if (typeof key !== 'string' || !/^[\x21-\x7e]{1,200}$/.test(key)) throw new BadRequestException('idempotencyKey required');
+    return this.prisma.db.$transaction(async raw => {
+      const tx=raw as unknown as TxClient;
+      const [scope]=await tx.$queryRaw<Array<{location_id:string;currency:string}>>`SELECT location_id,currency FROM properties WHERE id=${propertyId}::uuid FOR SHARE`;
+      if (!scope?.location_id) throw new BadRequestException('Hotel location required');
+      await tx.$queryRaw`SELECT id FROM locations WHERE id=${scope.location_id}::uuid FOR NO KEY UPDATE`;
+      const hash=createHash('sha256').update(JSON.stringify([action,propertyId,scope.currency,payload],(_,v)=>typeof v==='bigint'?v.toString():v)).digest('hex');
+      const [old]=await tx.$queryRaw<Array<{action:string;normalized_payload_hash:string;result_id:string}>>`SELECT action,normalized_payload_hash,result_id FROM payment_write_intents WHERE location_id=${scope.location_id}::uuid AND intent_key=${key}`;
+      if(old){
+        if(old.action!==action || old.normalized_payload_hash!==hash) throw new ConflictException('Payment intent payload conflict');
+        if (capture) {
+          const saved = await tx.auditLog.findFirst({where:{entityId:old.result_id,...(audit ? {action:audit.action} : {})},orderBy:{createdAt:'asc'}});
+          const view = (saved?.after as Record<string,unknown> | null)?.cashView;
+          if (!view) throw new ConflictException('Original cash response unavailable');
+          await capture(null,view);
+        }
+        return {id:old.result_id};
+      }
+      const result=await write(tx);
+      const cashView = capture ? await capture(new PrismaFinanceRepository({db:tx} as PrismaService)) : undefined;
+      if(audit) await writeAudit(tx,{...audit,after:{...audit.after,...(cashView ? {cashView} : {})}},result.id);
+      await tx.$executeRaw`INSERT INTO payment_write_intents(id,location_id,intent_key,action,normalized_payload_hash,result_id,created_by_id) VALUES(${randomUUID()}::uuid,${scope.location_id}::uuid,${key},${action},${hash},${result.id}::uuid,${auditUserId()}::uuid)`;
+      return result;
+    });
+  }
+  async createCashOperation(op: NewCashOperation, audit?: AuditEntry, capture?: CashResultCapture): Promise<string> {
     const { id: propertyId } = await this.property();
-    const row = await this.withAudit(audit, async (tx) => {
-      const main = await tx.cashOperation.create({
-        data: {
+    const payload={kind:op.kind,method:op.method,methodTo:op.methodTo ?? null,amountMinor:op.amountMinor,categoryId:op.categoryId ?? null,note:op.note?.trim() || null,occurredAt:op.occurredAt ? new Date(op.occurredAt).toISOString() : null,commission:op.commission};
+    const row = await this.cashIntent(propertyId,op.idempotencyKey,'HOTEL_CASH',payload,audit, async (tx) => {
+      const main = await createHotelCash(tx, {
           propertyId,
           kind: op.kind,
           method: op.method,
@@ -1319,12 +1353,9 @@ export class PrismaFinanceRepository implements FinanceRepository {
           note: op.note,
           createdById: auditUserId(),
           ...(op.occurredAt ? { occurredAt: new Date(op.occurredAt) } : {}),
-        },
-        select: { id: true, occurredAt: true },
       });
       if (op.commission)
-        await tx.cashOperation.create({
-          data: {
+        await createHotelCash(tx, {
             propertyId,
             kind: 'EXPENSE',
             method: op.method,
@@ -1334,10 +1365,9 @@ export class PrismaFinanceRepository implements FinanceRepository {
             relatedId: main.id,
             createdById: auditUserId(),
             occurredAt: main.occurredAt,
-          },
         });
       return main;
-    });
+    }, capture);
     return row.id;
   }
   async cashOperationById(id: string): Promise<CashOperationRecord | null> {
@@ -1409,9 +1439,9 @@ export class PrismaFinanceRepository implements FinanceRepository {
       note: r.note,
     }));
   }
-  async createCashReconciliation(r: NewCashReconciliation, audit?: AuditEntry): Promise<string> {
+  async createCashReconciliation(r: NewCashReconciliation, audit?: AuditEntry, capture?: CashResultCapture): Promise<string> {
     const { id: propertyId } = await this.property();
-    const row = await this.withAudit(audit, async (tx) => {
+    const row = await this.cashIntent(propertyId,r.idempotencyKey,'HOTEL_RECONCILIATION',{method:r.method,countedMinor:r.countedMinor,note:r.note?.trim() || null,adjust:r.intentAdjust ?? !!r.adjustment},audit, async (tx) => {
       if (r.adjustment) {
         const category = await tx.cashCategory.upsert({
           where: {
@@ -1425,8 +1455,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
           create: { propertyId, kind: r.adjustment.kind, name: r.adjustment.categoryName },
           select: { id: true },
         });
-        await tx.cashOperation.create({
-          data: {
+        await createHotelCash(tx, {
             propertyId,
             kind: r.adjustment.kind,
             method: r.method,
@@ -1434,7 +1463,6 @@ export class PrismaFinanceRepository implements FinanceRepository {
             categoryId: category.id,
             note: 'Поправка по сверке кассы',
             createdById: auditUserId(),
-          },
         });
       }
       return tx.cashReconciliation.create({
@@ -1448,7 +1476,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
         },
         select: { id: true },
       });
-    });
+    }, capture);
     return row.id;
   }
   async audit(

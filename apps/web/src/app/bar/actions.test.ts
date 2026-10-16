@@ -168,7 +168,7 @@ describe('форма прихода бара', () => {
     expect(result.error).toBeNull();
     expect(barApi.payReceipt).toHaveBeenCalledWith(
       'receipt-1',
-      expect.objectContaining({ amountMinor: '8050', method: 'BANK_TRANSFER_LEGAL' }),
+      expect.objectContaining({ amountMinor: '8050', method: 'BANK_TRANSFER_LEGAL', idempotencyKey: '00000000-0000-4000-8000-000000000025' }),
     );
   });
 

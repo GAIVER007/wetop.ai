@@ -222,7 +222,7 @@ export async function payBarSupplierAction(
 ): Promise<BarActionResult> {
   try {
     await verifyContext(fd);
-    await barApi.payReceipt(value(fd, 'receiptId'), { amountMinor: minor(value(fd, 'amount'), 'Сумма'), method: value(fd, 'method'), note: value(fd, 'note') || null });
+    await barApi.payReceipt(value(fd, 'receiptId'), { idempotencyKey: value(fd, 'idempotencyKey'), amountMinor: minor(value(fd, 'amount'), 'Сумма'), method: value(fd, 'method'), note: value(fd, 'note') || null });
     revalidateBar();
     return { error: null, ok: Date.now(), message: 'Оплата поставщику записана в кассе' };
   } catch (error) {

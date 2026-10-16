@@ -22,6 +22,18 @@ import { RoleGuard } from './role.guard';
  * только служебный ключ.
  */
 const EXPECTED: Record<string, RouteAccess | 'public'> = {
+  // Owner reporting and existing cash linkage: read reports, mutate only with settings.
+  'GET /owner-summary': 'reports',
+  'GET /expenses': 'reports',
+  'POST /expenses': 'settings',
+  'POST /expenses/:id/settlements': 'settings',
+  // Physical seating belongs to the desk; confirmed opening hours are property settings.
+  'GET /food-service/occupancy-sessions': 'desk',
+  'POST /food-service/occupancy-sessions': 'desk',
+  'POST /food-service/occupancy-sessions/:id/closure': 'desk',
+  'POST /food-service/occupancy-sessions/:id/relocations': 'desk',
+  'GET /food-service/opening-schedule': 'reports',
+  'PUT /food-service/opening-schedule': 'property',
   'GET /onboarding': 'self',
   'POST /onboarding': 'settings',
   'GET /branches': 'desk',

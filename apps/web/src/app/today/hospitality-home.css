@@ -28,6 +28,9 @@
   .hospitality-home .owner-load-numbers { flex: 1; }
   .hospitality-home .owner-load-value { font-size: var(--text-4xl); }
   .hospitality-home .owner-load .owner-ring { width: 104px; height: 104px; }
+  /* скелет «Загружаем загрузку…» равен компактной карточке на всех ширинах (228–238 px с отступами и рамкой):
+     общие высоты скелета рассчитаны на прежнюю карточку, и на 1440 он был выше на 133 px, на 390 ниже на 32 */
+  .hospitality-home .owner-placeholder--load { min-height: 198px; }
   .hospitality-home .owner-load-counts { margin-block: var(--space-2); }
   .hospitality-home .owner-section-head { align-items: baseline; }
   .hospitality-home .owner-section-head h2 { font-size: var(--text-lg); }

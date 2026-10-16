@@ -50,6 +50,7 @@ v2.11 (06.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; MKT1A,
 v2.15 (09.10.2026): §31 область доступа сотрудника (`membership_scopes`), приостановка членства, данные приглашения: утверждено владельцем 09.10.2026 («давай да делай дальше», Q-286…Q-290, ADR-156); миграции `20261009000072_membership_scopes` и `…073_membership_scopes_grants` на рабочей базе применяет владелец
 v2.13 (07.10.2026; **решения владельца Q-271 и Q-275 от 07.10.2026**; MKT7, `plans/mkt7-publication-preview-domains-2026-10-07.md`): §29.4 `marketing_site_publications` и §29.6 `site_domains` в базе, новый §29.11 `locations.booking_tracked_site_id` (канонический сайт брони филиала) с начальным заполнением; миграции `20261007000064_marketing_publication_domains` и `20261007000065_marketing_publication_grants`
 v2.14 (09.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; O5a, ADR-153, `plans/guest-onboarding-ai-seller-2026-10-09.md`): §13.11 `email_verifications.wizard_session_id`: серверная связь подтверждения почты с гостевым черновиком (nullable FK на `wizard_sessions`, `ON DELETE SET NULL`, частичный уникальный индекс «одна живая связь на сессию»). Кода и миграции нет; миграцию применяет владелец до выкладки O5b
+v2.36 (16.10.2026; утверждено владельцем 16.10.2026 выбором «Да, по проекту» на `plans/marketing-campaigns-mkt-b3-2026-10-16.md`, ADR-MKT-B3): §53 рекламные кампании `marketing_campaigns` и их статистика по дням `marketing_campaign_stats` (ручной ввод, позже кабинеты), `marketing_expenses.campaign_id`; миграции при реализации, на рабочей базе применяет владелец
 v2.35 (16.10.2026; утверждено владельцем 16.10.2026 выбором рекомендованных вариантов на вопросы по `plans/marketing-model-files-plan-roles-2026-10-16.md`, ADR-MKT-B7): §51 чеки и файлы расходов маркетинга `marketing_expense_files` (общее закрытое хранилище, как §32.3), §52 план бюджета по каналам `marketing_budget_lines` (разбивка общего плана месяца), §16.5 новое право `marketing` вместо `settings` у раздела «Маркетинг» (без миграции); миграции при реализации, на рабочей базе применяет владелец
 v2.34 (16.10.2026; решения владельца 16.10.2026 по остатку O-4, ADR-186): §50 ключ повтора оплаты поставщику бара `bar_supplier_payments.idempotency_key` (M6) и потеря себестоимости при отмене продажи без возврата на склад в списании отчёта бара (M9, без схемы); миграция `20261016000115_bar_supplier_payment_key`, на рабочей базе применяет владелец
 v2.33 (16.10.2026; выбор владельца 16.10.2026 «Оплата записи салона», ADR-APPOINTMENT-PAYMENT-20261016): §49 оплата записи к мастеру приходом кассы филиала, `restaurant_cash_operations.appointment_id` и `idempotency_key`; миграция `20261016000114_appointment_payments`, на рабочей базе применяет владелец
@@ -3975,7 +3976,8 @@ BOOKED/CONFIRMED на сегодня; Уборка = флаг; иначе Сво
 | `location_id` | FK → locations (RESTRICT) | филиал; изоляция по филиалам, ТЗ §8.2 |
 | `date` | `DATE` | дата расхода в поясе объекта (как stay-даты, AGENTS.md §13) |
 | `platform` | enum `MarketingPlatform` | `META`, `GOOGLE`, `TIKTOK`, `INSTAGRAM`, `YOUTUBE`, `WHATSAPP`, `SITE`, `PHONE`, `OTHER` (каналы ТЗ §4) |
-| `campaign` | `varchar(200)` NULL | кампания свободным текстом до В3 |
+| `campaign` | `varchar(200)` NULL | кампания свободным текстом до В3; с v2.36 при выборе кампании заполняется её именем |
+| `campaign_id` | FK → marketing_campaigns NULL (SET NULL) | v2.36, §53: кампания расхода; деньги кампании это её расходы |
 | `category` | `varchar(100)` | статья расхода («Реклама», «Креативы», …) |
 | `description` | `varchar(500)` NULL | |
 | `amount` | `bigint` CHECK > 0 | сумма в валюте ввода, minor units |
@@ -4263,3 +4265,26 @@ UPDATE, DELETE` (канал убирается из плана) отдельно
 «распределено N из M» и «не распределено»; сумма каналов больше общего плана предупреждает, но не запрещает. Без общего
 плана сумма каналов и есть план месяца. Не хранятся и считаются на стойке: план против факта по каналу (учтённый расход
 канала против плана), остаток, прогноз конца месяца канала тем же правилом, что у месяца.
+
+## 53. Рекламные кампании и их статистика (v2.36, ADR-MKT-B3, этап МКТ-В3 ручная часть; утверждено владельцем 16.10.2026 выбором «Да, по проекту» на `plans/marketing-campaigns-mkt-b3-2026-10-16.md`)
+
+Кампании филиала и показы, клики, лиды площадки по дням, введённые вручную (позже кабинеты пишут в ту же таблицу).
+Деньги кампании не хранятся отдельно: это её расходы из журнала §41.1 (`campaign_id`), иначе расход считался бы дважды.
+
+`marketing_campaigns`: `id` uuid PK, `location_id` FK → locations (RESTRICT), `platform` `MarketingPlatform`, `name`
+varchar(200) (CHECK не пустое), `status` `MarketingCampaignStatus` (`ACTIVE` | `PAUSED` | `FINISHED`, DEFAULT `ACTIVE`),
+`starts_on` DATE NULL, `ends_on` DATE NULL (CHECK `ends_on >= starts_on`), `created_at`, `updated_at`.
+UNIQUE (`location_id`, `platform`, `name`). Не удаляется: завершается статусом.
+
+`marketing_campaign_stats`: `id` uuid PK, `campaign_id` FK → marketing_campaigns (CASCADE), `date` DATE, `impressions`
+int CHECK ≥ 0, `clicks` int CHECK ≥ 0 и ≤ `impressions`, `leads` int CHECK ≥ 0 (заявки по данным площадки, не наши
+обращения), `created_at`, `updated_at`. UNIQUE (`campaign_id`, `date`): одна строка на день, ввод её заменяет.
+
+`marketing_expenses.campaign_id` FK NULL → marketing_campaigns (SET NULL), индекс. Кампания расхода того же филиала
+проверяет API.
+
+RLS `rls_tenant`: кампании через филиал → бизнес → организация (как §41), статистика через кампанию. Права: кампании
+`SELECT, INSERT, UPDATE` без `DELETE`, статистика `SELECT, INSERT, UPDATE, DELETE`; отдельной миграцией.
+
+Считаются на стойке, не хранятся: CTR = клики / показы, CPC = расход / клики, CPM = расход / показы × 1000, CPL
+площадки = расход / лиды площадки. Связи кампании с конкретной бронью нет (атрибуция, Q-MKT-ATTR).

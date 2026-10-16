@@ -106,6 +106,9 @@ import {
   MarketingBudgetError,
   parseMarketingBudgetInput,
   parseMarketingBudgetLinesInput,
+  parseCampaignInput,
+  parseCampaignStatsCsv,
+  parseCampaignStatsInput,
   parseMarketingExpenseInput,
   parseMarketingExpensesCsv,
   type MarketingExpenseInput,
@@ -4936,11 +4939,23 @@ interface FixtureMarketingExpense {
   fxRate: string;
   baseAmount: string;
   countedInBudget: boolean;
+  campaignId?: string | null;
   /** Чеки (§51): адреса нет, как у API без хранилища */
   files?: Array<{ id: string; fileName: string; mimeType: string; byteSize: number; url: null }>;
 }
 const budgetExpenses: FixtureMarketingExpense[] = [];
 const budgetPlans = new Map<string, string>();
+/** Кампании (§53): те же правила, что у API, расход из журнала расходов */
+interface FixtureCampaign {
+  id: string;
+  platform: string;
+  name: string;
+  status: string;
+  startsOn: string | null;
+  endsOn: string | null;
+  days: Map<string, { impressions: number; clicks: number; leads: number }>;
+}
+const fixtureCampaigns: FixtureCampaign[] = [];
 /** Разбивка плана по каналам (§52): первое число месяца → строки */
 const budgetLines = new Map<string, Array<{ platform: string; amount: string }>>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
@@ -4953,6 +4968,7 @@ const budgetResults = new Map<
 const resetMarketingBudget = () => {
   budgetExpenses.length = 0;
   budgetPlans.clear();
+  fixtureCampaigns.length = 0;
   budgetLines.clear();
   budgetResults.clear();
 };
@@ -5048,12 +5064,21 @@ function marketingBudgetRoute(
         fxRate: input.fxRate,
         baseAmount: input.baseAmount.toString(),
         countedInBudget: input.countedInBudget,
+        campaignId: input.campaignId,
       };
       budgetExpenses.push(row);
       return row;
     };
+    // кампания расхода (§53): только своя, имя кампании в текст расхода, как у API
+    const withCampaign = (input: MarketingExpenseInput): MarketingExpenseInput | null => {
+      if (!input.campaignId) return input;
+      const c = fixtureCampaigns.find((x) => x.id === input.campaignId);
+      return c ? { ...input, campaign: c.name } : null;
+    };
     if (path === '/marketing/expenses' && method === 'POST') {
-      return [201, add(parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC }))];
+      const input = withCampaign(parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC }));
+      if (!input) return [400, { message: 'Кампания не найдена в этом филиале' }];
+      return [201, add(input)];
     }
     if (path === '/marketing/expenses/import' && method === 'POST') {
       if (typeof body.csv !== 'string') return [400, { message: 'Нужен текст CSV-файла' }];
@@ -5068,7 +5093,8 @@ function marketingBudgetRoute(
       const index = budgetExpenses.findIndex((e) => e.id === id);
       if (index < 0) return [404, { message: 'Расход не найден' }];
       if (method === 'PATCH') {
-        const input = parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC });
+        const input = withCampaign(parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC }));
+        if (!input) return [400, { message: 'Кампания не найдена в этом филиале' }];
         const row: FixtureMarketingExpense = {
           ...(budgetExpenses[index] as FixtureMarketingExpense),
           date: input.date,
@@ -5081,6 +5107,7 @@ function marketingBudgetRoute(
           fxRate: input.fxRate,
           baseAmount: input.baseAmount.toString(),
           countedInBudget: input.countedInBudget,
+          campaignId: input.campaignId,
         };
         budgetExpenses[index] = row;
         return [200, row];
@@ -5752,6 +5779,78 @@ createServer(async (req, res) => {
         if (at < 0) return send(404, { message: 'Файл не найден' });
         list.splice(at, 1);
         return send(200, { deleted: true });
+      }
+    }
+    if (path === '/marketing/campaigns' || path.startsWith('/marketing/campaigns/')) {
+      if (!can(uiRole, 'marketing')) return send(403, { message: accessDeniedMessage('marketing') });
+      try {
+        const parts = path.split('/').slice(3);
+        if (parts.length === 0 && req.method === 'GET') {
+          const month = url.searchParams.get('month') ?? today.slice(0, 7);
+          return send(200, {
+            month,
+            today,
+            reportingCurrency: BUDGET_RC,
+            campaigns: fixtureCampaigns.map((c) => {
+              const days = [...c.days.entries()]
+                .filter(([d]) => d.startsWith(month))
+                .sort(([a], [b]) => (a < b ? -1 : 1))
+                .map(([date, v]) => ({ date, ...v }));
+              const spend = budgetExpenses
+                .filter((e) => e.campaignId === c.id && e.countedInBudget && e.date.startsWith(month))
+                .reduce((sum, e) => sum + BigInt(e.baseAmount), 0n);
+              return {
+                id: c.id,
+                platform: c.platform,
+                name: c.name,
+                status: c.status,
+                startsOn: c.startsOn,
+                endsOn: c.endsOn,
+                spend: spend.toString(),
+                impressions: days.reduce((sum, d) => sum + d.impressions, 0),
+                clicks: days.reduce((sum, d) => sum + d.clicks, 0),
+                leads: days.reduce((sum, d) => sum + d.leads, 0),
+                days,
+              };
+            }),
+          });
+        }
+        if (parts.length === 0 && req.method === 'POST') {
+          const input = parseCampaignInput(body);
+          if (fixtureCampaigns.some((c) => c.platform === input.platform && c.name === input.name))
+            return send(409, { message: 'Кампания с таким названием на этой площадке уже есть' });
+          const c = { id: `00000000-0000-4000-b000-${String(++mediaSeq).padStart(12, '0')}`, ...input, days: new Map() };
+          fixtureCampaigns.push(c);
+          return send(201, { id: c.id });
+        }
+        const c = fixtureCampaigns.find((x) => x.id === parts[0]);
+        if (!c) return send(404, { message: 'Кампания не найдена' });
+        if (parts.length === 1 && req.method === 'PATCH') {
+          const input = parseCampaignInput(body);
+          if (fixtureCampaigns.some((x) => x !== c && x.platform === input.platform && x.name === input.name))
+            return send(409, { message: 'Кампания с таким названием на этой площадке уже есть' });
+          Object.assign(c, input);
+          for (const e of budgetExpenses) if (e.campaignId === c.id) e.campaign = input.name;
+          return send(200, { id: c.id });
+        }
+        if (parts[1] === 'stats' && parts.length === 2 && req.method === 'PUT') {
+          const input = parseCampaignStatsInput(body);
+          c.days.set(input.date, { impressions: input.impressions, clicks: input.clicks, leads: input.leads });
+          return send(200, input);
+        }
+        if (parts[1] === 'stats' && parts[2] === 'import' && req.method === 'POST') {
+          if (typeof body['csv'] !== 'string') return send(400, { message: 'Нужен текст CSV-файла' });
+          const rows = parseCampaignStatsCsv(body['csv']);
+          for (const r of rows) c.days.set(r.date, { impressions: r.impressions, clicks: r.clicks, leads: r.leads });
+          return send(200, { imported: rows.length });
+        }
+        if (parts[1] === 'stats' && parts.length === 3 && req.method === 'DELETE') {
+          if (!c.days.delete(parts[2]!)) return send(404, { message: 'За этот день статистики нет' });
+          return send(200, { deleted: true });
+        }
+      } catch (e) {
+        if (e instanceof MarketingBudgetError) return send(400, { message: e.message });
+        throw e;
       }
     }
     const budgetResponse = marketingBudgetRoute(path, req.method ?? 'GET', url.searchParams, body);

@@ -29,8 +29,11 @@ const ROW: ExpenseRecord = {
   fxRate: '1',
   baseAmount: 12000n,
   countedInBudget: true,
+  campaignId: null,
   createdAt: new Date('2026-10-08T10:00:00Z'),
 };
+
+const OWN_CAMPAIGN = '7b61f3e1-0000-4000-8000-0000000000c1';
 
 class FakeRepo implements MarketingBudgetRepository {
   writable = true;
@@ -56,9 +59,14 @@ class FakeRepo implements MarketingBudgetRepository {
       prevLines: [{ platform: 'GOOGLE' as const, amount: 50000n }],
     };
   }
-  async createExpense(_l: string, _i: unknown, audit: BudgetAudit): Promise<ExpenseRecord> {
+  created: unknown = null;
+  async createExpense(_l: string, input: unknown, audit: BudgetAudit): Promise<ExpenseRecord> {
     this.audits.push(audit);
+    this.created = input;
     return ROW;
+  }
+  async campaignName(locationId: string, id: string): Promise<string | null> {
+    return locationId === 'loc-1' && id === OWN_CAMPAIGN ? 'Осень: лиды' : null;
   }
   async updateExpense(_l: string, _id: string, _i: unknown, audit: BudgetAudit) {
     this.audits.push(audit);
@@ -239,5 +247,13 @@ describe('сервис бюджета маркетинга (МКТ-В1/В2)', ()
   it('план по каналам: организация только для чтения: отказ', async () => {
     repo.writable = false;
     await expect(service.setLines({ month: '2026-10', lines: [] })).rejects.toThrow('read only');
+  });
+
+  it('расход и кампания (§53): своя кампания подставляет имя, чужая или несуществующая: 400', async () => {
+    await service.createExpense({ date: '2026-10-08', platform: 'META', category: 'Реклама', amount: '120', campaign: 'старое', campaignId: OWN_CAMPAIGN });
+    expect(repo.created).toMatchObject({ campaignId: OWN_CAMPAIGN, campaign: 'Осень: лиды' });
+    await expect(
+      service.createExpense({ date: '2026-10-08', platform: 'META', category: 'Реклама', amount: '120', campaignId: '7b61f3e1-0000-4000-8000-0000000000ff' }),
+    ).rejects.toThrow('Кампания не найдена');
   });
 });

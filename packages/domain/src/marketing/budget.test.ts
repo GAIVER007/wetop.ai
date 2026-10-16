@@ -132,6 +132,15 @@ describe('план бюджета месяца: разбор ввода (DATA_MO
   });
 });
 
+describe('расход и кампания (DATA_MODEL §53, ADR-MKT-B3)', () => {
+  it('кампания необязательна; идентификатор только uuid, приводится к нижнему регистру', () => {
+    expect(parseMarketingExpenseInput(base, ctx).campaignId).toBeNull();
+    const id = '7B61F3E1-0000-4000-8000-000000000001';
+    expect(parseMarketingExpenseInput({ ...base, campaignId: id }, ctx).campaignId).toBe(id.toLowerCase());
+    expect(() => parseMarketingExpenseInput({ ...base, campaignId: 'осень' }, ctx)).toThrow('Кампания');
+  });
+});
+
 describe('план по каналам: разбор ввода (DATA_MODEL §52, ADR-MKT-B7)', () => {
   it('месяц к первому числу, суммы в тиынах, пустая сумма значит «канала в плане нет»', () => {
     const r = parseMarketingBudgetLinesInput({

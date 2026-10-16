@@ -34,6 +34,8 @@ export interface MarketingExpenseInput {
   /** Сумма в валюте отчётности, minor units, по курсу на дату операции */
   baseAmount: bigint;
   countedInBudget: boolean;
+  /** Кампания расхода (§53); её филиал проверяет API */
+  campaignId: string | null;
 }
 
 const fail = (msg: string): never => {
@@ -49,7 +51,8 @@ const optional = (v: unknown, max: number, name: string): string | null => {
   return s;
 };
 
-const isoDate = (v: unknown, name: string): string => {
+/** Дата ГГГГ-ММ-ДД, которая существует; отказ словами с названием поля */
+export const isoDate = (v: unknown, name: string): string => {
   const s = str(v);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) fail(`${name}: дата в виде ГГГГ-ММ-ДД`);
   const d = new Date(`${s}T00:00:00Z`);
@@ -89,6 +92,14 @@ const rateString = (micros: bigint): string => {
 const toBase = (amount: bigint, rateMicros: bigint): bigint =>
   (amount * rateMicros + RATE_SCALE / 2n) / RATE_SCALE;
 
+/** Кампания расхода: пусто или uuid */
+const campaignIdOf = (v: unknown): string | null => {
+  const s = str(v);
+  if (s === '') return null;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) fail('Кампания: выберите из списка');
+  return s.toLowerCase();
+};
+
 export function parseMarketingExpenseInput(
   body: Record<string, unknown>,
   ctx: { reportingCurrency: string },
@@ -123,6 +134,7 @@ export function parseMarketingExpenseInput(
     fxRate: rateString(micros),
     baseAmount: toBase(amount, micros),
     countedInBudget: body.countedInBudget === undefined ? true : body.countedInBudget === true,
+    campaignId: campaignIdOf(body.campaignId),
   };
 }
 

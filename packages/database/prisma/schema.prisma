@@ -122,6 +122,7 @@ model Location {
   marketingBudgets       MarketingBudget[]
   marketingBudgetLines   MarketingBudgetLine[]
   marketingExpenseFiles  MarketingExpenseFile[]
+  marketingCampaigns     MarketingCampaign[]
   siteAssets             SiteAsset[]
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement SiteBuilderEntitlement?
@@ -193,13 +194,60 @@ model MarketingExpense {
   createdById     String?           @map("created_by_id") @db.Uuid
   createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  /// §53 (v2.36): кампания расхода; деньги кампании это её расходы
+  campaignId      String?           @map("campaign_id") @db.Uuid
 
-  location  Location               @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  createdBy User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  files     MarketingExpenseFile[]
+  location       Location               @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy      User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  files          MarketingExpenseFile[]
+  campaignEntity MarketingCampaign?     @relation(fields: [campaignId], references: [id], onDelete: SetNull)
 
   @@index([locationId, date])
+  @@index([campaignId])
   @@map("marketing_expenses")
+}
+
+enum MarketingCampaignStatus {
+  ACTIVE
+  PAUSED
+  FINISHED
+}
+
+/// §53 (v2.36, ADR-MKT-B3): рекламная кампания филиала; не удаляется, завершается статусом
+model MarketingCampaign {
+  id         String                  @id @default(uuid()) @db.Uuid
+  locationId String                  @map("location_id") @db.Uuid
+  platform   MarketingPlatform
+  name       String                  @db.VarChar(200)
+  status     MarketingCampaignStatus @default(ACTIVE)
+  startsOn   DateTime?               @map("starts_on") @db.Date
+  endsOn     DateTime?               @map("ends_on") @db.Date
+  createdAt  DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location Location                 @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  stats    MarketingCampaignStat[]
+  expenses MarketingExpense[]
+
+  @@unique([locationId, platform, name])
+  @@map("marketing_campaigns")
+}
+
+/// §53: показы, клики и лиды площадки за день (вручную, позже кабинеты)
+model MarketingCampaignStat {
+  id          String   @id @default(uuid()) @db.Uuid
+  campaignId  String   @map("campaign_id") @db.Uuid
+  date        DateTime @db.Date
+  impressions Int
+  clicks      Int
+  leads       Int
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  campaign MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, date])
+  @@map("marketing_campaign_stats")
 }
 
 /// §51 (v2.35, ADR-MKT-B7): чеки и файлы расхода маркетинга; хранилище и обработка как у property_media (§32.3)

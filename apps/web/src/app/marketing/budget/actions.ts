@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { MARKETING_PLATFORMS } from '@pms/domain';
-import { ApiError, marketingBudgetApi } from '../../../lib/api';
+import { ApiError, marketingBudgetApi, marketingCampaignsApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { pluralRu } from '../../../lib/plural';
 
@@ -45,6 +45,7 @@ const expenseBody = (fd: FormData) => ({
   fxRate: s(fd, 'fxRate'),
   // Switch шлёт пару значений: скрытое false и, если включено, true; значением считается последнее
   countedInBudget: fd.getAll('countedInBudget').at(-1) === 'true',
+  campaignId: s(fd, 'campaignId'),
 });
 
 export async function saveExpenseAction(
@@ -115,6 +116,68 @@ export async function removeExpenseFileAction(
     return { error: describe(e), ok: 0 };
   }
   return done('Файл удалён, запись осталась в журнале организации');
+}
+
+const campaignBody = (fd: FormData) => ({
+  platform: s(fd, 'platform'),
+  name: s(fd, 'name'),
+  status: s(fd, 'status'),
+  startsOn: s(fd, 'startsOn'),
+  endsOn: s(fd, 'endsOn'),
+});
+
+/** Кампания (§53): создание или правка одной формой */
+export async function saveCampaignAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  const id = s(fd, 'id');
+  try {
+    if (id) await marketingCampaignsApi.update(id, campaignBody(fd));
+    else await marketingCampaignsApi.create(campaignBody(fd));
+  } catch (e) {
+    return { error: describe(e), ok: 0, values: echo(fd) };
+  }
+  revalidatePath('/marketing/ads');
+  return done(id ? 'Кампания сохранена' : 'Кампания создана');
+}
+
+/** День статистики кампании: ввод заменяет строку дня */
+export async function saveCampaignDayAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  try {
+    await marketingCampaignsApi.setDay(s(fd, 'id'), {
+      date: s(fd, 'date'),
+      impressions: s(fd, 'impressions'),
+      clicks: s(fd, 'clicks'),
+      leads: s(fd, 'leads'),
+    });
+  } catch (e) {
+    return { error: describe(e), ok: 0, values: echo(fd) };
+  }
+  revalidatePath('/marketing/ads');
+  return done('Статистика дня сохранена');
+}
+
+export async function removeCampaignDayAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  try {
+    await marketingCampaignsApi.removeDay(s(fd, 'id'), s(fd, 'date'));
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  revalidatePath('/marketing/ads');
+  return done('День удалён, запись осталась в журнале организации');
+}
+
+/** CSV статистики кампании «Дата;Показы;Клики;Лиды»: всё или ничего */
+export async function importCampaignDaysAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  const file = fd.get('file');
+  if (!(file instanceof File) || file.size === 0) return { error: 'Выберите CSV-файл', ok: 0 };
+  if (file.size > IMPORT_MAX_BYTES) return { error: 'Файл больше 512 КБ', ok: 0 };
+  let r: { imported: number };
+  try {
+    r = await marketingCampaignsApi.importDays(s(fd, 'id'), decodeCsv(await file.arrayBuffer()));
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  revalidatePath('/marketing/ads');
+  return done(`Загружено ${pluralRu(r.imported, ['день', 'дня', 'дней'])} статистики`);
 }
 
 export async function deleteExpenseAction(

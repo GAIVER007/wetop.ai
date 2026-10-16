@@ -187,7 +187,7 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Продвижение');
 });
 
-test('экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных', async ({
+test('экраны «Реклама» и «Контент»: вкладки как в макете; кампании живые (ADR-MKT-B3), кабинет и контент пока пустые', async ({
   page,
   request,
 }) => {
@@ -200,15 +200,13 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   await expect(ads.getByTestId('marketing-ads-soon')).toContainText('Скоро');
   await expect(ads.getByRole('tab')).toHaveText(['Кампании', 'Аудитории', 'Креативы', 'Аналитика', 'Настройки']);
   const metrics = ads.getByTestId('marketing-ads-metrics');
-  await expect(metrics.locator('.stat__label')).toHaveText(['Потрачено', 'Заявки', 'Стоимость заявки', 'Доход с рекламы']);
-  await expect(metrics.locator('.stat__value')).toHaveText(Array(4).fill('Нет данных'));
-  await expect(metrics).not.toContainText(/\d/);
-  await expect(ads.getByTestId('marketing-ads-campaigns').locator('tbody')).toContainText('Кампаний пока нет');
-  for (const name of ['Подключить кабинет', 'Создать кампанию']) {
-    const button = ads.getByRole('button', { name, exact: true });
-    await expect(button).toBeDisabled();
-    await expect(button).toHaveAttribute('aria-describedby', 'marketing-ads-soon');
-  }
+  await expect(metrics.locator('.stat__label')).toHaveText(['Расход кампаний', 'Показы', 'Клики', 'Лиды площадки']);
+  await expect(ads.getByTestId('ads-empty')).toContainText('Кампаний пока нет');
+  // кабинет не подключается: кнопка неактивна и объясняет почему; кампанию создать можно (МКТ-В3)
+  const cabinet = ads.getByRole('button', { name: 'Подключить кабинет', exact: true });
+  await expect(cabinet).toBeDisabled();
+  await expect(cabinet).toHaveAttribute('aria-describedby', 'marketing-ads-soon');
+  await expect(ads.getByRole('button', { name: 'Создать кампанию', exact: true })).toBeEnabled();
   await ads.getByRole('tab', { name: 'Аудитории', exact: true }).click();
   await expect(ads.getByRole('tabpanel')).toContainText('Пока пусто');
   await ads.getByRole('link', { name: 'Назад к модулям', exact: true }).click();
@@ -233,7 +231,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
     '/marketing/site/assets',
   );
 
-  // ни один экран не спрашивает данных, кроме запросов оболочки
+  // «Контент» не спрашивает данных, кроме запросов оболочки; «Реклама» спрашивает только кампании
   await request.post(`${fixture}/__test/reset`);
   for (const path of ['/marketing/ads', '/marketing/content']) {
     await page.goto(path);
@@ -242,7 +240,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   const hits = (await (await request.get(`${fixture}/__test/hits`)).json()) as {
     byPath: Record<string, number>;
   };
-  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path))).toEqual([]);
+  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path))).toEqual(['/marketing/campaigns']);
 });
 
 test('администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб', async ({

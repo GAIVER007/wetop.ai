@@ -1,0 +1,61 @@
+# Модульные (unit) · 16.10.2026 20:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит dd44824 (claude/marketing-meta-writer), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-44-20Z-unit-5b29.json' 'packages/integrations/src/meta/writer.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/integrations/src/meta/writer.test.ts (19 tests | 1 failed) 19ms
+   ❯ Meta: единицы бюджета (2)
+     ✓ USD, EUR, RUB: смещение 100, наши minor units как есть 1ms
+     × тенге и прочие валюты вне подтверждённого списка: отказ словами (Q-MKT-KZT), без запроса 3ms
+   ✓ Meta: запуск по шагам (10)
+     ✓ кампания: цель по назначению, сразу ACTIVE, обязательные special_ad_categories и бюджет на группе 10ms
+     ✓ цель по назначению: форма заявок OUTCOME_LEADS, сайт OUTCOME_TRAFFIC 0ms
+     ✓ группа WhatsApp: переписки, страница, бюджет в единицах Meta, города, точный возраст без Advantage+ 0ms
+     ✓ группа: без городов страна; Advantage+ без age_max; форма заявок ON_AD, сайт без назначения и страницы 0ms
+     ✓ Advantage+ и минимальный возраст старше 25: отказ до запроса (docs §4.4) 1ms
+     ✓ креатив WhatsApp с картинкой: Instagram, кнопка WhatsApp, приветствие, UTM, улучшения Meta выключены 1ms
+     ✓ креатив формы заявок: ссылка fb.me и форма в кнопке; видео: номер видео и превью 0ms
+     ✓ Messenger и Instagram Direct: отказ до запроса, ссылка креатива для них в документации не описана 0ms
+     ✓ объявление: группа, креатив, сразу ACTIVE 0ms
+     ✓ пауза и включение: POST /{id} со статусом 0ms
+   ✓ Meta: медиа и поиск города (3)
+     ✓ картинка: bytes в Base64, ответ images → hash 0ms
+     ✓ видео: файл формой source, затем готовность и превью 0ms
+     ✓ город: поиск adgeolocation в стране филиала 0ms
+   ✓ Meta: отказы при создании (4)
+     ✓ сеть оборвалась на создании: не повторяет (объект мог создаться), ошибка не к повтору 0ms
+     ✓ предел вызовов на создании: Meta отказала, объекта нет, повтор безопасен 0ms
+     ✓ пауза: сеть повторяется (статус идемпотентен) 0ms
+     ✓ текст для человека из error_user_msg, подкод сохраняется, ключа в тексте нет 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/meta/writer.test.ts > Meta: единицы бюджета > тенге и прочие валюты вне подтверждённого списка: отказ словами (Q-MKT-KZT), без запроса
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ packages/integrations/src/meta/writer.test.ts:39:51
+     37|
+     38|   it('тенге и прочие валюты вне подтверждённого списка: отказ словами …
+     39|     expect(() => metaBudgetUnits(500000n, 'KZT')).toThrow(/Q-MKT-KZT/);
+       |                                                   ^
+     40|     expect(() => metaBudgetUnits(500n, 'JPY')).toThrow(MetaApiError);
+     41|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 18 passed (19)
+   Start at  08:44:21
+   Duration  105ms (transform 49%, tests 35%, import 13%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-44-20Z-unit-5b29.json
+
+# код выхода 1 · 1 с

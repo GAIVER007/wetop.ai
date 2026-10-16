@@ -1,0 +1,18 @@
+# Модульные (unit) · 16.10.2026 20:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит dd44824 (claude/marketing-meta-writer), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-45-36Z-unit-43df.json' 'packages/integrations/src/meta'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| packages/integrations/src/meta/client.test.ts (9 tests) 21ms
+ ✓ |unit| packages/integrations/src/meta/auth.test.ts (6 tests) 16ms
+ ✓ |unit| packages/integrations/src/meta/writer.test.ts (19 tests) 22ms
+
+ Test Files  3 passed (3)
+      Tests  34 passed (34)
+   Start at  08:45:37
+   Duration  139ms (transform 59%, tests 28%, import 10%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-45-36Z-unit-43df.json
+
+# код выхода 0 · 1 с

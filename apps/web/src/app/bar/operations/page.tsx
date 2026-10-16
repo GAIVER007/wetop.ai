@@ -34,7 +34,7 @@ const MOVEMENT_LABEL: Record<string, string> = {
 
 /** Операции бара (ADR-157): списание, инвентаризация, журнал продаж с возвратами и лента движений. */
 export default async function BarOperationsPage() {
-  await requireVertical(['HOSPITALITY', 'BEAUTY']);
+  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
   const [stock, sales, movements, shell] = await Promise.all([
     settle(barApi.stock()),
     settle(barApi.sales()),

@@ -16,6 +16,7 @@ export type Permission =
   | 'rates'
   | 'channels'
   | 'settings'
+  | 'marketing'
   | 'journal'
   | 'seller'
   | 'staff'
@@ -35,8 +36,10 @@ export const PERMISSIONS: Readonly<Record<Permission, { label: string }>> = {
   property: { label: 'Номерной фонд' },
   rates: { label: 'Тарифы и цены' },
   channels: { label: 'Каналы продаж' },
-  // настройки гостиницы, правила отмены, услуги, интеграции, сайт и его аналитика, первичная настройка
+  // настройки гостиницы, правила отмены, услуги, интеграции, первичная настройка
   settings: { label: 'Настройки гостиницы' },
+  // раздел «Маркетинг» и «Продвижение»: сайт и его аналитика, бюджет, аналитика маркетинга (ADR-MKT-B7, §16.5 v2.35)
+  marketing: { label: 'Маркетинг и продвижение' },
   journal: { label: 'Журнал операций' },
   seller: { label: 'Настройки ИИ-продавца' },
   staff: { label: 'Сотрудники и приглашения' },

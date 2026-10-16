@@ -1026,7 +1026,7 @@
       "rule": {
         "href": "/marketing",
         "label": "Продвижение",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1042,7 +1042,7 @@
       "rule": {
         "href": "/marketing/ads",
         "label": "Реклама",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1058,7 +1058,7 @@
       "rule": {
         "href": "/marketing/content",
         "label": "Контент",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1074,7 +1074,7 @@
       "rule": {
         "href": "/marketing",
         "label": "Продвижение",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1090,7 +1090,7 @@
       "rule": {
         "href": "/marketing",
         "label": "Продвижение",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1106,7 +1106,7 @@
       "rule": {
         "href": "/marketing",
         "label": "Продвижение",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1742,7 +1742,7 @@
       "rule": {
         "href": "/website",
         "label": "Сайт и онлайн-бронирование",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1758,7 +1758,7 @@
       "rule": {
         "href": "/website",
         "label": "Сайт и онлайн-бронирование",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1774,7 +1774,7 @@
       "rule": {
         "href": "/website",
         "label": "Сайт и онлайн-бронирование",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1790,7 +1790,7 @@
       "rule": {
         "href": "/website",
         "label": "Сайт и онлайн-бронирование",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",

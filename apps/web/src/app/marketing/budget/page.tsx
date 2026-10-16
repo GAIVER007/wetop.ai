@@ -22,13 +22,13 @@ import { ExpenseButton, PlanButton } from './drawers';
  * «Маркетинг → Бюджет», обзор месяца (МКТ-В1/В2, ТЗ «Модуль Маркетинг» 1.0, экран 2 макета):
  * план, израсходовано, остаток, прогноз конца месяца, дней до конца, рекомендация и распределение
  * по каналам. Все числа считаются из строк журнала (`derive.ts`), сервер производных не хранит.
- * Право `settings`, как у всего раздела; филиал строго из scope (409: «Выберите филиал»).
+ * Право `marketing`, как у всего раздела (ADR-MKT-B7); филиал строго из scope (409: «Выберите филиал»).
  */
 export default async function BudgetPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const [loaded, shell] = await Promise.all([loadBudget(await searchParams), deskShell()]);
   const role = shell.access.role;
-  const editable = !shell.readOnly && (role === null || can(role, 'settings'));
+  const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
   const subtitle = 'План месяца, расходы на продвижение и прогноз: все каналы в одном месте.';
   if (loaded.chooseLocation || loaded.error)
     return (

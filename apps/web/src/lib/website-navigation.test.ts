@@ -37,10 +37,10 @@ describe('сайт в меню — одно место (ADR-117)', () => {
     expect(sales?.items.map((item) => item.label)).not.toContain('Сайт и онлайн-бронирование');
   });
 
-  it('хаб и сайт открыты тем же правом, что и раньше сайт (settings), своего права нет', () => {
-    expect(routeRule('/marketing')?.requires).toBe('settings');
+  it('хаб и сайт открыты правом раздела «Маркетинг» (ADR-MKT-B7: `marketing` вместо прежнего `settings`)', () => {
+    expect(routeRule('/marketing')?.requires).toBe('marketing');
     for (const path of ['/website', '/website/booking', '/website/analytics', '/website/settings'])
-      expect(routeRule(path)?.requires).toBe('settings');
+      expect(routeRule(path)?.requires).toBe('marketing');
   });
 
   it('отдельных «Аналитики сайта» и «Настроек сайта» больше нет', () => {

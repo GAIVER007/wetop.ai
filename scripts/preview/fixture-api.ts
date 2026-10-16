@@ -105,6 +105,7 @@ import {
   resolvePaymentMethodSettings,
   MarketingBudgetError,
   parseMarketingBudgetInput,
+  parseMarketingBudgetLinesInput,
   parseMarketingExpenseInput,
   parseMarketingExpensesCsv,
   type MarketingExpenseInput,
@@ -4938,6 +4939,8 @@ interface FixtureMarketingExpense {
 }
 const budgetExpenses: FixtureMarketingExpense[] = [];
 const budgetPlans = new Map<string, string>();
+/** Разбивка плана по каналам (§52): первое число месяца → строки */
+const budgetLines = new Map<string, Array<{ platform: string; amount: string }>>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
 type FixtureChannelResult = { channel: string; leads: number; bookings: number; revenue: string };
 type FixtureDayResult = { date: string; leads: number; bookings: number; newGuests: number; revenue: string };
@@ -4948,6 +4951,7 @@ const budgetResults = new Map<
 const resetMarketingBudget = () => {
   budgetExpenses.length = 0;
   budgetPlans.clear();
+  budgetLines.clear();
   budgetResults.clear();
 };
 const BUDGET_RC = 'KZT';
@@ -4969,7 +4973,7 @@ function marketingBudgetRoute(
     path !== '/marketing/results'
   )
     return null;
-  if (!can(uiRole, 'settings')) return [403, { message: accessDeniedMessage('settings') }];
+  if (!can(uiRole, 'marketing')) return [403, { message: accessDeniedMessage('marketing') }];
   try {
     if (path === '/marketing/budget' && method === 'GET') {
       const month = q.get('month') ?? today.slice(0, 7);
@@ -4990,6 +4994,8 @@ function marketingBudgetRoute(
           locationCurrency: BUDGET_RC,
           plan: budgetPlans.get(`${month}-01`) ?? null,
           prevSpent: prevSpent.toString(),
+          lines: budgetLines.get(`${month}-01`) ?? [],
+          prevLines: budgetLines.get(`${prevMonth}-01`) ?? [],
           expenses,
         },
       ];
@@ -5015,6 +5021,12 @@ function marketingBudgetRoute(
           days: seeded?.supported === false ? [] : (seeded?.days ?? []),
         },
       ];
+    }
+    if (path === '/marketing/budget/lines' && method === 'PUT') {
+      const input = parseMarketingBudgetLinesInput(body);
+      const lines = input.lines.map((l) => ({ platform: l.platform, amount: l.amount.toString() }));
+      budgetLines.set(input.month, lines);
+      return [200, { month: input.month.slice(0, 7), lines }];
     }
     if (path === '/marketing/budget' && method === 'PUT') {
       const input = parseMarketingBudgetInput(body);
@@ -5734,6 +5746,12 @@ createServer(async (req, res) => {
       if (plan) {
         const input = parseMarketingBudgetInput(plan as Record<string, unknown>);
         budgetPlans.set(input.month, input.amount.toString());
+      }
+      // разбивка по каналам (§52): { month, lines: [{ platform, amount }] }, суммы в тенге, как ввод формы
+      const seededLines = body['lines'] as Record<string, unknown> | undefined;
+      if (seededLines) {
+        const input = parseMarketingBudgetLinesInput(seededLines);
+        budgetLines.set(input.month, input.lines.map((l) => ({ platform: l.platform, amount: l.amount.toString() })));
       }
       const seededResults = body['results'] as
         | { month: string; supported?: boolean; channels?: FixtureChannelResult[]; days?: FixtureDayResult[] }

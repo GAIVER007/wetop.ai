@@ -4002,6 +4002,10 @@ export interface MarketingBudgetView {
   locationCurrency: string;
   plan: string | null;
   prevSpent: string;
+  /** Разбивка плана по каналам (§52, ADR-MKT-B7), суммы строками тиынов в валюте отчётности */
+  lines: Array<{ platform: string; amount: string }>;
+  /** Разбивка прошлого месяца: «взять из прошлого месяца» */
+  prevLines: Array<{ platform: string; amount: string }>;
   expenses: MarketingExpenseRow[];
 }
 
@@ -4012,6 +4016,9 @@ export const marketingBudgetApi = {
     ),
   setPlan: (body: unknown) =>
     sendJson<{ month: string; amount: string }>('PUT', '/marketing/budget', body),
+  /** Разбивка плана месяца по каналам заменяется целиком (§52) */
+  setLines: (body: unknown) =>
+    sendJson<{ month: string; lines: Array<{ platform: string; amount: string }> }>('PUT', '/marketing/budget/lines', body),
   createExpense: (body: unknown) =>
     sendJson<MarketingExpenseRow>('POST', '/marketing/expenses', body),
   updateExpense: (id: string, body: unknown) =>

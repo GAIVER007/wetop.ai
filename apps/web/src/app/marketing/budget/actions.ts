@@ -1,5 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
+import { MARKETING_PLATFORMS } from '@pms/domain';
 import { ApiError, marketingBudgetApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { pluralRu } from '../../../lib/plural';
@@ -99,6 +100,20 @@ export async function deleteExpenseAction(
     return { error: describe(e), ok: 0 };
   }
   return done('Расход удалён, запись об удалении осталась в журнале');
+}
+
+/** «Распределить план»: поле на каждый канал, пустое значит «канала в плане нет» (§52) */
+export async function saveLinesAction(
+  _prev: BudgetActionResult,
+  fd: FormData,
+): Promise<BudgetActionResult> {
+  const lines = MARKETING_PLATFORMS.map((platform) => ({ platform, amount: s(fd, `amount-${platform}`) }));
+  try {
+    await marketingBudgetApi.setLines({ month: s(fd, 'month'), lines });
+  } catch (e) {
+    return { error: describe(e), ok: 0, values: echo(fd) };
+  }
+  return done('План по каналам сохранён');
 }
 
 export async function savePlanAction(

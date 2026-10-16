@@ -41,6 +41,13 @@ export class MarketingBudgetController {
     return this.service.setPlan(dto ?? {});
   }
 
+  /** Разбивка плана месяца по каналам (§52): заменяется целиком */
+  @Put('budget/lines')
+  @HttpCode(200)
+  setLines(@Body() dto: Record<string, unknown>) {
+    return this.service.setLines(dto ?? {});
+  }
+
   @Post('expenses')
   create(@Body() dto: Record<string, unknown>) {
     return this.service.createExpense(dto ?? {});

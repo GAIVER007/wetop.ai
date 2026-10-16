@@ -24,6 +24,8 @@ const VIEW: MarketingBudgetView = {
   locationCurrency: 'KZT',
   plan: null,
   prevSpent: '0',
+  lines: [],
+  prevLines: [],
   expenses: [
     expense('2026-09-02', 'META', '1000000'),
     expense('2026-09-03', 'SITE', '200000'),

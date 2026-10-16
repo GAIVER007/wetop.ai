@@ -48,7 +48,13 @@ class FakeRepo implements MarketingBudgetRepository {
   }
   async monthData(locationId: string, first: string, nextFirst: string, prevFirst: string) {
     this.monthArgs = [locationId, first, nextFirst, prevFirst];
-    return { plan: 300000n, expenses: [ROW], prevSpent: 5000n };
+    return {
+      plan: 300000n,
+      expenses: [ROW],
+      prevSpent: 5000n,
+      lines: [{ platform: 'META' as const, amount: 200000n }],
+      prevLines: [{ platform: 'GOOGLE' as const, amount: 50000n }],
+    };
   }
   async createExpense(_l: string, _i: unknown, audit: BudgetAudit): Promise<ExpenseRecord> {
     this.audits.push(audit);
@@ -61,6 +67,11 @@ class FakeRepo implements MarketingBudgetRepository {
   async deleteExpense(_l: string, _id: string, audit: BudgetAudit): Promise<boolean> {
     this.audits.push(audit);
     return this.deleteResult;
+  }
+  linesSet: { month: string; lines: Array<{ platform: string; amount: bigint }> } | null = null;
+  async setLines(_l: string, month: string, lines: Array<{ platform: string; amount: bigint }>, audit: BudgetAudit) {
+    this.audits.push(audit);
+    this.linesSet = { month, lines };
   }
   async setPlan(_l: string, month: string, amount: bigint, audit: BudgetAudit): Promise<void> {
     this.audits.push(audit);
@@ -205,5 +216,28 @@ describe('сервис бюджета маркетинга (МКТ-В1/В2)', ()
   it('импорт CSV: организация только для чтения: отказ до разбора', async () => {
     repo.writable = false;
     await expect(service.importExpenses({ csv: 'x' })).rejects.toThrow('read only');
+  });
+
+  it('план по каналам: разбивка месяца и прошлого месяца строками в ответе бюджета', async () => {
+    const v = await service.view('2026-10');
+    expect(v.lines).toEqual([{ platform: 'META', amount: '200000' }]);
+    expect(v.prevLines).toEqual([{ platform: 'GOOGLE', amount: '50000' }]);
+  });
+
+  it('план по каналам: разбивка месяца заменяется целиком, в журнал суммы строками', async () => {
+    const r = await service.setLines({ month: '2026-10', lines: [{ platform: 'META', amount: '1500' }, { platform: 'SITE', amount: '' }] });
+    expect(r).toEqual({ month: '2026-10', lines: [{ platform: 'META', amount: '150000' }] });
+    expect(repo.linesSet).toEqual({ month: '2026-10-01', lines: [{ platform: 'META', amount: 150000n }] });
+    expect(repo.audits.at(-1)).toMatchObject({
+      entityType: 'marketing_budget',
+      action: 'marketing_budget.lines_set',
+      after: { month: '2026-10-01', lines: [{ platform: 'META', amount: '150000' }] },
+    });
+    await expect(service.setLines({ month: '2026-10', lines: [{ platform: 'YANDEX', amount: '1' }] })).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('план по каналам: организация только для чтения: отказ', async () => {
+    repo.writable = false;
+    await expect(service.setLines({ month: '2026-10', lines: [] })).rejects.toThrow('read only');
   });
 });

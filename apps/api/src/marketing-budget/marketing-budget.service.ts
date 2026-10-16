@@ -3,6 +3,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import {
   MarketingBudgetError,
   parseMarketingBudgetInput,
+  parseMarketingBudgetLinesInput,
   parseMarketingExpenseInput,
   parseMarketingExpensesCsv,
 } from '@pms/domain';
@@ -33,6 +34,16 @@ export interface ExpenseRow {
   countedInBudget: boolean;
 }
 
+export interface BudgetLineRow {
+  platform: string;
+  amount: string;
+}
+
+const lineRow = (l: { platform: string; amount: bigint }): BudgetLineRow => ({
+  platform: l.platform,
+  amount: l.amount.toString(),
+});
+
 export interface BudgetView {
   /** ГГГГ-ММ окна */
   month: string;
@@ -44,6 +55,10 @@ export interface BudgetView {
   plan: string | null;
   /** Учтённый расход прошлого месяца: динамика на экране аналитики */
   prevSpent: string;
+  /** Разбивка плана по каналам (§52), суммы строками minor units */
+  lines: BudgetLineRow[];
+  /** Разбивка прошлого месяца: «взять из прошлого месяца» */
+  prevLines: BudgetLineRow[];
   expenses: ExpenseRow[];
 }
 
@@ -151,6 +166,8 @@ export class MarketingBudgetService {
       locationCurrency: scope.locationCurrency,
       plan: data.plan === null ? null : data.plan.toString(),
       prevSpent: data.prevSpent.toString(),
+      lines: data.lines.map(lineRow),
+      prevLines: data.prevLines.map(lineRow),
       expenses: data.expenses.map(toRow),
     };
   }
@@ -229,6 +246,23 @@ export class MarketingBudgetService {
     });
     if (!gone) throw new NotFoundException('Расход не найден');
     return { ok: true };
+  }
+
+  /**
+   * Разбивка плана месяца по каналам (§52, ADR-MKT-B7) одним вводом: прежняя разбивка месяца заменяется целиком.
+   * Сумма каналов больше общего плана не запрещается: это предупреждение на экране.
+   */
+  async setLines(dto: Record<string, unknown>): Promise<{ month: string; lines: BudgetLineRow[] }> {
+    const scope = await this.repo.scope();
+    await this.repo.assertWritable(scope.organizationId);
+    const input = rule(() => parseMarketingBudgetLinesInput(dto));
+    const lines = input.lines.map(lineRow);
+    await this.repo.setLines(scope.locationId, input.month, input.lines, {
+      entityType: 'marketing_budget',
+      action: 'marketing_budget.lines_set',
+      after: { month: input.month, lines },
+    });
+    return { month: input.month.slice(0, 7), lines };
   }
 
   async setPlan(dto: Record<string, unknown>): Promise<{ month: string; amount: string }> {

@@ -154,4 +154,31 @@ describe.skipIf(!url)('МКТ-В1/В2 marketing accounting: инварианты
       await attempt(`DELETE FROM marketing_expenses`);
     });
   });
+
+  it('план по каналам (§52): первое число, один канал на месяц филиала, сумма больше нуля, RLS, DELETE есть', async () => {
+    await probe(async (attempt) => {
+      const line = (month: string, platform = 'META', amount = '100000', location = locA) =>
+        attempt(
+          `INSERT INTO marketing_budget_lines (id, location_id, month, platform, amount, updated_at)
+           VALUES ($1, $2, $3, $4, $5, now())`,
+          [randomUUID(), location, month, platform, amount],
+        );
+      await line('2026-10-01');
+      await line('2026-10-01', 'GOOGLE');
+      await expect(line('2026-10-15', 'SITE')).rejects.toThrow(/marketing_budget_lines_month/);
+      await expect(line('2026-10-01', 'TIKTOK', '0')).rejects.toThrow(/marketing_budget_lines_amount/);
+      await expect(line('2026-10-01')).rejects.toThrow(/marketing_budget_lines_location_id_month_platform_key/);
+      await line('2026-10-01', 'META', '5', locB);
+      await asApp(attempt, orgB);
+      const seen = await attempt(`SELECT count(*)::int AS n FROM marketing_budget_lines`);
+      expect(seen.rows[0].n).toBe(1);
+      await expect(line('2026-11-01', 'META', '1', locA)).rejects.toThrow(/violates row-level security/);
+      await attempt('RESET ROLE');
+      await asApp(attempt, orgA);
+      // канал убирается из плана удалением строки: у роли DELETE есть
+      const gone = await attempt(`DELETE FROM marketing_budget_lines WHERE platform = 'GOOGLE'`);
+      expect(gone.rowCount).toBe(1);
+    });
+  });
 });
+

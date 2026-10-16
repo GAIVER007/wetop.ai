@@ -133,11 +133,44 @@ export interface MarketingBudgetInput {
   amount: bigint;
 }
 
-export function parseMarketingBudgetInput(body: Record<string, unknown>): MarketingBudgetInput {
-  const s = str(body.month);
-  const m = /^(\d{4})-(\d{2})(?:-\d{2})?$/.exec(s);
+/** «2026-10» или полная дата → первое число месяца */
+const firstOfMonth = (v: unknown): string => {
+  const m = /^(\d{4})-(\d{2})(?:-\d{2})?$/.exec(str(v));
   if (!m) fail('Месяц: в виде ГГГГ-ММ');
   const mm = Number(m![2]);
   if (mm < 1 || mm > 12) fail('Месяц: такого месяца нет');
-  return { month: `${m![1]}-${m![2]}-01`, amount: money(body.amount, 'План') };
+  return `${m![1]}-${m![2]}-01`;
+};
+
+export function parseMarketingBudgetInput(body: Record<string, unknown>): MarketingBudgetInput {
+  return { month: firstOfMonth(body.month), amount: money(body.amount, 'План') };
+}
+
+export interface MarketingBudgetLinesInput {
+  /** Первое число месяца, ГГГГ-ММ-01 */
+  month: string;
+  /** Разбивка общего плана по каналам (§52); пустой список убирает разбивку месяца */
+  lines: Array<{ platform: MarketingPlatform; amount: bigint }>;
+}
+
+/**
+ * Разбивка плана месяца по каналам (DATA_MODEL §52, ADR-MKT-B7): вся разбивка месяца одним вводом, пустая сумма
+ * значит «канала в плане нет». Сумма каналов больше общего плана не запрещается: это предупреждение на экране.
+ */
+export function parseMarketingBudgetLinesInput(body: Record<string, unknown>): MarketingBudgetLinesInput {
+  const month = firstOfMonth(body.month);
+  if (!Array.isArray(body.lines)) fail('Каналы: нужен список');
+  const seen = new Set<string>();
+  const lines: MarketingBudgetLinesInput['lines'] = [];
+  for (const raw of body.lines as unknown[]) {
+    const line = (raw ?? {}) as Record<string, unknown>;
+    const platform = MARKETING_PLATFORMS.find((p) => p === str(line.platform));
+    if (!platform) fail('Канал: выберите из списка каналов');
+    if (seen.has(platform!)) fail(`Канал ${platform} указан дважды`);
+    seen.add(platform!);
+    const amount = str(line.amount).replace(/\s/g, '');
+    if (amount === '') continue;
+    lines.push({ platform: platform!, amount: money(amount, `План канала ${platform}`) });
+  }
+  return { month, lines };
 }

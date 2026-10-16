@@ -1,0 +1,16 @@
+# Модульные (unit) · 16.10.2026 13:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7ebf981 (claude/marketing-channel-plan), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T08-43-52Z-unit-119f.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 143ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  01:43:53
+   Duration  7.62s (transform 66%, import 32%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T08-43-52Z-unit-119f.json
+
+# код выхода 0 · 9 с

@@ -125,6 +125,13 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'DELETE /marketing/campaigns/:id/stats/:date': 'marketing',
   // ИИ-таргетолог (ADR-MKT-LAUNCH, §57): предложение ИИ ничего не создаёт, но готовит запуск, право запуска
   'POST /marketing/ads/proposal': 'ads_launch',
+  // запуск тратит деньги: креатив, запуск, «Остановить» и «Включить» под правом запуска; смотреть запуски: право раздела
+  'POST /marketing/ads/creatives': 'ads_launch',
+  'POST /marketing/ads/launches': 'ads_launch',
+  'GET /marketing/ads/launches': 'marketing',
+  'GET /marketing/ads/launches/:id': 'marketing',
+  'POST /marketing/ads/campaigns/:id/pause': 'ads_launch',
+  'POST /marketing/ads/campaigns/:id/resume': 'ads_launch',
   // МКТ-В5a: результаты каналов для «Аналитики маркетинга», право страницы
   'GET /marketing/results': 'marketing',
   'POST /marketing/expenses': 'marketing',

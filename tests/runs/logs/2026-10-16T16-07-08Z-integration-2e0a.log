@@ -1,0 +1,101 @@
+# Интеграционные (integration) · 16.10.2026 21:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/marketing-ad-launch), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-07-08Z-integration-2e0a.json' 'tests/integration/marketing-ad-launch.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-ad-launch.test.ts (6 tests | 2 failed) 208ms
+   ❯ запуск рекламы (integration) (6)
+     ✓ креатив: JPEG в закрытое хранилище, тот же файл второй раз не ложится, не картинка отклоняется 14ms
+     ✓ запуск: шаги по порядку, ключ кабинета, номера Meta, кампания WETOP ACTIVE, журнал из пяти шагов 38ms
+     ✓ сбой на группе: кампания в Meta на паузе, запуск FAILED словами Meta, кампании WETOP нет 12ms
+     × деньги: нет плана, остаток плана мал, кабинет в тенге: отказ словами до Meta, строки нет 11ms
+     × «Остановить» и «Включить»: сначала Meta, потом статус кампании WETOP и журнал 8ms
+     ✓ обрыв процесса: RUNNING старше 15 минут закрывается FAILED, созданная кампания на паузу 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-ad-launch.test.ts > запуск рекламы (integration) > деньги: нет плана, остаток плана мал, кабинет в тенге: отказ словами до Meta, строки нет
+AssertionError: promise resolved "{ id: '5d4c6ed4-55ee-406c-b926-779fd…' }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "id": "5d4c6ed4-55ee-406c-b926-779fdb35ec9b",
+  }
+
+ ❯ tests/integration/marketing-ad-launch.test.ts:315:51
+    313|     const before = await db.marketingAdLaunch.count({ where: { locatio…
+    314|     await setPlan(1_000n);
+    315|     await expect(as(() => service.start(input()))).rejects.toThrow(/пл…
+       |                                                   ^
+    316|     await db.marketingBudgetLine.delete({
+    317|       where: { locationId_month_platform: { locationId: location, mont…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/marketing-ad-launch.test.ts > запуск рекламы (integration) > «Остановить» и «Включить»: сначала Meta, потом статус кампании WETOP и журнал
+AssertionError: expected [ [ 'setStatus', …(1) ], …(1) ] to deeply equal [ [ 'setStatus', …(1) ] ]
+
+- Expected
++ Received
+
+@@ -4,6 +4,35 @@
+      [
+        "120000000000001",
+        "PAUSED",
+      ],
+    ],
++   [
++     "uploadImage",
++     [
++       "1234567890",
++       {
++         "bytes": Uint8Array [
++           255,
++           216,
++           255,
++           224,
++           102,
++           97,
++           107,
++           101,
++           45,
++           106,
++           112,
++           101,
++           103,
++           45,
++           98,
++           111,
++           100,
++           121,
++         ],
++         "fileName": "offer.jpg",
++       },
++     ],
++   ],
+  ]
+
+ ❯ tests/integration/marketing-ad-launch.test.ts:342:26
+    340|     writer = new FakeWriter();
+    341|     await as(() => service.setCampaignStatus(c.id, 'PAUSED'));
+    342|     expect(writer.calls).toEqual([['setStatus', ['120000000000001', 'P…
+       |                          ^
+    343|     expect((await db.marketingCampaign.findUniqueOrThrow({ where: { id…
+    344|       'PAUSED',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  09:07:08
+   Duration  1.49s (transform 45%, import 34%, tests 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-07-08Z-integration-2e0a.json
+
+# код выхода 1 · 2 с

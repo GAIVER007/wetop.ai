@@ -17,6 +17,7 @@ export type Permission =
   | 'channels'
   | 'settings'
   | 'marketing'
+  | 'ads_launch'
   | 'journal'
   | 'seller'
   | 'staff'
@@ -40,6 +41,8 @@ export const PERMISSIONS: Readonly<Record<Permission, { label: string }>> = {
   settings: { label: 'Настройки гостиницы' },
   // раздел «Маркетинг» и «Продвижение»: сайт и его аналитика, бюджет, аналитика маркетинга (ADR-MKT-B7, §16.5 v2.35)
   marketing: { label: 'Маркетинг и продвижение' },
+  // запуск рекламы в подключённом кабинете (тратит деньги) и её остановка (ADR-MKT-LAUNCH, §57)
+  ads_launch: { label: 'Запуск и остановка рекламы' },
   journal: { label: 'Журнал операций' },
   seller: { label: 'Настройки ИИ-продавца' },
   staff: { label: 'Сотрудники и приглашения' },

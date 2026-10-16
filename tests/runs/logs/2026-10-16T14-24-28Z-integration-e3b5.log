@@ -1,0 +1,147 @@
+# Интеграционные (integration) · 16.10.2026 19:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9f59cf6 (claude/marketing-ai-targetolog-design), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T14-24-28Z-integration-e3b5.json' 'tests/integration/marketing-ad-launches-db.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-ad-launches-db.test.ts (4 tests | 1 failed) 55ms
+   ❯ §57 запуск рекламы: инварианты базы (4)
+     ✓ креатив: ключ объекта выводится из строки, тип по виду, предел размера, тот же файл один раз 6ms
+     ✓ запуск: пара цели и назначения, деньги, ключ повтора, исход со всеми номерами 12ms
+     × триггер: чужой филиал, переписанные настройки и номера, изменение завершённого 6ms
+     ✓ RLS и права: чужая организация не видит, шаги только дописываются, ничего не удаляется 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-ad-launches-db.test.ts > §57 запуск рекламы: инварианты базы > триггер: чужой филиал, переписанные настройки и номера, изменение завершённого
+AssertionError: promise resolved "Result{ command: 'INSERT', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": [
++     [Function noParse],
++   ],
++   "_prebuiltEmptyResultObject": {
++     "id": null,
++   },
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "INSERT",
++   "fields": [
++     Field {
++       "columnID": 1,
++       "dataTypeID": 2950,
++       "dataTypeModifier": -1,
++       "dataTypeSize": 16,
++       "format": "text",
++       "name": "id",
++       "tableID": 25258,
++     },
++   ],
++   "oid": 0,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [
++     {
++       "id": "eeb08b18-f916-4194-828e-8be7ecaa0360",
++     },
++   ],
+  }
+
+ ❯ tests/integration/marketing-ad-launches-db.test.ts:187:77
+    185|       await expect(launch(attempt, locA, connB)).rejects.toThrow(/Laun…
+    186|       const creativeB = (await creative(attempt, locB)).rows[0].id as …
+    187|       await expect(launch(attempt, locA, connA, { creative_id: creativ…
+       |                                                                             ^
+    188|         /Launch creative belongs to another location/,
+    189|       );
+ ❯ probe tests/integration/marketing-ad-launches-db.test.ts:28:7
+ ❯ tests/integration/marketing-ad-launches-db.test.ts:182:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  07:24:29
+   Duration  1.01s (transform 69%, import 19%, tests 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T14-24-28Z-integration-e3b5.json
+
+# код выхода 1 · 2 с

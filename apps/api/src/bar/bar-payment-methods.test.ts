@@ -26,7 +26,7 @@ function service(enabled: string[] | null) {
   return { svc: new BarService(repo), calls };
 }
 const sale = (method: string) => ({ productId: PRODUCT, quantityUnits: '1', method, idempotencyKey: 'k1' });
-const pay = (method: string) => ({ amountMinor: '100', method });
+const pay = (method: string) => ({ amountMinor: '100', method, idempotencyKey: '00000000-0000-4000-8000-0000000000aa' });
 
 describe('бар: способ оплаты против настройки объекта', () => {
   it('выключенный у объекта способ отказывает 400 словами кассы и до репозитория не доходит', async () => {

@@ -47,6 +47,7 @@ export function sellableStay(
     to: addDays(input.departureDate, -1),
     units: [...active].map(([code, count]) => ({ code, active: count })),
     blocks: input.blocks.map((b) => ({
+      unitId: b.unitId,
       accommodationTypeCode: unitCategory.get(b.unitId) ?? '',
       dateFrom: b.dateFrom,
       dateTo: b.dateTo,

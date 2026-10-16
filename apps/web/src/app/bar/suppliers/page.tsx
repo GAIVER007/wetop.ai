@@ -17,7 +17,7 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
 
 /** Поставщики бара (ADR-157): контакты, закуплено и оплачено по каждому, долг; оплата живёт в «Приходах». */
 export default async function BarSuppliersPage() {
-  await requireVertical(['HOSPITALITY', 'BEAUTY']);
+  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
   const [suppliers, receipts] = await Promise.all([settle(barApi.suppliers()), settle(barApi.receipts())]);
   const failed = [suppliers, receipts].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;

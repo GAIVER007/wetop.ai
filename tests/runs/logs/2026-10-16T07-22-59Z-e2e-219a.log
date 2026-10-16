@@ -1,0 +1,590 @@
+# Сквозные (e2e) · 16.10.2026 12:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5b5edf1 (claude/combined-431-279)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/bar-payment-methods.spec.ts' 'tests/ui/bar-reference-accessibility.spec.ts' 'tests/ui/bar-reference.spec.ts' 'tests/ui/bar.spec.ts' 'tests/ui/hospitality-read-only.spec.ts' 'tests/ui/payment-requests.spec.ts' 'tests/ui/team.spec.ts' 'tests/ui/ui-fix-01-access.spec.ts' 'tests/ui/ui-fix-01-kb.spec.ts' 'tests/ui/ui-fix-01-visual.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 141 tests using 1 worker
+
+  ✓    1 tests/ui/bar-payment-methods.spec.ts:25:1 › быстрая продажа: Halyk первым, Kaspi выключен и не предлагается (3.6s)
+  ✓    2 tests/ui/bar-payment-methods.spec.ts:36:1 › оплата поставщику: список по настройке, счёт организации остаётся умолчанием, пока включён (1.4s)
+  ✓    3 tests/ui/bar-payment-methods.spec.ts:45:1 › объект оставил только депозит и гарантию: форма говорит словами, кнопки продажи нет (1.4s)
+  ✓    4 tests/ui/bar-reference-accessibility.spec.ts:3:47 › bar pages readable and accessible light (7.9s)
+  ✓    5 tests/ui/bar-reference-accessibility.spec.ts:3:47 › bar pages readable and accessible dark (6.5s)
+  ✓    6 tests/ui/bar-reference.spec.ts:2:32 › bar reference layout 1333 (838ms)
+  ✓    7 tests/ui/bar-reference.spec.ts:2:32 › bar reference layout 390 (897ms)
+  ✓    8 tests/ui/bar-reference.spec.ts:15:1 › inventory direct entry and existing handler (838ms)
+  ✓    9 tests/ui/bar-reference.spec.ts:21:1 › inventory uses the existing stock and action (911ms)
+  ✓   10 tests/ui/bar-reference.spec.ts:30:1 › sort stock preserves the loaded quantities (854ms)
+  ✓   11 tests/ui/bar-reference.spec.ts:38:1 › mobile quick actions open the existing forms (1.0s)
+  ✓   12 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 light (2.0s)
+  ✓   13 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 dark (2.0s)
+  ✓   14 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 light (2.0s)
+  ✓   15 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 dark (1.9s)
+  ✓   16 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 light (1.9s)
+  ✓   17 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 dark (2.0s)
+  ✓   18 tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 1333 (1.5s)
+  ✓   19 tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 390 (1.4s)
+  ✓   20 tests/ui/bar.spec.ts:23:1 › обзор как на макете: пять KPI, графики, компактная доска и подробности (1.1s)
+  ✓   21 tests/ui/bar.spec.ts:75:1 › быстрая продажа одной строкой и фильтры доски (1.1s)
+  ✓   22 tests/ui/bar.spec.ts:100:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (1.7s)
+  ✓   23 tests/ui/bar.spec.ts:133:1 › N6: товар в архивной категории сохраняет её при правке карточки (ADR-186) (1.0s)
+  ✓   24 tests/ui/bar.spec.ts:174:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (1.1s)
+  ✓   25 tests/ui/bar.spec.ts:191:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (1.1s)
+  ✓   26 tests/ui/bar.spec.ts:205:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (1.0s)
+  ✓   27 tests/ui/bar.spec.ts:217:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (1.7s)
+  ✓   28 tests/ui/bar.spec.ts:246:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (822ms)
+  ✓   29 tests/ui/bar.spec.ts:258:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (1.9s)
+  ✓   30 tests/ui/bar.spec.ts:284:1 › операции: списание с причиной, журнал продаж и лента движений (1.4s)
+  ✓   31 tests/ui/bar.spec.ts:310:3 › доступность и телефон: light (3.1s)
+  ✓   32 tests/ui/bar.spec.ts:310:3 › доступность и телефон: dark (2.9s)
+  ✘   33 tests/ui/hospitality-read-only.spec.ts:15:1 › H-01: календарь сохраняет чтение и навигацию, но не предлагает команды записи (45.3s)
+  ✘   34 tests/ui/hospitality-read-only.spec.ts:38:1 › H-01: прямые страницы брони и ячейки не показывают формы записи (45.3s)
+  ✘   35 tests/ui/hospitality-read-only.spec.ts:56:1 › H-01: фонд и Bar оставляют просмотр без редакторов и submit-команд (45.3s)
+  ✘   36 tests/ui/hospitality-read-only.spec.ts:80:1 › H-01: Channels оставляет события доступными для чтения, но закрывает exchange и retry (45.2s)
+  ✓   37 tests/ui/payment-requests.spec.ts:25:1 › Kaspi: запрос с остатком по умолчанию, текст гостю, «Оплачено» даёт платёж на счёт (3.1s)
+  ✓   38 tests/ui/payment-requests.spec.ts:51:1 › ссылка банка не https — отказ словами, ссылка и сумма остаются в форме (1.5s)
+  ✓   39 tests/ui/payment-requests.spec.ts:64:1 › отмена ожидающего запроса с подтверждением; ссылка банка попадает в текст (1.7s)
+  ✓   40 tests/ui/payment-requests.spec.ts:82:5 › доступность блока: light, 1440 px (2.6s)
+  ✓   41 tests/ui/payment-requests.spec.ts:82:5 › доступность блока: light, 390 px (2.5s)
+  ✓   42 tests/ui/payment-requests.spec.ts:82:5 › доступность блока: dark, 1440 px (2.5s)
+  ✓   43 tests/ui/payment-requests.spec.ts:82:5 › доступность блока: dark, 390 px (2.4s)
+  ✓   44 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (1.9s)
+  ✓   45 tests/ui/team.spec.ts:49:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (1.6s)
+  ✓   46 tests/ui/team.spec.ts:66:1 › ошибка приглашения — словами в панели, ввод не стирается (1.6s)
+  ✓   47 tests/ui/team.spec.ts:78:1 › «Отключить» — только после подтверждения с последствием (1.3s)
+  ✓   48 tests/ui/team.spec.ts:90:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке (1.5s)
+  ✓   49 tests/ui/team.spec.ts:111:1 › неверный телефон: словами в панели, введённое не стирается (1.5s)
+  ✓   50 tests/ui/team.spec.ts:125:1 › управляющий: роль не меняет, приглашает только администраторов (1.6s)
+  ✓   51 tests/ui/team.spec.ts:141:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (873ms)
+  ✓   52 tests/ui/team.spec.ts:152:1 › администратору раздел закрыт: гейт и меню без пункта (1.1s)
+  ✓   53 tests/ui/team.spec.ts:161:3 › снимки TEAM1 и доступность: light (3.0s)
+  ✓   54 tests/ui/team.spec.ts:161:3 › снимки TEAM1 и доступность: dark (3.0s)
+  ✓   55 tests/ui/team.spec.ts:200:1 › «Сотрудники и доступ»: сводка по команде и должность выбором из двух вариантов (1.2s)
+  ✓   56 tests/ui/team.spec.ts:218:1 › «Роли и права»: вкладка только на чтение, права трёх ролей по таблице API (2.9s)
+  ✓   57 tests/ui/team.spec.ts:244:1 › «Роли и права»: администратору закрыто (1.6s)
+  ✓   58 tests/ui/team.spec.ts:252:1 › приглашение: «Отправить заново» отзывает старое и шлёт новое на ту же почту с той же ролью (1.2s)
+  ✓   59 tests/ui/team.spec.ts:267:1 › приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием (1.4s)
+  ✓   60 tests/ui/team.spec.ts:288:1 › приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора (1.1s)
+  ✓   61 tests/ui/team.spec.ts:304:1 › область доступа сотрудника: «Доступ» → выбранные филиалы с ролью по месту → подпись в таблице; очистка (1.9s)
+  ✓   62 tests/ui/team.spec.ts:329:1 › область доступа: пустой выбор при «Выбранные филиалы» не отправляется, словами (1.5s)
+  ✓   63 tests/ui/team.spec.ts:342:1 › приглашение с именем, телефоном и филиалами: уходит с областью, видно в ожидающих (1.7s)
+  ✓   64 tests/ui/team.spec.ts:360:1 › управляющий: «Доступ» только администраторам, в списке ролей один вариант (1.6s)
+  ✘   65 tests/ui/ui-fix-01-access.spec.ts:2:1 › C-P1-1: failed access structure blocks invitations (45.2s)
+  ✘   66 tests/ui/ui-fix-01-access.spec.ts:20:1 › C-P1-1: recovery allows explicit organization scope (45.1s)
+  ✘   67 tests/ui/ui-fix-01-access.spec.ts:42:1 › C-P1-1 malformed successful response does not allow a broad invitation (45.2s)
+  ✘   68 tests/ui/ui-fix-01-access.spec.ts:61:1 › scope switch closes the old invitation and blocks commands until recovery (45.3s)
+  ✘   69 tests/ui/ui-fix-01-kb.spec.ts:35:1 › C-P1-2 unsaved text cannot publish (45.3s)
+  ✘   70 tests/ui/ui-fix-01-kb.spec.ts:42:1 › C-P1-2 save then publish B survives reload (45.3s)
+  ✘   71 tests/ui/ui-fix-01-kb.spec.ts:56:1 › C-P1-2 editing C during save B preserves C as dirty (45.2s)
+  ✘   72 tests/ui/ui-fix-01-kb.spec.ts:74:1 › C-P1-2 initial create B keeps typed C, then PATCHes the same document (45.1s)
+  ✘   73 tests/ui/ui-fix-01-kb.spec.ts:126:1 › C-P1-2 save and publish failures preserve text without false success (45.1s)
+  -   74 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /team
+  -   75 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /platform/support/base
+  -   76 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /inventory
+  -   77 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /rooms/categories
+  -   78 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /chessboard
+  -   79 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /reservations/new
+  -   80 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /reservations/20260913-TEST1
+  -   81 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /units/R02
+  -   82 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar
+  -   83 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar/products
+  -   84 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar/operations
+  -   85 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar/receipts
+  -   86 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar/receipts/new
+  -   87 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar/suppliers
+  -   88 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /channels/sync
+  -   89 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /channels/events
+  -   90 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /help
+  -   91 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /team
+  -   92 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /platform/support/base
+  -   93 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /inventory
+  -   94 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /rooms/categories
+  -   95 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /chessboard
+  -   96 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /reservations/new
+  -   97 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /reservations/20260913-TEST1
+  -   98 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /units/R02
+  -   99 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar
+  -  100 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar/products
+  -  101 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar/operations
+  -  102 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar/receipts
+  -  103 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar/receipts/new
+  -  104 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar/suppliers
+  -  105 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /channels/sync
+  -  106 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /channels/events
+  -  107 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /help
+  -  108 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /team
+  -  109 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /platform/support/base
+  -  110 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /inventory
+  -  111 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /rooms/categories
+  -  112 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /chessboard
+  -  113 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /reservations/new
+  -  114 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /reservations/20260913-TEST1
+  -  115 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /units/R02
+  -  116 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar
+  -  117 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar/products
+  -  118 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar/operations
+  -  119 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar/receipts
+  -  120 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar/receipts/new
+  -  121 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar/suppliers
+  -  122 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /channels/sync
+  -  123 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /channels/events
+  -  124 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /help
+  -  125 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /team
+  -  126 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /platform/support/base
+  -  127 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /inventory
+  -  128 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /rooms/categories
+  -  129 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /chessboard
+  -  130 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /reservations/new
+  -  131 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /reservations/20260913-TEST1
+  -  132 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /units/R02
+  -  133 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar
+  -  134 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar/products
+  -  135 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar/operations
+  -  136 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar/receipts
+  -  137 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar/receipts/new
+  -  138 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar/suppliers
+  -  139 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /channels/sync
+  -  140 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /channels/events
+  -  141 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /help
+
+
+  1) tests/ui/hospitality-read-only.spec.ts:15:1 › H-01: календарь сохраняет чтение и навигацию, но не предлагает команды записи 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+      3 | const main = (page: Page) => page.getByRole('main').filter({ visible: true });
+      4 |
+    > 5 | test.beforeEach(async ({ page, request }) => {
+        |      ^
+      6 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      7 |   await page.goto('/auth/fallback');
+      8 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/hospitality-read-only.spec.ts:5:6
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+       9 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      10 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 11 |   await page.waitForURL('**/finance');
+         |              ^
+      12 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { orgTrialDays: 'ended' } });
+      13 | });
+      14 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/hospitality-read-only.spec.ts:11:14
+
+    Error Context: test-results/hospitality-read-only-H-01-0e116-е-предлагает-команды-записи/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/hospitality-read-only-H-01-0e116-е-предлагает-команды-записи/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/hospitality-read-only-H-01-0e116-е-предлагает-команды-записи/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/hospitality-read-only.spec.ts:38:1 › H-01: прямые страницы брони и ячейки не показывают формы записи 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+      3 | const main = (page: Page) => page.getByRole('main').filter({ visible: true });
+      4 |
+    > 5 | test.beforeEach(async ({ page, request }) => {
+        |      ^
+      6 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      7 |   await page.goto('/auth/fallback');
+      8 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/hospitality-read-only.spec.ts:5:6
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+       9 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      10 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 11 |   await page.waitForURL('**/finance');
+         |              ^
+      12 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { orgTrialDays: 'ended' } });
+      13 | });
+      14 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/hospitality-read-only.spec.ts:11:14
+
+    Error Context: test-results/hospitality-read-only-H-01-39ccc--не-показывают-формы-записи/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/hospitality-read-only-H-01-39ccc--не-показывают-формы-записи/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/hospitality-read-only-H-01-39ccc--не-показывают-формы-записи/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/hospitality-read-only.spec.ts:56:1 › H-01: фонд и Bar оставляют просмотр без редакторов и submit-команд 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+      3 | const main = (page: Page) => page.getByRole('main').filter({ visible: true });
+      4 |
+    > 5 | test.beforeEach(async ({ page, request }) => {
+        |      ^
+      6 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      7 |   await page.goto('/auth/fallback');
+      8 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/hospitality-read-only.spec.ts:5:6
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+       9 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      10 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 11 |   await page.waitForURL('**/finance');
+         |              ^
+      12 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { orgTrialDays: 'ended' } });
+      13 | });
+      14 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/hospitality-read-only.spec.ts:11:14
+
+    Error Context: test-results/hospitality-read-only-H-01-f59aa--редакторов-и-submit-команд/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/hospitality-read-only-H-01-f59aa--редакторов-и-submit-команд/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/hospitality-read-only-H-01-f59aa--редакторов-и-submit-команд/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/hospitality-read-only.spec.ts:80:1 › H-01: Channels оставляет события доступными для чтения, но закрывает exchange и retry 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+      3 | const main = (page: Page) => page.getByRole('main').filter({ visible: true });
+      4 |
+    > 5 | test.beforeEach(async ({ page, request }) => {
+        |      ^
+      6 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      7 |   await page.goto('/auth/fallback');
+      8 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/hospitality-read-only.spec.ts:5:6
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+       9 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      10 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 11 |   await page.waitForURL('**/finance');
+         |              ^
+      12 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { orgTrialDays: 'ended' } });
+      13 | });
+      14 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/hospitality-read-only.spec.ts:11:14
+
+    Error Context: test-results/hospitality-read-only-H-01-aa7d3--закрывает-exchange-и-retry/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/hospitality-read-only-H-01-aa7d3--закрывает-exchange-и-retry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/hospitality-read-only-H-01-aa7d3--закрывает-exchange-и-retry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ui-fix-01-access.spec.ts:2:1 › C-P1-1: failed access structure blocks invitations ────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+       6 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+       7 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    >  8 |   await page.waitForURL('**/finance');
+         |              ^
+       9 |   await request.post(`${FIXTURE_API}/__test/control`, {
+      10 |     data: { failPath: '/auth/access-structure', failStatus: 503 },
+      11 |   });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-access.spec.ts:8:14
+
+    Error Context: test-results/ui-fix-01-access-C-P1-1-fa-20043-tructure-blocks-invitations/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-fix-01-access-C-P1-1-fa-20043-tructure-blocks-invitations/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-fix-01-access-C-P1-1-fa-20043-tructure-blocks-invitations/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ui-fix-01-access.spec.ts:20:1 › C-P1-1: recovery allows explicit organization scope ──
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+      24 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      25 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 26 |   await page.waitForURL('**/finance');
+         |              ^
+      27 |   await request.post(`${FIXTURE_API}/__test/control`, {
+      28 |     data: { failPath: '/auth/access-structure', failStatus: 503 },
+      29 |   });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-access.spec.ts:26:14
+
+    Error Context: test-results/ui-fix-01-access-C-P1-1-re-cd9a7-explicit-organization-scope/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-fix-01-access-C-P1-1-re-cd9a7-explicit-organization-scope/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-fix-01-access-C-P1-1-re-cd9a7-explicit-organization-scope/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/ui-fix-01-access.spec.ts:42:1 › C-P1-1 malformed successful response does not allow a broad invitation 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+      49 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      50 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 51 |   await page.waitForURL('**/finance');
+         |              ^
+      52 |   await request.post(`${FIXTURE_API}/__test/control`, {
+      53 |     data: { failPath: '/auth/access-structure', failStatus: 200 },
+      54 |   });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-access.spec.ts:51:14
+
+    Error Context: test-results/ui-fix-01-access-C-P1-1-ma-4a3fb-ot-allow-a-broad-invitation/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-fix-01-access-C-P1-1-ma-4a3fb-ot-allow-a-broad-invitation/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-fix-01-access-C-P1-1-ma-4a3fb-ot-allow-a-broad-invitation/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/ui-fix-01-access.spec.ts:61:1 › scope switch closes the old invitation and blocks commands until recovery 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+      68 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      69 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 70 |   await page.waitForURL('**/finance');
+         |              ^
+      71 |   await page.goto('/team');
+      72 |   await page.getByTestId('team-invite').click();
+      73 |   const form = page.locator('form.team-invite-form');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-access.spec.ts:70:14
+
+    Error Context: test-results/ui-fix-01-access-scope-swi-b785f-cks-commands-until-recovery/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-fix-01-access-scope-swi-b785f-cks-commands-until-recovery/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-fix-01-access-scope-swi-b785f-cks-commands-until-recovery/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/ui-fix-01-kb.spec.ts:35:1 › C-P1-2 unsaved text cannot publish ───────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+       9 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      10 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 11 |   await page.waitForURL('**/finance');
+         |              ^
+      12 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
+      13 |   await page.goto('/platform/support/base?status=DRAFT');
+      14 |   await page
+        at open (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-kb.spec.ts:11:14)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-kb.spec.ts:36:3
+
+    Error Context: test-results/ui-fix-01-kb-C-P1-2-unsaved-text-cannot-publish/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-fix-01-kb-C-P1-2-unsaved-text-cannot-publish/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-fix-01-kb-C-P1-2-unsaved-text-cannot-publish/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/ui-fix-01-kb.spec.ts:42:1 › C-P1-2 save then publish B survives reload ──────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+       9 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      10 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 11 |   await page.waitForURL('**/finance');
+         |              ^
+      12 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
+      13 |   await page.goto('/platform/support/base?status=DRAFT');
+      14 |   await page
+        at open (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-kb.spec.ts:11:14)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-kb.spec.ts:43:3
+
+    Error Context: test-results/ui-fix-01-kb-C-P1-2-save-then-publish-B-survives-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-fix-01-kb-C-P1-2-save-then-publish-B-survives-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-fix-01-kb-C-P1-2-save-then-publish-B-survives-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/ui-fix-01-kb.spec.ts:56:1 › C-P1-2 editing C during save B preserves C as dirty ─────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+       9 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      10 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 11 |   await page.waitForURL('**/finance');
+         |              ^
+      12 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
+      13 |   await page.goto('/platform/support/base?status=DRAFT');
+      14 |   await page
+        at open (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-kb.spec.ts:11:14)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-kb.spec.ts:57:3
+
+    Error Context: test-results/ui-fix-01-kb-C-P1-2-editin-a77ce-save-B-preserves-C-as-dirty/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-fix-01-kb-C-P1-2-editin-a77ce-save-B-preserves-C-as-dirty/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-fix-01-kb-C-P1-2-editin-a77ce-save-B-preserves-C-as-dirty/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/ui-fix-01-kb.spec.ts:74:1 › C-P1-2 initial create B keeps typed C, then PATCHes the same document 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+      81 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      82 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 83 |   await page.waitForURL('**/finance');
+         |              ^
+      84 |   await request.post(`${FIXTURE_API}/__test/control`, {
+      85 |     data: { platformAdmin: true, delayPath: '/platform/support/kb', delayMs: 2500 },
+      86 |   });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-kb.spec.ts:83:14
+
+    Error Context: test-results/ui-fix-01-kb-C-P1-2-initia-8b2fc-n-PATCHes-the-same-document/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-fix-01-kb-C-P1-2-initia-8b2fc-n-PATCHes-the-same-document/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-fix-01-kb-C-P1-2-initia-8b2fc-n-PATCHes-the-same-document/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/ui-fix-01-kb.spec.ts:126:1 › C-P1-2 save and publish failures preserve text without false success 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3108/today"
+    ============================================================
+
+       9 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      10 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 11 |   await page.waitForURL('**/finance');
+         |              ^
+      12 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
+      13 |   await page.goto('/platform/support/base?status=DRAFT');
+      14 |   await page
+        at open (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-kb.spec.ts:11:14)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main/tests/ui/ui-fix-01-kb.spec.ts:130:3
+
+    Error Context: test-results/ui-fix-01-kb-C-P1-2-save-a-b3a69--text-without-false-success/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-fix-01-kb-C-P1-2-save-a-b3a69--text-without-false-success/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-fix-01-kb-C-P1-2-save-a-b3a69--text-without-false-success/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13 failed
+    tests/ui/hospitality-read-only.spec.ts:15:1 › H-01: календарь сохраняет чтение и навигацию, но не предлагает команды записи 
+    tests/ui/hospitality-read-only.spec.ts:38:1 › H-01: прямые страницы брони и ячейки не показывают формы записи 
+    tests/ui/hospitality-read-only.spec.ts:56:1 › H-01: фонд и Bar оставляют просмотр без редакторов и submit-команд 
+    tests/ui/hospitality-read-only.spec.ts:80:1 › H-01: Channels оставляет события доступными для чтения, но закрывает exchange и retry 
+    tests/ui/ui-fix-01-access.spec.ts:2:1 › C-P1-1: failed access structure blocks invitations ─────
+    tests/ui/ui-fix-01-access.spec.ts:20:1 › C-P1-1: recovery allows explicit organization scope ───
+    tests/ui/ui-fix-01-access.spec.ts:42:1 › C-P1-1 malformed successful response does not allow a broad invitation 
+    tests/ui/ui-fix-01-access.spec.ts:61:1 › scope switch closes the old invitation and blocks commands until recovery 
+    tests/ui/ui-fix-01-kb.spec.ts:35:1 › C-P1-2 unsaved text cannot publish ────────────────────────
+    tests/ui/ui-fix-01-kb.spec.ts:42:1 › C-P1-2 save then publish B survives reload ────────────────
+    tests/ui/ui-fix-01-kb.spec.ts:56:1 › C-P1-2 editing C during save B preserves C as dirty ───────
+    tests/ui/ui-fix-01-kb.spec.ts:74:1 › C-P1-2 initial create B keeps typed C, then PATCHes the same document 
+    tests/ui/ui-fix-01-kb.spec.ts:126:1 › C-P1-2 save and publish failures preserve text without false success 
+  68 skipped
+  60 passed (12.2m)
+
+# код выхода 1 · 12 мин 11 с

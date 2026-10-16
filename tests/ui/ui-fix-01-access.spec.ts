@@ -5,7 +5,7 @@ test('C-P1-1: failed access structure blocks invitations', async ({ page, reques
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await request.post(`${FIXTURE_API}/__test/control`, {
     data: { failPath: '/auth/access-structure', failStatus: 503 },
   });
@@ -23,7 +23,7 @@ test('C-P1-1: recovery allows explicit organization scope', async ({ page, reque
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await request.post(`${FIXTURE_API}/__test/control`, {
     data: { failPath: '/auth/access-structure', failStatus: 503 },
   });
@@ -48,7 +48,7 @@ test('C-P1-1 malformed successful response does not allow a broad invitation', a
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await request.post(`${FIXTURE_API}/__test/control`, {
     data: { failPath: '/auth/access-structure', failStatus: 200 },
   });
@@ -67,7 +67,7 @@ test('scope switch closes the old invitation and blocks commands until recovery'
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await page.goto('/team');
   await page.getByTestId('team-invite').click();
   const form = page.locator('form.team-invite-form');

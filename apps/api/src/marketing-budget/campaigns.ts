@@ -65,7 +65,7 @@ export interface CampaignView {
   impressions: number;
   clicks: number;
   leads: number;
-  /** Кампания из рекламного кабинета (§54): правит только сверка */
+  /** Кампания из рекламного кабинета (§55): правит только сверка */
   fromCabinet: boolean;
   /** Расход по кабинету за месяц, minor units его валюты; null у ручных кампаний */
   cabinetSpend: string | null;

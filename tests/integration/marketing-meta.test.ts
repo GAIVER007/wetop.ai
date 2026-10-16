@@ -16,7 +16,7 @@ import { purgeAuditRows } from '../tools/audit-purge';
 import { isLocalDatabase } from '../tools/seed-local';
 
 /**
- * Кабинет Meta (DATA_MODEL §54, ADR-MKT-META) на настоящей базе с поддельным шлюзом (сети нет): вход, ключ шифром,
+ * Кабинет Meta (DATA_MODEL §55, ADR-MKT-META) на настоящей базе с поддельным шлюзом (сети нет): вход, ключ шифром,
  * сверка в §53 без дублей, след сверок, потеря доступа и предел площадки, отключение. Данные вымышленные (ADR-010).
  */
 process.env.PII_ENCRYPTION_KEY ||= 'test-key-for-meta-integration-only';

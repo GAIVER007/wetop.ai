@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { ApiError, metaConnectionApi } from '../../../../../lib/api';
 
 /**
- * Адрес возврата из окна входа Facebook (DATA_MODEL §54, ADR-MKT-META): код и state уходят в API стойки, которое
+ * Адрес возврата из окна входа Facebook (DATA_MODEL §55, ADR-MKT-META): код и state уходят в API стойки, которое
  * проверяет state (тот же человек и филиал, не старше 10 минут), меняет код на ключ и подключает кабинет. Код в адресе
  * страницы не остаётся: ответ уводит на «Рекламу» с итогом словами.
  */

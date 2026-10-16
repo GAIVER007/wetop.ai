@@ -4956,7 +4956,7 @@ interface FixtureCampaign {
   days: Map<string, { impressions: number; clicks: number; leads: number }>;
 }
 const fixtureCampaigns: FixtureCampaign[] = [];
-/** Кабинет Meta (§54): приложение «настроено», вход Facebook подставной (state fixture-state), ключа нет вовсе */
+/** Кабинет Meta (§55): приложение «настроено», вход Facebook подставной (state fixture-state), ключа нет вовсе */
 let fixtureMeta: { adAccountId: string; status: 'ACTIVE' | 'FAILED'; lastSyncedAt: string } | null = null;
 /** Разбивка плана по каналам (§52): первое число месяца → строки */
 const budgetLines = new Map<string, Array<{ platform: string; amount: string }>>();

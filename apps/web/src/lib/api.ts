@@ -4038,7 +4038,7 @@ export interface MarketingCampaignView {
   impressions: number;
   clicks: number;
   leads: number;
-  /** Кампания из рекламного кабинета (§54): правит только сверка */
+  /** Кампания из рекламного кабинета (§55): правит только сверка */
   fromCabinet?: boolean;
   /** Расход по кабинету за месяц, тиыны валюты кабинета; null у ручных */
   cabinetSpend?: string | null;
@@ -4053,7 +4053,7 @@ export interface MarketingCampaignsView {
   campaigns: MarketingCampaignView[];
 }
 
-/** Кабинет Meta филиала (DATA_MODEL §54, ADR-MKT-META); ключ наружу не отдаётся никогда */
+/** Кабинет Meta филиала (DATA_MODEL §55, ADR-MKT-META); ключ наружу не отдаётся никогда */
 export interface MetaConnectionView {
   /** false: владелец платформы ещё не вписал ключи приложения Meta */
   configured: boolean;

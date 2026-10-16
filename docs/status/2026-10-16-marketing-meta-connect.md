@@ -1,4 +1,4 @@
-**16.10.2026, ветка `claude/marketing-meta-connect`: кабинет Meta, часть 2: вход через Facebook, сверка и экран (DATA_MODEL §54, ADR-MKT-META).**
+**16.10.2026, ветка `claude/marketing-meta-connect`: кабинет Meta, часть 2: вход через Facebook, сверка и экран (DATA_MODEL §55, ADR-MKT-META).**
 
 Продолжение части 1 (PR #586, ветка стоит поверх неё). План `plans/marketing-meta-ads-integration-2026-10-16.md` §4a.
 

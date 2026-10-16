@@ -9,7 +9,7 @@ import { disconnectMetaAction, startMetaAction, syncMetaAction } from '../budget
 import { useBudgetAction, useFileAction } from '../budget/drawers';
 
 /**
- * Кабинет Meta на «Рекламе» (DATA_MODEL §54, ADR-MKT-META): подключение по номеру кабинета через вход Facebook,
+ * Кабинет Meta на «Рекламе» (DATA_MODEL §55, ADR-MKT-META): подключение по номеру кабинета через вход Facebook,
  * состояние, «Обновить» и «Отключить». Ключ на стойку не приходит никогда.
  */
 export function MetaCabinet({ view, editable }: { view: MetaConnectionView; editable: boolean }) {

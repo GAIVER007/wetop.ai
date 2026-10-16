@@ -27,7 +27,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { MARKETING_BUDGET_REPOSITORY, type MarketingBudgetRepository } from './marketing-budget.repository';
 
 /**
- * Рекламный кабинет Meta филиала (DATA_MODEL §54, ADR-MKT-META, план `plans/marketing-meta-ads-integration-2026-10-16.md`):
+ * Рекламный кабинет Meta филиала (DATA_MODEL §55, ADR-MKT-META, план `plans/marketing-meta-ads-integration-2026-10-16.md`):
  * вход через Facebook Login for Business, ключ SUAT только шифром, сверка кампаний по дням в §53 (источник `META`) ночью
  * и по кнопке. Код площадки только в `@pms/integrations` (ADR-004); здесь шлюз, который тесты подменяют.
  */

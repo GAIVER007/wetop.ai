@@ -86,3 +86,14 @@ export async function savePortal(target: PortalTarget, scope: string, command: s
     return { error: error instanceof ApiError && error.status < 500 ? error.message : 'Не удалось подтвердить сохранение. Ввод сохранён. Проверьте результат перед повтором.' };
   }
 }
+
+/** Read-only comparison. The draft's original revision is never refreshed by savePortal. */
+export async function loadPortalWeek(target: PortalTarget, scope: string): Promise<PortalResult> {
+  try {
+    if (scope !== ((await requestScopeHeader())['x-wetop-scope'] ?? '')) return { error: 'Филиал изменился. Откройте карточку заново.' };
+    return { data: await employeePortalApi.load(target) };
+  } catch (error) {
+    unstable_rethrow(error);
+    return { error: 'Не удалось перечитать график. Ваш ввод сохранён.' };
+  }
+}

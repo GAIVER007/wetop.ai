@@ -199,7 +199,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
       for (const fn of [
         () => catalog.createService(svc),
         () => catalog.createEmployee({ name: 'No write' }),
-        () => schedule.setWorkingHours(employee, { intervals: [] }),
+        async () => schedule.setWorkingHours(employee, { expectedRevision: (await schedule.overview(employee)).weekRevision, intervals: [] }),
         () => appointments.create(input()),
       ])
         await expect(run<unknown>(fn)).rejects.toThrow();
@@ -369,7 +369,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
         () => catalog.createEmployee({ name: 'No write' }),
         () => catalog.updateEmployee(employee, { active: false }),
         () => catalog.setEmployeeServices(employee, { serviceIds: [] }),
-        () => schedule.setWorkingHours(employee, { intervals: [] }),
+        async () => schedule.setWorkingHours(employee, { expectedRevision: (await schedule.overview(employee)).weekRevision, intervals: [] }),
         () => schedule.addTimeOff(employee, { dateFrom: timeOffDay, dateTo: timeOffDay }),
         () => schedule.removeTimeOff(employee, off.timeOffs[0]!.id),
         () => schedule.setLocations(employee, { locationIds: [] }),

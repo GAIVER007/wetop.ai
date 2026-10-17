@@ -59,7 +59,7 @@ describe('оплата записи салона (integration, §49)', () => {
     cheap = (await as(() => catalog.createService({ name: 'Чёлка', durationMinutes: 60, priceMinor: '200000', currency: 'KZT' }))).id;
     await as(() => catalog.setEmployeeServices(employeeId, { serviceIds: [pricey, cheap] }));
     for (const s of [pricey, cheap]) await as(() => catalog.setLocationService(s, { enabled: true }));
-    await as(() => new BeautyScheduleService(prisma).setWorkingHours(employeeId, { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }));
+    await as(async () => new BeautyScheduleService(prisma).setWorkingHours(employeeId, { expectedRevision: (await new BeautyScheduleService(prisma).overview(employeeId)).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }));
   });
   afterAll(async () => db?.$disconnect());
 

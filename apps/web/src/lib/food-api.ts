@@ -158,8 +158,8 @@ export const restaurantApi = {
     body: { name?: string; phone?: string | null; email?: string | null; status?: string; expectedProfileRevision: string },
   ) => sendJson<FoodEmployee>('PATCH', idPath('employees', id), body),
   shifts: () => getJsonPublic<{ employees: FoodShiftRow[] }>(`${base}/shifts`),
-  setShifts: (id: string, intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>) =>
-    sendJson<{ week: FoodShiftWeekDay[] }>('PUT', `${idPath('employees', id)}/working-hours`, { intervals }),
+  setShifts: (id: string, intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>, expectedRevision: string) =>
+    sendJson<{ week: FoodShiftWeekDay[]; weekRevision: string }>('PUT', `${idPath('employees', id)}/working-hours`, { intervals, expectedRevision }),
   payroll: (month: string) => getJsonPublic<PayrollView>(`${base}/payroll?month=${month}`),
   setPaySettings: (id: string, body: { model: PayModel; fixedMinor: number; percent: number }) =>
     sendJson<unknown>('PUT', `${idPath('employees', id)}/pay-settings`, body),

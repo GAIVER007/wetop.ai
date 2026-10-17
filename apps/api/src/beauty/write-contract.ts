@@ -1,6 +1,7 @@
 import { createHash, createHmac } from 'node:crypto';
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import type { DbTx, Prisma } from '@pms/database';
+import { readEmployeeWeekSource } from '../employee-portal/employee-common';
 import { currentUserId } from '../auth/request-context';
 import { UUID, type BeautyScope } from './scope';
 
@@ -18,6 +19,15 @@ export function assertRevision(raw: unknown, current: string): void {
     throw new ConflictException(
       'Данные изменены в другом окне. Сравните с актуальными данными перед сохранением.',
     );
+}
+/** Weekly writes always submit the original read token, including an empty week. */
+export function assertWeekRevision(raw: unknown, current: string): void {
+  if (!raw || typeof raw !== 'object' || typeof (raw as Record<string, unknown>).expectedRevision !== 'string')
+    throw new BadRequestException('Пришлите исходную версию графика');
+  assertRevision(raw, current);
+}
+export function hoursRowsRevision(rows: ReadonlyArray<{ id: string; weekday: number; timeFrom: Date; timeTo: Date }>, sourceRevision: string): string {
+  return canonicalRevision([sourceRevision, [...rows].sort((a,b) => a.weekday - b.weekday || a.timeFrom.getTime() - b.timeFrom.getTime()).map(r => [r.id, r.weekday, r.timeFrom.toISOString(), r.timeTo.toISOString()])]);
 }
 export function creationKey(raw: unknown): string | null {
   const value =
@@ -100,18 +110,12 @@ export async function skillsRevision(
   return canonicalRevision(rows.map((r) => [r.serviceId, r.createdAt.toISOString()]));
 }
 export async function hoursRevision(
-  tx: Pick<DbTx, 'workingHours'>,
+  tx: Pick<DbTx, '$queryRaw'>,
   employeeId: string,
   locationId: string,
 ): Promise<string> {
-  const rows = await tx.workingHours.findMany({
-    where: { employeeId, locationId },
-    orderBy: [{ weekday: 'asc' }, { timeFrom: 'asc' }],
-    select: { id: true, weekday: true, timeFrom: true, timeTo: true },
-  });
-  return canonicalRevision(
-    rows.map((r) => [r.id, r.weekday, r.timeFrom.toISOString(), r.timeTo.toISOString()]),
-  );
+  const snapshot = await readEmployeeWeekSource(tx, employeeId, locationId);
+  return hoursRowsRevision(snapshot.rows, snapshot.sourceRevision);
 }
 
 /** An old retained receipt reserves the operation even if its resource was administratively removed. */

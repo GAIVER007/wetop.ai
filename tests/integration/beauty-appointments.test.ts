@@ -124,8 +124,8 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
     await as('OWNER', () => catalog.setEmployeeServices(employeeId, { serviceIds: [serviceId] }));
     await as('OWNER', () => catalog.setLocationService(serviceId, { enabled: true }));
     // понедельник с 09:00 до 18:00
-    await as('OWNER', () =>
-      schedule.setWorkingHours(employeeId, { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }),
+    await as('OWNER', async () =>
+      schedule.setWorkingHours(employeeId, { expectedRevision: (await schedule.overview(employeeId)).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }),
     );
   });
 

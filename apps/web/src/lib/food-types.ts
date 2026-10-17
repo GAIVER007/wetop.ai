@@ -347,6 +347,7 @@ export interface FoodShiftRow {
   id: string;
   name: string;
   week: FoodShiftWeekDay[];
+  weekRevision: string;
 }
 export type PayModel = 'FIXED' | 'PERCENT' | 'FIXED_PLUS_PERCENT' | 'BONUS_ONLY';
 export interface PayrollRow {

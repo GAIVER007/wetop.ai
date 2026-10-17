@@ -50,3 +50,37 @@ export async function writeEmployeeCommon(tx: DbTx, businessId: string, id: stri
   }
   return { before, after: before, changed };
 }
+
+/** Atomic employee source + weekly rows, including a source for an empty week.
+ * One SQL statement prevents pairing old displayed rows with a newer writer token.
+ */
+export async function readEmployeeWeekSource(db: Pick<DbTx, '$queryRaw'>, id: string, locationId: string) {
+  const values = await db.$queryRaw<Array<{
+    sourceRevision: string; id: string | null; weekday: number | null;
+    timeFrom: Date | null; timeTo: Date | null;
+  }>>`
+    SELECT to_char(e.updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "sourceRevision",
+      h.id::text, h.weekday, h.time_from AS "timeFrom", h.time_to AS "timeTo"
+    FROM employees e LEFT JOIN working_hours h
+      ON h.employee_id=e.id AND h.location_id=${locationId}::uuid
+    WHERE e.id=${id}::uuid
+    ORDER BY h.weekday, h.time_from, h.id
+  `;
+  if (!values[0]) throw new NotFoundException('Сотрудник не найден');
+  return { sourceRevision: values[0].sourceRevision, rows: values.flatMap(r => r.id === null ? [] : [{
+    id: r.id, weekday: r.weekday!, timeFrom: r.timeFrom!, timeTo: r.timeTo!,
+  }]) };
+}
+
+/** Caller holds employee FOR UPDATE in the surrounding authorized transaction.
+ * Every weekly save advances, even empty -> empty. Also invalidates profile tokens.
+ */
+export async function touchEmployeeSourceRevision(tx: DbTx, id: string): Promise<string> {
+  const [saved] = await tx.$queryRaw<Array<{ sourceRevision: string }>>`
+    UPDATE employees SET updated_at=GREATEST(clock_timestamp(), updated_at + INTERVAL '1 microsecond')
+    WHERE id=${id}::uuid
+    RETURNING to_char(updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "sourceRevision"
+  `;
+  if (!saved) throw new NotFoundException('Сотрудник не найден');
+  return saved.sourceRevision;
+}

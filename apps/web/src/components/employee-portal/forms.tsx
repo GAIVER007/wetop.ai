@@ -1,7 +1,7 @@
 'use client';
 import { useState, useTransition, type ReactNode } from 'react';
 import type { EmployeePortalDto, PortalWeekDay } from '@pms/domain';
-import { savePortal } from '../../app/my-work/actions';
+import { loadPortalWeek, savePortal } from '../../app/my-work/actions';
 import { Alert, Button, Input } from '../ui';
 export type PortalContext = {
   target: { employeeId: string | null }; scope: string; onSaved: (data: EmployeePortalDto) => void;
@@ -57,8 +57,12 @@ export function PortalForm({ context, command, children, label = 'Сохрани
 const DAYS = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
 export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[]; revision: string | null; context: PortalContext }) {
   const [days, setDays] = useState(() => [1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] })));
+  const [originalRevision, setOriginalRevision] = useState(revision);
+  const [comparison, setComparison] = useState<EmployeePortalDto | null>(null);
+  const [readError, setReadError] = useState('');
+  const [reading, reread] = useTransition();
   const intervals = days.flatMap(day => day.intervals.map(slot => ({ weekday: day.weekday, ...slot })));
-  return <PortalForm context={context} command="week" revision={revision} label="Сохранить график">
+  return <><PortalForm key={originalRevision} context={context} command="week" revision={originalRevision} label="Сохранить график">
     <p className="portal-week-help">Рабочие часы по дням. Нет интервалов: выходной.</p>
     <input type="hidden" name="intervals" value={JSON.stringify(intervals)} />
     {days.map(day => <div className="portal-week-row" key={day.weekday} role="group" aria-label={DAYS[day.weekday]}>
@@ -73,5 +77,21 @@ export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[];
       </div>
       <Button type="button" tone="secondary" aria-label={`${DAYS[day.weekday]}: добавить интервал`} onClick={() => setDays(prev => prev.map(d => d.weekday === day.weekday ? { ...d, intervals: [...d.intervals, { timeFrom: '', timeTo: '' }] } : d))}><span aria-hidden="true">+</span><span className="portal-add-label"> Ещё время</span></Button>
     </div>)}
-  </PortalForm>;
+  </PortalForm>
+    <Button type="button" tone="secondary" disabled={reading} onClick={() => reread(async () => {
+      const result = await loadPortalWeek(context.target, context.scope);
+      setReadError(result.error ?? '');
+      if (result.data) setComparison(result.data);
+    })}>Сравнить с актуальным графиком</Button>
+    {readError && <Alert>{readError}</Alert>}
+    {comparison && <section aria-label="Сохранено на сервере">
+      <h3>Сохранено на сервере</h3>
+      <ul>{comparison.week.map(day => <li key={day.weekday}>{DAYS[day.weekday]}: {day.intervals.map(i => `${i.timeFrom} до ${i.timeTo}`).join(', ') || 'Выходной'}</li>)}</ul>
+      <p>Ваш ввод остаётся в форме. Принятие сохранённого графика заменит черновик.</p>
+      <Button type="button" tone="secondary" onClick={() => {
+        setDays([1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: comparison.week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] })));
+        setOriginalRevision(comparison.weekRevision); setComparison(null);
+      }}>Принять сохранённый график</Button>
+    </section>}
+  </>;
 }

@@ -65,7 +65,8 @@ test('PR638 stale grid rejects repeated writes without replacing the competing w
   // Do not reload or inject competing.weekRevision into the still-open stale UI.
   for (let attempt = 0; attempt < 2; attempt++) {
     await monday.uncheck();
-    await expect(page.getByRole('alert')).toContainText('Данные изменены в другом окне');
+    await expect(page.getByRole('alert').filter({ hasText: 'Данные изменены в другом окне' }))
+      .toContainText('Данные изменены в другом окне');
     await expect(monday).toBeChecked();
     const stored = await read(); // Assertion only: this GET never updates the editor's token.
     expect(stored.weekRevision).toBe(competing.weekRevision);

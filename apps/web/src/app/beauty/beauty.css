@@ -187,9 +187,9 @@
   /* Сетка графика (17.10.2026): неделя по датам, ячейка «Работает» мягким зелёным, «Не работает» мягким красным */
   .beauty-week-nav {
     display: flex;
-    gap: 8px;
+    gap: var(--space-2);
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
   }
   .beauty-week-grid td.is-on {
     background: var(--success-soft);

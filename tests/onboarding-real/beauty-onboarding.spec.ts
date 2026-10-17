@@ -120,7 +120,8 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
     page.getByText('Выполнено 3 из 4 обязательных шагов', { exact: true }),
   ).toBeVisible();
   await page.getByRole('link', { name: 'Настроить график', exact: true }).click();
-  await page.getByRole('button', { name: 'Изменить график', exact: true }).click();
+  // график это сетка недели: часы мастера открываются по его имени (17.10.2026)
+  await page.getByRole('main').getByRole('button', { name: 'Тестовый Мастер', exact: true }).click();
   dialog = page.getByRole('dialog');
   const monday = dialog.getByRole('group', { name: 'Понедельник', exact: true });
   await monday.getByRole('button', { name: 'Сделать рабочим', exact: true }).click();
@@ -416,7 +417,7 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   try {
     for (const tab of [a, b]) {
       await tab.goto(`/beauty/schedule?employee=${firstId}`);
-      await tab.getByRole('button', { name: 'Изменить график', exact: true }).click();
+      await tab.getByRole('main').getByRole('button', { name: 'Мастер Частичный', exact: true }).click();
     }
     await a.getByRole('dialog').getByLabel('Понедельник: конец').fill('13:00');
     await a

@@ -99,9 +99,9 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         <Link
           className="btn btn--secondary btn--sm"
           href={`?week=${shift(-7)}`}
-          aria-label="Предыдущая неделя"
+         
         >
-          ‹
+          Прошлая неделя
         </Link>
         <span data-testid="beauty-week-range">
           {label(days[0]!.date)} – {label(days[6]!.date)}
@@ -109,9 +109,9 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         <Link
           className="btn btn--secondary btn--sm"
           href={`?week=${shift(7)}`}
-          aria-label="Следующая неделя"
+         
         >
-          ›
+          Следующая неделя
         </Link>
       </nav>
       <p className="beauty-note">

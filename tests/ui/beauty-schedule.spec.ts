@@ -133,7 +133,7 @@ test('сетка недели: переключатель делает день 
   await expect(cell(page, 'Дина', 2)).toContainText('09:00–18:00');
   // правило недели: следующая среда тоже рабочая
   const range = await main.getByTestId('beauty-week-range').textContent();
-  await main.getByRole('link', { name: 'Следующая неделя' }).click();
+  await main.getByRole('link', { name: 'Следующая неделя', exact: true }).click();
   await expect(main.getByTestId('beauty-week-range')).not.toHaveText(range ?? '');
   await expect(cell(page, 'Дина', 2)).toContainText('Работает');
   await cell(page, 'Дина', 2).getByRole('switch').uncheck();

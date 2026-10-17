@@ -1,0 +1,31 @@
+# Модульные (unit) · 17.10.2026 09:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 076f56e (claude/beauty-csv), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-17-51Z-unit-aa38.json' 'apps/web/src/app/finance/appointments-csv.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ❯ |unit| apps/web/src/app/finance/appointments-csv.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/finance/appointments-csv.test.ts [ apps/web/src/app/finance/appointments-csv.test.ts ]
+Error: Cannot find module './appointments-csv' imported from /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/web/src/app/finance/appointments-csv.test.ts
+ ❯ apps/web/src/app/finance/appointments-csv.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import type { BeautyDay } from '../../lib/api';
+      3| import { appointmentsCsv } from './appointments-csv';
+       | ^
+      4|
+      5| const row = (over: Partial<BeautyDay['appointments'][number]>) =>
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  21:17:53
+   Duration  90ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-17-51Z-unit-aa38.json
+
+# код выхода 1 · 2 с

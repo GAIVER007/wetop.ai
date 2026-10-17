@@ -1,0 +1,11 @@
+# Линтер (lint) · 17.10.2026 09:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 076f56e (claude/beauty-csv), незакоммиченных файлов набора: 5
+# npx eslint .
+
+/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/web/src/app/finance/appointments-csv.ts
+  35:11  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 21 с

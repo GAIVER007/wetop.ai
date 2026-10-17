@@ -237,6 +237,15 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await expect(panel.getByTestId('beauty-card-refunded')).toHaveText('2 000 ₸');
   expect((await new AxeBuilder({ page }).include('dialog[open]').analyze()).violations).toEqual([]);
   await page.keyboard.press('Escape');
+  // выгрузка записей в CSV (Q-BS-6): суммы записи есть, имени клиента в файле нет
+  // ссылка экрана берёт его 7 дней; запись сценария в будущем, поэтому файл берём по её дню той же сессией
+  await page.goto('/finance');
+  await expect(page.getByRole('link', { name: 'Выгрузить записи (CSV)' })).toHaveAttribute('href', /\/finance\/export-appointments\?from=/);
+  const exported = await page.request.get(`/finance/export-appointments?from=${day}&to=${day}`);
+  expect(exported.headers()['content-type']).toContain('text/csv');
+  const csv = await exported.text();
+  expect(csv).toContain('Завершена;12000,00;5000,00;2000,00');
+  expect(csv).not.toContain('Тестовая клиентка');
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();

@@ -1,0 +1,49 @@
+# Сквозные (e2e) · 17.10.2026 09:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 076f56e (claude/beauty-csv), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' 'tests/beauty-ui/beauty.spec.ts' '-g' 'empty setup through real UI'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:23691) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete (23.7s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "Завершена;12000,00;5000,00;2000,00"
+    Received string:    "﻿Дата;Время;Мастер;Услуга;Статус;Цена, ₸;Оплачено, ₸;Возвращено, ₸"
+
+      245 |   ]);
+      246 |   const csv = (await import('node:fs')).readFileSync((await download.path())!, 'utf8');
+    > 247 |   expect(csv).toContain('Завершена;12000,00;5000,00;2000,00');
+          |               ^
+      248 |   expect(csv).not.toContain('Тестовая клиентка');
+      249 |   await page.goto('/customers');
+      250 |   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/beauty.spec.ts:247:15
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+# код выхода 1 · 33 с

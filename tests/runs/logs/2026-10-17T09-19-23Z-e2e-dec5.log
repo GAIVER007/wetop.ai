@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 17.10.2026 14:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5417daa (claude/onboarding-real-salon)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.config.ts' '-g' 'O01/O04|O07/O08'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:27687) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/onboarding-real/beauty-onboarding.spec.ts:60:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar (34.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1599912946'
+[WebServer] }
+  ✓  2 tests/onboarding-real/beauty-onboarding.spec.ts:208:1 › O07/O08: partial assignment and a lost create response recover one Employee ID (7.2s)
+
+
+  1) tests/onboarding-real/beauty-onboarding.spec.ts:60:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByText('График сохранён', { exact: true })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByText('График сохранён', { exact: true }) with timeout 20000ms
+      - waiting for getByRole('dialog').getByText('График сохранён', { exact: true })
+
+
+      112 |   await monday.getByLabel('Понедельник: конец').fill('18:00');
+      113 |   await dialog.getByRole('button', { name: 'Сохранить график', exact: true }).click();
+    > 114 |   await expect(dialog.getByText('График сохранён', { exact: true })).toBeVisible();
+          |                                                                      ^
+      115 |   await page.keyboard.press('Escape');
+      116 |   await page.getByRole('link', { name: 'Вернуться к настройке салона', exact: true }).click();
+      117 |   await expect(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-ob/tests/onboarding-real/beauty-onboarding.spec.ts:114:70
+
+    Error Context: test-results/beauty-onboarding-O01-O04--a6119-auty-setup-working-calendar/error-context.md
+
+  1 failed
+    tests/onboarding-real/beauty-onboarding.spec.ts:60:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar 
+  1 passed (47.9s)
+
+# код выхода 1 · 49 с

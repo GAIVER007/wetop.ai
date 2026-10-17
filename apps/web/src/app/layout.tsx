@@ -32,7 +32,10 @@ import { Page } from '../components/page';
 import { ApiError } from '../lib/api';
 import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
 import { isPublicEntryPath } from '../lib/public-entry';
-import { WorkspaceSessionBoundary } from '../components/workspace-session-boundary';
+import {
+  PublicEntryExit,
+  WorkspaceSessionBoundary,
+} from '../components/workspace-session-boundary';
 import { DevAgentation } from '../components/dev-agentation';
 import { inter } from './fonts';
 
@@ -90,7 +93,9 @@ export default async function RootLayout({
         <body>
           <ClearAssistantOnPublicEntry />
           <ThemeProvider>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <PublicEntryExit>{children}</PublicEntryExit>
+            </ToastProvider>
           </ThemeProvider>
           {process.env.APP_UI_TEST !== '1' && <DevAgentation />}
         </body>

@@ -59,9 +59,8 @@ describe('меню салона', () => {
       '/marketing/analytics',
       '/reports',
       '/management/analytics',
-      '/connections',
+      // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
       '/journal',
-      '/incidents',
       '/help',
       '/profile',
     ]);

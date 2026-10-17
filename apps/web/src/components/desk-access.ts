@@ -2,6 +2,7 @@
 import { createContext, createElement, use, useContext, type ReactNode } from 'react';
 import type { Permission } from '@pms/domain';
 import type { DeskShell } from '../lib/desk-person';
+import type { WebVertical } from '../lib/vertical-landing';
 import { CLOSED_ACCESS, mayAccess, type NavigationAccess } from '../lib/navigation';
 
 /**
@@ -38,4 +39,10 @@ export function useDeskAccessWhen(needed: boolean): NavigationAccess | null {
 /** Есть ли у вошедшего право (DATA_MODEL §16.5) */
 export function useMay(permission: Permission): boolean {
   return mayAccess(useDeskAccess(), permission);
+}
+
+/** Направление выбранного филиала; вне макета гостиница, как `CLOSED_SHELL` */
+export function useDeskVertical(): WebVertical {
+  const desk = useContext(DeskAccess);
+  return desk ? use(desk).vertical : 'HOSPITALITY';
 }

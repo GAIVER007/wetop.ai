@@ -641,11 +641,9 @@ export const beautyMenuSections: MenuSection[] = [
     id: 'settings',
     label: 'Настройки',
     icon: 'settings' as IconName,
-    items: [
-      menuItem('/connections'),
-      menuItem('/journal'),
-      menuItem('/incidents'),
-    ],
+    // «Подключения» и «Неисправности» пока только гостиничные (Channex): страницы салону их не открывают
+    // и уводили на «Главную» (аудит платформы 17.10.2026, Д1). Вернутся с подключениями направления
+    items: [menuItem('/journal')],
   },
   direct('help', '/help', 'help'),
   direct('profile', '/profile', 'guests'),
@@ -710,12 +708,8 @@ export const foodMenuSections: MenuSection[] = [
     id: 'settings',
     label: 'Настройки',
     icon: 'settings' as IconName,
-    items: [
-      menuItem('/restaurant-settings'),
-      menuItem('/connections'),
-      menuItem('/journal'),
-      menuItem('/incidents'),
-    ],
+    // без «Подключений» и «Неисправностей»: см. салон выше (Д1)
+    items: [menuItem('/restaurant-settings'), menuItem('/journal')],
   },
   direct('help', '/help', 'help'),
   direct('profile', '/profile', 'guests'),

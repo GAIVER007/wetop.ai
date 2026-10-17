@@ -39,9 +39,8 @@ describe('Food workspace isolation', () => {
       '/reports',
       '/management/analytics',
       '/restaurant-settings',
-      '/connections',
+      // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
       '/journal',
-      '/incidents',
       '/help',
       '/profile',
     ]);
@@ -60,7 +59,7 @@ describe('Food workspace isolation', () => {
       'Помощь',
       'Профиль',
     ]);
-    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 4, 4, 2, 5, 2, 4]);
+    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 4, 4, 2, 5, 2, 2]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],

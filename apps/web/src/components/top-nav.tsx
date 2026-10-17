@@ -1,7 +1,7 @@
 'use client';
 import { landingForVertical } from '../lib/vertical-landing';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Suspense, use, useEffect, useRef, useState, type ReactNode, type MouseEvent } from 'react';
 import { Icon } from './icon';
 import { Sidebar } from './shell/sidebar';
@@ -35,7 +35,6 @@ export function TopNav({
   const path = usePathname() ?? '';
   const menuDestination = useRef<string | null>(null);
   const cancelMenuFocus = useRef<(() => void) | null>(null);
-  const router = useRouter();
   const shell = desk ? use(desk) : null;
   const scopeKey = shell?.scopeKey ?? 'unresolved';
   const [blockedScope, setBlockedScope] = useState<string | null>(null);
@@ -106,9 +105,8 @@ export function TopNav({
           local.select();
           return;
         }
-        if (food) router.push('/table-reservations');
-        else if (beauty) router.push('/appointments');
-        else setSearch((s) => !s);
+        // один быстрый поиск у всех направлений (аудит платформы 17.10.2026, Д3)
+        setSearch((s) => !s);
       }
       if (e.key === 'Escape' && profileMenu.current) {
         setProfile(false);
@@ -117,7 +115,7 @@ export function TopNav({
     };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
-  }, [path, beauty, food, router]);
+  }, [path]);
   useEffect(() => {
     setProfile(false);
     setMenu(false);
@@ -216,24 +214,12 @@ export function TopNav({
               <button
                 className="workspace-search"
                 data-tour="search"
-                aria-label={
-                  food ? 'Найти бронирование' : beauty ? 'Найти запись' : 'Найти гостя или бронь'
-                }
-                onClick={() =>
-                  food
-                    ? router.push('/table-reservations')
-                    : beauty
-                      ? router.push('/appointments')
-                      : setSearch(true)
-                }
+                aria-label={beauty || food ? 'Найти раздел' : 'Найти гостя или бронь'}
+                onClick={() => setSearch(true)}
               >
                 <Icon name="search" />
                 <span className="workspace-search-full">
-                  {food
-                    ? 'Поиск бронирования или гостя'
-                    : beauty
-                      ? 'Поиск записи или клиента'
-                      : 'Поиск гостя, брони, номера...'}
+                  {beauty || food ? 'Поиск раздела' : 'Поиск гостя, брони, номера...'}
                 </span>
                 <span className="workspace-search-short" aria-hidden="true">
                   Поиск
@@ -362,7 +348,7 @@ export function TopNav({
           <Sidebar property={property} path={path} close={() => setMenu(false)} desk={desk} />
         </Overlay>
         <Suspense fallback={null}>
-          {hospitality && (
+          {!scopeSwitching && !shell?.access.unknown && (
             <GrantedSearch desk={desk} open={search} close={() => setSearch(false)} />
           )}
         </Suspense>
@@ -445,7 +431,7 @@ function GrantedSearch({
   close: () => void;
 }) {
   const shell = desk ? use(desk) : null;
-  return <GlobalSearch {...props} access={shell?.access} />;
+  return <GlobalSearch {...props} access={shell?.access} vertical={shell?.vertical} />;
 }
 
 /**

@@ -1,0 +1,21 @@
+# Типы (typecheck) · 17.10.2026 10:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0766123 (claude/d1-menu-routes), незакоммиченных файлов набора: 8
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/components/primitives-ds1c.test.ts(373,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '{ desk: never; }' is not assignable to parameter of type 'Attributes & { desk: Promise<DeskShell>; children: ReactNode; }'.
+      Property 'children' is missing in type '{ desk: never; }' but required in type '{ desk: Promise<DeskShell>; children: ReactNode; }'.
+
+# код выхода 1 · 29 с

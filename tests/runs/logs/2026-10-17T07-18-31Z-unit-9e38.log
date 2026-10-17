@@ -1,0 +1,27 @@
+# Модульные (unit) · 17.10.2026 12:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит b532b26 (claude/d9-booking-agent-check), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T07-18-31Z-unit-9e38.json' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d9
+
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 22ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (3 tests) 4ms
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (14 tests) 59ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (20 tests) 116ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 155ms
+
+ Test Files  6 passed (6)
+      Tests  109 passed (109)
+   Start at  00:18:32
+   Duration  1.44s (transform 55%, import 38%, tests 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T07-18-31Z-unit-9e38.json
+
+# код выхода 0 · 2 с

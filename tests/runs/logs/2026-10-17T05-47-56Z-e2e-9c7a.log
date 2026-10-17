@@ -1,0 +1,93 @@
+# Сквозные (e2e) · 17.10.2026 10:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7f309bb (claude/d3-search)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/ui31-shell.spec.ts' '--workers=1' '-g' 'Д3'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: hotel поиск открывает быстрый поиск по своему меню (1.3s)
+  ✘  2 tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: beauty поиск открывает быстрый поиск по своему меню (5.7s)
+  ✘  3 tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: food поиск открывает быстрый поиск по своему меню (5.8s)
+
+
+  1) tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: beauty поиск открывает быстрый поиск по своему меню 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Быстрый поиск' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Быстрый поиск' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Быстрый поиск' })
+
+
+       99 |     await page.locator('.workspace-search').click();
+      100 |     const dialog = page.getByRole('dialog', { name: 'Быстрый поиск' });
+    > 101 |     await expect(dialog).toBeVisible();
+          |                          ^
+      102 |     await expect(page).toHaveURL(/\/marketing$/);
+      103 |     await dialog.getByRole('textbox', { name: 'Запрос' }).fill(branch.own.slice(0, 4));
+      104 |     await expect(dialog.getByRole('link', { name: branch.own })).toHaveAttribute('href', branch.ownHref);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/p0/tests/branches-ui/ui31-shell.spec.ts:101:26
+
+    Error Context: test-results/ui31-shell-Д3-beauty-поиск-3ace6-ыстрый-поиск-по-своему-меню/error-context.md
+
+    Error Context: test-results/ui31-shell-Д3-beauty-поиск-3ace6-ыстрый-поиск-по-своему-меню/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-Д3-beauty-поиск-3ace6-ыстрый-поиск-по-своему-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-Д3-beauty-поиск-3ace6-ыстрый-поиск-по-своему-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: food поиск открывает быстрый поиск по своему меню 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Быстрый поиск' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Быстрый поиск' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Быстрый поиск' })
+
+
+       99 |     await page.locator('.workspace-search').click();
+      100 |     const dialog = page.getByRole('dialog', { name: 'Быстрый поиск' });
+    > 101 |     await expect(dialog).toBeVisible();
+          |                          ^
+      102 |     await expect(page).toHaveURL(/\/marketing$/);
+      103 |     await dialog.getByRole('textbox', { name: 'Запрос' }).fill(branch.own.slice(0, 4));
+      104 |     await expect(dialog.getByRole('link', { name: branch.own })).toHaveAttribute('href', branch.ownHref);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/p0/tests/branches-ui/ui31-shell.spec.ts:101:26
+
+    Error Context: test-results/ui31-shell-Д3-food-поиск-о-2b6fd-ыстрый-поиск-по-своему-меню/error-context.md
+
+    Error Context: test-results/ui31-shell-Д3-food-поиск-о-2b6fd-ыстрый-поиск-по-своему-меню/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-Д3-food-поиск-о-2b6fd-ыстрый-поиск-по-своему-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-Д3-food-поиск-о-2b6fd-ыстрый-поиск-по-своему-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: beauty поиск открывает быстрый поиск по своему меню 
+    tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: food поиск открывает быстрый поиск по своему меню 
+  1 passed (18.3s)
+
+# код выхода 1 · 19 с

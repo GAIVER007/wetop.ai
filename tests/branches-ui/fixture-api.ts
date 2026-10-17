@@ -1,3 +1,4 @@
+import { MarketingSiteModule } from '../../apps/api/src/marketing-site/marketing-site.module';
 import { FinanceModule } from '../../apps/api/src/finance/finance.module';
 import { AiSellerModule } from '../../apps/api/src/ai-seller/ai-seller.module';
 import { SELLER_CONNECTION } from '../../apps/api/src/ai-seller/seller.connection';
@@ -93,7 +94,8 @@ for (const [name, path, method] of [
 Body()(FixtureController.prototype, 'save', 0);
 const module = await Test.createTestingModule({
   // FinanceModule: настоящий `GET /owner-summary` общей Главной (аудит платформы 17.10.2026, Д6)
-  imports: [AiSellerModule, FoodModule, BeautyModule, HotelModule, DeskModule, ChessboardModule, FinanceModule],
+  // MarketingSiteModule: медиатека сайта салона и ресторана (аудит платформы 17.10.2026, Д10)
+  imports: [AiSellerModule, FoodModule, BeautyModule, HotelModule, DeskModule, ChessboardModule, FinanceModule, MarketingSiteModule],
   controllers: [FixtureController],
 })
   .overrideProvider(SELLER_CONNECTION)

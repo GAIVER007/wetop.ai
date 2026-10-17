@@ -1,0 +1,90 @@
+# Модульные (unit) · 17.10.2026 10:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит afb19ac (claude/d2-menu-duplicates), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-45-14Z-unit-1688.json' 'apps/web/src/lib/menu-duplicates.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/p0
+
+ ❯ |unit| apps/web/src/lib/menu-duplicates.test.ts (6 tests | 3 failed) 9ms
+   ❯ меню без дублей (6)
+     ✓ HOSPITALITY: пункт меню не перенаправляет на другую страницу 2ms
+     ✓ HOSPITALITY: подписи пунктов не повторяются 0ms
+     × BEAUTY: пункт меню не перенаправляет на другую страницу 3ms
+     ✓ BEAUTY: подписи пунктов не повторяются 0ms
+     × FOOD_SERVICE: пункт меню не перенаправляет на другую страницу 2ms
+     × FOOD_SERVICE: подписи пунктов не повторяются 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/menu-duplicates.test.ts > меню без дублей > BEAUTY: пункт меню не перенаправляет на другую страницу
+AssertionError: expected [ '/reports' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "/reports",
++ ]
+
+ ❯ apps/web/src/lib/menu-duplicates.test.ts:40:23
+     38|         .map((i) => i.href)
+     39|         .filter((href) => redirectsFor(pageSource(href)).includes(vert…
+     40|       expect(bounced).toEqual([]);
+       |                       ^
+     41|     });
+     42|     it(`${vertical}: подписи пунктов не повторяются`, () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/menu-duplicates.test.ts > меню без дублей > FOOD_SERVICE: пункт меню не перенаправляет на другую страницу
+AssertionError: expected [ '/finance', '/reports' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "/finance",
++   "/reports",
++ ]
+
+ ❯ apps/web/src/lib/menu-duplicates.test.ts:40:23
+     38|         .map((i) => i.href)
+     39|         .filter((href) => redirectsFor(pageSource(href)).includes(vert…
+     40|       expect(bounced).toEqual([]);
+       |                       ^
+     41|     });
+     42|     it(`${vertical}: подписи пунктов не повторяются`, () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/menu-duplicates.test.ts > меню без дублей > FOOD_SERVICE: подписи пунктов не повторяются
+AssertionError: expected [ 'Бар' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "Бар",
++ ]
+
+ ❯ apps/web/src/lib/menu-duplicates.test.ts:44:64
+     42|     it(`${vertical}: подписи пунктов не повторяются`, () => {
+     43|       const labels = items(vertical).map((i) => i.label);
+     44|       expect(labels.filter((l, n) => labels.indexOf(l) !== n)).toEqual…
+       |                                                                ^
+     45|     });
+     46|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 passed (6)
+   Start at  22:45:14
+   Duration  373ms (transform 80%, import 16%, tests 3%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-45-14Z-unit-1688.json
+
+# код выхода 1 · 1 с

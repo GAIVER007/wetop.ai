@@ -219,6 +219,9 @@ test('аналитика у филиала без броней гостиниц�
   await expect(main.getByTestId('man-leads')).toHaveText('–');
   await expect(main.getByTestId('man-funnel')).toHaveCount(0);
   await expect(main.getByTestId('man-spent')).toContainText('51 200');
+  // выручки нет, а не ноль: ROMI прочерком, не «−100 %» (аудит платформы 17.10.2026, Д7)
+  await expect(main.getByTestId('man-romi')).toContainText('–');
+  await expect(main.getByTestId('man-romi')).not.toContainText('%');
 });
 
 test('переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту', async ({

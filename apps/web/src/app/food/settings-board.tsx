@@ -31,8 +31,8 @@ const NAV: NavItem[] = [
   { label: 'Бронирования', icon: 'booking', section: 'bookings' },
   { label: 'Залы и столы', icon: 'board', href: '/dining-areas' },
   { label: 'Уведомления', icon: 'mail', section: 'notifications' },
-  { label: 'Интеграции', icon: 'channels', href: '/connections' },
-  { label: 'Публичный сайт', icon: 'globe', href: '/website' },
+  // `/website` гостиничный раздел; сайт ресторана собирается в «Продвижении» (аудит 17.10.2026, Д1)
+  { label: 'Публичный сайт', icon: 'globe', href: '/marketing/site/editor' },
 ];
 
 const minutes = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
@@ -90,12 +90,8 @@ export function RestaurantSettings({
           <>
             <h2 id="rest-settings-title">Уведомления</h2>
             <p className="muted">
-              Подтверждения, напоминания и отмены уходят гостю через подключённые каналы. Каналы
-              подключаются в разделе «Подключения».
+              Подтверждения, напоминания и отмены уходят гостю через подключённые каналы.
             </p>
-            <Link className="btn btn--secondary" href="/connections">
-              Открыть подключения
-            </Link>
           </>
         )}
       </section>

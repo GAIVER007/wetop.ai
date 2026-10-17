@@ -1,5 +1,9 @@
 # DECISIONS (ADR)
 
+## ADR-RELEASE-FIXTURE-ROUTING-20261017: one coherent portal fixture repair
+
+17.10.2026. Unified authorized release candidate reviews #620 and #621 as competing answers to the same fixture-routing failure. #620 strictly extends the portal allowlist to the canonical owner-home CI service, with explicit marker and purpose-specific public-booking guard. #621 instead routes the seven portal suites to their already accepted disposable GitHub service, retaining unchanged fail-closed guards, and keeps the remaining integration suites on owner-home. Selected #621: no expansion of accepted database identities, explicit tracked-file selection with no empty matches and no dropped integration files. #620's coupled guard refactor, marker and tests are superseded together, not mixed into the selected design. #621's two schedule opener locator fixes remain. Full integration and complete release-checks must validate the selection before parent approves merge or deployment. This decision neither authorizes migrations nor asserts a green gate.
+
 ## ADR-TRIAL-7-DAYS-20261017: пробный период 7 дней
 
 17.10.2026, решение владельца («пробный 7 дней»). Частично пересматривает ADR-102 в части срока; режим «только чтение»

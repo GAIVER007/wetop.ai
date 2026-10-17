@@ -1,0 +1,29 @@
+# Модульные (unit) · 17.10.2026 19:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (codex/calendar-quick-report), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T14-18-49Z-unit-67ed.json' 'apps/web/src/components/quick-report.test.ts' 'apps/web/src/components/primitives-ds1c.test.ts' 'apps/web/src/app/beauty/empty-workspaces.test.ts' 'apps/web/src/app/beauty/page.test.ts' 'apps/web/src/app/food/orders-board.test.ts' 'apps/web/src/app/management/analytics/vertical/metrics.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/design-rules.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /private/tmp/wetop-calendar-quick-report
+
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 1359ms
+   ✓ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ стрелок в конце текста ссылок нет — ссылка названа словом (§14) 602ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 375ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 362ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (36 tests) 695ms
+   ✓ PeriodPicker (4)
+     ✓ поля «С» и «По» с именами формы и отрезок готовыми ссылками 549ms
+ ✓ |unit| apps/web/src/components/quick-report.test.ts (7 tests) 85ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 139ms
+ ✓ |unit| apps/web/src/app/beauty/page.test.ts (2 tests) 15ms
+ ✓ |unit| apps/web/src/app/food/orders-board.test.ts (3 tests) 29ms
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (5 tests) 56ms
+
+ Test Files  8 passed (8)
+      Tests  90 passed (90)
+   Start at  07:18:56
+   Duration  13.43s (transform 47%, tests 29%, import 24%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T14-18-49Z-unit-67ed.json
+
+# код выхода 0 · 21 с

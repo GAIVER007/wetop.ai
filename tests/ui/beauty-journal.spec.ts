@@ -46,7 +46,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await panel.getByLabel(/Длительность, минут/).fill('60');
   await panel.getByLabel(/Цена каталога/).fill('8000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toHaveText('Услуга создана. Включите её в выбранном филиале ниже.');
+  await expect(panel.getByRole('status')).toHaveText(
+    'Услуга создана. Включите её в выбранном филиале ниже.',
+  );
   await page.goto('/beauty/services');
   await main
     .getByRole('row')
@@ -62,8 +64,8 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
-  await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
+  await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await panel.getByRole('tab', { name: 'Услуги', exact: true }).click();
   await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
   await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('Услуги назначены');
@@ -112,7 +114,10 @@ test('запись из пустой клетки появляется в сет
   await page.screenshot({ path: `${SNAPSHOTS}/journal-1440.png`, fullPage: true });
 });
 
-test('неделя показывает запись и открывает её карточку, телефон без прокрутки вбок', async ({ page, request }) => {
+test('неделя показывает запись и открывает её карточку, телефон без прокрутки вбок', async ({
+  page,
+  request,
+}) => {
   test.setTimeout(120_000);
   await readySalon(page, request);
   await openDay(page);
@@ -121,22 +126,33 @@ test('неделя показывает запись и открывает её 
   const week = page.getByTestId('beauty-week');
   await expect(week).toBeVisible();
   await expect(week.getByRole('link', { name: 'Открыть день', exact: true })).toHaveCount(7);
-  await page.screenshot({ path: 'reports/beauty-continuation-2026-10-14/week-1440.png', fullPage: true });
+  await page.screenshot({
+    path: 'reports/beauty-continuation-2026-10-14/week-1440.png',
+    fullPage: true,
+  });
   await week.getByRole('link').filter({ hasText: 'Тестовый клиент недели' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await expect(page.getByRole('dialog')).toContainText('Тестовый клиент недели');
   await page.goto(`/calendar?date=${DAY}&view=week`);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(week).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await page.screenshot({ path: 'reports/beauty-continuation-2026-10-14/week-390.png', fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({
+    path: 'reports/beauty-continuation-2026-10-14/week-390.png',
+    fullPage: true,
+  });
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto(`/calendar?date=${DAY}&view=week`);
   await expect(week).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await page.screenshot({ path: 'reports/beauty-continuation-2026-10-14/week-dark-390.png', fullPage: true });
+  await page.screenshot({
+    path: 'reports/beauty-continuation-2026-10-14/week-dark-390.png',
+    fullPage: true,
+  });
 });
 
 test('перенос мышью меняет время записи через существующий API', async ({ page, request }) => {
@@ -145,11 +161,16 @@ test('перенос мышью меняет время записи через 
   await openDay(page);
   await book(page, '10:00', 'Тестовый перенос');
   await openDay(page);
-  const tile = page.getByTestId('beauty-grid').getByRole('button').filter({ hasText: 'Тестовый перенос' });
+  const tile = page
+    .getByTestId('beauty-grid')
+    .getByRole('button')
+    .filter({ hasText: 'Тестовый перенос' });
   await expect(tile).toHaveAttribute('draggable', 'true');
   await tile.dragTo(page.getByRole('button', { name: 'Дина, 12:00, свободно', exact: true }));
   await expect(tile).toContainText('12:00');
-  await expect(page.getByRole('button', { name: 'Дина, 10:00, свободно', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Дина, 10:00, свободно', exact: true }),
+  ).toBeVisible();
 });
 
 test('занятое время мастера не предлагается и отказ приходит словами', async ({
@@ -265,3 +286,159 @@ for (const theme of ['light', 'dark'] as const) {
     await page.screenshot({ path: `${SNAPSHOTS}/journal-${theme}.png`, fullPage: true });
   });
 }
+
+test('быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон', async ({
+  page,
+  request,
+}) => {
+  test.setTimeout(360_000);
+  await openSalon(page, request);
+  await openDay(page);
+  const trigger = page.getByRole('button', { name: 'Быстрый отчёт', exact: true });
+  await expect(trigger).toBeVisible();
+  await page.getByRole('button', { name: 'Открыть календарь', exact: true }).click();
+  const calendar = page.getByRole('dialog', { name: 'Календарь', exact: true });
+  await expect(calendar).toBeVisible();
+  await calendar.getByRole('button', { name: 'Следующий месяц' }).click();
+  await calendar.getByRole('button', { name: 'Предыдущий месяц' }).click();
+  await page.keyboard.press('Escape');
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const colorScheme of ['light', 'dark'] as const) {
+      await page.emulateMedia({ colorScheme });
+      await trigger.click();
+      const report = page.getByRole('dialog', { name: /Статистика за/ });
+      await expect(report).toContainText('Все специалисты');
+      await expect(report.getByRole('status')).toContainText('записей нет');
+      await expect(report).toContainText('Нет операций');
+      await expect(report).not.toContainText('0 ₸');
+      const box = await report.boundingBox();
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(width);
+      await expect(report.getByRole('button', { name: /Закрыть/ })).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await expect(report.locator('.context-help summary')).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(report.locator('.context-help')).toContainText('Стоимость, указанная при записи');
+      await page.keyboard.press('Enter');
+      await page.keyboard.press('Tab');
+      await expect(report.getByRole('button', { name: /Закрыть/ })).toBeFocused();
+      const axe = await new AxeBuilder({ page }).include('.quick-report').analyze();
+      expect(axe.violations).toEqual([]);
+      await page.screenshot({
+        path: `reports/calendar-quick-report-2026-10-17/beauty-${width}-${colorScheme}.png`,
+        fullPage: false,
+      });
+      await page.keyboard.press('Escape');
+      await expect(report).not.toBeVisible();
+      await expect(trigger).toBeFocused();
+    }
+  }
+});
+
+test('быстрый отчёт календаря: выбранный мастер сохраняется при смене дня', async ({
+  page,
+  request,
+}) => {
+  test.setTimeout(240_000);
+  await openSalon(page, request);
+  const scope = (await page.context().cookies()).find((c) => c.name === 'wetop_scope')!.value;
+  const headers = { 'x-wetop-scope': decodeURIComponent(scope), 'x-wetop-test-client': '1' };
+  const create = async (path: string, data: unknown) => {
+    const response = await request.post(`${FIXTURE_API}${path}`, { headers, data });
+    expect(response.ok()).toBeTruthy();
+    return response.json();
+  };
+  const service = await create('/beauty/services', {
+    name: 'Маникюр',
+    durationMinutes: 60,
+    priceMinor: '800000',
+    currency: 'KZT',
+  });
+  expect(
+    (
+      await request.put(`${FIXTURE_API}/beauty/services/${service.id}/location`, {
+        headers,
+        data: { enabled: true },
+      })
+    ).ok(),
+  ).toBeTruthy();
+  for (const name of ['Дина', 'Мира']) {
+    const employee = await create('/beauty/employees', { name });
+    expect(
+      (
+        await request.put(`${FIXTURE_API}/beauty/employees/${employee.id}/services`, {
+          headers,
+          data: { serviceIds: [service.id] },
+        })
+      ).ok(),
+    ).toBeTruthy();
+    expect(
+      (
+        await request.put(`${FIXTURE_API}/beauty/employees/${employee.id}/working-hours`, {
+          headers,
+          data: { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] },
+        })
+      ).ok(),
+    ).toBeTruthy();
+  }
+  await openDay(page);
+  await book(page, '10:00', 'Тестовый клиент');
+  await openDay(page);
+  await page
+    .getByRole('main')
+    .getByRole('button')
+    .filter({ hasText: 'Тестовый клиент' })
+    .first()
+    .click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Подтвердить', exact: true }).click();
+  await openDay(page);
+  await page
+    .getByRole('main')
+    .getByRole('button')
+    .filter({ hasText: 'Тестовый клиент' })
+    .first()
+    .click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Завершить', exact: true }).click();
+  await openDay(page);
+  await page.locator('.employee-filter summary').click();
+  await page.getByRole('searchbox', { name: 'Поиск сотрудника' }).fill('Дин');
+  await page
+    .locator('.employee-filter-list')
+    .getByRole('button', { name: 'Дина', exact: true })
+    .click();
+  await expect(page).toHaveURL(/employee=/);
+  await expect(page.getByTestId('beauty-grid').getByRole('heading', { name: /Мира/ })).toHaveCount(
+    0,
+  );
+  await page.getByRole('button', { name: 'Быстрый отчёт', exact: true }).click();
+  let report = page.getByRole('dialog', { name: /Статистика за/ });
+  await expect(report).toContainText('Дина');
+  await expect(report).toContainText('8 000 ₸');
+  await expect(report.locator('.quick-report-counts').first()).toContainText('Клиентов1');
+  await page.screenshot({
+    path: 'reports/calendar-quick-report-2026-10-17/beauty-master.png',
+    fullPage: false,
+  });
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Следующий день', exact: true }).click();
+  await expect(page.getByTestId('beauty-day-date')).toHaveValue('2026-10-13');
+  await expect(page.locator('.employee-filter summary')).toContainText('Дина');
+  await page.getByRole('button', { name: 'Быстрый отчёт', exact: true }).click();
+  report = page.getByRole('dialog', { name: /Статистика за/ });
+  await expect(report.getByRole('status')).toContainText('записей нет');
+  await page.keyboard.press('Escape');
+  await page.locator('.employee-filter summary').click();
+  await page
+    .locator('.employee-filter-list')
+    .getByRole('button', { name: 'Все специалисты', exact: true })
+    .click();
+  await expect(page).not.toHaveURL(/employee=/);
+  await expect(
+    page.getByTestId('beauty-grid').getByRole('heading', { name: /Мира/ }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Неделя', exact: true }).click();
+  await expect(page.getByTestId('beauty-week')).toBeVisible();
+  await page.getByRole('button', { name: 'Быстрый отчёт', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: /Статистика за/ })).toContainText('Выбранный день');
+});

@@ -1,0 +1,57 @@
+# Сквозные (e2e) · 17.10.2026 19:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (codex/calendar-quick-report), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/beauty-journal.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--grep' 'быстрый отчёт календаря'
+[WebServer] (node:22225) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22262) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 250ms. If /private/tmp/wetop-calendar-quick-report/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:22308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (2.0m)
+(node:22862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/beauty-journal.spec.ts:339:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня (55.5s)
+
+
+  1) tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон 
+
+    Test timeout of 120000ms exceeded.
+
+    Error Context: test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон 
+  1 passed (3.3m)
+
+# код выхода 1 · 3 мин 25 с

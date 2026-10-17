@@ -37,6 +37,7 @@ export function DayToolbar({
     <>
       {/* день: общий DateBar (MV8.5 DS1c); переход сразу при смене даты */}
       <DateBar
+        calendar
         compact
         className="rest-day-bar"
         date={data.date}

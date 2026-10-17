@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { day } = vi.hoisted(() => ({ day: vi.fn() }));
 vi.mock('../../lib/vertical-guard', () => ({ requireVertical: async () => ({}), requireFeature: async () => ({}) }));
+vi.mock('next/navigation', () => ({ useRouter: () => ({ replace() {} }), useSearchParams: () => new URLSearchParams() }));
 // оболочка как у настоящей: права нужны странице (возврат по записи, §54)
 vi.mock('../../lib/desk-shell', async () => {
   const { UNKNOWN_SHELL } = await import('../../lib/desk-person');

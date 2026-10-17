@@ -1,0 +1,51 @@
+# Модульные (unit) · 17.10.2026 18:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (codex/calendar-quick-report), незакоммиченных файлов набора: 16
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T13-53-20Z-unit-28e3.json' 'apps/web/src/components/quick-report.test.ts' 'apps/web/src/components/primitives-ds1c.test.ts' 'apps/web/src/app/beauty/empty-workspaces.test.ts' 'apps/web/src/app/beauty/page.test.ts' 'apps/web/src/app/management/analytics/vertical/metrics.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/design-rules.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /private/tmp/wetop-calendar-quick-report
+
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (36 tests) 95ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 369ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 352ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 326ms
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (5 tests) 83ms
+ ✓ |unit| apps/web/src/components/quick-report.test.ts (6 tests) 25ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 34ms
+ ❯ |unit| apps/web/src/app/beauty/page.test.ts (2 tests | 1 failed) 50ms
+   ❯ Недельный календарь салона (2)
+     × загружает каждый день с понедельника по воскресенье и показывает недельный обзор 34ms
+     ✓ обычный день не загружает всю неделю 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/page.test.ts > Недельный календарь салона > загружает каждый день с понедельника по воскресенье и показывает недельный обзор
+Error: invariant expected app router to be mounted
+ ❯ useRouter node_modules/next/src/client/components/navigation.ts:169:11
+ ❯ WeekCalendar apps/web/src/app/beauty/week-calendar.tsx:14:18
+     12|
+     13| export function WeekCalendar({ days, selectedDate }: { days: BeautyDay…
+     14|   const router = useRouter();
+       |                  ^
+     15|   const params = useSearchParams();
+     16|   const employee = params.get('employee') ?? '';
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:9808:18
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:5062:19
+ ❯ renderElement node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:5497:23
+ ❯ retryNode node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:6428:21
+ ❯ renderNodeDestructive node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:6367:11
+ ❯ renderNode node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:6905:18
+ ❯ renderChildrenArray node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:6674:11
+ ❯ retryNode node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:6441:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  1 failed | 85 passed (86)
+   Start at  06:53:23
+   Duration  6.18s (transform 43%, import 38%, tests 19%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T13-53-20Z-unit-28e3.json
+
+# код выхода 1 · 9 с

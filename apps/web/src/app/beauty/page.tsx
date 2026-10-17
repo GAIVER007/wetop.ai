@@ -24,7 +24,11 @@ export default async function BeautyPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/beauty');
-  const { date, view, appointment } = normalizeSearchParams(await searchParams);
+  const { date, view, appointment, employee, service, status } = normalizeSearchParams(await searchParams);
+  const filters = new URLSearchParams();
+  if (employee) filters.set('employee', employee);
+  if (service) filters.set('service', service);
+  if (status) filters.set('status', status);
   const shell = await deskShell();
   const me = await currentMe();
   const scopeKey = JSON.stringify({ organizationId: me.user?.organizationId, businessId: me.context?.businessId, locationId: me.context?.locationId });
@@ -32,16 +36,20 @@ export default async function BeautyPage({
     beautyApi.day(date),
     beautyApi.customers(),
     beautyApi.employees(),
-  ]).then(async (value) => {
-      const week = view === 'week'
-        ? await Promise.all(Array.from({ length: 7 }, (_, index) => {
-            const at = new Date(`${value[0].date}T12:00:00Z`);
-            const weekday = (at.getUTCDay() + 6) % 7;
-            at.setUTCDate(at.getUTCDate() - weekday + index);
-            const day = at.toISOString().slice(0, 10);
-            return day === value[0].date ? value[0] : beautyApi.day(day);
-          }))
-        : null;
+  ])
+    .then(async (value) => {
+      const week =
+        view === 'week'
+          ? await Promise.all(
+              Array.from({ length: 7 }, (_, index) => {
+                const at = new Date(`${value[0].date}T12:00:00Z`);
+                const weekday = (at.getUTCDay() + 6) % 7;
+                at.setUTCDate(at.getUTCDate() - weekday + index);
+                const day = at.toISOString().slice(0, 10);
+                return day === value[0].date ? value[0] : beautyApi.day(day);
+              }),
+            )
+          : null;
       return {
         ok: true as const,
         value: value[0],
@@ -49,7 +57,8 @@ export default async function BeautyPage({
         employees: value[2].items,
         week,
       };
-    }).catch((error: unknown) => {
+    })
+    .catch((error: unknown) => {
       // управление самого Next (переход на вход) пропускаем дальше, иначе страница его проглотит
       unstable_rethrow(error);
       return { ok: false as const, error };
@@ -68,10 +77,22 @@ export default async function BeautyPage({
       subtitle={`Расписание мастеров и услуг салона${loaded.value.location.name ? `, ${loaded.value.location.name}` : ''}`}
     >
       <nav className="beauty-calendar-views" aria-label="Вид календаря">
-        <Link className="btn btn--secondary" aria-current={view !== 'week' ? 'page' : undefined} href={`/calendar?date=${loaded.value.date}`}>День</Link>
-        <Link className="btn btn--secondary" aria-current={view === 'week' ? 'page' : undefined} href={`/calendar?date=${loaded.value.date}&view=week`}>Неделя</Link>
+        <Link
+          className="btn btn--secondary"
+          aria-current={view !== 'week' ? 'page' : undefined}
+          href={`/calendar?date=${loaded.value.date}&${filters}`}
+        >
+          День
+        </Link>
+        <Link
+          className="btn btn--secondary"
+          aria-current={view === 'week' ? 'page' : undefined}
+          href={`/calendar?date=${loaded.value.date}&view=week&${filters}`}
+        >
+          Неделя
+        </Link>
       </nav>
-      {loaded.week ? <WeekCalendar days={loaded.week} employees={loaded.employees} /> : (
+      {loaded.week ? <WeekCalendar days={loaded.week} employees={loaded.employees} selectedDate={loaded.value.date} /> : (
         <JournalBoard
           key={`${scopeKey}:${loaded.value.date}:${appointment ?? ''}`}
           day={loaded.value}

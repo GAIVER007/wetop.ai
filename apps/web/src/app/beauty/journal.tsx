@@ -1,7 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { EmployeeFilter } from '../../components/employee-filter';
+import { QuickReport } from '../../components/quick-report';
+import { beautyQuickReport } from '../../components/quick-report-data';
 import { Overlay } from '../../components/overlay';
 import { Alert, Badge, Button, Field, Help, Select } from '../../components/ui';
 import type {
@@ -51,31 +54,39 @@ export function JournalBoard({
     const row = day.appointments.find((item) => item.id === appointmentId);
     return row ? { kind: 'card', row } : null;
   });
-  const [chosen, setSelected] = useState(columns[0]?.id ?? '');
-  // отборы эталона владельца (13.10.2026): мастер в колонке слева, услуга и статус в строке над сеткой
-  const [master, setMaster] = useState('');
-  const [service, setService] = useState('');
-  const [status, setStatus] = useState('');
-  const selected = columns.some((column) => column.id === master)
-    ? master
-    : columns.some((column) => column.id === chosen) ? chosen : (columns[0]?.id ?? '');
+  const params = useSearchParams();
+  const pathname = usePathname();
+  const master = params.get('employee') ?? '';
+  const service = params.get('service') ?? '';
+  const status = params.get('status') ?? '';
+  const selected = master || columns[0]?.id || '';
   const router = useRouter();
+  const setFilter = (key: string, value: string) => {
+    const query = new URLSearchParams(params.toString());
+    if (value) query.set(key, value);
+    else query.delete(key);
+    router.replace(`${pathname}?${query}`, { scroll: false });
+  };
+  const setMaster = (value: string) => setFilter('employee', value);
+  const setService = (value: string) => setFilter('service', value);
+  const setStatus = (value: string) => setFilter('status', value);
   const [dragged, setDragged] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [moveError, setMoveError] = useState('');
   const [moving, startMove] = useTransition();
-  const movable = (row: BeautyAppointmentRow) => !readOnly && !moving &&
-    (row.status === 'BOOKED' || row.status === 'CONFIRMED');
+  const movable = (row: BeautyAppointmentRow) =>
+    !readOnly && !moving && (row.status === 'BOOKED' || row.status === 'CONFIRMED');
   const from = Math.floor(day.bounds.fromMinutes / STEP) * STEP;
   const to = Math.ceil(day.bounds.toMinutes / STEP) * STEP;
   const slots = Array.from({ length: (to - from) / STEP }, (_, i) => from + i * STEP);
   const height = (to - from) * PX_PER_MIN;
-  const live = day.appointments.filter(
+  const reportRows = day.appointments.filter(
     (a) =>
-      a.status !== 'CANCELLED' &&
+      (!master || a.employeeId === master) &&
       (!service || a.serviceId === service) &&
       (!status || a.status === status),
   );
+  const live = reportRows.filter((a) => a.status !== 'CANCELLED');
   const shown = master ? columns.filter((c) => c.id === master) : columns;
   const initials = (name: string) =>
     name
@@ -256,8 +267,11 @@ export function JournalBoard({
       <div className="beauty-bar beauty-calendar-toolbar">
         <div className="beauty-calendar-actions">
           <DateBar date={day.date} path="/calendar" />
+          <QuickReport key={`${day.date}:${master}`} date={day.date}
+            scope={`${day.location.name ?? 'Салон'} · ${master ? (columns.find((c) => c.id === master)?.name ?? 'Сотрудник недоступен') : 'Все специалисты'}${service || status ? ' · С учётом фильтров календаря' : ''}`}
+            build={() => beautyQuickReport(reportRows)} />
           <Button
-            disabled={readOnly || !day.columns.length || !day.services.length}
+            disabled={readOnly || !day.columns.some((c) => c.id === selected) || !day.services.length}
             onClick={() =>
               setPanel({ kind: 'new', employeeId: selected, time: clock(day.bounds.fromMinutes) })
             }
@@ -270,18 +284,7 @@ export function JournalBoard({
         >
           <div className="beauty-filters">
             <Field label={<span>Мастер</span>}>
-              <Select
-                aria-label="Мастер"
-                value={master}
-                onChange={(e) => setMaster(e.target.value)}
-              >
-                <option value="">Все мастера</option>
-                {columns.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
+              <EmployeeFilter options={columns} value={master} onChange={setMaster} allLabel="Все специалисты" />
             </Field>
             <Field label={<span>Услуга</span>}>
               <Select
@@ -335,9 +338,9 @@ export function JournalBoard({
           <Button
             tone="secondary"
             onClick={() => {
-              setMaster('');
-              setService('');
-              setStatus('');
+              const query = new URLSearchParams(params.toString());
+              for (const key of ['employee', 'service', 'status']) query.delete(key);
+              router.replace(`${pathname}?${query}`, { scroll: false });
             }}
           >
             Сбросить фильтры
@@ -441,40 +444,32 @@ export function JournalBoard({
               </div>
             )}
             {!!columns.length && (
-              <Field label={<span className="sr-only">Мастер календаря</span>}>
-                <Select
-                  value={selected}
-                  onChange={(e) => {
-                    setSelected(e.target.value);
-                    if (master) setMaster(e.target.value);
-                  }}
-                >
+              <Field label="Мастер календаря">
+                <Select value={master} onChange={(e) => setMaster(e.target.value)}>
+                  <option value="">Все специалисты</option>
                   {columns.map((e) => (
                     <option key={e.id} value={e.id}>
-                      Мастер: {e.name}
+                      {e.name}
                       {e.timeOff ? ' (отсутствие)' : ''}
                     </option>
                   ))}
                 </Select>
               </Field>
             )}
-            {columns
-              .filter((e) => e.id === selected)
-              .map((e) => (
-                <div key={e.id}>
-                  <p className="beauty-current-master">{e.name}</p>
-                  <p className="beauty-note">
-                    {e.timeOff
-                      ? e.timeOffReason || 'Отсутствие'
-                      : e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') ||
-                        'Выходной'}
-                  </p>
-                  <div className="beauty-mobile-timeline">
-                    {hours}
-                    {column(e)}
-                  </div>
+            {shown.map((e) => (
+              <div key={e.id}>
+                <h2>{e.name}</h2>
+                <p className="beauty-note">
+                  {e.timeOff
+                    ? e.timeOffReason || 'Отсутствие'
+                    : e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') || 'Выходной'}
+                </p>
+                <div className="beauty-mobile-timeline">
+                  {hours}
+                  {column(e)}
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>

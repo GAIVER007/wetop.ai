@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import type { ReservationCard } from '../../apps/web/src/lib/api';
 import { cardTab } from './card-tabs';
 import { confirmAction } from './confirm';
 import { roomiestCategory } from './pick-category';
@@ -7,7 +8,7 @@ import { roomiestCategory } from './pick-category';
  * Групповая бронь из формы и правка готовой брони (plans/plan-2026-09-09-closing.md, ADR-020).
  * Гости вымышленные (ADR-010). Проверяется то, что видит администратор:
  *  — «Количество мест» = 2 даёт два проживания на двух разных койках, и в календаре две клетки с номером брони;
- *  - заметки и источник правятся с карточки, число гостей в действиях неизменно;
+ *  - заметки и источник правятся с карточки, гости каждого проживания сохраняются без изменения размещения и денег;
  *  — «Закрыть счёт» появляется только при нулевом балансе и закрывает счёт.
  * Ограничения продаж (ADR-020) здесь не ставятся: стоп-продажа на живой категории ушла бы в каналы —
  * они проверены контрактным тестом apps/api/src/reservations/reservations.controller.test.ts.
@@ -86,10 +87,59 @@ test('групповая бронь на 2 койки → две клетки ш
   );
   await expect(page.locator('main')).toContainText('WhatsApp');
 
-  // Число гостей задано при создании, в действиях оно недоступно для изменения.
+  // Q-102 / approval 08.10: two per-stay editors, not the obsolete absence contract.
+  const api = process.env['E2E_API_URL'] ?? process.env['APP_API_URL'] ?? '';
+  expect(api, 'real E2E API URL must be configured').not.toBe('');
+  const readCard = async (): Promise<ReservationCard> => {
+    const response = await request.get(`${api}/reservations/${number}`);
+    expect(response.ok(), `reservation readback: HTTP ${response.status()}`).toBe(true);
+    return response.json();
+  };
+  const readFinance = async () => {
+    const response = await request.get(`${api}/finance/reservations/${number}`);
+    expect(response.ok(), `finance readback: HTTP ${response.status()}`).toBe(true);
+    return response.json();
+  };
+  const beforeGuests = await readCard();
+  const beforeFinance = await readFinance();
+  expect(beforeGuests.items).toHaveLength(2);
+  expect(beforeGuests.items.map(({ adults, children }) => ({ adults, children }))).toEqual([
+    { adults: 1, children: 0 },
+    { adults: 1, children: 0 },
+  ]);
+  expect(beforeGuests.items.map(({ unitCode }) => unitCode).sort()).toEqual([unitA, unitB].sort());
   await cardTab(page, 'Действия');
-  await expect(page.locator('[data-testid^="guests-form-"]')).toHaveCount(0);
-  await expect(page.getByRole('main').locator('input[name="adults"]')).toHaveCount(0);
+  await expect(page.locator('[data-testid^="guests-form-"]')).toHaveCount(2);
+  for (const item of beforeGuests.items) {
+    const guests = page.getByTestId(`guests-form-${item.id}`);
+    await expect(guests).toContainText(`Гости: ${item.unitCode}`);
+    const adults = guests.getByLabel('Взрослых', { exact: true });
+    const children = guests.getByLabel('Детей', { exact: true });
+    await expect(adults).toHaveValue('1');
+    await expect(adults).toHaveAttribute('min', '1');
+    await expect(adults).toHaveAttribute('step', '1');
+    await expect(children).toHaveValue('0');
+    await expect(children).toHaveAttribute('min', '0');
+    await expect(children).toHaveAttribute('step', '1');
+    await adults.fill('1');
+    await children.fill('0');
+    const saved = page.waitForResponse((response) =>
+      response.request().method() === 'POST' &&
+      response.url().includes(`/reservations/${number}`),
+    );
+    const save = guests.getByRole('button', { name: 'Сохранить', exact: true });
+    await save.click();
+    const response = await saved;
+    expect(response.ok(), 'guest-count server action must succeed').toBe(true);
+    await response.finished();
+    await expect(save).toBeEnabled();
+    await expect(guests.getByRole('alert')).toHaveCount(0);
+    await expect(adults).toHaveValue('1');
+    await expect(children).toHaveValue('0');
+    // Full card equality includes both stays, allocations (unitCode), counts and prices.
+    expect(await readCard()).toEqual(beforeGuests);
+    expect(await readFinance()).toEqual(beforeFinance);
+  }
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-guests-count').first()).toContainText(
     '· 1',

@@ -21,6 +21,7 @@ for (const width of [1440, 390]) for (const theme of ['light', 'dark'] as const)
       await expect(board).toBeVisible();
       const free = (time: string) => board.getByRole('button', { name: `Тест Анна, ${time}, свободно`, exact: true });
       await expect(free('10:00')).toHaveCount(0);
+      await page.getByText(/^Фильтры/).click();
       await page.getByLabel('Статус записи', { exact: true }).selectOption('DONE');
       // The regression MUST fail here on baseline: hidden BOOKED is falsely advertised as free.
       await expect(free('10:00'), 'hidden blocking appointment must never become a free cell').toHaveCount(0);
@@ -28,6 +29,7 @@ for (const width of [1440, 390]) for (const theme of ['light', 'dark'] as const)
       for (const status of ['BOOKED', 'CONFIRMED', 'IN_PROGRESS', 'DONE']) {
         await db.query('UPDATE pms_test.appointments SET status=$2 WHERE id=$1', [first.id, status]);
         await page.reload();
+        await page.getByText(/^Фильтры/).click();
         for (const [service, filterStatus] of [['', 'NO_SHOW'], [f.services[1].id, ''], [f.services[1].id, 'DONE']]) {
           await page.getByLabel('Услуга', { exact: true }).selectOption(service);
           await page.getByLabel('Статус записи', { exact: true }).selectOption(filterStatus);

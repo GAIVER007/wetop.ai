@@ -1712,3 +1712,8 @@ API записи и правки журнала не даёт. Применен�
 | Q-SCHED-1 | Нужен ли график на конкретные даты (рабочая суббота 18.10 при выходных субботах)? Модель хранит только недельный шаблон и отсутствия на даты; рабочего дня сверх шаблона в ней нет, это правка DATA_MODEL §19 | Переключатель в сетке меняет день недели целиком; отсутствия из модели видны в ячейке только для чтения |
 | Q-SCHED-2 | Фильтры «Роль» и «Профессия» над сеткой, как на образце: у сотрудника салона нет полей роли и профессии. Добавлять ли их в модель и каким списком | Фильтров нет, в сетке все мастера филиала |
 | Q-SCHED-3 | Какие часовые пояса предлагать для объектов с ценами в долларах (страна партнёра не названа)? | Отдельного пояса для USD нет: Алматы, Дубай, Доха |
+
+
+## Consolidation clarification — 2026-10-17 (issue 642)
+
+The explicit owner approval of 2026-10-08 in `7c0d61e9e:plans/unified-acceptance-continuation-2026-10-07.md` supersedes the October 7 guest-count UI absence expectation only. Restore the existing guarded stay guest-count form with stored server values, preserving page canMutate and eligible-status filtering. No newer reversal established. The separate creation-time occupancy/default 1-or-2 and pricing question remains UNRESOLVED; this consolidation does not select capacity defaults, reprice stays, change schema, backend authorization, folio policy or financial rules. Calendar port is limited to rendered-rectangle trailing margin and Today/reload alignment; no CSS rollback or resize observer.

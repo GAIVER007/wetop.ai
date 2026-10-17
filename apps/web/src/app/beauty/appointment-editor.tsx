@@ -76,7 +76,7 @@ export function AppointmentEditor({ open, onClose, onDone, ...form }: Omit<Param
       navigation?.removeEventListener('navigate', traverse, true);
     };
   }, [open, request]);
-  return <Overlay open={open} onClose={() => request(onClose)} title="Новая запись" drawer>
+  return <Overlay open={open} onClose={() => request(onClose)} title="Новая запись" drawer className="appointment-editor">
     <AppointmentForm {...form} onStateChange={changed} onDone={onDone} />
     <ConfirmDialog open={destination !== null} title="Закрыть без сохранения?" confirmLabel="Закрыть без сохранения" cancelLabel="Продолжить заполнение"
       onCancel={() => setDestination(null)} onConfirm={() => {

@@ -36,6 +36,7 @@ import {
   movePreviewAction,
   stayAction,
   updateReservationAction,
+  updateStayGuestsAction,
   type ActionResult,
 } from '../actions';
 import { CHANNELS, SOURCES, fromChannex } from '../sources';
@@ -186,7 +187,7 @@ export function ReservationActions(props: {
   const panel = useRef<HTMLElement>(null);
   useQuickTarget(panel);
   return (
-    <section ref={panel} data-testid="reservation-actions" className="stack stack--mt">
+    <section ref={panel} data-testid="reservation-actions" className="reservation-actions stack stack--mt">
       {props.items
         .filter(
           (it) =>
@@ -194,6 +195,7 @@ export function ReservationActions(props: {
         )
         .map((it) => (
           <Stack key={it.id} gap="sm">
+            <StayGuestsForm number={props.number} item={it} />
             <StayButtons
               number={props.number}
               currency={props.currency}
@@ -913,6 +915,55 @@ function AssignForm(props: {
         <p>Счёт будет пересчитан по тарифу новой категории на весь срок проживания.</p>
         <p data-testid="move-amount">{moveText}</p>
       </ConfirmDialog>
+    </form>
+  );
+}
+
+function StayGuestsForm({
+  number,
+  item,
+}: {
+  number: string;
+  item: { id: string; unitCode: string | null; adults: number; children: number };
+}) {
+  const [state, action, pending] = useActionState<ActionResult, FormData>(
+    updateStayGuestsAction.bind(null, number, item.id),
+    { error: null },
+  );
+  return (
+    <form
+      action={action}
+      className="panel stay-guests-form"
+      data-testid={`guests-form-${item.id}`}
+      key={`${item.adults}/${item.children}/${state.attempt ?? 0}`}
+    >
+      <PanelTitle>Гости: {item.unitCode ?? 'без ячейки'}</PanelTitle>
+      <Row>
+        <Field label="Взрослых">
+          <Input
+            name="adults"
+            type="number"
+            min="1"
+            step="1"
+            required
+            defaultValue={state.values?.adults ?? item.adults}
+          />
+        </Field>
+        <Field label="Детей">
+          <Input
+            name="children"
+            type="number"
+            min="0"
+            step="1"
+            required
+            defaultValue={state.values?.children ?? item.children}
+          />
+        </Field>
+        <Button type="submit" disabled={pending}>
+          Сохранить
+        </Button>
+      </Row>
+      {state.error && <Alert>{state.error}</Alert>}
     </form>
   );
 }

@@ -6,7 +6,7 @@ it('allows only known scoped desk writers at organization level', () => {
   expect(bookingGuestEditable({ ...desk, readOnly: true })).toBe(false);
   expect(bookingGuestEditable({ ...desk, access: { ...desk.access, restricted: true } })).toBe(false);
   expect(bookingGuestEditable({ ...desk, access: { ...desk.access, unknown: true } })).toBe(false);
-  expect(bookingGuestEditable({ ...desk, scopeKey: undefined })).toBe(false);
+  expect(bookingGuestEditable({ access: desk.access, readOnly: desk.readOnly })).toBe(false);
 });
 const update = vi.hoisted(() => vi.fn());
 const revalidate = vi.hoisted(() => vi.fn());

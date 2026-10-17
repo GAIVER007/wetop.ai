@@ -571,6 +571,12 @@ export class PrismaAccountsRepository implements AccountsRepository {
           userId_organizationId: { userId: input.userId, organizationId: input.organizationId },
         },
       });
+      // сессии этой организации гаснут строкой, а не только проверкой членства: иначе повторное приглашение того же
+      // человека оживило бы старые ключи (как приостановка ниже, §31.2)
+      await tx.session.updateMany({
+        where: { userId: input.userId, organizationId: input.organizationId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
       // в журнале организации: строка о человеке ушла бы из виду вместе с его членством
       await tx.auditLog.create({
         data: {

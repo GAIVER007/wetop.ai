@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Module, type MiddlewareConsumer, type NestModule } from '@nestjs/common';
 import { mail } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
+import { appUrlFromEnv } from '../auth/password-reset.service';
 import { AccountsController } from './accounts.controller';
 import { ACCOUNTS_REPOSITORY, type AccountsRepository } from './accounts.repository';
 import { AccountsService } from './accounts.service';
@@ -22,9 +23,9 @@ const mailProviders = [
     useFactory: (): boolean => mail.mailConfigFromEnv(process.env) !== null,
   },
   {
-    /** Адрес стойки для ссылок в письмах (приглашения, этап 7). Пустой — ссылка относительная. */
+    /** Адрес стойки для ссылок в письмах (приглашения): то же правило, что у остальных писем */
     provide: 'APP_URL',
-    useFactory: (): string => process.env.APP_URL?.trim() ?? '',
+    useFactory: (): string => appUrlFromEnv(),
   },
   {
     provide: 'MAIL_SENDER',

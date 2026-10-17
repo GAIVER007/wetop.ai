@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { EXTENSIONS_REPOSITORY, PrismaExtensionsRepository } from './extensions.repository';
 import { ExtensionsService } from './extensions.service';
 import { OrganizationCreation, PLATFORM_APP_URL, PLATFORM_MAILER } from './organization-creation';
-import type { Mailer } from '../auth/password-reset.service';
+import { appUrlFromEnv, type Mailer } from '../auth/password-reset.service';
 import { PlatformController } from './platform.controller';
 import { PrismaSupportAudit, SUPPORT_AUDIT } from './support.audit';
 import { EnvSupportConnection, SUPPORT_CONNECTION } from './support.connection';
@@ -37,7 +37,7 @@ import { SiteBuilderLicenses } from './site-builder-licenses';
     },
     {
       provide: PLATFORM_APP_URL,
-      useFactory: (): string => process.env.PUBLIC_APP_URL?.trim() || 'https://app.wetop.ai',
+      useFactory: (): string => appUrlFromEnv(),
     },
   ],
   exports: [ExtensionsService],

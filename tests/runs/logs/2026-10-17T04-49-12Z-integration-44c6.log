@@ -1,0 +1,35 @@
+# Интеграционные (integration) · 17.10.2026 09:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит a68e9c5 (claude/auth-identity-1016), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-49-12Z-integration-44c6.json' 'tests/integration/auth-identity-chains.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ❯ |integration| tests/integration/auth-identity-chains.test.ts (3 tests | 1 failed) 668ms
+   ❯ auth identity chains (integration) (3)
+     ✓ profile password change that checked the old password before a reset does not overwrite the reset 334ms
+     × a member of two organizations switches between them; a foreign or archived id opens nothing 158ms
+     ✓ login skips an archived first organization and opens the next open membership 107ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/auth-identity-chains.test.ts > auth identity chains (integration) > a member of two organizations switches between them; a foreign or archived id opens nothing
+TypeError: auth.organizations is not a function
+ ❯ tests/integration/auth-identity-chains.test.ts:119:29
+    117|     expect(await sessionOrg(first.token)).toBe(a.organizationId);
+    118|
+    119|     const list = await auth.organizations(first.token);
+       |                             ^
+    120|     expect(list.map((o) => [o.id, o.role, o.current])).toEqual([
+    121|       [a.organizationId, 'OWNER', true],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  21:49:13
+   Duration  2.32s (tests 40%, transform 30%, import 30%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-49-12Z-integration-44c6.json
+
+# код выхода 1 · 4 с

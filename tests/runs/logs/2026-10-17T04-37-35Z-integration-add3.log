@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 17.10.2026 09:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит f5380e8 (claude/auth-identity-1016), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-37-35Z-integration-add3.json' 'tests/integration/core-security/auth-token-source.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |integration| tests/integration/core-security/auth-token-source.test.ts (1 test) 10145ms
+   ✓ accounts routes act on the session the guard checked (1)
+     ✓ restricted cookie session in A plus unrestricted header session in B cannot invite into A 1367ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  21:37:40
+   Duration  36.17s (transform 48%, tests 30%, import 22%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-37-35Z-integration-add3.json
+
+# код выхода 0 · 43 с

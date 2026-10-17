@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { canManageStaff, parseMembershipRole } from '@pms/domain';
 import { Icon } from '../../../components/icon';
-import type { AuthSessionRow, SignedIn } from '../../../lib/api';
+import type { AuthOrganizationRow, AuthSessionRow, SignedIn } from '../../../lib/api';
 import { logoutAllAction, signOut } from '../../login/actions';
 import { trialLine } from '../../../lib/desk-person';
 import { displayDate } from '../../../lib/display-date';
@@ -11,9 +11,13 @@ import { displayDate } from '../../../lib/display-date';
 export function AccessPanel({
   user,
   sessions = [],
+  organizations = [],
+  organizationError = null,
 }: {
   user: SignedIn;
   sessions?: AuthSessionRow[];
+  organizations?: AuthOrganizationRow[];
+  organizationError?: string | null;
 }) {
   const role = user.role ? parseMembershipRole(user.role) : null;
   const trial = trialLine(user.organization, new Date());
@@ -61,6 +65,9 @@ export function AccessPanel({
           </p>
         </section>
       )}
+      {organizations.length > 1 && (
+        <OrganizationSwitch organizations={organizations} error={organizationError} />
+      )}
       {/* «Где я вошёл» и «выйти везде» (§13.5): отзыв гасит все ключи человека, включая этот */}
       <section className="login-invites" aria-labelledby="sessions-heading">
         <h2 id="sessions-heading">Где вы вошли</h2>
@@ -86,5 +93,44 @@ export function AccessPanel({
         </form>
       </section>
     </main>
+  );
+}
+
+const ROLE_WORD: Record<string, string> = { OWNER: 'владелец', MANAGER: 'управляющий', STAFF: 'администратор' };
+
+/** Один аккаунт в нескольких организациях: обычная форма, переход проверяет сервер (§13.5, `/auth/organization`) */
+function OrganizationSwitch({
+  organizations,
+  error,
+}: {
+  organizations: AuthOrganizationRow[];
+  error: string | null;
+}) {
+  return (
+    <section className="login-invites" aria-labelledby="orgs-heading">
+      <h2 id="orgs-heading">Ваши организации</h2>
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
+      <ul className="login-invite-list" data-testid="organization-list">
+        {organizations.map((o) => (
+          <li key={o.id}>
+            <b>{o.name}</b> <span className="muted">{ROLE_WORD[o.role] ?? o.role}</span>{' '}
+            {o.current ? (
+              <span className="muted">, вы сейчас здесь</span>
+            ) : (
+              <form method="post" action="/auth/organization">
+                <input type="hidden" name="organizationId" value={o.id} />
+                <button type="submit" className="btn btn--secondary">
+                  Перейти<span className="sr-only"> в «{o.name}»</span>
+                </button>
+              </form>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

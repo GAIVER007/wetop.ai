@@ -842,6 +842,26 @@ export const authApi = {
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthSessionRow[];
   },
+  /** Организации, куда человек может перейти (действующее членство, организация не в архиве); своя помечена. */
+  organizations: async (token: string, info: AuthClientInfo): Promise<AuthOrganizationRow[]> => {
+    const res = await backendFetch('/auth/organizations', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return ((await res.json()) as { organizations: AuthOrganizationRow[] }).organizations;
+  },
+  /** Перейти в другую свою организацию: новый ключ сессии, прежний погашен. 403 — организация недоступна. */
+  switchOrganization: async (
+    token: string,
+    organizationId: string,
+    info: AuthClientInfo,
+  ): Promise<{ token: string; expiresAt: string }> => {
+    const res = await backendFetch('/auth/organization', {
+      method: 'POST',
+      headers: authHeaders(info, token),
+      body: JSON.stringify({ organizationId }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { token: string; expiresAt: string };
+  },
   /** 204 всегда: все сессии человека отозваны, включая эту; мёртвый ключ — не ошибка. */
   logoutAll: async (token: string, info: AuthClientInfo): Promise<void> => {
     const res = await backendFetch('/auth/logout-all', {
@@ -3345,6 +3365,14 @@ export const guardApi = {
 };
 
 /** Строка «Где вы вошли» (`GET /auth/sessions`): ни ключа, ни отпечатка, ни сырой строки агента. */
+/** Своя организация в списке перехода (§13.3, §13.5) */
+export interface AuthOrganizationRow {
+  id: string;
+  name: string;
+  role: string;
+  current: boolean;
+}
+
 export interface AuthSessionRow {
   id: string;
   issuedAt: string;

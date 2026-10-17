@@ -242,7 +242,13 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         );
         if (!found) return null;
         if (!include?.memberships) return { ...found };
-        return { ...found, memberships: memberships.filter((m) => m.userId === found.id) };
+        // членства с организацией: вход выбирает первую неархивную (как include { organization } в базе)
+        return {
+          ...found,
+          memberships: memberships
+            .filter((m) => m.userId === found.id)
+            .map((m) => ({ ...m, organization: organizations.find((o) => o.id === m.organizationId) ?? null })),
+        };
       },
       async update({
         where,
@@ -381,7 +387,16 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         if (!user) return { ...row, user: null };
         return {
           ...row,
-          user: { ...user, memberships: memberships.filter((m) => m.userId === user.id) },
+          // как where в подтверждении: действующее членство в неархивной организации
+          user: {
+            ...user,
+            memberships: memberships.filter(
+              (m) =>
+                m.userId === user.id &&
+                m.status === 'ACTIVE' &&
+                organizations.find((o) => o.id === m.organizationId)?.status !== 'SUSPENDED',
+            ),
+          },
         };
       },
       /** Последняя выданная ссылка человека: строки в массиве идут в порядке выдачи, как `created_at` в базе */

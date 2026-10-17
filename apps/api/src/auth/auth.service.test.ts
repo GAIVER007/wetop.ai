@@ -744,6 +744,7 @@ describe('AuthService: учётные данные читаются служеб
     spy('session', 'findUnique');
     spy('user', 'findUnique');
     spy('user', 'update');
+    spy('user', 'updateMany');
     spy('platformAdmin', 'findUnique');
     return { ...world, seen };
   }
@@ -772,7 +773,8 @@ describe('AuthService: учётные данные читаются служеб
       ),
     );
     expect(seen.map((s) => s.call)).toEqual(
-      expect.arrayContaining(['user.findUnique', 'user.update']),
+      // запись пароля условная (updateMany): сброс, прошедший во время проверки старого пароля, она не перезапишет
+      expect.arrayContaining(['user.findUnique', 'user.updateMany']),
     );
     expect(seen.filter((s) => s.tenant !== null)).toEqual([]);
   });

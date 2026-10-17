@@ -240,6 +240,30 @@ export class AuthController {
     return { ok: true };
   }
 
+  /** Свои организации для перехода между ними (один аккаунт в нескольких организациях, §13.3, §13.5) */
+  @Access('self')
+  @Get('organizations')
+  async organizations(@Headers() headers: Record<string, string>) {
+    const token = tokenFromHeaders(headers);
+    if (!token) throw new UnauthorizedException('Войдите заново: сессия не годится');
+    return { organizations: await this.auth.organizations(token) };
+  }
+
+  /** Перейти в другую свою организацию: новый ключ сессии, прежний гаснет. Номер из тела — выбор, а не право. */
+  @Access('self')
+  @Post('organization')
+  async switchOrganization(
+    @Headers() headers: Record<string, string>,
+    @Body() body: Record<string, unknown>,
+    @Headers('user-agent') userAgent?: string,
+  ) {
+    const token = tokenFromHeaders(headers);
+    if (!token) throw new UnauthorizedException('Войдите заново: сессия не годится');
+    return this.auth.switchOrganization(token, body?.organizationId, {
+      userAgentFamily: deviceFromUserAgent(userAgent ?? null, null).browser,
+    });
+  }
+
   /**
    * «Забыли пароль». Ответ всегда одинаковый: по нему нельзя узнать, есть ли такая почта в системе.
    * Без входа по построению — человек как раз не может войти.

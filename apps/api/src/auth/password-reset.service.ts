@@ -30,6 +30,15 @@ export interface Mailer {
 export const MAILER = Symbol('MAILER');
 export const APP_URL = Symbol('APP_URL');
 
+/**
+ * Адрес стойки для ссылок во всех письмах (подтверждение, сброс, приглашение, ссылка владельцу): одно правило на все.
+ * `PUBLIC_APP_URL`, иначе `APP_URL` (её же читает стойка), иначе боевой адрес. Пустой адрес давал письма с ссылкой без
+ * домена (приглашение до 16.10.2026).
+ */
+export function appUrlFromEnv(env: Record<string, string | undefined> = process.env): string {
+  return env.PUBLIC_APP_URL?.trim() || env.APP_URL?.trim() || 'https://app.wetop.ai';
+}
+
 /** Не чаще одного письма на почту в пять минут: иначе ящик можно завалить чужими запросами. */
 const REPEAT_MINUTES = 5;
 

@@ -1,0 +1,133 @@
+# Сквозные (e2e) · 17.10.2026 11:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 61f71c0 (claude/auth-identity-1016)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/sessions.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/unified-auth.spec.ts' 'tests/ui/invites.spec.ts' 'tests/ui/password-reset.spec.ts' 'tests/ui/login-lock.spec.ts' 'tests/ui/registration-closed.spec.ts' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 51 tests using 1 worker
+
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (34.1s)
+  ✓   2 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (31.6s)
+  ✓   3 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (5.7s)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (4.0s)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (3.6s)
+  ✓   6 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (12.7s)
+  ✓   7 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (13.2s)
+  ✓   8 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (2.6s)
+  ✓   9 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (21.0s)
+  ✓  10 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (10.0s)
+  ✓  11 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (16.8s)
+  ✓  12 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (24.0s)
+  ✓  13 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (1.0s)
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (5.2s)
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (8.5s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (22.7s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (19.2s)
+  ✓  18 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (32.1s)
+  ✓  19 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (5.9s)
+  ✓  20 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (6.6s)
+  ✓  21 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (13.4s)
+  ✓  22 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (8.4s)
+  ✓  23 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (17.4s)
+  ✓  24 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (8.5s)
+  ✓  25 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (4.6s)
+  ✓  26 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (14.1s)
+  ✘  27 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» (49.5s)
+  ✓  28 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/sessions.spec.ts:76:1 › удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль (6.3s)
+  ✓  29 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/sessions.spec.ts:105:1 › без сессии списка сеансов нет (8.1s)
+  ✓  30 [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/sessions.spec.ts:113:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (10.9s)
+  ✓  31 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (17.3s)
+  ✓  32 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/invites.spec.ts:49:1 › без сессии формы приглашения нет (825ms)
+  ✓  33 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/invites.spec.ts:56:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (11.0s)
+  ✓  34 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/invites.spec.ts:75:1 › мёртвая ссылка — один текст и путь на форму входа (2.4s)
+  ✓  35 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback оставляет вход сотрудников (976ms)
+  ✓  36 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register оставляет вход сотрудников (670ms)
+  ✓  37 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register&next=%2Ftoday оставляет вход сотрудников (449ms)
+  ✓  38 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/registration-closed.spec.ts:31:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (437ms)
+  ✓  39 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/registration-closed.spec.ts:43:1 › ранее открытая форма получает отказ через сервер без новой сессии (1.1s)
+  ✓  40 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (7.4s)
+  ✓  41 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:62:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (23.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3941163322'
+[WebServer] }
+  ✓  42 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:105:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.2s)
+  ✓  43 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:122:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.0s)
+  ✓  44 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:160:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (7.7s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3941163322'
+[WebServer] }
+  ✓  45 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:222:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (24.2s)
+  ✓  46 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:278:1 › владелец: зовёт управляющего и администратора, меняет роль (5.4s)
+  ✓  47 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:309:1 › администратор: сотрудниками ведают владелец и управляющий (8.7s)
+  ✓  48 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:321:5 › доступность: сотрудники и отказ по роли, light, 1440px (9.1s)
+  ✓  49 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:321:5 › доступность: сотрудники и отказ по роли, dark, 1440px (6.6s)
+  ✓  50 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:321:5 › доступность: сотрудники и отказ по роли, light, 390px (5.0s)
+  ✓  51 [main-ui-1] › ../.wetop-main-ui-UnCsf9/worker-1/tests/ui/roles.spec.ts:321:5 › доступность: сотрудники и отказ по роли, dark, 390px (4.3s)
+
+
+  1) [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Войти', exact: true })
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Войти', exact: true }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Войти', exact: true })
+        - waiting for navigation to finish...
+        - navigated to "http://127.0.0.1:3002/?next=%2Ftoday#login"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      70 |   await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
+      71 |   await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
+    > 72 |   await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+         |                                                                          ^
+      73 |   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
+      74 | });
+      75 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-UnCsf9/worker-0/tests/ui/sessions.spec.ts:72:74
+
+    Error Context: test-results/sessions-выписанный-ранее--2c807-ится-«Завершить-все-сеансы»-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sessions-выписанный-ранее--2c807-ится-«Завершить-все-сеансы»-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sessions-выписанный-ранее--2c807-ится-«Завершить-все-сеансы»-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [main-ui-0] › ../.wetop-main-ui-UnCsf9/worker-0/tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» 
+  50 passed (11.1m)
+
+# код выхода 1 · 11 мин 11 с

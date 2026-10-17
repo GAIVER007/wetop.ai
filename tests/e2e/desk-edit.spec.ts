@@ -121,19 +121,49 @@ test('групповая бронь на 2 койки → две клетки ш
     await expect(children).toHaveValue('0');
     await expect(children).toHaveAttribute('min', '0');
     await expect(children).toHaveAttribute('step', '1');
+    const save = guests.getByRole('button', { name: 'Сохранить', exact: true });
+    const error = guests.getByRole('alert');
+    const reservationPath = `/reservations/${number}`;
+    const submit = async () => {
+      const received = page.waitForResponse((response) => {
+        const req = response.request();
+        const body = req.postData() ?? '';
+        return (
+          req.method() === 'POST' &&
+          new URL(response.url()).pathname === reservationPath &&
+          Boolean(req.headers()['next-action']) &&
+          body.includes(item.id) &&
+          /name="(?:_\d+_)?adults"/.test(body) &&
+          /name="(?:_\d+_)?children"/.test(body)
+        );
+      });
+      await save.click();
+      expect((await received).ok(), 'guest-count server action HTTP headers').toBe(true);
+    };
+
+    // Keep min=1 above; bypass native validation only to prove server rejection.
+    await adults.fill('0');
+    await children.fill('0');
+    await guests.evaluate((form) => {
+      (form as HTMLFormElement).noValidate = true;
+    });
+    await submit();
+    await expect(error).toContainText(/adults.*1/);
+    await expect(save).toBeEnabled();
+    expect(await readCard()).toEqual(beforeGuests);
+    expect(await readFinance()).toEqual(beforeFinance);
+    // Error changes the form key: restore native validation on the live form.
+    await guests.evaluate((form) => {
+      (form as HTMLFormElement).noValidate = false;
+    });
+
     await adults.fill('1');
     await children.fill('0');
-    const saved = page.waitForResponse((response) =>
-      response.request().method() === 'POST' &&
-      response.url().includes(`/reservations/${number}`),
-    );
-    const save = guests.getByRole('button', { name: 'Сохранить', exact: true });
-    await save.click();
-    const response = await saved;
-    expect(response.ok(), 'guest-count server action must succeed').toBe(true);
-    await response.finished();
+    // Editing/pending do not clear useActionState's error; only success does.
+    await expect(error).toContainText(/adults.*1/);
+    await submit();
+    await expect(error).toHaveCount(0);
     await expect(save).toBeEnabled();
-    await expect(guests.getByRole('alert')).toHaveCount(0);
     await expect(adults).toHaveValue('1');
     await expect(children).toHaveValue('0');
     // Full card equality includes both stays, allocations (unitCode), counts and prices.

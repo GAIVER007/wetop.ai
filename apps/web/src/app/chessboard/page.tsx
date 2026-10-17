@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
@@ -35,7 +35,7 @@ export default async function ChessboardPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/chessboard');
   const query = normalizeSearchParams(await searchParams);
   const clock = await hotelClock();
   const today = clock.today();

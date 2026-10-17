@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
@@ -19,7 +19,7 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
 
 /** Товары бара (ADR-157): каталог с остатками, ценой и минимумом; новый товар и категории здесь же. */
 export default async function BarProductsPage() {
-  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
+  await requireFeature('/bar/products');
   const [categories, stock, shell] = await Promise.all([settle(barApi.categories()), settle(barApi.stock()), deskShell()]);
   // UI-FIX-01: каталог правит право settings, в режиме чтения команд нет.
   const canMutate = mayAccess(shell.access, 'settings') && !shell.readOnly;

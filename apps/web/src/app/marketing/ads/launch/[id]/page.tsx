@@ -3,7 +3,7 @@ import { notFound, unstable_rethrow } from 'next/navigation';
 import { ApiError, marketingAdsApi, type MarketingAdLaunchView } from '../../../../../lib/api';
 import { loadErrorProps } from '../../../../../lib/load-error';
 import { formatMoney } from '../../../../../lib/money';
-import { requireVertical } from '../../../../../lib/vertical-guard';
+import { requireFeature } from '../../../../../lib/vertical-guard';
 import '../../../marketing.css';
 import '../launch.css';
 import { Icon } from '../../../../../components/icon';
@@ -26,7 +26,7 @@ const STEPS: Array<{ step: MarketingAdLaunchView['step']; label: string }> = [
 const ORDER = ['MEDIA', 'CAMPAIGN', 'ADSET', 'CREATIVE', 'AD', 'DONE'];
 
 export default async function AdLaunchStatusPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  await requireFeature('/marketing/ads/launch');
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   let launch: MarketingAdLaunchView | null = null;

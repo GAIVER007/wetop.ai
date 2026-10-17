@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireVertical } from '../../../../lib/vertical-guard';
+import { requireFeature } from '../../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../../../lib/api';
 import { hotelToday } from '../../../../lib/hotel-api';
@@ -20,7 +20,7 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
  * карточка заводится прямо из строки и создаётся вместе с приходом.
  */
 export default async function BarNewReceiptPage() {
-  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
+  await requireFeature('/bar/receipts/new');
   const [products, suppliers, today, shell] = await Promise.all([
     settle(barApi.products()), settle(barApi.suppliers()), hotelToday(), deskShell(),
   ]);

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { displayDate } from '../../../lib/display-date';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
@@ -20,7 +20,7 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
 
 /** Приходы бара (ADR-157): журнал документов поставщиков, проведение черновиков, оплата и долги. */
 export default async function BarReceiptsPage() {
-  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
+  await requireFeature('/bar/receipts');
   const [receipts, methods, shell] = await Promise.all([settle(barApi.receipts()), settle(barApi.paymentMethods()), deskShell()]);
   // UI-FIX-01: проведение и оплата прихода пишут склад и кассу, нужны право desk и не режим чтения.
   const canMutate = mayAccess(shell.access, 'desk') && !shell.readOnly;

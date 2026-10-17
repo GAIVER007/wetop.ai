@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
@@ -17,7 +17,7 @@ import '../beauty.css';
 export default async function BeautyMastersPage({
   searchParams,
 }: { searchParams?: Promise<{ employee?: string | string[] }> } = {}) {
-  await requireVertical(['BEAUTY']);
+  await requireFeature('/beauty/masters');
   const params = await searchParams;
   const requested = typeof params?.employee === 'string' ? params.employee : '';
   const employeeId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(

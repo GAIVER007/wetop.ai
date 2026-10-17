@@ -1,3 +1,4 @@
+import { requireFeature } from '../../../../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../../../../lib/search-params';
 import { chessboardApi, formatMinor, guestsApi } from '../../../../../lib/api';
 import { hotelApi, hotelClock } from '../../../../../lib/hotel-api';
@@ -24,6 +25,8 @@ export default async function PrintContract({
   params: Promise<{ number: string }>;
   searchParams: Promise<SearchParams>;
 }) {
+  // раздел направления по реестру функций (У1): по прямой ссылке чужое направление уходит на свою стартовую
+  await requireFeature('/reservations');
   const { number } = await params;
   const { lang } = normalizeSearchParams(await searchParams);
   const l = pickLang(lang);

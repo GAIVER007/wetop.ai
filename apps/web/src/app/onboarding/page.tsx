@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { redirect } from 'next/navigation';
 import { authApi, onboardingApi } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
@@ -13,7 +13,7 @@ import { OnboardingForm } from './onboarding-form';
  * номеров. Уже настроенный объект сюда не пускаем — незачем.
  */
 export default async function OnboardingPage() {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/onboarding');
   const [verified, status, desk] = await Promise.all([
     authApi.me().catch(() => null),
     onboardingApi.status().catch(() => null),

@@ -4,7 +4,7 @@ import { can } from '@pms/domain';
 import { ApiError, marketingAdsApi, type MarketingAdAssets } from '../../../../lib/api';
 import { deskShell } from '../../../../lib/desk-shell';
 import { loadErrorProps } from '../../../../lib/load-error';
-import { requireVertical } from '../../../../lib/vertical-guard';
+import { requireFeature } from '../../../../lib/vertical-guard';
 import '../../marketing.css';
 import '../../budget/budget.css';
 import './launch.css';
@@ -31,7 +31,7 @@ function Back() {
 }
 
 export default async function AdLaunchPage() {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  await requireFeature('/marketing/ads/launch');
   const shell = await deskShell();
   const role = shell.access.role;
   const allowed = !shell.readOnly && (role === null || can(role, 'ads_launch'));

@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { unitsApi } from '../../../lib/api';
@@ -25,7 +25,7 @@ export default async function UnitPage({
   searchParams: Promise<SearchParams>;
 }) {
   // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/units');
   const { code } = await params;
   const q = normalizeSearchParams(await searchParams);
   const blockPeriod =

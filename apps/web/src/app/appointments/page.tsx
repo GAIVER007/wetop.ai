@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
@@ -15,7 +15,7 @@ export default async function AppointmentsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['BEAUTY']);
+  await requireFeature('/appointments');
   const { date } = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
   try {

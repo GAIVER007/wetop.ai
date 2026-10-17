@@ -1,0 +1,2181 @@
+# Модульные (unit) · 17.10.2026 14:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 29cc63d (claude/u1-feature-registry), незакоммиченных файлов набора: 75
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T09-33-23Z-unit-73b6.json' 'apps/web'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/u1
+
+ ✓ |unit| apps/web/src/lib/site-facts.test.ts (12 tests) 5ms
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (22 tests) 21ms
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 5ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 319ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 36ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (20 tests) 5ms
+ ✓ |unit| apps/web/src/app/today/unified-owner.test.ts (15 tests) 44ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 5ms
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (19 tests) 8ms
+ ✓ |unit| apps/web/src/app/guests/guest-stay.test.ts (17 tests) 4ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (30 tests) 6ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (8 tests) 8ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (15 tests) 3ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (37 tests) 36ms
+ ✓ |unit| apps/web/src/app/chessboard/board-filters.test.ts (12 tests) 6ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 4ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (8 tests) 28ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 5ms
+ ✓ |unit| apps/web/src/app/marketing/budget/derive.test.ts (12 tests) 4ms
+ ✓ |unit| apps/web/src/lib/status/status.test.ts (13 tests) 5ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 28ms
+ ✓ |unit| apps/web/src/app/chessboard/unassigned-plan.test.ts (8 tests) 3ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 4ms
+ ✓ |unit| apps/web/src/app/guests/filters.test.ts (11 tests) 6ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 26ms
+ ✓ |unit| apps/web/src/app/management/analytics/params.test.ts (12 tests) 4ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/app/market/chart-data.test.ts (10 tests) 3ms
+ ✓ |unit| apps/web/src/app/incidents/incident-view.test.ts (17 tests) 4ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (9 tests) 6ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (11 tests) 3ms
+ ✓ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests) 16ms
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (12 tests) 3ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 3ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (12 tests) 11ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (7 tests) 15ms
+ ✓ |unit| apps/web/src/lib/navigation-rights.test.ts (2 tests) 30ms
+ ❯ |unit| apps/web/src/app/growth/business-screen.test.ts (7 tests | 4 failed) 36ms
+   ❯ Разделы роста по направлению бизнеса (7)
+     ✓ маркетинг салона: бюджет и «Сайт и SEO» доступны (SITE-1), тексты про клиентов салона 12ms
+     ✓ продажи ресторана: реальные плитки, лучшие блюда и официанты, без анализа конкурентов 9ms
+     × BEAUTY: продажи не запрашивают гостиничные данные 4ms
+     × BEAUTY: маркетинг открывает общие модули без ссылки на гостиничный сайт 0ms
+     × FOOD_SERVICE: продажи не запрашивают гостиничные данные 0ms
+     × FOOD_SERVICE: маркетинг открывает общие модули без ссылки на гостиничный сайт 0ms
+     ✓ для салона каталог ведёт к услугам, для ресторана к блюдам 9ms
+ ✓ |unit| apps/web/src/app/platform/support/kb-forms.test.ts (8 tests) 2ms
+ ✓ |unit| apps/web/src/app/growth/business-sales.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/app/chessboard/range-plan.test.ts (8 tests) 3ms
+ ✓ |unit| apps/web/src/app/branches/reference-board.test.ts (8 tests) 25ms
+ ✓ |unit| apps/web/src/app/beauty/actions.test.ts (6 tests) 16ms
+ ✓ |unit| apps/web/src/lib/navigation-registry.test.ts (6 tests) 5ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 2ms
+ ❯ |unit| apps/web/src/lib/report-query.test.ts (12 tests | 6 failed) 22ms
+   ✓ общий разбор периода и фильтров отчётов (RPT2.2b) (6)
+     ✓ без параметров: этот месяц, сравнение включено, весь фонд, без источника и категории 2ms
+     ✓ детализация по умолчанию зависит от длины периода и не пишется в адрес 0ms
+     ✓ адрес переживает круг разбор → ссылка → разбор 0ms
+     ✓ мусор в адресе не ломает отчёт: неверная детализация, длинный или управляющий текст отбрасываются 0ms
+     ✓ период длиннее года и перевёрнутый период дают ошибку, а не запрос 0ms
+     ✓ смена фильтра сохраняет остальные и не тянет чужие параметры 0ms
+   ❯ страницы отчётов закрыты для салона и ресторана (находка аудита RPT2.1) (6)
+     × reports/page.tsx уводит салон и ресторан на их отчёты до гостиничных запросов 2ms
+     × reports/form-910/page.tsx вызывает requireVertical 5ms
+     × reports/print/page.tsx вызывает requireVertical 6ms
+     × reports/overview/page.tsx вызывает requireVertical 3ms
+     × reports/occupancy/page.tsx вызывает requireVertical 1ms
+     × reports/units/page.tsx вызывает requireVertical 1ms
+ ✓ |unit| apps/web/src/app/reservations/filters.test.ts (8 tests) 3ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests) 79ms
+ ✓ |unit| apps/web/src/app/website/actions.test.ts (8 tests) 3ms
+ ✓ |unit| apps/web/src/app/beauty/employee-workspace.test.ts (4 tests) 15ms
+ ✓ |unit| apps/web/src/app/restaurant-settings/opening.test.ts (6 tests) 16ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (15 tests) 16ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 8ms
+ ❯ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (5 tests | 1 failed) 32ms
+   ❯ Пустые рабочие экраны салона (5)
+     ✓ разрешает перенос мышью открытой записи, но запрещает его в режиме чтения 16ms
+     ✓ показывает часы и сетку без мастеров и услуг, не разрешая запись 2ms
+     ✓ сохраняет настоящую колонку мастера без услуг 2ms
+     × сохраняет заголовки таблицы клиентов без строк 10ms
+     ✓ показывает семь дней графика без мастера 1ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 3ms
+ ✓ |unit| apps/web/src/lib/features.test.ts (105 tests) 13ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (6 tests) 16ms
+ ✓ |unit| apps/web/src/app/marketing/analytics/report.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/app/scope/resolve/route.test.ts (5 tests) 18ms
+ ✓ |unit| apps/web/src/app/channels/mapping.test.ts (5 tests) 3ms
+ ✓ |unit| apps/web/src/lib/site-preview-spec.test.ts (5 tests) 20ms
+ ✓ |unit| apps/web/src/app/today/owner-daily-chart.test.ts (6 tests) 27ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 131ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (9 tests) 3ms
+ ✓ |unit| apps/web/src/lib/sales.test.ts (5 tests) 4ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/app/management/analytics/channels/query.test.ts (7 tests) 5ms
+ ✓ |unit| apps/web/src/app/team/scope-model.test.ts (7 tests) 2ms
+ ✓ |unit| apps/web/src/app/finance/operations-csv.test.ts (5 tests) 4ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests) 15ms
+ ✓ |unit| apps/web/src/app/reservations/finance-state.test.ts (8 tests) 3ms
+ ✓ |unit| apps/web/src/app/login/verify-registration.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/next-rethrow.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 2ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/app/market/derive.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests) 26ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 3ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 20ms
+ ✓ |unit| apps/web/src/components/date-range-popover.test.ts (3 tests) 24ms
+ ✓ |unit| apps/web/src/lib/menu-duplicates.test.ts (6 tests) 12ms
+ ✓ |unit| apps/web/src/app/reservations/new/summary.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 15ms
+ ✓ |unit| apps/web/src/lib/food-data.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/lib/workspace-session-a27.test.ts (8 tests) 77ms
+ ✓ |unit| apps/web/src/lib/line-geometry.test.ts (5 tests) 3ms
+ ✓ |unit| apps/web/src/app/bar/load-context.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/lib/menu-routes.test.ts (3 tests) 10ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 33ms
+ ✓ |unit| apps/web/src/app/journal/journal-view.test.ts (7 tests) 3ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 3ms
+ ✓ |unit| apps/web/src/app/channels/format.test.ts (5 tests) 2ms
+ ✓ |unit| apps/web/src/app/channels/channel-list.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/lib/donut.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 19ms
+ ✓ |unit| apps/web/src/lib/navigation-place.test.ts (23 tests) 7ms
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 5ms
+ ❯ |unit| apps/web/src/app/journal/labels.test.ts (3 tests | 1 failed) 7ms
+   ❯ подписи журнала операций (3)
+     × у каждого кода действия из API есть подпись 5ms
+     ✓ у каждого типа объекта из API есть подпись 1ms
+     ✓ незнакомый код показывается разделом, а не сырой строкой 0ms
+ ✓ |unit| apps/web/src/lib/food-api.test.ts (1 test) 2ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 8ms
+ ❯ |unit| apps/web/src/app/beauty/page.test.ts (2 tests | 2 failed) 5ms
+   ❯ Недельный календарь салона (2)
+     × загружает каждый день с понедельника по воскресенье и показывает недельный обзор 3ms
+     × обычный день не загружает всю неделю 1ms
+ ✓ |unit| apps/web/src/app/bar/stock-status.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/app/branches/financial-widgets.test.ts (2 tests) 7ms
+ ✓ |unit| apps/web/src/app/finance/appointments-csv.test.ts (1 test) 4ms
+ ✓ |unit| apps/web/src/app/finance/csv.test.ts (10 tests) 3ms
+ ✓ |unit| apps/web/src/app/marketing/site/site-routes.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 31ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/lib/occupancy-kinds.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/components/property-time.test.ts (2 tests) 37ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/app/finance/debts-csv.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/app/login/signed-in.test.ts (8 tests) 5ms
+ ✓ |unit| apps/web/src/lib/branch-report-api.test.ts (2 tests) 15ms
+ ✓ |unit| apps/web/src/app/reservations/reservations-csv.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 2ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/app/market/competitor-status.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 24ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/phone-mask.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/app/branches/business-groups.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/app/finance/cash-draft-intent.test.ts (2 tests) 25ms
+ ✓ |unit| apps/web/src/app/help/help.test.ts (4 tests) 24ms
+ ✓ |unit| apps/web/src/app/create/regional.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/app/beauty/services/popularity.test.ts (2 tests) 84ms
+ ✓ |unit| apps/web/src/app/finance/services-csv.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 1ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 11ms
+ ✓ |unit| apps/web/src/lib/navigation-growth.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/lib/ai-seller-data-links.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 4ms
+ ✓ |unit| apps/web/src/lib/load-error.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/components/shell/search.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/app/ai-agents/[id]/telegram-panel.test.ts (3 tests) 2ms
+ ❯ |unit| apps/web/src/app/website/website-routes.test.ts (4 tests | 4 failed) 5ms
+   ❯ /website только у гостиницы (4)
+     × page.tsx 3ms
+     × analytics/page.tsx 1ms
+     × booking/page.tsx 0ms
+     × settings/page.tsx 0ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/app/today/owner-daily-chart.review.test.ts (1 test) 22ms
+ ✓ |unit| apps/web/src/app/finance/cash-actions.test.ts (3 tests) 23ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 4ms
+ ✓ |unit| apps/web/src/app/ai-seller/actions.test.ts (2 tests) 16ms
+ ✓ |unit| apps/web/src/app/customers/beauty-table.test.ts (1 test) 7ms
+ ✓ |unit| apps/web/src/lib/owner-summary-api.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/app/team/session-navigation-a27.test.ts (2 tests) 1782ms
+   ✓ team navigation preserves the common session redirect 1344ms
+   ✓ a non-session API failure retains the existing safe team fallback 437ms
+ ✓ |unit| apps/web/src/lib/registration-context-client.test.ts (1 test) 27ms
+ ✓ |unit| apps/web/src/app/food/guest-marks.test.ts (2 tests) 1ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/app/today/home-currency.test.ts (2 tests) 1ms
+ ✓ |unit| apps/web/src/app/today/owner-layout.test.ts (1 test) 3ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 4ms
+ ✓ |unit| apps/web/src/app/branches/form.test.ts (1 test) 5ms
+ ✓ |unit| apps/web/src/lib/public-entry.test.ts (1 test) 1ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 2ms
+ ✓ |unit| apps/web/src/app/food/cash-intent.test.ts (1 test) 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/report-query.test.ts > страницы отчётов закрыты для салона и ресторана (находка аудита RPT2.1) > reports/page.tsx уводит салон и ресторан на их отчёты до гостиничных запросов
+AssertionError: expected -1 to be greater than -1
+ ❯ apps/web/src/lib/report-query.test.ts:85:19
+     83|     const beauty = src.indexOf("redirect('/management/analytics')");
+     84|     const hotel = src.indexOf('await hotelToday()');
+     85|     expect(guard).toBeGreaterThan(-1);
+       |                   ^
+     86|     expect(food).toBeGreaterThan(guard);
+     87|     expect(beauty).toBeGreaterThan(guard);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  |unit| apps/web/src/lib/report-query.test.ts > страницы отчётов закрыты для салона и ресторана (находка аудита RPT2.1) > reports/form-910/page.tsx вызывает requireVertical
+AssertionError: expected 'import { requireFeature } from \'../.…' to contain 'requireVertical([\'HOSPITALITY\'])'
+
+- Expected
++ Received
+
+- requireVertical(['HOSPITALITY'])
++ import { requireFeature } from '../../../lib/vertical-guard';
++ import Link from 'next/link';
++ import { halfYearMonths, incomeFor910 } from '@pms/domain';
++ import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
++ import { hotelToday } from '../../../lib/hotel-api';
++ import { financeApi } from '../../../lib/api';
++ import { formatMoney } from '../../../lib/money';
++ import { Page } from '../../../components/page';
++ import { Alert, Table } from '../../../components/ui';
++ import { METHOD_RU } from '../../finance/labels';
++ import '../../directory.css';
++ import '../reports.css';
++
++ const MONTHS = [
++   'Январь',
++   'Февраль',
++   'Март',
++   'Апрель',
++   'Май',
++   'Июнь',
++   'Июль',
++   'Август',
++   'Сентябрь',
++   'Октябрь',
++   'Ноябрь',
++   'Декабрь',
++ ];
++
++ /**
++  * Доход для формы 910 по полугодиям (K7 плана развития, ADR-144): помощь бухгалтеру, а не декларация. Кассовый метод:
++  * деньги, поступившие от гостей за месяц, минус возвраты того же месяца; гарантия картой не считается (Q-268).
++  * Налог и ставку WETOP не считает. Месяцы читаются тем же отчётом, что «Финансы за период»: цифры сходятся.
++  */
++ export default async function Form910Page({
++   searchParams,
++ }: {
++   searchParams: Promise<SearchParams>;
++ }) {
++   await requireFeature('/reports/form-910');
++   const sp = normalizeSearchParams(await searchParams);
++   const today = await hotelToday();
++   const year = /^\d{4}$/.test(sp.year ?? '') ? Number(sp.year) : Number(today.slice(0, 4));
++   const half: 1 | 2 =
++     sp.half === '1' || sp.half === '2'
++       ? (Number(sp.half) as 1 | 2)
++       : today.slice(5, 7) <= '06'
++         ? 1
++         : 2;
++   let months: ReturnType<typeof halfYearMonths> = [];
++   let error: string | null = null;
++   try {
++     months = halfYearMonths(year, half);
++   } catch (e) {
++     error = (e as Error).message;
++   }
++   const reports = await Promise.all(
++     months.map((m) =>
++       financeApi.report(m.from, m.to).then(
++         (r) => r,
++         () => null,
++       ),
++     ),
++   );
++   const failed = reports.some((r) => r === null);
++   const currency = reports.find((r) => r)?.currency ?? 'KZT';
++   const rows = months.map((m, i) => {
++     const r = reports[i];
++     return {
++       ...m,
++       income: r
++         ? incomeFor910({
++             paymentsByMethod: r.paymentsByMethod,
++             refundedMinor: r.refunds.amountMinor,
++           })
++         : null,
++     };
++   });
++   const total = rows.reduce(
++     (s, r) =>
++       r.income
++         ? {
++             received: s.received + r.income.receivedMinor,
++             refunded: s.refunded + r.income.refundedMinor,
++             income: s.income + r.income.incomeMinor,
++           }
++         : s,
++     { received: 0n, refunded: 0n, income: 0n },
++   );
++   const byMethod = new Map<string, bigint>();
++   for (const r of rows)
++     for (const p of r.income?.byMethod ?? [])
++       byMethod.set(p.method, (byMethod.get(p.method) ?? 0n) + p.amountMinor);
++   const money = (v: bigint) => formatMoney(v.toString(), currency);
++   const link = (y: number, h: 1 | 2) => `/reports/form-910?year=${y}&half=${h}`;
++   const prev = half === 1 ? link(year - 1, 2) : link(year, 1);
++   const next = half === 1 ? link(year, 2) : link(year + 1, 1);
++   return (
++     <Page
++       title="Доход для формы 910"
++       subtitle={`${half === 1 ? 'Первое' : 'Второе'} полугодие ${year}: деньги от гостей минус возвраты, по месяцам`}
++     >
++       <nav className="row row--xs" aria-label="Полугодие">
++         <Link href={prev} className="btn btn--secondary btn--sm">
++           Предыдущее полугодие
++         </Link>
++         <Link href={next} className="btn btn--secondary btn--sm">
++           Следующее полугодие
++         </Link>
++       </nav>
++       {error && <Alert boxed>{error}</Alert>}
++       {failed && (
++         <Alert boxed>Часть месяцев не загрузилась: итог неполный, обновите страницу.</Alert>
++       )}
++       {!error && (
++         <Table data-testid="form910-months">
++           <thead>
++             <tr>
++               <th>Месяц</th>
++               <th className="num">Поступило</th>
++               <th className="num">Возвращено</th>
++               <th className="num">Доход</th>
++             </tr>
++           </thead>
++           <tbody>
++             {rows.map((r) => (
++               <tr key={r.month} data-testid="form910-month">
++                 <td>
++                   <Link href={`/finance?from=${r.from}&to=${r.to}#operations`}>
++                     {MONTHS[Number(r.month.slice(5)) - 1]}
++                   </Link>
++                 </td>
++                 <td className="num">{r.income ? money(r.income.receivedMinor) : '—'}</td>
++                 <td className="num">{r.income ? money(r.income.refundedMinor) : '—'}</td>
++                 <td className="num">{r.income ? money(r.income.incomeMinor) : '—'}</td>
++               </tr>
++             ))}
++           </tbody>
++           <tfoot>
++             <tr>
++               <th scope="row">За полугодие</th>
++               <td className="num">{money(total.received)}</td>
++               <td className="num">{money(total.refunded)}</td>
++               <td className="num" data-testid="form910-total">
++                 <b>{money(total.income)}</b>
++               </td>
++             </tr>
++           </tfoot>
++         </Table>
++       )}
++       {byMethod.size > 0 && (
++         <Table plain data-testid="form910-methods">
++           <thead>
++             <tr>
++               <th>Способ оплаты</th>
++               <th className="num">Поступило за полугодие</th>
++             </tr>
++           </thead>
++           <tbody>
++             {[...byMethod].map(([method, amount]) => (
++               <tr key={method}>
++                 <td>{METHOD_RU[method] ?? method}</td>
++                 <td className="num">{money(amount)}</td>
++               </tr>
++             ))}
++           </tbody>
++         </Table>
++       )}
++       <p className="hint--lg">
++         Это помощь бухгалтеру, а не декларация. Считаются деньги, поступившие от гостей (кассовый
++         метод), минус возвраты того же месяца; гарантия картой не считается. Оплаты через каналы
++         продаж и поступления кассы мимо гостей бухгалтер учитывает по своим правилам. Ставку налога
++         WETOP не применяет.
++       </p>
++     </Page>
++   );
++ }
++
+
+ ❯ apps/web/src/lib/report-query.test.ts:98:17
+     96|   ])('reports/%s вызывает requireVertical', (f) => {
+     97|     const src = readFileSync(new URL(`../app/reports/${f}`, import.met…
+     98|     expect(src).toContain("requireVertical(['HOSPITALITY'])");
+       |                 ^
+     99|   });
+    100| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  |unit| apps/web/src/lib/report-query.test.ts > страницы отчётов закрыты для салона и ресторана (находка аудита RPT2.1) > reports/print/page.tsx вызывает requireVertical
+AssertionError: expected 'import { requireFeature } from \'../.…' to contain 'requireVertical([\'HOSPITALITY\'])'
+
+- Expected
++ Received
+
+- requireVertical(['HOSPITALITY'])
++ import { requireFeature } from '../../../lib/vertical-guard';
++ import { isIsoDate } from '@pms/domain';
++ import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
++ import { api, deskApi, type DeskRow } from '../../../lib/api';
++ import { hotelClock } from '../../../lib/hotel-api';
++ import { PrintButton } from '../../reservations/[number]/print/print-button';
++
++ /**
++  * Печатные формы дня (REP4, план `plans/reports-hub-2026-10-02.md` §3): «Сводка дня» и «Список
++  * проживающих» на одном `GET /desk/today`. Приём — регистрационная карта (`reservations/[number]/print`):
++  * отдельный лист serif-вёрсткой, RU и KZ (CLAUDE §7), штамп по часам объекта. Телефонов, документов,
++  * гражданства и денег на листе нет: бумага уходит из системы (SECURITY §4).
++  */
++ const T = {
++   ru: {
++     day: 'Сводка дня',
++     inhouse: 'Список проживающих',
++     property: 'Средство размещения',
++     date: 'Дата',
++     arrivals: 'Заезды',
++     departures: 'Выезды',
++     inHouse: 'Проживают',
++     overdue: 'Не заехали вовремя',
++     guest: 'Гость',
++     category: 'Категория',
++     unit: 'Номер / место',
++     arrival: 'Заезд',
++     departure: 'Выезд',
++     guests: 'Гостей',
++     none: 'нет',
++     printedAt: 'Сформировано',
++   },
++   kz: {
++     day: 'Күн бойынша жиынтық',
++     inhouse: 'Тұрып жатқан қонақтар тізімі',
++     property: 'Орналастыру орны',
++     date: 'Күні',
++     arrivals: 'Келулер',
++     departures: 'Кетулер',
++     inHouse: 'Тұрып жатыр',
++     overdue: 'Уақытында келмегендер',
++     guest: 'Қонақ',
++     category: 'Санат',
++     unit: 'Нөмір / орын',
++     arrival: 'Келу',
++     departure: 'Кету',
++     guests: 'Қонақ саны',
++     none: 'жоқ',
++     printedAt: 'Қалыптастырылды',
++   },
++ } as const;
++ const ddmmyyyy = (iso: string) => iso.split('-').reverse().join('.');
++
++ export default async function PrintDaySheet({
++   searchParams,
++ }: {
++   searchParams: Promise<SearchParams>;
++ }) {
++   await requireFeature('/reports/print');
++   const sp = normalizeSearchParams(await searchParams);
++   const language = sp.lang === 'kz' ? 'kz' : 'ru';
++   const t = T[language];
++   const form = sp.form === 'inhouse' ? 'inhouse' : 'day';
++   const clock = await hotelClock();
++   const date = isIsoDate(sp.date) ? sp.date : clock.today();
++   const [day, summary] = await Promise.all([deskApi.today(date), api.inventorySummary()]);
++   const printedAt = clock.printed().stamp;
++   const qs = (f: string, lang = language) =>
++     `?form=${f}${sp.date || date !== clock.today() ? `&date=${date}` : ''}&lang=${lang}`;
++   return (
++     <main
++       data-testid={form === 'day' ? 'print-day-sheet' : 'print-inhouse'}
++       style={{
++         maxWidth: 720,
++         margin: '0 auto',
++         padding: 24,
++         fontFamily: 'Georgia, "Times New Roman", serif',
++         color: '#000',
++         background: '#fff',
++       }}
++     >
++       <style>{`@media print { .no-print { display: none } body { background: #fff } main { padding: 0 } }`}</style>
++       <div
++         className="no-print"
++         style={{
++           display: 'flex',
++           gap: 10,
++           marginBottom: 16,
++           fontFamily: 'system-ui, sans-serif',
++           fontSize: 13,
++         }}
++       >
++         <a href="/reports">← отчёты</a>
++         <a href={qs('day')} aria-current={form === 'day' ? 'page' : undefined}>
++           {T.ru.day}
++         </a>
++         <a href={qs('inhouse')} aria-current={form === 'inhouse' ? 'page' : undefined}>
++           {T.ru.inhouse}
++         </a>
++         <a href={qs(form, 'ru')}>RU</a>
++         <a href={qs(form, 'kz')}>KZ</a>
++         <PrintButton />
++       </div>
++       <h1 style={{ fontSize: 20, textAlign: 'center', margin: '0 0 4px' }}>
++         {form === 'day' ? t.day : t.inhouse}
++       </h1>
++       <div style={{ textAlign: 'center', fontSize: 13, marginBottom: 18 }}>
++         {t.property}: <b>{summary.property.name}</b>
++         {'; '}
++         {t.date}: <b>{ddmmyyyy(date)}</b>
++       </div>
++       {form === 'day' ? (
++         <>
++           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
++             <tbody>
++               <tr>
++                 <td style={{ ...cell, width: '38%', color: '#333' }}>{t.arrivals}</td>
++                 <td style={{ ...cell, fontWeight: 600 }}>{day.counts.arrivals}</td>
++               </tr>
++               <tr>
++                 <td style={{ ...cell, color: '#333' }}>{t.departures}</td>
++                 <td style={{ ...cell, fontWeight: 600 }}>{day.counts.departures}</td>
++               </tr>
++               <tr>
++                 <td style={{ ...cell, color: '#333' }}>{t.inHouse}</td>
++                 <td style={{ ...cell, fontWeight: 600 }}>{day.counts.inHouse}</td>
++               </tr>
++               <tr>
++                 <td style={{ ...cell, color: '#333' }}>{t.overdue}</td>
++                 <td style={{ ...cell, fontWeight: 600 }}>{day.counts.overdueArrivals}</td>
++               </tr>
++             </tbody>
++           </table>
++           <Sheet
++             title={t.arrivals}
++             rows={day.arrivals}
++             cols={[t.guest, t.category, t.unit, t.guests]}
++             row={(r) => [
++               r.guestLabel,
++               r.accommodationTypeName,
++               r.unitCode ?? '—',
++               r.guestsRecorded,
++             ]}
++             none={t.none}
++           />
++           <Sheet
++             title={t.departures}
++             rows={day.departures}
++             cols={[t.guest, t.category, t.unit, t.guests]}
++             row={(r) => [
++               r.guestLabel,
++               r.accommodationTypeName,
++               r.unitCode ?? '—',
++               r.guestsRecorded,
++             ]}
++             none={t.none}
++           />
++         </>
++       ) : (
++         <Sheet
++           title={`${t.inHouse}: ${day.counts.inHouse}`}
++           rows={day.inHouse}
++           cols={[t.guest, t.category, t.unit, t.arrival, t.departure, t.guests]}
++           row={(r) => [
++             r.guestLabel,
++             r.accommodationTypeName,
++             r.unitCode ?? '—',
++             ddmmyyyy(r.arrivalDate),
++             ddmmyyyy(r.departureDate),
++             r.guestsRecorded,
++           ]}
++           none={t.none}
++         />
++       )}
++       <div style={{ fontSize: 11, color: '#555', marginTop: 24 }}>
++         {t.printedAt}: {printedAt}
++       </div>
++     </main>
++   );
++ }
++
++ function Sheet({
++   title,
++   rows,
++   cols,
++   row,
++   none,
++ }: {
++   title: string;
++   rows: DeskRow[];
++   cols: string[];
++   row: (r: DeskRow) => Array<string | number>;
++   none: string;
++ }) {
++   return (
++     <>
++       <h2 style={{ fontSize: 15, margin: '18px 0 6px' }}>{title}</h2>
++       {rows.length === 0 ? (
++         <p style={{ fontSize: 13, margin: 0 }}>{none}</p>
++       ) : (
++         <table
++           style={{
++             width: '100%',
++             borderCollapse: 'collapse',
++             fontSize: 14,
++             border: '1px solid #000',
++           }}
++         >
++           <thead>
++             <tr>
++               {cols.map((h) => (
++                 <th key={h} style={cell}>
++                   {h}
++                 </th>
++               ))}
++             </tr>
++           </thead>
++           <tbody>
++             {rows.map((r) => (
++               <tr key={r.itemId} data-testid="print-row">
++                 {row(r).map((v, i) => (
++                   <td key={i} style={cell}>
++                     {v}
++                   </td>
++                 ))}
++               </tr>
++             ))}
++           </tbody>
++         </table>
++       )}
++     </>
++   );
++ }
++
++ const cell: React.CSSProperties = {
++   border: '1px solid #000',
++   padding: '5px 8px',
++   textAlign: 'left',
++   verticalAlign: 'top',
++ };
++
+
+ ❯ apps/web/src/lib/report-query.test.ts:98:17
+     96|   ])('reports/%s вызывает requireVertical', (f) => {
+     97|     const src = readFileSync(new URL(`../app/reports/${f}`, import.met…
+     98|     expect(src).toContain("requireVertical(['HOSPITALITY'])");
+       |                 ^
+     99|   });
+    100| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  |unit| apps/web/src/lib/report-query.test.ts > страницы отчётов закрыты для салона и ресторана (находка аудита RPT2.1) > reports/overview/page.tsx вызывает requireVertical
+AssertionError: expected 'import { Suspense } from \'react\';\n…' to contain 'requireVertical([\'HOSPITALITY\'])'
+
+- Expected
++ Received
+
+- requireVertical(['HOSPITALITY'])
++ import { Suspense } from 'react';
++ import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
++ import { hotelToday } from '../../../lib/hotel-api';
++ import { requireFeature } from '../../../lib/vertical-guard';
++ import { Page } from '../../../components/page';
++ import { Alert } from '../../../components/ui';
++ import { AnalyticsToolbar } from '../../management/analytics/toolbar';
++ import { parseAnalyticsQuery } from '../../management/analytics/params';
++ import { ReportScopeFrame } from '../../management/analytics/vertical/scope-frame';
++ import { Overview, OverviewSkeleton } from '../../management/analytics/overview';
++ import { ReportsTabs } from '../reports-tabs';
++ import '../../management/analytics/analytics.css';
++ import '../../directory.css';
++ import '../reports.css';
++
++ /** «Отчёты → overview» (RPT2.2c-1): тот же экран, что в «Аналитике», под адресом раздела «Отчёты» */
++ export default async function ReportsOverviewPage({
++   searchParams,
++ }: {
++   searchParams: Promise<SearchParams>;
++ }) {
++   await requireFeature('/reports/overview');
++   const sp = normalizeSearchParams(await searchParams);
++   const today = await hotelToday();
++   const query = parseAnalyticsQuery(sp, today, 'overview', '/reports');
++   return (
++     <ReportScopeFrame>
++       <Page
++         title="Отчёты"
++         className="analytics-page"
++         subtitle="Как работал объект за период и что изменилось."
++       >
++         <ReportsTabs current="overview" fund={query.fund} />
++         <AnalyticsToolbar query={query} today={today} />
++         {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
++         <Suspense
++           key={`${query.period.from}|${query.period.to}|${query.fund}|${query.compare}`}
++           fallback={<OverviewSkeleton />}
++         >
++           <Overview query={query} today={today} />
++         </Suspense>
++       </Page>
++     </ReportScopeFrame>
++   );
++ }
++
+
+ ❯ apps/web/src/lib/report-query.test.ts:98:17
+     96|   ])('reports/%s вызывает requireVertical', (f) => {
+     97|     const src = readFileSync(new URL(`../app/reports/${f}`, import.met…
+     98|     expect(src).toContain("requireVertical(['HOSPITALITY'])");
+       |                 ^
+     99|   });
+    100| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  |unit| apps/web/src/lib/report-query.test.ts > страницы отчётов закрыты для салона и ресторана (находка аудита RPT2.1) > reports/occupancy/page.tsx вызывает requireVertical
+AssertionError: expected 'import { Suspense } from \'react\';\n…' to contain 'requireVertical([\'HOSPITALITY\'])'
+
+- Expected
++ Received
+
+- requireVertical(['HOSPITALITY'])
++ import { Suspense } from 'react';
++ import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
++ import { hotelToday } from '../../../lib/hotel-api';
++ import { requireFeature } from '../../../lib/vertical-guard';
++ import { Page } from '../../../components/page';
++ import { Alert } from '../../../components/ui';
++ import { AnalyticsToolbar } from '../../management/analytics/toolbar';
++ import { parseAnalyticsQuery } from '../../management/analytics/params';
++ import { ReportScopeFrame } from '../../management/analytics/vertical/scope-frame';
++ import { Occupancy, OccupancySkeleton } from '../../management/analytics/occupancy/occupancy';
++ import { ReportsTabs } from '../reports-tabs';
++ import '../../management/analytics/analytics.css';
++ import '../../directory.css';
++ import '../reports.css';
++
++ /** «Отчёты → occupancy» (RPT2.2c-1): тот же экран, что в «Аналитике», под адресом раздела «Отчёты» */
++ export default async function ReportsOccupancyPage({
++   searchParams,
++ }: {
++   searchParams: Promise<SearchParams>;
++ }) {
++   await requireFeature('/reports/occupancy');
++   const sp = normalizeSearchParams(await searchParams);
++   const today = await hotelToday();
++   const query = parseAnalyticsQuery(sp, today, 'occupancy', '/reports');
++   return (
++     <ReportScopeFrame>
++       <Page
++         title="Отчёты"
++         className="analytics-page"
++         subtitle="Сколько мест занято, свободно и закрыто за день или период."
++       >
++         <ReportsTabs current="occupancy" fund={query.fund} />
++         <AnalyticsToolbar query={query} today={today} />
++         {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
++         <Suspense
++           key={`${query.period.from}|${query.period.to}|${query.fund}|${query.compare}`}
++           fallback={<OccupancySkeleton />}
++         >
++           <Occupancy query={query} />
++         </Suspense>
++       </Page>
++     </ReportScopeFrame>
++   );
++ }
++
+
+ ❯ apps/web/src/lib/report-query.test.ts:98:17
+     96|   ])('reports/%s вызывает requireVertical', (f) => {
+     97|     const src = readFileSync(new URL(`../app/reports/${f}`, import.met…
+     98|     expect(src).toContain("requireVertical(['HOSPITALITY'])");
+       |                 ^
+     99|   });
+    100| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  |unit| apps/web/src/lib/report-query.test.ts > страницы отчётов закрыты для салона и ресторана (находка аудита RPT2.1) > reports/units/page.tsx вызывает requireVertical
+AssertionError: expected 'import { Suspense } from \'react\';\n…' to contain 'requireVertical([\'HOSPITALITY\'])'
+
+- Expected
++ Received
+
+- requireVertical(['HOSPITALITY'])
++ import { Suspense } from 'react';
++ import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
++ import { hotelToday } from '../../../lib/hotel-api';
++ import { requireFeature } from '../../../lib/vertical-guard';
++ import { Page } from '../../../components/page';
++ import { Alert } from '../../../components/ui';
++ import { AnalyticsToolbar } from '../../management/analytics/toolbar';
++ import { parseAnalyticsQuery } from '../../management/analytics/params';
++ import { ReportScopeFrame } from '../../management/analytics/vertical/scope-frame';
++ import { UnitsReport, UnitsSkeleton } from '../../management/analytics/units/units';
++ import { ReportsTabs } from '../reports-tabs';
++ import '../../management/analytics/analytics.css';
++ import '../../directory.css';
++ import '../reports.css';
++
++ /** «Отчёты → units» (RPT2.2c-1): тот же экран, что в «Аналитике», под адресом раздела «Отчёты» */
++ export default async function ReportsUnitsPage({
++   searchParams,
++ }: {
++   searchParams: Promise<SearchParams>;
++ }) {
++   await requireFeature('/reports/units');
++   const sp = normalizeSearchParams(await searchParams);
++   const today = await hotelToday();
++   const query = parseAnalyticsQuery(sp, today, 'units', '/reports');
++   return (
++     <ReportScopeFrame>
++       <Page
++         title="Отчёты"
++         className="analytics-page"
++         subtitle="Сколько ночей занято и сколько заездов было у каждого места."
++       >
++         <ReportsTabs current="units" fund={query.fund} />
++         <AnalyticsToolbar query={query} today={today} noCompare />
++         {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
++         <Suspense
++           key={`${query.period.from}|${query.period.to}|${query.fund}`}
++           fallback={<UnitsSkeleton />}
++         >
++           <UnitsReport query={query} />
++         </Suspense>
++       </Page>
++     </ReportScopeFrame>
++   );
++ }
++
+
+ ❯ apps/web/src/lib/report-query.test.ts:98:17
+     96|   ])('reports/%s вызывает requireVertical', (f) => {
+     97|     const src = readFileSync(new URL(`../app/reports/${f}`, import.met…
+     98|     expect(src).toContain("requireVertical(['HOSPITALITY'])");
+       |                 ^
+     99|   });
+    100| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/empty-workspaces.test.ts > Пустые рабочие экраны салона > сохраняет заголовки таблицы клиентов без строк
+Error: [vitest] No "requireFeature" export is defined on the "../../lib/vertical-guard" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("../../lib/vertical-guard"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.CustomersPage apps/web/src/app/customers/page.tsx:15:20
+     13| /** Клиенты салона по макету ТЗ (09.10.2026): сегменты, визиты и средн…
+     14| export default async function CustomersPage() {
+     15|   const me = await requireFeature('/customers');
+       |                    ^
+     16|   if (me.context?.vertical === 'FOOD_SERVICE') return <FoodCustomers /…
+     17|   try {
+ ❯ apps/web/src/app/beauty/empty-workspaces.test.ts:86:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/page.test.ts > Недельный календарь салона > загружает каждый день с понедельника по воскресенье и показывает недельный обзор
+Error: [vitest] No "requireFeature" export is defined on the "../../lib/vertical-guard" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("../../lib/vertical-guard"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.BeautyPage apps/web/src/app/beauty/page.tsx:26:9
+     24|   searchParams: Promise<SearchParams>;
+     25| }) {
+     26|   await requireFeature('/beauty');
+       |         ^
+     27|   const { date, view, appointment } = normalizeSearchParams(await sear…
+     28|   const shell = await deskShell();
+ ❯ apps/web/src/app/beauty/page.test.ts:28:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/page.test.ts > Недельный календарь салона > обычный день не загружает всю неделю
+Error: [vitest] No "requireFeature" export is defined on the "../../lib/vertical-guard" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("../../lib/vertical-guard"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.BeautyPage apps/web/src/app/beauty/page.tsx:26:9
+     24|   searchParams: Promise<SearchParams>;
+     25| }) {
+     26|   await requireFeature('/beauty');
+       |         ^
+     27|   const { date, view, appointment } = normalizeSearchParams(await sear…
+     28|   const shell = await deskShell();
+ ❯ apps/web/src/app/beauty/page.test.ts:37:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+ FAIL  |unit| apps/web/src/app/growth/business-screen.test.ts > Разделы роста по направлению бизнеса > BEAUTY: продажи не запрашивают гостиничные данные
+ FAIL  |unit| apps/web/src/app/growth/business-screen.test.ts > Разделы роста по направлению бизнеса > FOOD_SERVICE: продажи не запрашивают гостиничные данные
+Error: [vitest] No "requireFeature" export is defined on the "../../lib/vertical-guard" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("../../lib/vertical-guard"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.SalesHubPage apps/web/src/app/sales/page.tsx:48:20
+     46|
+     47| export default async function SalesHubPage({ searchParams }: { searchP…
+     48|   const me = await requireFeature('/sales');
+       |                    ^
+     49|   if (me.context?.vertical === 'BEAUTY' || me.context?.vertical === 'F…
+     50|     const data = await loadBusinessSales(normalizeSearchParams(await s…
+ ❯ apps/web/src/app/growth/business-screen.test.ts:78:47
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯
+
+ FAIL  |unit| apps/web/src/app/growth/business-screen.test.ts > Разделы роста по направлению бизнеса > BEAUTY: маркетинг открывает общие модули без ссылки на гостиничный сайт
+ FAIL  |unit| apps/web/src/app/growth/business-screen.test.ts > Разделы роста по направлению бизнеса > FOOD_SERVICE: маркетинг открывает общие модули без ссылки на гостиничный сайт
+Error: [vitest] No "requireFeature" export is defined on the "../../lib/vertical-guard" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("../../lib/vertical-guard"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.MarketingPage apps/web/src/app/marketing/page.tsx:24:20
+     22|
+     23| export default async function MarketingPage() {
+     24|   const me = await requireFeature('/marketing');
+       |                    ^
+     25|   return <MarketingHub vertical={me.context?.vertical ?? 'HOSPITALITY'…
+     26| }
+ ❯ apps/web/src/app/growth/business-screen.test.ts:87:47
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯
+
+ FAIL  |unit| apps/web/src/app/journal/labels.test.ts > подписи журнала операций > у каждого кода действия из API есть подпись
+AssertionError: expected [ 'user.organization.switched' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "user.organization.switched",
++ ]
+
+ ❯ apps/web/src/app/journal/labels.test.ts:31:54
+     29|     const codes = literals('action', '[a-z_]+(?:\\.[a-zA-Z_]+)+');
+     30|     expect(codes.length).toBeGreaterThan(100);
+     31|     expect(codes.filter((code) => !ACTION_RU[code])).toEqual([]);
+       |                                                      ^
+     32|   });
+     33|   it('у каждого типа объекта из API есть подпись', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯
+
+ FAIL  |unit| apps/web/src/app/website/website-routes.test.ts > /website только у гостиницы > page.tsx
+AssertionError: expected 'import { requireFeature } from \'../.…' to match /requireVertical\(\s*\[\s*'HOSPITALITY…/
+
+- Expected:
+/requireVertical\(\s*\[\s*'HOSPITALITY'\s*\]\s*\)/
+
++ Received:
+"import { requireFeature } from '../../lib/vertical-guard';
+import Link from 'next/link';
+import { analyticsApi, type TrackedSiteCard } from '../../lib/api';
+import { propertyClock } from '../../lib/property-time';
+import { WEBSITE_TITLE, primaryHost, siteState } from '../../lib/website';
+import { Page } from '../../components/page';
+import { Icon } from '../../components/icon';
+import { Notice, StateBar, StateFact, Stack } from '../../components/ui';
+import { MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from './parts';
+import './website.css';
+
+/**
+ * «Сайт и онлайн-бронирование → Обзор» (ADR-117, WEB1): как сайт объекта связан с WETOP — одним взглядом.
+ * Сайт с доменом-заглушкой подключённым не считается: вместо зелёной карточки — пустое состояние.
+ */
+export default async function WebsiteOverviewPage() {
+  // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
+  await requireFeature('/website');
+  const sites = await analyticsApi.sites();
+  const cards = await Promise.all(sites.map((s) => analyticsApi.card(s.id)));
+  const connected = cards.filter((c) => primaryHost(c.site));
+  const drafts = cards.filter((c) => !primaryHost(c.site));
+  return (
+    <Page
+      crumbs={<MarketingCrumb />}
+      title={WEBSITE_TITLE}
+      subtitle=\"Как сайт объекта связан с WETOP: домен, счётчик посещений и брони с сайта.\"
+    >
+      <WebsiteTabs current=\"overview\" />
+      {connected.length === 0 ? (
+        <WebsiteNotConnected drafts={drafts} />
+      ) : (
+        <Stack>
+          {connected.map((card) => (
+            <SiteOverview key={card.site.id} card={card} />
+          ))}
+          {drafts.map((draft) => (
+            <Notice tone=\"muted\" key={draft.site.id} data-testid=\"website-draft\">
+              «{draft.site.name}» — адрес сайта не указан.{' '}
+              <Link href=\"/website/settings\">Указать адрес</Link>
+            </Notice>
+          ))}
+        </Stack>
+      )}
+    </Page>
+  );
+}
+
+async function SiteOverview({ card }: { card: TrackedSiteCard }) {
+  const state = siteState(card, propertyClock(card.site.timezone));
+  // «Брони с сайта» за этот месяц — то же число, что блок «Брони с сайта» во вкладке «Аналитика» (WEB4, Q-212)
+  const report = await analyticsApi.report(card.site.id).catch(() => null);
+  return (
+    <StateBar
+      className=\"state-bar--wide\"
+      tone={state.overall.tone}
+      label={state.host}
+      value={state.overall.value}
+      summary={
+        <a
+          href={`https://${state.host}`}
+          target=\"_blank\"
+          rel=\"noreferrer\"
+          data-testid=\"website-open\"
+        >
+          Открыть сайт <Icon name=\"external\" width={14} />
+        </a>
+      }
+      data-testid=\"website-overview\"
+      data-state={state.counter.state}
+    >
+      <StateFact label=\"Домен\" value={state.host}>
+        Подключён
+      </StateFact>
+      <StateFact label=\"Счётчик\" value={state.counter.value} data-testid=\"website-counter\">
+        {state.counter.note}
+      </StateFact>
+      <StateFact
+        label=\"Онлайн-бронирование\"
+        value={state.booking.value}
+        data-testid=\"website-booking\"
+      >
+        {state.booking.note}
+      </StateFact>
+      <StateFact
+        label=\"Брони с сайта\"
+        value={report ? String(report.siteReservations.count) : '—'}
+        data-testid=\"website-bookings\"
+      >
+        {report ? 'новые в этом месяце' : 'отчёт не загрузился'}
+      </StateFact>
+    </StateBar>
+  );
+}
+"
+
+ ❯ apps/web/src/app/website/website-routes.test.ts:14:22
+     12|     it(page, () => {
+     13|       const source = readFileSync(resolve(import.meta.dirname, page), …
+     14|       expect(source).toMatch(/requireVertical\(\s*\[\s*'HOSPITALITY'\s…
+       |                      ^
+     15|     });
+     16| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/18]⎯
+
+ FAIL  |unit| apps/web/src/app/website/website-routes.test.ts > /website только у гостиницы > analytics/page.tsx
+AssertionError: expected 'import { requireFeature } from \'../.…' to match /requireVertical\(\s*\[\s*'HOSPITALITY…/
+
+- Expected:
+/requireVertical\(\s*\[\s*'HOSPITALITY'\s*\]\s*\)/
+
++ Received:
+"import { requireFeature } from '../../../lib/vertical-guard';
+import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
+import Link from 'next/link';
+import { ApiError, analyticsApi, type SiteReport, type TrackedSite } from '../../../lib/api';
+import { displayDate } from '../../../lib/display-date';
+import { formatMoney } from '../../../lib/money';
+import { pluralRu } from '../../../lib/plural';
+import { WEBSITE_TITLE, primaryHost } from '../../../lib/website';
+import { Page } from '../../../components/page';
+import { LoadError } from '../../../components/load-error';
+import { loadErrorProps } from '../../../lib/load-error';
+import {
+  Alert,
+  Button,
+  EmptyState,
+  Field,
+  Grid,
+  Notice,
+  SectionTitle,
+  Select,
+  Stat,
+  Stats,
+  Table,
+} from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
+import { ShareBar } from '../../../components/share-bar';
+import { DailyChart } from './daily-chart';
+import { MarketingCrumb, WebsiteTabs } from '../parts';
+import '../../directory.css';
+import '../website.css';
+
+const MAX_PERIOD_DAYS = 366;
+const periodDays = (from: string, to: string) =>
+  Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000) + 1;
+
+const EVENT_RU: Record<string, string> = {
+  search: 'поиск дат',
+  phone_click: 'клик по телефону',
+  whatsapp_click: 'клик по WhatsApp',
+  booking_step: 'шаг бронирования',
+  custom: 'другое',
+};
+const DEVICE_RU: Record<string, string> = {
+  DESKTOP: 'компьютер',
+  MOBILE: 'телефон',
+  TABLET: 'планшет',
+};
+
+const KIND_RU: Record<SiteReport['sources'][number]['kind'], string> = {
+  DIRECT: 'прямые заходы',
+  SEARCH: 'поиск',
+  SOCIAL: 'соцсети',
+  PAID: 'реклама',
+  EMAIL: 'рассылка',
+  REFERRAL: 'переходы с сайтов',
+};
+
+/**
+ * Аналитика сайта (срез 8): пять основных чисел и графики, плюс
+ * отказы, страницы и календарь спроса. Период — по датам объекта (Asia/Almaty), по умолчанию текущий месяц.
+ * D4 (план владельца 19.09): без счётчика — `EmptyState` с шагом; отказ сервиса аналитики — `LoadError` с
+ * повтором (отклонённый запрос по-прежнему словами у формы); период словами в `<time>`, готовые отрезки чипами,
+ * пустые таблицы объясняют, откуда возьмутся строки. Расчёт отчёта в API не менялся.
+ * С 27.09 (ADR-117) — вкладка «Аналитика» модуля «Сайт и онлайн-бронирование»; прежний `/analytics` ведёт сюда.
+ */
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
+  await requireFeature('/website/analytics');
+  const sp = normalizeSearchParams(await searchParams);
+  const sites = await analyticsApi.sites();
+  if (!sites.length) return <NoSites />;
+  const site = sites.find((s) => s.id === sp.site) ?? sites[0];
+  if (!site) return <NoSites />;
+  let report: SiteReport | null = null;
+  let error: string | null = null;
+  // Сервис аналитики не ответил (5xx или обрыв): не строка совета, а сбой с повтором — экран остаётся (D4)
+  let failure: unknown = null;
+  if (sp.from && sp.to && periodDays(sp.from, sp.to) > MAX_PERIOD_DAYS)
+    // Предел периода — в стойке: отчёт по дням за несколько лет никому не нужен и долго считается
+    error = `Период отчёта — не больше года (${MAX_PERIOD_DAYS} дней). Выберите более короткий отрезок.`;
+  else
+    try {
+      report = await analyticsApi.report(site.id, sp.from, sp.to);
+    } catch (e) {
+      // ApiError несёт текст отказа API (даты, порядок, сайт); прочее — сбой сервиса
+      if (e instanceof ApiError && e.status < 500) error = `Отчёт не построен: ${e.message}`;
+      else failure = e;
+    }
+  return (
+    <Page
+      crumbs={<MarketingCrumb />}
+      title={WEBSITE_TITLE}
+      subtitle={<span data-testid=\"an-site-name\">{site.name}</span>}
+    >
+      <WebsiteTabs current=\"analytics\" />
+      {!primaryHost(site) && (
+        <Notice className=\"block\" data-testid=\"an-domain-missing\">
+          Адрес сайта не указан: счётчик не принимает посещения, отчёт останется пустым.{' '}
+          <Link href=\"/website/settings\">Добавить домен</Link>
+        </Notice>
+      )}
+      <PeriodForm sites={sites} site={site} report={report} from={sp.from} to={sp.to} />
+      {error && <Alert className=\"block\">{error}</Alert>}
+      {failure !== null && <LoadError testId=\"an-error\" {...loadErrorProps(failure)} />}
+      {report && <Report report={report} />}
+    </Page>
+  );
+}
+
+function NoSites() {
+  return (
+    <Page crumbs={<MarketingCrumb />} title={WEBSITE_TITLE}>
+      <WebsiteTabs current=\"analytics\" />
+      <EmptyState
+        data-testid=\"an-no-sites\"
+        title=\"Сайт ещё не подключён\"
+        actions={
+          <Link href=\"/website/settings\" className=\"btn\">
+            Подключить сайт
+          </Link>
+        }
+      >
+        Отчёт строится по событиям счётчика на сайте объекта. Подключите сайт и вставьте код
+        счётчика: первые сессии появятся здесь через несколько минут после установки.
+      </EmptyState>
+    </Page>
+  );
+}
+
+function PeriodForm({
+  sites,
+  site,
+  report,
+  from,
+  to,
+}: {
+  sites: TrackedSite[];
+  site: TrackedSite;
+  report: SiteReport | null;
+  from?: string | undefined;
+  to?: string | undefined;
+}) {
+  const period = report?.period;
+  const prevMonth = period ? shiftMonth(period.from, -1) : null;
+  const isPreset = (f?: string, t?: string) => !!period && from === f && to === t;
+  return (
+    <>
+      <form method=\"get\" className=\"row row--lg toolbar directory-toolbar\">
+        {sites.length > 1 && (
+          <Field inline label=\"Сайт\">
+            <Select aria-label=\"Сайт\" name=\"site\" defaultValue={site.id}>
+              {sites.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+        {sites.length === 1 && <input type=\"hidden\" name=\"site\" value={site.id} />}
+        <Field inline label=\"С\">
+          <DateInput
+            key={`from-${from ?? ''}`}
+            aria-label=\"Аналитика: с\"
+            name=\"from\"
+            defaultValue={from ?? period?.from}
+          />
+        </Field>
+        <Field inline label=\"По\">
+          <DateInput
+            key={`to-${to ?? ''}`}
+            aria-label=\"Аналитика: по\"
+            name=\"to\"
+            rangeFromName=\"from\"
+            defaultValue={to ?? period?.to}
+          />
+        </Field>
+        <Button type=\"submit\">Показать</Button>
+      </form>
+      {period && prevMonth && (
+        // Готовые отрезки — чипами, как на «Деньгах» и «Бронях»: период виден в адресе и в подписи ниже
+        <nav className=\"directory-filters\" aria-label=\"Готовые периоды\">
+          <Link
+            href={`/website/analytics?site=${site.id}`}
+            className={!from && !to ? 'is-active' : ''}
+          >
+            Этот месяц
+          </Link>
+          <Link
+            href={`/website/analytics?site=${site.id}&from=${prevMonth.from}&to=${prevMonth.to}`}
+            className={isPreset(prevMonth.from, prevMonth.to) ? 'is-active' : ''}
+          >
+            Прошлый месяц
+          </Link>
+          <Link
+            href={`/website/analytics?site=${site.id}&from=${daysAgo(period.to, 29)}&to=${period.to}`}
+            className={isPreset(daysAgo(period.to, 29), period.to) ? 'is-active' : ''}
+          >
+            30 дней
+          </Link>
+        </nav>
+      )}
+    </>
+  );
+}
+
+function Report({ report }: { report: SiteReport }) {
+  const s = report.summary;
+  const pct = (x: number) => `${Math.round(x * 100)} %`;
+  return (
+    <>
+      {/* Один <span>: `.directory-meta` — flex со `space-between` (строка «счётчик + ссылка» в «Гостях»),
+          и без обёртки каждый кусок текста с <time> разъезжался в свой конец строки (21.09) */}
+      <p className=\"directory-meta\" data-testid=\"an-period\">
+        <span>
+          Период{' '}
+          <time dateTime={report.period.from}>{displayDate(report.period.from, 'numeric')}</time> →{' '}
+          <time dateTime={report.period.to}>{displayDate(report.period.to, 'numeric')}</time>,{' '}
+          {pluralRu(periodDays(report.period.from, report.period.to), ['день', 'дня', 'дней'])},
+          даты по {report.period.timezone}
+        </span>
+      </p>
+      <section className=\"grid-2 block\">
+        <SiteBookings report={report} />
+        <FunnelBlock funnel={report.funnel} />
+      </section>
+      <Stats min={230} data-testid=\"an-summary\">
+        <Stat label=\"Сессии\" value={String(s.sessions)} testId=\"an-sessions\" />
+        <Stat label=\"Уникальные посетители\" value={String(s.visitors)} testId=\"an-visitors\" />
+        <Stat label=\"Просмотры страниц\" value={String(s.pageviews)} testId=\"an-pageviews\" />
+        <Stat
+          label=\"Страниц за сессию\"
+          value={s.pagesPerSession.toLocaleString('ru-RU')}
+          testId=\"an-pages-per-session\"
+        />
+        <Stat
+          label=\"Среднее время сессии\"
+          value={duration(s.avgDurationSeconds)}
+          testId=\"an-avg-duration\"
+        />
+        <Stat
+          label=\"С мобильных\"
+          value={pct(s.mobileShare)}
+          hint={`${s.mobileSessions} из ${s.sessions}`}
+          testId=\"an-mobile-share\"
+        />
+        <Stat
+          label=\"Отказы\"
+          value={pct(s.bounceRate)}
+          hint=\"один просмотр и меньше 10 с\"
+          testId=\"an-bounce-rate\"
+        />
+        {/* WEB4: брони с сайта — отдельный блок выше; здесь только сессии счётчика, дошедшие до брони */}
+        <Stat
+          label=\"Сессий с бронью\"
+          value={String(s.bookings)}
+          hint={
+            s.sessions
+              ? `${(Math.round((s.bookings / s.sessions) * 1000) / 10).toLocaleString('ru-RU')} % сессий`
+              : undefined
+          }
+          testId=\"an-bookings\"
+        />
+      </Stats>
+
+      <section className=\"grid-2 block\">
+        <DailyChart
+          rows={report.daily}
+          valueKey=\"sessions\"
+          color=\"var(--chart-1)\"
+          label=\"Посещаемость сайта — сессий в день\"
+          testId=\"an-chart-sessions\"
+        />
+        <DailyChart
+          rows={report.daily}
+          valueKey=\"mobile\"
+          color=\"var(--chart-2)\"
+          label=\"Посещения с мобильных — сессий в день\"
+          testId=\"an-chart-mobile\"
+        />
+      </section>
+      <details className=\"details\">
+        <summary>Таблица по дням</summary>
+        <Table size=\"sm\" data-testid=\"an-daily-table\">
+          <thead>
+            <tr>
+              {['Дата', 'Сессии', 'Посетители', 'Просмотры', 'С мобильных'].map((h) => (
+                <th key={h} className={h === 'Дата' ? undefined : 'num'}>
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {report.daily.map((d) => (
+              <tr key={d.date}>
+                <td>
+                  <time dateTime={d.date}>{displayDate(d.date)}</time>
+                </td>
+                <td className=\"num\">{d.sessions}</td>
+                <td className=\"num\">{d.visitors}</td>
+                <td className=\"num\">{d.pageviews}</td>
+                <td className=\"num\">{d.mobile}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </details>
+
+      <section className=\"split split--3-2\">
+        <div>
+          <SectionTitle first>Источники трафика</SectionTitle>
+          <Table size=\"sm\" data-testid=\"an-sources\">
+            <thead>
+              <tr>
+                {['Вид', 'Источник', 'Сессии', 'Посет.', 'Просм.', 'Брони', 'Время', 'Доля'].map(
+                  (h) => (
+                    <th key={h} className={h === 'Вид' || h === 'Источник' ? undefined : 'num'}>
+                      {h}
+                    </th>
+                  ),
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {report.sources.length === 0 && (
+                <tr>
+                  <td colSpan={8} className=\"empty-state\">
+                    За период сессий нет: источники появляются по визитам с сайта, как только
+                    счётчик их пришлёт.
+                  </td>
+                </tr>
+              )}
+              {report.sources.map((r) => (
+                <tr
+                  key={`${r.kind}-${r.source ?? ''}`}
+                  data-testid=\"an-source-row\"
+                  data-kind={r.kind}
+                  data-source={r.source ?? ''}
+                  data-sessions={r.sessions}
+                >
+                  <td>{KIND_RU[r.kind]}</td>
+                  <td>{r.source ?? '—'}</td>
+                  <td className=\"num\">{r.sessions}</td>
+                  <td className=\"num\">{r.visitors}</td>
+                  <td className=\"num\">{r.pageviews}</td>
+                  <td className=\"num\" data-testid=\"an-source-bookings\">
+                    {r.bookings}
+                  </td>
+                  <td className=\"num\">{duration(r.avgDurationSeconds)}</td>
+                  <td className=\"num\">
+                    <Share value={r.share} of={r.source ?? KIND_RU[r.kind]} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+        <div>
+          <SectionTitle first>Страницы</SectionTitle>
+          <Table size=\"sm\" data-testid=\"an-pages\">
+            <thead>
+              <tr>
+                <th>Путь</th>
+                <th className=\"num\">Просмотры</th>
+                <th className=\"num\">Доля</th>
+              </tr>
+            </thead>
+            <tbody>
+              {report.pages.length === 0 && (
+                <tr>
+                  <td colSpan={3} className=\"empty-state\">
+                    Просмотров за период нет: страницы появятся по первым визитам.
+                  </td>
+                </tr>
+              )}
+              {report.pages.map((p) => (
+                <tr key={p.path} data-testid=\"an-page-row\" data-path={p.path}>
+                  <td className=\"break-all\">{p.path}</td>
+                  <td className=\"num\">{p.views}</td>
+                  <td className=\"num\">
+                    <Share value={p.share} of={p.path} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <SectionTitle>Календарь спроса</SectionTitle>
+          <div className=\"hint block--bottom-xs\">
+            На какие даты заезда посетители искали номера (событие search с сайта)
+          </div>
+          {/* Пустое — словами для смены: инструкция для разработчика живёт на странице подключения */}
+          {report.demand.length === 0 ? (
+            <p className=\"hint\" data-testid=\"an-demand-empty\">
+              Запросов нет: сайт ещё не присылает событие поиска дат. Как его включить — в{' '}
+              <Link href=\"/website/settings\">настройках сайта</Link>.
+            </p>
+          ) : (
+            <Table size=\"sm\" data-testid=\"an-demand\">
+              <thead>
+                <tr>
+                  <th>Заезд</th>
+                  <th className=\"num\">Запросов</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.demand.map((d) => (
+                  <tr key={d.arrival} data-testid=\"an-demand-row\" data-arrival={d.arrival}>
+                    <td>
+                      <time dateTime={d.arrival}>{displayDate(d.arrival)}</time>
+                    </td>
+                    <td className=\"num\">{d.searches}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </div>
+      </section>
+
+      {/* Четыре таблицы в четыре колонки по ~270 px обрезались («Сессий за пер»): две колонки (21.09) */}
+      <Grid min={480} className=\"block--top items-start\">
+        <div>
+          <SectionTitle first>События с сайта</SectionTitle>
+          {report.events.length === 0 ? (
+            <p className=\"hint\" data-testid=\"an-events-empty\">
+              Событий нет: кнопки «позвонить» и WhatsApp на сайте ещё не присылают событий. Как их
+              включить — в <Link href=\"/website/settings\">настройках сайта</Link>.
+            </p>
+          ) : (
+            <Table size=\"sm\" data-testid=\"an-events\">
+              <thead>
+                <tr>
+                  <th>Событие</th>
+                  <th className=\"num\">Раз</th>
+                  <th className=\"num\">Сессий</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.events.map((e) => (
+                  <tr
+                    key={e.name}
+                    data-testid=\"an-event-row\"
+                    data-name={e.name}
+                    data-count={e.count}
+                  >
+                    <td>{EVENT_RU[e.name] ?? e.name}</td>
+                    <td className=\"num\">{e.count}</td>
+                    <td className=\"num\">{e.sessions}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </div>
+        <ShareTable
+          title=\"Устройства\"
+          rows={report.devices.devices}
+          label={(k) => DEVICE_RU[k] ?? k}
+          testId=\"an-devices\"
+        />
+        <ShareTable title=\"Браузеры\" rows={report.devices.browsers} testId=\"an-browsers\" />
+        <ShareTable title=\"Операционные системы\" rows={report.devices.os} testId=\"an-os\" />
+      </Grid>
+    </>
+  );
+}
+
+/**
+ * Брони с сайта (WEB4, Q-212): брони объекта с источником «Сайт», созданные за период, — все, а не только из сессий
+ * со счётчиком; начислено — по их счетам, как колонка «Финансы» в «Бронях». Ссылка ведёт туда с тем же отбором.
+ */
+function SiteBookings({ report }: { report: SiteReport }) {
+  const r = report.siteReservations;
+  const href = `/reservations?${new URLSearchParams({
+    from: report.period.from,
+    to: report.period.to,
+    date: 'created',
+    source: 'WEBSITE',
+  })}`;
+  const lost = [
+    r.cancelled ? `отменено ${r.cancelled}` : null,
+    r.noShow ? `не заехали ${r.noShow}` : null,
+  ].filter(Boolean);
+  return (
+    <div data-testid=\"an-site-reservations\">
+      <SectionTitle first>Брони с сайта</SectionTitle>
+      <Stats min={180}>
+        {/* Q-209 (правило владельца): одна Reservation — одна бронь; «Новые брони» — по дате создания */}
+        <Stat
+          label=\"Новые брони\"
+          value={String(r.count)}
+          hint={lost.length ? `из них ${lost.join(', ')}` : undefined}
+          testId=\"an-site-reservations-count\"
+        />
+        <Stat
+          label=\"Начислено\"
+          value={
+            r.charged.length
+              ? // валют бывает больше одной — каждая своей строкой (DESIGN.md §14: без точки-разделителя)
+                r.charged.map((c) => (
+                  <div key={c.currency}>{formatMoney(c.chargedMinor, c.currency)}</div>
+                ))
+              : '—'
+          }
+          hint=\"по счетам этих броней\"
+          testId=\"an-site-reservations-charged\"
+        />
+      </Stats>
+      <p className=\"hint block--top\">
+        Брони с источником «Сайт», созданные за период, — с виджета и без счётчика тоже. У брони нет
+        номера сайта, поэтому это брони всего объекта.
+      </p>
+      {r.count > 0 && (
+        <p className=\"block--top\">
+          <Link href={href}>Открыть в «Бронях»</Link>
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Воронка сайта (WEB4): сессии периода, дошедшие до шага. Порядка событий база не хранит, но виджет ведёт гостя
+ * строго по шагам — сессия, дошедшая дальше, засчитана и на шагах до этого (`bookingFunnel` домена).
+ */
+function FunnelBlock({ funnel }: { funnel: SiteReport['funnel'] }) {
+  const steps = [
+    { label: 'Посещения', value: funnel.visits, of: null },
+    {
+      label: 'Поиск дат',
+      value: funnel.searches,
+      of: { value: funnel.visits, word: 'от посещений' },
+    },
+    {
+      label: 'Начали бронь',
+      value: funnel.started,
+      of: { value: funnel.searches, word: 'от поиска' },
+    },
+    { label: 'Бронь', value: funnel.booked, of: { value: funnel.started, word: 'от начатых' } },
+  ];
+  const conversion = `${(Math.round(funnel.conversion * 1000) / 10).toLocaleString('ru-RU')} %`;
+  return (
+    <div className=\"an-funnel\" data-testid=\"an-funnel\">
+      <SectionTitle first>Воронка</SectionTitle>
+      <Table size=\"sm\" plain>
+        <thead>
+          <tr>
+            <th>Шаг</th>
+            <th className=\"num\">Сессий</th>
+          </tr>
+        </thead>
+        <tbody>
+          {steps.map((step) => (
+            <tr key={step.label} data-testid=\"an-funnel-step\">
+              {/* переход — второй строкой под шагом: колонки перехода и доли на телефоне уезжали за край */}
+              <td>
+                {step.label}
+                {step.of && (
+                  <div className=\"hint\">
+                    {step.of.value
+                      ? `${Math.round((step.value / step.of.value) * 100)} % ${step.of.word}`
+                      : '—'}
+                  </div>
+                )}
+              </td>
+              <td className=\"num\">{step.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      <p className=\"block--top\">
+        Конверсия в бронь <strong data-testid=\"an-funnel-conversion\">{conversion}</strong>
+      </p>
+      <p className=\"hint\">
+        Сессии со счётчиком WETOP: поиск и шаги брони шлёт виджет. Брони без счётчика есть только в
+        «Бронях с сайта».
+      </p>
+    </div>
+  );
+}
+
+function ShareTable({
+  title,
+  rows,
+  label,
+  testId,
+}: {
+  title: string;
+  rows: Array<{ key: string | null; sessions: number; share: number }>;
+  label?: (key: string) => string;
+  testId: string;
+}) {
+  if (rows.length === 0)
+    return (
+      <div>
+        <SectionTitle first>{title}</SectionTitle>
+        <p className=\"hint\" data-testid={`${testId}-empty`}>
+          Сессий за период нет.
+        </p>
+      </div>
+    );
+  return (
+    <div>
+      <SectionTitle first>{title}</SectionTitle>
+      <Table size=\"sm\" data-testid={testId}>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.key ?? '∅'} data-key={r.key ?? ''}>
+              <td>{r.key === null ? 'не определено' : (label?.(r.key) ?? r.key)}</td>
+              <td className=\"num\">{r.sessions}</td>
+              <td className=\"num\">
+                <Share
+                  value={r.share}
+                  of={r.key === null ? 'не определено' : (label?.(r.key) ?? r.key)}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </div>
+  );
+}
+
+/** Доля строки: общий `ShareBar` (MV8.5 DS1c) вместо своей полосы с шириной строкой стиля */
+function Share({ value, of }: { value: number; of: string }) {
+  return <ShareBar label={`Доля: ${of}`} value={Math.round(value * 100)} max={100} showValue />;
+}
+
+function duration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+function shiftMonth(date: string, delta: number): { from: string; to: string } {
+  const [y = 0, m = 1] = date.split('-').map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + delta, 1));
+  const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  const ym = d.toISOString().slice(0, 7);
+  return { from: `${ym}-01`, to: `${ym}-${String(last).padStart(2, '0')}` };
+}
+function daysAgo(date: string, days: number): string {
+  return new Date(Date.parse(`${date}T00:00:00Z`) - days * 86_400_000).toISOString().slice(0, 10);
+}
+"
+
+ ❯ apps/web/src/app/website/website-routes.test.ts:14:22
+     12|     it(page, () => {
+     13|       const source = readFileSync(resolve(import.meta.dirname, page), …
+     14|       expect(source).toMatch(/requireVertical\(\s*\[\s*'HOSPITALITY'\s…
+       |                      ^
+     15|     });
+     16| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/18]⎯
+
+ FAIL  |unit| apps/web/src/app/website/website-routes.test.ts > /website только у гостиницы > booking/page.tsx
+AssertionError: expected 'import { requireFeature } from \'../.…' to match /requireVertical\(\s*\[\s*'HOSPITALITY…/
+
+- Expected:
+/requireVertical\(\s*\[\s*'HOSPITALITY'\s*\]\s*\)/
+
++ Received:
+"import { requireFeature } from '../../../lib/vertical-guard';
+import Link from 'next/link';
+import { analyticsApi, reservationsApi, type TrackedSiteCard } from '../../../lib/api';
+import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
+import { propertyClock } from '../../../lib/property-time';
+import { WEBSITE_TITLE, isOpenableUrl, siteState } from '../../../lib/website';
+import { Page } from '../../../components/page';
+import { Icon } from '../../../components/icon';
+import { Alert, Panel, Row, Stack, StateBar, StateFact } from '../../../components/ui';
+import { BookingSettings, InstallWidgetButton } from '../forms';
+import { ManagedSitesNotice, MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from '../parts';
+import '../website.css';
+
+/**
+ * «Сайт и онлайн-бронирование → Бронирование» (ADR-117, WEB1; WEB3 — состояние, демо, «Что увидит гость», окно
+ * установки). Виджет ничего не решает сам (ADR-026): места и цены — те же правила, что у стойки, бронь сразу в PMS
+ * с источником «сайт», без предоплаты. Настраивается только то, что есть в модели: включение и тариф сайта.
+ */
+export default async function WebsiteBookingPage() {
+  // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
+  await requireFeature('/website/booking');
+  const sites = await analyticsApi.sites();
+  const [all, plans, settings] = await Promise.all([
+    Promise.all(sites.map((s) => analyticsApi.card(s.id))),
+    reservationsApi.ratePlans().catch(() => null),
+    hotelApi.settings().catch(() => null),
+  ]);
+  // MKT7: бронь сайта WETOP настраивает публикация, здесь только ссылка туда
+  const cards = all.filter((c) => !c.site.managed);
+  const managed = all.filter((c) => c.site.managed);
+  return (
+    <Page
+      crumbs={<MarketingCrumb />}
+      title={WEBSITE_TITLE}
+      subtitle=\"Виджет на сайте объекта: свободные места, цены и бронь сразу в PMS.\"
+    >
+      <WebsiteTabs current=\"booking\" />
+      <ManagedSitesNotice cards={managed} />
+      {cards.length === 0 && managed.length === 0 ? (
+        <WebsiteNotConnected drafts={[]} />
+      ) : cards.length === 0 ? null : (
+        <div className=\"settings-site\">
+          <Stack>
+            {cards.map((card) => (
+              <SiteBooking key={card.site.id} card={card} plans={plans} settings={settings} />
+            ))}
+          </Stack>
+        </div>
+      )}
+    </Page>
+  );
+}
+
+function SiteBooking({
+  card,
+  plans,
+  settings,
+}: {
+  card: TrackedSiteCard;
+  plans: Array<{ code: string; name: string }> | null;
+  settings: HotelSettings | null;
+}) {
+  const { site, snippet } = card;
+  const state = siteState(card, propertyClock(site.timezone));
+  const working = state.booking.state === 'on';
+  const demo = working && isOpenableUrl(snippet.bookingDemoUrl);
+  const planName = site.bookingRatePlan?.name;
+  const currency = settings?.property.currency;
+  return (
+    <Stack>
+      <StateBar
+        className=\"state-bar--wide\"
+        tone={state.booking.tone}
+        label=\"Онлайн-бронирование\"
+        value={state.booking.value}
+        summary={working ? 'Бронь сразу в PMS, оплата при заселении' : state.booking.note}
+        data-testid=\"website-booking-state\"
+        data-state={state.booking.state}
+      >
+        <StateFact label=\"Основной домен\" value={state.host ?? 'не указан'} />
+        <StateFact label=\"Объект\" value={settings?.property.name ?? '—'} />
+        <StateFact label=\"Валюта\" value={currency ?? '—'} />
+        <StateFact label=\"Тариф\" value={planName ?? 'не выбран'} />
+      </StateBar>
+      {/* WEB3: демо и код — только у работающего бронирования; живой вид виджета — демо, а не макет в стойке */}
+      {site.bookingEnabled && (
+        <Row data-testid=\"booking-actions\">
+          {demo && (
+            <a
+              className=\"btn btn--secondary\"
+              href={snippet.bookingDemoUrl}
+              target=\"_blank\"
+              rel=\"noreferrer\"
+              data-testid=\"site-card-booking-demo\"
+            >
+              Открыть демо <Icon name=\"external\" width={14} />
+            </a>
+          )}
+          <InstallWidgetButton code={snippet.bookingCode} demoUrl={snippet.bookingDemoUrl} />
+        </Row>
+      )}
+
+      <p className=\"hint--lg\" data-testid=\"booking-explained\">
+        Когда гость выбирает даты на вашем сайте, WETOP показывает свободные места и цены по тарифу
+        сайта и создаёт бронь сразу в PMS — с источником «сайт», как в календаре и в «Бронях».
+      </p>
+      {!state.connected && (
+        <Alert tone=\"warning\" data-testid=\"booking-domain-missing\">
+          Основной домен не настроен: виджет примет брони только с адреса сайта.{' '}
+          <Link href=\"/website/settings\">Добавить домен</Link>
+        </Alert>
+      )}
+      {state.booking.state === 'paused' && (
+        <Alert tone=\"warning\" data-testid=\"booking-site-paused\">
+          Сайт приостановлен: виджет не принимает брони.{' '}
+          <Link href=\"/website/settings\">Возобновить в «Настройках»</Link>
+        </Alert>
+      )}
+
+      <Panel size=\"lg\" data-testid=\"booking-guest-view\">
+        <h2>Что увидит гость</h2>
+        {/* По шагам настоящего виджета (`apps/api/src/web-booking/widget.js`); меняется виджет — меняется и список */}
+        <ol className=\"list hint--lg list--gap\">
+          <li>Даты заезда и выезда, число гостей — от 1 до 4 — и промокод, если он есть.</li>
+          <li data-testid=\"booking-guest-plan\">
+            Свободные категории тарифа «{planName ?? 'не выбран'}» с ценой за весь период
+            {currency ? `, ${currency}` : ''}. Занятые и не проданные в тарифе — с пометкой.
+          </li>
+          <li>Имя, фамилия и телефон; почта и комментарий по желанию.</li>
+          <li>Номер брони и «К оплате при заселении»: бронь сразу подтверждена.</li>
+          <li data-testid=\"booking-guest-letter\">
+            Если гость оставил почту, письмо с подтверждением брони на его языке.
+          </li>
+        </ol>
+        {/* ADR-144: языки и письмо-подтверждение сделаны; дети и SMS не решены, предоплата — срез платёжных ссылок */}
+        <p className=\"hint\" data-testid=\"booking-guest-limits\">
+          Языки формы: русский, казахский, английский, китайский. Пока не умеет: детей, SMS гостю,
+          предоплату. Скидка тарифа и промокода не суммируется: гостю применяется большая.
+        </p>
+      </Panel>
+
+      <Panel
+        size=\"lg\"
+        className=\"site-settings-card\"
+        data-testid=\"site-card\"
+        data-key={site.publicKey}
+      >
+        <h2>Настройки бронирования</h2>
+        {plans ? (
+          <BookingSettings
+            id={site.id}
+            enabled={site.bookingEnabled}
+            ratePlanCode={site.bookingRatePlan?.code ?? ''}
+            plans={plans}
+          />
+        ) : (
+          <Alert>Не удалось загрузить тарифы. Обновите страницу.</Alert>
+        )}
+      </Panel>
+    </Stack>
+  );
+}
+"
+
+ ❯ apps/web/src/app/website/website-routes.test.ts:14:22
+     12|     it(page, () => {
+     13|       const source = readFileSync(resolve(import.meta.dirname, page), …
+     14|       expect(source).toMatch(/requireVertical\(\s*\[\s*'HOSPITALITY'\s…
+       |                      ^
+     15|     });
+     16| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/18]⎯
+
+ FAIL  |unit| apps/web/src/app/website/website-routes.test.ts > /website только у гостиницы > settings/page.tsx
+AssertionError: expected 'import { requireFeature } from \'../.…' to match /requireVertical\(\s*\[\s*'HOSPITALITY…/
+
+- Expected:
+/requireVertical\(\s*\[\s*'HOSPITALITY'\s*\]\s*\)/
+
++ Received:
+"import { requireFeature } from '../../../lib/vertical-guard';
+import { analyticsApi, type TrackedSiteCard } from '../../../lib/api';
+import { propertyClock } from '../../../lib/property-time';
+import { WEBSITE_TITLE, siteState, type SiteState } from '../../../lib/website';
+import { Page } from '../../../components/page';
+import { Alert, Badge, Fact, Panel, Row, SectionTitle, Stack } from '../../../components/ui';
+import {
+  CheckCounterButton,
+  CreateSiteForm,
+  DomainList,
+  InstallCounterButton,
+  SiteDangerZone,
+} from '../forms';
+import { ManagedSitesNotice, MarketingCrumb, WebsiteTabs } from '../parts';
+import '../../directory.css';
+import '../website.css';
+
+/**
+ * «Сайт и онлайн-бронирование → Настройки» (ADR-117): бывшие «Настройки сайта» (`/analytics/setup`) без блока
+ * бронирования — он во вкладке «Бронирование». WEB2 (28.09): домены списком, состояние счётчика словами с одним
+ * действием, установка кода — в окне по кнопке. Пауза и удаление — в «Опасной зоне». Постоянный адрес API — Q-112.
+ */
+export default async function WebsiteSettingsPage() {
+  // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
+  await requireFeature('/website/settings');
+  const sites = await analyticsApi.sites();
+  const all = await Promise.all(sites.map((s) => analyticsApi.card(s.id)));
+  // MKT7: сайт WETOP здесь не правится, его настраивает публикация
+  const cards = all.filter((c) => !c.site.managed);
+  const managed = all.filter((c) => c.site.managed);
+  const scriptUrl = cards[0]?.snippet.scriptUrl ?? null;
+  const localOnly = !scriptUrl || /127\\.0\\.0\\.1|localhost/.test(scriptUrl);
+  const insecure = !!scriptUrl && !localOnly && !scriptUrl.startsWith('https://');
+  return (
+    <Page
+      crumbs={<MarketingCrumb />}
+      title={WEBSITE_TITLE}
+      subtitle=\"Домены сайта, счётчик посещений и установка кода.\"
+    >
+      <WebsiteTabs current=\"settings\" />
+      <div className=\"settings-site\">
+        <Stack>
+          {cards.length > 0 && localOnly && (
+            <Alert boxed tone=\"warning\" data-testid=\"setup-local-warning\">
+              Укажите постоянный публичный адрес API: текущий код доступен только локально.
+            </Alert>
+          )}
+
+          {cards.length > 0 && insecure && (
+            <Alert boxed data-testid=\"setup-insecure-warning\">
+              Укажите HTTPS-адрес API, чтобы счётчик работал на сайте.
+            </Alert>
+          )}
+
+          <ManagedSitesNotice cards={managed} />
+          {cards.map((c) => (
+            <SiteCard key={c.site.id} card={c} />
+          ))}
+
+          <Panel size=\"lg\">
+            <SectionTitle first>{cards.length ? 'Ещё один сайт' : 'Подключить сайт'}</SectionTitle>
+            <p className=\"hint block--bottom-xs\">
+              Существующий сайт объекта: WETOP будет принимать с него посещения и брони.
+            </p>
+            <CreateSiteForm />
+          </Panel>
+        </Stack>
+      </div>
+    </Page>
+  );
+}
+
+/** Состояние счётчика словами (WEB2, п. 5 и 7 ТЗ): одна плашка, одна строка, что делать дальше */
+const COUNTER_TEXT: Record<
+  SiteState['counter']['state'],
+  { tone: 'ok' | 'warn' | 'neutral'; title: string; text: (note: string) => string }
+> = {
+  blocked: {
+    tone: 'warn',
+    title: 'Сначала адрес сайта',
+    text: () => 'Без адреса сайта счётчик не принимает посещения — добавьте домен выше.',
+  },
+  paused: {
+    tone: 'neutral',
+    title: 'Приостановлен',
+    text: () => 'Посещения не записываются. Возобновить — в «Опасной зоне» ниже.',
+  },
+  waiting: {
+    tone: 'warn',
+    title: 'Событий ещё не было',
+    text: () =>
+      'Установите код на сайт и откройте любую его страницу — здесь появится время первого посещения.',
+  },
+  today: { tone: 'ok', title: 'Работает', text: (note) => note },
+  quiet: { tone: 'warn', title: 'Сегодня событий нет', text: (note) => note },
+};
+
+function SiteCard({ card }: { card: TrackedSiteCard }) {
+  const { site, status, snippet } = card;
+  const clock = propertyClock(site.timezone);
+  const state = siteState(card, clock);
+  const counter = COUNTER_TEXT[state.counter.state];
+  // Одна плашка состояния вместо пары «Счётчик включён» + «Ожидает первых событий» (ADR-117)
+  const badge = !state.connected
+    ? { tone: 'warn' as const, text: 'Адрес не указан' }
+    : state.counter.state === 'today'
+      ? { tone: 'ok' as const, text: state.counter.value }
+      : { tone: 'neutral' as const, text: state.counter.value };
+  return (
+    <Panel
+      size=\"lg\"
+      className=\"site-settings-card\"
+      data-testid=\"site-card\"
+      data-key={site.publicKey}
+    >
+      <Row gap=\"lg\" className=\"row--baseline\">
+        <h2 className=\"panel__title panel__title--lg\" data-testid=\"site-card-name\">
+          {site.name}
+        </h2>
+        <Badge tone={badge.tone} data-testid=\"site-card-status\">
+          {badge.text}
+        </Badge>
+      </Row>
+
+      <h3 className=\"site-domains-heading\">Домены</h3>
+      {!state.connected && (
+        <Alert tone=\"warning\" data-testid=\"site-domain-missing\">
+          Основной домен не настроен. Добавьте адрес сайта, с которого WETOP будет принимать
+          посещения и запросы бронирования.
+        </Alert>
+      )}
+      <DomainList id={site.id} hosts={site.hosts} />
+
+      <div className=\"divider\" data-testid=\"counter-state\" data-state={state.counter.state}>
+        <h3>Счётчик WETOP</h3>
+        <p className=\"hint--lg\">
+          <Badge tone={counter.tone} data-testid=\"counter-title\">
+            {counter.title}
+          </Badge>{' '}
+          <span data-testid=\"counter-text\">{counter.text(state.counter.note)}</span>
+        </p>
+        {status.lastEventAt && (
+          <div className=\"facts\">
+            <Fact
+              label=\"Последнее событие\"
+              value={clock.local(status.lastEventAt)}
+              testId=\"site-card-last\"
+            />
+            <Fact
+              label=\"Сессий сегодня\"
+              value={String(status.sessionsToday)}
+              testId=\"site-card-today\"
+            />
+            <Fact label=\"Просмотров сегодня\" value={String(status.pageviewsToday)} />
+          </div>
+        )}
+        <Row className=\"items-start\">
+          <InstallCounterButton
+            code={snippet.code}
+            siteKey={site.publicKey}
+            demoUrl={snippet.demoUrl}
+          />
+          {state.counter.state !== 'blocked' && (
+            <CheckCounterButton
+              id={site.id}
+              label={state.counter.state === 'waiting' ? 'Проверить установку' : 'Проверить'}
+            />
+          )}
+        </Row>
+      </div>
+
+      <section className=\"panel panel--danger block--top\" data-testid=\"site-danger\">
+        <b className=\"panel__title\">Опасная зона</b>
+        <p className=\"hint\">
+          Приостановка останавливает и счётчик, и бронирование с сайта. Удаление стирает накопленную
+          статистику — вернуть её нельзя.
+        </p>
+        <SiteDangerZone id={site.id} status={site.status} />
+      </section>
+    </Panel>
+  );
+}
+"
+
+ ❯ apps/web/src/app/website/website-routes.test.ts:14:22
+     12|     it(page, () => {
+     13|       const source = readFileSync(resolve(import.meta.dirname, page), …
+     14|       expect(source).toMatch(/requireVertical\(\s*\[\s*'HOSPITALITY'\s…
+       |                      ^
+     15|     });
+     16| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/18]⎯
+
+
+ Test Files  6 failed | 156 passed (162)
+      Tests  18 failed | 1184 passed (1202)
+   Start at  02:33:24
+   Duration  4.61s (transform 40%, import 39%, tests 19%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T09-33-23Z-unit-73b6.json
+
+# код выхода 1 · 6 с

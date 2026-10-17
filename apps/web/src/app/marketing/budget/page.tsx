@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { can } from '@pms/domain';
 import type { SearchParams } from '../../../lib/search-params';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { deskShell } from '../../../lib/desk-shell';
 import { formatMoney } from '../../../lib/money';
 import { marketingCampaignsApi } from '../../../lib/api';
@@ -26,7 +26,7 @@ import { ExpenseButton, LinesButton, PlanButton } from './drawers';
  * Право `marketing`, как у всего раздела (ADR-MKT-B7); филиал строго из scope (409: «Выберите филиал»).
  */
 export default async function BudgetPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  await requireFeature('/marketing/budget');
   const [loaded, shell] = await Promise.all([loadBudget(await searchParams), deskShell()]);
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'marketing'));

@@ -1,5 +1,5 @@
 import { unstable_rethrow } from 'next/navigation';
-import { requireVertical } from '../../../../lib/vertical-guard';
+import { requireFeature } from '../../../../lib/vertical-guard';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { loadErrorProps } from '../../../../lib/load-error';
@@ -16,7 +16,7 @@ import '../../marketing.css';
  */
 export default async function SiteAssetsPage() {
   // редактор открыт трём направлениям, значит, и его изображения (Д10); импорт из Channex только у гостиницы
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/marketing/site/assets');
   const hotel = (me.context?.vertical ?? 'HOSPITALITY') === 'HOSPITALITY';
   const shell = await deskShell();
   const loaded = await siteAssetsApi

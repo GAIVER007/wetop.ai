@@ -11,7 +11,7 @@ import { deskShell } from '../../../lib/desk-shell';
 import { loadErrorProps } from '../../../lib/load-error';
 import { formatMoney } from '../../../lib/money';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { verticalCopy, type VerticalCopy } from '../../../lib/vertical-copy';
 import '../marketing.css';
 import '../budget/budget.css';
@@ -193,7 +193,7 @@ function Campaigns({
 const empty = (text: string) => <EmptyState title="Пока пусто">{text}</EmptyState>;
 
 export default async function MarketingAdsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/marketing/ads');
   const copy: VerticalCopy = verticalCopy(me.context?.vertical);
   const q = normalizeSearchParams(await searchParams);
   const month = /^\d{4}-\d{2}$/.test(q['month'] ?? '') ? q['month'] : undefined;

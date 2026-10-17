@@ -1,3 +1,4 @@
+import { requireFeature } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { Tabs } from '../../../components/tabs';
 import { hotelToday } from '../../../lib/hotel-api';
@@ -38,6 +39,8 @@ export default async function ReservationPage({
    */
   preview?: boolean;
 }) {
+  // раздел направления по реестру функций (У1): по прямой ссылке чужое направление уходит на свою стартовую
+  await requireFeature('/reservations');
   const { number } = await params;
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
   const today = await hotelToday();

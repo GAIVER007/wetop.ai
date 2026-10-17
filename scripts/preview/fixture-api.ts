@@ -7320,6 +7320,10 @@ createServer(async (req, res) => {
             lastVisitLocalDate: last,
             avgCheckMinor: done.length ? (sum / BigInt(done.length)).toString() : null,
             avgCheckCurrency: done.length ? done[0]!.currency : null,
+            // §36: у подставного салона пометок нет
+            isVip: false,
+            birthDate: null,
+            birthdayInDays: null,
           };
         });
         return send(200, { items });

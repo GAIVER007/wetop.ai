@@ -3732,10 +3732,18 @@ export interface BeautyCustomerRow {
   /** средний чек в тиынах по валюте с наибольшим числом визитов; null, пока визитов нет */
   avgCheckMinor: string | null;
   avgCheckCurrency: string | null;
+  /** §36: ручная метка и дата рождения, общие с рестораном */
+  isVip: boolean;
+  birthDate: string | null;
+  /** через сколько дней ближайший день рождения по дате филиала, 0 сегодня */
+  birthdayInDays: number | null;
 }
 
 export const beautyApi = {
   customers: () => getJson<{ items: BeautyCustomerRow[] }>('/beauty/customers'),
+  /** VIP и день рождения клиента салона (§36) */
+  updateCustomer: (id: string, body: { isVip: boolean; birthDate: string | null }) =>
+    sendJson<unknown>('PATCH', `/beauty/customers/${encodeURIComponent(id)}`, body),
   services: () =>
     getJson<{
       locationId: string | null;

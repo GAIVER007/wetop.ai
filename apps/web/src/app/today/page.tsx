@@ -12,12 +12,15 @@ import { BeautyToday } from './beauty-today';
 import {
   TODAY_VERTICALS,
   anonymousHospitalityAllowed,
+  ownerSummaryClosed,
   todayScreen,
   unresolvedTarget,
 } from './dispatch';
 import { FoodToday } from './food-today';
 import { HospitalityToday } from './hospitality-today';
 import { TodayScopeContent } from './scope-content';
+import { Page } from '../../components/page';
+import { Alert } from '../../components/ui';
 
 /**
  * Рабочий экран дня (MV8): один адрес на все направления. Экран выбирает подтверждённое направление
@@ -41,26 +44,39 @@ export default async function TodayPage({
       return <p>Направление не поддерживается</p>;
     if (!c?.businessId || !c.locationId) redirect('/branches');
     const period = ownerPeriod((await searchParams)?.period);
-    try {
-      const summary = await readOwnerSummary(period);
+    const owner = await readOwnerSummary(period).then(
+      (summary) => ({ summary, closed: false as const }),
+      (error: unknown) => {
+        unstable_rethrow(error);
+        // сводка не этого человека в этом филиале: ниже обычный рабочий день (Д6)
+        if (ownerSummaryClosed(error)) return { summary: null, closed: true as const };
+        return { summary: null, closed: false as const };
+      },
+    );
+    if (owner.summary)
       return (
         <TodayScopeContent key={`${c.businessId}:${c.locationId}`}>
-          <OwnerSummaryView summary={summary} />
+          <OwnerSummaryView summary={owner.summary} />
         </TodayScopeContent>
       );
-    } catch (error) {
-      unstable_rethrow(error);
+    if (!owner.closed)
       return (
-        <section>
-          <h1>Главная</h1>
-          <p role="alert">
+        // общий каркас `Page`: один `main#main-content`, куда ведёт «К содержимому» (Д6)
+        <Page title="Главная">
+          <Alert>
             Не удалось загрузить сводку. Данные не заменены нулями. Проверьте подключение и доступ к
             отчётам выбранного филиала.
+          </Alert>
+          <p>
+            <a className="btn" href={`/today?period=${period}`}>
+              Повторить
+            </a>{' '}
+            <a className="btn btn--secondary" href="/today/operations">
+              Рабочий день
+            </a>
           </p>
-          <a href={`/today?period=${period}`}>Повторить</a>
-        </section>
+        </Page>
       );
-    }
   }
   const { screen, key } = todayScreen(me, {
     allowAnonymousHospitality: anonymousHospitalityAllowed({

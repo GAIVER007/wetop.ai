@@ -98,9 +98,15 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
             }).format(new Date(s.generatedAt))}, {s.period.timezone}
           </p>
         </div>
-        <a className="btn btn--secondary" href={finance}>
-          Отчёт за период
-        </a>
+        <div className="owner-heading__actions">
+          {/* экраны дня (записи, зал, заезды) уехали с Главной сюда: без ссылки до них было не дойти (Д6) */}
+          <a className="btn btn--secondary" href="/today/operations">
+            Рабочий день
+          </a>
+          <a className="btn btn--secondary" href={finance}>
+            Отчёт за период
+          </a>
+        </div>
       </header>
       <div className="owner-toolbar">
         <nav className="seg" aria-label="Период отчёта">

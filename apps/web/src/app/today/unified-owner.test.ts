@@ -164,4 +164,8 @@ describe('unified owner actual DTO', () => {
     expect(html).not.toContain('Операционные инструменты дня');
     expect(html).toContain('Нет данных для сравнения');
   });
+  it('ведёт к рабочему дню: экраны дня живут на /today/operations (аудит 17.10.2026, Д6)', () => {
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto() }));
+    expect(html).toMatch(/<a[^>]*href="\/today\/operations"[^>]*>Рабочий день<\/a>/);
+  });
 });

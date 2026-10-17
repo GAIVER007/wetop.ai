@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 17.10.2026 08:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит c46ef1c (claude/marketing-ad-wizard), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T03-59-58Z-integration-c596.json' 'tests/integration/marketing-ad-launch.test.ts' 'tests/integration/marketing-ad-launches-db.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+[pms_test] миграций применено 0; данные скопированы
+ ✓ |integration| tests/integration/marketing-ad-launch.test.ts (7 tests) 286ms
+ ✓ |integration| tests/integration/marketing-ad-launches-db.test.ts (4 tests) 42ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  20:59:58
+   Duration  2.76s (import 45%, transform 35%, tests 19%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T03-59-58Z-integration-c596.json
+
+# код выхода 0 · 3 с

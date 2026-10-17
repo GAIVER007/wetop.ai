@@ -4958,6 +4958,8 @@ interface FixtureCampaign {
 const fixtureCampaigns: FixtureCampaign[] = [];
 /** Кабинет Meta (§55): приложение «настроено», вход Facebook подставной (state fixture-state), ключа нет вовсе */
 let fixtureMeta: { adAccountId: string; status: 'ACTIVE' | 'FAILED'; lastSyncedAt: string } | null = null;
+/** Запуск ИИ-таргетолога (§57): один на прогон, готов со второго просмотра экрана шагов */
+let fixtureLaunch: { id: string; headline: string; dailyBudgetMinor: string; views: number } | null = null;
 /** Разбивка плана по каналам (§52): первое число месяца → строки */
 const budgetLines = new Map<string, Array<{ platform: string; amount: string }>>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
@@ -4972,6 +4974,7 @@ const resetMarketingBudget = () => {
   budgetPlans.clear();
   fixtureCampaigns.length = 0;
   fixtureMeta = null;
+  fixtureLaunch = null;
   budgetLines.clear();
   budgetResults.clear();
 };
@@ -5845,6 +5848,84 @@ createServer(async (req, res) => {
         if (!fixtureMeta) return send(404, { message: 'Кабинет Meta не подключён' });
         fixtureMeta = null;
         return send(200, { disconnected: true });
+      }
+    }
+    // ИИ-таргетолог (§57, ADR-MKT-LAUNCH): мастер, предложение ИИ, запуск в кабинете, «Остановить» и «Включить»;
+    // Meta подставная, запуск проходит за один просмотр экрана шагов
+    if (path.startsWith('/marketing/ads/')) {
+      if (!can(uiRole, 'ads_launch') && !(req.method === 'GET' && path.startsWith('/marketing/ads/launches')))
+        return send(403, { message: accessDeniedMessage('ads_launch') });
+      if (req.method === 'GET' && path === '/marketing/ads/assets') {
+        const base = { reportingCurrency: 'KZT', roomDailyMinor: '5000000' };
+        if (!fixtureMeta || fixtureMeta.status !== 'ACTIVE') return send(200, { connected: false, ...base });
+        return send(200, {
+          connected: true,
+          ...base,
+          cabinet: { name: 'Отель на Абая', currency: 'USD' },
+          pages: [
+            { id: '555', name: 'Отель на Абая', canAdvertise: true, instagramUserId: '777' },
+            { id: '556', name: 'Старая страница', canAdvertise: false, instagramUserId: null },
+          ],
+          pagesError: null,
+          defaults: { pageId: null, instagramUserId: null },
+        });
+      }
+      if (req.method === 'GET' && path === '/marketing/ads/geo')
+        return send(200, [{ key: '1234567', name: 'Алматы', region: 'Алматы' }]);
+      if (req.method === 'POST' && path === '/marketing/ads/proposal')
+        return send(200, {
+          headline: 'Осень у гор',
+          primaryText: 'Номер с видом на горы и завтрак. Напишите, подберём даты.',
+          description: null,
+          ageMin: 25,
+          ageMax: 54,
+          genders: [],
+          interests: ['путешествия'],
+          welcome: body['destination'] === 'WHATSAPP' ? { text: 'Здравствуйте! Подскажем свободные даты', autofill: 'Хочу узнать цены' } : null,
+          notes: [],
+        });
+      if (req.method === 'POST' && path === '/marketing/ads/creatives') {
+        if (!/Content-Type: image\/(png|jpeg)/i.test(raw.toString('latin1'))) return send(415, { message: 'Креатив: фото JPEG или PNG' });
+        return send(201, { id: '00000000-0000-4000-a000-0000000c0001', fileName: 'Креатив', url: 'about:blank' });
+      }
+      if (req.method === 'POST' && path === '/marketing/ads/launches') {
+        if (!body['headline']) return send(400, { message: 'Нужен заголовок' });
+        const id = '00000000-0000-4000-a000-0000000a0001';
+        fixtureLaunch = { id, headline: String(body['headline']), dailyBudgetMinor: String(body['dailyBudgetMinor']), views: 0 };
+        return send(202, { id });
+      }
+      const launchMatch = /^\/marketing\/ads\/launches\/([^/]+)$/.exec(path);
+      if (req.method === 'GET' && launchMatch) {
+        if (!fixtureLaunch || fixtureLaunch.id !== launchMatch[1]) return send(404, { message: 'Запуск не найден' });
+        // первый просмотр: идёт запуск, второй: готово и кампания в кабинете
+        const done = fixtureLaunch.views++ > 0;
+        if (done && !fixtureCampaigns.some((c) => c.id === 'launch-campaign-1')) {
+          const c: FixtureCampaign & { external?: boolean } = { id: 'launch-campaign-1', platform: 'META', name: `WETOP: ${fixtureLaunch.headline}`, status: 'ACTIVE', startsOn: today, endsOn: null, days: new Map() };
+          c.external = true;
+          c.days.set(today, { impressions: 0, clicks: 0, leads: 0 });
+          fixtureCampaigns.push(c);
+        }
+        return send(200, {
+          id: fixtureLaunch.id,
+          status: done ? 'SUCCEEDED' : 'RUNNING',
+          step: done ? 'DONE' : 'ADSET',
+          destination: 'WHATSAPP',
+          headline: fixtureLaunch.headline,
+          dailyBudgetMinor: fixtureLaunch.dailyBudgetMinor,
+          currency: 'USD',
+          campaignId: done ? 'launch-campaign-1' : null,
+          externalCampaignId: '120000000000001',
+          error: null,
+          createdAt: new Date().toISOString(),
+          finishedAt: done ? new Date().toISOString() : null,
+        });
+      }
+      const statusMatch = /^\/marketing\/ads\/campaigns\/([^/]+)\/(pause|resume)$/.exec(path);
+      if (req.method === 'POST' && statusMatch) {
+        const c = fixtureCampaigns.find((x) => x.id === statusMatch[1]);
+        if (!c) return send(404, { message: 'Кампания кабинета не найдена' });
+        c.status = statusMatch[2] === 'pause' ? 'PAUSED' : 'ACTIVE';
+        return send(200, { status: c.status });
       }
     }
     if (path === '/marketing/campaigns' || path.startsWith('/marketing/campaigns/')) {

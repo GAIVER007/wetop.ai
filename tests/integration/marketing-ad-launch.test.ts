@@ -52,6 +52,14 @@ class FakeWriter implements MetaWriterPort {
   async setStatus(...a: unknown[]) {
     this.calls.push(['setStatus', a]);
   }
+  async assignedPages() {
+    this.calls.push(['assignedPages', []]);
+    return [{ id: '555', name: 'Отель на Абая', canAdvertise: true, instagramUserId: '777' }];
+  }
+  async searchCities(...a: unknown[]) {
+    this.calls.push(['searchCities', a]);
+    return [{ key: '1234567', name: 'Алматы', region: 'Алматы' }];
+  }
   names() {
     return this.calls.map((c) => c[0]);
   }
@@ -331,6 +339,28 @@ describe('запуск рекламы (integration)', () => {
     });
     expect(await db.marketingAdLaunch.count({ where: { locationId: location } })).toBe(before);
     expect(writer.calls).toEqual([]);
+  });
+
+  it('мастер: кабинет, страницы, запомненные страница и Instagram, сколько ещё можно в день; город', async () => {
+    writer = new FakeWriter();
+    const a = await as(() => service.assets());
+    expect(a).toMatchObject({
+      connected: true,
+      reportingCurrency: 'KZT',
+      cabinet: { currency: 'USD' },
+      pages: [{ id: '555', instagramUserId: '777' }],
+      pagesError: null,
+      // запуск выше запомнил выбор
+      defaults: { pageId: '555', instagramUserId: '777' },
+    });
+    // план 100 000 000 минус действующий запуск 240 000 в день: подсказка той же формулой, что проверка
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+    const [y, m, d] = today.split('-').map(Number) as [number, number, number];
+    const days = BigInt(new Date(Date.UTC(y, m, 0)).getUTCDate() - d + 1);
+    expect(a.roomDailyMinor).toBe((100_000_000n / days - 240_000n).toString());
+    expect(await as(() => service.geo('Алма', 'KZ'))).toEqual([{ key: '1234567', name: 'Алматы', region: 'Алматы' }]);
+    expect(writer.calls.at(-1)).toEqual(['searchCities', ['Алма', 'KZ']]);
+    await expect(as(() => service.geo('А', 'KZ'))).rejects.toThrow(/от 2 букв/);
   });
 
   it('«Остановить» и «Включить»: сначала Meta, потом статус кампании WETOP и журнал', async () => {

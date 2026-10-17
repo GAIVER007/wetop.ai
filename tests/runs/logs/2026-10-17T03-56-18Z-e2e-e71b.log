@@ -1,0 +1,18 @@
+# Сквозные (e2e) · 17.10.2026 08:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит c46ef1c (claude/marketing-ad-wizard), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing-ad-launch.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/marketing-ad-launch.spec.ts:30:1 › мастер: ИИ заполняет текст, запуск с подтверждением, шаги, затем «Остановить» и «Включить» (12.5s)
+  ✓  2 tests/ui/marketing-ad-launch.spec.ts:95:1 › мастер на телефоне: без горизонтальной прокрутки (2.4s)
+
+  2 passed (30.6s)
+
+# код выхода 0 · 32 с

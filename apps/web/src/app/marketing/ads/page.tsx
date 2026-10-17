@@ -25,6 +25,8 @@ import { CampaignButton, StatsButton } from './campaigns';
 import { CAMPAIGN_STATUS } from './labels';
 import { cookies } from 'next/headers';
 import { MetaCabinet, MetaChoose } from './meta';
+import { CampaignStatusButton } from './launch/status-button';
+import Link from 'next/link';
 import { META_ACCOUNTS_COOKIE } from './meta-cookies';
 
 /**
@@ -50,7 +52,18 @@ async function loadCampaigns(month: string | undefined): Promise<Loaded> {
 
 const ctrText = (bp: number | null) => (bp === null ? dash : `${(bp / 100).toFixed(2).replace('.', ',')} %`);
 
-function Campaigns({ view, editable, today }: { view: MarketingCampaignsView; editable: boolean; today: string }) {
+function Campaigns({
+  view,
+  editable,
+  launchable,
+  today,
+}: {
+  view: MarketingCampaignsView;
+  editable: boolean;
+  /** право `ads_launch` и подключённый кабинет: «Остановить» и «Включить» у кампаний кабинета (§57) */
+  launchable: boolean;
+  today: string;
+}) {
   const rc = view.reportingCurrency;
   const money = (v: bigint | null) => (v === null ? dash : formatMoney(v, rc));
   // у кампании из кабинета показатели считает расход кабинета (ADR-MKT-META), у ручной её расходы из журнала
@@ -115,7 +128,7 @@ function Campaigns({ view, editable, today }: { view: MarketingCampaignsView; ed
                 <th scope="col" className="budget-td-num">CPM</th>
                 <th scope="col" className="budget-td-num">Лиды</th>
                 <th scope="col" className="budget-td-num">CPL</th>
-                {editable && (
+                {(editable || launchable) && (
                   <th scope="col">
                     <span className="sr-only">Действия</span>
                   </th>
@@ -146,11 +159,15 @@ function Campaigns({ view, editable, today }: { view: MarketingCampaignsView; ed
                   <td className="budget-td-num">{m.cpmMinor === null ? dash : formatMoney(m.cpmMinor, currency)}</td>
                   <td className="budget-td-num">{c.leads}</td>
                   <td className="budget-td-num">{m.cplMinor === null ? dash : formatMoney(m.cplMinor, currency)}</td>
-                  {editable && (
+                  {(editable || launchable) && (
                     <td>
-                      {cabinet ? (
-                        <span className="budget-cell-sub">обновляет кабинет</span>
-                      ) : (
+                      {c.fromCabinet ? (
+                        launchable && c.status !== 'FINISHED' ? (
+                          <CampaignStatusButton campaignId={c.id} name={c.name} active={c.status === 'ACTIVE'} />
+                        ) : (
+                          <span className="budget-cell-sub">обновляет кабинет</span>
+                        )
+                      ) : editable && (
                         <>
                           <StatsButton campaign={c} today={today} />
                           <CampaignButton campaign={c} />
@@ -198,9 +215,12 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
   }
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
+  // запуск и остановка тратят деньги: своё право (§57) и подключённый кабинет
+  const launchable =
+    !shell.readOnly && (role === null || can(role, 'ads_launch')) && cabinet?.connection?.status === 'ACTIVE';
   const campaigns =
     'view' in loaded ? (
-      <Campaigns view={loaded.view} editable={editable} today={loaded.view.today} />
+      <Campaigns view={loaded.view} editable={editable} launchable={launchable} today={loaded.view.today} />
     ) : 'chooseLocation' in loaded ? (
       <ChooseLocation />
     ) : (
@@ -210,12 +230,19 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
     <Page
       crumbs={<BackToModules />}
       title="Реклама"
-      subtitle="Кампании, кабинет Meta и статистика площадок; запуск кампаний с ИИ появится позже."
+      subtitle="Кампании, кабинет Meta, запуск с ИИ и статистика площадок."
+      actions={
+        launchable ? (
+          <Link className="btn" href="/marketing/ads/launch" data-testid="ad-new">
+            Новая кампания с ИИ
+          </Link>
+        ) : undefined
+      }
     >
       <div className="marketing-screen" data-testid="marketing-ads-screen">
         <ModuleSoon id={SOON} testId={SOON}>
-          Запуск кампаний с ИИ, аудитории и креативы появятся в следующих этапах. Кабинет Meta уже подключается для
-          отчётов, остальные площадки ведутся вручную. Без вашего подтверждения бюджет не тратится.
+          Кампания с ИИ запускается кнопкой в мастере после вашей проверки текста, аудитории и бюджета; остановить её
+          можно здесь же. Аудитории и библиотека креативов в следующих этапах, другие площадки ведутся вручную.
         </ModuleSoon>
         {metaResult === 'connected' && (
           <Alert tone="success" data-testid="meta-result">

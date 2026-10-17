@@ -212,21 +212,23 @@ for (const segment of SEGMENTS) {
     // Предпросмотр своего направления: файл отдаётся, данные обозначены как вымышленные
     const photo = hero.locator('img');
     await expect(photo).toHaveAttribute('alt', /вымышленные/);
-    // Четыре салонных типа со своими подписями услуг на рисунке (16.10.2026), остальные на рисунке вертикали
+    // Четыре салонных типа: тот же рисунок со своими подписями услуг (маршрут previews), остальные общий
     const own: Record<string, string> = {
-      '/for/barbershops/': 'beauty-barbershop',
-      '/for/spa/': 'beauty-spa',
-      '/for/nail-studios/': 'beauty-nails',
-      '/for/massage/': 'beauty-massage',
+      '/for/barbershops/': '/previews/barbershops.svg',
+      '/for/spa/': '/previews/spa.svg',
+      '/for/nail-studios/': '/previews/nail-studios.svg',
+      '/for/massage/': '/previews/massage.svg',
     };
     const preview =
       own[segment.path] ??
-      (segment.vertical === 'HOSPITALITY'
-        ? 'hospitality'
-        : segment.vertical === 'BEAUTY'
-          ? 'beauty'
-          : 'restaurant');
-    await expect(photo).toHaveAttribute('src', `/design-only/${preview}.svg`);
+      `/design-only/${
+        segment.vertical === 'HOSPITALITY'
+          ? 'hospitality'
+          : segment.vertical === 'BEAUTY'
+            ? 'beauty'
+            : 'restaurant'
+      }.svg`;
+    await expect(photo).toHaveAttribute('src', preview);
     await expect(hero.getByText('Источники бронирований', { exact: true })).toHaveCount(0);
 
     expect((await page.request.get((await photo.getAttribute('src')) ?? '')).status()).toBe(200);
@@ -273,7 +275,10 @@ for (const segment of SEGMENTS) {
     expect(text, 'цифры клиентов и цены').not.toMatch(
       /\d+\s?(клиент|отел[яей]\b)|\d+\s?₸\s*(в месяц|\/ мес)/i,
     );
-    expect(text, '«7 дней» один раз на экран').toMatch(/^(?![\s\S]*7 дней[\s\S]*7 дней)/);
+    // Срок и условия пробного доступа сайт не печатает, пока их не решит владелец (ADR-147)
+    expect(text, 'условия trial').not.toMatch(
+      /\d+\s?дн(ей|я)\s+бесплатно|карта не нужна|без карты/i,
+    );
   });
 }
 
@@ -299,26 +304,32 @@ test('страницы направлений ведут карточками н
   }
 });
 
-test('у страниц типов свои карточки возможностей, не копия соседней страницы', async ({ page }) => {
-  // 16.10.2026: салон, барбершоп, спа и ногтевая студия (и кафе с баром) показывали одни и те же шесть карточек
-  const seen = new Map<string, string>();
-  const problems: string[] = [];
+test('страница типа не копирует набор карточек соседней страницы целиком', async ({ page }) => {
+  // 16.10.2026: салон, барбершоп, спа и ногтевая студия (и кафе с баром) показывали одни и те же шесть карточек.
+  // Общая карточка про филиалы или команду допустима; дефект это набор, совпадающий с другой страницей почти весь.
+  const sets = new Map<string, string[]>();
   for (const segment of SEGMENTS) {
     await page.goto(segment.path);
-    for (const card of await page.locator('#segment-features .card__text').allTextContents()) {
-      const other = seen.get(card);
-      if (other)
-        problems.push(`${segment.path} повторяет карточку ${other}: «${card.slice(0, 50)}»`);
-      seen.set(card, segment.path);
-    }
+    sets.set(segment.path, await page.locator('#segment-features .card__text').allTextContents());
   }
+  const problems: string[] = [];
+  const paths = [...sets.keys()];
+  paths.forEach((a, i) =>
+    paths.slice(i + 1).forEach((b) => {
+      const own = sets.get(a)!;
+      const shared = own.filter((card) => sets.get(b)!.includes(card)).length;
+      if (shared > own.length / 2)
+        problems.push(`${a} и ${b}: общих карточек ${shared} из ${own.length}`);
+    }),
+  );
   expect(problems).toEqual([]);
 });
 
-test('салонные страницы не обещают кабинеты и курсы, которых нет в модели записи', async ({
+test('салонные страницы не обещают процедурные кабинеты и курсы, которых нет в модели записи', async ({
   page,
 }) => {
-  // Запись в продукте: клиент, мастер, услуга, время (DATA_MODEL, Appointment). Кабинетов и абонементов нет.
+  // Запись в продукте: клиент, мастер, услуга, время (DATA_MODEL, Appointment): учёта кабинетов, курсов и
+  // абонементов нет. Ловим именно эти обещания; «личный кабинет» или фото кабинета дефектом не считаются.
   const paths = [
     ...SEGMENTS.filter((s) => s.vertical === 'BEAUTY').map((s) => s.path),
     '/blog/kak-vesti-zapisi-v-spa/',
@@ -326,11 +337,34 @@ test('салонные страницы не обещают кабинеты и 
     '/blog/kak-vesti-zapisi-v-kosmetologii/',
     '/blog/kak-vesti-zapisi-studii-epilyacii/',
   ];
+  const promises =
+    /календар\S* кабинет|загрузк\S* кабинет|кабинет\S* (занят|не пересека)|держит кабинет|кабинеты и филиалы|графики и кабинеты|курс\S* (процедур|визитов)|курс из (десяти|\d+)|сеансы и курсы|абонемент/i;
   for (const path of paths) {
     await page.goto(path);
     const text = (await page.locator('main').innerText()) + (await page.title());
-    expect(text, path).not.toMatch(
-      /кабинет(ы|ов|ам)\b|календар\S* кабинет|кабинет занят|курс(ы|ов)? (процедур|визитов|из)|абонемент/i,
-    );
+    expect(text, path).not.toMatch(promises);
+  }
+});
+
+test('рисунки первого экрана с подписями типа: подписи помещаются в свои блоки', async ({
+  page,
+}) => {
+  for (const slug of ['spa', 'barbershops', 'nail-studios', 'massage']) {
+    await page.goto(`/previews/${slug}.svg`);
+    // Каждый текст сверяется с самым маленьким прямоугольником, в котором начинается
+    const overflow = await page.evaluate(() => {
+      const rects = [...document.querySelectorAll('rect')].map((r) => r.getBBox());
+      return [...document.querySelectorAll('text')].flatMap((t) => {
+        const box = t.getBBox();
+        const home = rects
+          .filter(
+            (r) =>
+              box.x >= r.x && box.x <= r.x + r.width && box.y >= r.y && box.y <= r.y + r.height,
+          )
+          .sort((a, b) => a.width * a.height - b.width * b.height)[0];
+        return home && box.x + box.width > home.x + home.width ? [t.textContent] : [];
+      });
+    });
+    expect(overflow, slug).toEqual([]);
   }
 });

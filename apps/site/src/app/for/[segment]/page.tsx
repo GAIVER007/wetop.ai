@@ -17,7 +17,7 @@ import { registerLink } from '../../../lib/site';
  * Страницы типов гостиничных объектов (/for/hostels/, /for/mini-hotels/, /for/apart-hotels/), с 10.10.2026
  * на каркасе лендинга «Для гостиниц» (`app/for/hotels/page.tsx`): герой с цветным фото (свой файл из KIE,
  * не сток), возможности, настоящий экран календаря, честная строка «Пока нет», вопросы и общий финал.
- * Текст только из продукта (§19.9): ни цифр клиентов, ни цен; «7 дней» по ADR-098, один раз на экран.
+ * Текст только из продукта (§19.9): ни цифр клиентов, ни цен; условий trial нет (ADR-147).
  */
 export const dynamicParams = false;
 
@@ -122,7 +122,7 @@ export default async function SegmentPage({ params }: Props) {
             <figure className="hotel-hero__figure">
               <ProductPreview
                 vertical={type.vertical}
-                src={'preview' in type ? type.preview : undefined}
+                src={t.segments.previews[slug] ? `/previews/${slug}.svg` : undefined}
                 label={t.hero.dash.label}
               />
               <figcaption>{t.hero.dash.label}</figcaption>

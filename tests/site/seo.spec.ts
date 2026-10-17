@@ -46,19 +46,36 @@ test('каждая страница sitemap: h1, title, description, canonical, 
       if (i > 0 && level > levels[i - 1]! + 1)
         problems.push(`${path}: заголовок h${level} сразу после h${levels[i - 1]}`);
     });
-    const ldTypes: string[] = [];
+    type LdNode = { '@type'?: string; mainEntity?: Array<{ name: string }> };
+    const ldNodes: LdNode[] = [];
     for (const raw of await page.locator('script[type="application/ld+json"]').allTextContents()) {
       try {
-        const data = JSON.parse(raw) as { '@context'?: string; '@type'?: string; '@graph'?: Array<{ '@type': string }> };
+        const data = JSON.parse(raw) as LdNode & { '@context'?: string; '@graph'?: LdNode[] };
         check(data['@context'] === 'https://schema.org', `${path}: JSON-LD без @context`);
-        ldTypes.push(...(data['@graph'] ? data['@graph'].map((g) => g['@type']) : [data['@type'] ?? '']));
+        ldNodes.push(...(data['@graph'] ?? [data]));
       } catch {
         problems.push(`${path}: JSON-LD не разбирается`);
       }
     }
-    // Второй FAQPage на той же странице Google считает ошибкой разметки (16.10.2026: был на всех лендингах)
-    for (const type of new Set(ldTypes))
-      check(ldTypes.filter((t) => t === type).length === 1, `${path}: ${type} в разметке дважды`);
+    // Сущности, которые у страницы одни: шаблон и страница не должны выводить их оба (16.10.2026: FAQPage
+    // выходил дважды на 30 лендингах). Другие типы могут повторяться, если их несколько по смыслу.
+    for (const type of ['FAQPage', 'BreadcrumbList', 'Organization', 'WebSite', 'BlogPosting']) {
+      const count = ldNodes.filter((n) => n['@type'] === type).length;
+      check(count <= 1, `${path}: ${type} выведен ${count} раза`);
+    }
+    // Вопросы разметки те же, что видит посетитель: один владелец вывода, список не расходится со страницей
+    const faq = ldNodes.find((n) => n['@type'] === 'FAQPage');
+    if (faq) {
+      const norm = (v: string) => v.replace(/\s+/g, ' ').trim();
+      const visible = (
+        await page.locator('.faq details summary > span:first-child').allTextContents()
+      ).map(norm);
+      const marked = (faq.mainEntity ?? []).map((q) => norm(q.name));
+      check(
+        JSON.stringify(marked) === JSON.stringify(visible),
+        `${path}: вопросы FAQPage не совпадают с видимыми (${marked.length} против ${visible.length})`,
+      );
+    }
     check(!titles.has(title), `${path}: title как у ${titles.get(title)}`);
     check(!descriptions.has(description), `${path}: description как у ${descriptions.get(description)}`);
     titles.set(title, path);

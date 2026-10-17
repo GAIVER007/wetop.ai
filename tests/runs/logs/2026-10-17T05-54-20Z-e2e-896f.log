@@ -1,0 +1,128 @@
+# Сквозные (e2e) · 17.10.2026 10:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9458a27 (claude/d4-profile-menu)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/ui31-shell.spec.ts' '--workers=1' '-g' 'Д4'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✘  1 tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: hotel меню профиля с «Профилем» и «Помощью» (6.3s)
+  ✘  2 tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: beauty меню профиля с «Профилем» и «Помощью» (5.8s)
+  ✘  3 tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: food меню профиля с «Профилем» и «Помощью» (5.8s)
+
+
+  1) tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: hotel меню профиля с «Профилем» и «Помощью» ──
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('#profile-dropdown').getByRole('link', { name: 'Профиль' })
+    Expected: "/profile"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('#profile-dropdown').getByRole('link', { name: 'Профиль' }) with timeout 5000ms
+      - waiting for locator('#profile-dropdown').getByRole('link', { name: 'Профиль' })
+
+
+      126 |     await page.locator('.profile-trigger').click();
+      127 |     const dropdown = page.locator('#profile-dropdown');
+    > 128 |     await expect(dropdown.getByRole('link', { name: 'Профиль' })).toHaveAttribute('href', '/profile');
+          |                                                                   ^
+      129 |     await expect(dropdown.getByRole('link', { name: 'Помощь' })).toHaveAttribute('href', '/help');
+      130 |     await expect(dropdown.getByRole('link', { name: 'Филиалы' })).toHaveAttribute('href', '/branches');
+      131 |     await page.keyboard.press('Escape');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/p0/tests/branches-ui/ui31-shell.spec.ts:128:67
+
+    Error Context: test-results/ui31-shell-Д4-hotel-меню-профиля-с-«Профилем»-и-«Помощью»/error-context.md
+
+    Error Context: test-results/ui31-shell-Д4-hotel-меню-профиля-с-«Профилем»-и-«Помощью»/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-Д4-hotel-меню-профиля-с-«Профилем»-и-«Помощью»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-Д4-hotel-меню-профиля-с-«Профилем»-и-«Помощью»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: beauty меню профиля с «Профилем» и «Помощью» ─
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('#profile-dropdown').getByRole('link', { name: 'Профиль' })
+    Expected: "/profile"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('#profile-dropdown').getByRole('link', { name: 'Профиль' }) with timeout 5000ms
+      - waiting for locator('#profile-dropdown').getByRole('link', { name: 'Профиль' })
+
+
+      126 |     await page.locator('.profile-trigger').click();
+      127 |     const dropdown = page.locator('#profile-dropdown');
+    > 128 |     await expect(dropdown.getByRole('link', { name: 'Профиль' })).toHaveAttribute('href', '/profile');
+          |                                                                   ^
+      129 |     await expect(dropdown.getByRole('link', { name: 'Помощь' })).toHaveAttribute('href', '/help');
+      130 |     await expect(dropdown.getByRole('link', { name: 'Филиалы' })).toHaveAttribute('href', '/branches');
+      131 |     await page.keyboard.press('Escape');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/p0/tests/branches-ui/ui31-shell.spec.ts:128:67
+
+    Error Context: test-results/ui31-shell-Д4-beauty-меню-профиля-с-«Профилем»-и-«Помощью»/error-context.md
+
+    Error Context: test-results/ui31-shell-Д4-beauty-меню-профиля-с-«Профилем»-и-«Помощью»/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-Д4-beauty-меню-профиля-с-«Профилем»-и-«Помощью»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-Д4-beauty-меню-профиля-с-«Профилем»-и-«Помощью»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: food меню профиля с «Профилем» и «Помощью» ───
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('#profile-dropdown').getByRole('link', { name: 'Профиль' })
+    Expected: "/profile"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('#profile-dropdown').getByRole('link', { name: 'Профиль' }) with timeout 5000ms
+      - waiting for locator('#profile-dropdown').getByRole('link', { name: 'Профиль' })
+
+
+      126 |     await page.locator('.profile-trigger').click();
+      127 |     const dropdown = page.locator('#profile-dropdown');
+    > 128 |     await expect(dropdown.getByRole('link', { name: 'Профиль' })).toHaveAttribute('href', '/profile');
+          |                                                                   ^
+      129 |     await expect(dropdown.getByRole('link', { name: 'Помощь' })).toHaveAttribute('href', '/help');
+      130 |     await expect(dropdown.getByRole('link', { name: 'Филиалы' })).toHaveAttribute('href', '/branches');
+      131 |     await page.keyboard.press('Escape');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/p0/tests/branches-ui/ui31-shell.spec.ts:128:67
+
+    Error Context: test-results/ui31-shell-Д4-food-меню-профиля-с-«Профилем»-и-«Помощью»/error-context.md
+
+    Error Context: test-results/ui31-shell-Д4-food-меню-профиля-с-«Профилем»-и-«Помощью»/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-Д4-food-меню-профиля-с-«Профилем»-и-«Помощью»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-Д4-food-меню-профиля-с-«Профилем»-и-«Помощью»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: hotel меню профиля с «Профилем» и «Помощью» ───
+    tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: beauty меню профиля с «Профилем» и «Помощью» ──
+    tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: food меню профиля с «Профилем» и «Помощью» ────
+
+# код выхода 1 · 25 с

@@ -76,7 +76,9 @@ test('«Возможности» вкладками, три витрины пр�
   await expect(panel).toContainText(/Шахматка/);
   await tabs.nth(1).click();
   await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
-  await expect(page.locator('#features').getByRole('tabpanel')).toContainText(/Загрузка конкурентов/);
+  await expect(page.locator('#features').getByRole('tabpanel')).toContainText(
+    /Загрузка конкурентов/,
+  );
   // Клавиатура: стрелка вправо переводит на следующую вкладку
   await tabs.nth(1).press('ArrowRight');
   await expect(tabs.nth(2)).toBeFocused();
@@ -144,6 +146,17 @@ test('«Продажи, маркетинг, ИИ»: примеры подпис�
   await expect(feed.locator('.growth__feed > li')).toHaveCount(4);
   await expect(feed).toContainText('Booking.com');
   await expect(feed).toContainText('Пример ленты заявок. Данные вымышленные.');
+  // Каналы с условием подключения названы рядом с кнопкой, а не обещаны всем направлениям (17.10.2026)
+  await expect(feed.locator('.growth__note')).toContainText(/ИИ-продавец отдельным расширением/);
+  await expect(feed).not.toContainText(/Сайт салона|Цены и свободное время везде/);
+  // Ручной ввод сотрудником не выдаётся за телефонию, сроков без утверждённого плана нет (17.10.2026)
+  await expect(feed).toContainText('сотрудник вносит');
+  await expect(feed).not.toContainText(/скоро/i);
+  // Публикация сайтов клиентов ограничена (ADR-185): домен не обещается безусловно
+  await expect(page.locator('#market')).not.toContainText('Сайт с ИИ на своём домене');
+  await expect(page.locator('#market')).toContainText(
+    'Публикация сайта на домене включается отдельно',
+  );
   const axe = await new AxeBuilder({ page }).include('#sales').analyze();
   expect(axe.violations).toEqual([]);
 });
@@ -153,28 +166,44 @@ test('первый экран: дашборд подписан примером 
   const preview = page.locator('.public-intro__figure img');
   await expect(preview).toBeVisible();
   await expect(preview).toHaveAttribute('alt', /Гостиница/);
-  await expect.poll(() => preview.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+  await expect
+    .poll(() =>
+      preview.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0),
+    )
+    .toBe(true);
   await expect(preview.locator('..').locator('a, button, [role="button"]')).toHaveCount(0);
   await expect(page.locator('.public-intro__figure')).toContainText(
     'Пример интерфейса. Данные вымышленные.',
   );
 });
 
-test('первый экран: мокап переключается между гостиницей, салоном и рестораном', async ({ page }) => {
+test('первый экран: мокап переключается между гостиницей, салоном и рестораном', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const switcher = page.getByRole('group', { name: 'Показать экран для направления' });
   const preview = page.locator('.public-intro__figure img');
-  await expect(switcher.getByRole('button', { name: 'Гостиница' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(switcher.getByRole('button', { name: 'Гостиница' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   await expect(preview).toHaveAttribute('src', '/design-only/hospitality.svg');
   await switcher.getByRole('button', { name: 'Салон' }).click();
-  await expect(switcher.getByRole('button', { name: 'Салон' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(switcher.getByRole('button', { name: 'Салон' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   await expect(preview).toHaveAttribute('src', '/design-only/beauty.svg');
   await expect(preview).toHaveAttribute('alt', /Салон/);
   await switcher.getByRole('button', { name: 'Ресторан' }).click();
   await expect(preview).toHaveAttribute('src', '/design-only/restaurant.svg');
   await expect(preview).toHaveAttribute('alt', /Ресторан/);
-  await expect.poll(() => preview.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+  await expect
+    .poll(() =>
+      preview.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0),
+    )
+    .toBe(true);
 });
 
 /**

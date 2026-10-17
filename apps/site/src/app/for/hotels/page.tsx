@@ -5,7 +5,6 @@ import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
-import { JsonLd, faqLd } from '../../../components/json-ld';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -16,7 +15,7 @@ import { registerLink } from '../../../lib/site';
  * (`app/for/salons/page.tsx`), в базовой палитре сайта: герой с общим дашборд-мокапом «Сегодня»
  * (`DashMock`), полоса фактов продукта, восемь возможностей, блок роста с рисунком на SVG,
  * вопросы и призыв. Текст только из продукта (§19.9): ни чисел клиентов, ни кейсов, ни тарифов;
- * «7 дней бесплатно» по ADR-098.
+ * условий trial нет (ADR-147).
  */
 export const metadata: Metadata = pageMetadata({
   path: '/for/hotels/',
@@ -164,7 +163,6 @@ export default function HotelLandingPage() {
 
           <SubtypeLinks direction="hotels" title={t.segments.typesTitle.hotels} />
 
-          {s.faq.length ? <JsonLd data={faqLd(s.faq)} /> : null}
           <MarketingBlock
             id="marketing"
             copy={t.marketing.hotel}

@@ -74,6 +74,38 @@ describe.skipIf(!process.env.DATABASE_URL)('auth identity chains (integration)',
     return row.organizationId;
   }
 
+  // Е: смена пароля из профиля, проверившая старый пароль до сброса по ссылке, не перезаписывает новый пароль сброса
+  it('profile password change that checked the old password before a reset does not overwrite the reset', async () => {
+    const o = await owner('HOSPITALITY', 'change-vs-reset');
+    const { token } = await auth.login({ email: o.email, password });
+    const resetHash = 'scrypt$16384$8$1$cmVzZXQ$cmVzZXQ';
+    // сброс по ссылке коммитится ровно между проверкой текущего пароля и записью нового
+    const racing = db.$extends({ query: { user: {
+      async update({ args, query }) {
+        if ((args.data as { passwordHash?: unknown }).passwordHash !== undefined)
+          await db.$transaction([
+            db.user.update({ where: { id: o.userId }, data: { passwordHash: resetHash } }),
+            db.session.updateMany({ where: { userId: o.userId, revokedAt: null }, data: { revokedAt: new Date() } }),
+          ]);
+        return query(args);
+      },
+      async updateMany({ args, query }) {
+        if ((args.data as { passwordHash?: unknown }).passwordHash !== undefined)
+          await db.$transaction([
+            db.user.update({ where: { id: o.userId }, data: { passwordHash: resetHash } }),
+            db.session.updateMany({ where: { userId: o.userId, revokedAt: null }, data: { revokedAt: new Date() } }),
+          ]);
+        return query(args);
+      },
+    } } });
+    const racingAuth = new AuthService({ db: racing } as never, null as never);
+    await expect(
+      racingAuth.changePassword({ token, currentPassword: password, newPassword: 'another-synthetic-2026' }),
+    ).rejects.toThrow();
+    const after = await db.user.findUniqueOrThrow({ where: { id: o.userId } });
+    expect(after.passwordHash).toBe(resetHash);
+  });
+
   // Г + И: доступ в архивной организации А не должен отнимать законный доступ в Б
   it('login skips an archived first organization and opens the next open membership', async () => {
     const a = await owner('BEAUTY', 'archived-first');

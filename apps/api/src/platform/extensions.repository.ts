@@ -139,6 +139,11 @@ export class PrismaExtensionsRepository implements ExtensionsRepository {
         select: { status: true },
       });
       await tx.organization.update({ where: { id: input.organizationId }, data: { status: 'SUSPENDED' } });
+      // архив гасит сессии строкой: возврат из архива не должен оживлять ключи, выданные до него
+      await tx.session.updateMany({
+        where: { organizationId: input.organizationId, revokedAt: null },
+        data: { revokedAt: input.now },
+      });
       await tx.auditLog.create({
         data: {
           userId: input.by,

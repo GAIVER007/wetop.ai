@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 17.10.2026 09:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит f5380e8 (claude/auth-identity-1016), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-42-03Z-integration-0bb3.json' 'tests/integration/core-security/auth-session-revival.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |integration| tests/integration/core-security/auth-session-revival.test.ts (2 tests) 1931ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  21:42:06
+   Duration  7.36s (transform 42%, tests 30%, import 28%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-42-03Z-integration-0bb3.json
+
+# код выхода 0 · 11 с

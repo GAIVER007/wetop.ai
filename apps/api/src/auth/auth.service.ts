@@ -654,15 +654,26 @@ export class AuthService {
     const policy = checkPassword(input.newPassword);
     if (!policy.ok) throw new BadRequestException(`Пароль не годится: ${policy.reason}`);
 
-    await this.prisma.db.user.update({
-      where: { id: full.id },
-      data: { passwordHash: await hashPasswordQueued(input.newPassword) },
+    const passwordHash = await hashPasswordQueued(input.newPassword);
+    // Пароль, отзыв прочих сессий и журнал одной транзакцией. Запись условная: если за время проверки старого пароля
+    // его сменили (сброс по ссылке) или учётку заблокировали, новый пароль не ложится поверх (как вход, §13.8).
+    await this.prisma.db.$transaction(async (tx) => {
+      const updated = await tx.user.updateMany({
+        where: { id: full.id, passwordHash: full.passwordHash, status: 'ACTIVE' },
+        data: { passwordHash },
+      });
+      if (updated.count !== 1) throw new UnauthorizedException('Войдите заново: сессия не годится');
+      const { count } = await tx.session.updateMany({
+        where: { userId: full.id, revokedAt: null, id: { not: found.session.id } },
+        data: { revokedAt: now },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: full.id, entityType: 'user', entityId: full.id,
+          action: 'user.password.changed', after: { sessionsRevoked: count },
+        },
+      });
     });
-    const { count } = await this.prisma.db.session.updateMany({
-      where: { userId: full.id, revokedAt: null, id: { not: found.session.id } },
-      data: { revokedAt: now },
-    });
-    await this.record(full.id, 'user.password.changed', { sessionsRevoked: count });
   }
 
   /**

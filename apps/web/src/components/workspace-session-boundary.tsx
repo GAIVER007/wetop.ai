@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
+import { isPublicEntryPath } from '../lib/public-entry';
 import { LoadingState } from './ui';
 
 /**
@@ -55,6 +56,31 @@ export function WorkspaceSessionBoundary({
     <>
       {checking && <LoadingState label="Проверяем сессию…" />}
       <div className="workspace-session-boundary" hidden={checking} inert={checking}>
+        {children}
+      </div>
+    </>
+  );
+}
+
+/**
+ * The public entry layout (`/register/setup`, `/login/…`) has no protected shell. Its links lead into the
+ * workspace through client navigation, which keeps this layout; the first server action there re-rendered the
+ * root layout as the protected shell, the tree changed shape and React remounted the page with any open
+ * dialog and its status (salon onboarding, 17.10.2026). Leaving a public path hides the page and refreshes the
+ * layout at once, so the remount happens on arrival, not in the middle of the user's work.
+ */
+export function PublicEntryExit({ children }: { children: ReactNode }) {
+  const pathname = usePathname() ?? '/';
+  const router = useRouter();
+  const [, startRefresh] = useTransition();
+  const leaving = !isPublicEntryPath(pathname);
+  useEffect(() => {
+    if (leaving) startRefresh(() => router.refresh());
+  }, [leaving, pathname, router]);
+  return (
+    <>
+      {leaving && <LoadingState label="Открываем рабочее пространство…" />}
+      <div className="workspace-session-boundary" hidden={leaving} inert={leaving}>
         {children}
       </div>
     </>

@@ -76,12 +76,15 @@ test('O22/O23 Beauty extreme widths, reduced motion, keyboard and accessible err
   await checkLayout(page);
   await page.getByLabel('Название салона',{exact:true}).fill('');
   await page.getByRole('button',{name:'Сохранить и продолжить',exact:true}).click();
- await expect(page.getByText('Выполнено 0 из 4 обязательных шагов',{exact:true})).toBeVisible();
+  // Обязательное поле останавливает отправку самим браузером: экран остаётся на основных сведениях,
+  // список шагов не открывается (прежняя строка ждала счётчик шагов, который бывает только после сохранения)
+  await expect(page.getByRole('heading',{name:'Основные сведения',exact:true})).toBeVisible();
+  await expect(page.getByText(/Выполнено \d из 4 обязательных шагов/)).toHaveCount(0);
+  expect(await page.getByLabel('Название салона',{exact:true}).evaluate((n)=>(n as HTMLInputElement).validity.valueMissing)).toBe(true);
   await expect(page.getByLabel('Название салона',{exact:true})).toHaveValue('');
   await expect(page.getByLabel('Название салона',{exact:true})).toBeFocused();
   await page.getByLabel('Название салона',{exact:true}).fill('Бизнес Проверки');
   await page.getByRole('button',{name:'Сохранить и продолжить',exact:true}).click();
- await expect(page.getByText('Выполнено 0 из 4 обязательных шагов',{exact:true})).toBeVisible();
   await expect(page.getByText('Выполнено 0 из 4 обязательных шагов',{exact:true})).toBeVisible();
   await checkLayout(page);
   await page.setViewportSize({width:320,height:844});

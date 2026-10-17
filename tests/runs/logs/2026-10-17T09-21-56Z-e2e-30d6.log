@@ -1,0 +1,74 @@
+# Сквозные (e2e) · 17.10.2026 14:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5417daa (claude/onboarding-real-salon), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/a27-auth-boundary.spec.ts' 'tests/ui/invites.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/status-page.spec.ts' 'tests/ui/unified-auth.spec.ts' 'tests/ui/guest-wizard.spec.ts' 'tests/ui/booking-status-confirmation.spec.ts' 'tests/ui/registration-closed.spec.ts' 'tests/ui/onboarding.spec.ts' 'tests/ui/inventory-onboarding.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 52 tests using 1 worker
+
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:57:1 › первый экран один: сценарий (поддержка «скоро»), адрес, «Продолжить»; шага «Начать создание» нет (2.1s)
+  ✓   2 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:85:1 › неверный адрес: ошибка у поля, мастер не уходит дальше и ввод на месте (629ms)
+  ✓   3 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:96:1 › без сайта: ссылка ведёт на проверку, ниша выбором и «Другое», «Далее» ждёт название и нишу (713ms)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:125:1 › найденное по сайту помечено, правка человека снимает пометку (473ms)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:141:1 › опрос: ответы уходят, «Пропустить» закрывает одним нажатием, тест бота пока «Скоро» (1.0s)
+  ✓   6 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:172:1 › возврат: баннер с шагом, «В начало» ведёт на первый экран без потери данных (582ms)
+  ✓   7 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:188:1 › отказ сохранения не теряет ввод и не показывает успешный результат (530ms)
+  ✓   8 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:213:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (560ms)
+  ✓   9 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 1440px (5.1s)
+  ✓  10 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 390px (4.8s)
+  ✓  11 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 1440px (5.0s)
+  ✓  12 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px (5.2s)
+  ✓  13 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu (2.8s)
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/inventory-onboarding.spec.ts:37:1 › location and operational filters intersect and survive reload (1.5s)
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (2.2s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (3.1s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (1.9s)
+  ✓  18 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (2.2s)
+  ✓  19 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (2.0s)
+  ✓  20 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (8.3s)
+  ✓  21 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (8.0s)
+  ✓  22 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.6s)
+  ✓  23 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (3.1s)
+  ✓  24 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (1.6s)
+  ✓  25 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (1.5s)
+  ✓  26 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (2.8s)
+  ✓  27 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (641ms)
+  ✓  28 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (1.9s)
+  ✓  29 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (2.1s)
+  ✓  30 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/onboarding.spec.ts:20:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (1.8s)
+  ✓  31 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) (2.7s)
+  ✓  32 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/onboarding.spec.ts:67:1 › пустая категория без цены — форма просит добавить, отель не создаётся (703ms)
+  ✓  33 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/onboarding.spec.ts:80:1 › после запуска отеля «Финансы» без «Первых шагов» и без кнопки брони (2.3s)
+  ✓  34 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/onboarding.spec.ts:103:1 › у работающего отеля с бронями «Первых шагов» нет (764ms)
+  ✓  35 [main-ui-0] › ../.wetop-main-ui-Km7O0S/worker-0/tests/ui/onboarding.spec.ts:114:1 › «Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу (3.7s)
+  ✓  36 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/booking-status-confirmation.spec.ts:8:3 › calendar: заселение требует подтверждения, отказ сохраняет статус (3.7s)
+  ✓  37 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/booking-status-confirmation.spec.ts:8:3 › card: заселение требует подтверждения, отказ сохраняет статус (2.4s)
+  ✓  38 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (2.8s)
+  ✓  39 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/invites.spec.ts:49:1 › без сессии формы приглашения нет (276ms)
+  ✓  40 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/invites.spec.ts:56:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (3.5s)
+  ✓  41 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/invites.spec.ts:75:1 › мёртвая ссылка — один текст и путь на форму входа (604ms)
+  ✓  42 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback оставляет вход сотрудников (208ms)
+  ✓  43 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register оставляет вход сотрудников (277ms)
+  ✓  44 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register&next=%2Ftoday оставляет вход сотрудников (405ms)
+  ✓  45 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/registration-closed.spec.ts:31:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (242ms)
+  ✓  46 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/registration-closed.spec.ts:43:1 › ранее открытая форма получает отказ через сервер без новой сессии (394ms)
+  ✓  47 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/status-page.spec.ts:14:1 › без входа: всё работает, четыре части словами (728ms)
+  ✓  48 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/status-page.spec.ts:27:1 › каналы с перебоями: общая плашка и строка каналов (444ms)
+  ✓  49 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/status-page.spec.ts:37:5 › доступность: light, 1440px (720ms)
+  ✓  50 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/status-page.spec.ts:37:5 › доступность: light, 390px (742ms)
+  ✓  51 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/status-page.spec.ts:37:5 › доступность: dark, 1440px (688ms)
+  ✓  52 [main-ui-1] › ../.wetop-main-ui-Km7O0S/worker-1/tests/ui/status-page.spec.ts:37:5 › доступность: dark, 390px (669ms)
+
+  52 passed (2.2m)
+
+# код выхода 0 · 2 мин 15 с

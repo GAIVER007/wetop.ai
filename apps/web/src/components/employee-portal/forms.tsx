@@ -3,6 +3,7 @@ import { useState, useTransition, type ReactNode } from 'react';
 import type { EmployeePortalDto, PortalWeekDay } from '@pms/domain';
 import { loadPortalWeek, savePortal } from '../../app/my-work/actions';
 import { Alert, Button, Input } from '../ui';
+import { useConfirm } from '../use-confirm';
 export type PortalContext = {
   target: { employeeId: string | null }; scope: string; onSaved: (data: EmployeePortalDto) => void;
 };
@@ -10,6 +11,7 @@ export function PortalForm({ context, command, children, label = 'Сохрани
   context: PortalContext; command: string; children?: ReactNode; label?: string; revision?: string | null; profileRevision?: string; testId?: string;
 }) {
   const [pending, start] = useTransition();
+  const { ask, dialog } = useConfirm();
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
   // Dirty drafts keep their starting version; untouched forms can follow a sibling save.
@@ -18,7 +20,7 @@ export function PortalForm({ context, command, children, label = 'Сохрани
   const [dirty, setDirty] = useState(false);
   // Week inputs have their own controlled draft. Never rebase its version onto unseen remote hours.
   const formRevision = dirty || command === 'week' ? expectedRevision : (revision ?? expectedRevision);
-  return <form data-testid={testId ?? `portal-${command}-form`} className="portal-form"
+  return <><form data-testid={testId ?? `portal-${command}-form`} className="portal-form"
     onReset={event => event.preventDefault()}
     onChange={() => {
       if (!dirty && command !== 'week') setRevision(revision ?? expectedRevision);
@@ -49,10 +51,16 @@ export function PortalForm({ context, command, children, label = 'Сохрани
     {error && <Alert>{error}</Alert>}
 
     {error && <p>Ввод не сброшен. При конфликте откройте карточку в новой вкладке и сравните изменения.</p>}
-    {error && command === 'profile' && <Button type="button" tone="secondary" onClick={() => {
-      if (window.confirm('Отменить черновик и загрузить актуальный профиль?')) window.location.reload();
+    {error && command === 'profile' && <Button type="button" tone="secondary" onClick={async () => {
+      if (!(await ask({
+        title: 'Отменить черновик профиля?',
+        body: 'Несохранённые изменения будут потеряны. Вместо них загрузится актуальный профиль сотрудника.',
+        confirmLabel: 'Отменить черновик и загрузить профиль',
+        cancelLabel: 'Оставить черновик',
+      }))) return;
+      window.location.reload();
     }}>Отменить черновик и загрузить профиль</Button>}
-  </form>;
+  </form>{dialog}</>;
 }
 const DAYS = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
 export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[]; revision: string | null; context: PortalContext }) {

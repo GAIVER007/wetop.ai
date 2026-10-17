@@ -3,6 +3,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconField } from '../../components/icon-field';
 import { Overlay } from '../../components/overlay';
+import { useConfirm } from '../../components/use-confirm';
 import {
   Alert,
   Badge,
@@ -28,6 +29,7 @@ function EmployeeDrawer({
   close: () => void;
 }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [name, setName] = useState(employee?.name ?? '');
@@ -72,8 +74,14 @@ function EmployeeDrawer({
       <div className="food-form" data-testid="employee-drawer">
         {error && <Alert>{error}</Alert>}
         {employee && <input type="hidden" name="expectedProfileRevision" value={expectedProfileRevision} />}
-        {error && employee && <><p>Ввод сохранён. Сравните актуальный профиль перед повтором.</p><Button tone="secondary" onClick={() => {
-          if (window.confirm('Отменить черновик и загрузить актуальный профиль?')) window.location.reload();
+        {error && employee && <><p>Ввод сохранён. Сравните актуальный профиль перед повтором.</p><Button tone="secondary" onClick={async () => {
+          if (!(await ask({
+            title: 'Отменить черновик профиля?',
+            body: 'Несохранённые изменения будут потеряны. Вместо них загрузится актуальный профиль сотрудника.',
+            confirmLabel: 'Отменить черновик и загрузить профиль',
+            cancelLabel: 'Оставить черновик',
+          }))) return;
+          window.location.reload();
         }}>Отменить черновик и загрузить профиль</Button></>}
         <Field label="Имя и фамилия">
           <Input value={name} onChange={(e) => setName(e.target.value)} />
@@ -103,6 +111,7 @@ function EmployeeDrawer({
           </Button>
         </div>
       </div>
+      {dialog}
     </Overlay>
   );
 }

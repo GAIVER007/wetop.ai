@@ -46,11 +46,19 @@ export interface FunnelTotal {
 export interface MarketingFunnel {
   rows: FunnelRow[];
   total: FunnelTotal;
-  /** ROMI сравнивает выручку с расходом, поэтому только при одной валюте */
+  /** ROMI сравнивает выручку с расходом: только при известной выручке в той же валюте */
   romiAvailable: boolean;
 }
 
 const RESULT_SET = new Set<string>(RESULT_CHANNELS);
+
+/**
+ * ROMI сравнивает выручку с расходом: только когда выручка известна и в той же валюте. `revenueCurrency: null`
+ * значит, что результатов каналов нет (салон и ресторан, сбой): выручка неизвестна, а не ноль, и ROMI не −100 %
+ * (аудит платформы 17.10.2026, Д7).
+ */
+const romiComparable = (revenueCurrency: string | null, reportingCurrency: string): boolean =>
+  revenueCurrency !== null && revenueCurrency === reportingCurrency;
 
 /** a / b целыми, к ближайшему; b > 0 */
 const divRound = (a: bigint, b: bigint): bigint => (a * 2n + b) / (b * 2n);
@@ -72,8 +80,7 @@ export function buildMarketingFunnel(input: {
   reportingCurrency: string;
   revenueCurrency: string | null;
 }): MarketingFunnel {
-  const romiAvailable =
-    input.revenueCurrency === null || input.revenueCurrency === input.reportingCurrency;
+  const romiAvailable = romiComparable(input.revenueCurrency, input.reportingCurrency);
   const results = new Map(input.channels.map((c) => [c.channel as string, c]));
   const platforms = new Set<string>([
     ...Object.keys(input.spendByPlatform).filter((p) => (input.spendByPlatform[p] ?? 0n) > 0n),
@@ -185,8 +192,7 @@ export function buildMarketingDays(input: {
   reportingCurrency: string;
   revenueCurrency: string | null;
 }): MarketingDays {
-  const romiAvailable =
-    input.revenueCurrency === null || input.revenueCurrency === input.reportingCurrency;
+  const romiAvailable = romiComparable(input.revenueCurrency, input.reportingCurrency);
   const [y, m] = input.month.split('-').map(Number);
   const daysInMonth = new Date(Date.UTC(y!, m!, 0)).getUTCDate();
   const last = Math.min(input.lastDay ?? daysInMonth, daysInMonth);

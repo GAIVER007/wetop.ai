@@ -18,7 +18,6 @@ permissions:
 
 jobs:
   kit:
-    if: ${{ github.ref_name != 'fix/publish-unified-owner-home-20261017' }}
     name: эталоны дизайн-системы (Linux)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -54,59 +53,3 @@ jobs:
           git commit -m "test(ui): design-system -linux references from the GitHub runner (ui-snapshots #${{ github.run_number }})"
           git push origin "HEAD:refs/heads/$BRANCH"
           echo "Новые эталоны: ветка $BRANCH" >> "$GITHUB_STEP_SUMMARY"
-
-  desk-semantic-completion:
-    if: ${{ github.ref_name == 'fix/publish-unified-owner-home-20261017' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    permissions:
-      contents: read
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: pms
-          POSTGRES_DB: pms_dev
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U pms"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-    env:
-      DATABASE_URL: postgresql://pms@127.0.0.1:5432/pms_dev
-      E2E_AUTH: '1'
-      PLAYWRIGHT_JSON_OUTPUT_FILE: ${{ github.workspace }}/desk-semantic-report.json
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run generate -w @pms/database
-      - name: Canonical owned disposable test schema only
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-client-16
-          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
-          npm run test:schema -- --refresh
-      - name: Existing production web build and Chromium on CI only
-        run: |
-          npm run build -w apps/web
-          npx playwright install --with-deps chromium
-      - name: Existing real desk case plus mandatory schema and auth dependencies
-        run: |
-          npx playwright test tests/e2e/desk-edit.spec.ts --project=isolated --workers=1 --forbid-only --reporter=line,json
-          node scripts/ci/check-playwright-report.mjs desk-semantic-report.json 3
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: desk-semantic-completion
-          path: |
-            desk-semantic-report.json
-            test-results
-          retention-days: 7

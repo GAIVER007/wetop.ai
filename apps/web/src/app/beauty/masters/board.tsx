@@ -100,6 +100,11 @@ export function MastersBoard({
     focusedEmployee.current = row.id;
     setEditing({ mode: 'edit', row });
     setAddress(row.id, true);
+    // `close()` ставит `router.replace` без `employee=` в очередь роутера; если та навигация ждёт ответа прежней
+    // карточки, она завершится позже и сотрёт адрес этой. Своя навигация в ту же очередь идёт после неё и оставляет
+    // `employee=<эта>` (tests/beauty-ui/employee-workspace.spec.ts:284, вместе с O07c)
+    const url = new URL(location.href);
+    router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
     setSchedule(null);
     setLoadError('');
     load(async () => {

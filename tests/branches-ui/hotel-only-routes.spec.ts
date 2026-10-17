@@ -75,3 +75,41 @@ for (const vertical of ['beauty', 'food'] as const) {
     expect(calls.filter((c) => HOTEL_API.test(c))).toEqual([]);
   });
 }
+
+/**
+ * У1 (реестр функций): адреса, которые раньше открывались чужому направлению по прямой ссылке, потому что у страницы
+ * не было охраны. Брони и их печать, `/rates`, `/channel-manager` гостиничные; профиль сотрудника у салона и ресторана.
+ */
+const HOTEL_DIRECT = [
+  '/reservations/ABC',
+  '/reservations/ABC/print',
+  '/reservations/ABC/print/contract',
+  '/reservations/ABC/print/invoice',
+  '/rates',
+  '/channel-manager',
+];
+for (const vertical of ['beauty', 'food'] as const) {
+  test(`У1: ${vertical} не открывает брони, печать и старые адреса гостиницы`, async ({ page, request }) => {
+    test.setTimeout(240_000);
+    const f = await (await request.post(`${api}/__test/reset`)).json();
+    const branch =
+      vertical === 'beauty'
+        ? { business: f.beauty, location: f.locations[3] }
+        : { business: f.business, location: f.locations[0] };
+    await setScope(page, branch.business, branch.location);
+    const before = ((await (await request.get(`${api}/__test/calls`)).json()) as string[]).length;
+    for (const route of HOTEL_DIRECT) {
+      await page.goto(route);
+      await expect(page, route).toHaveURL(/\/today$/, { timeout: 15000 });
+    }
+    const calls = ((await (await request.get(`${api}/__test/calls`)).json()) as string[]).slice(before);
+    expect(calls.filter((c) => HOTEL_API.test(c))).toEqual([]);
+  });
+}
+test('У1: гостиница не открывает профиль сотрудника салона по прямому адресу', async ({ page, request }) => {
+  test.setTimeout(120_000);
+  const f = await (await request.post(`${api}/__test/reset`)).json();
+  await setScope(page, f.hotel, f.locations[4]);
+  await page.goto('/employees/00000000-0000-4000-8000-000000000000/profile');
+  await expect(page).toHaveURL(/\/today$/, { timeout: 15000 });
+});

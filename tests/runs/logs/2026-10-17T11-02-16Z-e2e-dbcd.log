@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 17.10.2026 16:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит dd899e4 (claude/u1-feature-registry)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/hotel-only-routes.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/branches-ui/hotel-only-routes.spec.ts:48:1 › F1: гостиница открывает свои экраны по прямому адресу (5.8s)
+[WebServer] (node:88884) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  2 tests/branches-ui/hotel-only-routes.spec.ts:61:3 › F1: beauty не открывает гостиничные экраны по прямому адресу (4.3s)
+  ✓  3 tests/branches-ui/hotel-only-routes.spec.ts:61:3 › F1: food не открывает гостиничные экраны по прямому адресу (3.8s)
+  ✓  4 tests/branches-ui/hotel-only-routes.spec.ts:92:3 › У1: beauty не открывает брони, печать и старые адреса гостиницы (9.5s)
+  ✓  5 tests/branches-ui/hotel-only-routes.spec.ts:92:3 › У1: food не открывает брони, печать и старые адреса гостиницы (11.8s)
+  ✓  6 tests/branches-ui/hotel-only-routes.spec.ts:109:1 › У1: гостиница не открывает профиль сотрудника салона по прямому адресу (3.7s)
+
+  6 passed (51.0s)
+
+# код выхода 0 · 57 с

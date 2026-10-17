@@ -394,9 +394,10 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     await run(() => catalog.updateService(service, { active: false }));
     await expect(run(() => appointments.create(input()))).rejects.toThrow(/архиве/);
     await run(() => catalog.updateService(service, { active: true }));
-    await run(() => catalog.updateEmployee(employee, { active: false }));
+    const original = (await run(() => catalog.employees())).items.find((e) => e.id === employee)!;
+    const archived = await run(() => catalog.updateEmployee(employee, { active: false, expectedProfileRevision: original.profileRevision }));
     await expect(run(() => appointments.create(input()))).rejects.toThrow(/архиве/);
-    await run(() => catalog.updateEmployee(employee, { active: true }));
+    await run(() => catalog.updateEmployee(employee, { active: true, expectedProfileRevision: archived.profileRevision }));
     const foreign = await db.customer.create({
       data: { organizationId: foreignOrg, firstName: 'Synthetic foreign' },
     });

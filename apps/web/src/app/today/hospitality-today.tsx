@@ -21,7 +21,8 @@ export async function HospitalityToday() {
   const cal = periods(await hotelToday());
   const period = `/finance?from=${cal.month.from}&to=${cal.month.to}`;
   const debts = await financeApi.debts(cal.month.from, cal.month.to).catch(() => null);
-  const currency = homeCurrency(debts, await propertyCurrency());
+  // Debts already carries the display currency. Only wait for settings if that source is absent.
+  const currency = homeCurrency(debts, debts?.currency ?? (await propertyCurrency()));
   return (
     <Page
       title="Главная"

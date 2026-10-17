@@ -123,8 +123,8 @@ describe.skipIf(!process.env.DATABASE_URL)('Employee common fixed export candida
   });
   it('replay compares original receipt and does not revert later profile edits', async () => {
     const creationId = randomUUID();
-    await run(() => catalog.createEmployee({ ...input, creationId }));
-    await run(() => catalog.updateEmployee(creationId, { name: 'Новое имя' }));
+    const employee = await run(() => catalog.createEmployee({ ...input, creationId }));
+    await run(() => catalog.updateEmployee(creationId, { name: 'Новое имя', expectedProfileRevision: employee.profileRevision }));
     expect((await run(() => catalog.createEmployee({ ...input, creationId }))).name).toBe(
       'Новое имя',
     );
@@ -189,8 +189,8 @@ describe.skipIf(!process.env.DATABASE_URL)('Employee common fixed export candida
       'не подтверждено',
     );
     const second = randomUUID();
-    await run(() => catalog.createEmployee({ ...input, creationId: second }));
-    await run(() => catalog.updateEmployee(second, { active: false }));
+    const employee = await run(() => catalog.createEmployee({ ...input, creationId: second }));
+    await run(() => catalog.updateEmployee(second, { active: false, expectedProfileRevision: employee.profileRevision }));
     await expect(
       run(() => catalog.createEmployee({ ...input, creationId: second })),
     ).rejects.toThrow('архиве');
@@ -281,7 +281,7 @@ describe.skipIf(!process.env.DATABASE_URL)('Employee common fixed export candida
         catalog.setEmployeeServices(employee.id, { serviceIds: [], expectedRevision: revision }),
       ),
     ).rejects.toThrow('другом окне');
-    await run(() => catalog.updateEmployee(employee.id, { name: 'Новое имя' }));
+    await run(() => catalog.updateEmployee(employee.id, { name: 'Новое имя', expectedProfileRevision: employee.profileRevision }));
     const saved = (await run(() => catalog.employees())).items.find((e) => e.id === employee.id)!;
     expect(saved.name).toBe('Новое имя');
     expect(saved.serviceIds).toEqual([service.id]);

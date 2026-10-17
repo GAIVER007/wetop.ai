@@ -130,7 +130,10 @@ describe.skipIf(!process.env.DATABASE_URL)('Beauty v2 real database', () => {
         intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '10:00' }],
       }),
     );
-    return { service, employee };
+    // Weekly setup advances the common source version; the scenario starts from this snapshot.
+    const readyEmployee = (await run(() => catalog.employees())).items.find((e) => e.id === employee.id)!;
+    expect(readyEmployee.profileRevision).not.toBe(employee.profileRevision);
+    return { service, employee: readyEmployee };
   };
   it('O04: an empty pilot must not complete as ready', async () => {
     const state = await run(() => onboarding.status());
@@ -150,7 +153,7 @@ describe.skipIf(!process.env.DATABASE_URL)('Beauty v2 real database', () => {
     );
     expect(results.map((r) => r.id)).toEqual([creationId, creationId]);
     expect(await db.employee.count({ where: { businessId: business } })).toBe(1);
-    await run(() => catalog.updateEmployee(creationId, { name: 'Изменённый мастер' }));
+    await run(() => catalog.updateEmployee(creationId, { name: 'Изменённый мастер', expectedProfileRevision: results[0]!.profileRevision }));
     expect(
       (
         await run(() =>
@@ -211,7 +214,7 @@ describe.skipIf(!process.env.DATABASE_URL)('Beauty v2 real database', () => {
   it('O14: resource loss preserves history and exposes honest readiness', async () => {
     const { employee } = await chain();
     const state = await save('complete');
-    await run(() => catalog.updateEmployee(employee.id, { active: false }));
+    await run(() => catalog.updateEmployee(employee.id, { active: false, expectedProfileRevision: employee.profileRevision }));
     expect(await run(() => onboarding.status())).toMatchObject({
       completedAt: state.completedAt,
       completedFlowVersion: 2,
@@ -312,7 +315,7 @@ describe.skipIf(!process.env.DATABASE_URL)('Beauty v2 real database', () => {
   it('O07/O17: replay requires the original initiator, Location and still-active resource', async () => {
     const creationId = randomUUID();
     const body = { name: 'Тестовый мастер', active: true, creationId };
-    await run(() => catalog.createEmployee(body));
+    const employee = await run(() => catalog.createEmployee(body));
     const fresh = new BeautyCatalogService({ db } as never);
     expect((await run(() => fresh.createEmployee(body))).id).toBe(creationId);
     await expect(
@@ -329,7 +332,7 @@ describe.skipIf(!process.env.DATABASE_URL)('Beauty v2 real database', () => {
     await expect(
       withSignedInUser({ ...actor(), locationId: second.id }, () => fresh.createEmployee(body)),
     ).rejects.toThrow('не подтверждено');
-    await run(() => catalog.updateEmployee(creationId, { active: false }));
+    await run(() => catalog.updateEmployee(creationId, { active: false, expectedProfileRevision: employee.profileRevision }));
     await expect(run(() => fresh.createEmployee(body))).rejects.toThrow('архиве');
     expect(await db.employee.count({ where: { businessId: business } })).toBe(1);
     expect(await db.employeeLocation.count({ where: { employeeId: creationId } })).toBe(1);
@@ -472,7 +475,7 @@ describe.skipIf(!process.env.DATABASE_URL)('Beauty v2 real database', () => {
     const h = new BeautyScheduleService({ db: blockedDb } as never);
     const mutation = run<unknown>(async () =>
       kind === 'employee archive'
-        ? c.updateEmployee(employee.id, { active: false })
+        ? c.updateEmployee(employee.id, { active: false, expectedProfileRevision: employee.profileRevision })
         : kind === 'service archive'
           ? c.updateService(service.id, { active: false })
           : kind === 'disable location service'

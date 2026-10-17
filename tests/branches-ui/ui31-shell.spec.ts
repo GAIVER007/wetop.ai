@@ -76,3 +76,35 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+// Д3 аудита платформы (17.10.2026): поиск в шапке одинаково открывает быстрый поиск у трёх направлений,
+// а быстрый переход строит меню своего направления, без гостиничных разделов у салона и ресторана
+for (const vertical of ['hotel', 'beauty', 'food'] as const) {
+  test(`Д3: ${vertical} поиск открывает быстрый поиск по своему меню`, async ({ page, request }) => {
+    const f = await (await request.post(`${api}/__test/reset`)).json();
+    const branch = {
+      hotel: { business: f.hotel, location: f.locations[4], own: 'Календарь', ownHref: '/chessboard' },
+      beauty: { business: f.beauty, location: f.locations[3], own: 'Календарь', ownHref: '/calendar' },
+      food: { business: f.business, location: f.locations[0], own: 'План зала', ownHref: '/floor-plan' },
+    }[vertical];
+    await page.context().addCookies([
+      {
+        name: 'wetop_scope',
+        value: encodeURIComponent(`business=${branch.business};location=${branch.location}`),
+        domain: '127.0.0.1',
+        path: '/',
+      },
+    ]);
+    await page.goto('/marketing');
+    await page.locator('.workspace-search').click();
+    const dialog = page.getByRole('dialog', { name: 'Быстрый поиск' });
+    await expect(dialog).toBeVisible();
+    await expect(page).toHaveURL(/\/marketing$/);
+    await dialog.getByRole('textbox', { name: 'Запрос' }).fill(branch.own.slice(0, 4));
+    await expect(dialog.getByRole('link', { name: branch.own })).toHaveAttribute('href', branch.ownHref);
+    if (vertical !== 'hotel') await expect(dialog.locator('a[href="/chessboard"]')).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('ControlOrMeta+k');
+    await expect(dialog).toBeVisible();
+  });
+}

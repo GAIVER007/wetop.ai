@@ -17,7 +17,7 @@ import { Segmented } from '../../components/segmented';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
 import { FOOD_PAYMENT_METHODS, type FoodCashView, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
-import { mutateCash } from './restaurant-actions';
+import { mutateCash } from '../cashbox/actions';
 import { useConfirm } from '../../components/use-confirm';
 
 type Kind = 'INCOME' | 'EXPENSE' | 'TRANSFER';

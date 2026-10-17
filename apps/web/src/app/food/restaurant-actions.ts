@@ -186,16 +186,9 @@ export async function mutateCash(
   scopeKey: string,
   command: CashCommand,
 ): Promise<{ error: string | null }> {
-  try {
-    await scope(scopeKey);
-    if (command.kind === 'operation') await restaurantApi.cashOperation(command.body);
-    else if (command.kind === 'void') await restaurantApi.voidCashOperation(command.id);
-    else await restaurantApi.cashReconciliation(command.body);
-    revalidatePath('/cashbox');
-    return { error: null };
-  } catch (error) {
-    return failure(error);
-  }
+  // Compatibility adapter for existing imports; cash does not grant other restaurant actions.
+  const { mutateCash: branchCash } = await import('../cashbox/actions');
+  return branchCash(scopeKey, command);
 }
 
 /** VIP-метка и дата рождения клиента (§36, ADR-166) */

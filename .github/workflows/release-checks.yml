@@ -304,6 +304,7 @@ jobs:
           # часть набора выбирает харнесс до раздачи файлов двум worker (tests/ui/worker-ports.ts, shardSpecs):
           # --shard Playwright отдавал первую часть целиком одному worker
           UI_SHARD: ${{ matrix.shard }}/5
+          UI_RUNTIME_WORKERS: '1'
         # вход с включённым замком гоняет своя задача ui-auth (два worker), второй раз в первой части не нужен.
         # Один worker на часть: с двумя одновременно работающими стойками раннер на 2 ядра дважды подряд получал
         # shutdown signal посреди части 3/3 (release-checks 38377601835, попытки 2 и 3); баланс частей даёт UI_SHARD

@@ -18,6 +18,7 @@ permissions:
 
 jobs:
   kit:
+    if: ${{ github.ref_name != 'fix/publish-unified-owner-home-20261017' }}
     name: эталоны дизайн-системы (Linux)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -53,3 +54,38 @@ jobs:
           git commit -m "test(ui): design-system -linux references from the GitHub runner (ui-snapshots #${{ github.run_number }})"
           git push origin "HEAD:refs/heads/$BRANCH"
           echo "Новые эталоны: ветка $BRANCH" >> "$GITHUB_STEP_SUMMARY"
+
+  # TEMPORARY: restore the saved original workflow byte-for-byte before final main publication.
+  booking-bounds:
+    if: ${{ github.ref_name == 'fix/publish-unified-owner-home-20261017' }}
+    name: booking bounds · geometry only
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      UI_BROWSER_CHANNEL: chromium
+      UI_RUNTIME_WORKERS: '1'
+      UI_SCHEMA_GUARD: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      - name: Existing two booking cases; no reference updates
+        run: npx playwright test --config tests/ui/playwright.config.ts --workers=1 reservation-fixed-occupancy.spec.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: booking-bounds-probe
+          path: |
+            test-results
+            playwright-report
+          if-no-files-found: warn
+          retention-days: 7

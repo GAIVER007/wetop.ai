@@ -58,3 +58,10 @@ it('keeps the approved Q-DES-4 narrow-phone row wrap below 360 rather than all p
   expect(rule?.[0]).toContain('slop-allow: breakpoint-literal Q-DES-4');
   expect(readFileSync('DESIGN.md', 'utf8')).toContain('`max-width: 360px` остаётся технической точкой');
 });
+
+it('keeps the mobile calendar toolbar gutter compact without shrinking or hiding controls', () => {
+  const mobile = source('beauty/beauty.css').split('@media (max-width: 600px) {').at(-1);
+  const toolbar = mobile?.match(/\.beauty-page \.beauty-calendar-toolbar \{([^}]+)\}/)?.[1];
+  expect(toolbar).toContain('grid-template-columns: minmax(0, 1fr) auto;');
+  expect(toolbar).toContain('padding: var(--space-2);');
+});

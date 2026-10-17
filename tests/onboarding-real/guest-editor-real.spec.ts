@@ -111,7 +111,13 @@ test('REALGUEST READ_ONLY hides cached editor and real PATCH is forbidden withou
 });
 test('REALGUEST restricted branch membership denies own and foreign guest reads/writes and discards cached form', async ({ page, browser }) => {
   const guest = await hospitality(page);
-  const actionRequest = page.waitForRequest(request => request.method() === 'POST' && !!request.headers()['next-action']);
+  // Availability/price previews can post other server actions on the same card.
+  // Capture the actual guest load, not whichever action happens to start first.
+  const actionRequest = page.waitForRequest(request =>
+    request.method() === 'POST' && !!request.headers()['next-action'] &&
+    new URL(request.url()).pathname === `/reservations/${encodeURIComponent(guest.number)}` &&
+    request.postData()?.includes(guest.id) === true,
+  );
   await open(page);
   const cachedLoad = await actionRequest;
   const otherContext = await browser.newContext({ baseURL: desk });

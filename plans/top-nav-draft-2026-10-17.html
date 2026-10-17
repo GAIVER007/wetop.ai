@@ -1,0 +1,343 @@
+<title>Верхнее меню WETOP</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: the real top bar at full width, an orange trial strip under it, then a working area; below, the approval sheet: legend, mapping table, questions. */
+:root {
+  --bg: #e9f0f8; --surface: #ffffff; --surface-muted: #f6f8fc; --border: #e5eaf2;
+  --text: #101827; --muted: #596a80; --nav: #8fa3c4;
+  --primary: #085fba; --primary-soft: #eaf4ff;
+  --new: #94600b; --new-soft: #fff4df; --moved: #1d6b3a; --moved-soft: #e6f6ec;
+  --trial: #f0964a; --trial-ink: #ffffff; --shadow: 0 10px 30px rgba(16,24,39,.14);
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #060b14; --surface: #0b1524; --surface-muted: #0d192a; --border: #1b2a3d;
+  --text: #e8eef7; --muted: #9aabc2; --nav: #7f93b3; --primary: #5aa6ff; --primary-soft: #0f2742;
+  --new: #f0c46a; --new-soft: #33260c; --moved: #7fdc9f; --moved-soft: #0f2c1c;
+  --trial: #b8642a; --trial-ink: #fff7ef; --shadow: 0 10px 30px rgba(0,0,0,.5); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #060b14; --surface: #0b1524; --surface-muted: #0d192a; --border: #1b2a3d;
+  --text: #e8eef7; --muted: #9aabc2; --nav: #7f93b3; --primary: #5aa6ff; --primary-soft: #0f2742;
+  --new: #f0c46a; --new-soft: #33260c; --moved: #7fdc9f; --moved-soft: #0f2c1c;
+  --trial: #b8642a; --trial-ink: #fff7ef; --shadow: 0 10px 30px rgba(0,0,0,.5); color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--text); font-family: var(--font); margin: 0 }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+.intro { padding-block: 20px 12px; display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between }
+.intro h1 { font-size: 22px; margin: 0 0 4px; text-wrap: balance }
+.intro p { margin: 0; color: var(--muted); max-width: 70ch; line-height: 1.5 }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px }
+.seg button { font: inherit; font-weight: 600; border: 0; background: none; color: var(--muted); padding: 8px 14px; border-radius: 8px; cursor: pointer; min-height: 40px }
+.seg button[aria-pressed="true"] { background: var(--primary); color: #fff }
+
+/* ---------- the bar ---------- */
+.frame { border-block: 1px solid var(--border); background: var(--surface); }
+.bar { display: flex; align-items: stretch; min-height: 76px; overflow-x: auto; scrollbar-width: thin }
+.tabs { display: flex; align-items: stretch; flex: 1 0 auto; padding-left: max(8px, env(safe-area-inset-left, 0px)) }
+.tab { position: relative; display: flex }
+.tab > button { font: inherit; background: none; border: 0; cursor: pointer; color: var(--nav); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px 10px 8px; font-size: 15px; font-weight: 600; white-space: nowrap; border-top: 3px solid transparent }
+.tab > button svg { width: 24px; height: 24px }
+.tab > button:hover, .tab.open > button { color: var(--primary) }
+.tab.active > button { color: var(--primary); border-top-color: var(--primary) }
+.tab > button:focus-visible { outline: 2px solid var(--primary); outline-offset: -4px; border-radius: 6px }
+.right { display: flex; align-items: stretch; flex: 0 0 auto; margin-left: auto }
+.bell { display: grid; place-items: center; width: 72px; color: var(--nav); background: none; border: 0; cursor: pointer }
+.bell svg { width: 26px; height: 26px }
+.card { display: flex; align-items: center; gap: 12px; padding: 0 22px; border-left: 1px solid var(--border); background: none; border-top: 0; border-bottom: 0; border-right: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; min-width: 0 }
+.card b { display: block; font-size: 16px; font-weight: 600; white-space: nowrap }
+.card small { display: block; color: var(--muted); font-size: 14px; white-space: nowrap }
+.logo { width: 46px; height: 46px; border-radius: 10px; background: var(--surface-muted); border: 1px solid var(--border); display: grid; place-items: center; color: var(--nav) }
+.avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--trial); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 18px }
+.trial { background: var(--trial); color: var(--trial-ink); text-align: center; font-weight: 600; font-size: 15px; padding-block: 12px }
+.trial u { cursor: pointer }
+
+/* ---------- dropdown ---------- */
+.menu { position: fixed; z-index: 20; min-width: 260px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 10px 0; }
+.menu a { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 26px; color: var(--text); text-decoration: none; font-size: 17px; cursor: pointer }
+.menu a:hover, .menu a:focus-visible { background: var(--surface-muted); outline: none }
+.menu a.is-new { color: var(--muted) }
+.chip { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 3px 8px; white-space: nowrap }
+.chip.new { background: var(--new-soft); color: var(--new) }
+.chip.moved { background: var(--moved-soft); color: var(--moved) }
+.chip.keep { background: var(--primary-soft); color: var(--primary) }
+
+/* ---------- work area preview ---------- */
+.stage { padding-block: 22px 28px }
+.screen { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; display: grid; gap: 6px }
+.screen h2 { margin: 0; font-size: 20px }
+.screen p { margin: 0; color: var(--muted) }
+.screen code { font-size: 13px; background: var(--surface-muted); padding: 2px 6px; border-radius: 6px }
+
+/* ---------- approval sheet ---------- */
+.sheet { display: grid; gap: 22px; padding-block: 8px 40px }
+.sheet h2 { font-size: 18px; margin: 0 0 10px }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; color: var(--muted); font-size: 14px }
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 12px }
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 14px }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top }
+th { color: var(--muted); font-weight: 600; background: var(--surface-muted) }
+td.sec { font-weight: 700; white-space: nowrap }
+td code { font-size: 13px; color: var(--muted) }
+tr:last-child td { border-bottom: 0 }
+.qs { margin: 0; padding-left: 20px; display: grid; gap: 10px; line-height: 1.5; max-width: 90ch }
+@media (prefers-reduced-motion: no-preference) { .menu { animation: drop .12s ease-out } @keyframes drop { from { opacity: .4; transform: translateY(-4px) } } }
+</style>
+
+<div class="wrap intro">
+  <div>
+    <h1>Верхнее меню: черновик на согласование</h1>
+    <p>Наведите или нажмите на раздел, чтобы увидеть подразделы. Метки в списках: <b>есть</b>: экран уже работает; <b>переезд</b>: экран есть, меняется место или название; <b>новое</b>: экрана ещё нет. Это картинка, не рабочая стойка.</p>
+  </div>
+  <div class="seg" role="group" aria-label="Направление">
+    <button type="button" data-v="BEAUTY" aria-pressed="true">Салон</button>
+    <button type="button" data-v="HOSPITALITY" aria-pressed="false">Гостиница</button>
+    <button type="button" data-v="FOOD" aria-pressed="false">Ресторан</button>
+  </div>
+</div>
+
+<div class="frame">
+  <nav class="bar" aria-label="Главное меню">
+    <div class="tabs" id="tabs"></div>
+    <div class="right">
+      <button class="bell" type="button" aria-label="Уведомления" data-tip="Уведомления: новое"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
+      <button class="card" type="button" id="branchCard" aria-haspopup="menu">
+        <span class="logo" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span>
+        <span><b id="branchName">Юрта</b><small id="branchKind">Салон красоты</small></span>
+      </button>
+      <button class="card" type="button" id="userCard" aria-haspopup="menu">
+        <span class="avatar" aria-hidden="true">А</span>
+        <span><b>Айгерим</b><small>Владелец</small></span>
+      </button>
+    </div>
+  </nav>
+  <div class="trial wrap">⌛ Пробный период заканчивается завтра. После этого кабинет перейдёт в режим «только чтение». <u>Продлить подписку</u></div>
+</div>
+
+<div class="wrap stage">
+  <div class="screen" id="screen"><h2>Журнал</h2><p>Здесь открывается выбранный экран.</p></div>
+</div>
+
+<div class="wrap sheet">
+  <section>
+    <h2>Что куда переезжает: <span id="vName">Салон</span></h2>
+    <div class="legend" style="margin-bottom:10px"><span class="chip keep">есть</span> экран работает на этом месте <span class="chip moved">переезд</span> экран есть, новое место или название <span class="chip new">новое</span> экрана нет, нужен отдельный срез</div>
+    <div class="tbl"><table><thead><tr><th>Раздел</th><th>Подраздел</th><th>Сейчас в стойке</th><th>Адрес</th><th>Статус</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+  <section>
+    <h2>Нужно ваше решение</h2>
+    <ol class="qs">
+      <li><b>«Журнал» занят.</b> Сейчас «Журнал операций» в «Настройках», это история действий сотрудников. Если календарь салона станет «Журналом», предлагаю переименовать старый пункт в <b>«История действий»</b>.</li>
+      <li><b>Пункты с меткой «новое»</b> (Группы, Лояльность, Отзывы, Уведомления, СМС-рассылка, большая часть «Статистики», Ревизия, Счета, Расход): показывать в меню с пометкой «Скоро» или прятать, пока экран не готов? Предлагаю прятать: человек не нажмёт на пустой пункт.</li>
+      <li><b>Одна строка для всех направлений.</b> Разделы те же, а слова свои: у гостиницы вместо «Журнала» будет «Шахматка», вместо «Клиентов» «Гости», вместо «Услуг» «Номера»; у ресторана «Зал», «Гости», «Заказы». Так?</li>
+      <li><b>«Моя работа»</b> (личный экран сотрудника) уходит в меню под именем справа вместе с «Профилем» и «Выйти». Согласны?</li>
+      <li><b>Телефон.</b> Строка из 11 разделов на телефон не помещается: снизу остаются 4 главные вкладки и «Ещё» со всеми разделами этого же списка.</li>
+      <li><b>Что не меняется:</b> адреса страниц, права ролей, данные. Меняется только меню: подписи, порядок и группировка.</li>
+    </ol>
+  </section>
+</div>
+
+<div class="menu" id="menu" role="menu" hidden></div>
+
+<script>
+const I = {
+  home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  journal: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01"/>',
+  staff: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 21v-1a5 5 0 0 1 10 0v1"/>',
+  clients: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  services: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/>',
+  stats: '<path d="M3 3v18h18"/><path d="M8 17V11M12 17V7M16 17v-4"/>',
+  stock: '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+  money: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  promo: '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+  help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>',
+  bed: '<path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/>',
+  hall: '<path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/>',
+  orders: '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 7h8M8 11h8M8 15h5"/>'
+};
+// k: keep (есть) · m: moved/renamed (переезд) · n: new (новое); was = как называется сейчас
+const it = (label, s, href = '', was = '') => ({ label, s, href, was });
+const stats = (first) => [
+  ...first,
+  it('Источники', 'm', '/sales', 'Продажи → Обзор продаж'),
+  it('Услуги', 'n'), it('Карты', 'n'), it('Клиенты', 'n'), it('Возвращаемость', 'n'), it('Заполняемость', 'n'), it('Маркетплейс', 'n'),
+];
+const clientsExtra = [it('Группы', 'n'), it('Лояльность', 'n'), it('Отзывы', 'n'), it('Уведомления', 'n'), it('Смс рассылка', 'n')];
+const stockBar = [
+  it('Номенклатура', 'm', '/bar/products', 'Финансы → Бар → Товары'),
+  it('Продажи', 'm', '/bar', 'Финансы → Бар → Обзор и продажа'),
+  it('Движение товаров', 'm', '/bar/operations', 'Финансы → Бар → Операции, Приходы'),
+  it('Ревизия', 'n'),
+  it('Отчет по складу', 'n'),
+  it('Настройки', 'm', '/bar/suppliers', 'Финансы → Бар → Поставщики'),
+];
+const promo = (competitors) => [
+  it('Обзор', 'm', '/marketing', 'Продвижение → Обзор'),
+  it('ИИ-таргетолог', 'm', '/marketing/ads', 'Продвижение → Реклама'),
+  it('Контент', 'm', '/marketing/content', 'Продвижение → Контент'),
+  it('ИИ-продавец', 'm', '/ai-agents', 'Продажи → ИИ-продавцы'),
+  competitors ? it('Анализ конкурентов', 'm', '/market', 'Продвижение → Конкуренты') : it('Анализ конкурентов', 'n'),
+  it('Сайт', 'm', '/marketing/site', 'Продвижение → Обзор → Сайт'),
+  it('Бюджет', 'm', '/marketing/budget', 'Продвижение → Бюджет'),
+  it('Аналитика рекламы', 'm', '/marketing/analytics', 'Продвижение → Аналитика'),
+];
+const V = {
+  BEAUTY: { name: 'Салон', kind: 'Салон красоты', branch: 'Юрта', sections: [
+    { label: 'Главная', icon: 'home', items: [it('Главная', 'm', '/today', 'Сегодня')] },
+    { label: 'Журнал', icon: 'journal', items: [it('Журнал', 'm', '/calendar', 'Календарь')] },
+    { label: 'Персонал', icon: 'staff', items: [
+      it('Специалисты', 'm', '/employees', 'Сотрудники (мастера)'),
+      it('Сотрудники', 'm', '/team', 'Команда → Сотрудники и доступ'),
+      it('График работы', 'm', '/beauty/schedule', 'График'),
+      it('Зарплата', 'm', '/payroll', 'Финансы → Зарплата')] },
+    { label: 'Клиенты', icon: 'clients', items: [
+      it('Клиенты', 'k', '/customers', 'Клиенты'),
+      it('Записи', 'm', '/appointments', 'Записи (отдельная вкладка)'), ...clientsExtra] },
+    { label: 'Услуги', icon: 'services', items: [it('Услуги', 'k', '/services', 'Услуги')] },
+    { label: 'Статистика', icon: 'stats', items: stats([it('Записи', 'm', '/management/analytics', 'Отчёты → Аналитика бизнеса')]) },
+    { label: 'Склад', icon: 'stock', items: stockBar },
+    { label: 'Финансы', icon: 'money', items: [
+      it('Счета', 'n'),
+      it('Движение денег', 'm', '/cashbox', 'Финансы → Касса'),
+      it('Приход', 'm', '/finance', 'Финансы → Выручка'),
+      it('Расход', 'n'),
+      it('Отчеты', 'n')] },
+    { label: 'Настройки', icon: 'settings', items: [
+      it('Филиалы', 'm', '/branches', 'выбор филиала в шапке'),
+      it('История действий', 'm', '/journal', 'Настройки → Журнал операций')] },
+    { label: 'Продвижение', icon: 'promo', items: promo(false) },
+    { label: 'Помощь', icon: 'help', items: [it('Помощь', 'm', '/help', 'меню профиля → Помощь')] },
+  ]},
+  HOSPITALITY: { name: 'Гостиница', kind: 'Хостел', branch: 'Центр', sections: [
+    { label: 'Главная', icon: 'home', items: [it('Главная', 'k', '/today', 'Главная')] },
+    { label: 'Шахматка', icon: 'journal', items: [it('Шахматка', 'k', '/chessboard', 'Календарь')] },
+    { label: 'Персонал', icon: 'staff', items: [
+      it('Сотрудники', 'm', '/team', 'Настройки → Сотрудники и доступ'),
+      it('График работы', 'n'), it('Зарплата', 'n')] },
+    { label: 'Гости', icon: 'clients', items: [
+      it('Гости и брони', 'k', '/guests', 'Гости и бронирования'),
+      it('Список броней', 'm', '/reservations', 'кнопка на экране «Гости»'), ...clientsExtra] },
+    { label: 'Номера', icon: 'bed', items: [it('Номерной фонд', 'k', '/inventory', 'Номерной фонд')] },
+    { label: 'Статистика', icon: 'stats', items: [
+      it('Все отчёты', 'm', '/reports', 'Отчёты → Все отчёты'),
+      it('Аналитика бизнеса', 'm', '/management/analytics', 'Отчёты → Аналитика бизнеса'),
+      it('Заполняемость', 'm', '/management/analytics/occupancy', 'Аналитика → Загрузка'),
+      it('Источники', 'm', '/management/analytics/channels', 'Аналитика → Каналы'),
+      it('Номера', 'm', '/management/analytics/units', 'Аналитика → Номера'),
+      it('Клиенты', 'n'), it('Возвращаемость', 'n')] },
+    { label: 'Склад', icon: 'stock', items: stockBar },
+    { label: 'Финансы', icon: 'money', items: [
+      it('Счета', 'n'),
+      it('Движение денег', 'm', '/finance', 'Финансы → Оплаты и касса'),
+      it('Приход', 'n'), it('Расход', 'n'),
+      it('Отчеты', 'm', '/reports/finance', 'Отчёты → Финансы')] },
+    { label: 'Настройки', icon: 'settings', items: [
+      it('Объект', 'k', '/hotel-settings', 'Объект'),
+      it('Каналы продаж', 'm', '/channels', 'Продажи → Каналы продаж'),
+      it('Подключения', 'k', '/connections', 'Подключения'),
+      it('Неисправности', 'k', '/incidents', 'Неисправности'),
+      it('История действий', 'm', '/journal', 'Журнал операций'),
+      it('Организации', 'k', '/platform', 'Организации (главный администратор)')] },
+    { label: 'Продвижение', icon: 'promo', items: promo(true) },
+    { label: 'Помощь', icon: 'help', items: [it('Помощь', 'm', '/help', 'меню профиля → Помощь')] },
+  ]},
+  FOOD: { name: 'Ресторан', kind: 'Ресторан', branch: 'Достар', sections: [
+    { label: 'Главная', icon: 'home', items: [it('Главная', 'k', '/today', 'Главная')] },
+    { label: 'Зал', icon: 'hall', items: [
+      it('План зала', 'k', '/floor-plan', 'Зал → План зала'),
+      it('Брони столов', 'k', '/table-reservations', 'Зал → Бронирования'),
+      it('Залы и столы', 'k', '/dining-areas', 'Зал → Залы и столы')] },
+    { label: 'Персонал', icon: 'staff', items: [
+      it('Специалисты', 'm', '/employees', 'Команда → Сотрудники'),
+      it('Сотрудники', 'm', '/team', 'Команда → Сотрудники и доступ'),
+      it('График работы', 'n'),
+      it('Зарплата', 'm', '/payroll', 'Команда → Зарплата')] },
+    { label: 'Гости', icon: 'clients', items: [it('Гости', 'k', '/customers', 'Гости'), ...clientsExtra] },
+    { label: 'Заказы', icon: 'orders', items: [
+      it('Заказы', 'k', '/orders', 'Заказы'), it('Кухня', 'k', '/kitchen', 'Заказы → Кухня'),
+      it('Напитки', 'k', '/drinks', 'Заказы → Напитки'), it('Меню', 'k', '/menu', 'Заказы → Меню')] },
+    { label: 'Статистика', icon: 'stats', items: stats([it('Заказы', 'm', '/management/analytics', 'Отчёты → Аналитика бизнеса')]) },
+    { label: 'Склад', icon: 'stock', items: [it('Склад кухни', 'm', '/stock', 'Заказы → Склад'), ...stockBar] },
+    { label: 'Финансы', icon: 'money', items: [
+      it('Счета', 'n'),
+      it('Движение денег', 'm', '/cashbox', 'Финансы → Касса'),
+      it('Приход', 'm', '/restaurant-finance', 'Финансы → Финансы'),
+      it('Расход', 'n'), it('Отчеты', 'n')] },
+    { label: 'Настройки', icon: 'settings', items: [
+      it('Ресторан', 'k', '/restaurant-settings', 'Настройки ресторана'),
+      it('История действий', 'm', '/journal', 'Журнал операций')] },
+    { label: 'Продвижение', icon: 'promo', items: promo(false) },
+    { label: 'Помощь', icon: 'help', items: [it('Помощь', 'm', '/help', 'меню профиля → Помощь')] },
+  ]},
+};
+const CHIP = { k: ['keep', 'есть'], m: ['moved', 'переезд'], n: ['new', 'новое'] };
+const svg = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const $ = (id) => document.getElementById(id);
+const menu = $('menu');
+let vertical = 'BEAUTY', active = 1, openIdx = -1, closeTimer = 0;
+
+function render() {
+  const v = V[vertical];
+  $('branchName').textContent = v.branch; $('branchKind').textContent = v.kind; $('vName').textContent = v.name;
+  $('tabs').innerHTML = v.sections.map((s, i) =>
+    `<div class="tab${i === active ? ' active' : ''}" data-i="${i}"><button type="button" ${s.items.length > 1 ? 'aria-haspopup="menu" aria-expanded="false"' : ''}>${svg(s.icon)}<span>${esc(s.label)}</span></button></div>`).join('');
+  $('rows').innerHTML = v.sections.map((s) => s.items.map((x, j) =>
+    `<tr>${j === 0 ? `<td class="sec" rowspan="${s.items.length}">${esc(s.label)}</td>` : ''}<td>${esc(x.label)}</td><td>${esc(x.was || 'нет')}</td><td><code>${esc(x.href || 'нет')}</code></td><td><span class="chip ${CHIP[x.s][0]}">${CHIP[x.s][1]}</span></td></tr>`).join('')).join('');
+  show(v.sections[active], v.sections[active].items[0]);
+}
+function show(sec, x) {
+  $('screen').innerHTML = `<h2>${esc(sec.label)}${x && sec.items.length > 1 ? ' → ' + esc(x.label) : ''}</h2><p>${x.s === 'n' ? 'Экрана пока нет: появится отдельным срезом.' : `Открывается существующий экран <code>${esc(x.href)}</code> (сейчас: ${esc(x.was)}).`}</p>`;
+}
+function openMenu(i) {
+  clearTimeout(closeTimer);
+  const sec = V[vertical].sections[i];
+  if (sec.items.length < 2) { closeMenu(); return; }
+  const tab = $('tabs').querySelector(`[data-i="${i}"]`);
+  document.querySelectorAll('.tab').forEach((t) => { t.classList.toggle('open', t === tab); t.querySelector('button').setAttribute('aria-expanded', t === tab ? 'true' : 'false'); });
+  menu.innerHTML = sec.items.map((x, j) => `<a role="menuitem" tabindex="0" data-j="${j}" class="${x.s === 'n' ? 'is-new' : ''}"><span>${esc(x.label)}</span>${x.s === 'k' ? '' : `<span class="chip ${CHIP[x.s][0]}">${CHIP[x.s][1]}</span>`}</a>`).join('');
+  menu.hidden = false;
+  const r = tab.getBoundingClientRect();
+  const left = Math.min(Math.max(8, r.left + r.width / 2 - menu.offsetWidth / 2), window.innerWidth - menu.offsetWidth - 8);
+  menu.style.left = left + 'px'; menu.style.top = (r.bottom + 4) + 'px';
+  openIdx = i;
+}
+function closeMenu() {
+  menu.hidden = true; openIdx = -1;
+  document.querySelectorAll('.tab').forEach((t) => { t.classList.remove('open'); t.querySelector('button').setAttribute('aria-expanded', 'false'); });
+}
+const later = () => { clearTimeout(closeTimer); closeTimer = setTimeout(closeMenu, 180); };
+$('tabs').addEventListener('mouseover', (e) => { const t = e.target.closest('.tab'); if (t && matchMedia('(hover: hover)').matches) openMenu(+t.dataset.i); });
+$('tabs').addEventListener('mouseleave', later);
+menu.addEventListener('mouseenter', () => clearTimeout(closeTimer));
+menu.addEventListener('mouseleave', later);
+$('tabs').addEventListener('click', (e) => {
+  const t = e.target.closest('.tab'); if (!t) return;
+  const i = +t.dataset.i, sec = V[vertical].sections[i];
+  if (sec.items.length < 2) { active = i; closeMenu(); render(); return; }
+  openIdx === i && !matchMedia('(hover: hover)').matches ? closeMenu() : openMenu(i);
+});
+menu.addEventListener('click', (e) => {
+  const a = e.target.closest('a'); if (!a) return;
+  const i = openIdx; active = i; closeMenu(); render();
+  show(V[vertical].sections[i], V[vertical].sections[i].items[+a.dataset.j]);
+});
+menu.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.click(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+document.addEventListener('click', (e) => { if (!e.target.closest('.tab') && !e.target.closest('#menu')) closeMenu(); });
+window.addEventListener('scroll', closeMenu, { passive: true });
+$('tabs').parentElement.addEventListener('scroll', closeMenu, { passive: true });
+document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => {
+  vertical = b.dataset.v; active = 1;
+  document.querySelectorAll('.seg button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  closeMenu(); render();
+}));
+$('branchCard').addEventListener('click', () => {
+  $('screen').innerHTML = '<h2>Выбор филиала</h2><p>Карточка справа открывает список филиалов и бизнесов организации (тот же выбор, что сейчас на экране <code>/branches</code>). Первая строка: филиал, вторая: направление.</p>';
+});
+$('userCard').addEventListener('click', () => {
+  $('screen').innerHTML = '<h2>Меню под именем</h2><p>Профиль · Моя работа · Тема · Выйти. Вторая строка карточки: роль, Владелец, Управляющий или Администратор.</p>';
+});
+render();
+</script>

@@ -9,6 +9,8 @@ import {
 const owner = { ...CLOSED_ACCESS, role: 'OWNER' as const };
 const hrefs = (vertical?: 'HOSPITALITY' | 'BEAUTY') =>
   menuSectionsFor(owner, vertical).flatMap((s) => s.items.map((i) => i.href));
+const sectionsOf = (vertical: 'BEAUTY') =>
+  menuSectionsFor(owner, vertical).map((s) => [s.label, s.items.map((i) => i.href)]);
 
 /**
  * Меню по вертикали филиала (решение Q-254 от 03.10.2026, ADR-141, срез B2). У салона нет ни объекта, ни
@@ -32,36 +34,23 @@ describe('меню салона', () => {
 
   it('у филиала салона есть только то, что в нём работает', () => {
     // MV5 exposes only accepted operational screens.
-    expect(hrefs('BEAUTY')).toEqual([
-      '/today',
-      '/calendar',
-      '/appointments',
-      '/customers',
-      '/employees',
-      // «График» мастеров своей вкладкой: решение владельца №1 по плану DS2 (09.10.2026), мастер-проход 11.10
-      '/beauty/schedule',
-      '/services',
-      '/finance',
-      // касса филиала, общая с рестораном (§48, ADR-178 этап 0)
-      '/cashbox',
-      // зарплата мастеров (§19.2, ADR-SALON-PAYROLL-20261016)
-      '/payroll',
-      '/bar',
-      '/my-work',
-      '/team',
-      '/sales',
-      '/ai-agents',
-      // «Продвижение» (ADR-184): тот же состав, что у гостиницы, без «Конкурентов» до PROMO-8
-      '/marketing',
-      '/marketing/ads',
-      '/marketing/content',
-      '/marketing/budget',
-      '/marketing/analytics',
+    // верхнее меню по решению владельца 17.10.2026: строка разделов как в черновике `plans/top-nav-draft-2026-10-17.html`
+    expect(sectionsOf('BEAUTY')).toEqual([
+      ['Главная', ['/today']],
+      ['Журнал', ['/calendar']],
+      ['Персонал', ['/employees', '/team', '/beauty/schedule', '/payroll']],
+      ['Клиенты', ['/customers', '/appointments']],
+      ['Услуги', ['/services']],
       // «Все отчёты» салону перенаправляли на «Аналитику бизнеса»: пункта нет (аудит 17.10.2026, Д2)
-      '/management/analytics',
+      ['Статистика', ['/management/analytics']],
+      ['Склад', ['/bar/products', '/bar', '/bar/operations', '/bar/suppliers']],
+      // касса филиала, общая с рестораном (§48, ADR-178 этап 0)
+      ['Финансы', ['/cashbox', '/finance']],
       // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
-      '/journal',
-      // «Помощь» и «Профиль» в меню профиля (аудит 17.10.2026, Д4)
+      ['Настройки', ['/journal']],
+      // без «Конкурентов» и «Сайта»: они пока только у гостиницы (реестр функций)
+      ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/ai-agents', '/sales', '/marketing/budget', '/marketing/analytics']],
+      ['Помощь', ['/help']],
     ]);
   });
 
@@ -72,19 +61,19 @@ describe('меню салона', () => {
   });
 
   it('нижняя панель телефона тоже идёт по вертикали', () => {
-    // четыре вкладки это работа смены: сотрудники и журнал уходят под «Ещё»
-    expect(phoneNavigationFor('BEAUTY').map((i) => i.href)).toEqual([
-      '/today',
-      '/calendar',
-      '/appointments',
-      '/customers',
+    // четыре вкладки это работа смены: Главная, Журнал, Клиенты, Услуги; остальное под «Ещё»
+    expect(phoneNavigationFor('BEAUTY').map((i) => [i.href, i.label])).toEqual([
+      ['/today', 'Главная'],
+      ['/calendar', 'Журнал'],
+      ['/customers', 'Клиенты'],
+      ['/services', 'Услуги'],
     ]);
     expect(phoneNavigationFor().map((i) => i.href)).toContain('/chessboard');
   });
 
-  it('первый пункт салона «Сегодня» на общем адресе /today (MV8)', () => {
+  it('первый пункт салона «Главная» на общем адресе /today (MV8, верхнее меню 17.10.2026)', () => {
     const first = menuSectionsFor(owner, 'BEAUTY')[0]!.items[0]!;
-    expect(first).toMatchObject({ href: '/today', label: 'Сегодня', requires: 'desk' });
+    expect(first).toMatchObject({ href: '/today', label: 'Главная', requires: 'desk' });
   });
 
   /**
@@ -96,12 +85,13 @@ describe('меню салона', () => {
    * подпись на тот же адрес разошлась бы с экраном. Экран назван так же, путь `beauty/masters` и подпись
    * под заголовком про мастера сети не менялись.
    */
-  it('«Мастера» и «Сотрудники и доступ» в меню салона не путаются', () => {
+  it('«Специалисты» и «Сотрудники» в меню салона не путаются', () => {
     const labels = new Map(
       menuSectionsFor(owner, 'BEAUTY').flatMap((s) => s.items.map((i) => [i.href, i.label] as const)),
     );
-    expect(labels.get('/employees')).toBe('Мастера');
-    expect(labels.get('/team')).toBe('Сотрудники и доступ');
+    // подписи верхнего меню 17.10.2026: мастера филиала это «Специалисты», учётные записи это «Сотрудники»
+    expect(labels.get('/employees')).toBe('Специалисты');
+    expect(labels.get('/team')).toBe('Сотрудники');
     const all = [...labels.values()];
     expect(new Set(all).size, all.join(', ')).toBe(all.length);
   });

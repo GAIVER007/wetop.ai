@@ -81,7 +81,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
 
       {
         href: '/calendar',
-        label: 'Календарь',
+        label: 'Журнал',
         icon: 'board',
         requires: 'desk',
         description: 'Записи дня по мастерам на оси времени и свободные окна.',
@@ -102,7 +102,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/employees',
-        label: 'Мастера',
+        label: 'Специалисты',
         icon: 'guests',
         requires: 'desk',
         description: 'Мастера филиала: что умеют и где работают.',
@@ -153,7 +153,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/beauty/schedule',
         requires: 'desk',
-        label: 'График',
+        label: 'График работы',
         icon: 'clock',
         description: 'График мастера в филиале неделей, его отсутствия и филиалы, где он работает.',
       },
@@ -254,6 +254,35 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Бар',
         icon: 'receipt',
         description: 'Приходы, товары, остатки, наценка и долги поставщикам.',
+      },
+      // подстраницы бара пунктами раздела «Склад» (верхнее меню 17.10.2026); право то же, что у `/bar`
+      {
+        href: '/bar/products',
+        requires: 'reports',
+        label: 'Номенклатура',
+        icon: 'product',
+        description: 'Товары склада: цены, остатки и наценка.',
+      },
+      {
+        href: '/bar/operations',
+        requires: 'reports',
+        label: 'Движение товаров',
+        icon: 'move',
+        description: 'Приходы, продажи и списания товаров.',
+      },
+      {
+        href: '/bar/suppliers',
+        requires: 'reports',
+        label: 'Поставщики',
+        icon: 'truck',
+        description: 'Поставщики и долги перед ними.',
+      },
+      {
+        href: '/reports/finance',
+        requires: 'reports',
+        label: 'Финансовый отчёт',
+        icon: 'money',
+        description: 'Доходы и поступления за период.',
       },
       {
         // Хаб REP1 (план reports-hub-2026-10-02): один вход ко всем отчётам, числа за период и ссылки в готовые экраны
@@ -451,9 +480,9 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/journal',
         requires: 'journal',
-        label: 'Журнал операций',
+        label: 'История действий',
         icon: 'journal',
-        description: 'История операций в системе.',
+        description: 'Кто, что и когда изменил в системе.',
       },
       {
         href: '/platform/support',
@@ -510,243 +539,239 @@ function direct(
 }
 
 /**
- * «Продвижение» (ADR-184): один состав у всех направлений. «Конкуренты» сегодня только у гостиницы (мониторинг
- * загрузки номеров, ADR-142); у салона и ресторана пункт появится со срезом PROMO-8.
+ * Верхнее меню одной строкой разделов для всех направлений (решение владельца 17.10.2026, черновик
+ * `plans/top-nav-draft-2026-10-17.html`): Главная, Журнал, Персонал, Клиенты, Услуги, Статистика, Склад, Финансы,
+ * Настройки, Продвижение, Помощь. Разделы те же, слова у направления свои: у гостиницы «Шахматка», «Гости», «Номера»,
+ * у ресторана «Зал», «Гости», «Заказы». Пунктов без готового экрана в меню нет, пока экран не построен.
+ * Адреса и права страниц прежние: их держит реестр выше (`navigation-rights.baseline.json`).
  */
-function promotionSection(vertical: WebVertical): MenuSection {
+const HELP = direct('help', '/help', 'help', 'Помощь');
+
+/** «Склад» на экранах бара: номенклатура, продажа, движение и поставщики (ADR-157) */
+function stockItems(): NavigationItem[] {
+  return [
+    menuItem('/bar/products'),
+    menuItem('/bar', 'Продажи'),
+    menuItem('/bar/operations'),
+    menuItem('/bar/suppliers', 'Настройки'),
+  ];
+}
+
+/**
+ * «Продвижение»: бывшие «Маркетинг» и «Продажи» одним разделом (ADR-184, решение владельца 17.10.2026).
+ * «Анализ конкурентов» и «Сайт» пока только у гостиницы: реестр функций уберёт их у салона и ресторана.
+ */
+function promotionSection(): MenuSection {
   return {
     id: 'marketing',
     label: 'Продвижение',
     icon: 'send' as IconName,
     items: [
       menuItem('/marketing', 'Обзор'),
-      menuItem('/marketing/ads', 'Реклама'),
-      ...(vertical === 'HOSPITALITY' ? [menuItem('/market', 'Конкуренты')] : []),
+      menuItem('/marketing/ads', 'ИИ-таргетолог'),
       menuItem('/marketing/content', 'Контент'),
+      menuItem('/ai-agents', 'ИИ-продавец'),
+      menuItem('/market', 'Анализ конкурентов'),
+      menuItem('/sales', 'Обзор продаж'),
       menuItem('/marketing/budget', 'Бюджет'),
-      menuItem('/marketing/analytics', 'Аналитика'),
+      menuItem('/marketing/analytics', 'Аналитика рекламы'),
     ],
-    match: ['/website'],
+    match: ['/website', '/ai-seller'],
   };
 }
 
-/**
- * Разделы стойки в порядке строки вкладок (ADR-134): на компьютере строка в шапке, на телефоне и планшете
- * то же меню выдвижное. Работа смены одним щелчком; группы с несколькими экранами
- * («Продажи», «Маркетинг», «Отчёты», «Настройки») раскрывают список.
- */
-// Порядок гостиничного меню утверждён владельцем 13.10.2026: календарь, гости, фонд,
-// финансы, продажи, маркетинг, отчёты и настройки. Адреса и права сохраняются.
 export const menuSections: MenuSection[] = [
-  // «Главная» первой (решение владельца 13.10.2026, ADR-180); дальше порядок #501
   direct('today', '/today', 'today', 'Главная'),
   // задачи смены открываются из панели «Сегодня» календаря (ADR-145): раздел тот же
-  direct('chessboard', '/chessboard', 'board', undefined, ['/tasks']),
-  // Одна вкладка вместо «Брони» и «Гости» (поручение владельца 09.10.2026): экран `/guests` по макету; список
-  // броней со всеми отборами и экспортом открывается кнопкой на нём, адреса и права страниц прежние
-  direct('guests', '/guests', 'guests', undefined, ['/reservations']),
-  direct('inventory', '/inventory', 'bed', undefined, ['/units', '/rooms', '/rates']),
+  direct('journal', '/chessboard', 'board', 'Шахматка', ['/tasks']),
   {
-    // «Бар» живёт внутри «Финансов» (ADR-157, поручение владельца 09.10.2026): товарно-денежный учёт
-    // рядом с кассой, своей вкладки у него нет. Маршруты и права не менялись.
-    id: 'finance',
-    label: 'Финансы',
-    icon: 'money',
-    items: [menuItem('/finance', 'Оплаты и касса'), menuItem('/bar')],
+    id: 'staff',
+    label: 'Персонал',
+    icon: 'person' as IconName,
+    items: [menuItem('/team', 'Сотрудники')],
+    match: ['/staff'],
   },
   {
-    id: 'sales',
-    label: 'Продажи',
-    icon: 'rates',
-    items: [
-      // «Тарифы и цены» сняты 06.10.2026: цена категории — в «Категориях номеров»
-      menuItem('/sales'),
-      // «Конкуренты» с ADR-184 в «Продвижении»
-      menuItem('/channels'),
-      menuItem('/ai-agents'),
-    ],
-    match: ['/ai-seller', '/channel-manager'],
+    id: 'clients',
+    label: 'Гости',
+    icon: 'guests' as IconName,
+    // «Гости и бронирования» (09.10.2026): список броней открывается кнопкой на экране и пунктом здесь
+    items: [menuItem('/guests', 'Гости и брони'), menuItem('/reservations', 'Список броней')],
   },
-  // MKT2: страницы сайта (`/website/*`) подсвечивают хаб (`activeMenuRoute`); ADR-184: «Продвижение»
-  promotionSection('HOSPITALITY'),
+  direct('services', '/inventory', 'bed', 'Номера', ['/units', '/rooms', '/rates']),
   {
-    // хаб REP1 плюс «Аналитика» одной группой; «Оплаты» — вкладка «Финансов» (ADR-134)
-    id: 'reports',
-    label: 'Отчёты',
-    icon: 'analytics',
+    id: 'stats',
+    label: 'Статистика',
+    icon: 'chart' as IconName,
     items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics', 'Аналитика бизнеса')],
     match: ['/management'],
+  },
+  { id: 'stock', label: 'Склад', icon: 'stock' as IconName, items: stockItems() },
+  {
+    id: 'money',
+    label: 'Финансы',
+    icon: 'money' as IconName,
+    items: [menuItem('/finance', 'Движение денег'), menuItem('/reports/finance', 'Отчеты')],
   },
   {
     id: 'settings',
     label: 'Настройки',
-    icon: 'settings',
+    icon: 'settings' as IconName,
     items: [
       menuItem('/hotel-settings', 'Объект'),
-      menuItem('/team', 'Сотрудники и доступ'),
+      menuItem('/channels'),
       menuItem('/connections'),
-      menuItem('/journal'),
-      // право `desk`: администратор видит неисправности (ADR-107) — для него группа сводится к этому пункту
+      // право `desk`: администратор видит неисправности (ADR-107)
       menuItem('/incidents'),
-      // Вкладка «Платформа» снята по поручению владельца 09.10.2026: «Организации» главного администратора живут
-      // в «Настройках», пункт виден только по его отметке. «Техподдержка» по-прежнему под переключателем агентов
-      // на «ИИ-продавце»: своего пункта меню у неё нет, маршрут /platform/support остаётся в реестре ради прав
+      menuItem('/journal'),
+      // «Организации» только главному администратору (отметка `platform`)
       menuItem('/platform'),
     ],
-    match: ['/branches', '/hotel-settings', '/connections', '/team', '/staff', '/platform'],
+    match: ['/branches', '/hotel-settings', '/connections', '/channel-manager', '/platform'],
   },
+  promotionSection(),
+  HELP,
 ];
 
 /** Verified Business.vertical selects the working Beauty routes (MV5). */
 export const beautyMenuSections: MenuSection[] = [
-  direct('today', '/today', 'today', 'Сегодня'),
+  direct('today', '/today', 'today', 'Главная'),
   // `/beauty` прежний адрес календаря салона: тот же экран
-  direct('calendar', '/calendar', 'board', undefined, ['/beauty']),
-  direct('appointments', '/appointments', 'booking'),
-  direct('customers', '/customers', 'guests'),
-  direct('employees', '/employees', 'guests', undefined, ['/beauty/masters']),
-  // «График» салона отдельной вкладкой (решение владельца №1 по плану DS2, 09.10.2026)
-  direct('schedule', '/beauty/schedule', 'clock'),
-  direct('services', '/services', 'rates', undefined, ['/beauty/services']),
+  direct('journal', '/calendar', 'board', 'Журнал', ['/beauty']),
+  {
+    id: 'staff',
+    label: 'Персонал',
+    icon: 'person' as IconName,
+    items: [
+      menuItem('/employees', 'Специалисты'),
+      menuItem('/team', 'Сотрудники'),
+      menuItem('/beauty/schedule', 'График работы'),
+      menuItem('/payroll'),
+    ],
+    match: ['/staff', '/beauty/masters'],
+  },
+  {
+    id: 'clients',
+    label: 'Клиенты',
+    icon: 'guests' as IconName,
+    items: [menuItem('/customers'), menuItem('/appointments')],
+  },
+  direct('services', '/services', 'beauty', undefined, ['/beauty/services']),
+  {
+    id: 'stats',
+    label: 'Статистика',
+    icon: 'chart' as IconName,
+    // `/reports` салону перенаправляет на «Аналитику бизнеса» (аудит 17.10.2026, Д2)
+    items: [menuItem('/management/analytics', 'Отчёт по записям')],
+    match: ['/management', '/reports'],
+  },
+  { id: 'stock', label: 'Склад', icon: 'stock' as IconName, items: stockItems() },
   {
     id: 'money',
     label: 'Финансы',
     icon: 'money' as IconName,
-    // касса салона: касса филиала §35.2, общая с рестораном (§48); бар продаёт в неё
-    // зарплата мастеров (§19.2) рядом с кассой, из которой идёт выплата
-    items: [menuItem('/finance', 'Выручка'), menuItem('/cashbox'), menuItem('/payroll'), menuItem('/bar', 'Бар')],
-  },
-  {
-    id: 'team',
-    label: 'Команда',
-    icon: 'guests' as IconName,
-    items: [menuItem('/my-work'), menuItem('/team', 'Сотрудники и доступ')],
-    match: ['/staff'],
-  },
-  {
-    id: 'sales',
-    label: 'Продажи',
-    icon: 'rates' as IconName,
-    items: [menuItem('/sales'), menuItem('/ai-agents')],
-    match: ['/ai-seller'],
-  },
-  promotionSection('BEAUTY'),
-  {
-    id: 'reports',
-    label: 'Отчёты',
-    icon: 'analytics' as IconName,
-    // `/reports` салону и ресторану перенаправляет на соседний пункт: в меню его нет (аудит 17.10.2026, Д2)
-    items: [menuItem('/management/analytics', 'Аналитика бизнеса')],
-    match: ['/management', '/reports'],
+    // касса филиала §35.2, общая с рестораном (§48)
+    items: [menuItem('/cashbox', 'Движение денег'), menuItem('/finance', 'Приход')],
   },
   {
     id: 'settings',
     label: 'Настройки',
     icon: 'settings' as IconName,
-    // «Подключения» и «Неисправности» пока только гостиничные (Channex): страницы салону их не открывают
-    // и уводили на «Главную» (аудит платформы 17.10.2026, Д1). Вернутся с подключениями направления
+    // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
     items: [menuItem('/journal')],
   },
-  // «Помощь» и «Профиль» в меню профиля у всех направлений (аудит 17.10.2026, Д4)
+  promotionSection(),
+  HELP,
 ];
 
-/**
- * Меню ресторана (ADR-159): группы по выбору владельца 11.10.2026, чтобы в левой колонке под кнопкой раздела
- * были видны подразделы, как у гостиницы. Адреса и права прежние.
- */
+/** Меню ресторана (ADR-159) в той же строке разделов. Адреса и права прежние. */
 export const foodMenuSections: MenuSection[] = [
   direct('today', '/today', 'today', 'Главная'),
   {
-    id: 'hall',
+    id: 'journal',
     label: 'Зал',
-    icon: 'board' as IconName,
-    items: [menuItem('/floor-plan'), menuItem('/table-reservations'), menuItem('/dining-areas')],
-  },
-  {
-    id: 'orders',
-    label: 'Заказы',
-    icon: 'receipt' as IconName,
+    icon: 'layers' as IconName,
     items: [
-      menuItem('/orders'),
-      menuItem('/kitchen'),
-      menuItem('/drinks'),
-      menuItem('/menu'),
-      menuItem('/stock'),
+      menuItem('/floor-plan'),
+      menuItem('/table-reservations', 'Брони столов'),
+      menuItem('/dining-areas'),
     ],
   },
+  {
+    id: 'staff',
+    label: 'Персонал',
+    icon: 'person' as IconName,
+    // старый `/staff` только перенаправляет на `/team` (DS2 §14)
+    items: [
+      menuItem('/employees', 'Специалисты'),
+      menuItem('/team', 'Сотрудники'),
+      menuItem('/payroll'),
+    ],
+    match: ['/staff'],
+  },
   // гости ресторана это его клиенты (`customers`); гостиничный `/guests` ресторану не нужен
-  direct('customers', '/customers', 'guests', 'Гости'),
+  {
+    id: 'clients',
+    label: 'Гости',
+    icon: 'guests' as IconName,
+    items: [menuItem('/customers', 'Гости')],
+  },
+  {
+    id: 'services',
+    label: 'Заказы',
+    icon: 'receipt' as IconName,
+    items: [menuItem('/orders'), menuItem('/kitchen'), menuItem('/drinks'), menuItem('/menu')],
+  },
+  {
+    id: 'stats',
+    label: 'Статистика',
+    icon: 'chart' as IconName,
+    items: [menuItem('/management/analytics', 'Отчёт по заказам')],
+    match: ['/management', '/reports'],
+  },
+  {
+    id: 'stock',
+    label: 'Склад',
+    icon: 'stock' as IconName,
+    items: [menuItem('/stock', 'Склад кухни'), ...stockItems()],
+  },
   {
     id: 'money',
     label: 'Финансы',
     icon: 'money' as IconName,
-    // бар филиала (ADR-178): деньги бара ресторана в кассе ресторана (§45)
     // `/finance` ресторану не свой экран: он перенаправляет на «Финансы» ресторана (аудит 17.10.2026, Д2)
-    items: [menuItem('/restaurant-finance'), menuItem('/cashbox'), menuItem('/bar', 'Бар')],
-  },
-  {
-    id: 'team',
-    label: 'Команда',
-    icon: 'guests' as IconName,
-    // «Сотрудники и доступ» ведут прямо на `/team`; старый `/staff` только перенаправляет сюда (DS2 §14)
-    items: [menuItem('/my-work'), menuItem('/employees', 'Сотрудники'), menuItem('/payroll'), menuItem('/team', 'Сотрудники и доступ')],
-    match: ['/staff'],
-  },
-  {
-    id: 'sales',
-    label: 'Продажи',
-    icon: 'rates' as IconName,
-    items: [menuItem('/sales'), menuItem('/ai-agents')],
-  },
-  promotionSection('FOOD_SERVICE'),
-  {
-    id: 'reports',
-    label: 'Отчёты',
-    icon: 'analytics' as IconName,
-    // `/reports` салону и ресторану перенаправляет на соседний пункт: в меню его нет (аудит 17.10.2026, Д2)
-    items: [menuItem('/management/analytics', 'Аналитика бизнеса')],
-    match: ['/management', '/reports'],
+    items: [menuItem('/cashbox', 'Движение денег'), menuItem('/restaurant-finance', 'Приход')],
   },
   {
     id: 'settings',
     label: 'Настройки',
     icon: 'settings' as IconName,
-    // без «Подключений» и «Неисправностей»: см. салон выше (Д1)
-    items: [menuItem('/restaurant-settings'), menuItem('/journal')],
+    items: [menuItem('/restaurant-settings', 'Ресторан'), menuItem('/journal')],
   },
-  // «Помощь» и «Профиль» в меню профиля у всех направлений (аудит 17.10.2026, Д4)
+  promotionSection(),
+  HELP,
 ];
 
-/**
- * Нижняя панель телефона: первые четыре вкладки шапки и кнопка «Ещё» (ADR-050, ADR-134).
- * Группа («Финансы» с ADR-157) даёт панели свой первый пункт, но под именем группы:
- * подпись пункта «Оплаты и касса» для вкладки панели длинна и уже смысла группы.
- */
-export const phoneNavigation: NavigationItem[] = menuSections
-  .slice(0, 4)
-  .map((section) =>
-    section.direct ? section.items[0]! : { ...section.items[0]!, label: section.label },
-  );
+/** Разделы нижней панели телефона: Главная, Журнал, Клиенты и Услуги своего направления (ADR-050) */
+const PHONE_SECTIONS = ['today', 'journal', 'clients', 'services'];
 
-/**
- * То же для салона: разделы его вертикали (Q-254). Не передана, значит гостиница, как было до среза B2.
- * В панель идут только одиночные вкладки: группы («Продажи», «Настройки») живут за кнопкой «Ещё».
- */
-export function phoneNavigationFor(
-  vertical: WebVertical = 'HOSPITALITY',
-): NavigationItem[] {
-  if (vertical === 'HOSPITALITY') return phoneNavigation;
-  // у ресторана группы: вкладка группы ведёт на её первый пункт под именем группы, как у гостиницы
-  if (vertical === 'FOOD_SERVICE')
-    return foodMenuSections
-      .slice(0, 4)
-      .map((section) =>
-        section.direct ? section.items[0]! : { ...section.items[0]!, label: section.label },
-      );
-  return beautyMenuSections
-    .filter((section) => section.direct)
-    .slice(0, 4)
-    .map((section) => section.items[0]!);
+function phoneTabs(sections: MenuSection[]): NavigationItem[] {
+  return PHONE_SECTIONS.flatMap((id) => {
+    const section = sections.find((s) => s.id === id);
+    if (!section) return [];
+    // группа даёт панели свой первый пункт под именем группы
+    return [section.direct ? section.items[0]! : { ...section.items[0]!, label: section.label }];
+  });
+}
+
+/** Нижняя панель телефона гостиницы: четыре вкладки и кнопка «Ещё» (ADR-050, ADR-134) */
+export const phoneNavigation: NavigationItem[] = phoneTabs(menuSections);
+
+/** То же для салона и ресторана (Q-254). Не передана вертикаль, значит гостиница */
+export function phoneNavigationFor(vertical: WebVertical = 'HOSPITALITY'): NavigationItem[] {
+  if (vertical === 'FOOD_SERVICE') return phoneTabs(foodMenuSections);
+  if (vertical === 'BEAUTY') return phoneTabs(beautyMenuSections);
+  return phoneNavigation;
 }
 
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
@@ -847,11 +872,11 @@ export function deskAccessOf(
 export function activeMenuRoute(path: string): string | undefined {
   const route = activeNavigation(path)?.href;
   if (!route) return undefined;
+  // приходы бара это движение товаров раздела «Склад» (верхнее меню 17.10.2026)
+  if (path === '/bar/receipts' || path.startsWith('/bar/receipts/')) return '/bar/operations';
   if (route.startsWith('/hotel-settings')) return '/hotel-settings';
   if (route.startsWith('/rooms')) return '/inventory';
   if (route.startsWith('/channels')) return '/channels';
-  // «Гости и бронирования» (09.10.2026): брони и карточка брони подсвечивают тот же единственный пункт
-  if (route === '/reservations') return '/guests';
   // сайт объекта, продукт «Маркетинга»: в меню один пункт «Сайт и SEO» (MKT2)
   if (route === '/website') return '/marketing';
   return route;
@@ -880,7 +905,7 @@ const PAGE_LABELS: Array<{ href: string; label: string; icon: IconName }> = [
   { href: '/branches', label: 'Филиалы', icon: 'hotel' },
   { href: '/onboarding', label: 'Настройка объекта', icon: 'settings' },
   { href: '/platform/support', label: 'Техподдержка', icon: 'chat' },
-  { href: '/journal', label: 'Журнал операций', icon: 'journal' },
+  { href: '/journal', label: 'История действий', icon: 'journal' },
 ];
 
 /** Что написать на кнопке раздела: раздел меню, иначе название страницы, иначе «Разделы» */

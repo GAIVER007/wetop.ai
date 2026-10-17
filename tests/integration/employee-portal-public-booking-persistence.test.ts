@@ -29,28 +29,10 @@ import {
 import { TurnstileService } from '../../apps/api/src/web-booking/turnstile';
 import { makeClients, nextMonday } from './core-security/harness';
 
-// This file never falls back to a shared/dev DB. The proof run uses its own
-// cluster on 55623; existing isolated portal runners and CI remain compatible.
-const target = new URL(process.env.DATABASE_URL ?? 'postgresql://invalid');
-const ownedLocal =
-  ['55603', '55613', '55623'].includes(target.port) && target.pathname === '/pmslocal';
-const jobDatabase =
-  process.env.CI === 'true' &&
-  process.env.GITHUB_ACTIONS === 'true' &&
-  target.port === '5432' &&
-  target.pathname === '/pms_dev';
-if (
-  process.env.NODE_ENV === 'production' ||
-  target.protocol !== 'postgresql:' ||
-  target.hostname !== '127.0.0.1' ||
-  target.search ||
-  target.hash ||
-  (!ownedLocal && !jobDatabase)
-) {
-  throw new Error(
-    'Public booking persistence proof requires its owned loopback DB (55623/pmslocal) or dedicated GitHub job DB',
-  );
-}
+import { assertPortalDatabase } from '../employee-portal-ui/fixture-support';
+
+// Shared fail-closed contract, with the separate owned public-booking runner preserved.
+assertPortalDatabase('public-booking');
 
 describe('public specialist → ordinary Beauty booking → same persisted Employee/calendar', () => {
   let admin: Db;

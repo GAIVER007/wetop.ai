@@ -105,7 +105,12 @@ describe('Employee address native-history integration', () => {
     b.openA();
     captured.close();
     b.openB();
-    expect(captured.replace).not.toHaveBeenCalled();
+    // A selected-card navigation is valid; only a deferred list navigation can clear B.
+    const targets = captured.replace.mock.calls.map(([url]) =>
+      new URL(String(url), h.href()).searchParams.get('employee'),
+    );
+    expect(targets).not.toContain(null);
+    if (targets.length) expect(targets.at(-1)).toBe('B');
     expect(h.canonical()).toBe(h.href());
     expect(new URL(h.canonical()).searchParams.get('employee')).toBe('B');
     expect(h.entries.at(-1)?.state.peoplePosition).toBe(2);

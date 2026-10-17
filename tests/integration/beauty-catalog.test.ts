@@ -171,7 +171,8 @@ describe.skipIf(!url)('каталог салона (integration, DATA_MODEL §19
   });
 
   it('мастер уходит в архив правкой, не удалением', async () => {
-    const archived = await as('OWNER', () => service.updateEmployee(employeeId, { active: false }));
+    const employee = (await as('OWNER', () => service.employees())).items.find((e) => e.id === employeeId)!;
+    const archived = await as('OWNER', () => service.updateEmployee(employeeId, { active: false, expectedProfileRevision: employee.profileRevision }));
     expect(archived.active).toBe(false);
     expect(await db.employee.count({ where: { id: employeeId } })).toBe(1);
   });

@@ -33,7 +33,7 @@ async function capture(page,key) {
 }
 async function seedProfessional(request,f) {
  let d=await call(request,f,`/employee-portal/employees/${f.employeeA}`,{actor:'ownerA'});
- d=await call(request,f,`/employee-portal/employees/${f.employeeA}/profile`,{actor:'ownerA',method:'patch',data:{name:'Анна Демонстрационная',headline:'Парикмахер-стилист',biography:'Демонстрационный профиль. Стрижки и укладки. На снимках тестовые иллюстрации, не работы реальных клиентов.',practiceSinceYear:2018,expectedRevision:d.profile.revision}});
+ d=await call(request,f,`/employee-portal/employees/${f.employeeA}/profile`,{actor:'ownerA',method:'patch',data:{name:'Анна Демонстрационная',headline:'Парикмахер-стилист',biography:'Демонстрационный профиль. Стрижки и укладки. На снимках тестовые иллюстрации, не работы реальных клиентов.',practiceSinceYear:2018,expectedRevision:d.profile.revision,expectedProfileRevision:d.employee.profileRevision}});
  await call(request,f,'/employee-portal/me/week',{method:'put',data:{intervals:Array.from({length:7},(_,weekday)=>({weekday,timeFrom:'09:00',timeTo:'18:00'})),expectedRevision:d.weekRevision}});
  return d;
 }
@@ -44,7 +44,7 @@ test('HTTP actor boundaries and public whitelist',async({request})=>{
   const r=await request.get(API+path,{headers:headers(f,actor)});expect([403,404]).toContain(r.status());
  }
  const noActor=await request.get(API+'/employee-portal/me');expect(noActor.status()).toBe(401);
- const attack=await request.patch(API+'/employee-portal/me/profile',{headers:headers(f),data:{expectedRevision:mine.profile.revision,userId:f.actors.staffB.id}});expect(attack.status()).toBe(400);
+ const attack=await request.patch(API+'/employee-portal/me/profile',{headers:headers(f),data:{expectedRevision:mine.profile.revision,expectedProfileRevision:mine.employee.profileRevision,userId:f.actors.staffB.id}});expect(attack.status()).toBe(400);
  const payAttack=await request.put(API+'/employee-portal/me/pay-settings',{headers:headers(f),data:{model:'FIXED',fixedMinor:'999999',percent:0}});expect([403,404]).toContain(payAttack.status());
  d=await call(request,f,`/employee-portal/employees/${f.employeeA}/publication`,{actor:'ownerA',method:'put',data:{published:true,publicationConsent:true,expectedRevision:d.profile.revision}});
  const pub=await request.get(API+`/employee-portal/public/${d.profile.slug}`);expect(pub.status()).toBe(200);const p=await pub.json();

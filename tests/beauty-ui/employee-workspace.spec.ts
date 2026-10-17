@@ -325,7 +325,7 @@ test('late schedule A cannot populate employee B or a new employee', async ({ pa
     .click();
   await expect(dialog(page).getByLabel('Имя мастера')).toHaveValue('Тестовый мастер Б');
   release();
-  await dialog(page).getByRole('tab', { name: 'Отсутствия' }).click();
+  await dialog(page).getByRole('tab', { name: 'График' }).click();
   await expect(dialog(page).getByText('Тестовая причина только А', { exact: true })).toHaveCount(0);
   await expect(page).toHaveURL(new RegExp(`employee=${b.id}`));
 });
@@ -478,7 +478,7 @@ test('profile fields, keyboard focus and contrast pass an axe audit', async ({ p
   }
   await dialog(page).getByRole('tab', { name: 'Профиль' }).focus();
   await page.keyboard.press('End');
-  await expect(dialog(page).getByRole('tab', { name: 'Отсутствия' })).toBeFocused();
+  await expect(dialog(page).getByRole('tab', { name: 'График' })).toBeFocused();
   await page.keyboard.press('Home');
   await expect(dialog(page).getByRole('tab', { name: 'Профиль' })).toBeFocused();
 });

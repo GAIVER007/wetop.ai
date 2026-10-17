@@ -212,6 +212,7 @@ export function EmployeesBoard({
                       : 'Оценок нет'}
                   </td>
                   <td>
+                    {write && <a href={`/employees/${encodeURIComponent(e.id)}/profile`}>Карточка сотрудника</a>}
                     {write && (
                       <Button tone="ghost" size="sm" onClick={() => setDraft(e)}>
                         Изменить

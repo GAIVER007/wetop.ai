@@ -33,6 +33,9 @@ export function ServicesBoard({
   scopeKey?: string;
 }) {
   const [editing, setEditing] = useState<Editing>(null);
+  const [search, setSearch] = useState('');
+  const needle = search.trim().toLocaleLowerCase('ru-RU');
+  const filtered = items.filter(row => !needle || `${row.name} ${row.category ?? ''}`.toLocaleLowerCase('ru-RU').includes(needle));
   useEffect(() => {
     const id = pendingCreation(scopeKey, 'service');
     const row = items.find((item) => item.id === id);
@@ -41,6 +44,7 @@ export function ServicesBoard({
   return (
     <>
       <div className="beauty-bar">
+        <Field label="Поиск услуг"><Input type="search" aria-label="Поиск услуг" placeholder="Название или категория" value={search} onChange={event => setSearch(event.target.value)} /></Field>
         <p role="status">
           {items.length === 0
             ? 'Добавьте первую услугу'
@@ -56,7 +60,7 @@ export function ServicesBoard({
         <thead>
           <tr>
             <th>Услуга</th>
-            <th className="beauty-col-wide">Группа</th>
+            <th className="beauty-col-wide">Категория</th>
             <th className="beauty-col-wide">Длительность</th>
             <th>Цена каталога</th>
             <th>В этом филиале</th>
@@ -65,14 +69,14 @@ export function ServicesBoard({
           </tr>
         </thead>
         <tbody>
-          {items.map((row) => (
+          {filtered.map((row) => (
             <tr key={row.id}>
               <td data-label="Услуга">
                 {row.name}
                 {!row.active && <Badge>В архиве</Badge>}
               </td>
-              <td data-label="Группа" className="beauty-col-wide">
-                {row.category ?? 'Без группы'}
+              <td data-label="Категория" className="beauty-col-wide">
+                {row.category ?? 'Без категории'}
               </td>
               <td data-label="Длительность" className="beauty-col-wide">
                 {row.durationMinutes} мин
@@ -116,6 +120,7 @@ export function ServicesBoard({
           ))}
         </tbody>
       </Table>
+      {items.length > 0 && filtered.length === 0 && <p role="status">Услуги не найдены. Измените название или категорию.</p>}
       <Overlay
         open={editing !== null}
         onClose={() => setEditing(null)}

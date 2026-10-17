@@ -6,8 +6,8 @@ import { SITE_KEY_RE } from '../web-analytics/hit';
  * и его разбор без базы: приём, Turnstile, лимиты, повтор по ключу запроса и запись в календарь делают публичные
  * адреса API (`/w/book` уже есть; `/w/beauty/book`, `/w/food/reserve`, `/w/lead` вводят срезы SITE-4 и SITE-5).
  *
- * Время записи и брони это время филиала без смещения (`YYYY-MM-DDTHH:mm`, `YYYY-MM-DD` и `HH:mm`): браузер посетителя
- * не знает пояса филиала, в UTC его переводит API по `locations.timezone` (AGENTS.md §13).
+ * Салон отправляет serviceId и точный ISO startsAt с поясом из `/w/beauty/slots` (актуальный публичный разбор:
+ * `web-booking/site-forms.ts`). Ресторан сохраняет дату и время филиала (`YYYY-MM-DD` и `HH:mm`).
  */
 export const SITE_LEAD_SCHEMA_VERSION = 'site-lead/0' as const;
 
@@ -61,11 +61,11 @@ export interface SiteLeadCommon {
 
 export interface BeautyAppointmentLead extends SiteLeadCommon {
   mode: 'BEAUTY_APPOINTMENT';
-  /** Код услуги из секции `services` (id услуги каталога WETOP) */
-  serviceCode: string;
+  /** UUID услуги WETOP: в SiteSpec хранится в services.items[].serviceCode, на проводе serviceId */
+  serviceId: string;
   /** Мастер из секции `staff`; нет поля: «любой мастер» */
   employeeId?: string;
-  /** Начало записи по часам филиала: `YYYY-MM-DDTHH:mm` */
+  /** Точный ISO startsAt из `/w/beauty/slots`, с Z или явным смещением */
   startsAt: string;
 }
 
@@ -86,7 +86,7 @@ export type SiteLeadBody = BeautyAppointmentLead | TableReservationLead | Callba
 
 const UUID_V4_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const CODE_RE = /^[A-Za-z0-9_-]{1,64}$/;
+const INSTANT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})$/;
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const TIME_RE = /^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/;
 // eslint-disable-next-line no-control-regex
@@ -112,7 +112,7 @@ export function parseSiteLead(mode: Exclude<SiteLeadMode, 'HOTEL_BOOKING'>, raw:
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false, errors: ['body'] };
   const r = raw as Record<string, unknown>;
   const specific: Record<typeof mode, string[]> = {
-    BEAUTY_APPOINTMENT: ['serviceCode', 'employeeId', 'startsAt'],
+    BEAUTY_APPOINTMENT: ['serviceId', 'employeeId', 'startsAt'],
     TABLE_RESERVATION: ['date', 'time', 'partySize'],
     CALLBACK: [],
   };
@@ -133,7 +133,7 @@ export function parseSiteLead(mode: Exclude<SiteLeadMode, 'HOTEL_BOOKING'>, raw:
     return t || undefined;
   };
   const k = typeof r['k'] === 'string' && SITE_KEY_RE.test(r['k']) ? r['k'] : (errors.push('k'), '');
-  const name = text('name', SITE_LEAD_LIMITS.name, true) ?? '';
+  const name = text('name', mode === 'BEAUTY_APPOINTMENT' ? 100 : SITE_LEAD_LIMITS.name, true) ?? '';
   const phoneRaw = text('phone', 32, true) ?? '';
   if (phoneRaw && !/^\+?[0-9 ()-]{7,32}$/.test(phoneRaw)) errors.push('phone');
   const comment = text('comment', SITE_LEAD_LIMITS.comment, false);
@@ -155,16 +155,15 @@ export function parseSiteLead(mode: Exclude<SiteLeadMode, 'HOTEL_BOOKING'>, raw:
   };
   let body: SiteLeadBody;
   if (mode === 'BEAUTY_APPOINTMENT') {
-    const serviceCode = typeof r['serviceCode'] === 'string' && CODE_RE.test(r['serviceCode']) ? r['serviceCode'] : (errors.push('serviceCode'), '');
+    const serviceId = typeof r['serviceId'] === 'string' && UUID_RE.test(r['serviceId']) ? r['serviceId'] : (errors.push('serviceId'), '');
     const employee = r['employeeId'];
     if (employee !== undefined && employee !== '' && (typeof employee !== 'string' || !UUID_RE.test(employee))) errors.push('employeeId');
     const startsAt = typeof r['startsAt'] === 'string' ? r['startsAt'] : '';
-    const [day, time] = startsAt.split('T');
-    if (!day || !time || !validDate(day) || !TIME_RE.test(time)) errors.push('startsAt');
+    if (!INSTANT_RE.test(startsAt) || Number.isNaN(Date.parse(startsAt))) errors.push('startsAt');
     body = {
       ...common,
       mode,
-      serviceCode,
+      serviceId,
       startsAt,
       ...(typeof employee === 'string' && employee ? { employeeId: employee.toLowerCase() } : {}),
     };

@@ -82,6 +82,11 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'beauty_services',
   'location_services',
   'employee_services',
+  // Approved portal tables: tenant policies already installed by migration128.
+  'employee_public_profiles',
+  'employee_media',
+  'employee_portfolio_items',
+  'beauty_payroll_policies',
   'working_hours',
   'time_offs',
   'appointments',

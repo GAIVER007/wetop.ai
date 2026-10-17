@@ -184,6 +184,22 @@
   .beauty-section h2 {
     margin: 0;
   }
+  /* Сетка графика (17.10.2026): неделя по датам, ячейка «Работает» мягким зелёным, «Не работает» мягким красным */
+  .beauty-week-nav {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    margin-bottom: var(--space-2);
+  }
+  .beauty-week-grid td.is-on {
+    background: var(--success-soft);
+  }
+  .beauty-week-grid td.is-off {
+    background: var(--danger-soft);
+  }
+  .beauty-week-grid td small {
+    display: block;
+  }
   .beauty-week-row {
     display: flex;
     flex-wrap: wrap;

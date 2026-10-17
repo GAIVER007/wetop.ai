@@ -1,9 +1,9 @@
 'use client';
 import { useActionState, useEffect, useRef, useState } from 'react';
-import { parseBeautyServiceInput, parseLocationServiceInput } from '@pms/domain';
+import { currencyOptions, parseBeautyServiceInput, parseLocationServiceInput } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
 import { Alert, Badge, Button, Field, Input, Select, Table } from '../../../components/ui';
-import { formatMoney } from '../../../lib/money';
+import { formatMoney, inputToMinor, minorToInput } from '../../../lib/money';
 import type { BeautyServiceRow } from '../../../lib/api';
 import { pendingCreation, useCreationKey } from '../creation-key';
 import { saveBeautyService, saveLocationService } from '../actions';
@@ -18,6 +18,24 @@ const NOT_SELLABLE: Record<string, string> = {
   NOT_ENABLED: 'Филиал не оказывает',
   CURRENCY_MISMATCH: 'Нужна цена филиала: валюта каталога другая',
 };
+
+/** Типовые услуги салона: подставляют название, группу и обычную длительность. Цену человек вводит сам */
+const PRESETS: Array<{ name: string; category: string; minutes: number }> = [
+  { name: 'Стрижка мужская', category: 'Волосы', minutes: 45 },
+  { name: 'Стрижка женская', category: 'Волосы', minutes: 60 },
+  { name: 'Стрижка детская', category: 'Волосы', minutes: 30 },
+  { name: 'Окрашивание волос', category: 'Волосы', minutes: 120 },
+  { name: 'Укладка', category: 'Волосы', minutes: 45 },
+  { name: 'Маникюр', category: 'Ногти', minutes: 60 },
+  { name: 'Маникюр с покрытием', category: 'Ногти', minutes: 90 },
+  { name: 'Педикюр', category: 'Ногти', minutes: 90 },
+  { name: 'Коррекция бровей', category: 'Брови и ресницы', minutes: 30 },
+  { name: 'Окрашивание бровей', category: 'Брови и ресницы', minutes: 30 },
+  { name: 'Наращивание ресниц', category: 'Брови и ресницы', minutes: 120 },
+  { name: 'Макияж', category: 'Макияж', minutes: 60 },
+  { name: 'Чистка лица', category: 'Уход за лицом', minutes: 60 },
+  { name: 'Массаж', category: 'Массаж', minutes: 60 },
+];
 
 type Editing = { mode: 'new' } | { mode: 'edit'; row: BeautyServiceRow } | null;
 
@@ -162,7 +180,7 @@ function ServiceForm({
     name: row?.name ?? '',
     category: row?.category ?? '',
     durationMinutes: String(row?.durationMinutes ?? 60),
-    priceMinor: row?.priceMinor ?? '0',
+    price: minorToInput(row?.priceMinor ?? '0'),
     currency: row?.currency ?? locationCurrency ?? 'KZT',
     active: row?.active ?? true,
   });
@@ -173,13 +191,16 @@ function ServiceForm({
   }, [state]);
   const [local, setLocal] = useState({
     enabled: row?.location?.enabled ?? false,
-    priceOverrideMinor: row?.location?.priceOverrideMinor ?? '',
+    priceOverride:
+      row?.location?.priceOverrideMinor == null ? '' : minorToInput(row.location.priceOverrideMinor),
     durationOverrideMinutes:
       row?.location?.durationOverrideMinutes == null
         ? ''
         : String(row.location.durationOverrideMinutes),
   });
   const resourceId = row?.id ?? state?.resourceId;
+  const priceMinor = inputToMinor(draft.price);
+  const overrideMinor = inputToMinor(local.priceOverride);
   useEffect(() => {
     if (locationState?.message) creation.clear();
   }, [locationState?.message]);
@@ -191,11 +212,16 @@ function ServiceForm({
         onSubmit={(event) => {
           submittedDraft.current = { ...draft };
           const data = new FormData(event.currentTarget);
+          if (priceMinor === null || priceMinor === '') {
+            event.preventDefault();
+            setError('Цена: число, например 5000 или 5000,50');
+            return;
+          }
           const parsed = parseBeautyServiceInput({
             name: String(data.get('name') ?? ''),
             category: String(data.get('category') ?? ''),
             durationMinutes: String(data.get('durationMinutes') ?? ''),
-            priceMinor: String(data.get('priceMinor') ?? ''),
+            priceMinor: priceMinor ?? '',
             currency: String(data.get('currency') ?? ''),
             active: data.get('active') === 'on',
           });
@@ -214,13 +240,39 @@ function ServiceForm({
             type="hidden"
             name="changedFields"
             value={JSON.stringify(
-              (Object.keys(draft) as Array<keyof typeof draft>).filter(
-                (key) => draft[key] !== original[key],
-              ),
+              (Object.keys(draft) as Array<keyof typeof draft>)
+                .filter((key) => draft[key] !== original[key])
+                .map((key) => (key === 'price' ? 'priceMinor' : key)),
             )}
           />
         )}
         {!row && <input type="hidden" name="creationId" value={creation.id} />}
+        <input type="hidden" name="priceMinor" value={priceMinor ?? ''} />
+        {!row && (
+          <Field label="Типовая услуга">
+            <Select
+              aria-label="Типовая услуга"
+              value=""
+              onChange={(e) => {
+                const preset = PRESETS.find((p) => p.name === e.target.value);
+                if (preset)
+                  setDraft({
+                    ...draft,
+                    name: preset.name,
+                    category: preset.category,
+                    durationMinutes: String(preset.minutes),
+                  });
+              }}
+            >
+              <option value="">Выбрать из списка или ввести своё ниже</option>
+              {PRESETS.map((p) => (
+                <option key={p.name} value={p.name}>
+                  {p.name}, {p.minutes} мин
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
         <Field label="Название">
           <Input
             name="name"
@@ -256,17 +308,16 @@ function ServiceForm({
         <Field
           label={
             <span>
-              Цена каталога, тиын{' '}
-              <small className="beauty-note">целое число: 800000 это 8 000 тенге</small>
+              Цена каталога, {draft.currency}{' '}
+              <small className="beauty-note">например 5000</small>
             </span>
           }
         >
           <Input
-            name="priceMinor"
-            inputMode="numeric"
+            inputMode="decimal"
             required
-            value={draft.priceMinor}
-            onChange={(e) => setDraft({ ...draft, priceMinor: e.target.value })}
+            value={draft.price}
+            onChange={(e) => setDraft({ ...draft, price: e.target.value })}
           />
         </Field>
         <Field label="Валюта цены каталога">
@@ -275,10 +326,10 @@ function ServiceForm({
             value={draft.currency}
             onChange={(e) => setDraft({ ...draft, currency: e.target.value })}
           >
-            {Array.from(
-              new Set([draft.currency, ...['KZT', 'RUB', 'USD', 'EUR', 'UZS', 'GEL', 'AED']]),
-            ).map((code) => (
-              <option key={code}>{code}</option>
+            {currencyOptions(draft.currency).map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
             ))}
           </Select>
         </Field>
@@ -305,9 +356,14 @@ function ServiceForm({
           className="beauty-form"
           onSubmit={(event) => {
             const data = new FormData(event.currentTarget);
+            if (overrideMinor === null) {
+              event.preventDefault();
+              setLocationError('Своя цена: число, например 5000, или пусто');
+              return;
+            }
             const parsed = parseLocationServiceInput({
               enabled: data.get('enabled') === 'on',
-              priceOverrideMinor: String(data.get('priceOverrideMinor') ?? ''),
+              priceOverrideMinor: overrideMinor ?? '',
               durationOverrideMinutes: String(data.get('durationOverrideMinutes') ?? ''),
             });
             if (!parsed.ok) {
@@ -320,6 +376,7 @@ function ServiceForm({
         >
           <h3>В этом филиале</h3>
           <input type="hidden" name="id" value={resourceId} />
+          <input type="hidden" name="priceOverrideMinor" value={overrideMinor ?? ''} />
           <input type="hidden" name="scopeKey" value={scopeKey} />
           <label className="beauty-check">
             <input
@@ -333,16 +390,15 @@ function ServiceForm({
           <Field
             label={
               <span>
-                Своя цена филиала, тиын{' '}
+                Своя цена филиала, {locationCurrency ?? draft.currency}{' '}
                 <small className="beauty-note">пусто: действует цена каталога</small>
               </span>
             }
           >
             <Input
-              name="priceOverrideMinor"
-              inputMode="numeric"
-              value={local.priceOverrideMinor}
-              onChange={(e) => setLocal({ ...local, priceOverrideMinor: e.target.value })}
+              inputMode="decimal"
+              value={local.priceOverride}
+              onChange={(e) => setLocal({ ...local, priceOverride: e.target.value })}
             />
           </Field>
           <Field

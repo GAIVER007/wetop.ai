@@ -147,6 +147,8 @@ export class EmployeePortalService {
       await tx.$queryRaw`SELECT id FROM employees WHERE id=${e.id}::uuid FOR UPDATE`;
       const p=await this.profile(tx,e.id);
       if(['publication','account','unlink-account','pay-settings'].includes(action)) {if(employeeId===null) throw new ForbiddenException('Manager endpoint required');this.manager();}
+      // График и отсутствия меняет руководитель; сотрудник свой график только видит (владелец, 17.10.2026)
+      if(['week','time-off','delete-time-off'].includes(action)&&s.access==='SELF') throw new ForbiddenException('График меняет руководитель');
       if(action==='profile') {
         const input=profileInput(raw);
         const {expectedRevision,expectedProfileRevision,name,phone,email,...profile}=input;

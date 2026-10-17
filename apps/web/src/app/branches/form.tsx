@@ -1,5 +1,6 @@
 'use client';
 import { useActionState, useEffect, useState } from 'react';
+import { currencyOptions, timezoneOptions } from '@pms/domain';
 import { createBranch } from './actions';
 import type { BusinessCardView } from '../../lib/api';
 import type { WebVertical } from '../../lib/vertical-landing';
@@ -143,24 +144,33 @@ export function BranchForm({
       <label>
         Валюта
         <select className="inp" name="currency" required defaultValue="KZT" disabled={pending}>
-          <option value="KZT">Тенге (KZT)</option>
-          <option value="USD">Доллар США (USD)</option>
+          {currencyOptions().map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
         </select>
       </label>
       <details className="branch-create__advanced">
         <summary>Дополнительные настройки</summary>
         <label>
           Часовой пояс
-          <input
+          <select
             className="inp"
             name="timezone"
             required
             defaultValue={DEFAULT_BRANCH_TIMEZONE}
             disabled={pending}
-          />
+          >
+            {timezoneOptions().map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
         </label>
         <p className="muted">
-          Определяет даты бронирований и отчётов. Для Казахстана уже выбран Asia/Almaty.
+          Определяет даты бронирований и отчётов. Для Казахстана уже выбрана Алматы.
         </p>
       </details>
       <p className="muted">

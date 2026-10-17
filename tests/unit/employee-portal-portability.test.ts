@@ -54,7 +54,7 @@ describe('portable employee portal acceptance', () => {
     expect(config()).toMatch(/workers:\s*1/);
     expect(config()).not.toMatch(/fullyParallel:\s*true/);
     const portal = read('tests/employee-portal-ui/portal.spec.mjs');
-    expect(portal.match(/^test\('/gm)).toHaveLength(10);
+    expect(portal.match(/^test\('/gm)).toHaveLength(9);
     expect(portal).not.toMatch(/test\.(skip|fixme|only)\(/);
     for (const suite of ['portal.spec.mjs', 'site-booking.spec.ts']) {
       expect(read(`tests/employee-portal-ui/${suite}`)).not.toMatch(/\b(?:test|it|describe)\.(skip|fixme|only)\(/);

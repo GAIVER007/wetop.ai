@@ -32,21 +32,21 @@ async function openSalon(page: Page, request: APIRequestContext) {
   await page.goto('/calendar');
 }
 
-async function addService(page: Page, name: string, minutes: string, priceMinor: string) {
+async function addService(page: Page, name: string, minutes: string, price: string) {
   await page.goto('/beauty/services');
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Название').fill(name);
   await panel.getByLabel(/Длительность, минут/).fill(minutes);
-  await panel.getByLabel(/Цена каталога, тиын/).fill(priceMinor);
+  await panel.getByLabel(/Цена каталога/).fill(price);
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   await expect(panel.getByRole('status')).toHaveText('Услуга создана. Включите её в выбранном филиале ниже.');
 }
 
 test('услуга каталога добавляется и видна в списке', async ({ page, request }) => {
   await openSalon(page, request);
-  await addService(page, 'Маникюр', '60', '800000');
+  await addService(page, 'Маникюр', '60', '8000');
   await page.goto('/beauty/services');
   const main = page.getByRole('main');
   const row = main.getByRole('row').filter({ hasText: 'Маникюр' });
@@ -59,7 +59,7 @@ test('услуга каталога добавляется и видна в сп
 
 test('филиал включает услугу и ставит свою цену', async ({ page, request }) => {
   await openSalon(page, request);
-  await addService(page, 'Маникюр', '60', '800000');
+  await addService(page, 'Маникюр', '60', '8000');
   await page.goto('/beauty/services');
   const main = page.getByRole('main');
   await main
@@ -69,7 +69,7 @@ test('филиал включает услугу и ставит свою цен
     .click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Филиал оказывает эту услугу').check();
-  await panel.getByLabel(/Своя цена филиала/).fill('950000');
+  await panel.getByLabel(/Своя цена филиала/).fill('9500');
   await panel.getByLabel(/Своя длительность/).fill('90');
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
@@ -88,17 +88,17 @@ test('ошибки услуги словами, введённое не стир
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Название').fill('Стрижка');
   await panel.getByLabel(/Длительность, минут/).fill('0');
-  await panel.getByLabel(/Цена каталога, тиын/).fill('500000');
+  await panel.getByLabel(/Цена каталога/).fill('5000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   await expect(panel.getByRole('alert')).toContainText('минут больше нуля');
   await expect(panel.getByLabel('Название')).toHaveValue('Стрижка');
-  await expect(panel.getByLabel(/Цена каталога, тиын/)).toHaveValue('500000');
+  await expect(panel.getByLabel(/Цена каталога/)).toHaveValue('5000');
 });
 
 test('мастер добавляется, умения ставятся и снимаются', async ({ page, request }) => {
   await openSalon(page, request);
-  await addService(page, 'Маникюр', '60', '800000');
-  await addService(page, 'Стрижка', '45', '500000');
+  await addService(page, 'Маникюр', '60', '8000');
+  await addService(page, 'Стрижка', '45', '5000');
   await page.goto('/beauty/masters');
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
@@ -137,7 +137,7 @@ test('мастер добавляется, умения ставятся и сн
 
 test('каталог салона на телефоне: без прокрутки вбок', async ({ page, request }) => {
   await openSalon(page, request);
-  await addService(page, 'Маникюр', '60', '800000');
+  await addService(page, 'Маникюр', '60', '8000');
   await page.setViewportSize({ width: 390, height: 844 });
   for (const path of ['/beauty/services', '/beauty/masters']) {
     await page.goto(path);
@@ -159,7 +159,7 @@ for (const theme of ['light', 'dark'] as const) {
     request,
   }) => {
     await openSalon(page, request);
-    await addService(page, 'Маникюр', '60', '800000');
+    await addService(page, 'Маникюр', '60', '8000');
     await page.emulateMedia({ colorScheme: theme });
     for (const path of ['/beauty/services', '/beauty/masters']) {
       await page.goto(path);
@@ -172,3 +172,25 @@ for (const theme of ['light', 'dark'] as const) {
     await page.screenshot({ path: `${SNAPSHOTS}/masters-${theme}.png`, fullPage: true });
   });
 }
+
+test('типовая услуга подставляет поля, цена вводится в тенге, валют четыре (приёмка 17.10)', async ({
+  page,
+  request,
+}) => {
+  await openSalon(page, request);
+  await page.goto('/beauty/services');
+  await page.getByRole('main').getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  const panel = page.getByRole('dialog');
+  await panel.getByLabel('Типовая услуга').selectOption({ label: 'Маникюр, 60 мин' });
+  await expect(panel.getByLabel('Название')).toHaveValue('Маникюр');
+  await expect(panel.getByLabel(/Группа/)).toHaveValue('Ногти');
+  await expect(panel.getByLabel(/Длительность, минут/)).toHaveValue('60');
+  const currencies = await panel.getByLabel('Валюта цены каталога').locator('option').allTextContents();
+  expect(currencies).toEqual(['Тенге (KZT)', 'Доллар США (USD)', 'Дирхам ОАЭ (AED)', 'Катарский риал (QAR)']);
+  // на приёмке ввели 5000 в поле «тиын» и получили 50 тенге: теперь 5000 это 5 000 тенге
+  await panel.getByLabel(/Цена каталога/).fill('5000');
+  await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
+  await expect(panel.getByRole('status')).toContainText('Услуга создана');
+  await page.goto('/beauty/services');
+  await expect(page.getByRole('main').getByRole('row').filter({ hasText: 'Маникюр' })).toContainText('5 000');
+});

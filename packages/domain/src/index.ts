@@ -34,3 +34,4 @@ export * from "./food/customer-marks";
 export * from "./food/layout";
 export * from "./food/booking-rules";
 export * from './marketing/index';
+export * from './regions';

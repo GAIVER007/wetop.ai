@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { currencyOptions, timezoneOptions } from '@pms/domain';
 import { Alert, Button, Field, Input, Select } from '../../../components/ui';
 import type { SharedOnboardingState } from '../../../lib/api';
 import { reloadOnboarding, saveOnboarding } from './actions';
@@ -23,19 +24,6 @@ const COUNTS: Record<string, string> = {
   skills: 'Назначений услуг',
   schedule: 'Пригодных сочетаний услуги и графика',
 };
-const ZONES = [
-  'Asia/Almaty', // tz-allow: вариант в списке поясов, не вычисление времени объекта
-  'Asia/Astana',
-  'Asia/Tashkent',
-  'Asia/Bishkek',
-  'Asia/Dubai',
-  'Asia/Tbilisi',
-  'Europe/Moscow',
-  'Europe/Istanbul',
-  'Europe/London',
-  'UTC',
-];
-
 export function BeautyChecklist({ initial }: { initial: SharedOnboardingState }) {
   const [state, setState] = useState(initial);
   const [draft, setDraft] = useState(initial.draft);
@@ -194,13 +182,11 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
                 disabled={pending || !state.canEdit}
                 onChange={(e) => setDraft({ ...draft, currency: e.target.value })}
               >
-                {Array.from(
-                  new Set([String(draft.currency ?? ''), ...Intl.supportedValuesOf('currency')]),
-                )
-                  .filter(Boolean)
-                  .map((code) => (
-                    <option key={code}>{code}</option>
-                  ))}
+                {currencyOptions(String(draft.currency ?? '')).map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
               </Select>
             </Field>
             <Field label="Часовой пояс" required>
@@ -209,31 +195,11 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
                 disabled={pending || !state.canEdit}
                 onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
               >
-                {Array.from(
-                  new Set([
-                    String(draft.timezone ?? ''),
-                    ...ZONES.filter((z) => {
-                      try {
-                        new Intl.DateTimeFormat('ru', { timeZone: z });
-                        return true;
-                      } catch {
-                        return false;
-                      }
-                    }),
-                    ...Intl.supportedValuesOf('timeZone'),
-                  ]),
-                )
-                  .filter(Boolean)
-                  .map((zone) => (
-                    <option key={zone} value={zone}>
-                      {/* tz-allow: подпись варианта выбора, время берётся из сохранённого Location */}
-                      {zone === 'Asia/Almaty'
-                        ? 'Алматы (Казахстан)'
-                        : zone === 'Europe/Moscow'
-                          ? 'Москва'
-                          : zone.replaceAll('_', ' ')}
-                    </option>
-                  ))}
+                {timezoneOptions(String(draft.timezone ?? '')).map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
               </Select>
             </Field>
             {state.canEdit && (

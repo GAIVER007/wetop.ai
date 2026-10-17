@@ -40,16 +40,21 @@ describe('employee portal real persistence and authorization',()=>{
     await expect(as('staffA',()=>service.mutate(null,'publication',{published:true,publicationConsent:true,expectedRevision:dto.profile.revision}))).rejects.toThrow();
     await expect(as('ownerA',()=>service.mutate(f.employeeA,'profile',{name:'Stale',expectedRevision:'0',expectedProfileRevision:dto.employee.profileRevision}))).rejects.toThrow();
   });
-  it('persists own skills/week/absence without changing appointments',async()=>{
+  it('persists own skills; week and absence are read-only for the employee, set by the manager',async()=>{
     let dto=await as('staffA',()=>service.get(null,{}));
     dto=await as('staffA',()=>service.mutate(null,'services',{serviceIds:[f.serviceId],expectedRevision:dto.servicesRevision}));
     expect(dto.services.find(s=>s.id===f.serviceId)?.assigned).toBe(true);
-    dto=await as('staffA',()=>service.mutate(null,'week',{intervals:[{weekday:1,timeFrom:'10:00',timeTo:'18:00'}],expectedRevision:dto.weekRevision}));
+    // владелец 17.10.2026: сотрудник свой график только видит
+    await expect(as('staffA',()=>service.mutate(null,'week',{intervals:[{weekday:1,timeFrom:'10:00',timeTo:'18:00'}],expectedRevision:dto.weekRevision}))).rejects.toThrow('График меняет руководитель');
+    await expect(as('staffA',()=>service.mutate(null,'time-off',{dateFrom:'2026-11-01',dateTo:'2026-11-02'}))).rejects.toThrow('График меняет руководитель');
+    dto=await as('ownerA',()=>service.mutate(f.employeeA,'week',{intervals:[{weekday:1,timeFrom:'10:00',timeTo:'18:00'}],expectedRevision:dto.weekRevision}));
     expect(dto.week.find(d=>d.weekday===1)?.intervals).toEqual([{timeFrom:'10:00',timeTo:'18:00'}]);
-    dto=await as('staffA',()=>service.mutate(null,'time-off',{dateFrom:'2026-11-01',dateTo:'2026-11-02',reason:'Private reason'}));
+    dto=await as('ownerA',()=>service.mutate(f.employeeA,'time-off',{dateFrom:'2026-11-01',dateTo:'2026-11-02',reason:'Private reason'}));
     expect(dto.timeOffs.some(t=>t.reason==='Private reason')).toBe(true);
     await expect(as('staffB',()=>service.mutate(f.employeeA,'time-off',{dateFrom:'2026-11-01',dateTo:'2026-11-02'}))).rejects.toThrow();
-    dto=await as('staffA',()=>service.mutate(null,'delete-time-off',{},dto.timeOffs[0]!.id));
+    await expect(as('staffA',()=>service.mutate(null,'delete-time-off',{},dto.timeOffs[0]!.id))).rejects.toThrow('График меняет руководитель');
+    expect((await as('staffA',()=>service.get(null,{}))).week.find(d=>d.weekday===1)?.intervals).toEqual([{timeFrom:'10:00',timeTo:'18:00'}]);
+    dto=await as('ownerA',()=>service.mutate(f.employeeA,'delete-time-off',{},dto.timeOffs[0]!.id));
     expect(dto.timeOffs).toHaveLength(0);
   });
   it('exposes real pay settings and adjustments but never fabricates Beauty salary',async()=>{

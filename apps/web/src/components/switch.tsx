@@ -15,6 +15,8 @@ export function Switch({
   disabled,
   inverted,
   className,
+  checked,
+  onChange,
 }: {
   name: string;
   label: ReactNode;
@@ -29,6 +31,9 @@ export function Switch({
    */
   inverted?: boolean | undefined;
   className?: string | undefined;
+  /** Управляемый вид без формы (сетка графика): состояние и реакция снаружи */
+  checked?: boolean | undefined;
+  onChange?: ((checked: boolean) => void) | undefined;
 }) {
   return (
     <label className={className ? `switch ${className}` : 'switch'}>
@@ -45,6 +50,8 @@ export function Switch({
         name={name}
         value={inverted ? 'false' : 'true'}
         defaultChecked={defaultChecked}
+        checked={checked}
+        onChange={onChange && ((e) => onChange(e.target.checked))}
         disabled={disabled}
       />
       <span className="switch__track" aria-hidden="true" />

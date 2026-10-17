@@ -72,7 +72,9 @@ function historyHarness() {
 function board() {
   captured.buttons = [];
   captured.replace.mockClear();
-  const row = (id: string) => ({ id, name: id, active: true, serviceIds: [], locationIds: [] }) as BeautyEmployeeRow;
+  const row = (id: string): BeautyEmployeeRow => ({
+    id, name: id, phone: null, email: null, active: true, serviceIds: [], locationIds: [],
+  });
   renderToStaticMarkup(createElement(MastersBoard, {
     items: [row('A'), row('B')], services: [], canEdit: true, locations: [],
     today: { columns: [], appointments: [] } as unknown as BeautyDay,

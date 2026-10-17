@@ -148,8 +148,8 @@ describe.skipIf(!url)('график мастера (integration, DATA_MODEL §19
   }
 
   it('неделя мастера сохраняется и читается по филиалу', async () => {
-    const saved = await as('OWNER', () =>
-      service.setWorkingHours(employeeId, {
+    const saved = await as('OWNER', async () =>
+      service.setWorkingHours(employeeId, { expectedRevision: (await service.overview(employeeId)).weekRevision,
         intervals: [
           { weekday: 1, timeFrom: '9:00', timeTo: '13:00' },
           { weekday: 1, timeFrom: '14:00', timeTo: '20:00' },
@@ -170,16 +170,16 @@ describe.skipIf(!url)('график мастера (integration, DATA_MODEL §19
   });
 
   it('повторная отправка заменяет неделю, а не копит интервалы', async () => {
-    const saved = await as('OWNER', () =>
-      service.setWorkingHours(employeeId, { intervals: [{ weekday: 5, timeFrom: '11:00', timeTo: '19:00' }] }),
+    const saved = await as('OWNER', async () =>
+      service.setWorkingHours(employeeId, { expectedRevision: (await service.overview(employeeId)).weekRevision, intervals: [{ weekday: 5, timeFrom: '11:00', timeTo: '19:00' }] }),
     );
     expect(saved.week.flatMap((d) => d.intervals)).toEqual([{ timeFrom: '11:00', timeTo: '19:00' }]);
   });
 
   it('наложение интервалов в одном дне не проходит', async () => {
     await expect(
-      as('OWNER', () =>
-        service.setWorkingHours(employeeId, {
+      as('OWNER', async () =>
+        service.setWorkingHours(employeeId, { expectedRevision: (await service.overview(employeeId)).weekRevision,
           intervals: [
             { weekday: 2, timeFrom: '09:00', timeTo: '14:00' },
             { weekday: 2, timeFrom: '13:00', timeTo: '18:00' },
@@ -192,8 +192,8 @@ describe.skipIf(!url)('график мастера (integration, DATA_MODEL §19
   it('в филиале, где мастер не работает, график не поставить', async () => {
     // отказ должен быть внятным 409 от сервиса, а не сырой ошибкой триггера базы: он тоже запрещает это,
     // но человеку в ответ уходит ошибка драйвера, а транзакция падает уже начатой
-    const call = at(own.second, 'OWNER', () =>
-      service.setWorkingHours(employeeId, { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }),
+    const call = at(own.second, 'OWNER', async () =>
+      service.setWorkingHours(employeeId, { expectedRevision: (await service.overview(employeeId)).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }),
     );
     await expect(call).rejects.toThrow(ConflictException);
     await expect(call).rejects.toThrow(/не работает/i);
@@ -201,8 +201,8 @@ describe.skipIf(!url)('график мастера (integration, DATA_MODEL §19
 
   it('без права property график не меняется, а читается', async () => {
     await expect(
-      as('STAFF', () =>
-        service.setWorkingHours(employeeId, { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }),
+      as('STAFF', async () =>
+        service.setWorkingHours(employeeId, { expectedRevision: (await service.overview(employeeId)).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }),
       ),
     ).rejects.toThrow(/доступ|владелец|управляющ/i);
     await expect(as('STAFF', () => service.overview(employeeId))).resolves.toBeTruthy();
@@ -245,8 +245,8 @@ describe.skipIf(!url)('график мастера (integration, DATA_MODEL §19
   });
 
   it('снятый филиал уносит свой график, график другого остаётся', async () => {
-    await at(own.second, 'OWNER', () =>
-      service.setWorkingHours(employeeId, { intervals: [{ weekday: 4, timeFrom: '12:00', timeTo: '16:00' }] }),
+    await at(own.second, 'OWNER', async () =>
+      service.setWorkingHours(employeeId, { expectedRevision: (await service.overview(employeeId)).weekRevision, intervals: [{ weekday: 4, timeFrom: '12:00', timeTo: '16:00' }] }),
     );
     await as('OWNER', () => service.setLocations(employeeId, { locationIds: [own.location] }));
     const rows = await db.$queryRawUnsafe<Array<{ count: bigint }>>(
@@ -274,8 +274,8 @@ describe.skipIf(!url)('график мастера (integration, DATA_MODEL §19
     // мастер соседней организации существует, но для нас его нет: тем же «не найден», без подробностей
     await expect(as('OWNER', () => service.overview(other.employee))).rejects.toThrow(/не найден/i);
     await expect(
-      as('OWNER', () =>
-        service.setWorkingHours(other.employee, { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }),
+      as('OWNER', async () =>
+        service.setWorkingHours(other.employee, { expectedRevision: (await service.overview(other.employee)).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }),
       ),
     ).rejects.toThrow(/не найден/i);
     await expect(as('OWNER', () => service.overview(randomUUID()))).rejects.toThrow(/не найден/i);

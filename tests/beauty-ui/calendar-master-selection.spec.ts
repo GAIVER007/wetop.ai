@@ -8,7 +8,7 @@ async function prepare(page: Page, request: APIRequestContext) {
   const scope = `business=${f.business};location=${f.locations[0]}`;
   const headers = { 'x-wetop-scope': scope };
   await page.context().addCookies([{ name: 'wetop_scope', value: encodeURIComponent(scope), domain: '127.0.0.1', path: '/' }]);
-  const call = async (path: string, data: Record<string, unknown>, method: 'post' | 'put' = 'post') => {
+  const call = async (path: string, data: Record<string, unknown>, method: 'post' | 'put' | 'get' = 'post') => {
     const response = await request[method](api + path, { headers, data });
     expect(response.ok(), await response.text()).toBeTruthy();
     return response.json();
@@ -19,7 +19,7 @@ async function prepare(page: Page, request: APIRequestContext) {
   for (const name of ['Александра Тестовая', 'Дарья Тестовая', 'Мария Пример']) {
     const master = await call('/beauty/employees', { name });
     await call(`/beauty/employees/${master.id}/services`, { serviceIds: [service.id] }, 'put');
-    await call(`/beauty/employees/${master.id}/working-hours`, { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }, 'put');
+    await call(`/beauty/employees/${master.id}/working-hours`, { expectedRevision: (await call(`/beauty/schedule?employee=${master.id}`, {}, 'get')).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }, 'put');
     masters.push(master);
   }
   await page.goto('/calendar?date=2026-10-19');

@@ -310,7 +310,7 @@ export async function loadBeautySchedule(employeeId: string) {
   try {
     return { data: await beautyApi.schedule(employeeId) };
   } catch (error) {
-    return { error: failed(error, 'Не удалось загрузить график').error };
+    return { error: failed(error, 'Не удалось загрузить график').error ?? 'Не удалось загрузить график' };
   }
 }
 

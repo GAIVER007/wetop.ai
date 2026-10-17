@@ -20,7 +20,8 @@ it('real schedule writer captures normalized historical capacity atomically, nev
  const db=createPrismaClient(url,'pms_test');process.env.BEAUTY_WORKLOAD_CAPTURE='true';
  try{
  const actor={userId:user,organizationId:org,role:'OWNER' as const,businessId:business,locationId:location,vertical:'BEAUTY' as const};
- await withSignedInUser(actor,()=>new BeautyScheduleService({db} as never).setWorkingHours(employee,{intervals:[{weekday:new Date().getUTCDay(),timeFrom:'09:00',timeTo:'18:00'}]}));
+ const schedule=new BeautyScheduleService({db} as never);
+ await withSignedInUser(actor,async()=>schedule.setWorkingHours(employee,{expectedRevision:(await schedule.overview(employee)).weekRevision,intervals:[{weekday:new Date().getUTCDay(),timeFrom:'09:00',timeTo:'18:00'}]}));
  const rows=(await pool.query('select * from beauty_schedule_versions where location_id=$1',[location])).rows;
  expect(rows.length).toBeGreaterThan(0);
  expect((await pool.query('select * from beauty_capacity_intervals where location_id=$1',[location])).rows.length).toBeGreaterThan(0);

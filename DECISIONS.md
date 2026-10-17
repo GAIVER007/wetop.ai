@@ -1,5 +1,11 @@
 # DECISIONS (ADR)
 
+## ADR-TZ21-WORKING-TIME-D-20261017
+
+Дополнение после финального concurrency-ревью: hash только WorkingHours не защищает пустую неделю от ABA. Вместо новых таблиц/полей выбран существующий монотонный employees.updated_at (6 microseconds) вместе со строками недели, читаемыми одним SQL snapshot. Каждый из трёх writers продвигает source даже при empty→empty под Employee lock. Это консервативно инвалидирует контактные и межфилиальные недельные формы сотрудника, сохраняя их черновик при409. Portal возвращает week/revision принятой транзакции, не подменяет token результатом более позднего GET. Иначе controlled draft мог перезаписать чужую неделю. Случаи сначала воспроизведены новыми assertion RED6, затем GREEN12 без ослабления assertions. Новые модели/миграции и финансовые правила не вводились. Доказательства и границы: reports/tz21/D-working-time.md.
+
+17.10.2026. Проблема: Food учитывал только первый интервал без TimeOff, а разные редакторы недели использовали разные или необязательные revisions. Варианты: независимые расчёты либо общий чистый resolver существующих WorkingHours/TimeOff. По утверждённому срезу D выбран общий resolver с timezone филиала и обязательный исходный token недели в Beauty/Food/Portal. При conflict черновик сохраняется; перечитывание и принятие серверной недели разделены. Отсутствие считается по timezone филиала самой Appointment без изменения записи. Последствия: без новой модели, миграций, финансовых формул и Hotel staffing; ограничения и реальные журналы в `docs/contracts/tz21-working-time-d.md`.
+
 ## ADR-RELEASE-FIXTURE-ROUTING-20261017: one coherent portal fixture repair
 
 17.10.2026. Unified authorized release candidate reviews #620 and #621 as competing answers to the same fixture-routing failure. #620 strictly extends the portal allowlist to the canonical owner-home CI service, with explicit marker and purpose-specific public-booking guard. #621 instead routes the seven portal suites to their already accepted disposable GitHub service, retaining unchanged fail-closed guards, and keeps the remaining integration suites on owner-home. Selected #621: no expansion of accepted database identities, explicit tracked-file selection with no empty matches and no dropped integration files. #620's coupled guard refactor, marker and tests are superseded together, not mixed into the selected design. #621's two schedule opener locator fixes remain. Full integration and complete release-checks must validate the selection before parent approves merge or deployment. This decision neither authorizes migrations nor asserts a green gate.
@@ -7636,4 +7642,18 @@ v2.41). Модели оплаты прежние: оклад, процент, о
 **Последствия.** Явные списки занятых статусов в коде (журнал, загрузка, портал сотрудника) дополнены `IN_PROGRESS`;
 отложенная миграция загрузки салона (`migrations-hold/…117_beauty_workload`) получила то же значение в своём CHECK,
 иначе первая начатая запись уронила бы её триггер.
+
+## TZ21-A: общий server action кассы филиала (17.10.2026)
+
+Поручение ТЗ2.1 разрешает локальную реализацию без публикации. Кассовый action вынесен в нейтральный cashbox/actions. Он принимает только подтверждённый currentMe-контекст BEAUTY/FOOD_SERVICE, сравнивает исходный scopeKey формы и проверяет конкретное desk/refunds право и read-only организации. Старый ресторанный cash action остаётся совместимым адаптером. Остальные ресторанные actions сохраняют FOOD_SERVICE guard. Backend capability branch.cash, RLS, источники денег, суммы, валюты, audit и существующие intents не меняются. Гостиничный ledger не переносится.
+
+Сохранение idempotency зависит от уже существующего EXPENSE_LINKS_ENABLED и held114. В локальном стенде применена только существующая held114; production flags и миграции не затрагиваются. Этот пакет не активирует отложенный выпуск.
+
+## TZ21-B: полнота статусов бизнес-аналитики (17.10.2026)
+
+Салонные подписи и перечень групп берутся непосредственно из beautyStatus: существующий AppointmentStatus и типизированный StatusRegistry обеспечивают единый источник. Локальное перечисление, пропускавшее IN_PROGRESS, удалено. Неизвестный статус остаётся ошибкой источника. Денежный цикл beautyPeriod не изменён: только DONE snapshots, без включения IN_PROGRESS в выручку или иной финансовый показатель. Ресторан и гостиница сохраняют собственные статусы/формулы. Регрессионные unit и Browser/API/DB evidence: reports/tz21/B-analytics.md.
+
+## TZ21-C: один original-version Employee writer (17.10.2026)
+
+Beauty basic, Food employee и Portal profile используют writeEmployeeCommon, атомарную обязательную проверку исходного Employee.updated_at с microseconds. Portal дополнительно проверяет исходную public revision в той же транзакции. Запрос без исходной версии получает400, старый versionless compatibility bypass удалён по прямому поручению ТЗ2.1. Сохраняются существующие id, связи, согласие и права, новые сущности/миграции не нужны. Контракты форм обновлены, конфликт сохраняет черновик и требует осознанной перечитки. Результаты и фактический контур тестов: reports/tz21/C-employee.md.
 

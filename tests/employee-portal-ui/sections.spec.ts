@@ -24,7 +24,7 @@ async function seed(page: Page, request: APIRequestContext) {
   for (const name of ['Анна Демонстрационная', 'Дарья Демонстрационная']) {
     const employee = await call('/beauty/employees', { name });
     await call(`/beauty/employees/${employee.id}/services`, { serviceIds: services.map(s => s.id) }, 'put');
-    await call(`/beauty/employees/${employee.id}/working-hours`, { intervals: Array.from({ length: 7 }, (_, weekday) => ({ weekday, timeFrom: '09:00', timeTo: '18:00' })) }, 'put'); employees.push(employee);
+    await call(`/beauty/employees/${employee.id}/working-hours`, { expectedRevision: (await call(`/beauty/schedule?employee=${employee.id}`, undefined, 'get')).weekRevision, intervals: Array.from({ length: 7 }, (_, weekday) => ({ weekday, timeFrom: '09:00', timeTo: '18:00' })) }, 'put'); employees.push(employee);
   }
   const today = await call('/beauty/appointments', undefined, 'get'); const date = today.date as string;
   const at = (hour: number) => { const [y, m, d] = date.split('-').map(Number); return new Date(Date.UTC(y!, m! - 1, d!, hour - 5)).toISOString(); };

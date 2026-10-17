@@ -326,6 +326,7 @@ export interface FoodReport {
   latestOrders: OrderView[];
 }
 export interface FoodEmployee {
+  profileRevision: string;
   id: string;
   name: string;
   phone: string | null;
@@ -346,6 +347,7 @@ export interface FoodShiftRow {
   id: string;
   name: string;
   week: FoodShiftWeekDay[];
+  weekRevision: string;
 }
 export type PayModel = 'FIXED' | 'PERCENT' | 'FIXED_PLUS_PERCENT' | 'BONUS_ONLY';
 export interface PayrollRow {

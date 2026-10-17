@@ -307,7 +307,7 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
     (
       await page.request.put(`${api}/beauty/employees/${firstId}/working-hours`, {
         headers,
-        data: { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '12:00' }] },
+        data: { expectedRevision: (await (await page.request.get(`${api}/beauty/schedule?employee=${firstId}`, { headers })).json()).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '12:00' }] },
       })
     ).ok(),
   ).toBe(true);

@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { readEmployeeCommon, writeEmployeeCommon, readEmployeeWeekSource, touchEmployeeSourceRevision } from './employee-common';
 import { createHash, randomUUID } from 'node:crypto';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import type { Db, DbTx, EmployeeMedia } from '@pms/database';
@@ -8,6 +9,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { processSiteImage, AssetImageError } from '../marketing-site/asset-image';
 import { objectInput, revision, profileInput, publicationInput, portfolioInput, policyInput, UUID } from './boundary';
+import { assertWeekRevision, hoursRowsRevision, hoursRevision } from '../beauty/write-contract';
 import { employeeBookingTarget } from './booking-target';
 
 const fingerprint = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -124,16 +126,20 @@ export class EmployeePortalService {
       if(!fit.ok)conflicts.push({id:a.id,date:localDate(a.startsAt,branch.timezone),startsAt:a.startsAt.toISOString(),endsAt:a.endsAt.toISOString(),locationId:branch.id,locationName:branch.name,timezone:branch.timezone,serviceName:a.service.name,reason:fit.reason});
     }
     const avatar=media.find(m=>m.kind==='AVATAR');
-    const intervals=hours.map(h=>({weekday:h.weekday,timeFrom:clock(h.timeFrom),timeTo:clock(h.timeTo)}));
-    return {access:s.access,employee:{id:e.id,name:e.name,phone:e.phone,email:e.email,active:e.status==='ACTIVE',accountLinked:!!e.userId},business:{id:b.id,name:b.name,vertical:b.vertical as 'BEAUTY'|'FOOD_SERVICE'},location:l?{id:l.id,name:l.name,timezone:l.timezone,currency:l.currency}:null,
+    const weekSource=l?await readEmployeeWeekSource(db,e.id,l.id):null;
+    const intervals=(weekSource?.rows??hours).map(h=>({weekday:h.weekday,timeFrom:clock(h.timeFrom),timeTo:clock(h.timeTo)}));
+    const common=(await readEmployeeCommon(db,b.id)).find(row=>row.id===e.id);
+    if(!common)throw new NotFoundException('Employee not found');
+    return {access:s.access,employee:{id:e.id,name:common.name,phone:common.phone,email:common.email,profileRevision:common.profileRevision,active:common.status==='ACTIVE',accountLinked:!!e.userId},business:{id:b.id,name:b.name,vertical:b.vertical as 'BEAUTY'|'FOOD_SERVICE'},location:l?{id:l.id,name:l.name,timezone:l.timezone,currency:l.currency}:null,
       profile:{headline:p.headline,biography:p.biography,practiceSinceYear:p.practiceSinceYear,slug:p.slug,published:p.published,publicationConsent:p.publicationConsent,revision:String(p.revision)},avatar:avatar?await this.image(avatar):null,
       portfolio:await Promise.all(works.map(async x=>({id:x.id,title:x.title,description:x.description,serviceId:x.serviceId,published:x.published,publicationConsent:x.publicationConsent,image:await this.image(x.media)}))),
-      services:services.map(x=>{const ls=l?x.locations[0]:undefined;return {id:x.id,name:x.name,durationMinutes:ls?.durationOverride??x.durationMinutes,priceMinor:(ls?.priceOverride??x.price).toString(),currency:l?.currency??x.currency,assigned:skills.some(k=>k.serviceId===x.id),available:!!l&&x.active&&!!ls?.enabled&&(ls.priceOverride!==null||x.currency===l.currency)};}),servicesRevision:fingerprint(skills.map(x=>x.serviceId)),week:weekTemplate(intervals),weekRevision:l?fingerprint(intervals):null,
+      services:services.map(x=>{const ls=l?x.locations[0]:undefined;return {id:x.id,name:x.name,durationMinutes:ls?.durationOverride??x.durationMinutes,priceMinor:(ls?.priceOverride??x.price).toString(),currency:l?.currency??x.currency,assigned:skills.some(k=>k.serviceId===x.id),available:!!l&&x.active&&!!ls?.enabled&&(ls.priceOverride!==null||x.currency===l.currency)};}),servicesRevision:fingerprint(skills.map(x=>x.serviceId)),week:weekTemplate(intervals),weekRevision:weekSource?hoursRowsRevision(weekSource.rows,weekSource.sourceRevision):null,
       timeOffs:timeOffs.map(t=>({id:t.id,dateFrom:dateOnly(t.dateFrom),dateTo:dateOnly(t.dateTo),reason:t.reason})),appointments:appointments.map(a=>({id:a.id,date,startsAt:a.startsAt.toISOString(),endsAt:a.endsAt.toISOString(),customerName:[a.customer.firstName,a.customer.lastName].filter(Boolean).join(' '),serviceName:a.service.name,status:a.status,priceMinor:a.price.toString(),currency:a.currency})),orders:orders.map(o=>({id:o.id,number:String(o.number),status:o.status,totalMinor:o.total.toString(),currency:o.currency,tableName:o.table?.name??null})),
       scheduleConflicts:{items:conflicts,checkedFrom:checkedFrom.toISOString(),checkedCount:Math.min(upcoming.length,500),truncated:upcoming.length>500},
       pay:await this.pay(db,e.id,b.id,b.vertical,l,month)};
   }
   async mutate(employeeId:string|null, action:string, raw:unknown, itemId?:string):Promise<EmployeePortalDto> {
+    let committedWeek: Pick<EmployeePortalDto, 'week' | 'weekRevision'> | undefined;
     await this.prisma.db.$transaction(async tx=>{
       await this.writable(tx,true);
       const s=await this.resolve(tx,employeeId),e=s.employee;
@@ -143,9 +149,9 @@ export class EmployeePortalService {
       if(['publication','account','unlink-account','pay-settings'].includes(action)) {if(employeeId===null) throw new ForbiddenException('Manager endpoint required');this.manager();}
       if(action==='profile') {
         const input=profileInput(raw);
-        const {expectedRevision,name,phone,email,...profile}=input;
+        const {expectedRevision,expectedProfileRevision,name,phone,email,...profile}=input;
         revision(expectedRevision,String(p.revision));
-        await tx.employee.update({where:{id:e.id},data:{...(name!==undefined?{name}:{}),...(phone!==undefined?{phone}:{}),...(email!==undefined?{email}:{})}});
+        await writeEmployeeCommon(tx,s.business.id,e.id,expectedProfileRevision,{...(name!==undefined?{name}:{}),...(phone!==undefined?{phone}:{}),...(email!==undefined?{email}:{})});
         await tx.employeePublicProfile.update({where:{employeeId:e.id},data:{...profile,...(s.access==='SELF'?{published:false}:{}),revision:{increment:1}}});
       } else if(action==='publication') {
         const input=publicationInput(raw);revision(input.expectedRevision,String(p.revision));
@@ -160,10 +166,11 @@ export class EmployeePortalService {
       } else if(action==='week') {
         const input=objectInput(raw,['intervals','expectedRevision']); if(!s.location) throw new BadRequestException('Select assigned branch');
         const result=parseWorkingHoursWeek(input);if(!result.ok) throw new BadRequestException(result.reason);
-        const old=await tx.workingHours.findMany({where:{employeeId:e.id,locationId:s.location.id},orderBy:[{weekday:'asc'},{timeFrom:'asc'}]});
-        revision(input.expectedRevision,fingerprint(old.map(h=>({weekday:h.weekday,timeFrom:clock(h.timeFrom),timeTo:clock(h.timeTo)}))));
+        assertWeekRevision(input,await hoursRevision(tx,e.id,s.location.id));
         await tx.workingHours.deleteMany({where:{employeeId:e.id,locationId:s.location.id}});
         await tx.workingHours.createMany({data:result.value.map(h=>({employeeId:e.id,locationId:s.location!.id,weekday:h.weekday,timeFrom:new Date(`1970-01-01T${h.timeFrom}:00Z`),timeTo:new Date(`1970-01-01T${h.timeTo}:00Z`)}))});
+        await touchEmployeeSourceRevision(tx,e.id);
+        committedWeek={week:weekTemplate(result.value),weekRevision:await hoursRevision(tx,e.id,s.location.id)};
       } else if(action==='time-off') {
         const input=objectInput(raw,['dateFrom','dateTo','reason']);const result=parseTimeOffInput(input);if(!result.ok)throw new BadRequestException(result.reason);
         await tx.timeOff.create({data:{employeeId:e.id,dateFrom:new Date(`${result.value.dateFrom}T00:00:00Z`),dateTo:new Date(`${result.value.dateTo}T00:00:00Z`),reason:result.value.reason}});
@@ -201,7 +208,8 @@ export class EmployeePortalService {
       } else throw new BadRequestException('Unknown portal action');
       await tx.auditLog.create({data:{organizationId:s.business.organizationId,userId:currentUserId(),entityType:'employee',entityId:e.id,action:`employee_portal.${action}`,after:{employeeId:e.id}}});
     });
-    return this.get(employeeId,{});
+    const response=await this.get(employeeId,{});
+    return committedWeek?{...response,...committedWeek}:response;
   }
   async setPolicy(raw:unknown) {
     this.manager();const input=policyInput(raw);

@@ -42,7 +42,8 @@ for (const entry of ['calendar','appointments']) {
     await expect(confirm).toBeVisible();await confirm.getByRole('button',{name:'Продолжить заполнение'}).click();
     await page.evaluate(()=>history.back());
     await expect(confirm).toBeVisible();await confirm.getByRole('button',{name:'Продолжить заполнение'}).click();
-    expect(page.url()).toContain('step=1');
+    // Back cancellation restores history asynchronously; assert the same final address, not an intermediate tick.
+    await expect(page).toHaveURL(/step=1/);
     await expect(p.getByLabel('Имя клиента',{exact:true})).toHaveValue('Тест переход');
     const cdp=await page.context().newCDPSession(page);
     const dialog=page.waitForEvent('dialog');const reload=cdp.send('Page.reload');

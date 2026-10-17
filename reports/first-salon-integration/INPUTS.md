@@ -21,5 +21,9 @@ Each commit retains `cherry picked from` provenance. No later calendar redesign 
 ## Explicit limits
 Search after reload and browser-history restoration are NOT declared fixed. Search remains memory-only; policy question remains open. No new PII persistence.
 
+## Delivered blocker fixes integrated once
+
+The baseline stays3a56ef7e; completed PR632/633/634 were subsequently delivered in published main15a3a06e907f18851e71fd16691bff5522b58466. They address the same reproduced release blockers (original-version integration fixtures, application-role CI URL, O07c card-address race, onboarding resume visible-route assertion) plus an existing Hospitality currency-loading block with its regression, NOT Homepage V4. Integrated this exact published snapshot once in f6213fa85, not an ongoing rebase. No later main automatically imported. Three conflicts were resolved per hunk: retain our original-GET archive token and safe diagnostics, retain explicit missing-token negative check, retain equivalent newer-card router synchronization while also taking the delivered native-history state fix/guarded close. Original regression assertions remain.
+
 ## Verification state
 This is a manifest of inputs, not a PASS certificate. Compatibility changes and results must be reported separately, on final exact SHA. Source code will be frozen during final verification. `onboarding-real` delivered CI wiring is actually in the chosen base (PR631); O07 is not automatically closed merely because O07c code/test is present.

@@ -254,7 +254,19 @@ test('O03/O05/O20: logout, new session, deep links and history resume the saved 
     await expect(other.getByRole('heading', { level: 1 })).toHaveText('Услуги');
     await other.goto('/register/setup?vertical=HOSPITALITY&returnTo=https%3A%2F%2Fexample.invalid');
     await expect(other).toHaveURL(/127\.0\.0\.1:55843/);
-    await expect(other.getByTestId('beauty-onboarding')).toBeVisible();
+    // Next retains inactive route DOM after history navigation. Require one visible form, not one DOM copy.
+    const resumed = other.getByTestId('beauty-onboarding').filter({ visible: true });
+    await expect(resumed).toHaveCount(1);
+    await expect(resumed).toBeVisible();
+    await expect(resumed.getByRole('heading', { level: 1 })).toHaveText('Подготовьте салон к работе');
+    const resumedState = await (
+      await other.request.get(`${api}/onboarding`, { headers: await apiHeaders(other) })
+    ).json();
+    expect(resumedState.businessId).toBe(before.businessId);
+    expect(resumedState.locationId).toBe(before.locationId);
+    expect(resumedState.vertical).toBe('BEAUTY');
+    expect(resumedState.profileApplied).toBe(true);
+    await expect(resumed.locator('header > p')).toHaveText(String(resumedState.draft.locationName));
   } finally {
     await fresh.close();
   }

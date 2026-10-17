@@ -94,7 +94,13 @@ async function seed(page: Page, request: APIRequestContext, fixture?: Fixture) {
       })
     ).ok(),
   ).toBe(true);
-  return { ...f, headers, employee, service };
+  // Return the client snapshot after weekly setup, which advances the profile source version.
+  const employeesResponse = await request.get(`${api}/beauty/employees`, { headers });
+  expect(employeesResponse.ok()).toBe(true);
+  const readyEmployee = (await employeesResponse.json()).items.find((e: { id: string }) => e.id === employee.id);
+  expect(readyEmployee).toBeDefined();
+  expect(readyEmployee.profileRevision).not.toBe(employee.profileRevision);
+  return { ...f, headers, employee: readyEmployee, service };
 }
 async function book(page: Page, name = 'Тестовая клиентка', time = '10:00') {
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();

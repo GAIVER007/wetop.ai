@@ -199,6 +199,7 @@ jobs:
           # Keep default clients, global setup and explicit isolated pg/Prisma clients on one fixture.
           # The URL also carries the password for helpers that extract it to create local test roles.
           DATABASE_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
+          DATABASE_APP_URL: postgresql://wetop_app:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
           DIRECT_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
           PGPASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
         # Vitest project excludes override CLI --exclude, so select the tracked files explicitly.

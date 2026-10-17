@@ -8,6 +8,15 @@ const configPath = 'tests/employee-portal-ui/playwright.config.ts';
 const config = () => existsSync(new URL(configPath, root)) ? read(configPath) : '';
 
 describe('portable employee portal acceptance', () => {
+  it('gives the common writer its restricted role on the same isolated CI database', () => {
+    const workflow = read('.github/workflows/release-checks.yml');
+    const integration = workflow.slice(workflow.indexOf('      - name: Интеграционные тесты\n'), workflow.indexOf('      - name: Интеграционные тесты портала'));
+    const urls = Object.fromEntries(Array.from(integration.matchAll(/^\s+(DATABASE_URL|DATABASE_APP_URL): (.+)$/gm), (m) => [m[1], new URL(m[2]!)]));
+    expect(urls.DATABASE_APP_URL, 'restricted writer connection is required').toBeDefined();
+    expect(urls.DATABASE_APP_URL!.username).toBe('wetop_app');
+    for (const field of ['host', 'pathname', 'password'] as const)
+      expect(urls.DATABASE_APP_URL![field]).toBe(urls.DATABASE_URL![field]);
+  });
   it('has no machine-specific fixture or evidence paths', () => {
     for (const file of ['tests/employee-portal-ui/portal.spec.mjs', 'tests/employee-portal-ui/sections.spec.ts', 'tests/employee-portal-ui/disk-storage.ts', 'tests/integration/employee-portal.test.ts']) {
       expect(read(file), file).not.toContain('/srv/hermes');

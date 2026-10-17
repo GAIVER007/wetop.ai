@@ -1,0 +1,114 @@
+# Сквозные (e2e) · 17.10.2026 15:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит a4f9b04 (claude/salon-e2e-check)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.config.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 508ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 945ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/apps/site/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+
+Running 10 tests using 2 workers
+
+[WebServer] (node:81107) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓   2 tests/onboarding-real/onboarding-compatibility.spec.ts:36:1 › O21 Food v1 real registration, saved location and completion (18.3s)
+  ✓   3 tests/onboarding-real/onboarding-compatibility.spec.ts:53:1 › O21 Hospitality v1 real registration, category persistence and provisioning (6.1s)
+  ✓   4 tests/onboarding-real/onboarding-compatibility.spec.ts:68:1 › O22/O23 Beauty extreme widths, reduced motion, keyboard and accessible errors (22.4s)
+  ✓   5 tests/onboarding-real/onboarding-compatibility.spec.ts:95:1 › O02/O03 confirmation in fresh browser and repeated link preserve original context (12.9s)
+  ✓   6 tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab keeps its native dialog open (27.0s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerLayoutRouter url="/calendar?..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]       <SegmentViewNode type="page" pagePath="calendar/p...">
+[WebServer]         <SegmentTrieNode>
+[WebServer]         <GuardedPage>
+[WebServer]           <Page>
+[WebServer]             <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]               <header>
+[WebServer]               <nav>
+[WebServer]               <JournalBoard day={{location:{...}, ...}} customers={[...]} employees={[...]} readOnly={false} ...>
+[WebServer]                 <div className="beauty-bar...">
+[WebServer]                   <div className="beauty-cal...">
+[WebServer]                     <DateBar date="2026-10-19" path="/calendar">
+[WebServer]                       <DateBar date="2026-10-19" onToday={function onToday} onPrevious={function onPrevious} ...>
+[WebServer]                         <div className="date-bar">
+[WebServer]                           <Button>
+[WebServer]                           <Button>
+[WebServer]                           <Field label={<span>}>
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <span>
+[WebServer]                               <Input data-testid="beauty-day..." type="date" value="2026-10-19" ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   data-testid="beauty-day-date"
+[WebServer]                                   type="date"
+[WebServer]                                   value="2026-10-19"
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                     ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+  ✓   7 tests/onboarding-real/onboarding-compatibility.spec.ts:172:1 › Employee mobile typography, confirmed scope and create cancellation (10.3s)
+  ✓   1 tests/onboarding-real/beauty-onboarding.spec.ts:67:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar (1.9m)
+  ✓   8 tests/onboarding-real/beauty-onboarding.spec.ts:228:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (30.5s)
+  ✘   9 tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07/O08: partial assignment and a lost create response recover one Employee ID (47.6s)
+  ✓  10 tests/onboarding-real/beauty-onboarding.spec.ts:404:1 › O02/O17: unverified and expired confirmation do not bypass real guards (1.3s)
+
+
+  1) tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07/O08: partial assignment and a lost create response recover one Employee ID 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('alert')
+    Expected substring: "чужая"
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByRole('alert') with timeout 20000ms
+      - waiting for getByRole('dialog').getByRole('alert')
+
+
+      300 |   }, randomUUID());
+      301 |   await dialog.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+    > 302 |   await expect(dialog.getByRole('alert')).toContainText('чужая');
+          |                                           ^
+      303 |   await expect(dialog.getByText('Мастер Частичный',{exact:true})).toBeVisible();
+      304 |   await expect(choice).toBeChecked();
+      305 |   let saved = await (await page.request.get(`${api}/beauty/employees`, { headers })).json();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/onboarding-real/beauty-onboarding.spec.ts:302:43
+
+    Error Context: test-results/beauty-onboarding-O07-O08--4b5b8-nse-recover-one-Employee-ID/error-context.md
+
+  1 failed
+    tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07/O08: partial assignment and a lost create response recover one Employee ID 
+  9 passed (3.7m)
+
+# код выхода 1 · 3 мин 48 с

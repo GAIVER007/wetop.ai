@@ -1,11 +1,10 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { SCOPE_COOKIE, scopeHeader } from '../../../lib/scope-pointer';
 import { authRequired } from '../../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import {
-  TODAY_VERTICALS,
   anonymousHospitalityAllowed,
   todayScreen,
   unresolvedTarget,
@@ -18,7 +17,7 @@ export default async function AnalyticsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const me = await requireVertical(TODAY_VERTICALS);
+  const me = await requireFeature('/management/analytics');
   const { screen, key } = todayScreen(me, {
     allowAnonymousHospitality: anonymousHospitalityAllowed({
       authRequired: authRequired(),

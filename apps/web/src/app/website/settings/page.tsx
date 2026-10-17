@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { analyticsApi, type TrackedSiteCard } from '../../../lib/api';
 import { propertyClock } from '../../../lib/property-time';
 import { WEBSITE_TITLE, siteState, type SiteState } from '../../../lib/website';
@@ -22,7 +22,7 @@ import '../website.css';
  */
 export default async function WebsiteSettingsPage() {
   // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/website/settings');
   const sites = await analyticsApi.sites();
   const all = await Promise.all(sites.map((s) => analyticsApi.card(s.id)));
   // MKT7: сайт WETOP здесь не правится, его настраивает публикация

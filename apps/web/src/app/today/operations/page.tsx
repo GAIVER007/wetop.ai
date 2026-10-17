@@ -1,11 +1,10 @@
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { BeautyToday } from '../beauty-today';
 import { FoodToday } from '../food-today';
 import { HospitalityToday } from '../hospitality-today';
 import { TodayScopeContent } from '../scope-content';
-import { TODAY_VERTICALS } from '../dispatch';
 export default async function OperationsPage() {
-  const me = await requireVertical(TODAY_VERTICALS),
+  const me = await requireFeature('/today/operations'),
     c = me.context;
   if (!c?.locationId || !c.businessId) return <p>Выберите филиал для рабочих инструментов.</p>;
   const content =

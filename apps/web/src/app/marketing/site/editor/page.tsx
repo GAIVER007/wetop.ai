@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
-import { requireVertical } from '../../../../lib/vertical-guard';
+import { requireFeature } from '../../../../lib/vertical-guard';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { Alert } from '../../../../components/ui';
@@ -53,7 +53,7 @@ function siteStatusOf(current: MarketingSiteCurrent): SiteStatus {
 }
 
 export default async function SiteEditorPage() {
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/marketing/site/editor');
   const vertical: WebVertical = me.context?.vertical ?? 'HOSPITALITY';
   const locationId = me.context?.locationId ?? null;
   const shell = await deskShell();

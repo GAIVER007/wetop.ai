@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import Link from 'next/link';
 import { ApiError, analyticsApi, type SiteReport, type TrackedSite } from '../../../lib/api';
@@ -69,7 +69,7 @@ export default async function AnalyticsPage({
   searchParams: Promise<SearchParams>;
 }) {
   // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/website/analytics');
   const sp = normalizeSearchParams(await searchParams);
   const sites = await analyticsApi.sites();
   if (!sites.length) return <NoSites />;

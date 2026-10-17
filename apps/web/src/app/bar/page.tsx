@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi, type BarReceiptRow, type BarReport, type BarSaleRow } from '../../lib/api';
 import { hotelToday, propertyTimezone } from '../../lib/hotel-api';
@@ -83,7 +83,7 @@ export default async function BarPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
+  const me = await requireFeature('/bar');
   // бар филиала (ADR-178): «в счёт гостя» только у гостиницы; ресторан и салон продают в кассу филиала (§45, §48)
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
   const params = await searchParams;

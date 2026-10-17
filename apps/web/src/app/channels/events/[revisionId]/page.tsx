@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../../lib/vertical-guard';
+import { requireFeature } from '../../../../lib/vertical-guard';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api, channelsApi, type RevisionPage } from '../../../../lib/api';
@@ -44,7 +44,7 @@ export default async function RevisionPageView({
 }: {
   params: Promise<{ revisionId: string }>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/channels/events');
   const [clock, shell] = await Promise.all([hotelClock(), deskShell()]);
   const canMutate = mayAccess(shell.access, 'channels') && !shell.readOnly;
   // Next не декодирует сегменты адреса: у ревизии Channex вида `test:<время>:<хеш>` сюда приходит

@@ -1,4 +1,5 @@
 import type { WebVertical } from './vertical-landing';
+import { featureVerticals } from './features';
 import {
   ORGANIZATION_LEVEL_PERMISSIONS,
   can,
@@ -811,7 +812,10 @@ export function menuSectionsFor(
   return (vertical === 'FOOD_SERVICE' ? foodMenuSections : vertical === 'BEAUTY' ? beautyMenuSections : menuSections)
     .map((section) => ({
       ...section,
-      items: section.items.filter((item) => allowedItem(item, access)),
+      // реестр функций (У1): пункт чужого направления в меню не попадает, даже если его поставили в состав по ошибке
+      items: section.items.filter(
+        (item) => allowedItem(item, access) && featureVerticals(item.href).includes(vertical),
+      ),
     }))
     .filter((section) => section.items.length > 0);
 }

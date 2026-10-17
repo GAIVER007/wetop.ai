@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
@@ -19,7 +19,7 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
 
 /** Поставщики бара (ADR-157): контакты, закуплено и оплачено по каждому, долг; оплата живёт в «Приходах». */
 export default async function BarSuppliersPage() {
-  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
+  await requireFeature('/bar/suppliers');
   const [suppliers, receipts, shell] = await Promise.all([settle(barApi.suppliers()), settle(barApi.receipts()), deskShell()]);
   // UI-FIX-01: справочник правит право settings, в режиме чтения команд нет.
   const canMutate = mayAccess(shell.access, 'settings') && !shell.readOnly;

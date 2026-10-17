@@ -17,6 +17,7 @@ import CustomersPage from '../customers/page';
 vi.mock('../../lib/api', () => ({ beautyApi: { customers: async () => ({ items: [] }) } }));
 vi.mock('../../lib/vertical-guard', () => ({
   requireVertical: async () => ({ context: { vertical: 'BEAUTY' } }),
+  requireFeature: async () => ({ context: { vertical: 'BEAUTY' } }),
 }));
 
 const day = {

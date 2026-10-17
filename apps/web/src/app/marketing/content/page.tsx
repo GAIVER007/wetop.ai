@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { verticalCopy, type VerticalCopy } from '../../../lib/vertical-copy';
 import '../marketing.css';
 import { Icon, type IconName } from '../../../components/icon';
@@ -61,7 +61,7 @@ function Ideas({ copy }: { copy: VerticalCopy }) {
 }
 
 export default async function MarketingContentPage() {
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/marketing/content');
   const copy = verticalCopy(me.context?.vertical);
   return (
     <Page

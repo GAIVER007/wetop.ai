@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
@@ -32,7 +32,7 @@ export default async function ReportsHubPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/reports');
   // Ресторан: перенаправление на финансы ресторана (выручка, расходы — основной отчёт)
   if (me.context?.vertical === 'FOOD_SERVICE') {
     const { redirect } = await import('next/navigation');

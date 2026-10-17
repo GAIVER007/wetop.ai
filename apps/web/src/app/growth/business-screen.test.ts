@@ -3,13 +3,13 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import { BusinessGrowthScreen } from './business-screen';
-const { requireVertical, hotelToday, loadBusinessSales, budgetView } = vi.hoisted(() => ({
-  requireVertical: vi.fn(),
+const { requireFeature, hotelToday, loadBusinessSales, budgetView } = vi.hoisted(() => ({
+  requireFeature: vi.fn(),
   hotelToday: vi.fn(),
   loadBusinessSales: vi.fn(),
   budgetView: vi.fn(),
 }));
-vi.mock('../../lib/vertical-guard', () => ({ requireVertical }));
+vi.mock('../../lib/vertical-guard', () => ({ requireFeature }));
 vi.mock('./business-sales', () => ({ loadBusinessSales }));
 vi.mock('../../lib/api', async (orig) => ({
   ...(await orig<typeof import('../../lib/api')>()),
@@ -72,17 +72,17 @@ describe('Разделы роста по направлению бизнеса',
 
   for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const) {
     it(`${vertical}: продажи не запрашивают гостиничные данные`, async () => {
-      requireVertical.mockResolvedValue({ context: { vertical } });
+      requireFeature.mockResolvedValue({ context: { vertical } });
       loadBusinessSales.mockResolvedValue(null);
       hotelToday.mockClear();
       const html = renderToStaticMarkup(await SalesPage({ searchParams: Promise.resolve({}) }));
       expect(html).toContain('data-testid="business-sales"');
       expect(html).toContain(vertical === 'BEAUTY' ? 'href="/appointments"' : 'href="/orders"');
       expect(hotelToday).not.toHaveBeenCalled();
-      expect(requireVertical).toHaveBeenCalledWith(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+      expect(requireFeature).toHaveBeenCalledWith('/sales');
     });
     it(`${vertical}: маркетинг открывает общие модули без ссылки на гостиничный сайт`, async () => {
-      requireVertical.mockResolvedValue({ context: { vertical } });
+      requireFeature.mockResolvedValue({ context: { vertical } });
       budgetView.mockRejectedValue(new Error('нет филиала'));
       const html = renderToStaticMarkup(await MarketingPage());
       expect(html).toContain('data-testid="business-marketing"');

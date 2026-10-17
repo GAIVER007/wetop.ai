@@ -1,6 +1,6 @@
 import { unstable_rethrow } from 'next/navigation';
 import type { SearchParams } from '../../../lib/search-params';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { marketingBudgetApi, type MarketingResultsView } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { deltaPercent } from '../../../lib/dashboard-format';
@@ -45,7 +45,7 @@ export default async function MarketingAnalyticsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  await requireFeature('/marketing/analytics');
   const loaded = await loadBudget(await searchParams);
   const subtitle = 'Куда уходят деньги и что они приносят: от расходов до броней и выручки.';
   if (loaded.chooseLocation || loaded.error)

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
@@ -17,7 +17,7 @@ import '../marketing.css';
  * ИИ-продавца (Q-275) и архив. Право `marketing` и строгий scope филиала проверяет API.
  */
 export default async function MarketingSitePage() {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/marketing/site');
   const shell = await deskShell();
   // журнал и источник брони есть только у существующего сайта: без него страница показывает пустое состояние
   const loaded = await marketingSiteApi

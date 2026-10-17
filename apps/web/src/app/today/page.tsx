@@ -5,7 +5,7 @@ import { ownerPeriod, ownerSummaryEnabled } from '../../lib/owner-summary';
 import { readOwnerSummary } from '../../lib/owner-summary-api';
 import { OwnerSummaryView } from './unified-owner';
 import { redirect } from 'next/navigation';
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { SCOPE_COOKIE, scopeHeader } from '../../lib/scope-pointer';
 import { authRequired } from '../../lib/session';
 import { BeautyToday } from './beauty-today';
@@ -33,7 +33,7 @@ export default async function TodayPage({
 }: {
   searchParams?: Promise<{ period?: string }>;
 }) {
-  const me = await requireVertical(TODAY_VERTICALS);
+  const me = await requireFeature('/today');
   if (
     ownerSummaryEnabled(process.env.APP_UNIFIED_OWNER_HOME) &&
     me.user &&

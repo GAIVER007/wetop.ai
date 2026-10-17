@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import Link from 'next/link';
 import { analyticsApi, type TrackedSiteCard } from '../../lib/api';
 import { propertyClock } from '../../lib/property-time';
@@ -15,7 +15,7 @@ import './website.css';
  */
 export default async function WebsiteOverviewPage() {
   // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/website');
   const sites = await analyticsApi.sites();
   const cards = await Promise.all(sites.map((s) => analyticsApi.card(s.id)));
   const connected = cards.filter((c) => primaryHost(c.site));

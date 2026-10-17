@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
@@ -37,7 +37,7 @@ const MOVEMENT_LABEL: Record<string, string> = {
 
 /** Операции бара (ADR-157): списание, инвентаризация, журнал продаж с возвратами и лента движений. */
 export default async function BarOperationsPage() {
-  await requireVertical(['HOSPITALITY', 'FOOD_SERVICE', 'BEAUTY']);
+  await requireFeature('/bar/operations');
   const [stock, sales, movements, shell] = await Promise.all([
     settle(barApi.stock()),
     settle(barApi.sales()),

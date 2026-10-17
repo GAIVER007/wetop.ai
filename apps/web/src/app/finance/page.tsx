@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { FilterHistory } from './filter-history';
 import type { ReactNode } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
@@ -96,7 +96,7 @@ export default async function FinanceReportPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/finance');
   // Ресторан и салон: свои финансовые экраны (restaurant-finance, cashbox); общий /finance перенаправляет
   if (me.context?.vertical === 'FOOD_SERVICE') {
     const { redirect } = await import('next/navigation');

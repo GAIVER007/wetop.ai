@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { can } from '@pms/domain';
 import type { SearchParams } from '../../../../lib/search-params';
 import { normalizeSearchParams } from '../../../../lib/search-params';
-import { requireVertical } from '../../../../lib/vertical-guard';
+import { requireFeature } from '../../../../lib/vertical-guard';
 import { deskShell } from '../../../../lib/desk-shell';
 import { formatMoney } from '../../../../lib/money';
 import { marketingCampaignsApi } from '../../../../lib/api';
@@ -29,7 +29,7 @@ export default async function BudgetExpensesPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  await requireFeature('/marketing/budget/expenses');
   const sp = await searchParams;
   const [loaded, shell] = await Promise.all([loadBudget(sp), deskShell()]);
   const role = shell.access.role;

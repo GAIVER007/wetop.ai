@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import './fund.css';
 import Link from 'next/link';
 import { api, inventoryEditorApi } from '../../lib/api';
@@ -19,7 +19,7 @@ export default async function InventoryPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/inventory');
   const period = Number((await searchParams).period);
   const days = period === 7 || period === 90 ? period : 30;
   const [summary, units, categories, trend, occupancy, marks, shell] = await Promise.all([

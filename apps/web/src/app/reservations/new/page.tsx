@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import design from './new-reservation.module.css';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { api, guestsApi, reservationsApi } from '../../../lib/api';
@@ -35,7 +35,7 @@ export default async function NewReservationPage({
   embedded?: boolean;
 }) {
   // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/reservations/new');
   const raw = await searchParams;
   const q = normalizeSearchParams(raw);
   const today = await hotelToday();

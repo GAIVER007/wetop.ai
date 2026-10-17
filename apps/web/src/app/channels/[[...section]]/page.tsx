@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { ChannelConnectionSetup } from '../connection-setup';
 import Link from 'next/link';
 import { notFound, redirect, unstable_rethrow } from 'next/navigation';
@@ -85,7 +85,7 @@ export default async function ChannelSalesPage({
   params: Promise<{ section?: string[] }>;
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/channels');
   const { section = [] } = await params;
   if (section.length > 1) notFound();
   const view = section[0] ?? '';

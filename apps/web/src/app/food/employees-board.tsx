@@ -34,6 +34,7 @@ function EmployeeDrawer({
   const [phone, setPhone] = useState(employee?.phone ?? '');
   const [email, setEmail] = useState(employee?.email ?? '');
   const [status, setStatus] = useState(employee?.status ?? 'ACTIVE');
+  const [expectedProfileRevision] = useState(employee?.profileRevision ?? '');
   function submit() {
     setError('');
     if (!name.trim()) {
@@ -49,7 +50,7 @@ function EmployeeDrawer({
       const result = await mutateStaff(
         scopeKey,
         employee
-          ? { kind: 'edit', id: employee.id, body: { ...body, status } }
+          ? { kind: 'edit', id: employee.id, body: { ...body, status, expectedProfileRevision } }
           : { kind: 'create', body },
       );
       if (result.error) setError(result.error);
@@ -70,6 +71,10 @@ function EmployeeDrawer({
     >
       <div className="food-form" data-testid="employee-drawer">
         {error && <Alert>{error}</Alert>}
+        {employee && <input type="hidden" name="expectedProfileRevision" value={expectedProfileRevision} />}
+        {error && employee && <><p>Ввод сохранён. Сравните актуальный профиль перед повтором.</p><Button tone="secondary" onClick={() => {
+          if (window.confirm('Отменить черновик и загрузить актуальный профиль?')) window.location.reload();
+        }}>Отменить черновик и загрузить профиль</Button></>}
         <Field label="Имя и фамилия">
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </Field>

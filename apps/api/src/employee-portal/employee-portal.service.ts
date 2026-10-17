@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { readEmployeeCommon, writeEmployeeCommon } from './employee-common';
 import { createHash, randomUUID } from 'node:crypto';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import type { Db, DbTx, EmployeeMedia } from '@pms/database';
@@ -125,7 +126,9 @@ export class EmployeePortalService {
     }
     const avatar=media.find(m=>m.kind==='AVATAR');
     const intervals=hours.map(h=>({weekday:h.weekday,timeFrom:clock(h.timeFrom),timeTo:clock(h.timeTo)}));
-    return {access:s.access,employee:{id:e.id,name:e.name,phone:e.phone,email:e.email,active:e.status==='ACTIVE',accountLinked:!!e.userId},business:{id:b.id,name:b.name,vertical:b.vertical as 'BEAUTY'|'FOOD_SERVICE'},location:l?{id:l.id,name:l.name,timezone:l.timezone,currency:l.currency}:null,
+    const common=(await readEmployeeCommon(db,b.id)).find(row=>row.id===e.id);
+    if(!common)throw new NotFoundException('Employee not found');
+    return {access:s.access,employee:{id:e.id,name:common.name,phone:common.phone,email:common.email,profileRevision:common.profileRevision,active:common.status==='ACTIVE',accountLinked:!!e.userId},business:{id:b.id,name:b.name,vertical:b.vertical as 'BEAUTY'|'FOOD_SERVICE'},location:l?{id:l.id,name:l.name,timezone:l.timezone,currency:l.currency}:null,
       profile:{headline:p.headline,biography:p.biography,practiceSinceYear:p.practiceSinceYear,slug:p.slug,published:p.published,publicationConsent:p.publicationConsent,revision:String(p.revision)},avatar:avatar?await this.image(avatar):null,
       portfolio:await Promise.all(works.map(async x=>({id:x.id,title:x.title,description:x.description,serviceId:x.serviceId,published:x.published,publicationConsent:x.publicationConsent,image:await this.image(x.media)}))),
       services:services.map(x=>{const ls=l?x.locations[0]:undefined;return {id:x.id,name:x.name,durationMinutes:ls?.durationOverride??x.durationMinutes,priceMinor:(ls?.priceOverride??x.price).toString(),currency:l?.currency??x.currency,assigned:skills.some(k=>k.serviceId===x.id),available:!!l&&x.active&&!!ls?.enabled&&(ls.priceOverride!==null||x.currency===l.currency)};}),servicesRevision:fingerprint(skills.map(x=>x.serviceId)),week:weekTemplate(intervals),weekRevision:l?fingerprint(intervals):null,
@@ -143,9 +146,9 @@ export class EmployeePortalService {
       if(['publication','account','unlink-account','pay-settings'].includes(action)) {if(employeeId===null) throw new ForbiddenException('Manager endpoint required');this.manager();}
       if(action==='profile') {
         const input=profileInput(raw);
-        const {expectedRevision,name,phone,email,...profile}=input;
+        const {expectedRevision,expectedProfileRevision,name,phone,email,...profile}=input;
         revision(expectedRevision,String(p.revision));
-        await tx.employee.update({where:{id:e.id},data:{...(name!==undefined?{name}:{}),...(phone!==undefined?{phone}:{}),...(email!==undefined?{email}:{})}});
+        await writeEmployeeCommon(tx,s.business.id,e.id,expectedProfileRevision,{...(name!==undefined?{name}:{}),...(phone!==undefined?{phone}:{}),...(email!==undefined?{email}:{})});
         await tx.employeePublicProfile.update({where:{employeeId:e.id},data:{...profile,...(s.access==='SELF'?{published:false}:{}),revision:{increment:1}}});
       } else if(action==='publication') {
         const input=publicationInput(raw);revision(input.expectedRevision,String(p.revision));

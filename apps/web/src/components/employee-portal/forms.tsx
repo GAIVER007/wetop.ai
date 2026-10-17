@@ -6,14 +6,15 @@ import { Alert, Button, Input } from '../ui';
 export type PortalContext = {
   target: { employeeId: string | null }; scope: string; onSaved: (data: EmployeePortalDto) => void;
 };
-export function PortalForm({ context, command, children, label = 'Сохранить', revision, testId }: {
-  context: PortalContext; command: string; children?: ReactNode; label?: string; revision?: string | null; testId?: string;
+export function PortalForm({ context, command, children, label = 'Сохранить', revision, profileRevision, testId }: {
+  context: PortalContext; command: string; children?: ReactNode; label?: string; revision?: string | null; profileRevision?: string; testId?: string;
 }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
   // Dirty drafts keep their starting version; untouched forms can follow a sibling save.
   const [expectedRevision, setRevision] = useState(revision ?? '');
+  const [expectedProfileRevision, setProfileRevision] = useState(profileRevision ?? '');
   const [dirty, setDirty] = useState(false);
   // Week inputs have their own controlled draft. Never rebase its version onto unseen remote hours.
   const formRevision = dirty || command === 'week' ? expectedRevision : (revision ?? expectedRevision);
@@ -32,12 +33,14 @@ export function PortalForm({ context, command, children, label = 'Сохрани
         if (result.error) setError(result.error);
         else if (result.data) {
           context.onSaved(result.data); setSaved(true); setDirty(false);
+          if (command === 'profile') setProfileRevision(result.data.employee.profileRevision);
           const next = command === 'services' ? result.data.servicesRevision : command === 'week' ? result.data.weekRevision : command === 'pay-policy' ? result.data.pay.policyRevision : result.data.profile.revision;
           setRevision(next ?? '');
         }
       });
     }}>
     <input type="hidden" name="expectedRevision" value={formRevision} />
+    {command === 'profile' && <input type="hidden" name="expectedProfileRevision" value={expectedProfileRevision} />}
     <fieldset key={formRevision} disabled={pending}>
       {children}
       <Button type="submit" disabled={pending}>{pending ? 'Сохраняем…' : label}</Button>
@@ -46,6 +49,9 @@ export function PortalForm({ context, command, children, label = 'Сохрани
     {error && <Alert>{error}</Alert>}
 
     {error && <p>Ввод не сброшен. При конфликте откройте карточку в новой вкладке и сравните изменения.</p>}
+    {error && command === 'profile' && <Button type="button" tone="secondary" onClick={() => {
+      if (window.confirm('Отменить черновик и загрузить актуальный профиль?')) window.location.reload();
+    }}>Отменить черновик и загрузить профиль</Button>}
   </form>;
 }
 const DAYS = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];

@@ -113,12 +113,11 @@ describe.skipIf(!url || !appUrl)('PEOPLE profile CAS on real PostgreSQL with RLS
     const row = await admin.employee.findUniqueOrThrow({ where: { id: e.id } });
     expect(row.phone).toBe('+0000000001');
   });
-  it('legacy profile write without a token remains compatible', async () => {
+  it('legacy profile write without a token fails closed without changing data', async () => {
     const e = await create();
-    const before = profileToken(e);
-    const saved = await as(() => service.updateEmployee(e.id, { phone: '+0000000003' }));
-    expect(saved.phone).toBe('+0000000003');
-    expect(profileToken(saved) > before).toBe(true);
+    const before = await admin.employee.findUniqueOrThrow({ where: { id: e.id } });
+    await expect(as(() => service.updateEmployee(e.id, { phone: '+0000000003' }))).rejects.toThrow(/expectedProfileRevision required/);
+    expect(await admin.employee.findUniqueOrThrow({ where: { id: e.id } })).toEqual(before);
   });
   it('two concurrent profile writes admit one winner', async () => {
     const e = await create();
@@ -179,7 +178,8 @@ describe.skipIf(!url || !appUrl)('PEOPLE profile CAS on real PostgreSQL with RLS
     const foreign = await admin.employee.create({
       data: { businessId: other.business, name: 'Чужой тестовый мастер' },
     });
-    await expect(as(() => service.updateEmployee(foreign.id, { name: 'Подмена' }))).rejects.toThrow(
+    const sourceToken = profileToken(await create());
+    await expect(as(() => service.updateEmployee(foreign.id, { name: 'Подмена', expectedProfileRevision: sourceToken }))).rejects.toThrow(
       /не найден/i,
     );
     const e = await create();

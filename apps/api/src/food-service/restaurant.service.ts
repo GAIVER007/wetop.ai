@@ -1,3 +1,4 @@
+import { readEmployeeCommon, writeEmployeeCommon } from '../employee-portal/employee-common';
 import { createHash, randomUUID } from 'node:crypto';
 import {
   BadRequestException,
@@ -886,6 +887,7 @@ export class RestaurantService {
       orderBy: { id: 'asc' },
       take: p.limit + 1,
     });
+    const profiles = new Map((await readEmployeeCommon(this.prisma.db, s.businessId)).map(row => [row.id, row]));
     const nowMinutes =
       new Date(local.stamp).getUTCHours() * 60 + new Date(local.stamp).getUTCMinutes();
     const minutes = (t: Date) => Number(clockText(t).slice(0, 2)) * 60 + Number(clockText(t).slice(3, 5));
@@ -893,11 +895,7 @@ export class RestaurantService {
       rows.map((r) => {
         const shift = r.workingHours[0] ?? null;
         return {
-          id: r.id,
-          name: r.name,
-          phone: r.phone,
-          email: r.email,
-          status: r.status,
+          ...profiles.get(r.id)!,
           shift: shift ? `${clockText(shift.timeFrom)}–${clockText(shift.timeTo)}` : null,
           onShift: shift
             ? nowMinutes >= minutes(shift.timeFrom) && nowMinutes < minutes(shift.timeTo)
@@ -988,14 +986,10 @@ export class RestaurantService {
   async updateEmployee(idRaw: string, raw: unknown) {
     return this.write('staff', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
-      const b = parsed(() => foodObject(raw, ['name', 'phone', 'email', 'status']));
-      const old = await tx.employee.findFirst({ where: { id, businessId: s.businessId } });
-      if (!old) throw new NotFoundException('Сотрудник не найден');
+      const b = parsed(() => foodObject(raw, ['name', 'phone', 'email', 'status', 'expectedProfileRevision']));
       if (b.status !== undefined && b.status !== 'ACTIVE' && b.status !== 'ARCHIVED')
         throw new BadRequestException('Статус: ACTIVE или ARCHIVED');
-      const row = await tx.employee.update({
-        where: { id },
-        data: {
+      const { before: old, after: row } = await writeEmployeeCommon(tx, s.businessId, id, b.expectedProfileRevision, {
           ...(b.name !== undefined ? { name: parsed(() => foodText(b.name, 200)) } : {}),
           ...(b.phone !== undefined
             ? { phone: b.phone === null ? null : parsed(() => foodText(b.phone, 32)) }
@@ -1004,7 +998,6 @@ export class RestaurantService {
             ? { email: b.email === null ? null : parsed(() => foodText(b.email, 320)) }
             : {}),
           ...(b.status !== undefined ? { status: b.status as 'ACTIVE' | 'ARCHIVED' } : {}),
-        },
       });
       await this.audit(
         tx,

@@ -19,11 +19,14 @@ export async function savePortal(target: PortalTarget, scope: string, command: s
     const revision = text(form, 'expectedRevision');
     let data: EmployeePortalDto;
     switch (command) {
-      case 'profile': data = await employeePortalApi.profile(target, {
+      case 'profile':
+        if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(text(form, 'expectedProfileRevision')))
+          return { error: 'Исходная версия профиля отсутствует. Загрузите актуальные данные; ввод сохранён.' };
+        data = await employeePortalApi.profile(target, {
         name: text(form, 'name'), phone: text(form, 'phone') || null, email: text(form, 'email') || null,
         headline: text(form, 'headline'), biography: text(form, 'biography'),
         practiceSinceYear: text(form, 'practiceSinceYear') ? Number(text(form, 'practiceSinceYear')) : null,
-        expectedRevision: revision,
+        expectedRevision: revision, expectedProfileRevision: text(form, 'expectedProfileRevision'),
       }); break;
       case 'avatar': case 'add-work': {
         const file = form.get('file');

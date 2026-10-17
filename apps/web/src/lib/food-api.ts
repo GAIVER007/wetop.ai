@@ -155,7 +155,7 @@ export const restaurantApi = {
     sendJson<FoodEmployee>('POST', `${base}/employees`, body),
   updateEmployee: (
     id: string,
-    body: { name?: string; phone?: string | null; email?: string | null; status?: string },
+    body: { name?: string; phone?: string | null; email?: string | null; status?: string; expectedProfileRevision: string },
   ) => sendJson<FoodEmployee>('PATCH', idPath('employees', id), body),
   shifts: () => getJsonPublic<{ employees: FoodShiftRow[] }>(`${base}/shifts`),
   setShifts: (id: string, intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>) =>

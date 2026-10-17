@@ -37,7 +37,7 @@ export interface PortalScheduleConflict {
 }
 export interface EmployeePortalDto {
   access: 'MANAGER' | 'SELF';
-  employee: { id: string; name: string; phone: string | null; email: string | null; active: boolean; accountLinked: boolean };
+  employee: { id: string; name: string; phone: string | null; email: string | null; active: boolean; accountLinked: boolean; profileRevision: string };
   business: { id: string; name: string; vertical: PortalVertical };
   location: { id: string; name: string; timezone: string; currency: string } | null;
   profile: PortalProfile; avatar: PortalImage | null; portfolio: PortalWork[];
@@ -60,6 +60,7 @@ export interface PortalProfileInput {
   name?: string; phone?: string | null; email?: string | null;
   headline?: string; biography?: string; practiceSinceYear?: number | null;
   expectedRevision: string;
+  expectedProfileRevision: string;
 }
 export interface PortalPublicationInput { published: boolean; publicationConsent: boolean; expectedRevision: string }
 export interface PortalPortfolioInput { title: string; description?: string; serviceId?: string | null; publicationConsent?: boolean; published?: boolean }

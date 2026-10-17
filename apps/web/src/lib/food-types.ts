@@ -326,6 +326,7 @@ export interface FoodReport {
   latestOrders: OrderView[];
 }
 export interface FoodEmployee {
+  profileRevision: string;
   id: string;
   name: string;
   phone: string | null;

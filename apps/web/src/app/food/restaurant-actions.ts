@@ -49,7 +49,7 @@ type StaffCommand =
   | {
       kind: 'edit';
       id: string;
-      body: { name?: string; phone?: string | null; email?: string | null; status?: string };
+      body: { name?: string; phone?: string | null; email?: string | null; status?: string; expectedProfileRevision: string };
     }
   | { kind: 'pay-settings'; id: string; body: { model: PayModel; fixedMinor: number; percent: number } }
   | { kind: 'adjustment'; id: string; body: { period: string; amountMinor: number; reason: string } }

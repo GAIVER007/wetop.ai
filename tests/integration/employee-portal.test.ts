@@ -28,17 +28,17 @@ describe('employee portal real persistence and authorization',()=>{
   });
   it('persists private profile and requires manager reapproval after self edits',async()=>{
     let dto=await as('ownerA',()=>service.get(f.employeeA,{}));
-    dto=await as('ownerA',()=>service.mutate(f.employeeA,'profile',{headline:'Specialist',expectedRevision:dto.profile.revision}));
+    dto=await as('ownerA',()=>service.mutate(f.employeeA,'profile',{headline:'Specialist',expectedRevision:dto.profile.revision,expectedProfileRevision:dto.employee.profileRevision}));
     dto=await as('ownerA',()=>service.mutate(f.employeeA,'publication',{published:true,publicationConsent:true,expectedRevision:dto.profile.revision}));
     const pub=await service.publicProfile(dto.profile.slug);
     expect(pub.headline).toBe('Specialist'); expect(pub.locationId).toBeNull(); expect(pub.services).toEqual([]); expect(pub.locations).toHaveLength(2);
     expect(Object.keys(pub)).not.toContain('pay'); expect(JSON.stringify(pub)).not.toContain('private@example.invalid');
     const branch=await service.publicProfile(dto.profile.slug,f.locationA);
     expect(branch.services[0]?.priceMinor).toBe('6500');
-    dto=await as('staffA',()=>service.mutate(null,'profile',{biography:'Updated by employee',expectedRevision:dto.profile.revision}));
+    dto=await as('staffA',()=>service.mutate(null,'profile',{biography:'Updated by employee',expectedRevision:dto.profile.revision,expectedProfileRevision:dto.employee.profileRevision}));
     expect(dto.profile.published).toBe(false); await expect(service.publicProfile(dto.profile.slug)).rejects.toThrow();
     await expect(as('staffA',()=>service.mutate(null,'publication',{published:true,publicationConsent:true,expectedRevision:dto.profile.revision}))).rejects.toThrow();
-    await expect(as('ownerA',()=>service.mutate(f.employeeA,'profile',{name:'Stale',expectedRevision:'0'}))).rejects.toThrow();
+    await expect(as('ownerA',()=>service.mutate(f.employeeA,'profile',{name:'Stale',expectedRevision:'0',expectedProfileRevision:dto.employee.profileRevision}))).rejects.toThrow();
   });
   it('persists own skills/week/absence without changing appointments',async()=>{
     let dto=await as('staffA',()=>service.get(null,{}));

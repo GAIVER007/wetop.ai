@@ -201,7 +201,20 @@ jobs:
           DATABASE_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
           DIRECT_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
           PGPASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
-        run: npx vitest run --project integration
+        # Vitest project excludes override CLI --exclude, so select the tracked files explicitly.
+        # Portal fixtures run in the next step; no integration files are dropped.
+        run: |
+          set -euo pipefail
+          mapfile -t integration_files < <(git ls-files 'tests/integration/*.test.ts' ':!:tests/integration/employee-portal*.test.ts')
+          test "${#integration_files[@]}" -gt 0
+          npx vitest run --project integration --passWithNoTests=false "${integration_files[@]}"
+      - name: Интеграционные тесты портала на выделенной CI-базе
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          DIRECT_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          PGPASSWORD: pms
+          TEST_DATA: seed
+        run: npx vitest run --project integration --passWithNoTests=false tests/integration/employee-portal
       - name: Сборка стойки и Chromium
         run: |
           npm run build -w apps/web

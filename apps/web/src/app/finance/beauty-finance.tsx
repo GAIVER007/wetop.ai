@@ -126,6 +126,12 @@ export async function BeautyFinanceScreen() {
     <Page
       title="Финансы"
       subtitle={`Стоимость услуг за ${displayDate(view.from)}: ${displayDate(view.today)}`}
+      actions={
+        // записи периода экрана в CSV (Q-BS-6), без имён клиентов
+        <a className="btn btn--secondary" href={`/finance/export-appointments?from=${view.from}&to=${view.today}`} download>
+          Выгрузить записи (CSV)
+        </a>
+      }
     >
       <div data-testid="beauty-finance">
         <div className="kpi-row" data-testid="beauty-finance-kpis">

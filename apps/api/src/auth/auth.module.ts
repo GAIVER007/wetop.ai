@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { PlatformModule } from '../platform/platform.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { APP_URL, MAILER, PasswordResetService, type Mailer } from './password-reset.service';
+import { APP_URL, MAILER, PasswordResetService, appUrlFromEnv, type Mailer } from './password-reset.service';
 import { EmailVerificationService } from './email-verification.service';
 
 /**
@@ -31,7 +31,7 @@ import { EmailVerificationService } from './email-verification.service';
     },
     {
       provide: APP_URL,
-      useFactory: (): string => process.env.PUBLIC_APP_URL?.trim() || 'https://app.wetop.ai',
+      useFactory: (): string => appUrlFromEnv(),
     },
   ],
   exports: [AuthService, PasswordResetService, EmailVerificationService],

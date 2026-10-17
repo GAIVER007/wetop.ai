@@ -5,7 +5,19 @@ import { publicAuthUrl } from '../../../lib/auth-entry';
 import { AccessPanel } from './access-panel';
 
 /** Существующие права и API команды/сессий перенесены с публичного экрана входа. */
-export default async function AccessPage() {
+const ORGANIZATION_ERRORS: Record<string, string> = {
+  denied: 'Эта организация вам недоступна.',
+  signin: 'Сеанс закончился. Войдите заново.',
+  failed: 'Не удалось перейти. Попробуйте ещё раз.',
+};
+
+export default async function AccessPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ org?: string | string[] }>;
+}) {
+  const org = (await searchParams).org;
+  const organizationError = typeof org === 'string' ? (ORGANIZATION_ERRORS[org] ?? null) : null;
   const token = await sessionToken();
   if (!token) redirect(publicAuthUrl('login', '/profile/access'));
   const me = await authApi.me().catch((error: unknown) => {
@@ -18,5 +30,12 @@ export default async function AccessPage() {
   const sessions = await authApi.sessions(token, info);
   // список перехода: при сбое просто не показываем, личный доступ работает и без него
   const organizations = await authApi.organizations(token, info).catch(() => []);
-  return <AccessPanel user={me.user} sessions={sessions} organizations={organizations} />;
+  return (
+    <AccessPanel
+      user={me.user}
+      sessions={sessions}
+      organizations={organizations}
+      organizationError={organizationError}
+    />
+  );
 }

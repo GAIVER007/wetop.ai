@@ -1,0 +1,20 @@
+# Типы (typecheck) · 17.10.2026 10:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит daf8a02 (claude/auth-identity-1016), незакоммиченных файлов набора: 13
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/payroll-intent-isolated.test.ts(21,2): error TS2741: Property 'vertical' is missing in type '{ organizationId: string; businessId: string; locationId: string; timezone: string; currency: string; }' but required in type 'FoodScope'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/auth/app-url.test.ts(20,56): error TS2345: Argument of type 'string | symbol | typeof AccountsModule | typeof AuthModule | undefined' is not assignable to parameter of type 'Object'.
+  Type 'undefined' is not assignable to type 'Object'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 23 с

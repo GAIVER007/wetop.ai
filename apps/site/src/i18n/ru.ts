@@ -3299,7 +3299,7 @@ export const ru: Dictionary = {
       submit: 'Создать аккаунт',
       pending: 'Создаём…',
       terms:
-        'Пароль не короче 10 знаков. Сотрудников пригласите потом из стойки — каждый задаст себе пароль сам.',
+        'Пароль не короче 10 знаков и не только из цифр. Сотрудников пригласите потом из стойки: каждый задаст себе пароль сам.',
       consentBefore: 'Я ознакомился с',
       consentLink: 'политикой конфиденциальности',
       consentAfter: 'и согласен на обработку данных',
@@ -3328,7 +3328,7 @@ export const ru: Dictionary = {
       emailPlaceholder: 'you@business.com',
       password: 'Пароль',
       passwordPlaceholder: 'Введите пароль',
-      newPasswordPlaceholder: 'Не короче 10 знаков',
+      newPasswordPlaceholder: 'Не короче 10 знаков, не только цифры',
       name: 'Имя',
       namePlaceholder: 'Как к вам обращаться',
       hotel: 'Название бизнеса',

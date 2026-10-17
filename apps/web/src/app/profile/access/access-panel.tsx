@@ -1,10 +1,9 @@
 'use client';
-import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { canManageStaff, parseMembershipRole } from '@pms/domain';
 import { Icon } from '../../../components/icon';
 import type { AuthOrganizationRow, AuthSessionRow, SignedIn } from '../../../lib/api';
-import { logoutAllAction, signOut, switchOrganizationAction } from '../../login/actions';
+import { logoutAllAction, signOut } from '../../login/actions';
 import { trialLine } from '../../../lib/desk-person';
 import { displayDate } from '../../../lib/display-date';
 
@@ -13,10 +12,12 @@ export function AccessPanel({
   user,
   sessions = [],
   organizations = [],
+  organizationError = null,
 }: {
   user: SignedIn;
   sessions?: AuthSessionRow[];
   organizations?: AuthOrganizationRow[];
+  organizationError?: string | null;
 }) {
   const role = user.role ? parseMembershipRole(user.role) : null;
   const trial = trialLine(user.organization, new Date());
@@ -64,7 +65,9 @@ export function AccessPanel({
           </p>
         </section>
       )}
-      {organizations.length > 1 && <OrganizationSwitch organizations={organizations} />}
+      {organizations.length > 1 && (
+        <OrganizationSwitch organizations={organizations} error={organizationError} />
+      )}
       {/* «Где я вошёл» и «выйти везде» (§13.5): отзыв гасит все ключи человека, включая этот */}
       <section className="login-invites" aria-labelledby="sessions-heading">
         <h2 id="sessions-heading">Где вы вошли</h2>
@@ -95,20 +98,22 @@ export function AccessPanel({
 
 const ROLE_WORD: Record<string, string> = { OWNER: 'владелец', MANAGER: 'управляющий', STAFF: 'администратор' };
 
-/** Один аккаунт в нескольких организациях: переход с проверкой на сервере (§13.5) */
-function OrganizationSwitch({ organizations }: { organizations: AuthOrganizationRow[] }) {
-  const [error, setError] = useState<string | null>(null);
-  const [pending, start] = useTransition();
-  const go = (id: string) =>
-    start(async () => {
-      setError(null);
-      const result = await switchOrganizationAction(id);
-      if (result.redirectTo) window.location.assign(result.redirectTo);
-      else setError(result.error);
-    });
+/** Один аккаунт в нескольких организациях: обычная форма, переход проверяет сервер (§13.5, `/auth/organization`) */
+function OrganizationSwitch({
+  organizations,
+  error,
+}: {
+  organizations: AuthOrganizationRow[];
+  error: string | null;
+}) {
   return (
     <section className="login-invites" aria-labelledby="orgs-heading">
       <h2 id="orgs-heading">Ваши организации</h2>
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
       <ul className="login-invite-list" data-testid="organization-list">
         {organizations.map((o) => (
           <li key={o.id}>
@@ -116,23 +121,16 @@ function OrganizationSwitch({ organizations }: { organizations: AuthOrganization
             {o.current ? (
               <span className="muted">, вы сейчас здесь</span>
             ) : (
-              <button
-                type="button"
-                className="btn btn--secondary"
-                disabled={pending}
-                onClick={() => go(o.id)}
-              >
-                Перейти
-              </button>
+              <form method="post" action="/auth/organization">
+                <input type="hidden" name="organizationId" value={o.id} />
+                <button type="submit" className="btn btn--secondary">
+                  Перейти<span className="sr-only"> в «{o.name}»</span>
+                </button>
+              </form>
             )}
           </li>
         ))}
       </ul>
-      {error && (
-        <p className="alert" role="alert">
-          {error}
-        </p>
-      )}
     </section>
   );
 }

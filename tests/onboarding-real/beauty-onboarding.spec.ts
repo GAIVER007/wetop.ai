@@ -260,6 +260,37 @@ test('O03/O05/O20: logout, new session, deep links and history resume the saved 
   }
 });
 
+test('O07c: a closed employee card leaves the router on the list, so later actions cannot restore it', async ({
+  page,
+}) => {
+  // Детерминированная причина O07 (17.10.2026): закрытие карточки чистило адрес только в history, маршрутизатор
+  // Next оставался на `employee=<закрытый>`, следующее действие сервера уходило на этот адрес, а его ответ
+  // возвращал в строку закрытую карточку; перезагрузка открывала не того мастера.
+  await register(page, 'closed');
+  await profileUI(page);
+  await page.goto('/employees?onboarding=1');
+  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  let dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Закрытый');
+  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await expect(page).toHaveURL(/employee=/);
+  await expect(dialog.getByRole('tab', { name: 'Услуги', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page).not.toHaveURL(/employee=/);
+  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Следующий');
+  const action = page.waitForRequest((r) => r.method() === 'POST' && Boolean(r.headers()['next-action']));
+  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  // действие уходит на тот адрес, который маршрутизатор считает текущим: это список, а не закрытая карточка
+  expect(new URL((await action).url()).searchParams.get('employee')).toBeNull();
+  const headers = await apiHeaders(page);
+  await expect
+    .poll(async () => (await (await page.request.get(`${api}/beauty/employees`, { headers })).json()).items.length)
+    .toBe(2);
+});
+
 test('O07/O08: partial assignment and a lost create response recover one Employee ID', async ({
   page,
 }) => {

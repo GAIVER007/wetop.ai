@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import { Page } from '../../components/page';
 import { financeApi } from '../../lib/api';
-import { hotelToday } from '../../lib/hotel-api';
+import { hotelToday, propertyCurrency } from '../../lib/hotel-api';
+import { homeCurrency } from './home-currency';
 import { periods } from '../../lib/report-periods';
 import { OwnerLoad } from '../finance/owner-dashboard';
 import { AttentionCard, TodayCard } from '../finance/overview';
@@ -20,6 +21,7 @@ export async function HospitalityToday() {
   const cal = periods(await hotelToday());
   const period = `/finance?from=${cal.month.from}&to=${cal.month.to}`;
   const debts = await financeApi.debts(cal.month.from, cal.month.to).catch(() => null);
+  const currency = homeCurrency(debts, await propertyCurrency());
   return (
     <Page
       title="Главная"
@@ -49,7 +51,7 @@ export async function HospitalityToday() {
               showDebts={false}
               debts={debts}
               period={period}
-              currency={debts?.currency ?? 'KZT'}
+              currency={currency}
             />
           </Suspense>
         </div>

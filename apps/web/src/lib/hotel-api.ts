@@ -143,6 +143,19 @@ export const propertyTimezone = cache(async (): Promise<string> => {
     clearTimeout(timer);
   }
 });
+/**
+ * Валюта объекта для серверной страницы (Д11): из настроек объекта; настройки не ответили, валюта платформы KZT,
+ * как пояс платформы у `propertyTimezone`
+ */
+export const propertyCurrency = cache(async (): Promise<string> =>
+  hotelApi.settings().then(
+    (hotel) => hotel.property.currency || 'KZT',
+    (error: unknown) => {
+      if (error instanceof ApiError) return 'KZT';
+      throw error;
+    },
+  ),
+);
 /** Часы объекта для серверной страницы: «сегодня», месяц, моменты событий (`lib/property-time.ts`) */
 export const hotelClock = async (): Promise<PropertyClock> =>
   propertyClock(await propertyTimezone());

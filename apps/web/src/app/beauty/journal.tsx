@@ -13,7 +13,7 @@ import type {
 } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { AppointmentCard } from './appointment-card';
-import { AppointmentForm } from './appointment-form';
+import { AppointmentEditor } from './appointment-editor';
 import { calendarColumns } from './calendar-columns';
 import { DateBar } from './date-bar';
 import { clock, clockMinutes, instantOf } from './time';
@@ -35,6 +35,7 @@ export function JournalBoard({
   readOnly,
   canRefund = false,
   appointmentId,
+  scopeKey = '',
 }: {
   day: BeautyDay;
   customers: BeautyCustomerRow[];
@@ -43,6 +44,7 @@ export function JournalBoard({
   /** возврат по выполненной записи (§54): право `refunds` */
   canRefund?: boolean;
   appointmentId?: string | undefined;
+  scopeKey?: string;
 }) {
   const columns = calendarColumns(day, employees);
   const [panel, setPanel] = useState<Panel>(() => {
@@ -394,21 +396,23 @@ export function JournalBoard({
         </div>
         </div>
       </div>
+      <AppointmentEditor
+        open={panel?.kind === 'new'}
+        onClose={() => setPanel(null)}
+        day={day}
+        customers={customers}
+        scopeKey={scopeKey}
+        employeeId={panel?.kind === 'new' ? panel.employeeId : selected}
+        time={panel?.kind === 'new' ? panel.time : clock(day.bounds.fromMinutes)}
+        onDone={done}
+      />
       <Overlay
-        open={panel !== null}
+        open={panel?.kind === 'card'}
         onClose={() => setPanel(null)}
         title={panel?.kind === 'card' ? 'Запись' : 'Новая запись'}
         drawer
       >
-        {panel?.kind === 'new' && (
-          <AppointmentForm
-            day={day}
-            customers={customers}
-            employeeId={panel.employeeId}
-            time={panel.time}
-            onDone={done}
-          />
-        )}
+
         {panel?.kind === 'card' && (
           <AppointmentCard
             day={{ ...day, columns }}

@@ -6,7 +6,7 @@ import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { beautyApi } from '../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
-import { deskShell } from '../../lib/desk-shell';
+import { currentMe, deskShell } from '../../lib/desk-shell';
 import { mayAccess } from '../../lib/navigation';
 import { JournalBoard } from './journal';
 import { WeekCalendar } from './week-calendar';
@@ -26,6 +26,8 @@ export default async function BeautyPage({
   await requireVertical(['BEAUTY']);
   const { date, view, appointment } = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
+  const me = await currentMe();
+  const scopeKey = JSON.stringify({ organizationId: me.user?.organizationId, businessId: me.context?.businessId, locationId: me.context?.locationId });
   const loaded = await Promise.all([
     beautyApi.day(date),
     beautyApi.customers(),
@@ -71,13 +73,14 @@ export default async function BeautyPage({
       </nav>
       {loaded.week ? <WeekCalendar days={loaded.week} employees={loaded.employees} /> : (
         <JournalBoard
-          key={`${loaded.value.date}:${appointment ?? ''}`}
+          key={`${scopeKey}:${loaded.value.date}:${appointment ?? ''}`}
           day={loaded.value}
           customers={loaded.customers}
           employees={loaded.employees}
           readOnly={shell.readOnly}
           canRefund={!shell.readOnly && mayAccess(shell.access, 'refunds')}
           appointmentId={appointment}
+          scopeKey={scopeKey}
         />
       )}
     </Page>

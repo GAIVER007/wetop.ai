@@ -14,12 +14,12 @@ export async function seed(page: Page, request: APIRequestContext) {
     expect(r.ok(), path + ': ' + await r.text()).toBeTruthy();
     return r.json();
   }
-  const services = [];
+  const services: Array<{ id: string }> = [];
   for (const name of ['Тест стрижка', 'Тест укладка']) {
     const s = await call('/beauty/services', { name, durationMinutes: 60, priceMinor: '1200000', currency: 'KZT' });
     await call(`/beauty/services/${s.id}/location`, { enabled: true }, 'put'); services.push(s);
   }
-  const employees = [];
+  const employees: Array<{ id: string }> = [];
   for (const name of ['Тест Анна', 'Тест Борис']) {
     const e = await call('/beauty/employees', { name });
     await call(`/beauty/employees/${e.id}/services`, { serviceIds: services.map(s => s.id) }, 'put');

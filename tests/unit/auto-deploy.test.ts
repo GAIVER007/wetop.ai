@@ -10,7 +10,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { chmodSync, statSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 const SCRIPT = resolve(import.meta.dirname, '../../scripts/ops/auto-deploy.sh');
 const TOKEN = 'tg-secret-token-123';
@@ -58,22 +58,11 @@ function run(env: Record<string, string> = {}, args: string[] = [], restrictiveM
 const dockerCalls = () => (existsSync(calls) ? readFileSync(calls, 'utf8') : '');
 const head = () => git(server, 'rev-parse', 'HEAD');
 
-beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'auto-deploy-'));
-  origin = join(dir, 'origin.git');
-  server = join(dir, 'server');
-  dev = join(dir, 'dev');
-  bin = join(dir, 'bin');
-  state = join(dir, 'state');
-  calls = join(dir, 'calls.log');
-  mkdirSync(bin);
-  git(dir, 'init', '-q', '--bare', origin);
-  git(dir, 'clone', '-q', origin, dev);
-  git(dev, 'config', 'user.email', 't@example.test');
-  git(dev, 'config', 'user.name', 'test');
-  commit('deploy/compose.yml', 'services: {}\n', 'init');
-  commit('packages/database/prisma/migrations/0001_init/migration.sql', 'select 1;\n', 'first migration');
-  git(dir, 'clone', '-q', '--branch', 'release', origin, server);
+// Подмены пишутся один раз на файл и запускаются один раз в beforeAll: macOS проверяет каждый новый исполняемый файл
+// при первом запуске (170 мс в покое, больше секунды под полным прогоном), и свежие подмены в каждом тесте упирали
+// его в 5 с (флейк 16.10.2026). Своё у теста только папка: журналы вызовов в FAKE_CALLS, клоны, состояние.
+beforeAll(() => {
+  bin = mkdtempSync(join(tmpdir(), 'auto-deploy-bin-'));
   // Подставной docker: пишет вызовы; «больна» сборка, когда в клоне стоит коммит из FAKE_BAD_SHA
   writeFileSync(
     join(bin, 'docker'),
@@ -106,6 +95,13 @@ exit 0
   // auto-deploy runs on Linux, where util-linux provides flock. The test suite also runs on macOS,
   // so keep the server dependency inside the fake PATH instead of silently skipping every scenario.
   writeFileSync(join(bin, 'flock'), '#!/usr/bin/env bash\nexit 0\n');
+  // Подставной df: свободно столько килобайт, сколько в FAKE_DF_AVAIL_KB; без него настоящий df
+  writeFileSync(
+    join(bin, 'df'),
+    '#!/usr/bin/env bash\n[ -n "${FAKE_DF_AVAIL_KB:-}" ] || exec /bin/df "$@"\n' +
+      'echo "Filesystem 1024-blocks Used Available Capacity Mounted"\n' +
+      'echo "/dev/sda1 100000000 99000000 $FAKE_DF_AVAIL_KB 99% /"\n',
+  );
   // Keep retry/deadline logic real, but advance a synthetic shell clock instead of waiting.
   // Unsetting SECONDS removes Bash's wall-clock behavior; sleep advances this fixture's clock.
   writeFileSync(
@@ -121,6 +117,29 @@ sleep() {
   chmodSync(join(bin, 'docker'), 0o755);
   chmodSync(join(bin, 'curl'), 0o755);
   chmodSync(join(bin, 'flock'), 0o755);
+  chmodSync(join(bin, 'df'), 0o755);
+  // первый запуск каждой подмены здесь, а не в тесте; их журнал уходит в отдельную папку и сразу удаляется
+  const warm = mkdtempSync(join(tmpdir(), 'auto-deploy-warm-'));
+  for (const name of ['docker', 'curl', 'flock', 'df'])
+    spawnSync(join(bin, name), [], { env: { ...process.env, FAKE_CALLS: join(warm, 'calls.log'), FAKE_DF_AVAIL_KB: '1' } });
+  rmSync(warm, { recursive: true, force: true });
+}, 60_000);
+afterAll(() => rmSync(bin, { recursive: true, force: true }));
+
+beforeEach(() => {
+  dir = mkdtempSync(join(tmpdir(), 'auto-deploy-'));
+  origin = join(dir, 'origin.git');
+  server = join(dir, 'server');
+  dev = join(dir, 'dev');
+  state = join(dir, 'state');
+  calls = join(dir, 'calls.log');
+  git(dir, 'init', '-q', '--bare', origin);
+  git(dir, 'clone', '-q', origin, dev);
+  git(dev, 'config', 'user.email', 't@example.test');
+  git(dev, 'config', 'user.name', 'test');
+  commit('deploy/compose.yml', 'services: {}\n', 'init');
+  commit('packages/database/prisma/migrations/0001_init/migration.sql', 'select 1;\n', 'first migration');
+  git(dir, 'clone', '-q', '--branch', 'release', origin, server);
 });
 
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
@@ -173,9 +192,6 @@ describe('scripts/ops/auto-deploy.sh', () => {
   it('мало места на диске: убирает кэш, не трогает клон, говорит один раз и выкладывает, когда место есть', () => {
     const before = head();
     const target = commit('apps/web/page.txt', 'v2\n', 'new page');
-    // подставной df: свободно столько килобайт, сколько в FAKE_DF_AVAIL_KB
-    writeFileSync(join(bin, 'df'), '#!/usr/bin/env bash\necho "Filesystem 1024-blocks Used Available Capacity Mounted"\necho "/dev/sda1 100000000 99000000 $FAKE_DF_AVAIL_KB 99% /"\n');
-    chmodSync(join(bin, 'df'), 0o755);
     const low = run({ FAKE_DF_AVAIL_KB: String(1024 * 1024) });
     expect(low.code).toBe(1);
     expect(low.out).toContain('меньше 6 ГБ');

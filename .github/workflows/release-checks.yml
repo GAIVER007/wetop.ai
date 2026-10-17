@@ -59,6 +59,8 @@ jobs:
       - name: Chromium для проверок главной
         run: npx playwright install --with-deps chromium
       - run: npm run site:check
+      - name: Supplier payment source-component regressions (no database)
+        run: npm run test:record -- e2e --config tests/supplier-component/playwright.config.ts --workers=1
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

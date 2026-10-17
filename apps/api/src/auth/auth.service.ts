@@ -316,7 +316,12 @@ export class AuthService {
     const user = email
       ? await this.prisma.db.user.findUnique({
           where: { email },
-          include: { memberships: { orderBy: { createdAt: 'asc' } } },
+          include: {
+            memberships: {
+              orderBy: { createdAt: 'asc' },
+              include: { organization: { select: { status: true } } },
+            },
+          },
         })
       : null;
 
@@ -358,10 +363,14 @@ export class AuthService {
 
     // Сессия открывается под организацией: без членства человеку нечего открывать (§13.3, §13.5)
     // приостановленный член в организацию не входит (DATA_MODEL §31.2): пароль он назвал верно, поэтому говорим причину
-    const active = user.memberships.find((m) => m.status === 'ACTIVE');
-    if (!active && user.memberships.length > 0)
+    const active = user.memberships.filter((m) => m.status === 'ACTIVE');
+    if (active.length === 0 && user.memberships.length > 0)
       throw new ForbiddenException(ACCESS_SUSPENDED_MESSAGE);
-    const organizationId = active?.organizationId;
+    // Архивная (приостановленная) организация не отнимает доступ к другой: сессия открывается в первой открытой.
+    // До 16.10.2026 бралось самое раннее членство, и архив организации А запирал человеку вход и в Б.
+    const open = active.find((m) => m.organization.status !== 'SUSPENDED');
+    if (!open && active.length > 0) throw new ForbiddenException(ORGANIZATION_SUSPENDED_MESSAGE);
+    const organizationId = open?.organizationId;
     if (!organizationId) throw new UnauthorizedException(WRONG);
     await this.assertOrganizationOpen(organizationId);
 

@@ -1,4 +1,5 @@
 // Обход собранного сайта (apps/site/out): реестр страниц, SEO-поля, ссылки, sitemap. Только чтение.
+/* global process, console */
 import { readFileSync, readdirSync, statSync, existsSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
@@ -20,7 +21,7 @@ const meta = (html, key) => {
   return t ? decode(attr(t, 'content') ?? '') : undefined;
 };
 const decode = (s) =>
-  s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;| /g, ' ');
+  s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;|\u00a0/g, ' ');
 const text = (s) => decode(s.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
 
 const pathOf = (f) => {

@@ -65,7 +65,7 @@ jobs:
       contents: read
     env:
       UI_RUNTIME_WORKERS: '1'
-      PLAYWRIGHT_JSON_OUTPUT_NAME: fixture-pair-report.json
+      PLAYWRIGHT_JSON_OUTPUT_FILE: ${{ github.workspace }}/fixture-pair-report.json
     steps:
       - uses: actions/checkout@v4
         with:

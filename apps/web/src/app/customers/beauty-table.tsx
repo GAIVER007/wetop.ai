@@ -110,10 +110,10 @@ export function BeautyCustomersTable({ items, canEdit = false }: { items: Beauty
             return (
               <tr key={row.id}>
                 <td data-label="Клиент">
-                  {[row.firstName, row.lastName].filter(Boolean).join(' ')}{' '}
+                  <strong>{[row.firstName, row.lastName].filter(Boolean).join(' ')}</strong>{' '}
                   {row.isVip && <Badge tone="warn">VIP</Badge>}
                 </td>
-                <td data-label="Телефон">{row.phone ?? 'Не указан'}</td>
+                <td data-label="Телефон" className="beauty-customer-contact">{row.phone ? <a href={`tel:${row.phone}`}>{row.phone}</a> : 'Не указан'}</td>
                 <td data-label="Последний визит" className="beauty-col-wide">
                   {visitDate ? (
                     <time dateTime={visitDate}>

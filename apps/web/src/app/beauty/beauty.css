@@ -803,6 +803,127 @@
     }
   }
 
+  /* TZ1.2 catalog polish: existing customer/service tables, no logic changes. */
+  .beauty-customers-table .beauty-customer-contact {
+    overflow-wrap: normal;
+  }
+  .beauty-customer-contact a {
+    display: inline-block;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  .beauty-service-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+  .beauty-service-toolbar > p {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .beauty-service-toolbar > .btn {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  .beauty-service-toolbar > .field {
+    flex: 1;
+    min-width: 0;
+  }
+  .beauty-service-toolbar > .field .inp {
+    width: 100%;
+  }
+  .beauty-service-catalog {
+    color: var(--muted);
+  }
+  .beauty-service-catalog > span,
+  .beauty-service-catalog > small {
+    display: block;
+  }
+  .beauty-services-table td {
+    overflow-wrap: anywhere;
+  }
+  .beauty-services-table td[data-label='В этом филиале'] {
+    font-weight: var(--weight-semibold);
+  }
+  @media (max-width: 600px) {
+    .beauty-customers-table thead {
+      display: none;
+    }
+    .beauty-customers-table tbody {
+      display: grid;
+      gap: var(--space-2);
+    }
+    .beauty-customers-table tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-2);
+      padding: var(--space-4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+    }
+    .beauty-page .beauty-customers-table td {
+      min-width: 0;
+      border: 0;
+      padding: 0;
+      display: block;
+    }
+    .beauty-customers-table td::before {
+      content: attr(data-label);
+      display: block;
+      color: var(--muted);
+      font-size: var(--text-xs);
+    }
+    .beauty-customers-table td[data-label='Клиент'],
+    .beauty-customers-table td[data-label='Телефон'],
+    .beauty-customers-table td:last-child {
+      grid-column: 1 / -1;
+    }
+    .beauty-customers-table td[data-label='Клиент']::before,
+    .beauty-customers-table td[data-label='Телефон']::before {
+      display: none;
+    }
+    .beauty-page .beauty-customers-table .beauty-col-wide {
+      display: block;
+    }
+    .beauty-customer-contact {
+      color: var(--muted);
+    }
+    .beauty-service-toolbar {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .beauty-service-toolbar > p {
+      grid-row: 3;
+    }
+    .beauty-service-toolbar > .btn {
+      grid-row: 2;
+      grid-column: 1;
+      width: 100%;
+    }
+    .beauty-page .beauty-services-table tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-2);
+    }
+    .beauty-page .beauty-services-table td {
+      display: block;
+      min-width: 0;
+    }
+    .beauty-services-table td::before {
+      display: block;
+      margin-bottom: var(--space-1);
+    }
+    .beauty-services-table td[data-label='Услуга'] {
+      font-weight: var(--weight-semibold);
+    }
+    .beauty-services-table td[data-label='Услуга']::before,
+    .beauty-services-table td[data-label='Действия']::before {
+      display: none;
+    }
+  }
+
   /* TZ1.2: opt-in operational layout. No shared primitive defaults are changed. */
   .beauty-calendar-toolbar > .context-help {
     min-width: 0;
@@ -869,7 +990,10 @@
     width: 100%;
     min-width: 0;
   }
-  .beauty-list-reset { max-width: 100%; white-space: normal; }
+  .beauty-list-reset {
+    max-width: 100%;
+    white-space: normal;
+  }
   .beauty-list-search p {
     font-size: var(--text-xs);
     margin: var(--space-1) 0;

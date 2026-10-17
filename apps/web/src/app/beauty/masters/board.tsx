@@ -85,10 +85,12 @@ export function MastersBoard({
       url.searchParams.delete('employee');
       url.hash = '';
     }
+    // Pass only our state: copying Next's __NA marker bypasses its native-history router restore.
+    // Next copies its own tree onto the resulting entry, so Back/Forward still use the same route.
     if (push)
-      history.pushState({ ...history.state, peoplePosition: ++historyPosition.current }, '', url);
+      history.pushState({ peoplePosition: ++historyPosition.current }, '', url);
     else
-      history.replaceState({ ...history.state, peoplePosition: historyPosition.current }, '', url);
+      history.replaceState({ peoplePosition: historyPosition.current }, '', url);
     window.dispatchEvent(new Event('employee-address'));
   };
   const focusedEmployee = useRef<string | null>(null);
@@ -271,11 +273,13 @@ export function MastersBoard({
     setEditing(null);
     setOpeningCreated(null);
     setAddress(null);
-    // history.replaceState alone leaves the Next router on `employee=<closed>`: the next server action is posted
-    // to that address and its response restores the closed card; a reload then opens the wrong master (O07c).
-    createdNavigation.current = false;
-    const url = new URL(location.href);
-    router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
+    // Native history now updates the router too (O07c), without a deferred list navigation racing the next open.
+    // Only an in-flight create navigation needs to be superseded explicitly.
+    if (createdNavigation.current) {
+      createdNavigation.current = false;
+      const url = new URL(location.href);
+      router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
+    }
   };
   const refreshSchedule = async () => {
     if (editing?.mode !== 'edit') return;

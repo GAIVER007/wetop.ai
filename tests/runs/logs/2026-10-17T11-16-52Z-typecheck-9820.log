@@ -1,0 +1,18 @@
+# Типы (typecheck) · 17.10.2026 16:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит fd92955 (claude/u1-feature-registry)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/journal/labels.ts(178,3): error TS1117: An object literal cannot have multiple properties with the same name.
+
+# код выхода 1 · 35 с

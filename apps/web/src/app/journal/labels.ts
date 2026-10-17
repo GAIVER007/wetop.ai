@@ -175,7 +175,6 @@ export const ACTION_RU: Record<string, string> = {
   'support.model.changed': 'Модель поддержки изменена',
   'support.prompt.updated': 'Инструкция поддержки изменена',
   'user.email.verified': 'Почта подтверждена',
-  'user.organization.switched': 'Организация переключена',
 };
 
 export const ENTITY_RU: Record<string, string> = {

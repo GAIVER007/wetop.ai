@@ -1,0 +1,18 @@
+# Модульные (unit) · 17.10.2026 16:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит fd92955 (claude/u1-feature-registry), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T11-20-02Z-unit-b129.json' 'apps/web/src/app/journal' 'apps/web/src/lib/features.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/u1
+
+ ✓ |unit| apps/web/src/app/journal/labels.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/app/journal/journal-view.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/lib/features.test.ts (105 tests) 16ms
+
+ Test Files  3 passed (3)
+      Tests  115 passed (115)
+   Start at  04:20:03
+   Duration  642ms (transform 79%, import 18%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T11-20-02Z-unit-b129.json
+
+# код выхода 0 · 2 с

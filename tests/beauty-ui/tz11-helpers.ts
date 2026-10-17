@@ -1,7 +1,9 @@
 import { expect, type Page, type APIRequestContext } from '@playwright/test';
-export const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '27652'}`;
+import { mkdirSync } from 'node:fs';
+export const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '26814'}`;
 export const date = '2026-10-19';
-export const evidence = process.env.TZ11_EVIDENCE || '/srv/hermes/workspace/wetop-tz11-evidence-20261017';
+export const evidence = process.env.TZ11_EVIDENCE || 'test-results/tz11-evidence';
+mkdirSync(evidence + '/screenshots', { recursive: true });
 export async function seed(page: Page, request: APIRequestContext) {
   const reset = await request.post(api + '/__test/reset');
   expect(reset.ok()).toBeTruthy();
@@ -25,6 +27,11 @@ export async function seed(page: Page, request: APIRequestContext) {
     await call(`/beauty/employees/${e.id}/services`, { serviceIds: services.map(s => s.id) }, 'put');
     await call(`/beauty/employees/${e.id}/working-hours`, { intervals: [0,1,2,3,4,5,6].map(weekday => ({ weekday, timeFrom: '09:00', timeTo: '18:00' })) }, 'put'); employees.push(e);
   }
-  const book = (hour: string, master = 0, service = 0, firstName = 'Тест клиент') => call('/beauty/appointments', { employeeId: employees[master].id, serviceId: services[service].id, startsAt: `${date}T${hour}:00+05:00`, firstName });
+  const book = (hour: string, master = 0, service = 0, firstName = 'Тест клиент') => {
+    const selectedEmployee = employees[master];
+    const selectedService = services[service];
+    if (!selectedEmployee || !selectedService) throw new Error('Invalid synthetic fixture index');
+    return call('/beauty/appointments', { employeeId: selectedEmployee.id, serviceId: selectedService.id, startsAt: `${date}T${hour}:00+05:00`, firstName });
+  };
   return { ...f, headers, call, services, employees, book };
 }

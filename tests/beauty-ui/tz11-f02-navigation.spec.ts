@@ -58,4 +58,3 @@ for (const entry of ['calendar','appointments']) {
     await expect(p.getByLabel('Имя клиента',{exact:true})).toHaveValue('Тест вперёд');
   });
 }
-

@@ -75,10 +75,11 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
   const days = weekDates(data.monday);
   const shift = (n: number) => shiftWeek(data.monday, n);
 
-  const toggle = (master: GridMaster, weekday: number, on: boolean) =>
+  const toggle = (master: GridMaster, weekday: number, on: boolean) => {
+    const key = `${master.id}:${weekday}`;
+    // Controlled checkboxes must update urgently; the server action may remain transitional.
+    setOptimistic((prev) => ({ ...prev, [key]: on }));
     start(async () => {
-      const key = `${master.id}:${weekday}`;
-      setOptimistic((prev) => ({ ...prev, [key]: on }));
       const form = new FormData();
       form.set('id', master.id);
       form.set('intervals', JSON.stringify(toggleWeekday(master.week, weekday, on)));
@@ -92,6 +93,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         return next;
       });
     });
+  };
 
   return (
     <>

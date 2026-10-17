@@ -11,7 +11,7 @@ describe('Дата последнего визита клиента салона
         phone: null, status: 'ACTIVE', visits: 1,
         lastVisitAt: '2026-10-11T19:30:00.000Z',
         lastVisitLocalDate: '2026-10-12',
-        avgCheckMinor: '800000', avgCheckCurrency: 'KZT',
+        avgCheckMinor: '800000', avgCheckCurrency: 'KZT', isVip: false, birthDate: null, birthdayInDays: null,
       }],
     }));
     expect(html).toContain('dateTime="2026-10-12"');

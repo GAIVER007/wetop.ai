@@ -5,15 +5,29 @@ import type { BeautyCustomerRow } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
+import { CustomerMarks } from '../food/customer-marks';
+import { markBeautyCustomer } from './actions';
 
 /**
  * Клиенты салона по макету ТЗ (09.10.2026): телефон, последний визит, всего визитов, средний чек и
  * сегмент. Сегмент производный (Q-BS-3): «Новый» меньше двух завершённых визитов, «Постоянный» от двух;
- * VIP не выдумывается, поля в модели нет. Поиск и отбор на клиенте: список уже загружен целиком.
+ * VIP и день рождения ручные (§36, общие с рестораном). Поиск и отбор на клиенте: список уже загружен целиком.
  */
 export const REGULAR_FROM = 2;
 
-type SegmentFilter = 'all' | 'new' | 'regular' | 'archived';
+type SegmentFilter = 'all' | 'new' | 'regular' | 'vip' | 'archived';
+
+// как у ресторана (food/customers.tsx): «15 марта», без года
+const dayMonth = (iso: string) =>
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+const birthday = (row: BeautyCustomerRow) =>
+  !row.birthDate
+    ? 'Не указан'
+    : row.birthdayInDays === 0
+      ? `${dayMonth(row.birthDate)}, сегодня`
+      : (row.birthdayInDays ?? 99) <= 7
+        ? `${dayMonth(row.birthDate)}, через ${pluralRu(row.birthdayInDays!, ['день', 'дня', 'дней'])}`
+        : dayMonth(row.birthDate);
 
 function segment(row: BeautyCustomerRow): { label: string; tone: 'info' | 'ok' | 'neutral' } {
   if (row.status !== 'ACTIVE') return { label: 'В архиве', tone: 'neutral' };
@@ -22,7 +36,7 @@ function segment(row: BeautyCustomerRow): { label: string; tone: 'info' | 'ok' |
     : { label: 'Новый', tone: 'info' };
 }
 
-export function BeautyCustomersTable({ items }: { items: BeautyCustomerRow[] }) {
+export function BeautyCustomersTable({ items, canEdit = false }: { items: BeautyCustomerRow[]; canEdit?: boolean }) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<SegmentFilter>('all');
   const searchId = useId();
@@ -34,6 +48,7 @@ export function BeautyCustomersTable({ items }: { items: BeautyCustomerRow[] }) 
     if (row.status !== 'ACTIVE') return false;
     if (filter === 'new') return row.visits < REGULAR_FROM;
     if (filter === 'regular') return row.visits >= REGULAR_FROM;
+    if (filter === 'vip') return row.isVip;
     return true;
   });
   return (
@@ -61,6 +76,7 @@ export function BeautyCustomersTable({ items }: { items: BeautyCustomerRow[] }) 
             <option value="all">Все клиенты</option>
             <option value="new">Новые</option>
             <option value="regular">Постоянные</option>
+            <option value="vip">VIP</option>
             <option value="archived">В архиве</option>
           </Select>
         </div>
@@ -74,12 +90,14 @@ export function BeautyCustomersTable({ items }: { items: BeautyCustomerRow[] }) 
             <th>Всего визитов</th>
             <th className="beauty-col-wide">Средний чек</th>
             <th>Статус</th>
+            <th>День рождения</th>
+            {canEdit && <th><span className="sr-only">Действия</span></th>}
           </tr>
         </thead>
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td colSpan={6}>
+              <td colSpan={canEdit ? 8 : 7}>
                 {items.length === 0
                   ? 'Клиентов пока нет. Новый клиент добавляется при создании записи.'
                   : 'Никого не нашли. Поменяйте поиск или сегмент.'}
@@ -92,7 +110,8 @@ export function BeautyCustomersTable({ items }: { items: BeautyCustomerRow[] }) 
             return (
               <tr key={row.id}>
                 <td data-label="Клиент">
-                  {[row.firstName, row.lastName].filter(Boolean).join(' ')}
+                  {[row.firstName, row.lastName].filter(Boolean).join(' ')}{' '}
+                  {row.isVip && <Badge tone="warn">VIP</Badge>}
                 </td>
                 <td data-label="Телефон">{row.phone ?? 'Не указан'}</td>
                 <td data-label="Последний визит" className="beauty-col-wide">
@@ -113,6 +132,16 @@ export function BeautyCustomersTable({ items }: { items: BeautyCustomerRow[] }) 
                 <td data-label="Статус">
                   <Badge tone={s.tone}>{s.label}</Badge>
                 </td>
+                <td data-label="День рождения" data-testid="customer-birthday">{birthday(row)}</td>
+                {canEdit && (
+                  <td>
+                    <CustomerMarks
+                      scopeKey=""
+                      customer={{ id: row.id, name: [row.firstName, row.lastName].filter(Boolean).join(' '), isVip: row.isVip, birthDate: row.birthDate }}
+                      save={markBeautyCustomer}
+                    />
+                  </td>
+                )}
               </tr>
             );
           })}

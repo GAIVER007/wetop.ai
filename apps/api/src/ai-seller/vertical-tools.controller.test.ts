@@ -16,7 +16,7 @@ beforeAll(async () => {
     { provide: VerticalToolsService, useValue: service }, { provide: AuthService, useValue: { whoami: async () => null } },
     { provide: APP_GUARD, useClass: SessionGuard },
   ] }).compile();
-  app = m.createNestApplication({ logger: false }); await app.init();
+  app = m.createNestApplication({ logger: false }); await app.listen(0, '127.0.0.1');
 });
 afterAll(() => app.close());
 afterEach(() => vi.unstubAllEnvs());

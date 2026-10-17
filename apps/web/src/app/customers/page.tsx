@@ -6,6 +6,8 @@ import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { beautyApi } from '../../lib/api';
 import { BeautyCustomersTable } from './beauty-table';
+import { deskShell } from '../../lib/desk-shell';
+import { mayAccess } from '../../lib/navigation';
 import '../beauty/beauty.css';
 
 /** Клиенты салона по макету ТЗ (09.10.2026): сегменты, визиты и средний чек считает API по DONE */
@@ -13,14 +15,14 @@ export default async function CustomersPage() {
   const me = await requireVertical(['BEAUTY', 'FOOD_SERVICE']);
   if (me.context?.vertical === 'FOOD_SERVICE') return <FoodCustomers />;
   try {
-    const { items } = await beautyApi.customers();
+    const [{ items }, shell] = await Promise.all([beautyApi.customers(), deskShell()]);
     return (
       <Page
         className="beauty-page"
         title="Клиенты"
         subtitle="Клиенты этого бизнеса. Новый клиент добавляется при создании записи."
       >
-        <BeautyCustomersTable items={items} />
+        <BeautyCustomersTable items={items} canEdit={!shell.readOnly && mayAccess(shell.access, 'desk')} />
       </Page>
     );
   } catch (error) {

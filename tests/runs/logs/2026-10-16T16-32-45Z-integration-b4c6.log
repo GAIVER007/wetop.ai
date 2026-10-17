@@ -1,0 +1,33 @@
+# Интеграционные (integration) · 16.10.2026 21:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит f0d80f7 (claude/modest-lovelace-429ae7), незакоммиченных файлов набора: 62
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-32-45Z-integration-b4c6.json' 'tests/integration/audit-author.test.ts' 'tests/integration/category-photos.test.ts' 'tests/integration/category-price.test.ts' 'tests/integration/category-rate-plan.test.ts' 'tests/integration/category-usage.test.ts' 'tests/integration/inventory-editor.test.ts' 'tests/integration/inventory-room-ari.test.ts' 'tests/integration/mv1-vertical-boundary.test.ts' 'tests/integration/mv10-vertical-tools.test.ts' 'tests/integration/rates-derived-api.test.ts' 'tests/integration/rates-empty-batch-api.test.ts' 'tests/integration/reset-token-http.test.ts' 'tests/integration/core-security/scope-guest.test.ts' 'tests/integration/core-security/scope-self.test.ts' 'tests/integration/core-security/scope-fail-closed.test.ts' 'tests/integration/core-security/scope-ai-seller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7
+
+ ✓ |integration| tests/integration/reset-token-http.test.ts (12 tests) 1349ms
+ ✓ |integration| tests/integration/core-security/scope-fail-closed.test.ts (39 tests) 2943ms
+ ✓ |integration| tests/integration/core-security/scope-ai-seller.test.ts (22 tests) 2026ms
+ ✓ |integration| tests/integration/core-security/scope-guest.test.ts (23 tests) 1815ms
+ ✓ |integration| tests/integration/core-security/scope-self.test.ts (50 tests) 1018ms
+ ✓ |integration| tests/integration/rates-derived-api.test.ts (1 test) 250ms
+ ✓ |integration| tests/integration/category-rate-plan.test.ts (1 test) 250ms
+ ✓ |integration| tests/integration/category-price.test.ts (1 test) 423ms
+   ✓ category price and removal (1)
+     ✓ sets one price for a year and every occupancy, shows it, deletes empty and archives used 422ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 274ms
+ ✓ |integration| tests/integration/category-photos.test.ts (1 test) 269ms
+ ✓ |integration| tests/integration/mv10-vertical-tools.test.ts (5 tests) 277ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 199ms
+ ✓ |integration| tests/integration/category-usage.test.ts (1 test) 242ms
+ ✓ |integration| tests/integration/rates-empty-batch-api.test.ts (1 test) 294ms
+ ✓ |integration| tests/integration/inventory-room-ari.test.ts (1 test) 255ms
+ ✓ |integration| tests/integration/mv1-vertical-boundary.test.ts (7 tests) 215ms
+
+ Test Files  16 passed (16)
+      Tests  169 passed (169)
+   Start at  09:32:45
+   Duration  19.54s (tests 66%, import 26%, transform 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-32-45Z-integration-b4c6.json
+
+# код выхода 0 · 20 с

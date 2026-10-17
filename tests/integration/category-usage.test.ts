@@ -49,7 +49,7 @@ describe.skipIf(!process.env.DATABASE_URL)('category usage for safe editing', ()
     app.use((_req: unknown, _res: unknown, next: () => void) => {
       void withSignedInUser(actor, async () => next());
     });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     const today = todayAt('Asia/Almaty');
     try {
       await withSignedInUser(actor, async () => {

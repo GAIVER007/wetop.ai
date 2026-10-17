@@ -85,7 +85,7 @@ describe.skipIf(!process.env.DATABASE_URL)('MV1 HTTP + database + RLS boundary',
       next();
     });
     app.useGlobalInterceptors(new AuthorInterceptor({ db } as never));
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => {
     await app?.close();

@@ -116,7 +116,7 @@ describe('desk dashboard API', () => {
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => {
     await app.close();

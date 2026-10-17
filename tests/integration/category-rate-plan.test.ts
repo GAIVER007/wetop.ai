@@ -45,7 +45,7 @@ describe.skipIf(!process.env.DATABASE_URL)('category without a rate plan, rate p
     app.use((_req: unknown, _res: unknown, next: () => void) => {
       void withSignedInUser(actor, async () => next());
     });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     const editor = app.get(InventoryEditor);
     const links = (categoryCode?: string) =>
       db.ratePlanAccommodationType.count({

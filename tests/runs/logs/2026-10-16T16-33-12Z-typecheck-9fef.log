@@ -1,0 +1,19 @@
+# Типы (typecheck) · 16.10.2026 21:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит f0d80f7 (claude/modest-lovelace-429ae7), незакоммиченных файлов набора: 63
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/food/rating-parts.tsx(2,20): error TS2307: Cannot find module 'qrcode-generator' or its corresponding type declarations.
+apps/web/src/components/agentation-preview.tsx(2,28): error TS2307: Cannot find module 'agentation' or its corresponding type declarations.
+
+# код выхода 1 · 28 с

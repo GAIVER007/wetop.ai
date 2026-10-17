@@ -625,7 +625,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => {
     await app.close();
@@ -1571,7 +1571,7 @@ describe('роли в деньгах: возврат, сторно и умень
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => {
     await app.close();
@@ -1711,7 +1711,7 @@ describe('касса: остатки, операции, переводы, ста
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => {
     await app.close();
@@ -1891,7 +1891,7 @@ describe('сверка наличных (§21.4, K4)', () => {
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => {
     await app.close();

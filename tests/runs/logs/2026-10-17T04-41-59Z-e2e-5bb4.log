@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 17.10.2026 09:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1f9f39c (claude/salon-vip), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' 'tests/beauty-ui/beauty.spec.ts' '-g' 'empty setup through real UI'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 573ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:45224) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete (56.1s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByRole('status')
+    Expected substring: "Показано 1"
+    Received string:    "1 клиент"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByRole('status') with timeout 5000ms
+      - waiting for getByRole('main').getByRole('status')
+        14 × locator resolved to <p role="status">1 клиент</p>
+           - unexpected value "1 клиент"
+
+
+      261 |   await expect(client.getByTestId('customer-birthday')).toContainText('15 марта');
+      262 |   await page.getByRole('main').getByLabel('Сегмент').selectOption('vip');
+    > 263 |   await expect(page.getByRole('main').getByRole('status')).toContainText('Показано 1');
+          |                                                            ^
+      264 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+      265 |   expect(
+      266 |     calls.filter(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/beauty.spec.ts:263:60
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+# код выхода 1 · 1 мин 20 с

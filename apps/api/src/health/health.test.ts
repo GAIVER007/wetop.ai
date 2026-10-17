@@ -29,7 +29,7 @@ describe('GET /health', () => {
       .useValue({ db: { $queryRaw: queryRaw } })
       .compile();
     app = module.createNestApplication({ logger: false });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   beforeEach(() => {
     vi.clearAllMocks();
@@ -93,7 +93,7 @@ describe('GET /status/public (H14, ADR-144)', () => {
       })
       .compile();
     app = module.createNestApplication({ logger: false });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   beforeEach(() => {
     vi.clearAllMocks();

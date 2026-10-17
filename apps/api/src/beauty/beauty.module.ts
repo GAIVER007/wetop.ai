@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { writeEmployeeCommon } from '../employee-portal/employee-common';
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
@@ -474,43 +475,22 @@ export class BeautyCatalogService {
   async updateEmployee(id: string, raw: unknown) {
     await mayBeautyWrite(this.prisma, 'property');
     if (!UUID.test(id)) throw new NotFoundException('Мастер не найден');
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw) ||
+        Object.keys(raw).some(key => !['name', 'phone', 'email', 'active', 'expectedProfileRevision'].includes(key)))
+      throw new BadRequestException('Недопустимые поля профиля');
     const parsed = parseEmployeeInput(raw, { partial: true });
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const scope = await this.scope();
     const p = parsed.value;
-    const expected = expectedProfileRevision(raw);
+    const expected = (raw as Record<string, unknown>).expectedProfileRevision;
     return beautyTransaction(this.prisma, scope, async (tx) => {
-      const current = await lockedEmployeeProfile(tx, id, scope.businessId);
-      if (!current) throw new NotFoundException('Мастер не найден');
-      // Старые клиенты без expectedProfileRevision сохраняют прежний контракт без CAS.
-      if (expected !== undefined && expected !== current.profileRevision)
-        throw new ConflictException(
-          'Профиль изменён в другом окне. Загрузите актуальные данные перед сохранением.',
-        );
-      const next = {
-        name: p.name ?? current.name,
-        phone: p.phone !== undefined ? p.phone : current.phone,
-        email: p.email !== undefined ? p.email : current.email,
-        status:
-          p.active === undefined
-            ? current.status
-            : p.active
-              ? ('ACTIVE' as const)
-              : ('ARCHIVED' as const),
-      };
-      const changed = Object.keys(next).filter(
-        (key) => next[key as keyof typeof next] !== current[key as keyof typeof next],
-      );
+      const { before: current, after: next, changed } = await writeEmployeeCommon(tx, scope.businessId, id, expected, {
+        ...(p.name !== undefined ? { name: p.name } : {}),
+        ...(p.phone !== undefined ? { phone: p.phone } : {}),
+        ...(p.email !== undefined ? { email: p.email } : {}),
+        ...(p.active !== undefined ? { status: p.active ? 'ACTIVE' : 'ARCHIVED' } : {}),
+      });
       if (changed.length === 0) return this.employee(current.id, scope.businessId, tx);
-      await tx.$executeRaw`
-        UPDATE employees
-        SET name = ${next.name},
-            phone = ${next.phone},
-            email = ${next.email},
-            status = ${next.status}::"EmployeeStatus",
-            updated_at = GREATEST(clock_timestamp(), updated_at + INTERVAL '1 microsecond')
-        WHERE id = ${current.id}::uuid AND business_id = ${scope.businessId}::uuid
-      `;
       await tx.auditLog.create({
         data: {
           organizationId: scope.organizationId,
@@ -628,25 +608,6 @@ async function employeeProfile(
   return rows[0] ?? null;
 }
 
-async function lockedEmployeeProfile(
-  db: EmployeeDb,
-  id: string,
-  businessId: string,
-): Promise<EmployeeProfile | null> {
-  const rows = await db.$queryRaw<EmployeeProfile[]>`
-    SELECT id::text,
-           name,
-           phone,
-           email,
-           status::text AS status,
-           to_char(updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "profileRevision"
-    FROM employees
-    WHERE id = ${id}::uuid AND business_id = ${businessId}::uuid
-    FOR UPDATE
-  `;
-  return rows[0] ?? null;
-}
-
 async function employeeChildren(
   db: EmployeeDb,
   employeeIds: string[],
@@ -673,18 +634,6 @@ async function employeeChildren(
       .get(row.employeeId)
       ?.services.push({ serviceId: row.serviceId, createdAt: row.createdAt });
   return grouped;
-}
-
-function expectedProfileRevision(raw: unknown): string | undefined {
-  if (!raw || typeof raw !== 'object') return undefined;
-  const expected = (raw as Record<string, unknown>).expectedProfileRevision;
-  if (expected === undefined) return undefined;
-  if (
-    typeof expected !== 'string' ||
-    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(expected)
-  )
-    throw new BadRequestException('Некорректная версия профиля');
-  return expected;
 }
 
 /** Услуга наружу: цена строкой тиынов (деньги не float, ADR-008) и действующая цена филиала словами домена */

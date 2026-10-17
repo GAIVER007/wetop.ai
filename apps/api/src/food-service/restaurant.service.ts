@@ -1,3 +1,4 @@
+import { readEmployeeCommon, writeEmployeeCommon, readEmployeeWeekSource, touchEmployeeSourceRevision } from '../employee-portal/employee-common';
 import { createHash, randomUUID } from 'node:crypto';
 import {
   BadRequestException,
@@ -17,6 +18,7 @@ import {
   orderPayment,
   parseOrderRating,
   parseWorkingHoursWeek,
+  resolveWorkingTime,
   weekTemplate,
   hashSessionToken,
   newSessionToken,
@@ -52,6 +54,7 @@ import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { BRANCH_CASH_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
+import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/write-contract';
 import { StockService } from './stock.service';
 
 /** Срок ссылки на оценку с телефона гостя (§40) */
@@ -868,11 +871,12 @@ export class RestaurantService {
       p = page(query);
     const local = foodLocal(new Date(), s.timezone);
     const w = timeOffWindow({ dateFrom: local.date, dateTo: local.date, timezone: s.timezone });
-    const weekday = new Date(`${local.date}T12:00:00Z`).getUTCDay();
     const rows = await this.prisma.db.employee.findMany({
       where: { ...(p.cursor ? { id: { gt: p.cursor } } : {}), businessId: s.businessId },
       include: {
-        workingHours: { where: { locationId: s.locationId, weekday } },
+        workingHours: { where: { locationId: s.locationId } },
+        timeOffs: true,
+        locations: { select: { locationId: true } },
         restaurantOrders: {
           where: {
             locationId: s.locationId,
@@ -886,22 +890,16 @@ export class RestaurantService {
       orderBy: { id: 'asc' },
       take: p.limit + 1,
     });
-    const nowMinutes =
-      new Date(local.stamp).getUTCHours() * 60 + new Date(local.stamp).getUTCMinutes();
-    const minutes = (t: Date) => Number(clockText(t).slice(0, 2)) * 60 + Number(clockText(t).slice(3, 5));
+    const profiles = new Map((await readEmployeeCommon(this.prisma.db, s.businessId)).map(row => [row.id, row]));
     return paged(
       rows.map((r) => {
-        const shift = r.workingHours[0] ?? null;
+        const todayHours = r.workingHours.filter(h => h.weekday === new Date(`${local.date}T12:00:00Z`).getUTCDay()).sort((a,b) => a.timeFrom.getTime()-b.timeFrom.getTime());
+        const fit = resolveWorkingTime({ startsAt: new Date(), timezone: s.timezone, supported: true, employeeActive: r.status === 'ACTIVE', worksHere: r.locations.some(l => l.locationId === s.locationId), workingHours: r.workingHours.map(h => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: clockText(h.timeTo) })), timeOffs: r.timeOffs.map(t => ({ dateFrom: t.dateFrom.toISOString().slice(0,10), dateTo: t.dateTo.toISOString().slice(0,10) })) });
         return {
-          id: r.id,
-          name: r.name,
-          phone: r.phone,
-          email: r.email,
-          status: r.status,
-          shift: shift ? `${clockText(shift.timeFrom)}–${clockText(shift.timeTo)}` : null,
-          onShift: shift
-            ? nowMinutes >= minutes(shift.timeFrom) && nowMinutes < minutes(shift.timeTo)
-            : false,
+          ...profiles.get(r.id)!,
+          shift: todayHours.map(h => `${clockText(h.timeFrom)}–${clockText(h.timeTo)}`).join(', ') || null,
+          onShift: fit.ok,
+          workingTimeStatus: fit.ok ? 'WORKING' : fit.reason,
           salesTodayMinor: r.restaurantOrders.reduce((acc, o) => acc + o.total, 0n).toString(),
           // §39: рейтинг по оценкам гостей за всё время
           rating: ratingSummary(r.guestRatings.map((g) => g.stars)),
@@ -923,17 +921,19 @@ export class RestaurantService {
         workingHours: {
           where: { locationId: s.locationId },
           orderBy: [{ weekday: 'asc' }, { timeFrom: 'asc' }],
-          select: { weekday: true, timeFrom: true, timeTo: true },
+          select: { id: true, weekday: true, timeFrom: true, timeTo: true },
         },
       },
       orderBy: [{ name: 'asc' }, { id: 'asc' }],
     });
+    const snapshots = new Map(await Promise.all(rows.map(async r => [r.id, await readEmployeeWeekSource(this.prisma.db, r.id, s.locationId)] as const)));
     return {
       employees: rows.map((r) => ({
         id: r.id,
         name: r.name,
+        weekRevision: hoursRowsRevision(snapshots.get(r.id)!.rows, snapshots.get(r.id)!.sourceRevision),
         week: weekTemplate(
-          r.workingHours.map((h) => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: clockText(h.timeTo) })),
+          snapshots.get(r.id)!.rows.map((h) => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: clockText(h.timeTo) })),
         ),
       })),
     };
@@ -950,6 +950,8 @@ export class RestaurantService {
         select: { id: true },
       });
       if (!employee) throw new NotFoundException('Сотрудник не найден');
+      await tx.$queryRaw`SELECT id FROM employees WHERE id=${id}::uuid FOR UPDATE`;
+      assertWeekRevision(raw, await hoursRevision(tx, id, s.locationId));
       await tx.workingHours.deleteMany({ where: { employeeId: id, locationId: s.locationId } });
       if (week.value.length)
         await tx.workingHours.createMany({
@@ -964,7 +966,8 @@ export class RestaurantService {
       await this.audit(tx, s, 'employee', id, 'food.employee.working_hours.set', {
         intervals: week.value.map((i) => `${i.weekday} ${i.timeFrom}-${i.timeTo}`),
       });
-      return { week: weekTemplate(week.value) };
+      await touchEmployeeSourceRevision(tx, id);
+      return { week: weekTemplate(week.value), weekRevision: await hoursRevision(tx, id, s.locationId) };
     });
   }
 
@@ -988,14 +991,10 @@ export class RestaurantService {
   async updateEmployee(idRaw: string, raw: unknown) {
     return this.write('staff', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
-      const b = parsed(() => foodObject(raw, ['name', 'phone', 'email', 'status']));
-      const old = await tx.employee.findFirst({ where: { id, businessId: s.businessId } });
-      if (!old) throw new NotFoundException('Сотрудник не найден');
+      const b = parsed(() => foodObject(raw, ['name', 'phone', 'email', 'status', 'expectedProfileRevision']));
       if (b.status !== undefined && b.status !== 'ACTIVE' && b.status !== 'ARCHIVED')
         throw new BadRequestException('Статус: ACTIVE или ARCHIVED');
-      const row = await tx.employee.update({
-        where: { id },
-        data: {
+      const { before: old, after: row } = await writeEmployeeCommon(tx, s.businessId, id, b.expectedProfileRevision, {
           ...(b.name !== undefined ? { name: parsed(() => foodText(b.name, 200)) } : {}),
           ...(b.phone !== undefined
             ? { phone: b.phone === null ? null : parsed(() => foodText(b.phone, 32)) }
@@ -1004,7 +1003,6 @@ export class RestaurantService {
             ? { email: b.email === null ? null : parsed(() => foodText(b.email, 320)) }
             : {}),
           ...(b.status !== undefined ? { status: b.status as 'ACTIVE' | 'ARCHIVED' } : {}),
-        },
       });
       await this.audit(
         tx,

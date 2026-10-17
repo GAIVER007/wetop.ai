@@ -48,7 +48,7 @@ test('салон: календарь на ширинах и темах', async (
     await post(`/beauty/employees/${e.id}/services`, { serviceIds: services.map((x) => x.id) }, 'put');
     await post(
       `/beauty/employees/${e.id}/working-hours`,
-      { intervals: [1, 2, 3, 4, 5, 6].map((weekday) => ({ weekday, timeFrom: '09:00', timeTo: '20:00' })) },
+      { expectedRevision: (await (await request.get(`${api}/beauty/schedule?employee=${e.id}`, { headers })).json()).weekRevision, intervals: [1, 2, 3, 4, 5, 6].map((weekday) => ({ weekday, timeFrom: '09:00', timeTo: '20:00' })) },
       'put',
     );
     masters.push(e);

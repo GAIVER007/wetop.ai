@@ -67,7 +67,7 @@ describe('Food portal payroll uses an authorized viewing branch, not invented UT
   it('branchless self profile remains editable without fabricating a pay calculation', async () => {
     const before = await as('staffA', null, () => portal.get(null, { month }));
     const after = await as('staffA', null, () => portal.mutate(null, 'profile', {
-      headline: 'Synthetic branchless waiter', expectedRevision: before.profile.revision,
+      headline: 'Synthetic branchless waiter', expectedRevision: before.profile.revision, expectedProfileRevision: before.employee.profileRevision,
     }));
     expect(after.profile.headline).toBe('Synthetic branchless waiter');
     expect(after.pay.status).toBe('SELECT_LOCATION');

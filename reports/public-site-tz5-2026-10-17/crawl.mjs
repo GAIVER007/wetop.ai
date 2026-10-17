@@ -1,7 +1,8 @@
 // Обход собранного сайта (apps/site/out): реестр страниц, SEO-поля, ссылки, sitemap. Только чтение.
-/* global process, console */
 import { readFileSync, readdirSync, statSync, existsSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import process from 'node:process';
+import console from 'node:console';
 
 const OUT = process.argv[2];
 const SITE = 'https://wetop.ai';

@@ -12,8 +12,9 @@ export function assertPortalDatabase(purpose: 'portal' | 'public-booking' = 'por
   if (!raw || process.env.NODE_ENV === 'production') throw new Error('An explicit isolated portal fixture database is required');
   let u: URL;
   try { u = new URL(raw); } catch { throw new Error('Invalid portal fixture database target'); }
-  const ownLocal = (['55603', '55613'].includes(u.port)
-    || (purpose === 'public-booking' && u.port === '55623')) && u.pathname === '/pmslocal';
+  const ownLocal = ((['55603', '55613'].includes(u.port)
+    || (purpose === 'public-booking' && u.port === '55623')) && u.pathname === '/pmslocal')
+    || (u.port === '55743' && u.pathname === '/wetop_tz21');
   const githubCi = process.env.CI === 'true' && process.env.GITHUB_ACTIONS === 'true';
   const githubJob = githubCi && (
     (u.port === '5432' && u.pathname === '/pms_dev') ||

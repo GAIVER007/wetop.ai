@@ -1,3 +1,4 @@
+import { employeeProfileRevision } from './employee-common';
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import type { PortalProfileInput, PortalPortfolioInput, PortalPublicationInput, PortalPercentBasis } from '@pms/domain';
 
@@ -16,8 +17,9 @@ export function revision(expected: unknown, actual: string): void {
   if (expected !== actual) throw new ConflictException('Data changed; reload before saving');
 }
 export function profileInput(raw: unknown): PortalProfileInput {
-  const b = objectInput(raw, ['name','phone','email','headline','biography','practiceSinceYear','expectedRevision']);
+  const b = objectInput(raw, ['name','phone','email','headline','biography','practiceSinceYear','expectedRevision','expectedProfileRevision']);
   if (typeof b.expectedRevision !== 'string' || !b.expectedRevision) throw new BadRequestException('expectedRevision required');
+  employeeProfileRevision(b.expectedProfileRevision);
   for (const [key,max] of [['name',200],['phone',32],['email',320],['headline',200],['biography',5000]] as const) {
     if (b[key] !== undefined && !(b[key] === null && ['phone','email'].includes(key))) b[key] = text(b[key],max);
   }

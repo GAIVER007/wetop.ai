@@ -24,7 +24,7 @@ export function EmployeeCabinet({ initial, target, scope }: { initial: EmployeeP
     <Tabs label="Разделы кабинета" className="portal-tabs" panels={[
       { id: 'professional', label: 'Профиль', content: <section className="panel portal-section"><h2>Профессиональный профиль</h2>
 
-      <PortalForm context={context} command="profile" revision={data.profile.revision} label="Сохранить профиль">
+      <PortalForm context={context} command="profile" revision={data.profile.revision} profileRevision={data.employee.profileRevision} label="Сохранить профиль">
         <Field label="Имя в карточке"><Input name="name" required maxLength={200} defaultValue={data.employee.name} /></Field>
         <Field label="Телефон для связи"><Input name="phone" type="tel" maxLength={32} defaultValue={data.employee.phone ?? ''} /></Field>
         <Field label="Почта для связи"><Input name="email" type="email" maxLength={320} defaultValue={data.employee.email ?? ''} /></Field>

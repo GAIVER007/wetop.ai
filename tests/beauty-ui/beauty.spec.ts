@@ -90,7 +90,7 @@ async function seed(page: Page, request: APIRequestContext, fixture?: Fixture) {
     (
       await request.put(`${api}/beauty/employees/${employee.id}/working-hours`, {
         headers,
-        data: { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] },
+        data: { expectedRevision: (await (await request.get(`${api}/beauty/schedule?employee=${employee.id}`, { headers })).json()).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] },
       })
     ).ok(),
   ).toBe(true);
@@ -358,7 +358,7 @@ for (const width of [1440, 390])
           (
             await request.put(`${api}/beauty/employees/${employee.id}/working-hours`, {
               headers,
-              data: { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] },
+              data: { expectedRevision: (await (await request.get(`${api}/beauty/schedule?employee=${employee.id}`, { headers })).json()).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] },
             })
           ).ok(),
         ).toBe(true);

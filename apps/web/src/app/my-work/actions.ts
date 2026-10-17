@@ -19,11 +19,14 @@ export async function savePortal(target: PortalTarget, scope: string, command: s
     const revision = text(form, 'expectedRevision');
     let data: EmployeePortalDto;
     switch (command) {
-      case 'profile': data = await employeePortalApi.profile(target, {
+      case 'profile':
+        if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(text(form, 'expectedProfileRevision')))
+          return { error: 'Исходная версия профиля отсутствует. Загрузите актуальные данные; ввод сохранён.' };
+        data = await employeePortalApi.profile(target, {
         name: text(form, 'name'), phone: text(form, 'phone') || null, email: text(form, 'email') || null,
         headline: text(form, 'headline'), biography: text(form, 'biography'),
         practiceSinceYear: text(form, 'practiceSinceYear') ? Number(text(form, 'practiceSinceYear')) : null,
-        expectedRevision: revision,
+        expectedRevision: revision, expectedProfileRevision: text(form, 'expectedProfileRevision'),
       }); break;
       case 'avatar': case 'add-work': {
         const file = form.get('file');
@@ -81,5 +84,16 @@ export async function savePortal(target: PortalTarget, scope: string, command: s
   } catch (error) {
     unstable_rethrow(error);
     return { error: error instanceof ApiError && error.status < 500 ? error.message : 'Не удалось подтвердить сохранение. Ввод сохранён. Проверьте результат перед повтором.' };
+  }
+}
+
+/** Read-only comparison. The draft's original revision is never refreshed by savePortal. */
+export async function loadPortalWeek(target: PortalTarget, scope: string): Promise<PortalResult> {
+  try {
+    if (scope !== ((await requestScopeHeader())['x-wetop-scope'] ?? '')) return { error: 'Филиал изменился. Откройте карточку заново.' };
+    return { data: await employeePortalApi.load(target) };
+  } catch (error) {
+    unstable_rethrow(error);
+    return { error: 'Не удалось перечитать график. Ваш ввод сохранён.' };
   }
 }

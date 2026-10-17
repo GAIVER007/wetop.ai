@@ -125,8 +125,8 @@ describe.skipIf(!process.env.DATABASE_URL)('Beauty v2 real database', () => {
       catalog.createEmployee({ name: 'Тестовый мастер', active: true, creationId: randomUUID() }),
     );
     await run(() => catalog.setEmployeeServices(employee.id, { serviceIds: [service.id] }));
-    await run(() =>
-      schedule.setWorkingHours(employee.id, {
+    await run(async () =>
+      schedule.setWorkingHours(employee.id, { expectedRevision: (await schedule.overview(employee.id)).weekRevision,
         intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '10:00' }],
       }),
     );
@@ -197,8 +197,8 @@ describe.skipIf(!process.env.DATABASE_URL)('Beauty v2 real database', () => {
   });
   it('O10/O12: unrelated hours and intervals separated by a break are not ready', async () => {
     const { employee } = await chain();
-    await run(() =>
-      schedule.setWorkingHours(employee.id, {
+    await run(async () =>
+      schedule.setWorkingHours(employee.id, { expectedRevision: (await schedule.overview(employee.id)).weekRevision,
         intervals: [
           { weekday: 1, timeFrom: '09:00', timeTo: '09:30' },
           { weekday: 1, timeFrom: '10:00', timeTo: '10:30' },
@@ -470,7 +470,7 @@ describe.skipIf(!process.env.DATABASE_URL)('Beauty v2 real database', () => {
     });
     const c = new BeautyCatalogService({ db: blockedDb } as never);
     const h = new BeautyScheduleService({ db: blockedDb } as never);
-    const mutation = run<unknown>(() =>
+    const mutation = run<unknown>(async () =>
       kind === 'employee archive'
         ? c.updateEmployee(employee.id, { active: false })
         : kind === 'service archive'
@@ -479,7 +479,7 @@ describe.skipIf(!process.env.DATABASE_URL)('Beauty v2 real database', () => {
             ? c.setLocationService(service.id, { enabled: false })
             : kind === 'clear skills'
               ? c.setEmployeeServices(employee.id, { serviceIds: [] })
-              : h.setWorkingHours(employee.id, {
+              : h.setWorkingHours(employee.id, { expectedRevision: (await schedule.overview(employee.id)).weekRevision,
                   intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '09:30' }],
                 }),
     );

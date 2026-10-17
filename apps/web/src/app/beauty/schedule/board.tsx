@@ -211,6 +211,7 @@ export function WeekForm({
   save = saveBeautyWorkingHours,
   expectedRevision,
   scopeKey = '',
+  loadCurrent = loadBeautySchedule,
 }: {
   scopeKey?: string | undefined;
   employeeId: string;
@@ -219,6 +220,7 @@ export function WeekForm({
   week: BeautySchedule['week'];
   /** Действие сохранения недели: салонное по умолчанию, ресторан передаёт своё (Q-REST-11) */
   save?: typeof saveBeautyWorkingHours;
+  loadCurrent?: (employeeId: string) => Promise<{ data?: { week: BeautySchedule['week']; weekRevision?: string | null; location: { id: string } | null }; error?: string | null }>;
 }) {
   const [state, action, pending] = useActionState(
     async (prev: Awaited<ReturnType<typeof saveBeautyWorkingHours>> | null, form: FormData) => {
@@ -229,7 +231,7 @@ export function WeekForm({
     null,
   );
   const [originalRevision, setOriginalRevision] = useState(expectedRevision);
-  const [comparison, setComparison] = useState<BeautySchedule | null>(null);
+  const [comparison, setComparison] = useState<{ week: BeautySchedule['week']; weekRevision?: string | null } | null>(null);
   const [checking, check] = useTransition();
   useEffect(() => {
     if (state?.revision) setOriginalRevision(state.revision);
@@ -347,7 +349,8 @@ export function WeekForm({
           disabled={checking}
           onClick={() =>
             check(async () => {
-              const result = await loadBeautySchedule(employeeId);
+              const result = await loadCurrent(employeeId);
+              if (result.error) { setError(result.error); return; }
               if (result.data?.location?.id !== scopeKey) return;
               setComparison(result.data);
             })

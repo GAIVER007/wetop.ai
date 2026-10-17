@@ -22,6 +22,7 @@ import type { WebVertical } from '../../../../lib/vertical-landing';
 import { BackToModules } from '../../parts';
 import { SiteEditor } from './editor';
 import { CreateSite } from './create-site';
+import { publishTarget } from './vertical-status';
 import '../../marketing.css';
 
 /**
@@ -166,6 +167,7 @@ export default async function SiteEditorPage() {
         categories={loaded.brief?.input.accommodations.map((a) => ({ code: a.categoryCode, name: a.name })) ?? []}
         assets={loaded.assets}
         readOnly={readOnly}
+        publish={publishTarget(vertical)}
       />
     </Page>
   );

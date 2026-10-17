@@ -193,6 +193,9 @@ jobs:
           SQL
       - name: Интеграционные тесты
         env:
+          # Explicit opt-in is scoped to the disposable canonical service, never arbitrary localhost.
+          PMS_PORTAL_FIXTURE: owner-home-ci
+          CI: 'true'
           # Keep default clients, global setup and explicit isolated pg/Prisma clients on one fixture.
           # The URL also carries the password for helpers that extract it to create local test roles.
           DATABASE_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home

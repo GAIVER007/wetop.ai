@@ -74,7 +74,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
       { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса филиала' },
       // макет ресторана из 14 экранов (12.10.2026): бар, финансы и настройки ресторана своими экранами
-      { href: '/drinks', label: 'Бар', icon: 'breakfast', requires: 'desk', description: 'Бар: напитки и заказы' },
+      { href: '/drinks', label: 'Напитки', icon: 'breakfast', requires: 'desk', description: 'Напитки: заказы бара и витрина' },
       { href: '/restaurant-finance', label: 'Финансы', icon: 'money', requires: 'reports', description: 'Выручка, расходы и поступления ресторана' },
       { href: '/restaurant-settings', label: 'Настройки', icon: 'settings', requires: 'property', description: 'Часы работы, бронирования и разделы ресторана' },
 
@@ -634,8 +634,9 @@ export const beautyMenuSections: MenuSection[] = [
     id: 'reports',
     label: 'Отчёты',
     icon: 'analytics' as IconName,
-    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics', 'Аналитика бизнеса')],
-    match: ['/management'],
+    // `/reports` салону и ресторану перенаправляет на соседний пункт: в меню его нет (аудит 17.10.2026, Д2)
+    items: [menuItem('/management/analytics', 'Аналитика бизнеса')],
+    match: ['/management', '/reports'],
   },
   {
     id: 'settings',
@@ -680,7 +681,8 @@ export const foodMenuSections: MenuSection[] = [
     label: 'Финансы',
     icon: 'money' as IconName,
     // бар филиала (ADR-178): деньги бара ресторана в кассе ресторана (§45)
-    items: [menuItem('/restaurant-finance'), menuItem('/cashbox'), menuItem('/finance', 'Оплаты и касса'), menuItem('/bar', 'Бар')],
+    // `/finance` ресторану не свой экран: он перенаправляет на «Финансы» ресторана (аудит 17.10.2026, Д2)
+    items: [menuItem('/restaurant-finance'), menuItem('/cashbox'), menuItem('/bar', 'Бар')],
   },
   {
     id: 'team',
@@ -701,8 +703,9 @@ export const foodMenuSections: MenuSection[] = [
     id: 'reports',
     label: 'Отчёты',
     icon: 'analytics' as IconName,
-    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics', 'Аналитика бизнеса')],
-    match: ['/management'],
+    // `/reports` салону и ресторану перенаправляет на соседний пункт: в меню его нет (аудит 17.10.2026, Д2)
+    items: [menuItem('/management/analytics', 'Аналитика бизнеса')],
+    match: ['/management', '/reports'],
   },
   {
     id: 'settings',

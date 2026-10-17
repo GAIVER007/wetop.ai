@@ -21,7 +21,7 @@ describe('Food workspace isolation', () => {
       '/customers',
       '/restaurant-finance',
       '/cashbox',
-      '/finance',
+      // «Оплаты и касса» и «Все отчёты» вели на «Финансы» ресторана: пунктов нет (аудит 17.10.2026, Д2)
       // бар филиала (ADR-178): деньги бара ресторана в кассе ресторана (§45)
       '/bar',
       '/my-work',
@@ -36,7 +36,6 @@ describe('Food workspace isolation', () => {
       '/marketing/content',
       '/marketing/budget',
       '/marketing/analytics',
-      '/reports',
       '/management/analytics',
       '/restaurant-settings',
       // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
@@ -59,7 +58,7 @@ describe('Food workspace isolation', () => {
       'Помощь',
       'Профиль',
     ]);
-    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 4, 4, 2, 5, 2, 2]);
+    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 3, 4, 2, 5, 1, 2]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],

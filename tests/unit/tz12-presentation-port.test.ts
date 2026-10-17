@@ -63,5 +63,7 @@ it('keeps the mobile calendar toolbar gutter compact without shrinking or hiding
   const mobile = source('beauty/beauty.css').split('@media (max-width: 600px) {').at(-1);
   const toolbar = mobile?.match(/\.beauty-page \.beauty-calendar-toolbar \{([^}]+)\}/)?.[1];
   expect(toolbar).toContain('grid-template-columns: minmax(0, 1fr) auto;');
-  expect(toolbar).toContain('padding: var(--space-2);');
+  // The earlier B05 mobile rule already applies 8px on all sides. Repeating it is a no-op.
+  expect(toolbar).toContain('padding: 0 var(--space-2);');
+  expect(toolbar).not.toMatch(/(?:min-height|font-size|display|visibility|overflow)\s*:/);
 });

@@ -1133,7 +1133,7 @@
     .beauty-page .beauty-calendar-toolbar {
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: start;
-      padding: var(--space-2);
+      padding: 0 var(--space-2);
     }
     .beauty-calendar-toolbar .beauty-calendar-actions {
       display: contents;

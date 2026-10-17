@@ -147,7 +147,9 @@ jobs:
       - name: Применение и откат каждой миграции, schema.prisma против базы из миграций
         env:
           MIGRATION_CHECK_URL: postgresql://pms:pms@127.0.0.1:5432/postgres
-        run: scripts/ops/check-migrations.sh
+        run: |
+          scripts/ops/check-migrations.sh
+          EMPLOYEE_PORTAL_RESTORE_TEST_URL="$MIGRATION_CHECK_URL" npx vitest run --config tests/restore/employee-portal-grants-restore.config.ts
       # Дальше тесты на пустой базе: схему pms_test и данные (сид) они создают сами (tests/README.md)
       - run: psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
       - name: Интеграционные тесты
@@ -247,7 +249,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [beauty-ui, food-ui, branches-ui]
+        suite: [beauty-ui, food-ui, branches-ui, employee-portal-ui]
     services:
       postgres:
         image: postgres:16

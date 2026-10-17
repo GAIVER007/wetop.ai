@@ -24,6 +24,7 @@ describe('Food workspace isolation', () => {
       '/finance',
       // бар филиала (ADR-178): деньги бара ресторана в кассе ресторана (§45)
       '/bar',
+      '/my-work',
       '/employees',
       '/payroll',
       '/team',
@@ -59,7 +60,7 @@ describe('Food workspace isolation', () => {
       'Помощь',
       'Профиль',
     ]);
-    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 4, 3, 2, 5, 2, 4]);
+    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 4, 4, 2, 5, 2, 4]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],

@@ -414,6 +414,7 @@ export function MastersBoard({
               <>
                 <header className="employee-workspace-heading">
                   <strong>{editing.row.name}</strong>
+                  <a href={`/employees/${encodeURIComponent(editing.row.id)}/profile`}>Полная карточка сотрудника</a>
                   <Badge>{editing.row.active ? 'Работает' : 'В архиве'}</Badge>
                   <p>{locations.find((item) => item.id === scopeKey)?.name ?? 'Текущий филиал'}</p>
                 </header>
@@ -470,7 +471,9 @@ export function MastersBoard({
                       id: 'schedule',
                       label: 'График',
                       content: schedule ? (
-                        canEdit && schedule.employee?.worksHere ? (
+                        <>
+                        <h3>Обычная неделя</h3>
+                        {canEdit && schedule.employee?.worksHere ? (
                           <WeekForm
                             employeeId={editing.row.id}
                             week={schedule.week}
@@ -500,16 +503,9 @@ export function MastersBoard({
                               </p>
                             ))}
                           </div>
-                        )
-                      ) : (
-                        <p role="status">Загружаем график…</p>
-                      ),
-                    },
-                    {
-                      id: 'absences',
-                      label: 'Отсутствия',
-                      content: schedule ? (
-                        <>
+                        )}
+                          <h3>Изменения на даты</h3>
+                          <p>Отпуск, больничный или дополнительный выходной. Уже созданные записи не отменяются автоматически.</p>
                           <TimeOffTable
                             employeeId={editing.row.id}
                             rows={schedule.timeOffs}
@@ -521,7 +517,7 @@ export function MastersBoard({
                           )}
                         </>
                       ) : (
-                        <p role="status">Загружаем отсутствия…</p>
+                        <p role="status">Загружаем график…</p>
                       ),
                     },
                   ]}

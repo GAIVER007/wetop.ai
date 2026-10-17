@@ -1,5 +1,13 @@
 # DECISIONS (ADR)
 
+## EMPLOYEE-PORTAL-SPEC-FIX-20261016: scoped schedule warnings and anonymous no-store
+
+16.10.2026, correction within the already approved portal scenario. Problem: schedule/absence saves did not display affected existing appointments, and public JSON had no explicit cache policy. Options: mutate/cancel bookings (not authorized), reuse a selected-day-only list (incomplete), or add a private read-only warning projection. Decision: reuse canonical `fitsSchedule` and busy statuses for only the resolved employee's upcoming appointments in assigned active branches, each in its own timezone. Bound the read to 501 rows, check the first 500 and disclose incomplete results. Add usable absence controls without changing optimistic draft guards. Consequences: additive private DTO field documented in the wire contract, no new data model, no appointment/payment mutation and no new booking rules. Set public API no-store before resolution, including service errors; retain existing 60-second signed URL and storage cache limits rather than promising byte revocation. Restore README points only at the dedicated restore profile/55624 admin database. Verification is recorded in the external spec-fixes report.
+
+## EMPLOYEE-PORTAL-20261016: один сотрудник, отдельные представления руководителя, самого сотрудника и клиента
+
+Принято владельцем 16.10.2026 выбором настраиваемой руководителем базы процента (до настройки авторасчёт выключен) в рамках [проекта](docs/employee-three-audiences-proposal.md). Использовать существующие Employee/User/приглашения, зарплатные настройки и файловое хранилище. Публичная выдача отдельной белой проекцией, self-доступ только по проверенному Employee.userId в разрешённом бизнесе, оплата сотруднику read-only. Новые медиа/публичный профиль/портфолио и настройка базы процента локально разрешены; ресторанные формулы и выплаты не менять. Не угадывать закрытые периоды и поздние возвраты; неподдержанный расчёт обозначать как недоступный, а не ноль. Production-миграции/публикация не разрешены. [Wire contract](docs/employee-portal-wire-contract.md).
+
 ## ADR-185: сайты клиентов на `*.wetop.ai`, статьи SEO по кнопке, заявки с сайта в календарь (принят 15.10.2026)
 
 **Контекст.** План `plans/site-seo-flow-2026-10-15.md`; владелец 15.10.2026 подтвердил решения D1–D3 и миграции.

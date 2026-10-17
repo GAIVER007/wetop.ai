@@ -1,0 +1,266 @@
+{
+  "target_head": "61af7b90d8befac4ab92522f3ab7f31321e89d46",
+  "source_head": "433f96f44d961edf9e372814d45bcfc6e8a044e4",
+  "files": [
+    {
+      "path": "DATA_MODEL.md",
+      "kind": "merged",
+      "sha256": "261d5886d7e725e3e8aea23b7e45f70cb046cb63267ab87903d1e42483c750d7"
+    },
+    {
+      "path": "DECISIONS.md",
+      "kind": "merged",
+      "sha256": "f850d0d49704f113ff80e174d073e26eb567fab2df2777d8f3ba114bb7213bdb"
+    },
+    {
+      "path": "QUESTIONS.md",
+      "kind": "merged",
+      "sha256": "a245e18efce61e7be90d24382d007e2b292764e77507c2cdd55abec6f204e071"
+    },
+    {
+      "path": "apps/api/src/app.module.ts",
+      "kind": "merged",
+      "sha256": "40e2eae5020196f5e8f532ab94e61503cd5cd1c80370a764ab7da86fd47b22f9"
+    },
+    {
+      "path": "apps/api/src/auth/route-access.test.ts",
+      "kind": "merged",
+      "sha256": "2fae23810b2466ceec9d4ef1b9443dccd0bd1840cb4fc93958c80334cdeff4eb"
+    },
+    {
+      "path": "apps/api/src/employee-portal/boundary.test.ts",
+      "kind": "new",
+      "sha256": "32d2c5bc67e7fe3a3e3a6a026b2882567ddca7cc336c91a712b65c0252fe8a2f"
+    },
+    {
+      "path": "apps/api/src/employee-portal/boundary.ts",
+      "kind": "new",
+      "sha256": "8972fd87fd1633c62188a95f008980b0b9eb8f2c56ceeed6fcec1a345bee7117"
+    },
+    {
+      "path": "apps/api/src/employee-portal/employee-portal.module.ts",
+      "kind": "new",
+      "sha256": "7e9f8cbab8676eaeace8092e8fb7153c6dded521d0a60174224d758cde0ce082"
+    },
+    {
+      "path": "apps/api/src/employee-portal/employee-portal.service.ts",
+      "kind": "new",
+      "sha256": "0e4601771aa657f72e32786a3095092ce95fa7c970b1b82c0144239fab7e241a"
+    },
+    {
+      "path": "apps/api/src/employee-portal/write-safety.test.ts",
+      "kind": "new",
+      "sha256": "b08037e8814ab394f15eead17fcf03ea1fe2df3c175357544df2808dd888f9ff"
+    },
+    {
+      "path": "apps/web/src/app/beauty/masters/board.tsx",
+      "kind": "merged",
+      "sha256": "441891b117984ceb4dcef28fa62cbd0a3f782f2065eb5a69304420e7b05d7b37"
+    },
+    {
+      "path": "apps/web/src/app/beauty/schedule/board.tsx",
+      "kind": "merged",
+      "sha256": "c445cf72d668eae0be2f0f2bca800e734483baf96ad4b883399586ae4369d3c0"
+    },
+    {
+      "path": "apps/web/src/app/beauty/services/board.tsx",
+      "kind": "merged",
+      "sha256": "b79d5f76ad0c6b320ac37509765b9e11dbc990dc6dfc35c354efc7de159688fe"
+    },
+    {
+      "path": "apps/web/src/app/employees/[id]/profile/page.tsx",
+      "kind": "new",
+      "sha256": "8990e4923afa7822346c2006efa2f41232a8efebf7634075a8fa5e32be293159"
+    },
+    {
+      "path": "apps/web/src/app/finance/beauty-finance.tsx",
+      "kind": "merged",
+      "sha256": "ab909c78424c8a493e6a6d565f3a0d8eb522face87596f3b737bf411172cc060"
+    },
+    {
+      "path": "apps/web/src/app/food/employees-board.tsx",
+      "kind": "merged",
+      "sha256": "78ce5a70c0d490d815850c1d7f870707edebc3a9a6b6a5c2d01b1ce7da174248"
+    },
+    {
+      "path": "apps/web/src/app/my-work/actions.ts",
+      "kind": "new",
+      "sha256": "dc889270adee745d556ff6d5b65951fe41111f3a1784136c924d5a3c4e3061a3"
+    },
+    {
+      "path": "apps/web/src/app/my-work/loading.tsx",
+      "kind": "new",
+      "sha256": "e9be6630feaeed0e9f26ed5d75f9ce42229baa722e8ac1e1bcfacbedbdd74f05"
+    },
+    {
+      "path": "apps/web/src/app/my-work/page.tsx",
+      "kind": "new",
+      "sha256": "d0453fdfb2eca557d907384940bf95772b1e2178056f54901afb5ac717a6497f"
+    },
+    {
+      "path": "apps/web/src/app/specialists/[slug]/page.tsx",
+      "kind": "new",
+      "sha256": "1281a7fde21b89a297f2e25a323f5f6dd2b43c7bf14c7cacf9ddb3a346e889d7"
+    },
+    {
+      "path": "apps/web/src/components/employee-portal/cabinet.tsx",
+      "kind": "new",
+      "sha256": "c3335774878a40af827a809a7b215230ba4fd1e1f93fa0a9273e92f3bab4e054"
+    },
+    {
+      "path": "apps/web/src/components/employee-portal/forms.tsx",
+      "kind": "new",
+      "sha256": "e5c0660083fa4616160641aead2ecb726d120a1821d9a2d252a8d7c154a4ad90"
+    },
+    {
+      "path": "apps/web/src/components/employee-portal/management.tsx",
+      "kind": "new",
+      "sha256": "9f81d652f9fe3c93a98e58f48e519289f700205e67265ed005bb3840b720fb08"
+    },
+    {
+      "path": "apps/web/src/components/employee-portal/media.tsx",
+      "kind": "new",
+      "sha256": "fd5da2569753ffee39ef7d943444f93a511a817d72c072fe8d2dfaacaa296d2e"
+    },
+    {
+      "path": "apps/web/src/components/employee-portal/portal.css",
+      "kind": "new",
+      "sha256": "ca31f5d0cf1a3ba2a2ab7c63cea27a28f8e7fe959c5f99e9c17d54c98110f868"
+    },
+    {
+      "path": "apps/web/src/components/employee-portal/screen.tsx",
+      "kind": "new",
+      "sha256": "2d0ec92f5ea82900244ec1a0ecdeb393bc21ce84a763c21f5189f133860c04cb"
+    },
+    {
+      "path": "apps/web/src/lib/api.ts",
+      "kind": "merged",
+      "sha256": "a06a1658d308f88fa99ec7f48721d11a20a7609fb56103913463a92d8b058a01"
+    },
+    {
+      "path": "apps/web/src/lib/employee-portal-api.ts",
+      "kind": "new",
+      "sha256": "bfcd6a0d7ae1c0f4746a939c2f6e7ba31b5fe5f237a0c58abe207dc8f714111c"
+    },
+    {
+      "path": "apps/web/src/lib/navigation.ts",
+      "kind": "merged",
+      "sha256": "772e9dc2bcbad2ddd5515cbbedcff76201e5329f215cc1790905d32fdbd31887"
+    },
+    {
+      "path": "apps/web/src/lib/public-entry.ts",
+      "kind": "merged",
+      "sha256": "e1fb13b26e25c481872d445465930605857a6a91ffb8734a1c7c9089f6107c75"
+    },
+    {
+      "path": "docs/employee-portal-wire-contract.md",
+      "kind": "new",
+      "sha256": "27cc855cc9d7b65f12c5be74c56233d9703cdb4ef600d1d64b2f13b7299e1e25"
+    },
+    {
+      "path": "docs/employee-three-audiences-proposal.md",
+      "kind": "new",
+      "sha256": "83408f450a9aefc8726b622b643efaa340b1f666144b0dcbff15657e1c172cb3"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261016000090_employee_portal/README.md",
+      "kind": "new",
+      "sha256": "f07f2783340fb2e9679d7d1424c1c651d016dfad9fd5f7d7ef13aaf593d8a485"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261016000090_employee_portal/down.sql",
+      "kind": "new",
+      "sha256": "836e7befb987e1e0c979c20dd7d0147e3cdd9f0d43c726c1b556d8fcac8cc432"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261016000090_employee_portal/migration.sql",
+      "kind": "new",
+      "sha256": "407df4c5ebd757ba448a436820e09d5ec5452ebb11af4f270a124925c532b72a"
+    },
+    {
+      "path": "packages/database/prisma/schema.prisma",
+      "kind": "merged",
+      "sha256": "af7616788baffc21584fd341e05a4eee0fd5be1ab9874037ed76e0f4d712b66d"
+    },
+    {
+      "path": "packages/domain/src/employee-portal/types.ts",
+      "kind": "new",
+      "sha256": "f219fc50e5c14a4999bce78de57976a0ac152b0c48c386de7b7ace67bc3a11ab"
+    },
+    {
+      "path": "packages/domain/src/index.ts",
+      "kind": "merged",
+      "sha256": "da363eceb55da72c9d58d1acf7bd1e8579a3cf382d78c962863576137484c4c4"
+    },
+    {
+      "path": "tests/beauty-ui/beauty.spec.ts",
+      "kind": "merged",
+      "sha256": "cfd801ef77e475aeb54ebd12fe2ebc05159488db4831adec173e0b27cc8d670d"
+    },
+    {
+      "path": "tests/beauty-ui/employee-workspace.spec.ts",
+      "kind": "merged",
+      "sha256": "374c9cca59046b0619805f5fed95c8e55667c59c79472cc7535858a412a47355"
+    },
+    {
+      "path": "tests/employee-portal-ui/disk-storage.ts",
+      "kind": "new",
+      "sha256": "aaf70532f105dacc543fb67b3fbc733aab0fa8becb3dfc88220be90021c0886a"
+    },
+    {
+      "path": "tests/employee-portal-ui/fixture-api.ts",
+      "kind": "new",
+      "sha256": "76713413e4b1058e242e354b83d642e4d4f8e6cb30839286d80d613ee5fcd421"
+    },
+    {
+      "path": "tests/employee-portal-ui/fixture-support.ts",
+      "kind": "new",
+      "sha256": "0018fd52c59b93ea38f0a35eab8827b9dcd2796651a44735a2cb45c73d912832"
+    },
+    {
+      "path": "tests/employee-portal-ui/fixtures/avatar.png",
+      "kind": "new",
+      "sha256": "0048c39c97340bc7d47c8469d7b248e5d7179f72da686cf82ac00afaeb2a01c2"
+    },
+    {
+      "path": "tests/employee-portal-ui/fixtures/work.png",
+      "kind": "new",
+      "sha256": "74bc3bf726f7621045d6cfa52470fe2980ef1cedf4f8845be2d8a208b749c7a3"
+    },
+    {
+      "path": "tests/employee-portal-ui/portal.spec.mjs",
+      "kind": "new",
+      "sha256": "a81f81da8dd7f6eb896f92523d6a9861cc26cd59b0d025ab8f3242d3695cab2b"
+    },
+    {
+      "path": "tests/employee-portal-ui/sections.spec.ts",
+      "kind": "new",
+      "sha256": "dc6a2add09d37790ec9874247da974e98ee649010df737cc7551b129d8e49599"
+    },
+    {
+      "path": "tests/employee-portal-ui/vitest.config.ts",
+      "kind": "new",
+      "sha256": "c0b3616f5108c723286b4cdc9e02bc1bf13c3e9b118c1bd239cfc83de150f714"
+    },
+    {
+      "path": "tests/integration/employee-portal.test.ts",
+      "kind": "new",
+      "sha256": "08cc1723f8ffc94b451748e83223931f5dce8452847ae3f9d02485f9a0624d4b"
+    },
+    {
+      "path": "tests/unit/employee-portal-web.test.ts",
+      "kind": "new",
+      "sha256": "9baef6017fd78d0d68f59b3a9af9d19399b842f5e3f97c88961b9eb7505b40d4"
+    }
+  ],
+  "unchanged_exclusions": [
+    "apps/web/src/app/beauty/beauty.css",
+    "apps/web/src/app/beauty/journal.tsx",
+    "apps/web/src/app/beauty/page.tsx",
+    "apps/web/src/app/beauty/week-calendar.tsx",
+    "apps/web/next-env.d.ts",
+    "tests/unit/migrations-hold.test.ts"
+  ],
+  "conflicts_unresolved": [],
+  "runtime_checks": "Not run by delegation: parent owns tests/build/DB/release."
+}

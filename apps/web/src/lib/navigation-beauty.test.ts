@@ -47,6 +47,7 @@ describe('меню салона', () => {
       // зарплата мастеров (§19.2, ADR-SALON-PAYROLL-20261016)
       '/payroll',
       '/bar',
+      '/my-work',
       '/team',
       '/sales',
       '/ai-agents',

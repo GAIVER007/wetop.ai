@@ -4462,6 +4462,19 @@ export const orderRatingApi = {
   },
 };
 
+/** Employee portal: reuse the private session/scope transport without exposing its endpoint to the browser. */
+export async function portalTransport<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
+  if (!path.startsWith('/employee-portal/')) throw new Error('Invalid portal path');
+  const multipart = body instanceof FormData;
+  const res = await backendFetch(path, {
+    method,
+    ...(body === undefined ? {} : { body: multipart ? body : JSON.stringify(body) }),
+    ...(body === undefined || multipart ? {} : { headers: { 'Content-Type': 'application/json' } }),
+  });
+  if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  return res.json() as Promise<T>;
+}
+
 /** Cards belong to businesses inside the current organization. */
 export interface BusinessCardView {
   id: string;

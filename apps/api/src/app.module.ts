@@ -1,3 +1,4 @@
+import { EmployeePortalModule } from './employee-portal/employee-portal.module';
 import { SharedOnboardingModule } from './onboarding/onboarding.module';
 import { WizardModule } from './wizard/wizard.module';
 import 'reflect-metadata';
@@ -57,6 +58,7 @@ import { DataConnectionModule } from './database/connection';
     PlatformModule,
     InventoryModule,
     BeautyModule,
+    EmployeePortalModule,
     FoodModule,
     MarketingSiteModule,
     MarketingBudgetModule,

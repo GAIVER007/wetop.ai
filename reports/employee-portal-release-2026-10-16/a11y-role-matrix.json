@@ -1,0 +1,808 @@
+{
+  "status": "passed",
+  "scope": "synthetic owned loopback browser, not production",
+  "checks": 72,
+  "roles": {
+    "manager": 18,
+    "master": 24,
+    "waiter": 24,
+    "public": 6
+  },
+  "violations": 0,
+  "horizontal_overflows": 0,
+  "journal": "tests/runs/entries/2026-10-16T20-54-20Z-e2e-4022.json",
+  "results": [
+    {
+      "role": "manager",
+      "width": 320,
+      "theme": "light",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 320,
+      "theme": "light",
+      "tab": "График",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 320,
+      "theme": "light",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 320,
+      "theme": "dark",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 320,
+      "theme": "dark",
+      "tab": "График",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 320,
+      "theme": "dark",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 390,
+      "theme": "light",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 390,
+      "theme": "light",
+      "tab": "График",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 390,
+      "theme": "light",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 390,
+      "theme": "dark",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 390,
+      "theme": "dark",
+      "tab": "График",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 390,
+      "theme": "dark",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 1440,
+      "theme": "light",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 1440,
+      "theme": "light",
+      "tab": "График",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 1440,
+      "theme": "light",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "График",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "manager",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 320,
+      "theme": "light",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 320,
+      "theme": "light",
+      "tab": "График",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 320,
+      "theme": "light",
+      "tab": "Услуги",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 320,
+      "theme": "light",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 320,
+      "theme": "dark",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 320,
+      "theme": "dark",
+      "tab": "График",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 320,
+      "theme": "dark",
+      "tab": "Услуги",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 320,
+      "theme": "dark",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 390,
+      "theme": "light",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 390,
+      "theme": "light",
+      "tab": "График",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 390,
+      "theme": "light",
+      "tab": "Услуги",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 390,
+      "theme": "light",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 390,
+      "theme": "dark",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 390,
+      "theme": "dark",
+      "tab": "График",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 390,
+      "theme": "dark",
+      "tab": "Услуги",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 390,
+      "theme": "dark",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 1440,
+      "theme": "light",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 1440,
+      "theme": "light",
+      "tab": "График",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 1440,
+      "theme": "light",
+      "tab": "Услуги",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 1440,
+      "theme": "light",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "График",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "Услуги",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "master",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 320,
+      "theme": "light",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 320,
+      "theme": "light",
+      "tab": "График",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 320,
+      "theme": "light",
+      "tab": "Заказы",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 320,
+      "theme": "light",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 320,
+      "theme": "dark",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 320,
+      "theme": "dark",
+      "tab": "График",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 320,
+      "theme": "dark",
+      "tab": "Заказы",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 320,
+      "theme": "dark",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 390,
+      "theme": "light",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 390,
+      "theme": "light",
+      "tab": "График",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 390,
+      "theme": "light",
+      "tab": "Заказы",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 390,
+      "theme": "light",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 390,
+      "theme": "dark",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 390,
+      "theme": "dark",
+      "tab": "График",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 390,
+      "theme": "dark",
+      "tab": "Заказы",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 390,
+      "theme": "dark",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 1440,
+      "theme": "light",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 1440,
+      "theme": "light",
+      "tab": "График",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 1440,
+      "theme": "light",
+      "tab": "Заказы",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 1440,
+      "theme": "light",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "Профиль",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "График",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "Заказы",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "waiter",
+      "width": 1440,
+      "theme": "dark",
+      "tab": "Оплата труда",
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "public",
+      "width": 320,
+      "theme": "light",
+      "tab": null,
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "public",
+      "width": 320,
+      "theme": "dark",
+      "tab": null,
+      "overflow": {
+        "width": 320,
+        "scroll": 320
+      },
+      "violations": []
+    },
+    {
+      "role": "public",
+      "width": 390,
+      "theme": "light",
+      "tab": null,
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "public",
+      "width": 390,
+      "theme": "dark",
+      "tab": null,
+      "overflow": {
+        "width": 390,
+        "scroll": 390
+      },
+      "violations": []
+    },
+    {
+      "role": "public",
+      "width": 1440,
+      "theme": "light",
+      "tab": null,
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    },
+    {
+      "role": "public",
+      "width": 1440,
+      "theme": "dark",
+      "tab": null,
+      "overflow": {
+        "width": 1440,
+        "scroll": 1440
+      },
+      "violations": []
+    }
+  ]
+}

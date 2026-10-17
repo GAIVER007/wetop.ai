@@ -125,15 +125,15 @@ export async function BeautyFinanceScreen() {
   return (
     <Page
       title="Финансы"
-      subtitle={`Деньги салона за ${displayDate(view.from)} — ${displayDate(view.today)}`}
+      subtitle={`Стоимость услуг за ${displayDate(view.from)}: ${displayDate(view.today)}`}
     >
       <div data-testid="beauty-finance">
         <div className="kpi-row" data-testid="beauty-finance-kpis">
           <KpiTile
             icon="money"
-            label="Выручка за 7 дней"
+            label="Стоимость оказанных услуг"
             value={money(view.revenue)}
-            caption={view.refunded > 0n ? `выполненные записи, возвраты ${money(view.refunded)}` : 'выполненные записи'}
+            caption={view.refunded > 0n ? `снимки цен за 7 дней, не поступления, возвраты ${money(view.refunded)}` : 'снимки цен за 7 дней, не поступления'}
             testId="beauty-revenue"
           />
           <KpiTile
@@ -144,7 +144,7 @@ export async function BeautyFinanceScreen() {
             testId="beauty-services-count"
             href="/appointments"
           />
-          <KpiTile icon="receipt" label="Средний чек" value={money(avg)} caption="по выполненным записям" testId="beauty-avg" />
+          <KpiTile icon="receipt" label="Средняя стоимость услуги" value={money(avg)} caption="по выполненным записям" testId="beauty-avg" />
           <KpiTile
             icon="booking"
             label="Ожидается по записям"
@@ -155,9 +155,9 @@ export async function BeautyFinanceScreen() {
           />
           <KpiTile
             icon="incidents"
-            label="Потери"
+            label="Стоимость отмен и неявок"
             value={money(view.lost)}
-            caption="неявки и отмены"
+            caption="снимки цен, не потерянные деньги"
             testId="beauty-lost"
           />
         </div>
@@ -169,7 +169,7 @@ export async function BeautyFinanceScreen() {
               <tr>
                 <th>День</th>
                 <th>Услуг</th>
-                <th>Выручка</th>
+                <th>Стоимость оказанных услуг</th>
               </tr>
             </thead>
             <tbody>
@@ -187,7 +187,7 @@ export async function BeautyFinanceScreen() {
         <SectionTitle>По мастерам</SectionTitle>
         {view.masters.length === 0 ? (
           <EmptyState title="Пока нет оказанных услуг">
-            Выручка по мастерам появится, когда записи отметят как выполненные в{' '}
+            Стоимость услуг по мастерам появится, когда записи отметят как выполненные в{' '}
             <Link href="/calendar">календаре</Link>.
           </EmptyState>
         ) : (
@@ -197,7 +197,7 @@ export async function BeautyFinanceScreen() {
                 <tr>
                   <th>Мастер</th>
                   <th>Услуг</th>
-                  <th>Выручка</th>
+                  <th>Стоимость оказанных услуг</th>
                 </tr>
               </thead>
               <tbody>
@@ -243,7 +243,7 @@ export async function BeautyFinanceScreen() {
           </Panel>
         )}
         <p className="settings-note beauty-finance__note">
-          Касса, расходы и зарплата салона ведутся отдельно: сейчас здесь деньги только из записей.
+          Здесь снимки цен записей, а не денежные поступления. Отмены и неявки не означают потерю денег. Фактические поступления и возвраты: в <Link href="/cashbox">кассе</Link>. Оплата труда ведётся отдельно.
         </p>
       </div>
     </Page>

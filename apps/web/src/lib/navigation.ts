@@ -611,7 +611,8 @@ export const beautyMenuSections: MenuSection[] = [
     label: 'Финансы',
     icon: 'money' as IconName,
     // касса салона: касса филиала §35.2, общая с рестораном (§48); бар продаёт в неё
-    items: [menuItem('/finance', 'Выручка'), menuItem('/cashbox'), menuItem('/bar', 'Бар')],
+    // зарплата мастеров (§19.2) рядом с кассой, из которой идёт выплата
+    items: [menuItem('/finance', 'Выручка'), menuItem('/cashbox'), menuItem('/payroll'), menuItem('/bar', 'Бар')],
   },
   {
     id: 'team',

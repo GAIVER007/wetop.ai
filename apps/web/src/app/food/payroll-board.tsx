@@ -25,20 +25,25 @@ import {
 } from '../../lib/food-types';
 import { mutateStaff } from './restaurant-actions';
 
-const MODEL_LABEL: Record<PayModel, string> = {
-  FIXED: 'Оклад',
-  PERCENT: 'Процент от заказов',
-  FIXED_PLUS_PERCENT: 'Оклад + процент',
-  BONUS_ONLY: 'Только премии',
-};
+/** База процента: у ресторана закрытые заказы, у салона выполненные записи (§19.2) */
+export type PayBasis = 'orders' | 'visits';
+const BASIS = {
+  orders: { of: 'заказов', column: 'Продажи' },
+  visits: { of: 'записей', column: 'Услуги' },
+} as const;
+const modelLabel = (model: PayModel, basis: PayBasis): string =>
+  ({ FIXED: 'Оклад', PERCENT: `Процент от ${BASIS[basis].of}`, FIXED_PLUS_PERCENT: 'Оклад + процент', BONUS_ONLY: 'Только премии' })[model];
+const MODELS: PayModel[] = ['FIXED', 'PERCENT', 'FIXED_PLUS_PERCENT', 'BONUS_ONLY'];
 
 function PayDrawer({
   scopeKey,
   row,
+  basis,
   close,
 }: {
   scopeKey: string;
   row: PayrollRow;
+  basis: PayBasis;
   close: () => void;
 }) {
   const router = useRouter();
@@ -74,7 +79,7 @@ function PayDrawer({
         {error && <Alert>{error}</Alert>}
         <Field label="Модель оплаты">
           <Select value={model} onChange={(e) => setModel(e.target.value as PayModel)}>
-            {Object.entries(MODEL_LABEL).map(([value, label]) => (
+            {MODELS.map((value) => [value, modelLabel(value, basis)] as const).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
               </option>
@@ -85,7 +90,7 @@ function PayDrawer({
           <Field label="Оклад за месяц, ₸">
             <Input type="number" min={0} value={fixed} onChange={(e) => setFixed(e.target.value)} />
           </Field>
-          <Field label="Процент от заказов">
+          <Field label={`Процент от ${BASIS[basis].of}`}>
             <Input
               type="number"
               min={0}
@@ -254,10 +259,12 @@ export function PayrollBoard({
   scopeKey,
   write,
   payroll,
+  basis = 'orders',
 }: {
   scopeKey: string;
   write: boolean;
   payroll: PayrollView;
+  basis?: PayBasis;
 }) {
   const router = useRouter();
   const [settings, setSettings] = useState<PayrollRow | null>(null);
@@ -270,7 +277,7 @@ export function PayrollBoard({
     <Table>
       <thead>
         <tr>
-          {['Сотрудник', 'Модель', 'Ставка', 'Продажи', 'Премии', 'Штрафы', 'К выплате', 'Выплачено', 'Осталось'].map(
+          {['Сотрудник', 'Модель', 'Ставка', BASIS[basis].column, 'Премии', 'Штрафы', 'К выплате', 'Выплачено', 'Осталось'].map(
             (h) => (
               <th key={h}>{h}</th>
             ),
@@ -285,8 +292,8 @@ export function PayrollBoard({
           <tr key={r.employeeId}>
             <td>{r.name}</td>
             <td className="rest-pay-model">
-              {MODEL_LABEL[r.model]}
-              {r.percent > 0 && <small>{r.percent} % от заказов</small>}
+              {modelLabel(r.model, basis)}
+              {r.percent > 0 && <small>{r.percent} % от {BASIS[basis].of}</small>}
             </td>
             <td>{wholeTenge(r.fixedMinor, payroll.currency)}</td>
             <td>{wholeTenge(r.salesMinor, payroll.currency)}</td>
@@ -394,7 +401,7 @@ export function PayrollBoard({
           { id: 'adjustments', label: 'Начисления', content: adjustments },
         ]}
       />
-      {settings && <PayDrawer scopeKey={scopeKey} row={settings} close={() => setSettings(null)} />}
+      {settings && <PayDrawer scopeKey={scopeKey} row={settings} basis={basis} close={() => setSettings(null)} />}
       {payout && (
         <PayoutDrawer
           scopeKey={scopeKey}

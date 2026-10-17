@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { currencyOptions, timezoneOptions } from '@pms/domain';
+import { SUPPORTED_COUNTRIES, countryOf, currencyOptions, timezoneOptions } from '@pms/domain';
 import { Alert, Button, Field, Input, Select } from '../../../components/ui';
 import type { SharedOnboardingState } from '../../../lib/api';
 import { reloadOnboarding, saveOnboarding } from './actions';
@@ -26,7 +26,8 @@ const COUNTS: Record<string, string> = {
 };
 export function BeautyChecklist({ initial }: { initial: SharedOnboardingState }) {
   const [state, setState] = useState(initial);
-  const [draft, setDraft] = useState(initial.draft);
+  // страна организации из регистрации подставляет пояс и валюту, если пояс филиала ещё не из списка (Q-SCHED-3)
+  const [draft, setDraft] = useState(() => withCountry(initial.draft, initial.organizationCountry));
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState('');
   const [latest, setLatest] = useState<SharedOnboardingState | null>(null);
@@ -176,6 +177,36 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
               Изменение названия салона относится ко всем филиалам этого бизнеса.
             </p>
             {field('locationName', 'Название филиала')}
+            <Field label="Страна" required>
+              <Select
+                value={countryOf({ zone: String(draft.timezone ?? '') })?.code ?? ''}
+                disabled={pending || !state.canEdit}
+                onChange={(e) => {
+                  const country = countryOf({ code: e.target.value });
+                  if (country)
+                    setDraft({ ...draft, timezone: country.zone, currency: country.currency });
+                }}
+              >
+                {!countryOf({ zone: String(draft.timezone ?? '') }) && (
+                  <option value="">Выберите страну</option>
+                )}
+                {SUPPORTED_COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Часовой пояс">
+              <Input
+                readOnly
+                value={
+                  timezoneOptions(String(draft.timezone ?? '')).find(
+                    (o) => o.value === draft.timezone,
+                  )?.label ?? ''
+                }
+              />
+            </Field>
             <Field label="Валюта" required>
               <Select
                 value={String(draft.currency ?? '')}
@@ -183,19 +214,6 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
                 onChange={(e) => setDraft({ ...draft, currency: e.target.value })}
               >
                 {currencyOptions(String(draft.currency ?? '')).map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="Часовой пояс" required>
-              <Select
-                value={String(draft.timezone ?? '')}
-                disabled={pending || !state.canEdit}
-                onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
-              >
-                {timezoneOptions(String(draft.timezone ?? '')).map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
@@ -358,4 +376,11 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
       </aside>
     </main>
   );
+}
+
+/** Пояс филиала вне списка стран, а страна организации известна: берём её пояс и валюту по умолчанию */
+function withCountry(draft: Record<string, unknown>, code: string | null | undefined) {
+  const country = countryOf({ code });
+  if (!country || countryOf({ zone: String(draft.timezone ?? '') })) return draft;
+  return { ...draft, timezone: country.zone, currency: country.currency };
 }

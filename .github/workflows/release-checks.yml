@@ -424,7 +424,7 @@ jobs:
           PLAYWRIGHT_JSON_OUTPUT_FILE: ${{ github.workspace }}/onboarding-real-report.json
         run: npx playwright test --config tests/onboarding-real/playwright.config.ts --forbid-only --reporter=list,json
       - name: Выполнены все сценарии, без пропусков и повторов
-        run: node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 10
+        run: node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 11
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

@@ -2,7 +2,9 @@
 // и нет упавших, пропущенных и прошедших со второй попытки. Код выхода Playwright этого не гарантирует:
 // пустой отбор, `test.skip` и повторы выглядят зелёными.
 //   node scripts/ci/check-playwright-report.mjs <report.json> <минимум тестов>
+import console from 'node:console';
 import { readFileSync } from 'node:fs';
+import process from 'node:process';
 
 const [file, min] = process.argv.slice(2);
 const minimum = Number(min);

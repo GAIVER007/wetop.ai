@@ -125,7 +125,7 @@ describe('свой раннер CI', () => {
     expect(onboarding).toMatch(/image: postgres:16/);
     expect(onboarding).toContain('npm run test:schema');
     expect(onboarding).toContain('npx playwright test --config tests/onboarding-real/playwright.config.ts --forbid-only');
-    expect(onboarding).toContain('node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 10');
+    expect(onboarding).toContain('node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 11');
     expect(onboarding).not.toMatch(/continue-on-error|--retries|--pass-with-no-tests/);
   });
 

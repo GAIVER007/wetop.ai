@@ -438,14 +438,23 @@ test('archived service and employee preserve historical calendar appointments', 
       })
     ).ok(),
   ).toBe(true);
-  expect(
-    (
-      await request.patch(`${api}/beauty/employees/${f.employee.id}`, {
-        headers: f.headers,
-        data: { active: false, expectedProfileRevision: f.employee.profileRevision },
-      })
-    ).ok(),
-  ).toBe(true);
+  // Archive uses the employee version from this intent's original API snapshot, not the stale seed POST.
+  const employeeSnapshot = await request.get(`${api}/beauty/employees`, { headers: f.headers });
+  expect(employeeSnapshot.ok(), `read archive source version: HTTP ${employeeSnapshot.status()}`).toBe(true);
+  const originalEmployee = (await employeeSnapshot.json()).items.find((employee: { id: string }) => employee.id === f.employee.id);
+  expect(originalEmployee?.profileRevision).toBeTruthy();
+  const archived = await request.patch(`${api}/beauty/employees/${f.employee.id}`, {
+    headers: f.headers,
+    data: { active: false, expectedProfileRevision: originalEmployee.profileRevision },
+  });
+  const archiveError = archived.ok() ? null : await archived.json().catch(() => null);
+  // Do not log raw responses: they may contain employee/contact data or internal diagnostics.
+  const safeError = archiveError && {
+    statusCode: typeof archiveError.statusCode === 'number' ? archiveError.statusCode : archived.status(),
+    error: ['Bad Request', 'Forbidden', 'Conflict', 'Not Found', 'Internal Server Error'].includes(archiveError.error) ? archiveError.error : 'Other error',
+    expectedProfileRevisionRejected: typeof archiveError.message === 'string' && archiveError.message.includes('expectedProfileRevision'),
+  };
+  expect(archived.ok(), `archive employee: HTTP ${archived.status()}, safe error ${JSON.stringify(safeError)}`).toBe(true);
   await page.reload();
   await expect(page.locator('.beauty-grid-day .beauty-tile')).toContainText('Тестовая клиентка');
   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
@@ -461,7 +470,7 @@ test('archived service and employee preserve historical calendar appointments', 
   await expect(page.getByRole('table')).toContainText('Тестовая клиентка');
 });
 
-test('TimeOff from employee drawer, server denial and timezone persisted', async ({
+test('stored TimeOff survives hidden editors, server denial and timezone persisted', async ({
   page,
   request,
 }) => {
@@ -474,12 +483,15 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
     .click();
   const panel = page.getByRole('dialog');
   await panel.getByRole('tab', { name: 'График', exact: true }).click();
-  await panel.getByLabel('С какого дня').fill(day);
-  await panel.getByLabel('По какой день включительно').fill(day);
-  await panel.getByLabel(/Причина/).fill('Тестовое обучение');
-  await panel.getByRole('button', { name: 'Добавить отсутствие' }).click();
-  await expect(panel.getByRole('status')).toContainText('Отсутствие добавлено');
-  await expect(panel.getByRole('table')).toContainText('Тестовое обучение');
+  // PR638 deliberately removes absence editors. Existing manager API/data must still protect bookings.
+  await expect(panel.getByLabel('С какого дня')).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Добавить отсутствие' })).toHaveCount(0);
+  const absence = await request.post(`${api}/beauty/employees/${f.employee.id}/time-offs`, {
+    headers: f.headers,
+    data: { dateFrom: day, dateTo: day, reason: 'Тестовое обучение' },
+  });
+  expect(absence.ok(), `manager absence fixture: HTTP ${absence.status()}`).toBe(true);
+  expect((await absence.json()).timeOffs).toHaveLength(1);
   await page.goto(`/calendar?date=${day}`);
   await expect(page.getByTestId('beauty-grid')).toContainText('Тестовое обучение');
   const rejected = await book(page);

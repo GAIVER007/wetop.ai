@@ -4,7 +4,7 @@ import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { beautyApi } from '../../lib/api';
-import { deskShell } from '../../lib/desk-shell';
+import { currentMe, deskShell } from '../../lib/desk-shell';
 import { mayAccess } from '../../lib/navigation';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { calendarColumns } from '../beauty/calendar-columns';
@@ -18,6 +18,8 @@ export default async function AppointmentsPage({
   await requireFeature('/appointments');
   const { date } = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
+  const me = await currentMe();
+  const scopeKey = JSON.stringify({ organizationId: me.user?.organizationId, businessId: me.context?.businessId, locationId: me.context?.locationId });
   try {
     const [day, employees, customers] = await Promise.all([
       beautyApi.day(date),
@@ -27,6 +29,8 @@ export default async function AppointmentsPage({
     return (
       <Page className="beauty-page" title="Записи" subtitle={day.location.name ?? 'Записи филиала'}>
         <AppointmentsList
+          key={scopeKey}
+          scopeKey={scopeKey}
           day={{ ...day, columns: calendarColumns(day, employees.items) }}
           customers={customers.items}
           readOnly={shell.readOnly}

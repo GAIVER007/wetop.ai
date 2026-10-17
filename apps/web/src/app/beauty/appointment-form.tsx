@@ -1,5 +1,5 @@
 'use client';
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
 import type { BeautyCustomerRow, BeautyDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
@@ -12,14 +12,23 @@ export function AppointmentForm({
   employeeId,
   time = '09:00',
   onDone,
+  scopeKey = '',
+  onStateChange,
 }: {
   day: BeautyDay;
   customers: BeautyCustomerRow[];
   employeeId: string;
   time?: string;
   onDone: () => void;
+  scopeKey?: string;
+  onStateChange?: (state: { dirty: boolean; pending: boolean }) => void;
 }) {
-  const [state, action, pending] = useActionState(createAppointment, null);
+  const inFlight = useRef(false);
+  const [state, action, pending] = useActionState(async (_prev: Awaited<ReturnType<typeof createAppointment>> | null, form: FormData): Promise<Awaited<ReturnType<typeof createAppointment>>> => {
+    try { return await createAppointment(null, form); }
+    catch { return { outcome: 'unknown' as const, error: 'Результат не подтверждён. Проверьте список записей перед повторным созданием.' }; }
+    finally { inFlight.current = false; }
+  }, null);
   const [draft, setDraft] = useState({
     firstName: '',
     lastName: '',
@@ -35,12 +44,20 @@ export function AppointmentForm({
   const [hour, setHour] = useState(time);
   const [serviceId, setServiceId] = useState('');
   const [customerId, setCustomerId] = useState('');
+  const initial = useRef({ employeeId, date: day.date, time, scopeKey });
+  const dirty = Boolean(draft.firstName || draft.lastName || draft.phone || draft.notes ||
+    draft.employeeId !== initial.current.employeeId || date !== initial.current.date || hour !== initial.current.time || serviceId || customerId);
+  useEffect(() => { onStateChange?.({ dirty, pending }); }, [dirty, pending, onStateChange]);
   const service = day.services.find((item) => item.id === serviceId);
   useEffect(() => {
     if (state?.message && !state.error) onDone();
   }, [state, onDone]);
   return (
-    <form action={action} className="beauty-form">
+    <form action={action} className="beauty-form" onSubmitCapture={(event) => {
+      if (inFlight.current || state?.outcome === 'unknown') { event.preventDefault(); return; }
+      inFlight.current = true;
+    }}>
+      <input type="hidden" name="scopeKey" value={initial.current.scopeKey} />
       <Field label="Клиент">
         <Select
           name="customerId"
@@ -126,7 +143,7 @@ export function AppointmentForm({
         <Input name="notes" {...field('notes')} maxLength={2000} />
       </Field>
       {state?.error && <Alert>{state.error}</Alert>}
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending || state?.outcome === 'unknown'}>
         {pending ? 'Записываем…' : 'Записать'}
       </Button>
     </form>

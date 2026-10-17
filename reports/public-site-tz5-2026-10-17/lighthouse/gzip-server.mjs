@@ -3,6 +3,8 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { join, extname } from 'node:path';
 import { gzipSync } from 'node:zlib';
+import process from 'node:process';
+import { URL } from 'node:url';
 const [root, port] = process.argv.slice(2);
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png', '.woff2': 'font/woff2', '.txt': 'text/plain', '.json': 'application/json', '.xml': 'application/xml' };
 createServer(async (req, res) => {

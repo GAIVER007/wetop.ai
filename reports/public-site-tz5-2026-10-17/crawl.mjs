@@ -1,6 +1,8 @@
 // Обход собранного сайта (apps/site/out): реестр страниц, SEO-поля, ссылки, sitemap. Только чтение.
 import { readFileSync, readdirSync, statSync, existsSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import process from 'node:process';
+import console from 'node:console';
 
 const OUT = process.argv[2];
 const SITE = 'https://wetop.ai';
@@ -20,7 +22,7 @@ const meta = (html, key) => {
   return t ? decode(attr(t, 'content') ?? '') : undefined;
 };
 const decode = (s) =>
-  s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;| /g, ' ');
+  s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;|\u00a0/g, ' ');
 const text = (s) => decode(s.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
 
 const pathOf = (f) => {

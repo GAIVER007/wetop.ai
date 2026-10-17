@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 17.10.2026 11:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит 739b32c (claude/public-site-tz5), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/segments.spec.ts' '-g' 'набор карточек'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/site/segments.spec.ts:307:1 › страница типа не копирует набор карточек соседней страницы целиком (8.3s)
+
+
+  1) tests/site/segments.spec.ts:307:1 › страница типа не копирует набор карточек соседней страницы целиком 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "/for/barbershops/ и /for/spa/: общих карточек 6 из 6",
+    + ]
+
+      323 |     }),
+      324 |   );
+    > 325 |   expect(problems).toEqual([]);
+          |                    ^
+      326 | });
+      327 |
+      328 | test('салонные страницы не обещают процедурные кабинеты и курсы, которых нет в модели записи', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-site/tests/site/segments.spec.ts:325:20
+
+    Error Context: test-results/segments-страница-типа-не--639dd-к-соседней-страницы-целиком/error-context.md
+
+  1 failed
+    tests/site/segments.spec.ts:307:1 › страница типа не копирует набор карточек соседней страницы целиком 
+
+# код выхода 1 · 32 с

@@ -241,13 +241,32 @@ test('мобильная панель меняет заезд без закры�
 });
 test('календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня', async ({
   page,
+  request,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/chessboard');
+  const reset = await request.post(`${FIXTURE_API}/__test/reset`);
+  const { today } = await reset.json();
+  await page.goto(`/chessboard?from=${add(today, -13)}&to=${today}`);
   const wrap = page.locator('.board-wrap');
+  await expect(wrap.locator('thead [data-testid="date-col"]').last()).toHaveClass(/is-today/);
+  // Exercise the long period before the Today preset narrows it to one day:
+  // without trailing space the last date clamps short of the sticky column.
+  await expect.poll(() => wrap.evaluate((el) => {
+    const today = el.querySelector('thead .is-today')!;
+    const units = el.querySelector('thead th')!;
+    el.scrollLeft += today.getBoundingClientRect().left - units.getBoundingClientRect().right;
+    el.dispatchEvent(new Event('scroll'));
+    return Math.abs(today.getBoundingClientRect().left - units.getBoundingClientRect().right);
+  })).toBeLessThanOrEqual(2);
+  await page.reload();
+  await expect(wrap.locator('thead [data-testid="date-col"]').last()).toHaveClass(/is-today/);
+  await expect.poll(() => wrap.evaluate((el) => Math.abs(
+    el.querySelector('thead .is-today')!.getBoundingClientRect().left -
+    el.querySelector('thead th')!.getBoundingClientRect().right,
+  ))).toBeLessThanOrEqual(2);
   await wrap.scrollIntoViewIfNeeded();
   await wrap.evaluate((el) => {
-    el.scrollLeft = 220;
+    el.scrollLeft = el.scrollWidth - el.clientWidth - 2;
     el.scrollTop = 280;
   });
   const position = await wrap.evaluate((el) => ({ x: el.scrollLeft, y: el.scrollTop }));
@@ -261,13 +280,18 @@ test('календарь возвращает обе позиции после �
       wrap.evaluate((el) => {
         const today = el.querySelector('thead .is-today')!.getBoundingClientRect();
         const units = el.querySelector('thead th')!.getBoundingClientRect();
-        // день стоит у края колонки мест; если до него не дотянуться (сегодня у правого края сетки),
-        // прокрутка упирается в максимум, и этого достаточно
-        const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
-        return atEnd && today.left >= units.right - 2 ? 0 : Math.abs(today.left - units.right);
+        return Math.abs(today.left - units.right);
       }),
     )
     .toBeLessThanOrEqual(2);
+  await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBe(0);
+  await expect(wrap.locator('thead [data-testid="date-col"]').last()).toHaveClass(/is-today/);
+  await page.reload();
+  await expect(wrap.locator('thead [data-testid="date-col"]').last()).toHaveClass(/is-today/);
+  await expect.poll(() => wrap.evaluate((el) => Math.abs(
+    el.querySelector('thead .is-today')!.getBoundingClientRect().left -
+    el.querySelector('thead th')!.getBoundingClientRect().right,
+  ))).toBeLessThanOrEqual(2);
   await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBe(0);
 });
 

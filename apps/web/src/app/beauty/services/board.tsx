@@ -61,7 +61,7 @@ export function ServicesBoard({
   }, [scopeKey, items]);
   return (
     <>
-      <div className="beauty-bar">
+      <div className="beauty-bar beauty-service-toolbar">
         <Field label="Поиск услуг"><Input type="search" aria-label="Поиск услуг" placeholder="Название или категория" value={search} onChange={event => setSearch(event.target.value)} /></Field>
         <p role="status">
           {items.length === 0
@@ -74,14 +74,12 @@ export function ServicesBoard({
           </Button>
         )}
       </div>
-      <Table className="beauty-operational-table">
+      <Table className="beauty-operational-table beauty-services-table">
         <thead>
           <tr>
             <th>Услуга</th>
-            <th className="beauty-col-wide">Категория</th>
-            <th className="beauty-col-wide">Длительность</th>
-            <th>Цена каталога</th>
             <th>В этом филиале</th>
+            <th>Каталог</th>
             <th>Популярность за 30 дней</th>
             {canEdit && <th className="sr-only">Действия</th>}
           </tr>
@@ -93,19 +91,17 @@ export function ServicesBoard({
                 {row.name}
                 {!row.active && <Badge>В архиве</Badge>}
               </td>
-              <td data-label="Категория" className="beauty-col-wide">
-                {row.category ?? 'Без категории'}
-              </td>
-              <td data-label="Длительность" className="beauty-col-wide">
-                {row.durationMinutes} мин
-              </td>
-              <td data-label="Цена каталога">{formatMoney(row.priceMinor, row.currency)}</td>
+
               <td data-label="В этом филиале">
                 {row.effective === null
                   ? 'Выберите филиал'
                   : row.effective.sellable
                     ? `${formatMoney(row.effective.priceMinor, row.effective.currency)}, ${row.effective.durationMinutes} мин${row.effective.overridden ? ' (своя цена филиала)' : ''}`
                     : (NOT_SELLABLE[row.effective.reason] ?? 'Не продаётся')}
+              </td>
+              <td data-label="Каталог" className="beauty-service-catalog">
+                <span>{formatMoney(row.priceMinor, row.currency)} · {row.durationMinutes} мин</span>
+                <small>{row.category ?? 'Без категории'}</small>
               </td>
               <td data-label="Популярность за 30 дней">
                 {row.popularity ? row.popularity.totalCompletedVisits > 0 ? (

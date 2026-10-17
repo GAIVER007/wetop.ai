@@ -29,6 +29,7 @@ async function prepare(page: Page, request: APIRequestContext) {
 test('mobile master filter and visible calendar select the same master', async ({ page, request }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const masters = await prepare(page, request);
+  await page.getByText(/^Фильтры/).click();
   const filter = page.locator('.beauty-filters').getByRole('combobox', { name: 'Мастер', exact: true });
   const calendar = page.getByRole('combobox', { name: 'Мастер календаря', exact: true });
   await filter.selectOption(masters[1].id);
@@ -44,6 +45,7 @@ test('mobile master filter and visible calendar select the same master', async (
 });
 test('new appointment defaults to the master selected in the desktop filter', async ({ page, request }, testInfo) => {
   const masters = await prepare(page, request);
+  await page.getByText(/^Фильтры/).click();
   await page.locator('.beauty-filters').getByRole('combobox', { name: 'Мастер', exact: true }).selectOption(masters[1].id);
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Мастер', exact: true })).toHaveValue(masters[1].id);

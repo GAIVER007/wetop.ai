@@ -44,6 +44,7 @@ test('H-01: прямые страницы брони и ячейки не пок
   await page.goto('/reservations/20260913-TEST1');
   await expect(page.getByTestId('read-only-banner')).toBeVisible();
   await expect(page.getByTestId('reservation-actions')).toHaveCount(0);
+  await expect(page.locator('[data-testid^="guests-form-"], input[name="adults"], input[name="children"]')).toHaveCount(0);
   await expect(main(page).getByRole('navigation', { name: 'Печатные формы' })).toBeVisible();
 
   await page.goto('/units/R02');

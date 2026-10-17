@@ -1477,7 +1477,8 @@
     color: var(--text-2);
   }
   .rest-hours .field {
-    gap: 0;
+    gap: var(--space-1);
+    min-width: 0;
   }
   @media (max-width: 960px) {
     .rest-settings {
@@ -1492,10 +1493,35 @@
     }
   }
   @media (max-width: 600px) {
+    /* POP-03: empty queues fit their content; all four queues stay visible. */
+    .rest-kds-col {
+      min-height: 0;
+    }
     .rest-hours li {
       grid-template-columns: minmax(0, 1fr) auto;
     }
-    .rest-hours li > span[aria-hidden] {
+    .rest-hours--editable li {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas: 'day toggle' 'from to';
+    }
+    .rest-hours--editable .rest-hours__day {
+      grid-area: day;
+    }
+    .rest-hours--editable li > .switch {
+      grid-area: toggle;
+      justify-self: end;
+    }
+    .rest-hours--editable .rest-hours__from {
+      grid-area: from;
+    }
+    .rest-hours--editable .rest-hours__to {
+      grid-area: to;
+    }
+    .rest-hours--editable .inp {
+      min-width: 0;
+      width: 100%;
+    }
+    .rest-hours--editable li > span[aria-hidden] {
       display: none;
     }
   }

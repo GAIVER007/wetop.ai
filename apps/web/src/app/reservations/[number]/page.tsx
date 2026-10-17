@@ -18,6 +18,8 @@ import { FinancePanel } from './finance-panel';
 import { PaymentRequestsPanel } from './payment-requests';
 import { maskPhone } from './phone-mask';
 import { OpenFullCard } from './open-full-card';
+import { BookingGuestEditor } from './guest-editor';
+import { bookingGuestEditable } from './guest-editor-access';
 import { FinanceLine } from '../finance-line';
 import '../../directory.css';
 import { sourceStatus } from '../../../lib/status/source';
@@ -132,6 +134,11 @@ export default async function ReservationPage({
               </Link>
             ) : (
               'Гость без имени'
+            )}
+            {r.primaryGuest && !desk.access.restricted && !desk.access.unknown && (
+              <BookingGuestEditor key={`${desk.scopeKey}:${r.primaryGuest.id}:${canMutate}`}
+                id={r.primaryGuest.id} scopeKey={desk.scopeKey ?? ''}
+                canEdit={canMutate && bookingGuestEditable(desk)} piiStorage={piiStorage} />
             )}
             {r.primaryGuest && (
               <span

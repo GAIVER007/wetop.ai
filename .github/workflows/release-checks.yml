@@ -431,6 +431,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
       DIRECT_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+      DATABASE_APP_URL: postgresql://wetop_app@127.0.0.1:5432/pms_dev
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -445,13 +446,15 @@ jobs:
           sudo apt-get install -y -qq postgresql-client-16
           psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
           npm run test:schema
+          # Canonical migrations supply schema grants/RLS; LOGIN is only for this isolated trust service.
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'ALTER ROLE wetop_app LOGIN NOSUPERUSER NOBYPASSRLS'
       - run: npx playwright install --with-deps chromium
       - name: Сайт, стойка, API и база одним стендом
         env:
           PLAYWRIGHT_JSON_OUTPUT_FILE: ${{ github.workspace }}/onboarding-real-report.json
         run: npx playwright test --config tests/onboarding-real/playwright.config.ts --forbid-only --reporter=list,json
       - name: Выполнены все сценарии, без пропусков и повторов
-        run: node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 11
+        run: node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 24
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

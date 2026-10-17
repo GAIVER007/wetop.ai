@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { Alert, Badge, Button, Field, Select } from '../../components/ui';
+import { Alert, Badge, Button, Field, Help, Select } from '../../components/ui';
 import type {
   BeautyAppointmentRow,
   BeautyCustomerRow,
@@ -122,7 +122,7 @@ export function JournalBoard({
               event.dataTransfer.dropEffect = 'move';
               setDropTarget(target);
             }}
-            onDragLeave={() => setDropTarget((current) => current === target ? null : current)}
+            onDragLeave={() => setDropTarget((current) => (current === target ? null : current))}
             onDrop={(event) => {
               if (!canDrop) return;
               event.preventDefault();
@@ -140,6 +140,10 @@ export function JournalBoard({
               });
             }}
           >
+            {!works &&
+              (m === from || employee.intervals.some((i) => clockMinutes(i.timeTo) === m)) && (
+                <span className="beauty-slot-state">Вне графика</span>
+              )}
             {works && !occupied && (
               <button
                 type="button"
@@ -152,6 +156,29 @@ export function JournalBoard({
           </div>
         );
       })}
+      {day.appointments
+        .filter(
+          (a) =>
+            a.employeeId === employee.id &&
+            a.status !== 'CANCELLED' &&
+            a.status !== 'NO_SHOW' &&
+            !live.some((visible) => visible.id === a.id),
+        )
+        .map((a) => (
+          <div
+            key={`hidden-${a.id}`}
+            className="beauty-tile beauty-tile--hidden"
+            style={{
+              top: (a.startMinutes - from) * PX_PER_MIN,
+              height: Math.max(24, a.endMinutes - a.startMinutes) * PX_PER_MIN,
+            }}
+          >
+            <span>
+              {clock(a.startMinutes)}–{clock(a.endMinutes)}
+            </span>
+            <strong>Занято, скрыто фильтром</strong>
+          </div>
+        ))}
       {live
         .filter((a) => a.employeeId === employee.id)
         .map((a) => (
@@ -160,13 +187,19 @@ export function JournalBoard({
             type="button"
             draggable={movable(a)}
             onDragStart={(event) => {
-              if (!movable(a)) { event.preventDefault(); return; }
+              if (!movable(a)) {
+                event.preventDefault();
+                return;
+              }
               event.dataTransfer.effectAllowed = 'move';
               event.dataTransfer.setData('text/plain', a.id);
               setDragged(a.id);
               setMoveError('');
             }}
-            onDragEnd={() => { setDragged(null); setDropTarget(null); }}
+            onDragEnd={() => {
+              setDragged(null);
+              setDropTarget(null);
+            }}
             className={`beauty-tile beauty-tile--${a.status.toLowerCase()}`}
             style={{
               top: (a.startMinutes - from) * PX_PER_MIN,
@@ -208,7 +241,12 @@ export function JournalBoard({
         <div
           key={m}
           className="beauty-slot"
-          style={/* slop-allow: inline-style положение клетки из минуты рабочего дня */ { top: (m - from) * PX_PER_MIN, height: STEP * PX_PER_MIN }}
+          style={
+            /* slop-allow: inline-style положение клетки из минуты рабочего дня */ {
+              top: (m - from) * PX_PER_MIN,
+              height: STEP * PX_PER_MIN,
+            }
+          }
         />
       ))}
     </div>
@@ -227,45 +265,85 @@ export function JournalBoard({
             + Новая запись
           </Button>
         </div>
-        <div className="beauty-filters">
-          <Field label={<span>Мастер</span>}>
-          <Select
-            aria-label="Мастер"
-            value={master}
-            onChange={(e) => setMaster(e.target.value)}
-          >
-            <option value="">Все мастера</option>
-            {columns.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
-          </Field>
-          <Field label={<span>Услуга</span>}>
-          <Select aria-label="Услуга" value={service} onChange={(e) => setService(e.target.value)}>
-            <option value="">Все услуги</option>
-            {day.services.map((sv) => (
-              <option key={sv.id} value={sv.id}>
-                {sv.name}
-              </option>
-            ))}
-          </Select>
-          </Field>
-          <Field label={<span>Статус</span>}>
-          <Select aria-label="Статус записи" value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="">Все статусы</option>
-            {Object.entries(beautyStatus)
-              .filter(([key]) => key !== 'CANCELLED')
-              .map(([key, st]) => (
-                <option key={key} value={key}>
-                  {st.label}
-                </option>
-              ))}
-          </Select>
-          </Field>
-        </div>
+        <Help
+          title={`Фильтры${master || service || status ? ` · ${[master, service, status].filter(Boolean).length}` : ''}`}
+        >
+          <div className="beauty-filters">
+            <Field label={<span>Мастер</span>}>
+              <Select
+                aria-label="Мастер"
+                value={master}
+                onChange={(e) => setMaster(e.target.value)}
+              >
+                <option value="">Все мастера</option>
+                {columns.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label={<span>Услуга</span>}>
+              <Select
+                aria-label="Услуга"
+                value={service}
+                onChange={(e) => setService(e.target.value)}
+              >
+                <option value="">Все услуги</option>
+                {day.services.map((sv) => (
+                  <option key={sv.id} value={sv.id}>
+                    {sv.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label={<span>Статус</span>}>
+              <Select
+                aria-label="Статус записи"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <option value="">Все статусы</option>
+                {Object.entries(beautyStatus)
+                  .filter(([key]) => key !== 'CANCELLED')
+                  .map(([key, st]) => (
+                    <option key={key} value={key}>
+                      {st.label}
+                    </option>
+                  ))}
+              </Select>
+            </Field>
+          </div>
+          <CalendarLegend />
+          <p className="beauty-note">
+            Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые интервалы
+            обозначены текстом.
+          </p>
+        </Help>
       </div>
+      {(master || service || status) && (
+        <div className="beauty-active-filters" role="status">
+          <span>
+            {[
+              columns.find((c) => c.id === master)?.name,
+              day.services.find((s) => s.id === service)?.name,
+              status ? beautyStatus[status as keyof typeof beautyStatus]?.label : '',
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </span>
+          <Button
+            tone="secondary"
+            onClick={() => {
+              setMaster('');
+              setService('');
+              setStatus('');
+            }}
+          >
+            Сбросить фильтры
+          </Button>
+        </div>
+      )}
       <p className="beauty-note" data-testid="beauty-day-summary">
         {live.filter((a) => !master || a.employeeId === master).length
           ? `Записей: ${live.filter((a) => !master || a.employeeId === master).length}`
@@ -273,7 +351,6 @@ export function JournalBoard({
             ? 'По выбранным фильтрам записей не найдено'
             : 'Записей на этот день нет'}
       </p>
-      <CalendarLegend />
       {moving && <p role="status">Переносим запись…</p>}
       {moveError && <Alert>{moveError}</Alert>}
       {(!columns.length || !day.services.length) && (
@@ -313,7 +390,8 @@ export function JournalBoard({
                       <small>
                         {c.timeOff
                           ? c.timeOffReason || 'Отсутствие'
-                          : c.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') || 'Выходной'}
+                          : c.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') ||
+                            'Выходной'}
                       </small>
                     </span>
                   </button>
@@ -323,77 +401,81 @@ export function JournalBoard({
           </aside>
         )}
         <div className="beauty-board">
-        <div
-          className="beauty-grid-day"
-          data-testid="beauty-grid"
-          role="region"
-          aria-label="Расписание дня"
-          tabIndex={0}
-          style={{
-            gridTemplateColumns: `56px repeat(${Math.max(1, shown.length)}, minmax(180px, 1fr))`,
-          }}
-        >
-          <div aria-hidden="true" />
-          {!columns.length && <h2 className="beauty-col-head">Расписание дня</h2>}
-          {shown.map((e) => (
-            <h2 key={e.id} className="beauty-col-head">
-              {e.name}
-              <small>
-                {e.timeOff ? (
-                  <Badge>{e.timeOffReason || 'Отсутствие'}</Badge>
-                ) : e.intervals.length ? (
-                  e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ')
-                ) : (
-                  'Выходной'
-                )}
-              </small>
-            </h2>
-          ))}
-          {hours}
-          {!columns.length && emptyTimeline}
-          {shown.map((e) => (
-            <div key={e.id}>{column(e)}</div>
-          ))}
-        </div>
-        <div className="beauty-mobile-calendar" data-testid="beauty-mobile-calendar">
-          {!columns.length && (
-            <div className="beauty-mobile-timeline">
-              {hours}
-              {emptyTimeline}
-            </div>
-          )}
-          {!!columns.length && (
-            <Field label="Мастер календаря">
-              <Select value={selected} onChange={(e) => {
-                setSelected(e.target.value);
-                if (master) setMaster(e.target.value);
-              }}>
-                {columns.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.name}
-                    {e.timeOff ? ' (отсутствие)' : ''}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-          )}
-          {columns
-            .filter((e) => e.id === selected)
-            .map((e) => (
-              <div key={e.id}>
-                <p className="beauty-current-master">{e.name}</p>
-                <p className="beauty-note">
-                  {e.timeOff
-                    ? e.timeOffReason || 'Отсутствие'
-                    : e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') || 'Выходной'}
-                </p>
-                <div className="beauty-mobile-timeline">
-                  {hours}
-                  {column(e)}
-                </div>
-              </div>
+          <div
+            className="beauty-grid-day"
+            data-testid="beauty-grid"
+            role="region"
+            aria-label="Расписание дня"
+            tabIndex={0}
+            style={{
+              gridTemplateColumns: `56px repeat(${Math.max(1, shown.length)}, minmax(180px, 1fr))`,
+            }}
+          >
+            <div aria-hidden="true" />
+            {!columns.length && <h2 className="beauty-col-head">Расписание дня</h2>}
+            {shown.map((e) => (
+              <h2 key={e.id} className="beauty-col-head">
+                {e.name}
+                <small>
+                  {e.timeOff ? (
+                    <Badge>{e.timeOffReason || 'Отсутствие'}</Badge>
+                  ) : e.intervals.length ? (
+                    e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ')
+                  ) : (
+                    'Выходной'
+                  )}
+                </small>
+              </h2>
             ))}
-        </div>
+            {hours}
+            {!columns.length && emptyTimeline}
+            {shown.map((e) => (
+              <div key={e.id}>{column(e)}</div>
+            ))}
+          </div>
+          <div className="beauty-mobile-calendar" data-testid="beauty-mobile-calendar">
+            {!columns.length && (
+              <div className="beauty-mobile-timeline">
+                {hours}
+                {emptyTimeline}
+              </div>
+            )}
+            {!!columns.length && (
+              <Field label={<span className="sr-only">Мастер календаря</span>}>
+                <Select
+                  value={selected}
+                  onChange={(e) => {
+                    setSelected(e.target.value);
+                    if (master) setMaster(e.target.value);
+                  }}
+                >
+                  {columns.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      Мастер: {e.name}
+                      {e.timeOff ? ' (отсутствие)' : ''}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            )}
+            {columns
+              .filter((e) => e.id === selected)
+              .map((e) => (
+                <div key={e.id}>
+                  <p className="beauty-current-master">{e.name}</p>
+                  <p className="beauty-note">
+                    {e.timeOff
+                      ? e.timeOffReason || 'Отсутствие'
+                      : e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') ||
+                        'Выходной'}
+                  </p>
+                  <div className="beauty-mobile-timeline">
+                    {hours}
+                    {column(e)}
+                  </div>
+                </div>
+              ))}
+          </div>
         </div>
       </div>
       <AppointmentEditor
@@ -412,7 +494,6 @@ export function JournalBoard({
         title={panel?.kind === 'card' ? 'Запись' : 'Новая запись'}
         drawer
       >
-
         {panel?.kind === 'card' && (
           <AppointmentCard
             day={{ ...day, columns }}

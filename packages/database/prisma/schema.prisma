@@ -62,6 +62,7 @@ model Business {
   menuCategories   MenuCategory[]
   menuItems        MenuItem[]
   kitchenProducts  KitchenProduct[]
+  beautyPayrollPolicy BeautyPayrollPolicy?
 
   @@index([organizationId])
   @@map("businesses")
@@ -3165,9 +3166,68 @@ model Employee {
   payAdjustments   EmployeePayAdjustment[]
   cashPayouts      RestaurantCashOperation[]
   guestRatings     RestaurantOrderRating[]
+  publicProfile    EmployeePublicProfile?
+  portalMedia      EmployeeMedia[]
+  portfolio        EmployeePortfolioItem[]
 
   @@index([businessId])
   @@map("employees")
+}
+
+// Additive portal models, prepared migration128. Production application requires the owner-admin release step.
+model EmployeePublicProfile {
+  employeeId String @id @map("employee_id") @db.Uuid
+  slug String @unique @db.VarChar(200)
+  headline String @default("") @db.VarChar(200)
+  biography String @default("") @db.VarChar(5000)
+  practiceSinceYear Int? @map("practice_since_year")
+  published Boolean @default(false)
+  publicationConsent Boolean @default(false) @map("publication_consent")
+  revision Int @default(1)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@map("employee_public_profiles")
+}
+
+model EmployeeMedia {
+  id String @id @default(uuid()) @db.Uuid
+  employeeId String @map("employee_id") @db.Uuid
+  kind String @db.VarChar(20)
+  storageRef String @unique @map("storage_ref")
+  mimeType String @map("mime_type") @db.VarChar(100)
+  width Int
+  height Int
+  byteSize Int @map("byte_size")
+  sha256 String @db.Char(64)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  work EmployeePortfolioItem?
+  @@index([employeeId, kind])
+  @@map("employee_media")
+}
+
+model EmployeePortfolioItem {
+  id String @id @default(uuid()) @db.Uuid
+  employeeId String @map("employee_id") @db.Uuid
+  mediaId String @unique @map("media_id") @db.Uuid
+  title String @db.VarChar(200)
+  description String @default("") @db.VarChar(2000)
+  serviceId String? @map("service_id") @db.Uuid
+  published Boolean @default(false)
+  publicationConsent Boolean @default(false) @map("publication_consent")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  media EmployeeMedia @relation(fields: [mediaId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  service BeautyService? @relation(fields: [serviceId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@index([employeeId])
+  @@map("employee_portfolio_items")
+}
+
+model BeautyPayrollPolicy {
+  businessId String @id @map("business_id") @db.Uuid
+  percentBasis String @map("percent_basis") @db.VarChar(40)
+  revision Int @default(1)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@map("beauty_payroll_policies")
 }
 
 /// Один мастер работает в нескольких салонах. Филиал своего бизнеса, проверяет триггер
@@ -3202,6 +3262,7 @@ model BeautyService {
   locations    LocationService[]
   employees    EmployeeService[]
   appointments Appointment[]
+  portfolioItems EmployeePortfolioItem[]
 
   @@index([businessId])
   @@map("beauty_services")

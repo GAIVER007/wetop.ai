@@ -126,7 +126,7 @@ describe('свой раннер CI', () => {
     const vertical = withoutComments(job('ui-vertical'));
     expect(vertical).toMatch(/runs-on: ubuntu-24\.04/);
     expect(vertical).toMatch(/needs: fast/);
-    expect(vertical).toMatch(/suite: \[beauty-ui, food-ui, branches-ui\]/);
+    expect(vertical).toMatch(/suite: \[beauty-ui, food-ui, branches-ui, employee-portal-ui\]/);
     expect(vertical).toMatch(/fail-fast: false/);
     expect(vertical).toMatch(/timeout-minutes: \d+/);
     // подставные API трёх наборов читают схему pms_test локальной базы

@@ -35,5 +35,13 @@ Four source issues reproduced before fixes: portal seed still used forbidden SEL
 
 Old run39038617243 checks immutable90903 **without638** and must not be cancelled or credited to this expanded candidate. The expanded final SHA requires its own complete release-checks.
 
+## Final targeted gate blocker: synthetic guest cleanup transport
+
+Old90903 release-checks completed FAILED solely in main-UI shard5's G6 afterEach POST control cleanup (all G6 business assertions passed; other executing suites succeeded and the aggregate reflected this shard failure). The retained trace puts cleanup about5997ms after the request context's previous response, at Node24's6000ms idle-socket expiry boundary. Evidence supports a keep-alive expiry/reuse race, not a guest-creation defect; socket-level timing remains an inference rather than packet capture. The exact old artifact digest was verified against GitHub. No full-gate retry was used as diagnosis.
+
+A deterministic loopback-only test executes the actual G6 cleanup hook and models an expired pooled socket. RED3 reproduced socket hangup, silently accepted HTTP503, and missing isolated-context disposal. Minimal fix: cleanup gets a fresh short-lived Playwright request context, explicitly checks successful HTTP response, and always disposes it. No retries, timeout extensions, skipped guest cases or changed G6 business assertions. Network tests GREEN3 and original G6 browser scenario passed with the same45-second budget, using the existing tree directly (external config, no project copy). This test-only fix leaves approved app/calendar/CAS source unchanged; its new exact SHA still requires the full mandatory gate.
+
+On0c87fa4fc the combined new-grid2, portal22, CAS/rights41 and onboarding-real11 all passed with zero skips/flaky/source changes. The full earlier Beauty target had38/40 pass before the real controlled-switch defect; moving its immediate state update outside the deferred action then passed the two new grid cases. These local stages are not substituted for a new exact-head global gate.
+
 ## Verification state
 This is a manifest of inputs, not a PASS certificate. Compatibility changes and results must be reported separately, on final exact SHA. Source code will be frozen during final verification. `onboarding-real` delivered CI wiring is actually in the chosen base (PR631); O07 is not automatically closed merely because O07c code/test is present.

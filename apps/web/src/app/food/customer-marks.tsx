@@ -10,9 +10,12 @@ import { markCustomer } from './restaurant-actions';
 export function CustomerMarks({
   scopeKey,
   customer,
+  save,
 }: {
   scopeKey: string;
   customer: { id: string; name: string; isVip: boolean; birthDate: string | null };
+  /** своё сохранение направления (салон, §36); без него ресторанное */
+  save?: (id: string, body: { isVip: boolean; birthDate: string | null }) => Promise<{ error: string | null }>;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -21,10 +24,8 @@ export function CustomerMarks({
   function submit(form: FormData) {
     const birthDate = String(form.get('birthDate') ?? '');
     start(async () => {
-      const result = await markCustomer(scopeKey, customer.id, {
-        isVip: form.getAll('isVip').at(-1) === 'true',
-        birthDate: birthDate || null,
-      });
+      const body = { isVip: form.getAll('isVip').at(-1) === 'true', birthDate: birthDate || null };
+      const result = save ? await save(customer.id, body) : await markCustomer(scopeKey, customer.id, body);
       if (result.error) setError(result.error);
       else {
         setOpen(false);

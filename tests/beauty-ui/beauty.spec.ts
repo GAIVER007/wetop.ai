@@ -248,6 +248,20 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   expect(csv).not.toContain('Тестовая клиентка');
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');
+  // VIP и день рождения клиента салона (§36, Q-BS-3)
+  const client = page.getByRole('main').getByRole('row', { name: /Тестовая клиентка/ });
+  await client.getByRole('button', { name: 'Изменить' }).click();
+  const marks = page.getByTestId('customer-marks');
+  await marks.getByLabel('VIP-гость').check();
+  await marks.getByLabel('Дата рождения').fill('1990-03-15');
+  await marks.getByRole('button', { name: 'Сохранить' }).click();
+  // первое сохранение собирает серверное действие dev-сервером: под нагрузкой дольше 5 с
+  await expect(marks).toBeHidden({ timeout: 20_000 });
+  await expect(client).toContainText('VIP');
+  await expect(client.getByTestId('customer-birthday')).toContainText('15 марта');
+  await page.getByRole('main').getByLabel('Сегмент').selectOption('vip');
+  // клиентка в сценарии одна: отбор «VIP» оставляет её в таблице
+  await expect(client).toBeVisible();
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
   expect(
     calls.filter(

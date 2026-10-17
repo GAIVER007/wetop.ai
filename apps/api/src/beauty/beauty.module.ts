@@ -16,8 +16,10 @@ import {
   Put,
 } from '@nestjs/common';
 import {
+  birthdayInDays,
   effectiveService,
   localDate,
+  parseCustomerMarks,
   zonedStartOfDay,
   parseBeautyServiceInput,
   parseEmployeeInput,
@@ -87,8 +89,10 @@ export class BeautyCatalogService {
         businesses: { some: { businessId: scope.businessId } },
       },
       orderBy: [{ firstName: 'asc' }, { id: 'asc' }],
-      select: { id: true, firstName: true, lastName: true, phone: true, status: true },
+      select: { id: true, firstName: true, lastName: true, phone: true, status: true, isVip: true, birthDate: true },
     });
+    // «скоро день рождения» по дате филиала (§36)
+    const today = localDate(new Date(), scope.locationTimezone ?? 'UTC');
     const done = await this.prisma.db.appointment.groupBy({
       by: ['customerId', 'currency'],
       where: { status: 'DONE', location: { businessId: scope.businessId } },
@@ -130,8 +134,11 @@ export class BeautyCatalogService {
     return {
       items: items.map((c) => {
         const s = byCustomer.get(c.id);
+        const birthDate = c.birthDate ? c.birthDate.toISOString().slice(0, 10) : null;
         return {
           ...c,
+          birthDate,
+          birthdayInDays: birthDate ? birthdayInDays(birthDate, today) : null,
           visits: s?.visits ?? 0,
           lastVisitAt: s ? s.lastVisitAt.toISOString() : null,
           lastVisitLocalDate: visitDates.get(c.id) ?? null,
@@ -141,6 +148,45 @@ export class BeautyCatalogService {
         };
       }),
     };
+  }
+
+  /** VIP-метка и дата рождения клиента салона (§36, общие с рестораном): клиент виден в бизнесе; дата в журнал не пишется */
+  async updateCustomer(id: string, raw: unknown) {
+    await mayBeautyWrite(this.prisma, 'desk');
+    const scope = await this.scope();
+    let input: ReturnType<typeof parseCustomerMarks>;
+    try {
+      input = parseCustomerMarks(raw, localDate(new Date(), scope.locationTimezone ?? 'UTC'));
+    } catch (error) {
+      throw new BadRequestException((error as Error).message);
+    }
+    return beautyTransaction(this.prisma, scope, async (tx) => {
+      const found = await tx.customer.findFirst({
+        where: { id, organizationId: scope.organizationId, businesses: { some: { businessId: scope.businessId } } },
+      });
+      if (!found) throw new NotFoundException('Клиент не найден');
+      const row = await tx.customer.update({
+        where: { id },
+        data: {
+          ...(input.isVip !== undefined ? { isVip: input.isVip } : {}),
+          ...(input.birthDate !== undefined
+            ? { birthDate: input.birthDate === null ? null : new Date(`${input.birthDate}T00:00:00Z`) }
+            : {}),
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          organizationId: scope.organizationId,
+          userId: currentUserId(),
+          entityType: 'customer',
+          entityId: id,
+          action: 'beauty.customer.marks',
+          before: { isVip: found.isVip },
+          after: { isVip: row.isVip, birthDateChanged: input.birthDate !== undefined },
+        },
+      });
+      return { id, isVip: row.isVip, birthDate: row.birthDate ? row.birthDate.toISOString().slice(0, 10) : null };
+    });
   }
 
   /** Услуги каталога с тем, что про них говорит филиал: действующая цена считается домéном */
@@ -756,6 +802,12 @@ export class BeautyCatalogController {
   @Get('customers')
   customers() {
     return this.service.customers();
+  }
+  // VIP и день рождения (§36): ставит смена, как у ресторана
+  @RequiresBusinessCapability('beauty.customers')
+  @Patch('customers/:id')
+  updateCustomer(@Param('id') id: string, @Body() body: unknown) {
+    return this.service.updateCustomer(id, body);
   }
 
   @Get('services') services() {

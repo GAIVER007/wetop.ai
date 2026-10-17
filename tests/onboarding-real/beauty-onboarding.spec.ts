@@ -254,7 +254,9 @@ test('O03/O05/O20: logout, new session, deep links and history resume the saved 
     await expect(other.getByRole('heading', { level: 1 })).toHaveText('Услуги');
     await other.goto('/register/setup?vertical=HOSPITALITY&returnTo=https%3A%2F%2Fexample.invalid');
     await expect(other).toHaveURL(/127\.0\.0\.1:55843/);
-    await expect(other.getByTestId('beauty-onboarding')).toBeVisible();
+    // во время перенаправления Next держит в DOM и уходящий, и новый <main>: ждём один, как в начале файла
+    await expect(other.getByRole('main')).toHaveCount(1);
+    await expect(other.getByRole('main')).toHaveAttribute('data-testid', 'beauty-onboarding');
   } finally {
     await fresh.close();
   }

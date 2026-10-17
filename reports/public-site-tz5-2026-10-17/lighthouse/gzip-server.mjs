@@ -1,5 +1,4 @@
 // Статический сервер для замера: как Cloudflare Pages, сжимает текст (gzip), каталог/ → index.html. Только для Lighthouse.
-/* global process, URL */
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { join, extname } from 'node:path';

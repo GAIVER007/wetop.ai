@@ -1,5 +1,4 @@
 // Обход собранного сайта (apps/site/out): реестр страниц, SEO-поля, ссылки, sitemap. Только чтение.
-/* global process, console */
 import { readFileSync, readdirSync, statSync, existsSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import process from 'node:process';

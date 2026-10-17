@@ -18,7 +18,7 @@ beforeAll(async()=>{
  await db.user.create({data:{id:user,name:'Synthetic payroll owner',email:`payroll-${user}@example.invalid`}});
  const b=await db.business.create({data:{organizationId:org.id,name:'Synthetic payroll',vertical:'FOOD_SERVICE'}});
  const l=await db.location.create({data:{businessId:b.id,name:'Synthetic payroll',timezone:'Asia/Almaty',currency:'KZT'}});
- s={organizationId:org.id,businessId:b.id,locationId:l.id,timezone:l.timezone,currency:l.currency};
+ s={organizationId:org.id,businessId:b.id,locationId:l.id,timezone:l.timezone,currency:l.currency,vertical:'FOOD_SERVICE'};
  employee=(await db.employee.create({data:{businessId:b.id,name:'Synthetic employee',paySetting:{create:{model:'FIXED',fixedMinor:100000n,percent:0,currency:'KZT'}}}})).id;
  await db.restaurantCashOperation.create({data:{locationId:l.id,kind:'INCOME',method:'CASH',amount:1000000n,currency:'KZT'}});
  // Full request scope, permissions and transaction are exercised, without writer spies.

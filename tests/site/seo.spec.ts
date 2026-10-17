@@ -46,13 +46,19 @@ test('каждая страница sitemap: h1, title, description, canonical, 
       if (i > 0 && level > levels[i - 1]! + 1)
         problems.push(`${path}: заголовок h${level} сразу после h${levels[i - 1]}`);
     });
+    const ldTypes: string[] = [];
     for (const raw of await page.locator('script[type="application/ld+json"]').allTextContents()) {
       try {
-        check((JSON.parse(raw) as Record<string, unknown>)['@context'] === 'https://schema.org', `${path}: JSON-LD без @context`);
+        const data = JSON.parse(raw) as { '@context'?: string; '@type'?: string; '@graph'?: Array<{ '@type': string }> };
+        check(data['@context'] === 'https://schema.org', `${path}: JSON-LD без @context`);
+        ldTypes.push(...(data['@graph'] ? data['@graph'].map((g) => g['@type']) : [data['@type'] ?? '']));
       } catch {
         problems.push(`${path}: JSON-LD не разбирается`);
       }
     }
+    // Второй FAQPage на той же странице Google считает ошибкой разметки (16.10.2026: был на всех лендингах)
+    for (const type of new Set(ldTypes))
+      check(ldTypes.filter((t) => t === type).length === 1, `${path}: ${type} в разметке дважды`);
     check(!titles.has(title), `${path}: title как у ${titles.get(title)}`);
     check(!descriptions.has(description), `${path}: description как у ${descriptions.get(description)}`);
     titles.set(title, path);

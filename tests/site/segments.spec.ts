@@ -290,3 +290,34 @@ test('страницы направлений ведут карточками н
       await expect(page.locator(`main .card a[href="${path}"]`)).toHaveCount(1);
   }
 });
+
+test('у страниц типов свои карточки возможностей, не копия соседней страницы', async ({ page }) => {
+  // 16.10.2026: салон, барбершоп, спа и ногтевая студия (и кафе с баром) показывали одни и те же шесть карточек
+  const seen = new Map<string, string>();
+  const problems: string[] = [];
+  for (const segment of SEGMENTS) {
+    await page.goto(segment.path);
+    for (const card of await page.locator('#segment-features .card__text').allTextContents()) {
+      const other = seen.get(card);
+      if (other) problems.push(`${segment.path} повторяет карточку ${other}: «${card.slice(0, 50)}»`);
+      seen.set(card, segment.path);
+    }
+  }
+  expect(problems).toEqual([]);
+});
+
+test('салонные страницы не обещают кабинеты и курсы, которых нет в модели записи', async ({ page }) => {
+  // Запись в продукте: клиент, мастер, услуга, время (DATA_MODEL, Appointment). Кабинетов и абонементов нет.
+  const paths = [
+    ...SEGMENTS.filter((s) => s.vertical === 'BEAUTY').map((s) => s.path),
+    '/blog/kak-vesti-zapisi-v-spa/',
+    '/blog/kak-vesti-zapisi-massazhnogo-salona/',
+    '/blog/kak-vesti-zapisi-v-kosmetologii/',
+    '/blog/kak-vesti-zapisi-studii-epilyacii/',
+  ];
+  for (const path of paths) {
+    await page.goto(path);
+    const text = (await page.locator('main').innerText()) + (await page.title());
+    expect(text, path).not.toMatch(/кабинет(ы|ов|ам)\b|календар\S* кабинет|кабинет занят|курс(ы|ов)? (процедур|визитов|из)|абонемент/i);
+  }
+});

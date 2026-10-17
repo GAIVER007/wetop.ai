@@ -5,15 +5,22 @@ import { mkdirSync } from 'node:fs';
 const api = 'http://127.0.0.1:55844';
 const site = 'http://127.0.0.1:55845';
 const evidence = '.onboarding-work/evidence/screenshots';
+const DAY = 24 * 60 * 60 * 1000;
 mkdirSync(evidence, { recursive: true });
 
-async function register(page: Page, suffix: string) {
+async function register(page: Page, suffix: string, entry: 'hash' | 'cta' = 'hash') {
   const email = `onboarding-${suffix}-${randomUUID()}@example.invalid`;
-  await page.goto(`${site}/?vertical=BEAUTY#register`);
+  if (entry === 'cta') {
+    // Настоящая кнопка страницы «Для салонов красоты», как её нажимает посетитель сайта
+    await page.goto(`${site}/for/salons/`);
+    await page.locator('.salon-hero').getByRole('link', { name: /Начать работу/ }).click();
+  } else await page.goto(`${site}/?vertical=BEAUTY#register`);
   const dialog = page.getByRole('dialog');
   await dialog.locator('input[name="name"]').fill('Тестовый Владелец');
   await dialog.locator('input[name="businessName"]').fill('Салон Автотест');
-  await dialog.locator('input[value="BEAUTY"]').check();
+  // С кнопки страницы салонов направление закреплено ссылкой, выбора нет; с главной выбирают сами
+  if (entry === 'cta') await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText('Салон');
+  else await dialog.locator('input[value="BEAUTY"]').check();
   await dialog.locator('input[name="phone"]').fill('7000000000');
   await dialog.locator('input[name="email"]').fill(email);
   await dialog.locator('input[name="password"]').fill('Onboarding-Test-2026!a');
@@ -60,7 +67,7 @@ async function shots(page: Page, name: string) {
 test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar', async ({
   page,
 }) => {
-  await register(page, 'full');
+  const email = await register(page, 'full', 'cta');
   await shots(page, 'welcome');
   await page.getByRole('button', { name: 'Настроить салон', exact: true }).click();
   await expect(page.getByLabel('Название салона', { exact: true })).toHaveValue('Салон Автотест');
@@ -69,6 +76,15 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
     page.getByText('Выполнено 0 из 4 обязательных шагов', { exact: true }),
   ).toBeVisible();
   await shots(page, 'checklist-empty');
+  // Кто вошёл: своя организация в пробном периоде 7 дней (ADR-TRIAL-7-DAYS-20261017), салон, выбранный филиал
+  const firstHeaders = await apiHeaders(page);
+  const me = await (await page.request.get(`${api}/auth/me`, { headers: firstHeaders })).json();
+  expect(me.organization.status).toBe('TRIAL');
+  const trialLeft = Date.parse(me.organization.trialEndsAt) - Date.now();
+  expect(trialLeft).toBeGreaterThan(7 * DAY - 15 * 60_000);
+  expect(trialLeft).toBeLessThanOrEqual(7 * DAY);
+  expect(me.context.vertical).toBe('BEAUTY');
+  expect(me.context.locationId).toBeTruthy();
   await page.getByRole('link', { name: 'Добавить услугу', exact: true }).click();
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   let dialog = page.getByRole('dialog');
@@ -145,6 +161,45 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
     page.getByRole('main').getByRole('button').filter({ hasText: 'Клиент Автотест' }).first(),
   ).toBeVisible();
   await page.screenshot({ path: `${evidence}/first-appointment-1440.png`, fullPage: true });
+
+  // Повторный вход в новом браузере: та же организация и филиал, срок trial не начинается заново,
+  // услуги и мастер те же (без дублей), настройка остаётся завершённой, запись на месте
+  const snapshot = async (p: Page) => {
+    const h = await apiHeaders(p);
+    const get = async (path: string) => (await p.request.get(`${api}${path}`, { headers: h })).json();
+    const who = await get('/auth/me');
+    return {
+      organization: who.user.organizationId,
+      trialEndsAt: who.organization.trialEndsAt,
+      location: who.context.locationId,
+      vertical: who.context.vertical,
+      services: (await get('/beauty/services')).items.map((x: { id: string }) => x.id).sort(),
+      employees: (await get('/beauty/employees')).items.map((x: { id: string }) => x.id).sort(),
+      completed: Boolean((await get('/onboarding')).completedAt),
+    };
+  };
+  const before = await snapshot(page);
+  expect(before.services).toHaveLength(1);
+  expect(before.employees).toHaveLength(1);
+  expect(before.completed).toBe(true);
+  expect(before.trialEndsAt).toBe(me.organization.trialEndsAt);
+  expect((await page.request.post(`${api}/auth/logout`, { headers: await apiHeaders(page) })).ok()).toBe(true);
+  await page.context().clearCookies();
+  const fresh = await page.context().browser()!.newContext({ baseURL: 'http://127.0.0.1:55843' });
+  try {
+    const other = await fresh.newPage();
+    await login(other, email);
+    // стойка после входа ещё ведёт на свою страницу: переход в календарь до этого обрывается (ERR_ABORTED)
+    await other.waitForLoadState('networkidle');
+    await expect(other.getByRole('main')).toBeVisible();
+    expect(await snapshot(other)).toEqual(before);
+    await other.goto(`/calendar?date=${date}`);
+    await expect(other.getByRole('main').getByTestId('beauty-day-summary')).toContainText('Записей: 1');
+    await other.reload();
+    expect(await snapshot(other)).toEqual(before);
+  } finally {
+    await fresh.close();
+  }
 });
 
 async function apiHeaders(page: Page) {
@@ -205,6 +260,37 @@ test('O03/O05/O20: logout, new session, deep links and history resume the saved 
   }
 });
 
+test('O07c: a closed employee card leaves the router on the list, so later actions cannot restore it', async ({
+  page,
+}) => {
+  // Детерминированная причина O07 (17.10.2026): закрытие карточки чистило адрес только в history, маршрутизатор
+  // Next оставался на `employee=<закрытый>`, следующее действие сервера уходило на этот адрес, а его ответ
+  // возвращал в строку закрытую карточку; перезагрузка открывала не того мастера.
+  await register(page, 'closed');
+  await profileUI(page);
+  await page.goto('/employees?onboarding=1');
+  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  let dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Закрытый');
+  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await expect(page).toHaveURL(/employee=/);
+  await expect(dialog.getByRole('tab', { name: 'Услуги', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page).not.toHaveURL(/employee=/);
+  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Следующий');
+  const action = page.waitForRequest((r) => r.method() === 'POST' && Boolean(r.headers()['next-action']));
+  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  // действие уходит на тот адрес, который маршрутизатор считает текущим: это список, а не закрытая карточка
+  expect(new URL((await action).url()).searchParams.get('employee')).toBeNull();
+  const headers = await apiHeaders(page);
+  await expect
+    .poll(async () => (await (await page.request.get(`${api}/beauty/employees`, { headers })).json()).items.length)
+    .toBe(2);
+});
+
 test('O07/O08: partial assignment and a lost create response recover one Employee ID', async ({
   page,
 }) => {
@@ -262,6 +348,8 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   saved = await (await page.request.get(`${api}/beauty/employees`, { headers })).json();
   expect(saved.items).toHaveLength(1);
   expect(saved.items[0].id).toBe(firstId);
+  // Закрывать после подтверждения на экране: до него форма честно считает изменения несохранёнными
+  await expect(dialog.getByRole('status')).toContainText('Услуги назначены');
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
   dialog = page.getByRole('dialog');

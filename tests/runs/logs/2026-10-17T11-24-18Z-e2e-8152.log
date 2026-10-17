@@ -1,0 +1,41 @@
+# Сквозные (e2e) · 17.10.2026 16:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1842a14 (claude/salon-e2e-check), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.config.ts' '-g' 'O07c' '--repeat-each=3'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 2 workers
+
+[WebServer] (node:39417) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  2 tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07c: a closed employee card leaves the router on the list, so later actions cannot restore it (5.9s)
+  ✓  1 tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07c: a closed employee card leaves the router on the list, so later actions cannot restore it (6.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓  3 tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07c: a closed employee card leaves the router on the list, so later actions cannot restore it (3.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+
+  3 passed (15.3s)
+
+# код выхода 0 · 17 с

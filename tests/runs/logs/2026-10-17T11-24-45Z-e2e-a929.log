@@ -1,0 +1,274 @@
+# Сквозные (e2e) · 17.10.2026 16:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1842a14 (claude/salon-e2e-check), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 46 tests using 2 workers
+
+[WebServer] (node:39794) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘   1 tests/beauty-ui/calendar-master-selection.spec.ts:29:1 › mobile master filter and visible calendar select the same master (9.5s)
+  ✓   3 tests/beauty-ui/calendar-master-selection.spec.ts:45:1 › new appointment defaults to the master selected in the desktop filter (2.6s)
+  -   4 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -   5 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -   6 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -   7 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+  ✓   8 tests/beauty-ui/employee-workspace.spec.ts:69:1 › minimal create, saved ID, reload and actual desktop/mobile themes (9.7s)
+  ✓   9 tests/beauty-ui/employee-workspace.spec.ts:106:1 › two stale forms keep the second draft and show the current profile (5.9s)
+  ✓  10 tests/beauty-ui/employee-workspace.spec.ts:134:1 › dirty stay, discard and save before tabs/close; failed save keeps draft (5.5s)
+  ✓  11 tests/beauty-ui/employee-workspace.spec.ts:178:1 › Back/Forward and keyboard tabs retain a consistent employee URL (5.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  12 tests/beauty-ui/employee-workspace.spec.ts:209:1 › inaccessible deep link is neutral and old Beauty entry remains compatible (8.2s)
+  ✓  13 tests/beauty-ui/employee-workspace.spec.ts:221:1 › lost create response is recovered on reload using one persistent operation (7.1s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete (58.2s)
+  ✓  14 tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee (3.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✓  16 tests/beauty-ui/employee-workspace.spec.ts:333:1 › a scope-switch event invalidates an in-flight profile response (3.0s)
+  ✓  17 tests/beauty-ui/employee-workspace.spec.ts:380:1 › services cannot restore a stale name and profile cannot restore stale services (4.9s)
+  ✓  18 tests/beauty-ui/employee-workspace.spec.ts:424:1 › native beforeunload protects reload and preserves draft when dismissed (3.2s)
+  ✓  19 tests/beauty-ui/employee-workspace.spec.ts:449:1 › dirty internal navigation asks before leaving and stays on failure (1.9s)
+  ✓  20 tests/beauty-ui/employee-workspace.spec.ts:469:1 › profile fields, keyboard focus and contrast pass an axe audit (2.2s)
+  ✘  15 tests/beauty-ui/beauty.spec.ts:274:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (16.2s)
+  ✓  21 tests/beauty-ui/employee-workspace.spec.ts:486:1 › pending services save cannot mark a later checkbox edit as saved (1.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓  23 tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card (2.1s)
+  ✓  22 tests/beauty-ui/beauty.spec.ts:311:1 › existing customer can be selected for another appointment without duplication (3.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓  24 tests/beauty-ui/employee-workspace.spec.ts:553:1 › a later week edit stays dirty after the submitted week is saved (1.6s)
+  -  26 tests/beauty-ui/ref-capture.spec.ts:14:1 › салон: календарь на ширинах и темах
+  -  27 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /today
+  -  28 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /beauty/schedule
+  -  29 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /appointments
+  -  30 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /services
+  -  31 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees
+  -  32 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts
+  -  33 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /customers
+  -  34 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /finance
+  -  35 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /team
+  -  36 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /help
+  -  37 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /branches
+  -  38 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports
+  ✓  25 tests/beauty-ui/beauty.spec.ts:339:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (14.3s)
+  ✓  39 tests/beauty-ui/unified-growth.spec.ts:130:1 › салон: продажи, финансы и маркетинг на данных филиала (17.0s)
+[WebServer] ⨯ Error: Выбранный бизнес или филиал недоступен. Выберите филиал заново.
+[WebServer]     at getJson (src/lib/api.ts:201:11)
+[WebServer]     at async Object.me (src/lib/api.ts:623:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   199 |         /* тело не JSON */
+[WebServer]   200 |       }
+[WebServer] > 201 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   202 |   }
+[WebServer]   203 |   return (await res.json()) as T;
+[WebServer]   204 | } {
+[WebServer]   status: 403,
+[WebServer]   digest: 'API_403'
+[WebServer] }
+  ✘  40 tests/beauty-ui/beauty.spec.ts:339:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (1.5m)
+  ✓  41 tests/beauty-ui/beauty.spec.ts:339:5 › calendar and drawer 390 light, keyboard, axe, no overflow (9.9s)
+  ✓  42 tests/beauty-ui/beauty.spec.ts:339:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (7.5s)
+  ✘  43 tests/beauty-ui/beauty.spec.ts:420:1 › archived service and employee preserve historical calendar appointments (1.3s)
+  ✓  44 tests/beauty-ui/beauty.spec.ts:458:1 › TimeOff from employee drawer, server denial and timezone persisted (4.7s)
+  ✓  45 tests/beauty-ui/beauty.spec.ts:510:1 › DS1c: day navigation keeps the previous addresses (1.4s)
+  ✓  46 tests/beauty-ui/beauty.spec.ts:525:1 › Beauty onboarding v2 completes a ready branch and resumes Today (4.1s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:274:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('button', { name: 'Добавить мастера', exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('button', { name: 'Добавить мастера', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Добавить мастера', exact: true })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      298 |   await expect(page.getByRole('button', { name: 'Добавить услугу', exact: true })).toHaveCount(0);
+      299 |   await page.goto('/employees');
+    > 300 |   await expect(page.getByRole('button', { name: 'Добавить мастера', exact: true })).toHaveCount(0);
+          |                                                                                     ^
+      301 |   await request.post(`${api}/__test/control`, { data: { readOnly: true } });
+      302 |   await page.goto(`/calendar?date=${day}`);
+      303 |   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/beauty.spec.ts:300:85
+
+    Error Context: test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/error-context.md
+
+    Error Context: test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/beauty.spec.ts:339:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.focus: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('.beauty-grid-day .beauty-tile')
+
+
+      390 |         width === 390 ? '.beauty-mobile-calendar .beauty-tile' : '.beauty-grid-day .beauty-tile',
+      391 |       );
+    > 392 |       await tile.focus();
+          |                  ^
+      393 |       await page.keyboard.press('Enter');
+      394 |       await expect(page.getByRole('dialog')).toBeVisible();
+      395 |       await page.getByRole('dialog').evaluate(async (el) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/beauty.spec.ts:392:18
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      107 | }
+      108 | test.afterAll(async ({ request }) => {
+    > 109 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      110 | });
+      111 |
+      112 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/beauty.spec.ts:109:62
+
+    Error Context: test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/beauty-ui/beauty.spec.ts:420:1 › archived service and employee preserve historical calendar appointments 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      440 |       })
+      441 |     ).ok(),
+    > 442 |   ).toBe(true);
+          |     ^
+      443 |   await page.reload();
+      444 |   await expect(page.locator('.beauty-grid-day .beauty-tile')).toContainText('Тестовая клиентка');
+      445 |   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/beauty.spec.ts:442:5
+
+    Error Context: test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/error-context.md
+
+    Error Context: test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/beauty-ui/calendar-master-selection.spec.ts:29:1 › mobile master filter and visible calendar select the same master 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Мастер календаря', exact: true })
+    Expected: "69cdbbf1-b108-4d6f-92db-40faaac1f140"
+    Received: "9fac9322-83f3-4c8e-b5bb-d7e2631177ef"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Мастер календаря', exact: true }) with timeout 5000ms
+      - waiting for getByRole('combobox', { name: 'Мастер календаря', exact: true })
+        13 × locator resolved to <select class="inp">…</select>
+           - unexpected value "9fac9322-83f3-4c8e-b5bb-d7e2631177ef"
+
+
+      33 |   const calendar = page.getByRole('combobox', { name: 'Мастер календаря', exact: true });
+      34 |   await filter.selectOption(masters[1].id);
+    > 35 |   await expect(calendar).toHaveValue(masters[1].id);
+         |                          ^
+      36 |   await expect(page.locator('.beauty-current-master')).toHaveText(masters[1].name);
+      37 |   await page.locator('.beauty-mobile-calendar').getByRole('button', { name: `${masters[1].name}, 09:00, свободно`, exact: true }).click();
+      38 |   await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Мастер', exact: true })).toHaveValue(masters[1].id);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/calendar-master-selection.spec.ts:35:26
+
+    Error Context: test-results/calendar-master-selection--8d3c1-ndar-select-the-same-master/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/calendar-master-selection--8d3c1-ndar-select-the-same-master/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/calendar-master-selection--8d3c1-ndar-select-the-same-master/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/beauty-ui/beauty.spec.ts:274:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY 
+    tests/beauty-ui/beauty.spec.ts:339:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:420:1 › archived service and employee preserve historical calendar appointments 
+    tests/beauty-ui/calendar-master-selection.spec.ts:29:1 › mobile master filter and visible calendar select the same master 
+  17 skipped
+  25 passed (3.7m)
+
+# код выхода 1 · 3 мин 44 с

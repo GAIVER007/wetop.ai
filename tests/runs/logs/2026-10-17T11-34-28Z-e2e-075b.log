@@ -1,0 +1,84 @@
+# Сквозные (e2e) · 17.10.2026 16:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1842a14 (claude/salon-e2e-check), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.config.ts' '--forbid-only'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 2 workers
+
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+[WebServer] (node:42778) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   2 tests/onboarding-real/onboarding-compatibility.spec.ts:36:1 › O21 Food v1 real registration, saved location and completion (3.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓   3 tests/onboarding-real/onboarding-compatibility.spec.ts:53:1 › O21 Hospitality v1 real registration, category persistence and provisioning (2.6s)
+  ✓   4 tests/onboarding-real/onboarding-compatibility.spec.ts:68:1 › O22/O23 Beauty extreme widths, reduced motion, keyboard and accessible errors (6.7s)
+  ✓   5 tests/onboarding-real/onboarding-compatibility.spec.ts:95:1 › O02/O03 confirmation in fresh browser and repeated link preserve original context (1.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✘   6 tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab keeps its native dialog open (5.4s)
+  ✓   7 tests/onboarding-real/onboarding-compatibility.spec.ts:172:1 › Employee mobile typography, confirmed scope and create cancellation (3.1s)
+  ✓   1 tests/onboarding-real/beauty-onboarding.spec.ts:67:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar (23.9s)
+  ✓   8 tests/onboarding-real/beauty-onboarding.spec.ts:228:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (4.7s)
+  ✓   9 tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07c: a closed employee card leaves the router on the list, so later actions cannot restore it (4.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓  10 tests/onboarding-real/beauty-onboarding.spec.ts:294:1 › O07/O08: partial assignment and a lost create response recover one Employee ID (9.6s)
+  ✓  11 tests/onboarding-real/beauty-onboarding.spec.ts:437:1 › O02/O17: unverified and expired confirmation do not bypass real guards (160ms)
+
+
+  1) tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab keeps its native dialog open 
+
+    Error: locator.uncheck: Clicking the checkbox did not change its state
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Услуга Диагностики', { exact: true })
+        - locator resolved to <input checked type="checkbox" name="serviceIds" value="e0995373-2b9b-4c4e-aeb9-d6e008b3fd54"/>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - performing click action
+        - click action done
+        - waiting for scheduled navigations to finish
+        - navigations have finished
+
+
+      156 |  await page.getByRole('dialog').getByRole('tab',{name:'Услуги',exact:true}).click();
+      157 |  await expect(page.getByRole('dialog').getByLabel('Услуга Диагностики',{exact:true})).toBeChecked();
+    > 158 |  await page.getByRole('dialog').getByLabel('Услуга Диагностики',{exact:true}).uncheck();
+          |                                                                               ^
+      159 |  const save=page.getByRole('dialog').getByRole('button',{name:'Сохранить услуги',exact:true});
+      160 |  await save.focus();await page.keyboard.press('Enter');
+      161 |  await expect(page.getByRole('dialog').getByRole('status')).toContainText('Услуги назначены');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/onboarding-real/onboarding-compatibility.spec.ts:158:79
+
+    Error Context: test-results/onboarding-compatibility-c-9e46e-eeps-its-native-dialog-open/error-context.md
+
+  1 failed
+    tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab keeps its native dialog open 
+  10 passed (48.2s)
+
+# код выхода 1 · 49 с

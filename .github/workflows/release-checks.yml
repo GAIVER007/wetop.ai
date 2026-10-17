@@ -377,6 +377,63 @@ jobs:
           path: test-results/auth
           if-no-files-found: ignore
 
+  onboarding-real:
+    # Путь первого салона (17.10.2026): кнопка сайта «Начать работу», регистрация, подтверждение почты, настройка
+    # салона, запись клиента и повторный вход на настоящих сайте, стойке, API и своей PostgreSQL с синтетическими
+    # данными. Почта перехватывается в API набора (только @example.invalid), секретов и внешних отправок нет.
+    # Серверы стенда поднимает конфиг набора из этого checkout (reuseExistingServer: false). Итог проверяется
+    # отчётом: ноль выполненных, пропуски и нестабильные тесты не считаются успехом.
+    name: путь первого салона на настоящих API и базе (tests/onboarding-real)
+    needs: fast
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pms
+          POSTGRES_PASSWORD: pms
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pms"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+      DIRECT_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - name: База pms_dev и схема pms_test с миграциями
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+          psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+          npm run test:schema
+      - run: npx playwright install --with-deps chromium
+      - name: Сайт, стойка, API и база одним стендом
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: ${{ github.workspace }}/onboarding-real-report.json
+        run: npx playwright test --config tests/onboarding-real/playwright.config.ts --forbid-only --reporter=list,json
+      - name: Выполнены все сценарии, без пропусков и повторов
+        run: node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 11
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: onboarding-real-results
+          path: |
+            test-results
+            onboarding-real-report.json
+          if-no-files-found: ignore
+
   runtime-audit:
     # Обязательный runtime-аудит денег, входа и схемы (A2, A23, A26, A29): настоящие API и PostgreSQL 16.14,
     # штатные роли, AUTH_REQUIRED=1, независимая SQL-сверка. База, API и тесты в одном сетевом пространстве с

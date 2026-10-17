@@ -118,6 +118,17 @@ describe('свой раннер CI', () => {
     expect(withoutComments(RELEASE)).toMatch(/permissions:\n\s+contents: read/);
   });
 
+  it('путь первого салона на настоящих API и базе обязателен в гейте, ноль тестов не успех (17.10.2026)', () => {
+    const onboarding = withoutComments(job('onboarding-real'));
+    expect(onboarding).toMatch(/runs-on: ubuntu-24\.04/);
+    expect(onboarding).toMatch(/needs: fast/);
+    expect(onboarding).toMatch(/image: postgres:16/);
+    expect(onboarding).toContain('npm run test:schema');
+    expect(onboarding).toContain('npx playwright test --config tests/onboarding-real/playwright.config.ts --forbid-only');
+    expect(onboarding).toContain('node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 11');
+    expect(onboarding).not.toMatch(/continue-on-error|--retries|--pass-with-no-tests/);
+  });
+
   it('база и UI ждут быстрые проверки: при красном lint или unit минуты на них не тратятся', () => {
     for (const name of ['db', 'ui-shard']) expect(withoutComments(job(name)), name).toMatch(/needs: fast/);
   });

@@ -266,12 +266,11 @@ export function MastersBoard({
     setEditing(null);
     setOpeningCreated(null);
     setAddress(null);
-    // A pending profile route must not restore the employee URL after the card closes.
-    if (createdNavigation.current) {
-      createdNavigation.current = false;
-      const url = new URL(location.href);
-      router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
-    }
+    // history.replaceState alone leaves the Next router on `employee=<closed>`: the next server action is posted
+    // to that address and its response restores the closed card; a reload then opens the wrong master (O07c).
+    createdNavigation.current = false;
+    const url = new URL(location.href);
+    router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
   };
   const refreshSchedule = async () => {
     if (editing?.mode !== 'edit') return;

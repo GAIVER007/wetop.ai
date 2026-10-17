@@ -1,0 +1,29 @@
+# Сквозные (e2e) · 17.10.2026 15:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит a4f9b04 (claude/salon-e2e-check)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.config.ts' '-g' 'O07/O08' '--repeat-each=3'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 2 workers
+
+[WebServer] (node:87555) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓  2 tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07/O08: partial assignment and a lost create response recover one Employee ID (13.7s)
+  ✓  1 tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07/O08: partial assignment and a lost create response recover one Employee ID (13.7s)
+  ✓  3 tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07/O08: partial assignment and a lost create response recover one Employee ID (19.3s)
+
+  3 passed (41.9s)
+
+# код выхода 0 · 43 с

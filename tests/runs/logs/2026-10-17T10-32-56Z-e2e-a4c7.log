@@ -1,0 +1,132 @@
+# Сквозные (e2e) · 17.10.2026 15:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит a4f9b04 (claude/salon-e2e-check)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 2 workers
+
+[WebServer] (node:79947) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓   2 tests/onboarding-real/onboarding-compatibility.spec.ts:36:1 › O21 Food v1 real registration, saved location and completion (21.9s)
+  ✓   3 tests/onboarding-real/onboarding-compatibility.spec.ts:53:1 › O21 Hospitality v1 real registration, category persistence and provisioning (13.4s)
+  ✓   4 tests/onboarding-real/onboarding-compatibility.spec.ts:68:1 › O22/O23 Beauty extreme widths, reduced motion, keyboard and accessible errors (27.3s)
+  ✓   5 tests/onboarding-real/onboarding-compatibility.spec.ts:95:1 › O02/O03 confirmation in fresh browser and repeated link preserve original context (7.4s)
+  ✘   6 tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab keeps its native dialog open (12.3s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerLayoutRouter url="/calendar?..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]       <SegmentViewNode type="page" pagePath="calendar/p...">
+[WebServer]         <SegmentTrieNode>
+[WebServer]         <GuardedPage>
+[WebServer]           <Page>
+[WebServer]             <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]               <header>
+[WebServer]               <nav>
+[WebServer]               <JournalBoard day={{location:{...}, ...}} customers={[...]} employees={[...]} readOnly={false} ...>
+[WebServer]                 <div className="beauty-bar...">
+[WebServer]                   <div className="beauty-cal...">
+[WebServer]                     <DateBar date="2026-10-19" path="/calendar">
+[WebServer]                       <DateBar date="2026-10-19" onToday={function onToday} onPrevious={function onPrevious} ...>
+[WebServer]                         <div className="date-bar">
+[WebServer]                           <Button>
+[WebServer]                           <Button>
+[WebServer]                           <Field label={<span>}>
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <span>
+[WebServer]                               <Input data-testid="beauty-day..." type="date" value="2026-10-19" ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   data-testid="beauty-day-date"
+[WebServer]                                   type="date"
+[WebServer]                                   value="2026-10-19"
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                     ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+  ✓   7 tests/onboarding-real/onboarding-compatibility.spec.ts:172:1 › Employee mobile typography, confirmed scope and create cancellation (15.7s)
+  ✘   1 tests/onboarding-real/beauty-onboarding.spec.ts:67:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar (1.7m)
+  ✓   8 tests/onboarding-real/beauty-onboarding.spec.ts:225:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (41.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓   9 tests/onboarding-real/beauty-onboarding.spec.ts:260:1 › O07/O08: partial assignment and a lost create response recover one Employee ID (1.2m)
+  ✓  10 tests/onboarding-real/beauty-onboarding.spec.ts:401:1 › O02/O17: unverified and expired confirmation do not bypass real guards (2.5s)
+
+
+  1) tests/onboarding-real/beauty-onboarding.spec.ts:67:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:55843/calendar?date=2026-10-19
+    Call log:
+      - navigating to "http://127.0.0.1:55843/calendar?date=2026-10-19", waiting until "load"
+
+
+      191 |     await login(other, email);
+      192 |     expect(await snapshot(other)).toEqual(before);
+    > 193 |     await other.goto(`/calendar?date=${date}`);
+          |                 ^
+      194 |     await expect(other.getByRole('main').getByTestId('beauty-day-summary')).toContainText('Записей: 1');
+      195 |     await other.reload();
+      196 |     expect(await snapshot(other)).toEqual(before);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/onboarding-real/beauty-onboarding.spec.ts:193:17
+
+    Error Context: test-results/beauty-onboarding-O01-O04--a6119-auty-setup-working-calendar/error-context.md
+
+  2) tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab keeps its native dialog open 
+
+    Error: apiRequestContext.get: read ECONNRESET
+    Call log:
+      - → GET http://127.0.0.1:55844/beauty/employees
+        - user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - x-wetop-session: Z0OzpbNpCRYITxmDRi3rx3fsVyPrlwudca28LJaWjNY
+        - x-wetop-scope: business=5197d4fb-5650-42cb-aac8-7e334b577adf;location=b07a3004-289a-42c6-bfff-3f26c4e5f88c
+        - cookie: wetop_session=Z0OzpbNpCRYITxmDRi3rx3fsVyPrlwudca28LJaWjNY; wetop_scope=business%3D5197d4fb-5650-42cb-aac8-7e334b577adf%3Blocation%3Db07a3004-289a-42c6-bfff-3f26c4e5f88c; wetop_last_branch=b07a3004-289a-42c6-bfff-3f26c4e5f88c
+
+
+      139 |  await expect(dialog.getByLabel('Услуга Диагностики',{exact:true})).toBeVisible();
+      140 |  await dialog.getByLabel('Услуга Диагностики',{exact:true}).check();
+    > 141 |  const rowsBefore=await (await page.request.get(`${api}/beauty/employees`,{headers})).json();
+          |                                             ^
+      142 |  const employee=rowsBefore.items[0];
+      143 |  const commandsBefore=await employeeCommands(employee.id);
+      144 |  const profileBefore={name:employee.name,phone:employee.phone,email:employee.email,active:employee.active,profileRevision:employee.profileRevision};
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/onboarding-real/onboarding-compatibility.spec.ts:141:45
+
+    Error Context: test-results/onboarding-compatibility-c-9e46e-eeps-its-native-dialog-open/error-context.md
+
+  2 failed
+    tests/onboarding-real/beauty-onboarding.spec.ts:67:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar 
+    tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab keeps its native dialog open 
+  8 passed (4.4m)
+
+# код выхода 1 · 4 мин 29 с

@@ -1,0 +1,39 @@
+# Модульные (unit) · 17.10.2026 11:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0766123 (claude/d7-romi-no-source), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T06-40-27Z-unit-49ad.json' 'packages/domain/src/marketing' 'apps/web/src/app/marketing'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d7
+
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 29ms
+ ✓ |unit| packages/domain/src/marketing/generation.test.ts (18 tests) 41ms
+ ✓ |unit| packages/domain/src/marketing/funnel.test.ts (12 tests) 18ms
+ ✓ |unit| packages/domain/src/marketing/builder.test.ts (18 tests) 11ms
+ ✓ |unit| packages/domain/src/marketing/starter.test.ts (14 tests) 25ms
+ ✓ |unit| packages/domain/src/marketing/budget.test.ts (32 tests) 13ms
+ ✓ |unit| packages/domain/src/marketing/site-spec-v1.test.ts (17 tests) 45ms
+ ✓ |unit| packages/domain/src/marketing/edit.test.ts (30 tests) 65ms
+ ✓ |unit| apps/web/src/app/marketing/budget/derive.test.ts (12 tests) 9ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (40 tests) 71ms
+ ✓ |unit| packages/domain/src/marketing/editor.test.ts (14 tests) 150ms
+ ✓ |unit| packages/domain/src/marketing/conversation.test.ts (9 tests) 6ms
+ ✓ |unit| packages/domain/src/marketing/ad-launch.test.ts (9 tests) 18ms
+ ✓ |unit| packages/domain/src/marketing/site-lead.test.ts (9 tests) 31ms
+ ✓ |unit| packages/domain/src/marketing/assets.test.ts (10 tests) 6ms
+ ✓ |unit| packages/domain/src/marketing/diff.test.ts (9 tests) 42ms
+ ✓ |unit| packages/domain/src/marketing/design-presets.test.ts (10 tests) 21ms
+ ✓ |unit| packages/domain/src/marketing/site-templates.test.ts (7 tests) 15ms
+ ✓ |unit| packages/domain/src/marketing/campaigns.test.ts (7 tests) 9ms
+ ✓ |unit| packages/domain/src/marketing/ad-proposal.test.ts (6 tests) 5ms
+ ✓ |unit| packages/domain/src/marketing/expense-import.test.ts (5 tests) 10ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 4ms
+ ✓ |unit| packages/domain/src/marketing/host.test.ts (26 tests) 5ms
+ ✓ |unit| apps/web/src/app/marketing/analytics/report.test.ts (3 tests) 3ms
+
+ Test Files  24 passed (24)
+      Tests  365 passed (365)
+   Start at  23:40:28
+   Duration  1.37s (transform 57%, import 25%, tests 14%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T06-40-27Z-unit-49ad.json
+
+# код выхода 0 · 3 с

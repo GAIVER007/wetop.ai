@@ -191,3 +191,30 @@ describe('календарь маркетинга по дням: день, ра�
     expect(d.total.romiPct).toBeNull();
   });
 });
+
+describe('ROMI без источника выручки (аудит платформы 17.10.2026, Д7)', () => {
+  // салон и ресторан: результатов каналов нет (`revenueCurrency: null`), выручка неизвестна, а не ноль
+  it('воронка: ROMI недоступен, а не −100 %', () => {
+    const f = buildMarketingFunnel({
+      spendByPlatform: { SITE: 200000n, META: 100000n },
+      channels: [],
+      reportingCurrency: 'KZT',
+      revenueCurrency: null,
+    });
+    expect(f.romiAvailable).toBe(false);
+    expect(f.total.romiPct).toBeNull();
+    expect(f.rows.map((r) => r.romiPct)).toEqual([null, null]);
+  });
+  it('календарь: ROMI дней и итога недоступен', () => {
+    const d = buildMarketingDays({
+      month: '2026-09',
+      days: [],
+      spendByDay: { '2026-09-03': 200000n },
+      reportingCurrency: 'KZT',
+      revenueCurrency: null,
+    });
+    expect(d.total.romiPct).toBeNull();
+    expect(d.rows.every((r) => r.romiPct === null)).toBe(true);
+  });
+});
+

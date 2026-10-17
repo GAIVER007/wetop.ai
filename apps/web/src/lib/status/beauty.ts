@@ -8,6 +8,8 @@ import type { StatusRegistry } from './types';
 export const beautyStatus: StatusRegistry<AppointmentStatus> = {
   BOOKED: { label: 'Записан', groupLabel: 'Запланировано', tone: 'warning' },
   CONFIRMED: { label: 'Подтверждена', groupLabel: 'Подтверждено', tone: 'info' },
+  // клиент пришёл, мастер работает (§58)
+  IN_PROGRESS: { label: 'В процессе', groupLabel: 'В процессе', tone: 'success' },
   DONE: { label: 'Завершена', groupLabel: 'Завершено', tone: 'neutral' },
   NO_SHOW: { label: 'Не пришёл', groupLabel: 'Не пришли', tone: 'danger' },
   CANCELLED: { label: 'Отменена', groupLabel: 'Отменено', tone: 'danger' },

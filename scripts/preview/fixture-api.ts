@@ -5650,7 +5650,7 @@ interface FixtureAppointment {
   date: string;
   startMinutes: number;
   endMinutes: number;
-  status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+  status: 'BOOKED' | 'CONFIRMED' | 'IN_PROGRESS' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
   priceMinor: string;
   currency: string;
   notes: string | null;
@@ -5658,8 +5658,10 @@ interface FixtureAppointment {
 const fixtureBeautyAppointments: Array<{ employeeId: string; date: string }> = [];
 const fixtureAppointments: FixtureAppointment[] = [];
 const NEXT_STATUS: Record<string, string[]> = {
-  BOOKED: ['CONFIRMED', 'DONE', 'NO_SHOW', 'CANCELLED'],
-  CONFIRMED: ['DONE', 'NO_SHOW', 'CANCELLED'],
+  BOOKED: ['CONFIRMED', 'IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED'],
+  CONFIRMED: ['IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED'],
+  // как в домене (§58)
+  IN_PROGRESS: ['DONE', 'CANCELLED'],
   DONE: [],
   NO_SHOW: [],
   CANCELLED: [],

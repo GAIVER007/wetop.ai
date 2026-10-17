@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 17.10.2026 08:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 691627a (claude/salon-payroll)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T03-58-28Z-integration-4c26.json' 'tests/integration/salon-payroll.test.ts' 'tests/integration/food-fix-01.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+[pms_test] миграций применено 2; данные на месте
+ ✓ |integration| tests/integration/salon-payroll.test.ts (1 test) 246ms
+ ✓ |integration| tests/integration/food-fix-01.test.ts (7 tests) 325ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  20:58:29
+   Duration  2.37s (tests 38%, import 31%, transform 31%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T03-58-28Z-integration-4c26.json
+
+# код выхода 0 · 3 с

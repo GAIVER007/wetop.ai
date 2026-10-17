@@ -14,7 +14,7 @@ export async function readBeautyWorkload(db:Pick<DbTx,'$queryRaw'>,locationId:st
   const day=version.day.toISOString().slice(0,10);
   const start=zonedStartOfDay(day,timezone),stop=zonedStartOfDay(dayOffsetUtc(day,1),timezone);
   // A later cancellation/move cannot rewrite a closed local date.
-  const occupied=await db.$queryRaw<Span[]>`SELECT employee_id AS "employeeId",starts_at AS "from",ends_at AS "to" FROM (SELECT DISTINCT ON(appointment_id) * FROM appointment_workload_revisions WHERE location_id=${locationId}::uuid AND recorded_at<=${now} AND recorded_at<${stop} ORDER BY appointment_id,recorded_at DESC,revision DESC) a WHERE status IN ('BOOKED','CONFIRMED','DONE') AND starts_at<${stop} AND ends_at>${start}`;
+  const occupied=await db.$queryRaw<Span[]>`SELECT employee_id AS "employeeId",starts_at AS "from",ends_at AS "to" FROM (SELECT DISTINCT ON(appointment_id) * FROM appointment_workload_revisions WHERE location_id=${locationId}::uuid AND recorded_at<=${now} AND recorded_at<${stop} ORDER BY appointment_id,recorded_at DESC,revision DESC) a WHERE status IN ('BOOKED','CONFIRMED','IN_PROGRESS','DONE') AND starts_at<${stop} AND ends_at>${start}`;
   const intervals=await db.$queryRaw<Span[]>`SELECT employee_id AS "employeeId",starts_at AS "from",ends_at AS "to" FROM beauty_capacity_intervals WHERE version_id=${version.id}::uuid AND local_date=${day}::date AND location_id=${locationId}::uuid`;
   for(const employee of new Set(intervals.map(i=>i.employeeId))){
    const capacity=union(intervals.filter(i=>i.employeeId===employee).map(i=>[+i.from,+i.to] as Range));

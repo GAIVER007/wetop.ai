@@ -3690,8 +3690,8 @@ export interface BeautyAppointmentRow {
   /** минуты от начала суток филиала: по ним плитка встаёт в сетку */
   startMinutes: number;
   endMinutes: number;
-  status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
-  next: Array<'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED'>;
+  status: 'BOOKED' | 'CONFIRMED' | 'IN_PROGRESS' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+  next: Array<'BOOKED' | 'CONFIRMED' | 'IN_PROGRESS' | 'DONE' | 'NO_SHOW' | 'CANCELLED'>;
   priceMinor: string;
   /** оплачено в кассу филиала (§49), действующие приходы */
   paidMinor: string;

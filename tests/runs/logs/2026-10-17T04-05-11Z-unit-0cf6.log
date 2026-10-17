@@ -1,0 +1,69 @@
+# Модульные (unit) · 17.10.2026 09:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит e15c977 (claude/beauty-in-progress), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-05-11Z-unit-0cf6.json' 'packages/domain/src/beauty'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| packages/domain/src/beauty/payment.test.ts (5 tests) 2ms
+ ✓ |unit| packages/domain/src/beauty/catalog.test.ts (15 tests) 5ms
+ ✓ |unit| packages/domain/src/beauty/beauty.test.ts (17 tests) 14ms
+ ❯ |unit| packages/domain/src/beauty/appointments.test.ts (17 tests | 1 failed) 17ms
+   ✓ planAppointment (7)
+     ✓ считает окно и снимок цены по действующей цене филиала 12ms
+     ✓ берёт цену и длительность филиала, когда он их задал 0ms
+     ✓ не пускает запись на услугу, которую филиал не оказывает 0ms
+     ✓ не пускает запись в валюте, которой филиал не знает 0ms
+     ✓ не пускает запись мимо графика мастера 0ms
+     ✓ не пускает запись в день отсутствия мастера 0ms
+     ✓ не пускает запись на услугу в архиве 0ms
+   ❯ statusChange (5)
+     ✓ ведёт запись по жизни: принята, подтверждена, выполнена 0ms
+     ✓ позволяет отменить и отметить незаезд до выполнения 0ms
+     ✓ из выполненной, отменённой и незаезда дороги нет 0ms
+     ✓ тот же статус не перевод 0ms
+     × называет, что можно дальше 3ms
+   ✓ parseAppointmentInput (4)
+     ✓ принимает запись к существующему клиенту 0ms
+     ✓ принимает запись новому клиенту по имени и телефону 0ms
+     ✓ требует клиента: без имени и без выбранного не записать 0ms
+     ✓ не пускает запись без мастера, услуги и времени 0ms
+   ✓ статус «В процессе» (§58) (1)
+     ✓ начать можно из записанной и подтверждённой; из начатой только выполнить или отменить 0ms
+ ✓ |unit| packages/domain/src/beauty/slots.test.ts (6 tests) 13ms
+ ✓ |unit| packages/domain/src/beauty/schedule.test.ts (22 tests) 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/beauty/appointments.test.ts > statusChange > называет, что можно дальше
+AssertionError: expected [ 'CONFIRMED', 'IN_PROGRESS', …(3) ] to deeply equal [ Array(4) ]
+
+- Expected
++ Received
+
+  [
+    "CONFIRMED",
++   "IN_PROGRESS",
+    "DONE",
+    "NO_SHOW",
+    "CANCELLED",
+  ]
+
+ ❯ packages/domain/src/beauty/appointments.test.ts:141:36
+    139|
+    140|   it('называет, что можно дальше', () => {
+    141|     expect(nextStatuses('BOOKED')).toEqual(['CONFIRMED', 'DONE', 'NO_S…
+       |                                    ^
+    142|     expect(nextStatuses('CONFIRMED')).toEqual(['DONE', 'NO_SHOW', 'CAN…
+    143|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 81 passed (82)
+   Start at  21:05:12
+   Duration  152ms (transform 63%, tests 20%, import 13%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-05-11Z-unit-0cf6.json
+
+# код выхода 1 · 1 с

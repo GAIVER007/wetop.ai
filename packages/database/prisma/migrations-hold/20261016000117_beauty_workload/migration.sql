@@ -17,7 +17,7 @@ CREATE TABLE appointment_workload_revisions (
  starts_at timestamptz NOT NULL,ends_at timestamptz NOT NULL,status text NOT NULL,
  recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),effective_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  revision bigint GENERATED ALWAYS AS IDENTITY,correction_reason text,
- CHECK(ends_at>starts_at),CHECK(status IN ('BOOKED','CONFIRMED','DONE','CANCELLED','NO_SHOW'))
+ CHECK(ends_at>starts_at),CHECK(status IN ('BOOKED','CONFIRMED','IN_PROGRESS','DONE','CANCELLED','NO_SHOW'))
 );
 CREATE INDEX beauty_appointment_history ON appointment_workload_revisions(location_id,appointment_id,revision DESC);
 CREATE FUNCTION capture_beauty_schedule(target uuid) RETURNS void LANGUAGE plpgsql AS $$

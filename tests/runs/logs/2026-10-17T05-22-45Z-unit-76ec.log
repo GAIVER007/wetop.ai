@@ -1,0 +1,16 @@
+# Модульные (unit) · 17.10.2026 10:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5d33674 (claude/auth-identity-1016), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-22-45Z-unit-76ec.json' 'tests/unit/claude-md-status.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |unit| tests/unit/claude-md-status.test.ts (2 tests) 9ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  22:22:46
+   Duration  87ms (transform 39%, tests 33%, import 19%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-22-45Z-unit-76ec.json
+
+# код выхода 0 · 1 с

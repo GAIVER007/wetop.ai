@@ -34,8 +34,9 @@ async function capture(page,key) {
 async function seedProfessional(request,f) {
  let d=await call(request,f,`/employee-portal/employees/${f.employeeA}`,{actor:'ownerA'});
  d=await call(request,f,`/employee-portal/employees/${f.employeeA}/profile`,{actor:'ownerA',method:'patch',data:{name:'Анна Демонстрационная',headline:'Парикмахер-стилист',biography:'Демонстрационный профиль. Стрижки и укладки. На снимках тестовые иллюстрации, не работы реальных клиентов.',practiceSinceYear:2018,expectedRevision:d.profile.revision,expectedProfileRevision:d.employee.profileRevision}});
- await call(request,f,'/employee-portal/me/week',{method:'put',data:{intervals:Array.from({length:7},(_,weekday)=>({weekday,timeFrom:'09:00',timeTo:'18:00'})),expectedRevision:d.weekRevision}});
- return d;
+ await call(request,f,`/employee-portal/employees/${f.employeeA}/week`,{actor:'ownerA',method:'put',data:{intervals:Array.from({length:7},(_,weekday)=>({weekday,timeFrom:'09:00',timeTo:'18:00'})),expectedRevision:d.weekRevision}});
+ // Weekly setup advances source revisions; later mutations need the post-setup snapshot.
+ return call(request,f,`/employee-portal/employees/${f.employeeA}`,{actor:'ownerA'});
 }
 test('HTTP actor boundaries and public whitelist',async({request})=>{
  const f=await reset(request);let d=await seedProfessional(request,f);

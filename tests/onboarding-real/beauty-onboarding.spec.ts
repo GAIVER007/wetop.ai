@@ -90,7 +90,7 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
   let dialog = page.getByRole('dialog');
   await dialog.locator('input[name="name"]').fill('Тестовая стрижка');
   await dialog.locator('input[name="durationMinutes"]').fill('30');
-  await dialog.locator('input[name="priceMinor"]').fill('0');
+  await dialog.getByLabel(/^Цена каталога,/).fill('0');
   await dialog.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   await expect(dialog.getByLabel('Филиал оказывает эту услугу')).toBeVisible();
   await dialog.getByLabel('Филиал оказывает эту услугу').check();

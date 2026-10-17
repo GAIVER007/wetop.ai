@@ -461,7 +461,7 @@ test('archived service and employee preserve historical calendar appointments', 
   await expect(page.getByRole('table')).toContainText('Тестовая клиентка');
 });
 
-test('TimeOff from employee drawer, server denial and timezone persisted', async ({
+test('TimeOff via manager API with compact employee drawer, server denial and timezone persisted', async ({
   page,
   request,
 }) => {
@@ -474,12 +474,23 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
     .click();
   const panel = page.getByRole('dialog');
   await panel.getByRole('tab', { name: 'График', exact: true }).click();
-  await panel.getByLabel('С какого дня').fill(day);
-  await panel.getByLabel('По какой день включительно').fill(day);
-  await panel.getByLabel(/Причина/).fill('Тестовое обучение');
-  await panel.getByRole('button', { name: 'Добавить отсутствие' }).click();
-  await expect(panel.getByRole('status')).toContainText('Отсутствие добавлено');
-  await expect(panel.getByRole('table')).toContainText('Тестовое обучение');
+  await expect(panel.getByRole('heading', { name: 'Обычная неделя', exact: true })).toBeVisible();
+  await expect(panel.getByRole('button', { name: 'Сохранить график', exact: true })).toBeVisible();
+  await expect(panel.getByLabel('С какого дня')).toHaveCount(0);
+  await expect(panel.getByLabel('По какой день включительно')).toHaveCount(0);
+  await expect(panel.getByLabel(/Причина/)).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Добавить отсутствие' })).toHaveCount(0);
+  // The compact drawer edits only the normal week; the owner API still manages dated absences.
+  const created = await request.post(`${api}/beauty/employees/${f.employee.id}/time-offs`, {
+    headers: f.headers,
+    data: { dateFrom: day, dateTo: day, reason: 'Тестовое обучение' },
+  });
+  expect(created.ok(), await created.text()).toBe(true);
+  expect((await created.json()).timeOffs).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ dateFrom: day, dateTo: day, reason: 'Тестовое обучение' }),
+    ]),
+  );
   await page.goto(`/calendar?date=${day}`);
   await expect(page.getByTestId('beauty-grid')).toContainText('Тестовое обучение');
   const rejected = await book(page);

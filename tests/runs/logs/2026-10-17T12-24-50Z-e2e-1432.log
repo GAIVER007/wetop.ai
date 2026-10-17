@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 17.10.2026 17:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1f01ca3 (claude/fix-employee-card-late-close)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.config.ts' 'tests/onboarding-real/beauty-onboarding.spec.ts:228' '--repeat-each=5' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+[WebServer] (node:54422) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/onboarding-real/beauty-onboarding.spec.ts:228:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (6.7s)
+  ✓  2 tests/onboarding-real/beauty-onboarding.spec.ts:228:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (5.7s)
+  ✓  3 tests/onboarding-real/beauty-onboarding.spec.ts:228:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (5.7s)
+  ✓  4 tests/onboarding-real/beauty-onboarding.spec.ts:228:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (4.9s)
+  ✓  5 tests/onboarding-real/beauty-onboarding.spec.ts:228:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (4.5s)
+
+  5 passed (39.7s)
+
+# код выхода 0 · 42 с

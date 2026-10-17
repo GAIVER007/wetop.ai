@@ -2,7 +2,16 @@
 import { useState, useSyncExternalStore } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { Alert, Button, EmptyState, Field, Input, Select, StatusBadge, Table } from '../../components/ui';
+import {
+  Alert,
+  Button,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  StatusBadge,
+  Table,
+} from '../../components/ui';
 import type { BeautyCustomerRow, BeautyDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { DateBar } from '../../components/date-bar';
@@ -38,15 +47,23 @@ export function AppointmentsList({
   const [query, setQuery] = useState('');
   const router = useRouter();
   const initialParams = useSearchParams();
-  const search = useSyncExternalStore(subscribeAddress, () => location.search, () => {
-    const initial = initialParams.toString();
-    return initial ? `?${initial}` : '';
-  });
+  const search = useSyncExternalStore(
+    subscribeAddress,
+    () => location.search,
+    () => {
+      const initial = initialParams.toString();
+      return initial ? `?${initial}` : '';
+    },
+  );
   const params = new URLSearchParams(search);
-  const services = Array.from(new Map([
-    ...day.services,
-    ...day.appointments.map((a) => ({ id: a.serviceId, name: a.serviceName })),
-  ].map((s) => [s.id, s])).values());
+  const services = Array.from(
+    new Map(
+      [
+        ...day.services,
+        ...day.appointments.map((a) => ({ id: a.serviceId, name: a.serviceName })),
+      ].map((s) => [s.id, s]),
+    ).values(),
+  );
   let invalid = false;
   const read = (key: string, allowed: string[]) => {
     const values = params.getAll(key);
@@ -58,19 +75,32 @@ export function AppointmentsList({
   };
   const context = {
     date: day.date,
-    employee: read('master', day.columns.map((e) => e.id)),
-    service: read('service', services.map((s) => s.id)),
+    employee: read(
+      'master',
+      day.columns.map((e) => e.id),
+    ),
+    service: read(
+      'service',
+      services.map((s) => s.id),
+    ),
     status: read('status', Object.keys(beautyStatus)),
-    appointment: read('appointment', day.appointments.map((a) => a.id)),
+    appointment: read(
+      'appointment',
+      day.appointments.map((a) => a.id),
+    ),
     query,
   };
   const { employee, service, status } = context;
   const selected = !invalid ? day.appointments.find((r) => r.id === context.appointment) : null;
-  const address = (patch: Partial<Record<'master' | 'service' | 'status' | 'appointment', string>>, push = true) => {
+  const address = (
+    patch: Partial<Record<'master' | 'service' | 'status' | 'appointment', string>>,
+    push = true,
+  ) => {
     const url = new URL(location.href);
     url.searchParams.set('date', context.date);
     for (const [key, value] of Object.entries(patch)) {
-      if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
+      if (value) url.searchParams.set(key, value);
+      else url.searchParams.delete(key);
     }
     // Preserve Next's own history state. No customer data is added to it.
     history[push ? 'pushState' : 'replaceState']({ ...history.state }, '', url);
@@ -78,7 +108,8 @@ export function AppointmentsList({
   };
   const changeDate = (next?: string) => {
     const url = new URL(location.href);
-    if (next) url.searchParams.set('date', next); else url.searchParams.delete('date');
+    if (next) url.searchParams.set('date', next);
+    else url.searchParams.delete('date');
     url.searchParams.delete('appointment');
     router.push(`${url.pathname}${url.search}`);
   };
@@ -87,19 +118,29 @@ export function AppointmentsList({
     at.setUTCDate(at.getUTCDate() + days);
     changeDate(at.toISOString().slice(0, 10));
   };
-  const rows = invalid ? [] : day.appointments.filter(
-    (r) =>
-      (!status || r.status === status) &&
-      (!employee || r.employeeId === employee) &&
-      (!service || r.serviceId === service) &&
-      `${r.customer.name} ${r.customer.phone ?? ''}`
-        .toLocaleLowerCase('ru')
-        .includes(context.query.trim().toLocaleLowerCase('ru')),
-  );
+  const rows = invalid
+    ? []
+    : day.appointments.filter(
+        (r) =>
+          (!status || r.status === status) &&
+          (!employee || r.employeeId === employee) &&
+          (!service || r.serviceId === service) &&
+          `${r.customer.name} ${r.customer.phone ?? ''}`
+            .toLocaleLowerCase('ru')
+            .includes(context.query.trim().toLocaleLowerCase('ru')),
+      );
   return (
     <>
-      <div className="beauty-bar">
-        <DateBar date={context.date} onToday={() => changeDate()} onPrevious={() => shift(-1)} onNext={() => shift(1)} onDateChange={changeDate} inputProps={{ 'data-testid': 'beauty-day-date' }} compact />
+      <div className="beauty-bar beauty-operational-toolbar">
+        <DateBar
+          date={context.date}
+          onToday={() => changeDate()}
+          onPrevious={() => shift(-1)}
+          onNext={() => shift(1)}
+          onDateChange={changeDate}
+          inputProps={{ 'data-testid': 'beauty-day-date' }}
+          compact
+        />
         <Button
           disabled={readOnly || !day.columns.length || !day.services.length}
           onClick={() => setCreating(true)}
@@ -107,9 +148,12 @@ export function AppointmentsList({
           + Новая запись
         </Button>
       </div>
-      <div className="beauty-filters">
+      <div className="beauty-filters beauty-list-filters">
         <Field label="Статус">
-          <Select value={status} onChange={(e) => address({ status: e.target.value, appointment: '' })}>
+          <Select
+            value={status}
+            onChange={(e) => address({ status: e.target.value, appointment: '' })}
+          >
             <option value="">Все статусы</option>
             {Object.entries(beautyStatus).map(([key, { label }]) => (
               <option key={key} value={key}>
@@ -119,7 +163,10 @@ export function AppointmentsList({
           </Select>
         </Field>
         <Field label="Мастер">
-          <Select value={employee} onChange={(e) => address({ master: e.target.value, appointment: '' })}>
+          <Select
+            value={employee}
+            onChange={(e) => address({ master: e.target.value, appointment: '' })}
+          >
             <option value="">Все мастера</option>
             {day.columns.map((e) => (
               <option key={e.id} value={e.id}>
@@ -129,7 +176,10 @@ export function AppointmentsList({
           </Select>
         </Field>
         <Field label="Услуга">
-          <Select value={service} onChange={(e) => address({ service: e.target.value, appointment: '' })}>
+          <Select
+            value={service}
+            onChange={(e) => address({ service: e.target.value, appointment: '' })}
+          >
             <option value="">Все услуги</option>
             {services.map((s) => (
               <option key={s.id} value={s.id}>
@@ -138,21 +188,35 @@ export function AppointmentsList({
             ))}
           </Select>
         </Field>
-        <Field label="Поиск клиента">
-          <Input
-            type="search"
-            data-page-search
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </Field>
+        <div className="beauty-list-search">
+          <Field label="Поиск клиента">
+            <Input
+              type="search"
+              data-page-search
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </Field>
+          <p className="beauty-note">Поиск только по выбранному дню.</p>
+          <p className="beauty-note">После перезагрузки поиск клиента очищается.</p>
+        </div>
       </div>
-      <p className="beauty-note">После перезагрузки поиск клиента очищается.</p>
-      {invalid && <Alert>Фильтр или запись недоступны в текущем филиале. Сбросьте отбор или выберите доступные значения.</Alert>}
-      <Button tone="secondary" onClick={() => {
-        setQuery('');
-        address({ master: '', service: '', status: '', appointment: '' });
-      }}>Сбросить фильтры</Button>
+      {invalid && (
+        <Alert>
+          Фильтр или запись недоступны в текущем филиале. Сбросьте отбор или выберите доступные
+          значения.
+        </Alert>
+      )}
+      <Button
+        tone="secondary"
+        className="beauty-list-reset"
+        onClick={() => {
+          setQuery('');
+          address({ master: '', service: '', status: '', appointment: '' });
+        }}
+      >
+        Сбросить фильтры
+      </Button>
       {rows.length === 0 ? (
         <EmptyState title="Записей не найдено">
           Выберите другой день или измените фильтры.
@@ -167,7 +231,8 @@ export function AppointmentsList({
               <th>Услуга</th>
               <th>Мастер</th>
               <th>Статус</th>
-              <th>Стоимость</th>
+              <th className="beauty-amount">Стоимость</th>
+              <th>Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -181,7 +246,18 @@ export function AppointmentsList({
                     {r.customer.name}
                   </Button>
                 </td>
-                <td data-label="Телефон">{r.customer.phone ?? '—'}</td>
+                <td
+                  data-label="Телефон"
+                  className={
+                    r.customer.phone ? 'beauty-contact' : 'beauty-contact beauty-contact--empty'
+                  }
+                >
+                  {r.customer.phone ? (
+                    <a href={`tel:${r.customer.phone}`}>{r.customer.phone}</a>
+                  ) : (
+                    'Не указан'
+                  )}
+                </td>
                 <td data-label="Услуга">{r.serviceName}</td>
                 <td data-label="Мастер">
                   {day.columns.find((e) => e.id === r.employeeId)?.name ?? 'Мастер в архиве'}
@@ -189,24 +265,38 @@ export function AppointmentsList({
                 <td data-label="Статус">
                   <StatusBadge kind="beauty" value={r.status} />
                 </td>
-                <td data-label="Стоимость">{formatMoney(r.priceMinor, r.currency)}</td>
+                <td data-label="Стоимость" className="beauty-amount">
+                  {formatMoney(r.priceMinor, r.currency)}
+                </td>
+                <td data-label="Действия">
+                  <Button tone="secondary" onClick={() => address({ appointment: r.id })}>
+                    Открыть запись
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>
         </Table>
       )}
-      <AppointmentEditor open={creating} onClose={() => setCreating(false)}
-            scopeKey={scopeKey}
-            day={day}
-            customers={customers}
-            employeeId={day.columns[0]?.id ?? ''}
-            time={clock(day.bounds.fromMinutes)}
-            onDone={() => {
-              setCreating(false);
-              router.refresh();
-            }}
-          />
-      <Overlay open={Boolean(selected)} onClose={() => address({ appointment: '' }, false)} title="Запись" drawer>
+      <AppointmentEditor
+        open={creating}
+        onClose={() => setCreating(false)}
+        scopeKey={scopeKey}
+        day={day}
+        customers={customers}
+        employeeId={day.columns[0]?.id ?? ''}
+        time={clock(day.bounds.fromMinutes)}
+        onDone={() => {
+          setCreating(false);
+          router.refresh();
+        }}
+      />
+      <Overlay
+        open={Boolean(selected)}
+        onClose={() => address({ appointment: '' }, false)}
+        title="Запись"
+        drawer
+      >
         {selected && (
           <AppointmentCard
             day={day}

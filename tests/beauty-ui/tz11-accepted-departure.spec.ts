@@ -4,6 +4,12 @@ for (const mode of ['same-date', 'different-date']) {
  test(`F02 accepted Back discards appointment draft ${mode}`,async({page,request})=>{
   await seed(page,request);
   await page.goto(`/appointments?date=${date}`);
+  // A native date input can accept fill before React hydrates on a cold dev server.
+  // Prove the unchanged editor is interactive before exercising date/history traversal.
+  await page.getByRole('button',{name:'+ Новая запись',exact:true}).click();
+  await expect(page.getByRole('dialog',{name:'Новая запись',exact:true})).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog',{name:'Новая запись',exact:true})).toBeHidden();
   if(mode==='different-date') {
    await page.getByTestId('beauty-day-date').fill('2026-10-20');
    await expect(page).toHaveURL(/date=2026-10-20/);

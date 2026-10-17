@@ -65,7 +65,7 @@ export default async function BeautyPage({
     <Page
       className="beauty-page"
       title="Календарь"
-      subtitle={`Расписание мастеров и услуг салона${loaded.value.location.name ? `, ${loaded.value.location.name}` : ''}`}
+      subtitle={loaded.value.location.name || 'Расписание мастеров и услуг'}
     >
       <nav className="beauty-calendar-views" aria-label="Вид календаря">
         <Link className="btn btn--secondary" aria-current={view !== 'week' ? 'page' : undefined} href={`/calendar?date=${loaded.value.date}`}>День</Link>

@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
 import { AuthService } from '../../apps/api/src/auth/auth.service';
 import { EmailVerificationService } from '../../apps/api/src/auth/email-verification.service';
+import { PasswordResetService } from '../../apps/api/src/auth/password-reset.service';
 import { PrismaAccountsRepository } from '../../apps/api/src/accounts/accounts.prisma-repository';
 import { hashSessionToken } from '@pms/domain';
 import { isLocalDatabase } from '../tools/seed-local';
@@ -132,6 +133,45 @@ describe.skipIf(!process.env.DATABASE_URL)('auth identity chains (integration)',
       expect(login.user.organizationId).toBe(org.id);
     },
   );
+
+  // Д + Е: номера человека, организации, бизнеса и филиала те же после входа, выхода, смены пароля и сброса
+  it('user, organization, business and location ids survive login, logout, password change and reset', async () => {
+    const o = await owner('FOOD_SERVICE', 'ids');
+    const chain = async () => {
+      const business = await db.business.findFirstOrThrow({ where: { organizationId: o.organizationId } });
+      const location = await db.location.findFirstOrThrow({ where: { businessId: business.id } });
+      return {
+        user: o.userId, org: o.organizationId, business: business.id, location: location.id,
+        businesses: await db.business.count({ where: { organizationId: o.organizationId } }),
+        memberships: await db.membership.count({ where: { userId: o.userId } }),
+        users: await db.user.count({ where: { email: o.email } }),
+      };
+    };
+    const before = await chain();
+
+    const first = await auth.login({ email: o.email, password });
+    expect((await auth.whoami(first.token))?.user.organizationId).toBe(o.organizationId);
+    await auth.logout(first.token);
+    expect(await auth.whoami(first.token)).toBeNull();
+
+    const second = await auth.login({ email: o.email, password });
+    const changed = 'changed-synthetic-2026';
+    await auth.changePassword({ token: second.token, currentPassword: password, newPassword: changed });
+    expect((await auth.whoami(second.token))?.user.id).toBe(o.userId);
+
+    const resetMail: Array<{ to: string; text: string }> = [];
+    const reset = new PasswordResetService({ db } as never, { send: async (l) => void resetMail.push(l) }, 'https://app.example.invalid');
+    await reset.request(o.email);
+    const token = decodeURIComponent(resetMail.at(-1)!.text.match(/token=([^\s]+)/)![1]!.replace(/\+/g, '%20'));
+    await reset.confirm({ token, password: 'reset-synthetic-2026' });
+    // сброс гасит прежние сессии, старый пароль больше не входит, новый входит в ту же организацию
+    expect(await auth.whoami(second.token)).toBeNull();
+    await expect(auth.login({ email: o.email, password: changed })).rejects.toThrow();
+    const third = await auth.login({ email: o.email, password: 'reset-synthetic-2026' });
+    expect(third.user.organizationId).toBe(o.organizationId);
+
+    expect(await chain()).toEqual(before);
+  });
 
   // Б: повтор регистрации, вход и сброс не заводят новых организаций, людей и бизнесов
   it('repeated registration, login and reset request create no extra entities', async () => {

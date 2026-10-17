@@ -55,29 +55,17 @@ jobs:
           git push origin "HEAD:refs/heads/$BRANCH"
           echo "Новые эталоны: ветка $BRANCH" >> "$GITHUB_STEP_SUMMARY"
 
-  # TEMPORARY branch-only compactness verification. Restore exact original before final full CI.
-  beauty-compact:
+  # TEMPORARY: controlled fault-injection then finance pair. Restore original before full CI.
+  fixture-pair:
     if: ${{ github.ref_name == 'fix/publish-unified-owner-home-20261017' }}
-    name: beauty compact · existing case only
+    name: fixture failure cleanup · controlled pair
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
       contents: read
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: pms
-          POSTGRES_DB: postgres
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U pms"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
     env:
-      DATABASE_URL: postgresql://pms@127.0.0.1:5432/pms_dev
+      UI_RUNTIME_WORKERS: '1'
+      PLAYWRIGHT_JSON_OUTPUT_NAME: fixture-pair-report.json
     steps:
       - uses: actions/checkout@v4
         with:
@@ -88,23 +76,21 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run generate -w @pms/database
-      - name: Same isolated CI database and canonical schema as vertical suite
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-client-16
-          psql postgresql://pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
-          npm run test:schema
       - run: npx playwright install --with-deps chromium
-      - name: Existing compactness assertion and filter behavior, unchanged422 bound
+      - name: Existing negative quality case followed by existing positive finance case
         run: >-
-          npx playwright test --config tests/beauty-ui/playwright.config.ts
-          tz12-ui.spec.ts --grep 'calendar compact controls preserve filtering and hidden occupancy'
+          npx playwright test --config tests/ui/playwright.config.ts
+          quality.spec.ts reports-finance.spec.ts
+          --grep 'отказ API сохраняет поля: сайт аналитики|плитки равны ответу API'
+          --workers=1 --reporter=line,json
+      - name: Both cases must actually pass; zero skips or flaky outcomes
+        run: node scripts/ci/check-playwright-report.mjs fixture-pair-report.json 2
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: beauty-compact-probe
+          name: fixture-cleanup-pair
           path: |
-            tests/beauty-ui/test-results
+            fixture-pair-report.json
             test-results
           if-no-files-found: ignore
           retention-days: 7

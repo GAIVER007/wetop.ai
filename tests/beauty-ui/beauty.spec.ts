@@ -470,7 +470,7 @@ test('archived service and employee preserve historical calendar appointments', 
   await expect(page.getByRole('table')).toContainText('Тестовая клиентка');
 });
 
-test('stored TimeOff survives hidden editors, server denial and timezone persisted', async ({
+test('TimeOff via manager API with compact employee drawer, server denial and timezone persisted', async ({
   page,
   request,
 }) => {
@@ -483,15 +483,25 @@ test('stored TimeOff survives hidden editors, server denial and timezone persist
     .click();
   const panel = page.getByRole('dialog');
   await panel.getByRole('tab', { name: 'График', exact: true }).click();
-  // PR638 deliberately removes absence editors. Existing manager API/data must still protect bookings.
+  await expect(panel.getByRole('heading', { name: 'Обычная неделя', exact: true })).toBeVisible();
+  await expect(panel.getByRole('button', { name: 'Сохранить график', exact: true })).toBeVisible();
   await expect(panel.getByLabel('С какого дня')).toHaveCount(0);
+  await expect(panel.getByLabel('По какой день включительно')).toHaveCount(0);
+  await expect(panel.getByLabel(/Причина/)).toHaveCount(0);
   await expect(panel.getByRole('button', { name: 'Добавить отсутствие' })).toHaveCount(0);
-  const absence = await request.post(`${api}/beauty/employees/${f.employee.id}/time-offs`, {
+  // The compact drawer edits only the normal week; the owner API still manages dated absences.
+  const created = await request.post(`${api}/beauty/employees/${f.employee.id}/time-offs`, {
     headers: f.headers,
     data: { dateFrom: day, dateTo: day, reason: 'Тестовое обучение' },
   });
-  expect(absence.ok(), `manager absence fixture: HTTP ${absence.status()}`).toBe(true);
-  expect((await absence.json()).timeOffs).toHaveLength(1);
+  expect(created.ok(), `manager absence fixture: HTTP ${created.status()}`).toBe(true);
+  const timeOffs = (await created.json()).timeOffs;
+  expect(timeOffs).toHaveLength(1);
+  expect(timeOffs).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ dateFrom: day, dateTo: day, reason: 'Тестовое обучение' }),
+    ]),
+  );
   await page.goto(`/calendar?date=${day}`);
   await expect(page.getByTestId('beauty-grid')).toContainText('Тестовое обучение');
   const rejected = await book(page);

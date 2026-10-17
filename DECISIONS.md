@@ -7667,6 +7667,16 @@ v2.41). Модели оплаты прежние: оклад, процент, о
 
 Beauty basic, Food employee и Portal profile используют writeEmployeeCommon, атомарную обязательную проверку исходного Employee.updated_at с microseconds. Portal дополнительно проверяет исходную public revision в той же транзакции. Запрос без исходной версии получает400, старый versionless compatibility bypass удалён по прямому поручению ТЗ2.1. Сохраняются существующие id, связи, согласие и права, новые сущности/миграции не нужны. Контракты форм обновлены, конфликт сохраняет черновик и требует осознанной перечитки. Результаты и фактический контур тестов: reports/tz21/C-employee.md.
 
+## OWNER-HOME-READ-ONLY-20261017: bounded V4 activation (17.10.2026)
+
+**Status:** accepted by the owner for publication through the existing candidate/main/release gates. This decision clarifies the narrow presentation rollout, not approval of held SQL or a complete financial release.
+
+**Problem and alternatives:** earlier rollout notes combined read-only presentation with held capture, historical currency and linked classification acceptance. Keeping the existing screen until every financial capability is complete unnecessarily couples two releases; enabling captures or weakening permissions to show V4 is not acceptable.
+
+**Decision:** default the deployed web `APP_UNIFIED_OWNER_HOME` to `true`, preserving explicit `0`/`false`. Show the existing accepted shared Main only to signed-in users already authorized for `reports` in the selected location. Keep the existing 403/non-reports operational dispatch and `/today/operations`. Do not change money logic, schema, backend flags, capture/link defaults, scope or RLS. Known source currencies remain separate; unknown historical hotel cash stays PARTIAL, never zero or the present property currency. Disabled workload and classification remain explicitly unavailable.
+
+**Verification and consequences:** release-checks must exercise the real OwnerSummaryService for all three verticals and today/week/month on the disposable canonical `pms_test` fixture before any held SQL is installed, using wetop_app/RLS and rollback-only synthetic fixtures. A separate flag-on browser gate runs the existing three real HTTP/database owner-home tests and checks the JSON report for missing/skipped/flaky tests. Real database/browser acceptance is pending CI; bounded local unit/lint checks do not replace it. Existing held installation in CI remains test-only and unchanged. Publication still requires reviewed candidate CI, main CI, automatic release, then authenticated live V4/operations verification. Explicit runtime OFF remains an operator-controlled opt-out, not something this package bypasses. Historical full-financial-release requirements remain valid for that separate release.
+
 
 
 ## ТЗ1.1 F01 (2026-10-17): фильтр не меняет занятость

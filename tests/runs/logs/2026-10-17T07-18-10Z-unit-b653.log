@@ -1,0 +1,78 @@
+# Модульные (unit) · 17.10.2026 12:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит b532b26 (claude/d9-booking-agent-check), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T07-18-10Z-unit-b653.json' 'apps/api/src/web-booking/bot-booking.controller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d9
+
+ ❯ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (14 tests | 4 failed) 80ms
+   ❯ бронь из чата продавца /bot/booking-intents (DATA_MODEL §25) (14)
+     ✓ ключи: без ключа 401, ключом котировки 403, ключом записи котировка создана 22ms
+     ✓ котировка: сумма из расчёта сайта, срок 30 минут, организация, объект и тариф из агента 3ms
+     ✓ котировка: не вмещает 1ms
+     ✓ котировка: нет категории 1ms
+     ✓ котировка: Telegram — без брони 1ms
+     ✓ котировка: чужой агент 1ms
+     ✓ подтверждение: бронь WHATSAPP с ключом повтора и ожидаемой суммой, гость псевдонимом; повтор — та же бронь 3ms
+     ✓ устарело через 30 минут: отказ, брони нет, предложение закрыто 1ms
+     ✓ цена изменилась: отказ словами, предложение закрыто, повтор тоже отказ 2ms
+     ✓ чужой агент не подтверждает чужое предложение; без телефона — отказ 2ms
+     × агент черновик: котировки нет 1ms
+     × агент на паузе: котировки нет 1ms
+     × агент расширение выключено: котировки нет 1ms
+     × агента поставили на паузу после котировки: подтверждение брони не создаёт 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §25) > агент черновик: котировки нет
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §25) > агент на паузе: котировки нет
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §25) > агент расширение выключено: котировки нет
+Error: expected 404 "Not Found", got 201 "Created"
+ ❯ apps/api/src/web-booking/bot-booking.controller.test.ts:371:51
+    369|   ])('агент %s: котировки нет', async (_n, off) => {
+    370|     off();
+    371|     await post('/bot/booking-intents', quoteBody).expect(404);
+       |                                                   ^
+    372|     expect(intents.size).toBe(0);
+    373|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:892:12
+ ❯ callback node_modules/superagent/src/node/index.js:1183:18
+ ❯ fn node_modules/superagent/src/node/parsers/json.js:19:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §25) > агента поставили на паузу после котировки: подтверждение брони не создаёт
+Error: expected 404 "Not Found", got 200 "OK"
+ ❯ apps/api/src/web-booking/bot-booking.controller.test.ts:383:8
+    381|       message: 'msg-consent-0009',
+    382|       guest,
+    383|     }).expect(404);
+       |        ^
+    384|     expect(created).toHaveLength(0);
+    385|     expect(intents.get(q.intent)!.state).toBe('QUOTED');
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:892:12
+ ❯ callback node_modules/superagent/src/node/index.js:1183:18
+ ❯ fn node_modules/superagent/src/node/parsers/json.js:19:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 10 passed (14)
+   Start at  00:18:11
+   Duration  1.31s (transform 51%, import 43%, tests 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T07-18-10Z-unit-b653.json
+
+# код выхода 1 · 3 с

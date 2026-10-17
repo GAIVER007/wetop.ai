@@ -4,7 +4,6 @@
  * приглашение того же человека (или возврат организации из архива) в течение 12 часов оживляло старые ключи: украденный
  * или забытый на чужом устройстве ключ снова пускал. Приостановка (§31.2) так уже делала, здесь то же для двух других путей.
  */
-import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { hashSessionToken } from '@pms/domain';
 import { PrismaExtensionsRepository } from '../../../apps/api/src/platform/extensions.repository';
@@ -19,8 +18,11 @@ describe.skipIf(!process.env.DATABASE_URL)('revoked access stays revoked after r
     await w?.close();
   }, 60_000);
 
-  const me = (token: string) =>
-    request(w.app.getHttpServer()).get('/auth/me').set('Authorization', `Bearer ${token}`);
+  // ключ задаётся явно: стенд подставляет в заголовок любой переданный ключ (`listen(0, '127.0.0.1')` внутри стенда)
+  const me = async (token: string) => {
+    const r = await w.call('OWNER', 'get', '/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+    return { body: r.json as { user: unknown } };
+  };
   const sessionRow = (token: string) =>
     w.db.session.findUniqueOrThrow({ where: { tokenHash: hashSessionToken(token) } });
 

@@ -6,7 +6,6 @@
  * сервису учётных записей не видна (401). Тест закрепляет это поведение как регрессию: в организации A приглашения нет.
  */
 import { randomUUID } from 'node:crypto';
-import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { hashSessionToken, newSessionToken } from '@pms/domain';
 import { buildScopeWorld, type ScopeWorld } from './scope-world';
@@ -38,11 +37,11 @@ describe.skipIf(!process.env.DATABASE_URL)('accounts routes act on the session t
     const restrictedA = w.tokens.H1_MGR;
     const email = `smuggled-${randomUUID()}@example.invalid`;
 
-    const res = await request(w.app.getHttpServer())
-      .post('/auth/invites')
-      .set('Authorization', `Bearer ${headerToken}`)
-      .set('Cookie', `wetop_session=${restrictedA}`)
-      .send({ email, role: 'STAFF' });
+    // запрос через стенд (`listen(0, '127.0.0.1')`): заголовок ключа подменён на сессию B, кука несёт сессию A
+    const res = await w.call('H1_MGR', 'post', '/auth/invites', {
+      headers: { Authorization: `Bearer ${headerToken}`, Cookie: `wetop_session=${restrictedA}` },
+      body: { email, role: 'STAFF' },
+    });
     // Сейчас защищает RLS: запрос идёт в организации сессии из заголовка (B), и строка сессии A ему не видна.
     expect(res.status, res.text.slice(0, 200)).toBe(401);
 

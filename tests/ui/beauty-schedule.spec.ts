@@ -160,7 +160,7 @@ test('отсутствие предупреждает о записях, сни�
     data: { beautyAppointments: [{ employeeId: id, date: '2026-11-11' }] },
   });
 
-  await main.getByRole('button', { name: 'Добавить отсутствие', exact: true }).click();
+  await main.getByRole('button', { name: 'Добавить нерабочие дни', exact: true }).click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('С какого дня').fill('2026-11-10');
   await panel.getByLabel('По какой день включительно').fill('2026-11-12');
@@ -188,7 +188,7 @@ test('отсутствие с концом раньше начала не ухо
   await page.goto('/beauty/schedule');
   await page
     .getByRole('main')
-    .getByRole('button', { name: 'Добавить отсутствие', exact: true })
+    .getByRole('button', { name: 'Добавить нерабочие дни', exact: true })
     .click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('С какого дня').fill('2026-11-14');

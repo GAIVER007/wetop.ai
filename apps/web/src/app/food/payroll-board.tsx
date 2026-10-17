@@ -205,6 +205,8 @@ function PayoutDrawer({
   const [pending, start] = useTransition();
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
   const [amount, setAmount] = useState(String(BigInt(row.remainingMinor) / 100n));
+  // One drawer is one payment intent; failures keep the same key.
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
   function submit() {
     const tenge = Number(amount);
     if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
@@ -212,7 +214,7 @@ function PayoutDrawer({
       const result = await mutateStaff(scopeKey, {
         kind: 'payout',
         id: row.employeeId,
-        body: { period: month, method, amount: tenge * 100 },
+        body: { period: month, method, amount: tenge * 100, idempotencyKey },
       });
       if (result.error) setError(result.error);
       else {

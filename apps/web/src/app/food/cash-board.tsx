@@ -89,19 +89,27 @@ export function CashBoard({
   function operation() {
     const minor = tenge(amount);
     if (minor === null) return setError('Сумма в тенге, целое число больше нуля');
+    let storageKey = '';
     run(
-      () =>
-        mutateCash(scopeKey, {
-          kind: 'operation',
-          body: {
-            kind,
-            method,
-            ...(kind === 'TRANSFER' ? { methodTo } : {}),
-            amount: minor,
-            note: note.trim() || null,
-          },
-        }),
+      async () => {
+        try {
+          const payload = JSON.stringify(['BRANCH_CASH',scopeKey,cash.currency,kind,method,kind === 'TRANSFER' ? methodTo : null,minor,note.trim() || null]);
+          const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(payload));
+          const hash = Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('');
+          // Only an opaque draft digest and random key are persisted, never the note or PII.
+          storageKey = `wetop:branch-cash:${scopeKey}:${hash}`;
+          const idempotencyKey = sessionStorage.getItem(storageKey) || crypto.randomUUID();
+          sessionStorage.setItem(storageKey,idempotencyKey);
+          return await mutateCash(scopeKey, {
+            kind: 'operation',
+            body: {kind,method,...(kind === 'TRANSFER' ? {methodTo} : {}),amount:minor,note:note.trim() || null,idempotencyKey,},
+          });
+        } catch {
+          return {error:'Не удалось подтвердить операцию. Повторите с тем же черновиком.'};
+        }
+      },
       () => {
+        sessionStorage.removeItem(storageKey);
         setAmount('');
         setNote('');
       },

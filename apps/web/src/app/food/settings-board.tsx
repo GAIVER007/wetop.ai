@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
@@ -27,7 +27,7 @@ type NavItem = { label: string; icon: IconName } & (
 );
 const NAV: NavItem[] = [
   { label: 'Основное', icon: 'inventory', href: '/branches' },
-  { label: 'Часы работы', icon: 'clock', section: 'hours' },
+  { label: 'Часы работы зала', icon: 'clock', section: 'hours' },
   { label: 'Бронирования', icon: 'booking', section: 'bookings' },
   { label: 'Залы и столы', icon: 'board', href: '/dining-areas' },
   { label: 'Уведомления', icon: 'mail', section: 'notifications' },
@@ -52,10 +52,12 @@ export function RestaurantSettings({
   data,
   section,
   booking,
+  physicalOpening,
 }: {
   data: FoodWorkspace;
   section: SettingsSection;
   booking?: BookingSettings | undefined;
+  physicalOpening?: ReactNode;
 }) {
   const write = data.canProperty && !data.readOnly;
   return (
@@ -79,8 +81,9 @@ export function RestaurantSettings({
           ),
         )}
       </nav>
-      <section className="rest-settings__body" aria-labelledby="rest-settings-title">
-        {section === 'hours' && <Hours data={data} write={write} />}
+      <section className="rest-settings__body" aria-labelledby={section === 'hours' ? 'physical-opening-title' : 'rest-settings-title'}>
+        {section === 'hours' && physicalOpening}
+        {section === 'bookings' && <Hours data={data} write={write} />}
         {section === 'bookings' && <Bookings data={data} write={write} />}
         {section === 'bookings' && booking && <BookingRulesForm data={data} write={write} booking={booking} />}
         {section === 'notifications' && (
@@ -117,7 +120,8 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
   const { pending, error, save } = useSave(data);
   return (
     <>
-      <h2 id="rest-settings-title">Часы работы</h2>
+      <h2 id="rest-settings-title">Периоды приёма броней</h2>
+      <p className="muted">Эти периоды не определяют физические часы работы зала.</p>
       {error && <Alert>{error}</Alert>}
       <ul className="rest-hours" aria-busy={pending}>
         {WEEK.map(([weekday, name]) => {
@@ -217,11 +221,11 @@ function Bookings({ data, write }: { data: FoodWorkspace; write: boolean }) {
   const dayName = (w: number) => WEEK.find(([d]) => d === w)?.[1] ?? '';
   return (
     <>
-      <h2 id="rest-settings-title">Бронирования</h2>
+      <h3>Длительность бронирований</h3>
       <p className="muted">Длительность брони по умолчанию для каждого периода обслуживания.</p>
       {error && <Alert>{error}</Alert>}
       {periods.length === 0 ? (
-        <p className="muted">Сначала включите дни в разделе «Часы работы».</p>
+        <p className="muted">Сначала настройте периоды приёма броней выше.</p>
       ) : (
         <ul className="rest-hours" aria-busy={pending}>
           {periods.map((p) => {

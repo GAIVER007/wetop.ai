@@ -1,5 +1,34 @@
 # DECISIONS (ADR)
 
+## ADR-OWNER-HOME-SHARED-V4-20261016
+
+16.10.2026. Проблема: три независимые главные не соответствуют утверждённому общему V4, а прототип содержит демонстрационные series и категории, отсутствующие в API. Варианты: копировать три экрана или одна серверная презентация фактической owner-summary. Выбрана единая `today/unified-owner.tsx` с typed DTO и существующим session/scope transport. Включение только APP_UNIFIED_OWNER_HOME=true, по умолчанию выключено; reports и выбранный филиал обязательны, окончательная авторизация на API. Без fallback-нулей при ошибках. Специализированные инструменты остаются на /today/operations и существующих маршрутах. Последствия: без новых финансовых расчётов, схем и миграций; currencies отдельно, BigInt formatting, PARTIAL workload без процента, ROOM/BED отдельно; график и сравнение честно недоступны, категории не придуманы. Контракт актуализирован перед UI. Production rollout и merge не разрешены этим срезом, backend gates и визуальная приёмка остаются открытыми.
+
+
+## ADR-BEAUTY-BOOKED-HISTORY-20261016
+
+16.10.2026. Проблема: сегодняшний состав мастеров и последняя отмена записи переписывали прошлую загрузку. Варианты: пересчёт из mutable таблиц или сохранённые append-only версии. По утверждённому плану §4 выбран второй: атомарный capture существующих Beauty writers, нормализованная мощность, revisions записей; reader выбирает состояние отдельно к концу каждой локальной даты. Первая фиксация только observedAt, без backdating. Сегодня вся плановая смена BOOKED_SCHEDULE, не фактическая работа; union/intersection по мастеру, отношение сумм. Неизвестная история PARTIAL/UNAVAILABLE, percent=null. Последствия: default-off флаг, held 117 после 116, горизонт графика 31 день без выдуманного продолжения; production/UI и финансовая логика не затронуты. Реальный RED→GREEN найден для поздней отмены, RLS чтения проверена под wetop_app, root/API/web typecheck зелёный. Границы доказательств и оставшиеся security/E2E gates: docs/contracts/beauty-workload-history.md.
+
+## ADR-RESTAURANT-CAPACITY-OBSERVATION-20261016
+
+16.10.2026. Проблема: ServicePeriod и FoodClosedDay описывают бронирование, а не подтверждённые часы физической работы. Варианты: молча импортировать их как opening hours либо оставить denominator неизвестным. По DATA_MODEL §49.4 выбран второй: default-off snapshot активных столов с observedAt и атомарными SQL setting hooks; UNAVAILABLE coverage до подтверждённого source. Старые даты не backfill-ятся. Read adapter считает только доказанные нормализованные intervals, в одинаковой области с persisted sessions, и не выдаёт partial ratio за весь период. Последствие: настоящий restaurant процент пока недоступен; confirmed recurrent schedule/closures writer, materialization и security/concurrency gates остаются обязательными. Детали/DTO/evidence: docs/contracts/restaurant-capacity-coverage.md. Это ограниченный срез, не завершение owner home.
+
+## ADR-OCCUPANCY-RESERVATION-SYNC-20261016: общий бизнес-контроль команд
+
+16.10.2026. По поручению закрыть расхождение физической посадки и брони прямой FoodService.occupancy синхронизирует reservation status/table assignment внутри существующей foodTransaction; SEAT/RELEASE используют общий с status checkStatus, MOVE — существующий table с проверками вместимости и конфликтов. Альтернатива вызова публичных status/assign отклонена: вложенные транзакции/hooks создают рекурсию и повторные команды. Retry выполняется низкоуровневой командой до проверки терминальной брони. Held migration и SQL lifecycle не меняются; SQL напрямую не заменяет FoodService business API. RED: 08-10-29Z-integration-89c1; GREEN: 08-12-47Z-integration-db7b (4/4, настоящий FoodService + runtime SQL). Guards родителей, cursor pagination, расширенное HTTP/runtime-service доказательство остаются release blockers. Подробности: docs/contracts/restaurant-actual-occupancy.md. Production/capture default-off, owner home не завершён.
+
+## ADR-EXPENSE-SUPPLIER-SYNC-20261016: связь без второго списания
+
+16.10.2026. Продолжение утверждённого DATA_MODEL §49/плана §10.1.1. Заменяет supplier failclosed предыдущего ADR. Выбран минимальный invoker-rights trigger: AFTER INSERT/смена supplier reference документа связывает все BarSupplierPayment; AFTER INSERT старого payment связывает его cash в той же транзакции. Альтернатива отдельного expense payment writer отклонена, чтобы не обходить существующие лимиты/долг. Location NO KEY UPDATE предшествует receipt и document в настоящем payReceipt; новая hotel операция получает currency snapshot при включённом feature, прошлое не угадывается. Void не удаляет settlement; linked supplier payment неизменяем. Тест реального Prisma writer и concurrent create/pay зелёный. Legacy payReceipt ещё не имеет intent-key DTO: сквозная идемпотентность старых выплат, supplier-specific RLS/hotel runtime/полная lock matrix остаются release blockers. Миграция held, feature default-off. Evidence: reports/unified-expense-code-review-remediation.md; DTO: docs/contracts/expense-documents.md.
+
+## ADR-EXPENSE-GUARDS-20261016: failclosed supplier и конкурентный scope
+
+Основание: согласованное bounded исправление ревью, DATA_MODEL §49; новая финансовая модель не вводится. Supplier document CREATE запрещён API/DB до полного historical backfill и hook старых writers: вместо ложного долга остаётся канонический supplier экран. Альтернатива частичного связывания выплат отклонена как недостоверная. Settlement удерживает Property FOR SHARE до cash lock; Property UPDATE использует штатный row lock. Location сериализация — FOR NO KEY UPDATE, а не FOR UPDATE, чтобы FK KEY SHARE переноса не образовал location/property inversion. Проверено двумя соединениями с pg_blocking_pids и отказом переноса после commit settlement. Неизвестные POST ошибки503 с константным безопасным логом;409 только известные constraints/domain. Миграция held/default-off, down.sql и полная legacy concurrency matrix остаются release blockers. Evidence: reports/unified-expense-code-review-remediation.md.
+
+## ADR-OWNER-CASH-FOUNDATION-20261016: read-only owner summary increment (16.10.2026)
+
+Approved basis: DATA_MODEL §49/49.4 and plans/unified-owner-accounting-2026-10-16.md §10. Implement only canonical completed cash expense reads behind verified location scope and reports permission first. Alternative of calling the existing organization summary was rejected because it does not provide proven historical hotel currency and cannot represent missing workload history correctly. No financial writers or schema changes are included in this increment. Missing revenue, receipts, comparisons, classifications and workload history are explicitly unavailable. Hospitality historical cash currency is unresolved, never inferred from current property configuration. Consequence: this is a partial backend foundation, not completion of S1-S4 and not release approval. Contract and rollback: docs/contracts/owner-summary.md. Remaining financial mutations must use approved supplier/payment intent transactions and hold migrations before new reads are extended.
+
 ## EMPLOYEE-PORTAL-SPEC-FIX-20261016: scoped schedule warnings and anonymous no-store
 
 16.10.2026, correction within the already approved portal scenario. Problem: schedule/absence saves did not display affected existing appointments, and public JSON had no explicit cache policy. Options: mutate/cancel bookings (not authorized), reuse a selected-day-only list (incomplete), or add a private read-only warning projection. Decision: reuse canonical `fitsSchedule` and busy statuses for only the resolved employee's upcoming appointments in assigned active branches, each in its own timezone. Bound the read to 501 rows, check the first 500 and disclose incomplete results. Add usable absence controls without changing optimistic draft guards. Consequences: additive private DTO field documented in the wire contract, no new data model, no appointment/payment mutation and no new booking rules. Set public API no-store before resolution, including service errors; retain existing 60-second signed URL and storage cache limits rather than promising byte revocation. Restore README points only at the dedicated restore profile/55624 admin database. Verification is recorded in the external spec-fixes report.
@@ -7405,6 +7434,46 @@ Validation: real PostgreSQL regression red then green, record counts and busines
 показы/клики не имитируются.
 
 **Статус:** предложен; план `plans/marketing-results-mkt-b5a-2026-10-15.md`.
+
+
+## ADR-OWNER-DATA-20261016: проект общей главной поверх связанного учёта (PROPOSED)
+
+Дата 16.10.2026. Проблема: три независимых главных экрана; кассовые выплаты, маркетинговые расходы и товарные приёмки не образуют один гарантированно недублирующий итог; отсутствует фактическая история столов.
+
+Варианты: (1) общий UI на существующих источниках с честными ограничениями; (2) сначала согласовать и построить связанный учёт и историю. Владелец явно выбрал (2). Выбор порядка работ APPROVED, конкретные изменения DATA_MODEL §49 пока PROPOSED.
+
+Предлагается: документы расходов и категории описывают назначение; только существующая касса двигает деньги. Settlement с FK связывает источник без второй выплаты. Реестр маркетинга и приёмки не добавляются повторно к кассе. История мощности и фактических сеансов отдельно от плановых броней. Общий owner-summary и один UI с метаданными единиц, валют и полноты данных. Причина: одинаковый дизайн не должен прятать разные определения и неполную историю.
+
+Последствия: новые additive таблицы и tenant guards; hooks во все текущие пути записи; существующие остатки и финансовые определения не пересчитываются. История прошлого не дорисовывается. До утверждения §49 не создавать schema/migrations/код этой модели. План: plans/unified-owner-accounting-2026-10-16.md, вопрос Q-OWNER-DATA-20261016.
+
+
+### ADR-OWNER-DATA-20261016: дополнение по review (PROPOSED)
+
+В проект внесены найденные ограничения supplier-payment, общей идемпотентности, snapshot валюты, единственного grain классификации и совместимого rollout. Для загрузки добавлены версии записей салона, нормализованные интервалы мощности, сегменты покрытия, подтверждённый график физической работы ресторана и исторический состав фонда гостиницы. Это поправки документов, не подтверждение зелёных тестов/готовой реализации. Конкретные бизнес-определения §49 остаются на утверждении владельца.
+
+
+### Подтверждение владельца: единая главная и связанный учёт (16.10.2026)
+
+Статус DATA_MODEL §49 и уточнений §49.4/раздела 10 плана: APPROVED FOR IMPLEMENTATION. Основание: после показа обновлённого макета и объяснения модели владелец ответил «так все окей мне нравиться давай это сливай и делай ... все данные ... от куда надо». Выбранный ранее вариант 2 сохраняется. Q-OWNER-DATA-20261016 закрыт для указанных определений; реализация, сверка и migration approval не объявляются завершёнными.
+
+Владелец поручил слияние в main и проверяемую выкладку на домен после проверок. Это не отменяет тесты/гейт, резервное копирование, ограничения внешних production API и запрет неподготовленной production-миграции. Дополнительные бизнес-правила за пределами §49 не придумываются.
+
+
+### 2026-10-16 — MARKETING expense source linkage (approved §49 implementation)
+Use the existing expense_documents/settlements, not a second marketing cash ledger. Bind exact MarketingExpense with invoker-rights transactional synchronization hooks in unreleased held114, including legacy repository writes/imports. Existing canonical cash link API only; no autopayment or inferred historical links. FX mismatch fails closed, ever-settled source/document finances immutable after void, source delete RESTRICT, sync audited. See docs/contracts/marketing-expense-linkage.md. Full release remains not ready.
+
+
+### 2026-10-16 — HOTEL cash intent: исходный CashView в существующем audit
+В рамках утверждённого generic cash payment intent контракта HOTEL create/transfer/reconcile сохраняют полный исходный CashView в audit.after.cashView в транзакции существующего writer/intent. Альтернатива — свежий CashView после replay — отклонена: void/новые операции меняют HTTP-ответ. Новая таблица/ledger не нужны. Callback использует transaction-bound repository, сбой capture/audit откатывает деньги и intent. Старый intent без снимка получает 409, а не ложный свежий ответ. Authorization/scoped property lookup выполняется прежде replay. Flag-off оставляет старый путь; production rollout не разрешён.
+
+
+### Hospitality writer / существующий InventoryEditor (16.10.2026, локальный срез)
+
+Проблема: внутренний setUnitActive не вызывается действующими формами, наблюдение не стартует. Варианты: новый параллельный editor либо общий pre-write hook в старой транзакции. Выбран общий captureInventoryBeforeWrite для createRoom/removeCategory/renameRoom: прежние validation/audit/ARI сохранены; setUnitActive удалён как неиспользуемый обходной writer. Пользовательская запись требует проверенную Location → Property, permission property и writable organization. Флаг default-off не обращается к held 118 до включения. Сохранение комнаты даёт текущий baseline, не заднюю дату. Следствие: writer достижим из существующих форм; это НЕ утверждение COMPLETE, CoverageSegment и Q118 остаются блокерами. Доказательства в docs/contracts/hospitality-workload-history.md.
+
+
+### 16.10.2026: bounded previous owner money projection
+По поручению владельца previous использует тот же canonical readProjection, cutoff задаётся историческим концом среза, generatedAt остаётся request now. Альтернатива отдельного previous reader отклонена из-за риска расхождения snapshot currencies/daily/categories. Calendar shift по местным датам, не elapsed 24h. Без принятой политики shorter-month или DST gap/fold числовое сравнение недоступно. Сравнение только READY и совпавшей валюты; delta BigInt string, rate integer basis-point string; zero base без процента. Не меняет ledger/writers/schema и не обещает исторический workload. Доказательства и ограничения: docs/contracts/owner-summary.md.
 
 ## ADR-APPOINTMENT-PAYMENT-20261016: оплата записи салона приходом кассы филиала (16.10.2026)
 

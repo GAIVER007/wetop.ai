@@ -83,6 +83,10 @@ export async function foodTransaction<T>(
       await tx.$queryRaw`SELECT id FROM businesses WHERE id=${scope.businessId}::uuid FOR SHARE`;
       await tx.$queryRaw`SELECT id FROM locations WHERE id=${scope.locationId}::uuid FOR UPDATE`;
       await foodWritable(tx);
+      if (currentVertical() === 'FOOD_SERVICE' && process.env.RESTAURANT_CAPACITY_CAPTURE === 'true' && process.env.RESTAURANT_OCCUPANCY_CAPTURE === 'true') {
+        const tracking = await tx.$queryRaw<{ location_id: string }[]>`SELECT location_id FROM workload_tracking_coverage WHERE location_id=${scope.locationId}::uuid`;
+        if (!tracking.length && (await foodScope(tx, verticals))) await tx.$queryRaw`SELECT capture_restaurant_capacity(${scope.locationId}::uuid)::text`;
+      }
       return fn(tx, await foodScope(tx, verticals));
     });
   } catch (error) {

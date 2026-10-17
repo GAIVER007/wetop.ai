@@ -1039,9 +1039,9 @@ test('бар, финансы и настройки ресторана по ма�
   await expect(board.locator('tbody')).toContainText('Закупка продуктов');
   await expect(board.locator('tbody td[data-negative]')).toContainText('−125 ₸');
   expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
-  // настройки: включённый день создаёт период, время сохраняется
-  await page.goto('/restaurant-settings');
-  await expect(page.getByRole('heading', { name: 'Часы работы' })).toBeVisible();
+  // Периоды приёма броней отделены от физического расписания зала; проверяем прежний ServicePeriod workflow.
+  await page.goto('/restaurant-settings?section=bookings');
+  await expect(page.getByRole('heading', { name: 'Периоды приёма броней', exact: true })).toBeVisible();
   await page.getByRole('switch', { name: 'Понедельник: работаем' }).click();
   // создание периода идёт через серверное действие и обновление страницы: под нагрузкой дольше 5 с
   await expect(page.getByRole('switch', { name: 'Понедельник: работаем' })).toBeChecked({

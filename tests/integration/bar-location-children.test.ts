@@ -34,7 +34,7 @@ describe('бар: дочерние строки не пересекают фил
 
   beforeAll(async () => {
     await db.user.create({ data: { id: user, email: `bar-children-${tag}@example.invalid` } });
-    await db.organization.create({ data: { id: org, name: `Филиалы ${tag}` } });
+    await db.organization.create({ data: { id: org, name: `Филиалы ${tag}`, status: 'ACTIVE' } });
     for (const v of ['FOOD_SERVICE', 'BEAUTY'] as const) {
       const b = branch[v];
       await db.business.create({ data: { id: b.business, organizationId: org, name: `${v} ${tag}`, vertical: v } });
@@ -54,7 +54,7 @@ describe('бар: дочерние строки не пересекают фил
         const line = await db.barReceiptLine.findFirstOrThrow({ where: { receiptId: receipt.id } });
         const lot = await db.barStockLot.findFirstOrThrow({ where: { receiptLineId: line.id } });
         const saleRow = await db.barSale.findUniqueOrThrow({ where: { id: sale.id } });
-        if (!saleRow.restaurantCashOperationId) throw new Error('продажа бара филиала без кассы');
+        if (!saleRow.restaurantCashOperationId) throw new Error('Expected posted sale to have restaurant cash operation');
         return { product: product.id, receipt: receipt.id, line: line.id, lot: lot.id, sale: sale.id, cash: saleRow.restaurantCashOperationId };
       });
     }

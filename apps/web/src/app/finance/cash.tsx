@@ -1,6 +1,7 @@
 'use client';
 import { createContext, useActionState, useContext, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import {cashDraftIntent} from './cash-draft-intent';
 import type { CashBalances, CashCategory } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { Icon } from '../../components/icon';
@@ -18,6 +19,21 @@ import {
   type CashActionResult,
 } from './cash-actions';
 
+const CashScopeContext = createContext('');
+function useCashIntentAction(server: (prev: CashActionResult, fd: FormData)=>Promise<CashActionResult>, command: string) {
+  const scope = useContext(CashScopeContext);
+  return useActionState(async (prev: CashActionResult, fd: FormData) => {
+    try {
+      const intent = await cashDraftIntent(scope, command, fd);
+      fd.set('idempotencyKey', intent.key);
+      const result = await server(prev, fd);
+      if (!result.error && result.ok !== prev.ok) intent.acknowledge();
+      return result;
+    } catch {
+      return {error:'Не удалось подтвердить операцию. Повторите с тем же черновиком.',ok:prev.ok};
+    }
+  }, NONE);
+}
 const NONE: CashActionResult = { error: null, ok: 0 };
 type Drawer = 'operation' | 'income' | 'expense' | 'transfer' | 'reconcile' | null;
 
@@ -27,6 +43,7 @@ type Drawer = 'operation' | 'income' | 'expense' | 'transfer' | 'reconcile' | nu
  * дублируются — остаток считает их сам, поэтому «оплата брони» принимается на счёте брони, а не здесь.
  */
 export function CashPanel({
+  scopeKey,
   cash,
   categories,
   cashOpsHref,
@@ -34,6 +51,7 @@ export function CashPanel({
   maySettings,
   quickOnly = false,
 }: {
+  scopeKey: string;
   quickOnly?: boolean;
   cash: CashBalances;
   categories: CashCategory[];
@@ -55,6 +73,7 @@ export function CashPanel({
   };
   const methods = cash.paymentMethods ?? CASH_METHOD_OPTIONS;
   return (
+    <CashScopeContext.Provider value={scopeKey}>
     <CashMethodsContext.Provider value={methods}>
     <section
       className={quickOnly ? 'cash-quick' : 'finance-block cash'}
@@ -213,6 +232,7 @@ export function CashPanel({
       )}
     </section>
     </CashMethodsContext.Provider>
+    </CashScopeContext.Provider>
   );
 }
 
@@ -264,7 +284,7 @@ function ReconcileForm({
   onCancel: () => void;
   onSaved: (text: string) => void;
 }) {
-  const [state, action, pending] = useActionState(cashReconcileAction, NONE);
+  const [state, action, pending] = useCashIntentAction(cashReconcileAction, 'reconcile');
   useSavedEffect(state, onSaved);
   // сверяют то, что лежит плитками: включённые по умолчанию и способы с движениями
   const [method, setMethod] = useState(cash.balances[0]?.method ?? 'CASH');
@@ -389,7 +409,7 @@ function OperationForm({
   onCancel: () => void;
   onSaved: (text: string) => void;
 }) {
-  const [state, action, pending] = useActionState(cashOperationAction, NONE);
+  const [state, action, pending] = useCashIntentAction(cashOperationAction, 'operation');
   useSavedEffect(state, onSaved);
   const fit = categories.filter((c) => c.kind === kind && c.active);
   return (
@@ -431,7 +451,7 @@ function TransferForm({
   onCancel: () => void;
   onSaved: (text: string) => void;
 }) {
-  const [state, action, pending] = useActionState(cashTransferAction, NONE);
+  const [state, action, pending] = useCashIntentAction(cashTransferAction, 'transfer');
   useSavedEffect(state, onSaved);
   return (
     <form action={action} className="settings-service-form" data-testid="cash-transfer-form">

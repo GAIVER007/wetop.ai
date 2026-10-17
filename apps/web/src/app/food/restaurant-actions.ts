@@ -53,7 +53,7 @@ type StaffCommand =
     }
   | { kind: 'pay-settings'; id: string; body: { model: PayModel; fixedMinor: number; percent: number } }
   | { kind: 'adjustment'; id: string; body: { period: string; amountMinor: number; reason: string } }
-  | { kind: 'payout'; id: string; body: { period: string; method: FoodPaymentMethod; amount: number } };
+  | { kind: 'payout'; id: string; body: { period: string; method: FoodPaymentMethod; amount: number; idempotencyKey: string } };
 
 async function scope(key: string) {
   const { context } = await currentMe();

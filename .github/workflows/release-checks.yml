@@ -130,6 +130,23 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      # Dedicated owned fixture required by all ten *-isolated integration specs. This is a separate
+      # ephemeral cluster, not the migration/E2E service above; never apply held SQL to a live database.
+      owner-home:
+        image: postgres:16
+        env:
+          POSTGRES_USER: owner_home_test
+          POSTGRES_DB: wetop_owner_home
+          # Disposable CI-only credential, shared with PGPASSWORD for fixed URLs without a password.
+          POSTGRES_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
+          POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+          POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --encoding=UTF8
+        ports: ['127.0.0.1:55516:5432']
+        options: >-
+          --health-cmd "pg_isready -U owner_home_test -d wetop_owner_home"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - name: Клиент PostgreSQL 16 (psql, pg_dump той же мажорной версии, что сервер)
@@ -152,9 +169,33 @@ jobs:
           EMPLOYEE_PORTAL_RESTORE_TEST_URL="$MIGRATION_CHECK_URL" npx vitest run --config tests/restore/employee-portal-grants-restore.config.ts
       # Дальше тесты на пустой базе: схему pms_test и данные (сид) они создают сами (tests/README.md)
       - run: psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+      - name: Owned isolated integration fixture (canonical baseline, seed, six held SQL files)
+        env:
+          # Both provider/planner URLs are scoped to this step. No Prisma push or fabricated ledger.
+          DATABASE_URL: postgresql://owner_home_test@127.0.0.1:55516/wetop_owner_home
+          DIRECT_URL: postgresql://owner_home_test@127.0.0.1:55516/wetop_owner_home
+          PGPASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
+          TEST_DATA: seed
+        run: |
+          set -euo pipefail
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public'
+          npm run test:schema
+          # Existing runner owns BEGIN/COMMIT and the exact order of all six apply files.
+          PGOPTIONS='-c search_path=pms_test,public' psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 \
+            -f packages/database/prisma/migrations-hold/owner-home-release.sql
+          # Direct RLS clients use wetop_app with no URL password and inherit PGPASSWORD too.
+          # This role change is confined to the disposable CI cluster; policies remain enabled.
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+          \getenv fixture_password PGPASSWORD
+          SELECT format('ALTER ROLE wetop_app LOGIN PASSWORD %L', :'fixture_password') \gexec
+          SQL
       - name: Интеграционные тесты
         env:
-          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          # Keep default clients, global setup and explicit isolated pg/Prisma clients on one fixture.
+          # The URL also carries the password for helpers that extract it to create local test roles.
+          DATABASE_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
+          DIRECT_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
+          PGPASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
         run: npx vitest run --project integration
       - name: Сборка стойки и Chromium
         run: |

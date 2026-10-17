@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 17.10.2026 10:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9458a27 (claude/d4-profile-menu), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/product-tour.spec.ts' 'tests/ui/profile-menu-readiness.spec.ts' 'tests/ui/login-access.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 25 tests using 1 worker
+
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (2.8s)
+  ✓   2 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (3.1s)
+  ✓   3 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (1.7s)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (2.5s)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (2.2s)
+  ✓   6 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (7.7s)
+  ✓   7 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (7.4s)
+  ✓   8 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.5s)
+  ✓   9 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (3.1s)
+  ✓  10 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (1.6s)
+  ✓  11 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (1.4s)
+  ✓  12 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (2.7s)
+  ✓  13 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (449ms)
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.0s)
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (2.0s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/profile-menu-readiness.spec.ts:52:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (2.2s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/profile-menu-readiness.spec.ts:69:1 › после готовности меню открывается обычным кликом (1.9s)
+  ✓  18 [main-ui-0] › ../.wetop-main-ui-aVdQw3/worker-0/tests/ui/profile-menu-readiness.spec.ts:82:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (1.8s)
+  ✓  19 [main-ui-1] › ../.wetop-main-ui-aVdQw3/worker-1/tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается (5.5s)
+  ✓  20 [main-ui-1] › ../.wetop-main-ui-aVdQw3/worker-1/tests/ui/product-tour.spec.ts:68:1 › скрытый поиск в календаре объясняется без подсветки недоступного элемента (4.3s)
+  ✓  21 [main-ui-1] › ../.wetop-main-ui-aVdQw3/worker-1/tests/ui/product-tour.spec.ts:103:1 › последний шаг — профиль, «Начать работу» закрывает обучение (3.5s)
+  ✓  22 [main-ui-1] › ../.wetop-main-ui-aVdQw3/worker-1/tests/ui/product-tour.spec.ts:119:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край (2.3s)
+  ✓  23 [main-ui-1] › ../.wetop-main-ui-aVdQw3/worker-1/tests/ui/product-tour.spec.ts:134:1 › меню содержит только обучение, личность и выход; темы можно выбирать (1.8s)
+  ✓  24 [main-ui-1] › ../.wetop-main-ui-aVdQw3/worker-1/tests/ui/product-tour.spec.ts:156:1 › администратор на телефоне видит рабочие темы без настроек владельца (1.7s)
+  ✓  25 [main-ui-1] › ../.wetop-main-ui-aVdQw3/worker-1/tests/ui/product-tour.spec.ts:176:1 › обучение подсвечивает поиск в разделе гостей (3.2s)
+
+  25 passed (1.5m)
+
+# код выхода 0 · 1 мин 33 с

@@ -108,3 +108,28 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await expect(dialog).toBeVisible();
   });
 }
+
+// Д4 аудита платформы (17.10.2026): меню профиля одинаково у трёх направлений, «Помощь» и «Профиль» живут в нём,
+// а не отдельными пунктами меню только у салона и ресторана
+for (const vertical of ['hotel', 'beauty', 'food'] as const) {
+  test(`Д4: ${vertical} меню профиля с «Профилем» и «Помощью»`, async ({ page, request }) => {
+    const f = await (await request.post(`${api}/__test/reset`)).json();
+    const scope = {
+      hotel: `business=${f.hotel};location=${f.locations[4]}`,
+      beauty: `business=${f.beauty};location=${f.locations[3]}`,
+      food: `business=${f.business};location=${f.locations[0]}`,
+    }[vertical];
+    await page.context().addCookies([
+      { name: 'wetop_scope', value: encodeURIComponent(scope), domain: '127.0.0.1', path: '/' },
+    ]);
+    await page.goto('/marketing');
+    await page.locator('.profile-trigger').click();
+    const dropdown = page.locator('#profile-dropdown');
+    await expect(dropdown.getByRole('link', { name: 'Профиль' })).toHaveAttribute('href', '/profile');
+    await expect(dropdown.getByRole('link', { name: 'Помощь' })).toHaveAttribute('href', '/help');
+    await expect(dropdown.getByRole('link', { name: 'Филиалы' })).toHaveAttribute('href', '/branches');
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+    await expect(page.locator('.sidenav__panel a[href="/help"]')).toHaveCount(0);
+  });
+}

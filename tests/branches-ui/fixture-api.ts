@@ -1,3 +1,4 @@
+import { FinanceModule } from '../../apps/api/src/finance/finance.module';
 import { AiSellerModule } from '../../apps/api/src/ai-seller/ai-seller.module';
 import { SELLER_CONNECTION } from '../../apps/api/src/ai-seller/seller.connection';
 /** Local synthetic identity; real Food and Beauty HTTP guards/controllers/services/database. */
@@ -91,7 +92,8 @@ for (const [name, path, method] of [
 }
 Body()(FixtureController.prototype, 'save', 0);
 const module = await Test.createTestingModule({
-  imports: [AiSellerModule, FoodModule, BeautyModule, HotelModule, DeskModule, ChessboardModule],
+  // FinanceModule: настоящий `GET /owner-summary` общей Главной (аудит платформы 17.10.2026, Д6)
+  imports: [AiSellerModule, FoodModule, BeautyModule, HotelModule, DeskModule, ChessboardModule, FinanceModule],
   controllers: [FixtureController],
 })
   .overrideProvider(SELLER_CONNECTION)

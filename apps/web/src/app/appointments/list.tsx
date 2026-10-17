@@ -9,18 +9,20 @@ import { DateBar } from '../beauty/date-bar';
 import { AppointmentCard } from '../beauty/appointment-card';
 import { clock } from '../beauty/time';
 import { beautyStatus } from '../../lib/status/beauty';
-import { AppointmentForm } from '../beauty/appointment-form';
+import { AppointmentEditor } from '../beauty/appointment-editor';
 export function AppointmentsList({
   day,
   customers,
   readOnly,
   canRefund = false,
+  scopeKey = '',
 }: {
   day: BeautyDay;
   customers: BeautyCustomerRow[];
   readOnly: boolean;
   /** возврат по выполненной записи (§54) */
   canRefund?: boolean;
+  scopeKey?: string;
 }) {
   const [creating, setCreating] = useState(false);
   const [status, setStatus] = useState('');
@@ -138,20 +140,17 @@ export function AppointmentsList({
           </tbody>
         </Table>
       )}
-      <Overlay open={creating} onClose={() => setCreating(false)} title="Новая запись" drawer>
-        {creating && day.columns[0] && (
-          <AppointmentForm
+      <AppointmentEditor open={creating} onClose={() => setCreating(false)}
+            scopeKey={scopeKey}
             day={day}
             customers={customers}
-            employeeId={day.columns[0].id}
+            employeeId={day.columns[0]?.id ?? ''}
             time={clock(day.bounds.fromMinutes)}
             onDone={() => {
               setCreating(false);
               router.refresh();
             }}
           />
-        )}
-      </Overlay>
       <Overlay open={selected !== null} onClose={() => setSelected(null)} title="Запись" drawer>
         {selected && (
           <AppointmentCard

@@ -22,15 +22,11 @@ describe('employee portal frontend boundaries', () => {
     expect(actions).toContain('parsePaySettings');
     expect(actions).toContain('requestScopeHeader');
   });
-  it('offers absence create/list/delete and affected own appointments in the week tab', () => {
+  it('shows the own week read-only, without dated exceptions, and keeps affected appointments', () => {
     const ui = source('components/employee-portal/cabinet.tsx');
-    expect(ui).toContain('data-testid="portal-time-offs"');
-    expect(ui).toContain('command="time-off"');
-    expect(ui).toContain('name="dateFrom"');
-    expect(ui).toContain('name="dateTo"');
-    expect(ui).toContain('data.timeOffs.map');
-    expect(ui).toContain('command="remove-time-off"');
-    expect(ui).toContain('name="timeOffId"');
+    expect(ui).not.toContain('data-testid="portal-time-offs"');
+    expect(ui).not.toContain('command="time-off"');
+    expect(ui).toContain('<PortalWeekView');
     expect(ui).toContain('data.scheduleConflicts.items.map');
     expect(ui).toContain('Записи не отменены');
     expect(ui).toContain('scheduleConflicts.truncated');
@@ -55,19 +51,18 @@ describe('salon terminology regression', () => {
     expect(finance).not.toContain('label="Потери"');
     expect(finance).not.toContain('label="Выручка за 7 дней"');
   });
-  it('explains exceptions versus weekly weekends and labels start/end visibly', () => {
+  it('schedule is a week grid without the «Нерабочие дни» section; hours keep visible start/end labels', () => {
     const board = source('app/beauty/schedule/board.tsx');
-    expect(board).toContain('Нерабочие дни');
-    expect(board).toContain('отпуск, больничный, обучение');
+    expect(board).not.toContain('Добавить нерабочие дни');
     expect(board).toContain('обычный недельный график');
     expect(board).toContain('>С</span>');
     expect(board).toContain('>До</span>');
+    expect(board).toContain('beauty-week-grid');
     const masters = source('app/beauty/masters/board.tsx');
-    expect(masters).not.toContain("label: 'Нерабочие дни'");
-    expect(masters).toContain('Изменения на даты');
-    expect(masters).toContain('<TimeOffTable');
-    expect(masters).toContain('<TimeOffForm');
+    expect(masters).not.toContain('Изменения на даты');
+    expect(masters).not.toContain('<TimeOffForm');
   });
+
   it('exposes useful service search and category', () => {
     const services = source('app/beauty/services/board.tsx');
     expect(services).toContain('Поиск услуг');

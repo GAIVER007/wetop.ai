@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { AppointmentStatus, EmployeePortalDto, OrderStatus } from '@pms/domain';
 import { Badge, Field, Input } from '../ui';
 import { formatMoney } from '../../lib/money';
-import { PortalForm, PortalWeek, type PortalContext } from './forms';
+import { PortalForm, PortalWeek, PortalWeekView, type PortalContext } from './forms';
 import { PortalMedia } from './media';
 import { PortalManagement } from './management';
 import { Tabs } from '../tabs';
@@ -52,16 +52,7 @@ export function EmployeeCabinet({ initial, target, scope }: { initial: EmployeeP
       </PortalForm></details>}
     </section> }] : []),
       { id: 'week', label: 'График', content: <div className="portal-schedule"><section className="panel portal-section" data-testid="portal-week"><h2>Обычная неделя</h2>
-      {data.location ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} /> : <p>Выберите филиал для недельного графика.</p>}
-    </section>
-    <section className="panel portal-section" data-testid="portal-time-offs"><h2>Изменения на даты</h2>
-      <p>Отпуск, больничный, обучение и другие отсутствия действуют во всех ваших филиалах. Обычные выходные задаются недельным графиком.</p>
-      <PortalForm context={context} command="time-off" label="Добавить отсутствие">
-        <Field label="Первый день отсутствия"><Input name="dateFrom" type="date" required /></Field>
-        <Field label="Последний день включительно"><Input name="dateTo" type="date" required /></Field>
-        <Field label="Причина (не публикуется)"><Input name="reason" maxLength={200} /></Field>
-      </PortalForm>
-      {data.timeOffs.length ? <ul className="portal-list">{data.timeOffs.map(off => <li key={off.id}><strong>{off.dateFrom} - {off.dateTo}</strong><span>{off.reason ?? 'Причина не указана'}</span><PortalForm context={context} command="remove-time-off" testId={`portal-remove-time-off-${off.id}`} label="Удалить отсутствие"><input type="hidden" name="timeOffId" value={off.id} /></PortalForm></li>)}</ul> : <p>Отсутствий пока нет. Добавьте даты, если не сможете принимать записи.</p>}
+      {!data.location ? <p>Выберите филиал для недельного графика.</p> : manager ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} /> : <PortalWeekView week={data.week} />}
     </section>
     {beauty && <section className="panel portal-section" data-testid="portal-schedule-conflicts" aria-live="polite"><h2>Записи и график</h2>
       <p>Проверяем предстоящие собственные записи во всех назначенных филиалах по местному времени каждого филиала. Записи не отменены и не перенесены автоматически.</p>

@@ -16,7 +16,7 @@ import type {
   BeautyDay,
 } from '../../../lib/api';
 import { clearPendingCreation, pendingCreation } from '../creation-key';
-import { WeekForm, TimeOffForm, TimeOffTable, LocationsForm } from '../schedule/board';
+import { WeekForm, LocationsForm } from '../schedule/board';
 import { loadBeautySchedule, loadBeautyEmployee, saveBeautyEmployee } from '../actions';
 
 /**
@@ -512,17 +512,6 @@ export function MastersBoard({
                             ))}
                           </div>
                         )}
-                          <h3>Изменения на даты</h3>
-                          <p>Отпуск, больничный или дополнительный выходной. Уже созданные записи не отменяются автоматически.</p>
-                          <TimeOffTable
-                            employeeId={editing.row.id}
-                            rows={schedule.timeOffs}
-                            canEdit={canEdit}
-                            onSaved={savedChild}
-                          />
-                          {canEdit && (
-                            <TimeOffForm employeeId={editing.row.id} onSaved={savedChild} />
-                          )}
                         </>
                       ) : (
                         <p role="status">Загружаем график…</p>

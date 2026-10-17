@@ -128,7 +128,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   let panel = page.getByRole('dialog');
   await panel.getByLabel('Название', { exact: true }).fill('Тестовая стрижка');
-  await panel.getByLabel(/Цена каталога, тиын/).fill('1200000');
+  await panel.getByLabel(/Цена каталога/).fill('12000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   await expect(page.getByRole('row').filter({ hasText: 'Тестовая стрижка' })).toContainText('12 000');
   await panel.getByRole('button', { name: 'Закрыть: Услуга каталога', exact: true }).click();
@@ -138,7 +138,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   // Незавершённая настройка филиала возобновляет созданную услугу в той же карточке.
   panel = page.getByRole('dialog');
   await expect(panel.getByLabel('Название', { exact: true })).toHaveValue('Тестовая стрижка');
-  await expect(panel.getByLabel(/Цена каталога, тиын/)).toHaveValue('1200000');
+  await expect(panel.getByLabel(/Цена каталога/)).toHaveValue('12000');
   await panel.getByLabel('Филиал оказывает эту услугу').check();
   await panel.getByRole('button', { name: 'Сохранить для филиала' }).click();
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');

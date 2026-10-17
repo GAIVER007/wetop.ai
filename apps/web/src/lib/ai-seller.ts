@@ -16,6 +16,7 @@ import { propertyClock } from './property-time';
 import { displayDay } from './display-date';
 import { formatMoney } from './money';
 import { pluralRu } from './plural';
+import type { WebVertical } from './vertical-landing';
 
 /**
  * Раздел «ИИ-продавец» стойки (ТЗ ред. 1 П6, ADR-079): то, что экраны считают сами. Без зависимостей от сервера —
@@ -394,4 +395,28 @@ export function replyTimeText(seconds: number | null): string | null {
   }
   const m = Math.floor((seconds % 3600) / 60);
   return `${Math.floor(seconds / 3600)} ч${m ? ` ${m} мин` : ''}`;
+}
+
+/**
+ * Где правят данные, которые продавец говорит гостю, по направлению филиала (аудит платформы 17.10.2026, Д11):
+ * раньше «Знания» салона и ресторана вели в гостиничные «Объект», «Категории номеров» и «Тариф сайта».
+ */
+export function sellerDataLinks(vertical: WebVertical): Array<{ href: string; label: string }> {
+  if (vertical === 'BEAUTY')
+    return [
+      { href: '/services', label: 'Изменить услуги и цены' },
+      { href: '/employees', label: 'Мастера филиала' },
+      { href: '/branches', label: 'Карточка филиала' },
+    ];
+  if (vertical === 'FOOD_SERVICE')
+    return [
+      { href: '/menu', label: 'Изменить меню и цены' },
+      { href: '/restaurant-settings', label: 'Часы работы и брони' },
+      { href: '/branches', label: 'Карточка филиала' },
+    ];
+  return [
+    { href: '/hotel-settings', label: 'Изменить карточку объекта' },
+    { href: '/rooms/categories', label: 'Изменить цены в «Категориях номеров»' },
+    { href: '/website/booking', label: 'Тариф сайта' },
+  ];
 }

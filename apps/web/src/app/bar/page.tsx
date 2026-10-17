@@ -115,7 +115,11 @@ export default async function BarPage({
     // 409 это деловой отказ сервера (смешанная валюта истории, D-CUR): его слова и есть заголовок
     return (
       <Page width="full" className="bar-page" title="Бар">
-        <LoadError testId="bar-load-error" {...error} {...(error.status === 409 ? { title: error.message } : {})} />
+        <LoadError
+          testId="bar-load-error"
+          {...error}
+          {...(error.status === 409 && failed.error instanceof Error ? { title: failed.error.message } : {})}
+        />
       </Page>
     );
   }

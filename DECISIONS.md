@@ -7677,3 +7677,20 @@ Beauty basic, Food employee и Portal profile используют writeEmployee
 
 **Verification and consequences:** release-checks must exercise the real OwnerSummaryService for all three verticals and today/week/month on the disposable canonical `pms_test` fixture before any held SQL is installed, using wetop_app/RLS and rollback-only synthetic fixtures. A separate flag-on browser gate runs the existing three real HTTP/database owner-home tests and checks the JSON report for missing/skipped/flaky tests. Real database/browser acceptance is pending CI; bounded local unit/lint checks do not replace it. Existing held installation in CI remains test-only and unchanged. Publication still requires reviewed candidate CI, main CI, automatic release, then authenticated live V4/operations verification. Explicit runtime OFF remains an operator-controlled opt-out, not something this package bypasses. Historical full-financial-release requirements remain valid for that separate release.
 
+
+
+## ТЗ1.1 F01 (2026-10-17): фильтр не меняет занятость
+
+Проблема: скрытая фильтром запись создавала ложную свободную кнопку. Решение: занятость определяется всем разрешённым набором day.appointments, плитки прежним отбором. CANCELLED/NO_SHOW не блокируют по прежнему контракту. Геометрия, API и статусы не меняются. Альтернатива считать занятость по плиткам отвергнута: это и есть дефект. RED/GREEN и PG409 в собственном tz11 evidence.
+
+
+## ТЗ1.1 F02 (2026-10-17): сохранность новой записи
+
+Проблема: X/Escape/backdrop уничтожали ввод. Варианты: менять все Overlay или opt-in оболочка только новой Beauty-записи. Выбран AppointmentEditor, общий для календаря и списка; Overlay и ConfirmDialog без изменения контрактов (chat3). Черновик только в памяти mounted формы, все поля включая дату/время входят в dirty. Закрытие pending блокируется, успех закрывает напрямую. До команды сервер сверяет исходные organization/business/location с auth/me текущего запроса. Клиентские идентификаторы не дают прав, API продолжает проверять scope. Транспорт/5xx и пустой success означают unknown, повтор в этой форме блокируется; сверка результата вручную в списке. Никаких автоповторов создания. Для ухода: opt-in перехват ссылок/branch controls, native beforeunload; отмена same-document traversal только при доступном cancelable Navigation API, не универсальное обещание для всех браузеров. Production/R01 вне среза.
+
+
+## ТЗ1.1 F03 (2026-10-17): контекст списка без нового PII-хранилища
+
+Проблема: локальные master/service/status терялись после reload и истории. Выбран действующий URL/history-паттерн MastersBoard: date/master/service/status/appointment имеют один источник в адресе, Next history state сохраняется. Карточка выбирается только из разрешённого day.appointments. Неизвестные/повторные IDs и статусы дают пустой результат с явным сбросом, не загрузку произвольного ID и не расширение доступа. При смене исходного org/business/location компонент remount по scopeKey, query не переходит между ними.
+
+Строка поиска клиента объединяется с этим контекстом только при фильтрации и живёт в памяти mounted экрана. Она сохраняется при открытии/закрытии карточки, но намеренно очищается после reload. Альтернатива sessionStorage могла бы выполнить восстановление строки после reload, однако отдельного разрешения для appointments нет: ADR-148 относится к BoardFilters. Точный вопрос сохранён в QUESTIONS.md. URL/hash/history.state/server/localStorage/sessionStorage для query не добавлялись. Это обозначенный частичный policy blocker F03, не заявление о полном выполнении persistence. Глобальный поиск не меняется.

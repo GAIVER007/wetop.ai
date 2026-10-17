@@ -41,6 +41,7 @@ class FixtureController {
     return {
       user: {
         id: user,
+        organizationId: org,
         name: 'Тестовый владелец',
         email: 'owner@example.invalid',
         role,

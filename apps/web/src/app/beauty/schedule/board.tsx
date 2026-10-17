@@ -75,10 +75,11 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
   const days = weekDates(data.monday);
   const shift = (n: number) => shiftWeek(data.monday, n);
 
-  const toggle = (master: GridMaster, weekday: number, on: boolean) =>
+  const toggle = (master: GridMaster, weekday: number, on: boolean) => {
+    const key = `${master.id}:${weekday}`;
+    // Controlled checkboxes must update urgently; the server action may remain transitional.
+    setOptimistic((prev) => ({ ...prev, [key]: on }));
     start(async () => {
-      const key = `${master.id}:${weekday}`;
-      setOptimistic((prev) => ({ ...prev, [key]: on }));
       const form = new FormData();
       form.set('id', master.id);
       form.set('intervals', JSON.stringify(toggleWeekday(master.week, weekday, on)));
@@ -92,6 +93,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         return next;
       });
     });
+  };
 
   return (
     <>
@@ -99,7 +101,6 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         <Link
           className="btn btn--secondary btn--sm"
           href={`?week=${shift(-7)}`}
-         
         >
           Прошлая неделя
         </Link>
@@ -109,14 +110,13 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         <Link
           className="btn btn--secondary btn--sm"
           href={`?week=${shift(7)}`}
-         
         >
           Следующая неделя
         </Link>
       </nav>
       <p className="beauty-note">
         Переключатель меняет обычную неделю мастера: день станет рабочим или выходным каждую неделю.
-        Часы работы: нажмите на имя мастера.
+        {canEdit && ' Часы работы: нажмите на имя мастера.'}
       </p>
       {error && <Alert>{error}</Alert>}
       <Table className="beauty-week-grid" aria-busy={busy}>
@@ -134,9 +134,13 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
           {data.masters.map((m) => (
             <tr key={m.id}>
               <th scope="row">
-                <Button type="button" tone="ghost" size="sm" onClick={() => setEditing(m)}>
+                {canEdit ? (
+                  <Button type="button" tone="ghost" size="sm" onClick={() => setEditing(m)}>
                     {m.name}
                   </Button>
+                ) : (
+                  <span>{m.name}</span>
+                )}
               </th>
               {days.map((d) => {
                 const hours = m.week.find((w) => w.weekday === d.weekday)?.intervals ?? [];
@@ -195,12 +199,12 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         </p>
       )}
       <Overlay
-        open={editing !== null}
+        open={canEdit && editing !== null}
         onClose={() => setEditing(null)}
         title={editing ? `Часы работы: ${editing.name}` : ''}
         drawer
       >
-        {editing && (
+        {canEdit && editing && (
           <WeekForm
             key={editing.id}
             employeeId={editing.id}

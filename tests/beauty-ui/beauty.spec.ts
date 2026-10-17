@@ -438,14 +438,23 @@ test('archived service and employee preserve historical calendar appointments', 
       })
     ).ok(),
   ).toBe(true);
-  expect(
-    (
-      await request.patch(`${api}/beauty/employees/${f.employee.id}`, {
-        headers: f.headers,
-        data: { active: false, expectedProfileRevision: f.employee.profileRevision },
-      })
-    ).ok(),
-  ).toBe(true);
+  // Archive uses the employee version from this intent's original API snapshot, not the stale seed POST.
+  const employeeSnapshot = await request.get(`${api}/beauty/employees`, { headers: f.headers });
+  expect(employeeSnapshot.ok(), `read archive source version: HTTP ${employeeSnapshot.status()}`).toBe(true);
+  const originalEmployee = (await employeeSnapshot.json()).items.find((employee: { id: string }) => employee.id === f.employee.id);
+  expect(originalEmployee?.profileRevision).toBeTruthy();
+  const archived = await request.patch(`${api}/beauty/employees/${f.employee.id}`, {
+    headers: f.headers,
+    data: { active: false, expectedProfileRevision: originalEmployee.profileRevision },
+  });
+  const archiveError = archived.ok() ? null : await archived.json().catch(() => null);
+  // Do not log raw responses: they may contain employee/contact data or internal diagnostics.
+  const safeError = archiveError && {
+    statusCode: typeof archiveError.statusCode === 'number' ? archiveError.statusCode : archived.status(),
+    error: ['Bad Request', 'Forbidden', 'Conflict', 'Not Found', 'Internal Server Error'].includes(archiveError.error) ? archiveError.error : 'Other error',
+    expectedProfileRevisionRejected: typeof archiveError.message === 'string' && archiveError.message.includes('expectedProfileRevision'),
+  };
+  expect(archived.ok(), `archive employee: HTTP ${archived.status()}, safe error ${JSON.stringify(safeError)}`).toBe(true);
   await page.reload();
   await expect(page.locator('.beauty-grid-day .beauty-tile')).toContainText('Тестовая клиентка');
   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
@@ -485,8 +494,10 @@ test('TimeOff via manager API with compact employee drawer, server denial and ti
     headers: f.headers,
     data: { dateFrom: day, dateTo: day, reason: 'Тестовое обучение' },
   });
-  expect(created.ok(), await created.text()).toBe(true);
-  expect((await created.json()).timeOffs).toEqual(
+  expect(created.ok(), `manager absence fixture: HTTP ${created.status()}`).toBe(true);
+  const timeOffs = (await created.json()).timeOffs;
+  expect(timeOffs).toHaveLength(1);
+  expect(timeOffs).toEqual(
     expect.arrayContaining([
       expect.objectContaining({ dateFrom: day, dateTo: day, reason: 'Тестовое обучение' }),
     ]),

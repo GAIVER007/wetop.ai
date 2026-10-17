@@ -45,6 +45,7 @@ test('HTTP actor boundaries and public whitelist',async({request})=>{
   const r=await request.get(API+path,{headers:headers(f,actor)});expect([403,404]).toContain(r.status());
  }
  const noActor=await request.get(API+'/employee-portal/me');expect(noActor.status()).toBe(401);
+ const missingProfileVersion=await request.patch(API+'/employee-portal/me/profile',{headers:headers(f),data:{headline:mine.profile.headline,expectedRevision:mine.profile.revision}});expect(missingProfileVersion.status()).toBe(400);expect((await missingProfileVersion.json()).message).toContain('expectedProfileRevision');
  const attack=await request.patch(API+'/employee-portal/me/profile',{headers:headers(f),data:{expectedRevision:mine.profile.revision,expectedProfileRevision:mine.employee.profileRevision,userId:f.actors.staffB.id}});expect(attack.status()).toBe(400);
  const payAttack=await request.put(API+'/employee-portal/me/pay-settings',{headers:headers(f),data:{model:'FIXED',fixedMinor:'999999',percent:0}});expect([403,404]).toContain(payAttack.status());
  d=await call(request,f,`/employee-portal/employees/${f.employeeA}/publication`,{actor:'ownerA',method:'put',data:{published:true,publicationConsent:true,expectedRevision:d.profile.revision}});
@@ -53,6 +54,16 @@ test('HTTP actor boundaries and public whitelist',async({request})=>{
  expect(p.locationId).toBeNull();expect(p.services).toEqual([]);expect(p.locations).toHaveLength(2);
  expect(JSON.stringify(p)).not.toContain('private@example.invalid');
  const branch=await request.get(API+`/employee-portal/public/${d.profile.slug}?locationId=${f.locationA}`);expect(branch.ok()).toBeTruthy();expect((await branch.json()).services[0].priceMinor).toBe(mine.services.find(s=>s.id===f.serviceId).priceMinor);
+});
+test('both original profile versions reject stale writes without rereading tokens',async({request})=>{
+ const f=await reset(request);const path=`/employee-portal/employees/${f.employeeA}`;
+ const original=await call(request,f,path,{actor:'ownerA'});
+ const winner=await call(request,f,path+'/profile',{actor:'ownerA',method:'patch',data:{name:'Synthetic winning specialist',headline:'Winning profile',expectedRevision:original.profile.revision,expectedProfileRevision:original.employee.profileRevision}});
+ expect(winner.profile.revision).not.toBe(original.profile.revision);expect(winner.employee.profileRevision).not.toBe(original.employee.profileRevision);
+ // Each request isolates one stale token; no fresh GET substitutes a token before either conflict.
+ const staleEmployee=await request.patch(API+path+'/profile',{headers:headers(f,'ownerA'),data:{headline:'Stale employee overwrite',expectedRevision:winner.profile.revision,expectedProfileRevision:original.employee.profileRevision}});expect(staleEmployee.status()).toBe(409);
+ const staleProfile=await request.patch(API+path+'/profile',{headers:headers(f,'ownerA'),data:{headline:'Stale profile overwrite',expectedRevision:original.profile.revision,expectedProfileRevision:winner.employee.profileRevision}});expect(staleProfile.status()).toBe(409);
+ const saved=await call(request,f,path,{actor:'ownerA'});expect(saved.profile.headline).toBe('Winning profile');expect(saved.employee.name).toBe('Synthetic winning specialist');expect(saved.profile.revision).toBe(winner.profile.revision);expect(saved.employee.profileRevision).toBe(winner.employee.profileRevision);
 });
 test('real browser avatar/profile persistence, work approval and three views',async({browser,request})=>{
  // The functional gate stays short. The separate gallery pass also takes 32 full-page captures.

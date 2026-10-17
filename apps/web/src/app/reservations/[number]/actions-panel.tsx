@@ -187,7 +187,7 @@ export function ReservationActions(props: {
   const panel = useRef<HTMLElement>(null);
   useQuickTarget(panel);
   return (
-    <section ref={panel} data-testid="reservation-actions" className="stack stack--mt">
+    <section ref={panel} data-testid="reservation-actions" className="reservation-actions stack stack--mt">
       {props.items
         .filter(
           (it) =>

@@ -128,7 +128,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   let panel = page.getByRole('dialog');
   await panel.getByLabel('Название', { exact: true }).fill('Тестовая стрижка');
-  await panel.getByLabel(/Цена каталога, тиын/).fill('1200000');
+  await panel.getByLabel(/Цена каталога/).fill('12000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   await expect(page.getByRole('row').filter({ hasText: 'Тестовая стрижка' })).toContainText('12 000');
   await panel.getByRole('button', { name: 'Закрыть: Услуга каталога', exact: true }).click();
@@ -138,7 +138,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   // Незавершённая настройка филиала возобновляет созданную услугу в той же карточке.
   panel = page.getByRole('dialog');
   await expect(panel.getByLabel('Название', { exact: true })).toHaveValue('Тестовая стрижка');
-  await expect(panel.getByLabel(/Цена каталога, тиын/)).toHaveValue('1200000');
+  await expect(panel.getByLabel(/Цена каталога/)).toHaveValue('12000');
   await panel.getByLabel('Филиал оказывает эту услугу').check();
   await panel.getByRole('button', { name: 'Сохранить для филиала' }).click();
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
@@ -470,7 +470,7 @@ test('archived service and employee preserve historical calendar appointments', 
   await expect(page.getByRole('table')).toContainText('Тестовая клиентка');
 });
 
-test('TimeOff from employee drawer, server denial and timezone persisted', async ({
+test('stored TimeOff survives hidden editors, server denial and timezone persisted', async ({
   page,
   request,
 }) => {
@@ -483,12 +483,15 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
     .click();
   const panel = page.getByRole('dialog');
   await panel.getByRole('tab', { name: 'График', exact: true }).click();
-  await panel.getByLabel('С какого дня').fill(day);
-  await panel.getByLabel('По какой день включительно').fill(day);
-  await panel.getByLabel(/Причина/).fill('Тестовое обучение');
-  await panel.getByRole('button', { name: 'Добавить отсутствие' }).click();
-  await expect(panel.getByRole('status')).toContainText('Отсутствие добавлено');
-  await expect(panel.getByRole('table')).toContainText('Тестовое обучение');
+  // PR638 deliberately removes absence editors. Existing manager API/data must still protect bookings.
+  await expect(panel.getByLabel('С какого дня')).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Добавить отсутствие' })).toHaveCount(0);
+  const absence = await request.post(`${api}/beauty/employees/${f.employee.id}/time-offs`, {
+    headers: f.headers,
+    data: { dateFrom: day, dateTo: day, reason: 'Тестовое обучение' },
+  });
+  expect(absence.ok(), `manager absence fixture: HTTP ${absence.status()}`).toBe(true);
+  expect((await absence.json()).timeOffs).toHaveLength(1);
   await page.goto(`/calendar?date=${day}`);
   await expect(page.getByTestId('beauty-grid')).toContainText('Тестовое обучение');
   const rejected = await book(page);

@@ -41,7 +41,7 @@ async function readySalon(page: Page, request: APIRequestContext) {
   let panel = page.getByRole('dialog');
   await panel.getByLabel('Название').fill('Маникюр');
   await panel.getByLabel(/Длительность, минут/).fill('60');
-  await panel.getByLabel(/Цена каталога, тиын/).fill('800000');
+  await panel.getByLabel(/Цена каталога/).fill('8000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   await expect(panel.getByRole('status')).toHaveText('Услуга создана. Включите её в выбранном филиале ниже.');
   await page.goto('/beauty/services');
@@ -64,7 +64,7 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('Услуги назначены');
   await page.goto('/beauty/schedule');
-  await main.getByRole('button', { name: 'Изменить график', exact: true }).click();
+  await main.getByRole('button', { name: 'Дина', exact: true }).click();
   panel = page.getByRole('dialog');
   await panel
     .getByRole('group')

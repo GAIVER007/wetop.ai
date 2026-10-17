@@ -44,24 +44,24 @@ describe('portal schedule warnings and anonymous cache revocation', () => {
     let dto = await self(() => service.get(null, { date: '2034-01-01' }));
     const old = dto.weekRevision;
     expect(dto.scheduleConflicts.items).toEqual([]);
-    dto = await self(() => service.mutate(null, 'week', { intervals: [], expectedRevision: old }));
+    dto = await owner(() => service.mutate(f.employeeA, 'week', { intervals: [], expectedRevision: old }));
     expect(dto.scheduleConflicts.items.map(a => a.id)).toEqual([own]);
     expect(dto.scheduleConflicts.items[0]).toMatchObject({ reason: 'OUTSIDE_WORKING_HOURS', locationId: f.locationA });
     expect(dto.scheduleConflicts.items.map(a => a.id)).not.toContain(other);
     expect(JSON.stringify(dto.scheduleConflicts)).not.toContain('Synthetic private customer');
-    await expect(self(() => service.mutate(null, 'week', { intervals: [], expectedRevision: old }))).rejects.toThrow();
+    await expect(owner(() => service.mutate(f.employeeA, 'week', { intervals: [], expectedRevision: old }))).rejects.toThrow();
     expect(await snapshot()).toEqual(before);
   });
 
   it('checks own absence across assigned branches in each appointment timezone and clears on delete', async () => {
     let dto = await self(() => service.get(null, {}));
-    dto = await self(() => service.mutate(null, 'week', { intervals: Array.from({ length: 7 }, (_, weekday) => ({ weekday, timeFrom: '00:00', timeTo: '23:59' })), expectedRevision: dto.weekRevision }));
+    dto = await owner(() => service.mutate(f.employeeA, 'week', { intervals: Array.from({ length: 7 }, (_, weekday) => ({ weekday, timeFrom: '00:00', timeTo: '23:59' })), expectedRevision: dto.weekRevision }));
     expect(dto.scheduleConflicts.items).toEqual([]);
-    dto = await self(() => service.mutate(null, 'time-off', { dateFrom: '2035-01-08', dateTo: '2035-01-08', reason: 'Synthetic leave' }));
+    dto = await owner(() => service.mutate(f.employeeA, 'time-off', { dateFrom: '2035-01-08', dateTo: '2035-01-08', reason: 'Synthetic leave' }));
     expect(dto.scheduleConflicts.items.map(a => a.id)).toEqual([own, branch]);
     expect(dto.scheduleConflicts.items.every(a => a.reason === 'TIME_OFF')).toBe(true);
     expect(dto.scheduleConflicts.items[1]).toMatchObject({ date: '2035-01-08', timezone: 'Pacific/Honolulu', locationId: f.locationB });
-    dto = await self(() => service.mutate(null, 'delete-time-off', {}, dto.timeOffs[0]!.id));
+    dto = await owner(() => service.mutate(f.employeeA, 'delete-time-off', {}, dto.timeOffs[0]!.id));
     expect(dto.scheduleConflicts.items).toEqual([]);
     await expect(withSignedInUser(f.actors.ownerB, () => service.get(f.employeeA, {}))).rejects.toThrow();
     expect(await snapshot()).toEqual(before);

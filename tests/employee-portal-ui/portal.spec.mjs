@@ -34,7 +34,7 @@ async function capture(page,key) {
 async function seedProfessional(request,f) {
  let d=await call(request,f,`/employee-portal/employees/${f.employeeA}`,{actor:'ownerA'});
  d=await call(request,f,`/employee-portal/employees/${f.employeeA}/profile`,{actor:'ownerA',method:'patch',data:{name:'Анна Демонстрационная',headline:'Парикмахер-стилист',biography:'Демонстрационный профиль. Стрижки и укладки. На снимках тестовые иллюстрации, не работы реальных клиентов.',practiceSinceYear:2018,expectedRevision:d.profile.revision,expectedProfileRevision:d.employee.profileRevision}});
- await call(request,f,'/employee-portal/me/week',{method:'put',data:{intervals:Array.from({length:7},(_,weekday)=>({weekday,timeFrom:'09:00',timeTo:'18:00'})),expectedRevision:d.weekRevision}});
+ await call(request,f,`/employee-portal/employees/${f.employeeA}/week`,{actor:'ownerA',method:'put',data:{intervals:Array.from({length:7},(_,weekday)=>({weekday,timeFrom:'09:00',timeTo:'18:00'})),expectedRevision:d.weekRevision}});
  return d;
 }
 test('HTTP actor boundaries and public whitelist',async({request})=>{
@@ -100,25 +100,18 @@ test('waiter owns orders and existing payroll without salon controls',async({bro
  await select(page,'Заказы');await capture(page,'waiter-orders');await select(page,'Оплата труда');await expect(page.getByTestId('portal-pay')).toContainText('Бонусы');await capture(page,'waiter-pay');await c.close();
 });
 
-test('absence controls create, persist and delete own dated exceptions',async({browser,request})=>{
+test('own schedule is read-only for the employee; the manager sets it',async({browser,request})=>{
  const f=await reset(request);await seedProfessional(request,f);
+ const before=await call(request,f,'/employee-portal/me');
+ // владелец 17.10.2026: сотрудник свой график только видит
+ const denied=await request.put(API+'/employee-portal/me/week',{headers:headers(f),data:{intervals:[],expectedRevision:before.weekRevision}});expect(denied.status()).toBe(403);
+ const off=await request.post(API+'/employee-portal/me/time-offs',{headers:headers(f),data:{dateFrom:'2035-02-01',dateTo:'2035-02-02'}});expect(off.status()).toBe(403);
  const c=await context(browser,f,'staffA');const page=await c.newPage();await page.goto('/my-work');await select(page,'График');
- const absences=page.getByTestId('portal-time-offs');await expect(absences).toContainText('Отсутствий пока нет');
- const form=page.getByTestId('portal-time-off-form');await form.getByLabel('Первый день отсутствия',{exact:true}).fill('2035-02-01');await form.getByLabel('Последний день включительно',{exact:true}).fill('2035-02-02');await form.getByLabel('Причина (не публикуется)',{exact:true}).fill('Тестовое отсутствие');await form.getByRole('button',{name:'Добавить отсутствие',exact:true}).click();await expect(form.getByRole('status')).toContainText('Сохранено на сервере');
- const saved=await call(request,f,'/employee-portal/me');expect(saved.timeOffs).toHaveLength(1);expect(saved.timeOffs[0].dateFrom).toBe('2035-02-01');
- await page.reload();await select(page,'График');await expect(absences).toContainText('Тестовое отсутствие');await expect(page.getByTestId('portal-schedule-conflicts')).toContainText('Записи не отменены');
- await page.getByTestId(`portal-remove-time-off-${saved.timeOffs[0].id}`).getByRole('button',{name:'Удалить отсутствие',exact:true}).click();await expect(absences).toContainText('Отсутствий пока нет');expect((await call(request,f,'/employee-portal/me')).timeOffs).toEqual([]);await c.close();
-});
-
-test('compact week saves real hours without deleting existing dated exceptions',async({browser,request})=>{
- const f=await reset(request);await seedProfessional(request,f);
- const withOff=await call(request,f,'/employee-portal/me/time-offs',{method:'post',data:{dateFrom:'2026-11-20',dateTo:'2026-11-21',reason:'Существующий отпуск'}});
- const c=await context(browser,f,'staffA');const page=await c.newPage();await page.goto('/my-work');
- await expect(page.getByRole('tab',{name:'Нерабочие дни',exact:true})).toHaveCount(0);
- await select(page,'График');await expect(page.getByTestId('portal-week')).toBeVisible();
- await expect(page.getByTestId('portal-nonworking')).toHaveCount(0);
- await page.getByLabel('Понедельник: начало',{exact:true}).fill('10:00');await page.getByRole('button',{name:'Сохранить график',exact:true}).click();await expect(page.getByTestId('portal-week-form').getByRole('status')).toContainText('Сохранено на сервере');
- await page.reload();await select(page,'График');await expect(page.getByLabel('Понедельник: начало',{exact:true})).toHaveValue('10:00');expect((await call(request,f,'/employee-portal/me')).timeOffs).toEqual(withOff.timeOffs);
+ await expect(page.getByTestId('portal-week-view')).toContainText('График меняет руководитель');
+ await expect(page.getByRole('button',{name:'Сохранить график',exact:true})).toHaveCount(0);
+ await expect(page.getByTestId('portal-time-offs')).toHaveCount(0);
+ await call(request,f,`/employee-portal/employees/${f.employeeA}/week`,{actor:'ownerA',method:'put',data:{intervals:[{weekday:1,timeFrom:'10:00',timeTo:'19:00'}],expectedRevision:before.weekRevision}});
+ await page.reload();await select(page,'График');await expect(page.getByTestId('portal-week-view')).toContainText('10:00–19:00');
  await c.close();
 });
 
@@ -133,9 +126,8 @@ test('compact schedule fits one screen without dated-exceptions block',async({br
  // Requested one-screen desktop; mobile remains responsive, without hiding rows to force a fit.
  for(const [width,height] of [[1440,900],[1366,768]])for(const theme of ['light','dark']){
   await page.setViewportSize({width,height});await page.evaluate(t=>{document.documentElement.dataset.theme=t;window.scrollTo(0,0);},theme);
-  const save=page.getByRole('button',{name:'Сохранить график',exact:true});const rect=await save.boundingBox();
-  expect(rect.y+rect.height,'save button fits screen').toBeLessThanOrEqual(height-(width<600?64:0));
-  for(const name of ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'])await expect(page.getByRole('group',{name,exact:true})).toBeInViewport();
+  const view=await page.getByTestId('portal-week-view').boundingBox();
+  expect(view.y+view.height,'own week fits screen').toBeLessThanOrEqual(height-(width<600?64:0));
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
   await page.screenshot({path:`${dir}/schedule-${width}-${theme}.png`,fullPage:false,animations:'disabled',timeout:20000});
  }
@@ -154,11 +146,11 @@ test('compact schedule fits one screen without dated-exceptions block',async({br
 });
 
 test('schedule add-time action stays next to hours and persists a split day',async({browser,request})=>{
- const f=await reset(request);await seedProfessional(request,f);const c=await context(browser,f,'staffA');const page=await c.newPage();await page.setViewportSize({width:1366,height:768});await page.goto('/my-work');await select(page,'График');
+ const f=await reset(request);await seedProfessional(request,f);const c=await context(browser,f,'ownerA');const page=await c.newPage();await page.setViewportSize({width:1366,height:768});await page.goto(`/employees/${f.employeeA}/profile`);await select(page,'График');
  const monday=page.getByRole('group',{name:'Понедельник',exact:true});const add=monday.getByRole('button',{name:'Понедельник: добавить интервал',exact:true});
  const last=await monday.getByRole('button',{name:'Понедельник: убрать интервал 1',exact:true}).boundingBox();const plus=await add.boundingBox();expect(plus.x-(last.x+last.width)).toBeLessThanOrEqual(16);await expect(add).toContainText('Ещё время');
  await monday.getByLabel('Понедельник: до, интервал 1',{exact:true}).fill('13:00');await add.click();await monday.getByLabel('Понедельник: начало',{exact:true}).nth(1).fill('14:00');await monday.getByLabel('Понедельник: до, интервал 2',{exact:true}).fill('18:00');await page.getByRole('button',{name:'Сохранить график',exact:true}).click();await expect(page.getByTestId('portal-week-form').getByRole('status')).toContainText('Сохранено на сервере');await page.reload();await select(page,'График');
- const d=await call(request,f,'/employee-portal/me');expect(d.week.find(x=>x.weekday===1).intervals).toEqual([{timeFrom:'09:00',timeTo:'13:00'},{timeFrom:'14:00',timeTo:'18:00'}]);
+ const d=await call(request,f,`/employee-portal/employees/${f.employeeA}`,{actor:'ownerA'});expect(d.week.find(x=>x.weekday===1).intervals).toEqual([{timeFrom:'09:00',timeTo:'13:00'},{timeFrom:'14:00',timeTo:'18:00'}]);
  const dir=OUT+'/compact-v3';mkdirSync(dir,{recursive:true});for(const theme of ['light','dark']){await page.evaluate(t=>{document.documentElement.dataset.theme=t;window.scrollTo(0,0);},theme);await page.screenshot({path:`${dir}/schedule-split-${theme}.png`,fullPage:false,animations:'disabled',timeout:20000});}
  await c.close();
 });

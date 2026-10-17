@@ -1,0 +1,123 @@
+# Сквозные (e2e) · 17.10.2026 18:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 15a3a06 (claude/salon-setup-schedule-grid), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/beauty-schedule.spec.ts' '--config=tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/ui/beauty-schedule.spec.ts:103:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) (33.3s)
+  ✘  2 tests/ui/beauty-schedule.spec.ts:125:1 › сетка недели: переключатель делает день рабочим и выходным (8.5s)
+  ✓  3 tests/ui/beauty-schedule.spec.ts:146:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (12.1s)
+  ✓  4 tests/ui/beauty-schedule.spec.ts:172:1 › два интервала через перерыв сохраняются (18.4s)
+  ✘  5 tests/ui/beauty-schedule.spec.ts:190:1 › отсутствие из модели видно в ячейке, раздела «Нерабочие дни» нет (15.0s)
+  ✓  6 tests/ui/beauty-schedule.spec.ts:218:1 › график на телефоне: страница без прокрутки вбок (12.0s)
+  ✓  7 tests/ui/beauty-schedule.spec.ts:229:3 › график доступен в светлой теме (12.1s)
+  ✓  8 tests/ui/beauty-schedule.spec.ts:229:3 › график доступен в тёмной теме (13.6s)
+
+
+  1) tests/ui/beauty-schedule.spec.ts:103:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('dialog', { name: 'Часы работы: Дина' }).getByLabel('Понедельник: начало')
+    Expected: "09:00"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('dialog', { name: 'Часы работы: Дина' }).getByLabel('Понедельник: начало') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Часы работы: Дина' }).getByLabel('Понедельник: начало')
+        33 × locator resolved to <input value="" inputmode="numeric" placeholder="09:00" class="inp beauty-time" aria-label="Понедельник: начало"/>
+           - unexpected value ""
+
+
+      115 |     .click();
+      116 |   // в полях видно ровно то, что уйдёт на сервер: не подсказка, а значение
+    > 117 |   await expect(panel.getByLabel('Понедельник: начало')).toHaveValue('09:00');
+          |                                                         ^
+      118 |   await panel.getByRole('button', { name: 'Сохранить график', exact: true }).click();
+      119 |   await expect(panel.getByRole('status')).toContainText('График сохранён');
+      120 |   await page.goto('/beauty/schedule');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:117:57
+
+    Error Context: test-results/beauty-schedule-«Сделать-р-0fa50--ввода-часов-приёмка-17-10-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-«Сделать-р-0fa50--ввода-часов-приёмка-17-10-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-«Сделать-р-0fa50--ввода-часов-приёмка-17-10-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-schedule.spec.ts:125:1 › сетка недели: переключатель делает день рабочим и выходным 
+
+    Error: locator.check: Clicking the checkbox did not change its state
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ has: getByRole('rowheader', { name: 'Дина' }) }).getByRole('cell').nth(2).getByRole('switch')
+        - locator resolved to <input value="true" role="switch" type="checkbox" class="switch__input" name="works-c8af9afd-3c58-4691-974a-98c7c5dad22f-2026-10-14"/>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - performing click action
+        - click action done
+        - waiting for scheduled navigations to finish
+        - navigations have finished
+
+
+      131 |   await expect(cell(page, 'Дина', 2)).toContainText('Не работает');
+      132 |   const wednesday = cell(page, 'Дина', 2).getByRole('switch');
+    > 133 |   await wednesday.check();
+          |                   ^
+      134 |   await expect(cell(page, 'Дина', 2)).toContainText('Работает');
+      135 |   await expect(cell(page, 'Дина', 2)).toContainText('09:00–18:00');
+      136 |   // правило недели: следующая среда тоже рабочая
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:133:19
+
+    Error Context: test-results/beauty-schedule-сетка-неде-38071-ает-день-рабочим-и-выходным/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-сетка-неде-38071-ает-день-рабочим-и-выходным/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-сетка-неде-38071-ает-день-рабочим-и-выходным/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-schedule.spec.ts:190:1 › отсутствие из модели видно в ячейке, раздела «Нерабочие дни» нет 
+
+    TypeError: Cannot read properties of undefined (reading 'find')
+
+      198 |     await request.get(`${FIXTURE_API}/beauty/employees`, { headers })
+      199 |   ).json()) as { items: Array<{ id: string; name: string }> };
+    > 200 |   const id = items.find((e) => e.name === 'Дина')!.id;
+          |                    ^
+      201 |   const monday = await page.evaluate(() => {
+      202 |     const now = new Date();
+      203 |     const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 12));
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:200:20
+
+    Error Context: test-results/beauty-schedule-отсутствие-b5bd2-раздела-«Нерабочие-дни»-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-отсутствие-b5bd2-раздела-«Нерабочие-дни»-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-отсутствие-b5bd2-раздела-«Нерабочие-дни»-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/beauty-schedule.spec.ts:103:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) 
+    tests/ui/beauty-schedule.spec.ts:125:1 › сетка недели: переключатель делает день рабочим и выходным 
+    tests/ui/beauty-schedule.spec.ts:190:1 › отсутствие из модели видно в ячейке, раздела «Нерабочие дни» нет 
+  5 passed (2.7m)
+
+# код выхода 1 · 2 мин 42 с

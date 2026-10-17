@@ -72,7 +72,9 @@ function historyHarness() {
 function board() {
   captured.buttons = [];
   captured.replace.mockClear();
-  const row = (id: string): BeautyEmployeeRow => ({ id, name: id, phone: null, email: null, active: true, serviceIds: [], locationIds: [] });
+  const row = (id: string): BeautyEmployeeRow => ({
+    id, name: id, phone: null, email: null, active: true, serviceIds: [], locationIds: [],
+  });
   renderToStaticMarkup(createElement(MastersBoard, {
     items: [row('A'), row('B')], services: [], canEdit: true, locations: [],
     today: { columns: [], appointments: [] } as unknown as BeautyDay,
@@ -105,7 +107,12 @@ describe('Employee address native-history integration', () => {
     b.openA();
     captured.close();
     b.openB();
-    expect(captured.replace).not.toHaveBeenCalled();
+    // A selected-card navigation is valid; only a deferred list navigation can clear B.
+    const targets = captured.replace.mock.calls.map(([url]) =>
+      new URL(String(url), h.href()).searchParams.get('employee'),
+    );
+    expect(targets).not.toContain(null);
+    if (targets.length) expect(targets.at(-1)).toBe('B');
     expect(h.canonical()).toBe(h.href());
     expect(new URL(h.canonical()).searchParams.get('employee')).toBe('B');
     expect(h.entries.at(-1)?.state.peoplePosition).toBe(2);

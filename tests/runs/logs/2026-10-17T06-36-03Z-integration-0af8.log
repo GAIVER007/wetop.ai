@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 17.10.2026 11:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит 61f71c0 (claude/auth-identity-1016), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T06-36-03Z-integration-0af8.json' 'tests/integration/auth-identity-chains.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |integration| tests/integration/auth-identity-chains.test.ts (10 tests) 1886ms
+   ✓ auth identity chains (integration) (10)
+     ✓ HOSPITALITY owner registers, verifies by the mailed link and lands only in the own new organization 386ms
+     ✓ user, organization, business and location ids survive login, logout, password change and reset 334ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  23:36:04
+   Duration  4.29s (tests 59%, transform 29%, import 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T06-36-03Z-integration-0af8.json
+
+# код выхода 0 · 6 с

@@ -248,9 +248,12 @@ test('O03/O05/O20: logout, new session, deep links and history resume the saved 
     expect(state.profileApplied).toBe(true);
     await other.goto('/services?onboarding=1');
     await other.goBack();
-    await expect(
-      other.getByText('Выполнено 0 из 4 обязательных шагов', { exact: true }),
-    ).toBeVisible();
+    // History can retain hidden route DOM; require exactly one visible progress status.
+    const resumedProgress = other
+      .getByText('Выполнено 0 из 4 обязательных шагов', { exact: true })
+      .filter({ visible: true });
+    await expect(resumedProgress).toHaveCount(1);
+    await expect(resumedProgress).toBeVisible();
     await other.goForward();
     await expect(other.getByRole('heading', { level: 1 })).toHaveText('Услуги');
     await other.goto('/register/setup?vertical=HOSPITALITY&returnTo=https%3A%2F%2Fexample.invalid');

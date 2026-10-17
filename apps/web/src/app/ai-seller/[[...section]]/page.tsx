@@ -43,6 +43,7 @@ import {
   sellerReadOnlyReason,
   type SellerChecklistItem,
   type SellerView,
+  sellerDataLinks,
 } from '../../../lib/ai-seller';
 import { hotelClock } from '../../../lib/hotel-api';
 import { deskShell } from '../../../lib/desk-shell';
@@ -522,6 +523,25 @@ function ExtensionOff({ status, platform }: { status: SellerStatus; platform: bo
  * (ADR-081). Только просмотр — правят в «Настройках объекта», «Тарифах» и «Настройках сайта».
  */
 async function DataView() {
+  const { vertical } = await deskShell();
+  const links = sellerDataLinks(vertical);
+  // салон и ресторан: продавец читает каталог своего филиала, гостиничной карточки и тарифа у них нет (Д11)
+  if (vertical !== 'HOSPITALITY')
+    return (
+      <Panel data-testid="seller-data-links">
+        <SectionTitle first>Данные филиала</SectionTitle>
+        <p className="settings-note">
+          Продавец отвечает по услугам, ценам и часам работы филиала. Правка там, продавец получит её сам.
+        </p>
+        <Row>
+          {links.map((l) => (
+            <Link key={l.href} className="btn btn--secondary" href={l.href}>
+              {l.label}
+            </Link>
+          ))}
+        </Row>
+      </Panel>
+    );
   const loaded = await settle(sellerApi.facts());
   if (!loaded.ok)
     return <LoadError testId="seller-facts-error" {...loadErrorProps(loaded.error)} />;
@@ -549,15 +569,11 @@ async function DataView() {
         <PricesTable view={loaded.value} />
       </Panel>
       <Row>
-        <Link className="btn btn--secondary" href="/hotel-settings">
-          Изменить карточку объекта
-        </Link>
-        <Link className="btn btn--secondary" href="/rooms/categories">
-          Изменить цены в «Категориях номеров»
-        </Link>
-        <Link className="btn btn--secondary" href="/website/booking">
-          Тариф сайта
-        </Link>
+        {links.map((l) => (
+          <Link key={l.href} className="btn btn--secondary" href={l.href}>
+            {l.label}
+          </Link>
+        ))}
       </Row>
     </Stack>
   );

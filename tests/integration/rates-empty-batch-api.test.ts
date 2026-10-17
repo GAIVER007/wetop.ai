@@ -81,7 +81,7 @@ it('real API: authenticated empty rate batches return 400 without changing rates
     .useClass(NoopAriPublisher)
     .compile();
   const app = module.createNestApplication({ logger: false });
-  await app.init();
+  await app.listen(0, '127.0.0.1');
   const snapshot = async () => ({
     rates: await db.dailyRate.findMany({
       where: { ratePlanId: plan.id },

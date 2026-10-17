@@ -66,7 +66,7 @@ describe.skipIf(!process.env.DATABASE_URL)('category photos', () => {
     app.use((_req: unknown, _res: unknown, next: () => void) => {
       void withSignedInUser(actor, async () => next());
     });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     const assets: string[] = [];
     try {
       await withSignedInUser(actor, async () => {

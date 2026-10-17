@@ -39,7 +39,7 @@ describe.skipIf(!process.env.DATABASE_URL)('новые места уходят �
     app.use((_req: unknown, _res: unknown, next: () => void) => {
       void withSignedInUser(actor, async () => next());
     });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     try {
       await withSignedInUser(actor, async () => {
         const make = async (name: string) =>

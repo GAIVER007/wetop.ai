@@ -1,5 +1,6 @@
 'use client';
 import { landingForVertical } from '../lib/vertical-landing';
+import { PENDING_ACCESS, allowedItem, routeRule } from '../lib/navigation';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense, use, useEffect, useRef, useState, type ReactNode, type MouseEvent } from 'react';
@@ -293,6 +294,23 @@ export function TopNav({
                         moveInProfile(event.key);
                       }}
                     >
+                      {/* одинаково у трёх направлений (аудит платформы 17.10.2026, Д4): раньше у гостиницы
+                          не было пути к профилю, помощи и филиалам на компьютере, а салону и ресторану
+                          «Помощь» и «Профиль» стояли отдельными пунктами меню */}
+                      <Link href="/profile" onClick={() => setProfile(false)}>
+                        <Icon name="person" />
+                        Профиль
+                      </Link>
+                      <Link href="/help" onClick={() => setProfile(false)}>
+                        <Icon name="help" />
+                        Помощь
+                      </Link>
+                      {allowedItem(routeRule('/branches') ?? {}, shell?.access ?? PENDING_ACCESS) && (
+                        <Link href="/branches" onClick={() => setProfile(false)}>
+                          <Icon name="hotel" />
+                          Филиалы
+                        </Link>
+                      )}
                       {hospitality && (
                         <button
                           data-testid="tour-restart"

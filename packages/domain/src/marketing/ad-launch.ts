@@ -58,6 +58,18 @@ export function checkLaunchBudget(q: {
   }
 }
 
+/** Сколько ещё можно поставить новой кампании в день по тому же правилу (подсказка мастера); null: плана нет */
+export function launchBudgetRoom(q: {
+  planMinor: bigint | null;
+  spentMinor: bigint;
+  activeDailyMinor: bigint;
+  daysLeft: number;
+}): bigint | null {
+  if (q.planMinor === null) return null;
+  const room = (q.planMinor - q.spentMinor) / BigInt(q.daysLeft) - q.activeDailyMinor;
+  return room > 0n ? room : 0n;
+}
+
 export interface AdLaunchInput {
   requestKey: string;
   creativeId: string;

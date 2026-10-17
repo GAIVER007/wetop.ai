@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkLaunchBudget, daysLeftInMonth, parseLaunchInput, toBaseMinor } from './ad-launch';
+import { checkLaunchBudget, daysLeftInMonth, launchBudgetRoom, parseLaunchInput, toBaseMinor } from './ad-launch';
 
 /**
  * Запуск рекламы (DATA_MODEL §57, ADR-MKT-LAUNCH): правило денег «остаток плана / дни» и проверка настроек мастера.
@@ -42,6 +42,15 @@ describe('запуск рекламы: предел бюджета', () => {
         daysLeft: 16,
       }),
     ).toThrow(/не больше 400 в день/);
+  });
+
+  it('подсказка мастера: сколько ещё можно в день, та же граница, что у проверки', () => {
+    const q = { planMinor: 1_000_000n, spentMinor: 200_000n, activeDailyMinor: 10_000n, daysLeft: 16 };
+    expect(launchBudgetRoom(q)).toBe(40_000n);
+    expect(() => checkLaunchBudget({ ...q, newDailyMinor: 40_000n })).not.toThrow();
+    expect(() => checkLaunchBudget({ ...q, newDailyMinor: 40_001n })).toThrow();
+    expect(launchBudgetRoom({ ...q, planMinor: null })).toBeNull();
+    expect(launchBudgetRoom({ ...q, spentMinor: 2_000_000n })).toBe(0n);
   });
 
   it('нет плана канала Meta на месяц: запуск запрещён с подсказкой', () => {

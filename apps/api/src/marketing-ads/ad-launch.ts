@@ -16,6 +16,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   ServiceUnavailableException,
   UploadedFile,
   UseInterceptors,
@@ -26,6 +27,7 @@ import {
   MarketingBudgetError,
   checkLaunchBudget,
   daysLeftInMonth,
+  launchBudgetRoom,
   parseLaunchInput,
   toBaseMinor,
   type AdLaunchInput,
@@ -56,7 +58,14 @@ import {
 export const META_WRITER = Symbol('META_WRITER');
 export type MetaWriterPort = Pick<
   meta.MetaAdsWriter,
-  'uploadImage' | 'createCampaign' | 'createAdSet' | 'createCreative' | 'createAd' | 'setStatus'
+  | 'uploadImage'
+  | 'createCampaign'
+  | 'createAdSet'
+  | 'createCreative'
+  | 'createAd'
+  | 'setStatus'
+  | 'assignedPages'
+  | 'searchCities'
 >;
 export type MetaWriterFactory = (token: string) => MetaWriterPort;
 export const metaWriterFactory: MetaWriterFactory = (token) =>
@@ -280,12 +289,18 @@ export class AdLaunchService implements OnModuleInit {
       }
       throw e;
     }
+    // выбор страницы и Instagram запоминается как умолчание мастера (§57 поправка §55)
+    await this.prisma.db.marketingAdConnection.update({
+      where: { id: conn.id },
+      data: { pageId: rest.pageId, instagramUserId: rest.instagramUserId },
+    });
     this.schedule(conn.id, id);
     return { id };
   }
 
   /** Правило денег §57: действующие запуски кабинета + новый × оставшиеся дни ≤ план Meta − учтённый расход Meta */
-  private async checkBudget(locationId: string, timezone: string, newDailyMinor: bigint) {
+  /** Деньги для правила §57 в валюте отчётности: план Meta на месяц, учтённый расход Meta, действующие запуски */
+  private async money(locationId: string, timezone: string) {
     const today = dayIn(timezone, new Date());
     const month = asDate(`${today.slice(0, 7)}-01`);
     const next = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 1));
@@ -308,15 +323,77 @@ export class AdLaunchService implements OnModuleInit {
         _sum: { dailyBudgetBaseMinor: true },
       }),
     ]);
-    rule(() =>
-      checkLaunchBudget({
-        planMinor: plan?.amount ?? null,
-        spentMinor: spent._sum.baseAmount ?? 0n,
-        activeDailyMinor: active._sum.dailyBudgetBaseMinor ?? 0n,
-        newDailyMinor,
-        daysLeft: daysLeftInMonth(today),
-      }),
-    );
+    return {
+      planMinor: plan?.amount ?? null,
+      spentMinor: spent._sum.baseAmount ?? 0n,
+      activeDailyMinor: active._sum.dailyBudgetBaseMinor ?? 0n,
+      daysLeft: daysLeftInMonth(today),
+    };
+  }
+
+  private async checkBudget(locationId: string, timezone: string, newDailyMinor: bigint) {
+    const m = await this.money(locationId, timezone);
+    rule(() => checkLaunchBudget({ ...m, newDailyMinor }));
+  }
+
+  /**
+   * Что нужно мастеру: кабинет, страницы и Instagram из окна входа, выбор по умолчанию, сколько ещё можно в день
+   * (валюта отчётности). Кабинета нет: `connected: false`, мастер ведёт на подключение.
+   */
+  async assets() {
+    const scope = await this.repo.scope();
+    const conn = await this.prisma.db.marketingAdConnection.findFirst({
+      where: { locationId: scope.locationId, platform: 'META', status: 'ACTIVE' },
+      select: {
+        accountName: true,
+        adAccountId: true,
+        currency: true,
+        tokenCiphertext: true,
+        pageId: true,
+        instagramUserId: true,
+      },
+    });
+    const m = await this.money(scope.locationId, scope.timezone);
+    const room = launchBudgetRoom(m);
+    const base = {
+      reportingCurrency: scope.reportingCurrency,
+      roomDailyMinor: room === null ? null : room.toString(),
+    };
+    if (!conn) return { connected: false as const, ...base };
+    let pages: meta.MetaPage[] = [];
+    let pagesError: string | null = null;
+    try {
+      pages = await this.writer(decryptPii(conn.tokenCiphertext)).assignedPages();
+    } catch (e) {
+      pagesError = errorText(e);
+    }
+    return {
+      connected: true as const,
+      ...base,
+      cabinet: { name: conn.accountName ?? conn.adAccountId, currency: conn.currency },
+      pages,
+      pagesError,
+      defaults: { pageId: conn.pageId, instagramUserId: conn.instagramUserId },
+    };
+  }
+
+  /** Город для таргетинга: поиск Meta в стране (create.md §8) */
+  async geo(q: unknown, country: unknown) {
+    const query = typeof q === 'string' ? q.trim() : '';
+    const code = typeof country === 'string' && /^[A-Z]{2}$/.test(country) ? country : 'KZ';
+    if (query.length < 2 || query.length > 60) throw new BadRequestException('Введите от 2 букв названия города');
+    const scope = await this.repo.scope();
+    const conn = await this.prisma.db.marketingAdConnection.findFirst({
+      where: { locationId: scope.locationId, platform: 'META', status: 'ACTIVE' },
+      select: { tokenCiphertext: true },
+    });
+    if (!conn) throw new ConflictException('Подключите рекламный кабинет Meta на «Рекламе»');
+    try {
+      return await this.writer(decryptPii(conn.tokenCiphertext)).searchCities(query, code);
+    } catch (e) {
+      if (e instanceof meta.MetaApiError) throw new HttpException(e.message, 502);
+      throw e;
+    }
   }
 
   private schedule(connectionId: string, launchId: string) {
@@ -653,6 +730,18 @@ export class MarketingAdLaunchController {
   @HttpCode(202)
   start(@Body() body: unknown) {
     return this.launches.start(body);
+  }
+
+  @Access('ads_launch')
+  @Get('assets')
+  assets() {
+    return this.launches.assets();
+  }
+
+  @Access('ads_launch')
+  @Get('geo')
+  geo(@Query('q') q: unknown, @Query('country') country: unknown) {
+    return this.launches.geo(q, country);
   }
 
   @Access('marketing')

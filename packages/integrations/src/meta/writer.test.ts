@@ -371,3 +371,27 @@ describe('Meta: отказы при создании', () => {
     expect(err.message).not.toContain(TOKEN);
   });
 });
+
+describe('Meta: страницы ключа для мастера', () => {
+  it('системный пользователь, его страницы с задачами и Instagram, все страницы', async () => {
+    const { fn, calls } = fakeFetch([
+      { body: { id: '9001' } },
+      {
+        body: {
+          data: [
+            { id: '555', name: 'Отель на Абая', tasks: ['ADVERTISE', 'ANALYZE'], instagram_business_account: { id: '777' } },
+          ],
+          paging: { next: 'https://graph.facebook.com/v25.0/9001/assigned_pages?after=x' },
+        },
+      },
+      { body: { data: [{ id: '556', name: 'Без рекламы', tasks: ['ANALYZE'] }], paging: {} } },
+    ]);
+    const pages = await writer(fn).assignedPages();
+    expect(pages).toEqual([
+      { id: '555', name: 'Отель на Абая', canAdvertise: true, instagramUserId: '777' },
+      { id: '556', name: 'Без рекламы', canAdvertise: false, instagramUserId: null },
+    ]);
+    expect(path(calls[1]!)).toBe('https://graph.facebook.com/v25.0/9001/assigned_pages');
+    expect(calls[1]!.url.searchParams.get('fields')).toBe('id,name,tasks,instagram_business_account');
+  });
+});

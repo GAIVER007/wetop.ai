@@ -132,6 +132,15 @@ export interface MetaCreativeSpec {
   urlTags: string;
 }
 
+/** Страница, отмеченная клиентом в окне входа (create.md §9); реклама от её имени требует задачи ADVERTISE */
+export interface MetaPage {
+  id: string;
+  name: string;
+  canAdvertise: boolean;
+  /** Instagram, привязанный к странице (`instagram_business_account`); null: нет */
+  instagramUserId: string | null;
+}
+
 export interface MetaCity {
   key: string;
   name: string;
@@ -333,6 +342,32 @@ export class MetaAdsWriter {
   /** «Остановить» и «Включить»: кампания, группа или объявление (create.md §7); повтор безопасен */
   async setStatus(objectId: string, status: 'ACTIVE' | 'PAUSED'): Promise<void> {
     await this.post(objectId, { status }, true);
+  }
+
+  /** Страницы системного пользователя входа: `/me`, затем `assigned_pages`, все страницы (create.md §9) */
+  async assignedPages(): Promise<MetaPage[]> {
+    const who = await graphCall<{ id?: string }>(this.t, this.url('me'));
+    if (!who.id) throw new MetaApiError('Meta не назвала системного пользователя входа', 0, false);
+    const first = new URL(this.url(`${encodeURIComponent(who.id)}/assigned_pages`));
+    first.searchParams.set('fields', 'id,name,tasks,instagram_business_account');
+    const out: MetaPage[] = [];
+    let next: string | undefined = first.toString();
+    while (next) {
+      const page: {
+        data?: Array<{ id?: string; name?: string; tasks?: string[]; instagram_business_account?: { id?: string } }>;
+        paging?: { next?: string };
+      } = await graphCall(this.t, next);
+      for (const p of page.data ?? [])
+        if (p.id)
+          out.push({
+            id: String(p.id),
+            name: String(p.name ?? '').trim() || String(p.id),
+            canAdvertise: (p.tasks ?? []).includes('ADVERTISE'),
+            instagramUserId: p.instagram_business_account?.id ? String(p.instagram_business_account.id) : null,
+          });
+      next = page.paging?.next;
+    }
+    return out;
   }
 
   /** Города для таргетинга в стране филиала (create.md §8) */

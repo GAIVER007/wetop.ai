@@ -1,0 +1,47 @@
+# Модульные (unit) · 17.10.2026 10:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит afb19ac (claude/d2-menu-duplicates), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-45-02Z-unit-80af.json' 'apps/web/src/lib/menu-duplicates.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/p0
+
+ ❯ |unit| apps/web/src/lib/menu-duplicates.test.ts (6 tests | 1 failed) 9ms
+   ❯ меню без дублей (6)
+     ✓ HOSPITALITY: пункт меню не перенаправляет на другую страницу 2ms
+     ✓ HOSPITALITY: подписи пунктов не повторяются 0ms
+     ✓ BEAUTY: пункт меню не перенаправляет на другую страницу 1ms
+     ✓ BEAUTY: подписи пунктов не повторяются 0ms
+     ✓ FOOD_SERVICE: пункт меню не перенаправляет на другую страницу 2ms
+     × FOOD_SERVICE: подписи пунктов не повторяются 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/menu-duplicates.test.ts > меню без дублей > FOOD_SERVICE: подписи пунктов не повторяются
+AssertionError: expected [ 'Бар' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "Бар",
++ ]
+
+ ❯ apps/web/src/lib/menu-duplicates.test.ts:41:64
+     39|     it(`${vertical}: подписи пунктов не повторяются`, () => {
+     40|       const labels = items(vertical).map((i) => i.label);
+     41|       expect(labels.filter((l, n) => labels.indexOf(l) !== n)).toEqual…
+       |                                                                ^
+     42|     });
+     43|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  22:45:03
+   Duration  362ms (transform 80%, import 16%, tests 3%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-45-02Z-unit-80af.json
+
+# код выхода 1 · 1 с

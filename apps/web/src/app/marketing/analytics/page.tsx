@@ -120,7 +120,7 @@ export default async function MarketingAnalyticsPage({
           />
           <Stat
             label="ROMI по выручке"
-            value={funnel.romiAvailable ? romiText(total.romiPct) : 'Разные валюты'}
+            value={!ok ? dash : funnel.romiAvailable ? romiText(total.romiPct) : 'Разные валюты'}
             hint="(выручка − расход) / расход"
             testId="man-romi"
           />

@@ -17,7 +17,7 @@ test('герой: заголовок, регистрация с направле
   );
   const hero = page.locator('.salon-hero');
   await expect(hero).toContainText('Для салонов красоты');
-  await expect(hero.getByRole('link', { name: /Попробовать бесплатно/ })).toHaveAttribute(
+  await expect(hero.getByRole('link', { name: /Начать работу/ })).toHaveAttribute(
     'href',
     'https://wetop.ai/?vertical=BEAUTY#register',
   );

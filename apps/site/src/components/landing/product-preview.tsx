@@ -7,12 +7,20 @@ const previews = {
   BEAUTY: '/design-only/beauty.svg',
   FOOD_SERVICE: '/design-only/restaurant.svg',
 } as const;
-export function ProductPreview({ vertical, label }: { vertical: Vertical; label: string }) {
+export function ProductPreview({
+  vertical,
+  label,
+  src,
+}: {
+  vertical: Vertical;
+  label: string;
+  src?: string | undefined;
+}) {
   return (
     <div className={styles.preview}>
       <Image
         className={styles.image}
-        src={previews[vertical]}
+        src={src ?? previews[vertical]}
         alt={label}
         width={720}
         height={540}

@@ -1,0 +1,21 @@
+# Линтер (lint) · 17.10.2026 14:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 03d056d (claude/auth-identity-1016), незакоммиченных файлов набора: 66
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity/reports/public-site-tz5-2026-10-17/crawl.mjs
+    5:13   error  'process' is not defined          no-undef
+   23:136  error  Irregular whitespace not allowed  no-irregular-whitespace
+  117:15   error  'process' is not defined          no-undef
+  118:1    error  'console' is not defined          no-undef
+  125:3    error  'console' is not defined          no-undef
+  126:35   error  'console' is not defined          no-undef
+  128:1    error  'console' is not defined          no-undef
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity/reports/public-site-tz5-2026-10-17/lighthouse/gzip-server.mjs
+  6:22  error  'process' is not defined  no-undef
+  9:34  error  'URL' is not defined      no-undef
+
+✖ 9 problems (9 errors, 0 warnings)
+
+
+# код выхода 1 · 20 с

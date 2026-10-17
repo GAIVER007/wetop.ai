@@ -184,6 +184,7 @@ function Plan({
 }
 
 export function AiChat({
+  canPublish = true,
   items,
   revisionOf,
   mode,
@@ -203,6 +204,8 @@ export function AiChat({
   setText,
   error,
 }: {
+  /** Есть ли куда публиковать (Д10): у салона и ресторана перехода к публикации пока нет */
+  canPublish?: boolean;
   items: SiteConversationItem[];
   revisionOf: (versionId: string | null) => number | null;
   mode: AiMode;
@@ -324,7 +327,7 @@ export function AiChat({
                           Перейти в сборку
                         </Button>
                       )}
-                      {payload.suggestPublish && (
+                      {payload.suggestPublish && canPublish && (
                         <Link className="btn btn--secondary btn--sm" href="/marketing/site" data-testid="ed-go-publish">
                           Перейти к публикации
                         </Link>

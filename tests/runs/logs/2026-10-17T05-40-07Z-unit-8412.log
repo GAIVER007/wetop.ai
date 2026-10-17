@@ -1,0 +1,46 @@
+# Модульные (unit) · 17.10.2026 10:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0766123 (claude/d1-menu-routes), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-40-07Z-unit-8412.json' 'apps/web/src/lib/menu-routes.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/p0
+
+ ❯ |unit| apps/web/src/lib/menu-routes.test.ts (3 tests | 2 failed) 12ms
+   ❯ пункты меню не уводят на другую страницу (3)
+     ✓ HOSPITALITY: каждая страница меню принимает направление 3ms
+     × BEAUTY: каждая страница меню принимает направление 4ms
+     × FOOD_SERVICE: каждая страница меню принимает направление 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/menu-routes.test.ts > пункты меню не уводят на другую страницу > BEAUTY: каждая страница меню принимает направление
+ FAIL  |unit| apps/web/src/lib/menu-routes.test.ts > пункты меню не уводят на другую страницу > FOOD_SERVICE: каждая страница меню принимает направление
+AssertionError: expected [ '/connections', '/incidents' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "/connections",
++   "/incidents",
++ ]
+
+ ❯ apps/web/src/lib/menu-routes.test.ts:38:24
+     36|       const hrefs = menuSectionsFor(owner, vertical).flatMap((s) => s.…
+     37|       const rejected = hrefs.filter((href) => !pageVerticals(pageSourc…
+     38|       expect(rejected).toEqual([]);
+       |                        ^
+     39|     });
+     40| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  22:40:08
+   Duration  396ms (transform 79%, import 17%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-40-07Z-unit-8412.json
+
+# код выхода 1 · 1 с

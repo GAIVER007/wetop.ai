@@ -1,17 +1,19 @@
 # DECISIONS (ADR)
 
-## ADR-TRIAL-7-20261017: стандартный пробный период 7 дней для новых организаций (заменяет 14 дней ADR-102)
+## ADR-RELEASE-FIXTURE-ROUTING-20261017: one coherent portal fixture repair
 
-17.10.2026, решение владельца: «стандартный новый пробный период WETOP 7 дней для всех трёх вертикалей». **Контекст.**
-ADR-102 (27.09.2026) установил 14 суток; до него ADR-046 давал 7. Срок вычисляется один раз при создании организации
-(`trialEndsAt(now)` в регистрации и в создании организации платформой) и хранится в `organizations.trial_ends_at`; доступ
-(`canWrite`, `writeBlocked`) и остаток дней (`daysLeft`) читают сохранённую дату. **Решение.** `TRIAL_DAYS = 7`
-(`packages/domain/src/accounts/trial.ts`), одна константа на все вертикали. Срок запускает момент регистрации (запрос
-`POST /auth/register`) или создания организации платформой, как и прежде; подтверждение почты срок не запускает и не
-сдвигает. **Что не меняется:** уже выданные даты окончания (по 14 дней и любые выставленные вручную) не сокращаются,
-не продлеваются и не пересчитываются: миграции и массового пересчёта нет; оплаченные организации (`ACTIVE`) не зависят от
-срока; политика после срока прежняя (только чтение, ADR-102 п. 1): без списаний, удаления и новых ограничений. ADR-102 в
-части длительности для новых организаций заменён этим решением, в остальном в силе.
+17.10.2026. Unified authorized release candidate reviews #620 and #621 as competing answers to the same fixture-routing failure. #620 strictly extends the portal allowlist to the canonical owner-home CI service, with explicit marker and purpose-specific public-booking guard. #621 instead routes the seven portal suites to their already accepted disposable GitHub service, retaining unchanged fail-closed guards, and keeps the remaining integration suites on owner-home. Selected #621: no expansion of accepted database identities, explicit tracked-file selection with no empty matches and no dropped integration files. #620's coupled guard refactor, marker and tests are superseded together, not mixed into the selected design. #621's two schedule opener locator fixes remain. Full integration and complete release-checks must validate the selection before parent approves merge or deployment. This decision neither authorizes migrations nor asserts a green gate.
+
+## ADR-TRIAL-7-DAYS-20261017: пробный период 7 дней
+
+17.10.2026, решение владельца («пробный 7 дней»). Частично пересматривает ADR-102 в части срока; режим «только чтение»
+после окончания, ручное подтверждение оплаты и тариф не меняются. Проблема: продукт выдавал 14 дней
+(`TRIAL_DAYS`, ADR-102), а пользовательское соглашение на wetop.ai (`/terms/`) и прежние тексты сайта говорили 7.
+Решение: `TRIAL_DAYS = 7` в `packages/domain/src/accounts/trial.ts`; срок ставят регистрация (`auth.service.ts`) и
+создание организации главным администратором (`platform/organization-creation.ts`) через `trialEndsAt()`.
+Уже созданные организации сохраняют свой `trial_ends_at`: данные не переписываются, миграции нет. Отдельной
+команды изменить срок у существующей организации в коде нет; если понадобится, это отдельное решение. Сайт по ADR-147 срок в кнопках не печатает,
+соглашение уже говорит 7 и не меняется. Последствия: новые организации получают 7 суток с момента создания.
 
 ## ADR-AUTH-ORG-SWITCH-20261016: переход между своими организациями и гашение сессий строкой
 

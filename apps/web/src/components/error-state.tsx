@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Icon } from './icon';
 import { EmptyState } from './ui';
 import { apiErrorStatus } from '../lib/api-error';
+import { useDeskVertical } from './desk-access';
 
 /**
  * Общий экран ошибки для оболочки и выезжающей карточки. Отклонённый запрос (400/404/422 — неверная дата
@@ -21,6 +22,8 @@ export function ErrorState({
 }) {
   const status = apiErrorStatus(error.digest);
   const rejected = status !== undefined && status >= 400 && status < 500;
+  // «Подключения» есть только у гостиницы (Channex): салону и ресторану ссылка увела бы на «Главную»
+  const hotel = useDeskVertical() === 'HOSPITALITY';
   return (
     <EmptyState
       role="alert"
@@ -39,7 +42,7 @@ export function ErrorState({
           <button className="btn" onClick={() => retry()}>
             Повторить загрузку
           </button>
-          {!rejected && (
+          {!rejected && hotel && (
             <Link href="/connections" className="btn btn--secondary">
               Подключения API
             </Link>

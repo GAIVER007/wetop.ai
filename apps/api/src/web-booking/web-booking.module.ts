@@ -13,6 +13,7 @@ import { AnalyticsModule } from '../analytics/analytics.module';
 import { ANALYTICS_REPOSITORY, type AnalyticsRepository } from '../analytics/analytics.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { INCIDENTS_REPOSITORY, PrismaIncidentsRepository } from '../guard/incidents.repository';
+import { PlatformModule } from '../platform/platform.module';
 import { ReservationsModule } from '../reservations/reservations.module';
 import { BOOKING_MAILER, bookingMailerFromEnv } from './booking-mailer';
 import { BotBookingController } from './bot-booking.controller';
@@ -89,7 +90,8 @@ export class WidgetCorsMiddleware implements NestMiddleware {
 
 /** Бронирование с сайта (срез 9): тот же «сайт», что у счётчика, брони — через ReservationsService. */
 @Module({
-  imports: [AnalyticsModule, ReservationsModule],
+  // PlatformModule: расширение «ИИ-продавец» для брони из чата (Д9)
+  imports: [AnalyticsModule, ReservationsModule, PlatformModule],
   controllers: [WebBookingController, BotQuoteController, BotBookingController],
   providers: [
     PrismaService,

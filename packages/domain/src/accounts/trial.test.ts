@@ -4,7 +4,7 @@ import { TRIAL_DAYS, canWrite, daysLeft, statusAfterTrial, trialEndsAt, writeBlo
 const t = (iso: string) => new Date(iso);
 
 describe('trialEndsAt', () => {
-  it('семь суток от создания организации (решение владельца 17.10.2026, ADR-TRIAL-7-20261017; заменяет 14 суток ADR-102)', () => {
+  it('семь суток от создания (решение владельца 17.10.2026, ADR-TRIAL-7-DAYS-20261017)', () => {
     expect(trialEndsAt(t('2026-09-15T12:00:00Z')).toISOString()).toBe('2026-09-22T12:00:00.000Z');
     expect(TRIAL_DAYS).toBe(7);
   });

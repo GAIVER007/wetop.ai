@@ -112,7 +112,7 @@ test('главная: регистрация открыта, маркетинг�
     'https://wetop.ai/#register',
   );
   const hero = page.locator('.public-intro');
-  await expect(hero.getByRole('link', { name: /Попробовать бесплатно/ })).toHaveAttribute(
+  await expect(hero.getByRole('link', { name: /Начать работу/ })).toHaveAttribute(
     'href',
     'https://wetop.ai/#register',
   );

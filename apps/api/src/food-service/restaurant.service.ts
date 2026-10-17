@@ -1406,7 +1406,7 @@ export class RestaurantService {
         amountMinor: row.amount.toString(),
       });
       return { id: row.id, remainingMinor: (mine.t.total - mine.paid - b.amount).toString() };
-    });
+    }, BRANCH_CASH_VERTICALS);
   }
 
   // ─── Отчёт ресторана за период (Аналитика) ───
@@ -1563,7 +1563,7 @@ export class RestaurantService {
 
   /** К выплате за месяц по сотрудникам бизнеса (§33.4) и выплачено из кассы филиала (§35.3) */
   private async monthPayroll(
-    db: Pick<DbTx, 'employee' | 'restaurantOrder' | 'employeePayAdjustment' | 'restaurantCashOperation'>,
+    db: Pick<DbTx, 'employee' | 'restaurantOrder' | 'appointment' | 'employeePayAdjustment' | 'restaurantCashOperation'>,
     s: FoodScope,
     month: unknown,
   ) {
@@ -1578,16 +1578,29 @@ export class RestaurantService {
       }),
       // зарплата принадлежит бизнесу (ADR-181): процент и «выплачено» по всем филиалам,
       // иначе бизнес с двумя филиалами показывает и может выплатить один оклад дважды
-      db.restaurantOrder.groupBy({
-        by: ['waiterId'],
-        where: {
-          location: { businessId: s.businessId },
-          status: 'CLOSED',
-          waiterId: { not: null },
-          closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
-        },
-        _sum: { total: true },
-      }),
+      // база процента: у ресторана закрытые заказы официанта, у салона выполненные записи мастера (§19.2)
+      s.vertical === 'BEAUTY'
+        ? db.appointment
+            .groupBy({
+              by: ['employeeId'],
+              where: {
+                location: { businessId: s.businessId },
+                status: 'DONE',
+                startsAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
+              },
+              _sum: { price: true },
+            })
+            .then((rows) => rows.map((r) => ({ waiterId: r.employeeId, _sum: { total: r._sum.price } })))
+        : db.restaurantOrder.groupBy({
+            by: ['waiterId'],
+            where: {
+              location: { businessId: s.businessId },
+              status: 'CLOSED',
+              waiterId: { not: null },
+              closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
+            },
+            _sum: { total: true },
+          }),
       db.employeePayAdjustment.findMany({
         where: { employee: { businessId: s.businessId }, period },
         orderBy: { createdAt: 'asc' },
@@ -1618,7 +1631,7 @@ export class RestaurantService {
 
   async payroll(query: unknown) {
     foodMay('staff');
-    const s = await foodScope(this.prisma.db);
+    const s = await foodScope(this.prisma.db, BRANCH_CASH_VERTICALS);
     const q = parsed(() => foodObject(query, ['month']));
     const { m, rows, adjustments } = await this.monthPayroll(this.prisma.db, s, q.month);
     let fund = 0n,
@@ -1706,7 +1719,7 @@ export class RestaurantService {
           : undefined,
       );
       return { ...row, fixedMinor: row.fixedMinor.toString() };
-    });
+    }, BRANCH_CASH_VERTICALS);
   }
 
   async addPayAdjustment(idRaw: string, raw: unknown) {
@@ -1730,6 +1743,6 @@ export class RestaurantService {
         reason: b.reason,
       });
       return { ...row, amountMinor: row.amountMinor.toString() };
-    });
+    }, BRANCH_CASH_VERTICALS);
   }
 }

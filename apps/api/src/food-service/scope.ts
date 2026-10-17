@@ -16,6 +16,8 @@ export interface FoodScope {
   locationId: string;
   timezone: string;
   currency: string;
+  /** направление филиала: касса (§48) и зарплата (§19.2) общие у ресторана и салона */
+  vertical: 'FOOD_SERVICE' | 'BEAUTY';
 }
 export function foodMay(permission: Permission) {
   if (!hasSignedInActor() || !actorMay(permission))
@@ -55,6 +57,7 @@ export async function foodScope(
     locationId,
     timezone: location.timezone,
     currency: location.currency,
+    vertical,
   };
 }
 export async function foodWritable(db: Pick<DbTx, 'organization'>) {

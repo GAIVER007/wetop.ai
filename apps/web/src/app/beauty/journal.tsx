@@ -97,9 +97,10 @@ export function JournalBoard({
           employee.intervals.some(
             (i) => clockMinutes(i.timeFrom) <= m && m + STEP <= clockMinutes(i.timeTo),
           );
-        const occupied = live.some(
+        const occupied = day.appointments.some(
           (a) =>
             a.employeeId === employee.id &&
+            a.status !== 'CANCELLED' &&
             a.status !== 'NO_SHOW' &&
             a.startMinutes < m + STEP &&
             m < a.endMinutes,
@@ -264,7 +265,11 @@ export function JournalBoard({
         </div>
       </div>
       <p className="beauty-note" data-testid="beauty-day-summary">
-        {live.length ? `Записей: ${live.length}` : 'Записей на этот день нет'}
+        {live.filter((a) => !master || a.employeeId === master).length
+          ? `Записей: ${live.filter((a) => !master || a.employeeId === master).length}`
+          : service || status || master
+            ? 'По выбранным фильтрам записей не найдено'
+            : 'Записей на этот день нет'}
       </p>
       <CalendarLegend />
       {moving && <p role="status">Переносим запись…</p>}

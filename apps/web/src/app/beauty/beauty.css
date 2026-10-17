@@ -851,6 +851,9 @@
   .beauty-service-toolbar > .field .inp {
     width: 100%;
   }
+  .beauty-selection-line {
+    display: block;
+  }
   .beauty-service-catalog {
     color: var(--muted);
   }
@@ -946,6 +949,7 @@
     margin: 0;
   }
   .beauty-calendar-toolbar > .context-help > summary {
+    white-space: pre-line;
     min-height: 44px;
     display: flex;
     align-items: center;
@@ -1221,7 +1225,7 @@
       justify-self: end;
     }
   }
-  @media (max-width: 360px) {
+  @media (max-width: 600px) {
     .beauty-calendar-actions .date-bar,
     .beauty-operational-toolbar .date-bar {
       grid-template-columns: 44px minmax(0, 1fr) 44px;

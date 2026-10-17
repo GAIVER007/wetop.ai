@@ -29,7 +29,9 @@ describe('approved TZ12 presentation compatibility port', () => {
   it('groups the shared editor and keeps its scoped save footer reachable', () => {
     const text = source('beauty/appointment-form.tsx');
     for (const name of ['Клиент', 'Услуга и время', 'Дополнительно']) expect(text).toContain(`<legend>${name}</legend>`);
-    expect(text).toContain('Выбрано: {date} · {hour} ({day.location.timezone})');
+    expect(text).toContain('aria-live="polite"');
+    expect(text).toContain('<span className="beauty-selection-line">Дата: {date}</span>');
+    expect(text).toContain('<span className="beauty-selection-line">Время: {hour} ({day.location.timezone})</span>');
     expect(text).toContain('appointment-form__footer');
     expect(source('beauty/beauty.css')).toContain('.appointment-editor > .overlay-content');
   });

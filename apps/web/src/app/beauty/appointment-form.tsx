@@ -145,7 +145,9 @@ export function AppointmentForm({
           Время филиала: {day.location.timezone}. Доступность подтвердится при сохранении.
         </p>
         <p className="beauty-note" aria-live="polite">
-          Выбрано: {date} · {hour} ({day.location.timezone})
+          Выбрано:
+          <span className="beauty-selection-line">Дата: {date}</span>
+          <span className="beauty-selection-line">Время: {hour} ({day.location.timezone})</span>
         </p>
       </fieldset>
       <fieldset>

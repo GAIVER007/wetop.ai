@@ -168,7 +168,7 @@ export function JournalBoard({
           <div
             key={`hidden-${a.id}`}
             className="beauty-tile beauty-tile--hidden"
-            style={{
+            style={{ /* slop-allow: inline-style положение и высота скрытой записи из минут визита */
               top: (a.startMinutes - from) * PX_PER_MIN,
               height: Math.max(24, a.endMinutes - a.startMinutes) * PX_PER_MIN,
             }}
@@ -266,7 +266,7 @@ export function JournalBoard({
           </Button>
         </div>
         <Help
-          title={`Фильтры${master || service || status ? ` · ${[master, service, status].filter(Boolean).length}` : ''}`}
+          title={`Фильтры${master || service || status ? `\nАктивных: ${[master, service, status].filter(Boolean).length}` : ''}`}
         >
           <div className="beauty-filters">
             <Field label={<span>Мастер</span>}>
@@ -330,7 +330,7 @@ export function JournalBoard({
               status ? beautyStatus[status as keyof typeof beautyStatus]?.label : '',
             ]
               .filter(Boolean)
-              .join(' · ')}
+              .map((label, index) => <span className="beauty-selection-line" key={index}>{label}</span>)}
           </span>
           <Button
             tone="secondary"
@@ -407,7 +407,7 @@ export function JournalBoard({
             role="region"
             aria-label="Расписание дня"
             tabIndex={0}
-            style={{
+            style={{ /* slop-allow: inline-style число колонок из количества выбранных мастеров */
               gridTemplateColumns: `56px repeat(${Math.max(1, shown.length)}, minmax(180px, 1fr))`,
             }}
           >

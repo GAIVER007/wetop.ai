@@ -100,8 +100,9 @@ export function ServicesBoard({
                     : (NOT_SELLABLE[row.effective.reason] ?? 'Не продаётся')}
               </td>
               <td data-label="Каталог" className="beauty-service-catalog">
-                <span>{formatMoney(row.priceMinor, row.currency)} · {row.durationMinutes} мин</span>
-                <small>{row.category ?? 'Без категории'}</small>
+                <span>{formatMoney(row.priceMinor, row.currency)}</span>
+                <span>{row.durationMinutes} мин</span>
+                <small>Категория: {row.category ?? 'Без категории'}</small>
               </td>
               <td data-label="Популярность за 30 дней">
                 {row.popularity ? row.popularity.totalCompletedVisits > 0 ? (

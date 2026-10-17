@@ -1,3 +1,4 @@
+import { createHash, randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -1301,7 +1302,20 @@ export class RestaurantService {
   /** Приход, расход или перевод; расход и перевод не уводят способ в минус */
   async cashOperation(raw: unknown) {
     return this.write('desk', async (tx, s) => {
-      const b = parsed(() => parseFoodCashOperation(raw));
+      const request = parsed(() => foodObject(raw, ['kind', 'method', 'methodTo', 'amount', 'note', 'idempotencyKey']));
+      const b = parsed(() => parseFoodCashOperation({kind:request.kind,method:request.method,methodTo:request.methodTo,amount:request.amount,note:request.note}));
+      const enabled = process.env.EXPENSE_LINKS_ENABLED === '1';
+      const key = request.idempotencyKey;
+      if (enabled && (typeof key !== 'string' || !/^[\x21-\x7e]{1,200}$/.test(key))) throw new BadRequestException('Нужен ключ намерения оплаты');
+      const hash = createHash('sha256').update(JSON.stringify(['BRANCH_CASH',s.organizationId,s.businessId,s.locationId,b.kind,b.method,b.methodTo,b.amount.toString(),s.currency,b.note])).digest('hex');
+      // foodTransaction holds the location lock before checking the shared intent namespace.
+      if (enabled) {
+        const old = await tx.$queryRaw<Array<{action:string;normalized_payload_hash:string;result_id:string}>>`SELECT action,normalized_payload_hash,result_id FROM payment_write_intents WHERE location_id=${s.locationId}::uuid AND intent_key=${key as string}`;
+        if (old[0]) {
+          if (old[0].action !== 'BRANCH_CASH' || old[0].normalized_payload_hash !== hash) throw new ConflictException('Payment intent payload conflict');
+          return {id:old[0].result_id};
+        }
+      }
       if (b.kind !== 'INCOME') await this.spendable(tx, s, b.method, b.amount);
       const row = await tx.restaurantCashOperation.create({
         data: {
@@ -1315,6 +1329,7 @@ export class RestaurantService {
           createdById: currentUserId(),
         },
       });
+      if (enabled) await tx.$executeRaw`INSERT INTO payment_write_intents(id,location_id,intent_key,action,normalized_payload_hash,result_id,created_by_id) VALUES(${randomUUID()}::uuid,${s.locationId}::uuid,${key as string},'BRANCH_CASH',${hash},${row.id}::uuid,${currentUserId()}::uuid)`;
       await this.audit(tx, s, 'restaurant_cash', row.id, 'food.cash.operation', {
         kind: row.kind,
         method: row.method,
@@ -1375,7 +1390,23 @@ export class RestaurantService {
   async payout(idRaw: string, raw: unknown) {
     return this.write('staff', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
-      const b = parsed(() => parseFoodPayout(raw));
+      const request = parsed(() => foodObject(raw, ['period', 'method', 'amount', 'idempotencyKey']));
+      const b = parsed(() => parseFoodPayout({period:request.period,method:request.method,amount:request.amount}));
+      const enabled = process.env.EXPENSE_LINKS_ENABLED === '1';
+      const key = request.idempotencyKey;
+      if (enabled && (typeof key !== 'string' || !/^[\x21-\x7e]{1,200}$/.test(key))) throw new BadRequestException('Нужен ключ намерения оплаты');
+      const hash = createHash('sha256').update(JSON.stringify(['PAYROLL_PAYMENT',id,b.period,b.method,b.amount.toString(),s.currency])).digest('hex');
+      // Shared location serialization is acquired by write()/foodTransaction before any effect.
+      if (enabled) {
+        const old = await tx.$queryRaw<Array<{action:string;normalized_payload_hash:string;result_id:string}>>`SELECT action,normalized_payload_hash,result_id FROM payment_write_intents WHERE location_id=${s.locationId}::uuid AND intent_key=${key as string}`;
+        if (old[0]) {
+          if (old[0].action !== 'PAYROLL_PAYMENT' || old[0].normalized_payload_hash !== hash) throw new ConflictException('Payment intent payload conflict');
+          const audit = await tx.auditLog.findFirst({where:{entityId:id,action:'food.payout.created',after:{path:['operationId'],equals:old[0].result_id}}});
+          const saved = audit?.after as {remainingMinor?:string} | null;
+          if (typeof saved?.remainingMinor !== 'string') throw new ConflictException('Payment intent result unavailable');
+          return {id:old[0].result_id,remainingMinor:saved.remainingMinor};
+        }
+      }
       const employee = await tx.employee.findFirst({ where: { id, businessId: s.businessId } });
       if (!employee) throw new NotFoundException('Сотрудник не найден');
       const { rows } = await this.monthPayroll(tx, s, b.period.slice(0, 7));
@@ -1399,8 +1430,19 @@ export class RestaurantService {
           createdById: currentUserId(),
         },
       });
+      const remainingMinor = (mine.t.total - mine.paid - b.amount).toString();
+      if (enabled) {
+        // Explicit structural payroll category, never inferred from the free-text note.
+        const category = await tx.$queryRaw<Array<{id:string}>>`INSERT INTO expense_categories(id,location_id,code,name) VALUES(${randomUUID()}::uuid,${s.locationId}::uuid,'PAYROLL','Оплата труда') ON CONFLICT(location_id,code) DO UPDATE SET code=EXCLUDED.code RETURNING id`;
+        const documentId = randomUUID();
+        await tx.$executeRaw`INSERT INTO expense_documents(id,location_id,category_id,title,document_date,amount_minor,currency,state,created_by_id) VALUES(${documentId}::uuid,${s.locationId}::uuid,${category[0]!.id}::uuid,'Оплата труда',${b.period}::date,${b.amount}::bigint,${s.currency},'ACTIVE',${currentUserId()}::uuid)`;
+        // Link the existing canonical payout, not a second financial expense.
+        await tx.$executeRaw`INSERT INTO expense_settlements(id,location_id,expense_document_id,restaurant_cash_operation_id,created_by_id) VALUES(${randomUUID()}::uuid,${s.locationId}::uuid,${documentId}::uuid,${row.id}::uuid,${currentUserId()}::uuid)`;
+        await tx.$executeRaw`INSERT INTO payment_write_intents(id,location_id,intent_key,action,normalized_payload_hash,result_id,created_by_id) VALUES(${randomUUID()}::uuid,${s.locationId}::uuid,${key as string},'PAYROLL_PAYMENT',${hash},${row.id}::uuid,${currentUserId()}::uuid)`;
+      }
       await this.audit(tx, s, 'employee_pay', id, 'food.payout.created', {
         operationId: row.id,
+        remainingMinor,
         period: b.period,
         method: row.method,
         amountMinor: row.amount.toString(),

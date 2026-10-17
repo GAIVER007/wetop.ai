@@ -32,6 +32,8 @@ import {
 import { Access } from '../auth/access.decorator';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import { RatesService } from '../rates/rates.service';
+import { hasSignedInActor } from '../auth/request-context';
+import { captureInventoryBeforeWrite, verifiedLocationProperty } from '../hospitality/inventory-history';
 
 /** Глубина остатков, которую держит канал: как у полной выгрузки (сертификация Channex) */
 const ARI_HORIZON_DAYS = 500;
@@ -54,7 +56,7 @@ export class InventoryEditor {
     @Inject(RatesService) private readonly rates: RatesService,
   ) {}
   private property() {
-    return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    return hasSignedInActor() ? verifiedLocationProperty(this.prisma.db) : propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
   /**
    * Список для стойки: действующие тарифы категории — числом и по именам (ТЗ «Категории v2», ADR-109) и что её
@@ -298,6 +300,7 @@ export class InventoryEditor {
     const propertyId = await this.property();
     const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const outcome = await this.prisma.db.$transaction(async (tx) => {
+        await captureInventoryBeforeWrite(tx, propertyId);
       const found = await tx.accommodationType.findFirst({ where: { propertyId, code } });
       if (!found) throw new NotFoundException('Категория не найдена');
       const [units, reservations, upcomingReservations, mapped, intents] = await Promise.all([
@@ -367,6 +370,7 @@ export class InventoryEditor {
       propertyId = await this.property();
     try {
       const result = await this.prisma.db.$transaction(async (tx) => {
+        await captureInventoryBeforeWrite(tx, propertyId);
         const category = await tx.accommodationType.findFirst({
           where: { propertyId, code: input.categoryCode, active: true },
         });
@@ -436,6 +440,7 @@ export class InventoryEditor {
       propertyId = await this.property();
     try {
       const result = await this.prisma.db.$transaction(async (tx) => {
+        await captureInventoryBeforeWrite(tx, propertyId);
         const unit = await tx.inventoryUnit.findFirst({
           where: { code, accommodationType: { propertyId } },
           include: { physicalRoom: true },

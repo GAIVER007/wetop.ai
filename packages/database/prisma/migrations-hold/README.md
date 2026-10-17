@@ -33,4 +33,20 @@ ADR-137, замечание ментора 02.10.2026.
 
 ## Сейчас ждут
 
-Ничего.
+114 expense links, 115 table occupancy, 116 restaurant capacity + opening.sql,
+117 beauty workload, 118 hospitality workload — пять held-папок, шесть SQL apply-файлов.
+Ничего не перенесено в общую цепочку. `owner-home-release.sql` задаёт точный порядок
+в одной транзакции с ON_ERROR_STOP; это не разрешение выполнять его в production.
+Offline-проверка: `node tests/tools/held-release-manifest.mjs --dry-run` печатает SHA-256
+runner, шести apply и пяти down в обратном порядке. Снимок: reports/held-release-manifest.json.
+
+Down допускается только для полностью пустого, никогда не наблюдавшего историю состояния:
+118 → 117 → 116 (включая opening) → 115 → 114. Любая строка, включая отменённую,
+и любой nonnull currency_snapshot блокирует откат. Источники и owned-таблицы блокируются
+ACCESS EXCLUSIVE до guard и teardown; READ COMMITTED обновляет snapshot после ожидания.
+Search path фиксируется на выбранную схему без public fallback; CASCADE не используется.
+Populated/partial schema требует сохранения hooks/history и согласованного forward repair.
+
+Локальная synthetic-репетиция НЕ доказывает production baseline, backup/restore, runtime RLS,
+валидность business fixtures или конкурентную нагрузку. Она клонирует metadata без source FK/triggers;
+malformed retained fixtures изолированы savepoint. Реальная проверка backup/restore остаётся блокером.

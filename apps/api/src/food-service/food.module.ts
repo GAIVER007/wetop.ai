@@ -25,6 +25,7 @@ import { Access } from '../auth/access.decorator';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { FoodService } from './food.service';
+import { RestaurantOpeningController, RestaurantOpeningService } from './opening';
 import { RestaurantService } from './restaurant.service';
 import { StockService } from './stock.service';
 @Controller('food-service')
@@ -88,6 +89,10 @@ export class FoodCatalogController {
 @RequiresBusinessCapability('food.tableReservations')
 export class FoodReservationsController {
   constructor(@Inject(FoodService) private readonly service: FoodService) {}
+  @Get('occupancy-sessions') occupancySessions(@Query() q: Record<string,unknown>) { return this.service.occupancySessions(q); }
+  @Post('occupancy-sessions') seat(@Headers('idempotency-key') key: unknown,@Body() b: unknown) { return this.service.occupancy(key,b,'SEAT'); }
+  @Post('occupancy-sessions/:id/closure') release(@Param('id') id: string,@Headers('idempotency-key') key: unknown,@Body() b: unknown) { return this.service.occupancy(key,b,'RELEASE',id); }
+  @Post('occupancy-sessions/:id/relocations') relocate(@Param('id') id: string,@Headers('idempotency-key') key: unknown,@Body() b: unknown) { return this.service.occupancy(key,b,'MOVE',id); }
   @Get('customers') customers(@Query() q: Record<string, unknown>) {
     return this.service.customers(q);
   }
@@ -320,6 +325,7 @@ export class FoodStockController {
 }
 @Module({
   controllers: [
+    RestaurantOpeningController,
     FoodCatalogController,
     FoodReservationsController,
     FoodMenuController,
@@ -330,6 +336,7 @@ export class FoodStockController {
     OrderRatingLinkController,
   ],
   providers: [
+    RestaurantOpeningService,
     PrismaService,
     FoodService,
     RestaurantService,

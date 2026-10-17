@@ -4203,6 +4203,77 @@ FK → `tracked_sites` (все ON DELETE RESTRICT); `name varchar(100)`, `phone 
 - **Миграция** `20261016000113_branch_cash_beauty` (+ `down.sql`): замена функции `restaurant_cash_guard` с
   закреплённым `search_path`. Откат отказывает, если у салона уже есть операции или сверки кассы.
 
+> Merge note (16.10.2026): the owner-accounting proposal and appointment-payment baseline independently use §49. Both original section identifiers and approvals are retained below; references must be read with their section title/ADR until a coordinated documentation renumbering. This is not a new business decision or migration approval.
+
+
+
+## 49. Предложение: единые расходы и история загрузки для главной (16.10.2026, PROPOSED)
+
+Владелец выбрал вариант 2: сначала спроектировать и согласовать модель, затем реализовать общую главную. Конкретная модель ниже ещё не утверждена. Это не разрешение применять миграции. Действующая версия модели v2.32 не повышается. Полный контракт и инварианты: [план](plans/unified-owner-accounting-2026-10-16.md), ADR-OWNER-DATA-20261016, Q-OWNER-DATA-20261016.
+
+### 49.1. Деньги и статьи
+
+KPI называется «Оплаченные расходы»: только проведённые исходные кассовые EXPENSE-операции, без переводов, клиентских возвратов, вторичного суммирования маркетинга, документов закупки или себестоимости. Выручка и поступления сохраняют отдельные действующие определения. Валюты не складываются.
+
+| Предлагаемая сущность | Поля и кардинальность | Основные ограничения |
+|---|---|---|
+| ExpenseCategory | id; locationId FK; code; name; active; timestamps. Один филиал → много статей | UNIQUE(locationId,code), архивирование, tenant boundary |
+| ExpenseDocument | id; locationId FK; categoryId FK; title; documentDate DATE; dueDate DATE?; amountMinor BIGINT; currency; state DRAFT/ACTIVE/CANCELLED; version; marketingExpenseId? FK UNIQUE; supplierReceiptId? FK UNIQUE; author/timestamps | одна категория, много частичных оплат; total>0; валюта/владелец не меняются после оплат; paid-state выводится из действующих источников, не отдельный остаток |
+| ExpenseSettlement | id; expenseDocumentId FK; cashOperationId? FK UNIQUE; restaurantCashOperationId? FK UNIQUE; author/createdAt | ровно один source FK; один source → один документ; деньги не дублируются; источник EXPENSE, тот же location и currency; оплата/связь атомарно; общая сумма не больше документа под блокировкой |
+| ExpenseCategoryMapping | cashCategoryId FK UNIQUE; expenseCategoryId FK; author/createdAt | явное соответствие старой Property-статьи новой статье её location; не классификация по свободной заметке |
+
+Начальные категории: маркетинг, закупки, оплата труда, аренда, коммунальные, прочее; свои статьи допускаются. Старые кассовые операции без доказанного назначения сохраняются «Без статьи» и входят в общий итог.
+
+MarketingExpense хранит маркетинговую/плановую сумму; countedInBudget не признак оплаты. Связь документа с маркетингом не создаёт повторного списания. BarSupplierPayment уже указывает на исходную выплату, повторная операция запрещена. Приёмка 100 000 ₸ и частичная оплата 40 000 ₸ дают 40 000 ₸ оплаченных расходов, долг документа 60 000 ₸. Эти примеры проверены арифметически при верификации проектного пакета, не являются API-результатом.
+
+Любая связанная кассовая операция сохраняет действующий механизм void и ограничения бара. Settlement не удаляется при void: оплаченный остаток пересчитывается из источника. После оплаты изменение связанного MarketingExpense по сумме/валюте/филиалу ограничено; финансовая история не удаляется. Несовпадение валют блокирует автоматическую связь до явно принятого FX-процесса.
+
+### 49.2. История загрузки
+
+| Предлагаемая сущность | Содержание | Инварианты |
+|---|---|---|
+| TableOccupancySession | id; locationId/tableId FK; reservationId?/orderId? FK; startedAt/endedAt? UTC; author/closedBy; idempotencyKey | фактическая посадка и уход, включая без брони; пересадка закрывает один интервал и открывает другой в одной транзакции; нет двух открытых или перекрывающихся сеансов стола; плановый endsAt не факт ухода |
+| ResourceCapacityRevision | id; locationId; kind EMPLOYEE/TABLE; ровно один resource FK; validFrom/validTo? UTC; нормализованные интервалы мощности на локальные даты и timezone snapshot; revision/observedAt/author | версии доступности ресурса, а не пересчёт прошлого по сегодняшним активным мастерам/столам; исправления аудируются |
+| WorkloadDailySnapshot | id; locationId; localDate DATE; basis; unit; numerator/denominator BIGINT; coverageFrom/coverageTo UTC; isComplete; calculationVersion; sourceRevision; calculatedAt | UNIQUE(locationId,localDate,basis,unit); пересчитываемая проекция из сохранённых источников, не замена истории |
+| WorkloadTrackingCoverage | locationId; basis; trackingStartedAt; lastCapturedAt; completeness reason | не заменять неизвестный период нулём; различать PARTIAL/UNAVAILABLE/полные данные |
+
+Загрузка периода = сумма занятой мощности / сумма доступной мощности, не среднее процентов. Салон: объединение интервалов BOOKED/CONFIRMED/DONE внутри смен, за вычетом перерывов/отсутствий, подпись «По записям»; NO_SHOW/CANCELLED не входят. Ресторан: фактические столо-минуты / доступные столо-минуты до now, не процент мест и не плановые брони. Hospitality: существующий домен доступного фонда, ROOM/BED отдельно, без изменения принятых определений. Разные unit/basis не усредняются.
+
+Фактическая история ресторана начинается с достоверно записанного события. Уже сидящие гости при включении наблюдаются с observedAt, без выдуманного времени посадки задним числом. Месяц до начала истории помечен PARTIAL/UNAVAILABLE. Нулевой denominator это отсутствие доступной мощности/графика, а не 0%.
+
+### 49.3. Выпуск
+
+Сначала утверждение этой модели; затем additive schema/API, атомарные hooks в действующие write-path, RLS/FORCE RLS, тесты на изолированной БД, сверка кассы до/после, backfill только доказанных связей, общий summary и один UI. Миграции отдельного выпуска сначала в migrations-hold с backup, проверками и rollback. Production не изменять по одному факту push. Новую финансовую историю при down сначала экспортировать, источники денег не удалять.
+
+
+### 49.4. Поправки по независимому review (PROPOSED, приоритет над краткими формулировками §49.1–49.3)
+
+Полный обязательный контракт уточнён в разделе 10 плана. Добавлены предложения:
+
+- PaymentWriteIntent: locationId FK + intentKey UNIQUE, action, normalizedPayloadHash, result/source IDs, author/timestamps. Общий реестр выплат во всех старых и новых writers; не новый UUID на каждый retry.
+- CashOperation.currencySnapshot: immutable ISO на операции; для старых строк только доказанный backfill, неопределённость не заменяется текущей валютой Property.
+- AppointmentWorkloadRevision: source appointment, location, employee, UTC start/end, status, recorded/effective time, revision, correction reason. Это источник числителя салона, которого не было в первой версии проекта.
+- ResourceScheduleVersion и дочерние ResourceCapacityInterval: типизированные дни/интервалы и IANA timezone, границы действия и снимки UTC/localDate; вместо неопределённого availabilityIntervals JSON. Для гостиницы нужны версии состава ROOM/BED, размещений и блокировок, а не нынешний активный фонд за старую дату.
+- WorkloadCoverageSegment: location/resource/basis/unit, UTC from/to, COMPLETE/GAP/UNAVAILABLE, reason, sourceRevision; одного trackingStartedAt/lastCapturedAt недостаточно. Snapshot различает isFinalized и isComplete и хранит provenance; длительности целые.
+- RestaurantOpeningSchedule: version, location/area, weekday, localStart/localEnd, endsNextDay, timezone, effective dates/recordedAt. Часы физической работы подтверждаются явно; ServicePeriod не автоматически opening hours. Обычная уборка и буфер не уменьшают denominator; техническое закрытие отдельным аудируемым интервалом.
+
+Связь закупки: EXPENSE + BarSupplierPayment + ExpenseSettlement атомарно в обоих направлениях, через один supplier-payment механизм. Нет обхода реестра долга старым или новым endpoint. Одна выплата получает ровно одну категорию: документ → mapping → «Без статьи», grain sourceType/sourceId. Комиссия и расходная поправка сверки отдельные реальные строки.
+
+Документ не может иметь одновременно marketingExpenseId и supplierReceiptId. До первой оплаты маркетинг/документ синхронизируются атомарно; после любой истории settlement защищены даже после void. Межфилиальные/валютные проверки охватывают UPDATE обеих сторон, RLS USING/WITH CHECK и constraint triggers, где составной FK невозможен.
+
+Физическая посадка/уход/пересадка имеют отдельные идемпотентные команды, включая walk-in. Проверяется открытая фактическая посадка даже после планового конца брони. При пересадке два стола блокируются в стабильном порядке. Размещение заказа на стол не доказательство физического сеанса.
+
+Dashboard repository с LUXX_APARTS_PROPERTY не использовать как общий адаптер: получать разрешённый scope явно и применять прежнюю формулу к доказанной истории фонда. Историческая реконструкция не называется полной историей.
+
+Безопасный rollout: additive schema → совместимые writers → доказанный backfill → UI. Rollback UI не удаляет таблицы, защиту и совместимые writers финансовой истории. Экспорт файла не доказывает совместимость старой версии.
+
+
+### Подтверждение владельца: единая главная и связанный учёт (16.10.2026)
+
+Статус DATA_MODEL §49 и уточнений §49.4/раздела 10 плана: APPROVED FOR IMPLEMENTATION. Основание: после показа обновлённого макета и объяснения модели владелец ответил «так все окей мне нравиться давай это сливай и делай ... все данные ... от куда надо». Выбранный ранее вариант 2 сохраняется. Q-OWNER-DATA-20261016 закрыт для указанных определений; реализация, сверка и migration approval не объявляются завершёнными.
+
+Владелец поручил слияние в main и проверяемую выкладку на домен после проверок. Это не отменяет тесты/гейт, резервное копирование, ограничения внешних production API и запрет неподготовленной production-миграции. Дополнительные бизнес-правила за пределами §49 не придумываются.
+
 ## 49. Оплата записи салона в кассу филиала (v2.33, ADR-APPOINTMENT-PAYMENT-20261016)
 
 Запись к мастеру (§19) оплачивается в кассу филиала салона (§48) по образцу оплаты заказа ресторана (§35.1).

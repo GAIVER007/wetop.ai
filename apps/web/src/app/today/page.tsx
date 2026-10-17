@@ -1,4 +1,9 @@
 import { cookies } from 'next/headers';
+import { unstable_rethrow } from 'next/navigation';
+import { deskAccessOf, mayAccess } from '../../lib/navigation';
+import { ownerPeriod, ownerSummaryEnabled } from '../../lib/owner-summary';
+import { readOwnerSummary } from '../../lib/owner-summary-api';
+import { OwnerSummaryView } from './unified-owner';
 import { redirect } from 'next/navigation';
 import { requireVertical } from '../../lib/vertical-guard';
 import { SCOPE_COOKIE, scopeHeader } from '../../lib/scope-pointer';
@@ -20,8 +25,43 @@ import { TodayScopeContent } from './scope-content';
  * Гостиница: с 13.10.2026 снова своя Главная (загрузка, события дня, задачи), «Финансы» отдельно
  * (решение владельца поверх ADR-152, план объединения plans/finance-home-merge-2026-10-09.md).
  */
-export default async function TodayPage() {
+export default async function TodayPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ period?: string }>;
+}) {
   const me = await requireVertical(TODAY_VERTICALS);
+  if (
+    ownerSummaryEnabled(process.env.APP_UNIFIED_OWNER_HOME) &&
+    me.user &&
+    mayAccess(deskAccessOf(me), 'reports')
+  ) {
+    const c = me.context;
+    if (c?.vertical && !TODAY_VERTICALS.includes(c.vertical))
+      return <p>Направление не поддерживается</p>;
+    if (!c?.businessId || !c.locationId) redirect('/branches');
+    const period = ownerPeriod((await searchParams)?.period);
+    try {
+      const summary = await readOwnerSummary(period);
+      return (
+        <TodayScopeContent key={`${c.businessId}:${c.locationId}`}>
+          <OwnerSummaryView summary={summary} />
+        </TodayScopeContent>
+      );
+    } catch (error) {
+      unstable_rethrow(error);
+      return (
+        <section>
+          <h1>Главная</h1>
+          <p role="alert">
+            Не удалось загрузить сводку. Данные не заменены нулями. Проверьте подключение и доступ к
+            отчётам выбранного филиала.
+          </p>
+          <a href={`/today?period=${period}`}>Повторить</a>
+        </section>
+      );
+    }
+  }
   const { screen, key } = todayScreen(me, {
     allowAnonymousHospitality: anonymousHospitalityAllowed({
       authRequired: authRequired(),

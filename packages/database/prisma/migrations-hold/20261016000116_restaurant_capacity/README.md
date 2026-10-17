@@ -1,0 +1,9 @@
+# HELD — restaurant capacity observations
+
+16.10 follow-up: run `migration.sql` THEN `opening.sql` as ONE held separate release. Opening configuration is approved by DATA_MODEL §49.4 / plan §10.3. OpeningService now confirms physical recurring windows and dated closures and atomically materializes existing intervals, never imports booking hours. Both scripts applied only to own :55516 pms_test. See docs/contracts/restaurant-capacity-coverage.md for final evidence and remaining release blockers. Earlier statements below about missing writer are historical and superseded by that contract. Still NOT production approved. Backup/rollback export must include restaurant_opening_schedules, restaurant_opening_intervals and restaurant_opening_closures as well as the original four history tables. Disable read flags for rollback, retain writers/history; never automatically drop them.
+
+Не production chain. Зависит от held occupancy 115/btree_gist. Применено только на собственной pms_test :55516. Перед отдельным релизом: утверждённый backup, offline schema review, validate RLS/runtime role и все writer paths, confirmed opening source + coverage, concurrency tests. Сейчас rollout запрещён: график физической работы отсутствует, приложение создаёт только unavailable coverage.
+
+Validation: resource_capacity_revisions имеют одну current row/table; valid_from >= tracking observed_at; старые версии не пересчитываются; rollback транзакции settings откатывает версии. intervals и coverage нельзя считать доказанными только из факта наличия строк.
+
+Rollback: выключить capacity read/capture flags. Не удалять версии и не возвращать несовместимый writer при активной истории. Destructive down не автоматизирован: остановить writers, экспортировать все 4 новые таблицы, проверить backup и получить отдельное разрешение. Production и migration chain не менялись.

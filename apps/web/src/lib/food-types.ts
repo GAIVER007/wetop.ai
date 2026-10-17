@@ -281,6 +281,7 @@ export interface FoodCashView {
   }>;
 }
 export interface FoodCashOperationInput {
+  idempotencyKey?: string;
   kind: 'INCOME' | 'EXPENSE' | 'TRANSFER';
   method: FoodPaymentMethod;
   methodTo?: FoodPaymentMethod;

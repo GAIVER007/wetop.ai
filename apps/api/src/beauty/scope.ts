@@ -107,7 +107,15 @@ export async function beautyTransaction<T>(
           await tx.$queryRaw`SELECT id FROM locations WHERE id = ${scope.locationId}::uuid FOR UPDATE`;
         await assertWritable(tx);
         await beautyScope({ db: tx }, scope.locationId !== null);
-        return fn(tx);
+        if (process.env.BEAUTY_WORKLOAD_CAPTURE === 'true')
+          await tx.$queryRaw`SELECT set_config('app.beauty_capture','true',true)`;
+        const result = await fn(tx);
+        if (process.env.BEAUTY_WORKLOAD_CAPTURE === 'true') {
+          const locations = await tx.location.findMany({ where: { businessId: scope.businessId }, select: { id: true } });
+          for (const location of locations.sort((a,b)=>a.id.localeCompare(b.id)))
+            await tx.$queryRaw`SELECT capture_beauty_schedule(${location.id}::uuid)::text`;
+        }
+        return result;
       },
       { maxWait: 5000, timeout: 10000 },
     );

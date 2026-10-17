@@ -90,7 +90,8 @@ export function allocateStock(
  * Остатка нет: `null`, цену называет человек.
  */
 export function surplusUnitCost(lots: ReadonlyArray<{ remaining: bigint; unitCost: bigint }>): bigint | null {
-  let qty = 0n,
+  // Keep the accumulator dynamic for Next NFT: it otherwise folds the guarded average with qty = 0n.
+  let qty = BigInt(0),
     sum = 0n;
   for (const l of lots) {
     qty += l.remaining;

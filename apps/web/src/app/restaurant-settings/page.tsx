@@ -5,6 +5,8 @@ import { loadErrorProps } from '../../lib/load-error';
 import { loadFood } from '../food/load';
 import { foodApi } from '../../lib/food-api';
 import { RestaurantSettings, type SettingsSection } from '../food/settings-board';
+import { OpeningForm } from './opening-form';
+import { loadOpening } from './opening-actions';
 import '../food/food.css';
 import '../food/restaurant.css';
 
@@ -21,10 +23,11 @@ export default async function RestaurantSettingsPage({
   try {
     const data = await loadFood();
     const booking = current === 'bookings' ? await foodApi.bookingRules() : undefined;
+    const opening = current === 'hours' ? await loadOpening() : undefined;
     return (
       <Page title="Настройки ресторана">
         <div key={data.scopeKey}>
-          <RestaurantSettings data={data} section={current} booking={booking} />
+          <RestaurantSettings data={data} section={current} booking={booking} physicalOpening={opening ? <OpeningForm initial={opening} scopeKey={data.scopeKey} timezone={data.timezone} write={data.canProperty && !data.readOnly} /> : undefined} />
         </div>
       </Page>
     );

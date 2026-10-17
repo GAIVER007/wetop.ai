@@ -1,7 +1,8 @@
 import 'reflect-metadata';
+import { createHotelCash } from '../finance/hotel-cash';
 import { FolioClosedError, lockOpenFolios } from '@pms/database';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { allocateFifo, enabledPaymentMethods, foodCashBalances, foodLocal, LUXX_APARTS_PROPERTY, resolvePaymentMethodSettings, salePriceFromMarkup, surplusUnitCost, zonedStartOfDay } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
@@ -424,7 +425,7 @@ export class PrismaBarRepository implements BarRepository {
       if (revenue > 9_223_372_036_854_775_807n || fifo.totalCostMinor > 9_223_372_036_854_775_807n) throw new BadRequestException('Сумма продажи превышает диапазон Int64');
       const note = `Бар: ${product.name}`;
       const cashLink = propertyId
-        ? { cashOperationId: (await (tx as any).cashOperation.create({ data: { propertyId, kind: 'INCOME', method: input.method, amount: revenue, note, createdById: auditUserId() } })).id }
+        ? { cashOperationId: (await createHotelCash(tx, { propertyId, kind: 'INCOME', method: input.method as import('../finance/finance.repository').PaymentMethod, amount: revenue, note, createdById: auditUserId() })).id }
         : { restaurantCashOperationId: (await (tx as any).restaurantCashOperation.create({ data: { locationId, kind: 'INCOME', method: input.method, amount: revenue, currency, note, createdById: auditUserId() } })).id };
       const sale = await (tx as any).barSale.create({ data: { propertyId, locationId, ...cashLink, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency, totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
       for (const allocation of fifo.allocations) {
@@ -584,10 +585,28 @@ export class PrismaBarRepository implements BarRepository {
     });
   }
   async payReceipt(id: string, input: BarSupplierPaymentInput) {
+    const enabled = process.env.EXPENSE_LINKS_ENABLED === '1';
+    const key = input.idempotencyKey;
+    if (enabled && (typeof key !== 'string' || !/^[\x21-\x7e]{1,200}$/.test(key))) throw new BadRequestException('Нужен ключ намерения оплаты');
     const { propertyId, locationId, vertical, currency } = await this.scope();
     if (!propertyId && vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY') return { kind: 'no_cash' as const };
     return this.prisma.db.$transaction(async (tx) => {
-      if (!propertyId) await tx.$queryRaw`SELECT id FROM locations WHERE id = ${locationId}::uuid FOR UPDATE`;
+      // A pending retry fails closed rather than waiting and risking another debit.
+      const hash = createHash('sha256').update(JSON.stringify(['SUPPLIER_PAYMENT',id,input.amountMinor.toString(),currency,input.method,input.note ?? null])).digest('hex');
+      if (enabled) {
+        const claim = await tx.$queryRaw<Array<{locked:boolean}>>`SELECT pg_try_advisory_xact_lock(hashtextextended(${locationId+':'+key},0)) AS locked`;
+        if (!claim[0]?.locked) throw new ConflictException('Оплата уже выполняется, повторите с тем же ключом');
+        await tx.$queryRaw`SELECT id FROM locations WHERE id = ${locationId}::uuid FOR NO KEY UPDATE`;
+        const old = await tx.$queryRaw<Array<{normalized_payload_hash:string;result_id:string;action:string}>>`SELECT normalized_payload_hash,result_id,action FROM payment_write_intents WHERE location_id=${locationId}::uuid AND intent_key=${key}`;
+        if (old[0]) {
+          if (old[0].action !== 'SUPPLIER_PAYMENT' || old[0].normalized_payload_hash !== hash) throw new ConflictException('Payment intent payload conflict');
+          const audit = await tx.auditLog.findFirst({where:{entityId:old[0].result_id,action:'bar.supplier_payment.created'}});
+          const saved = audit?.after as {receiptId:string;amount:string;dueAmount:string} | null;
+          if (!saved) throw new ConflictException('Payment intent result unavailable');
+          return {kind:'paid' as const,id:old[0].result_id,receiptId:saved.receiptId,paidAmount:saved.amount,dueAmount:saved.dueAmount};
+        }
+      }
+      await tx.$queryRaw`SELECT id FROM locations WHERE id = ${locationId}::uuid FOR NO KEY UPDATE`;
       await tx.$queryRaw`SELECT id FROM bar_receipts WHERE id = ${id}::uuid AND location_id = ${locationId}::uuid FOR UPDATE`;
       const receipt = await (tx as any).barReceipt.findFirst({ where: { id, locationId }, include: { supplier: true, payments: { where: PrismaBarRepository.COMPLETED_PAYMENTS, select: { amount: true } } } });
       if (!receipt) return { kind: 'not_found' as const };
@@ -613,7 +632,7 @@ export class PrismaBarRepository implements BarRepository {
       const note = input.note ?? `Оплата поставщику ${receipt.supplier.name}, документ ${receipt.documentNumber}`;
       let cashLink: { cashOperationId: string } | { restaurantCashOperationId: string };
       if (propertyId) {
-        const cash = await (tx as any).cashOperation.create({ data: { propertyId, kind: 'EXPENSE', method: input.method, amount: input.amountMinor, note, occurredAt: now, createdById: auditUserId() } });
+        const cash = await createHotelCash(tx, { propertyId, kind: 'EXPENSE', method: input.method as import('../finance/finance.repository').PaymentMethod, amount: input.amountMinor, note, occurredAt: now, createdById: auditUserId() });
         cashLink = { cashOperationId: cash.id };
       } else {
         // расход кассы ресторана не уводит способ оплаты в минус (§35, §45)
@@ -623,6 +642,7 @@ export class PrismaBarRepository implements BarRepository {
         cashLink = { restaurantCashOperationId: cash.id };
       }
       const payment = await (tx as any).barSupplierPayment.create({ data: { receiptId: id, ...cashLink, amount: input.amountMinor, paidAt: now, idempotencyKey: input.idempotencyKey, createdById: auditUserId() } });
+      if (enabled) await tx.$executeRaw`INSERT INTO payment_write_intents(id,location_id,intent_key,action,normalized_payload_hash,result_id,created_by_id) VALUES(${randomUUID()}::uuid,${locationId}::uuid,${key},'SUPPLIER_PAYMENT',${hash},${payment.id}::uuid,${auditUserId()}::uuid)`;
       const remaining = dueAmount - input.amountMinor;
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_supplier_payment', entityId: payment.id, action: 'bar.supplier_payment.created', after: { receiptId: id, amount: input.amountMinor.toString(), dueAmount: remaining.toString(), method: input.method } } });
       return { kind: 'paid' as const, id: payment.id, receiptId: id, paidAmount: input.amountMinor.toString(), dueAmount: remaining.toString() };

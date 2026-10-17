@@ -50,3 +50,11 @@ describe('approved TZ12 presentation compatibility port', () => {
     expect(text).toContain('row.effective.durationMinutes');
   });
 });
+
+it('keeps the approved Q-DES-4 narrow-phone row wrap below 360 rather than all phones', () => {
+  const css = source('beauty/beauty.css');
+  const rule = css.match(/@media \(max-width: (\d+)px\) \{[^\n]*\n\s*\.beauty-calendar-actions \.date-bar,\n\s*\.beauty-operational-toolbar \.date-bar \{\n\s*grid-template-columns: 44px minmax\(0, 1fr\) 44px;/);
+  expect(rule?.[1]).toBe('360');
+  expect(rule?.[0]).toContain('slop-allow: breakpoint-literal Q-DES-4');
+  expect(readFileSync('DESIGN.md', 'utf8')).toContain('`max-width: 360px` остаётся технической точкой');
+});

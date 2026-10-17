@@ -11,11 +11,12 @@ async function headers(page: Page) {
 }
 async function register(page: Page, vertical = 'FOOD_SERVICE', identity = { name: 'Тестовый Владелец', businessName: 'Бизнес Восстановления' }) {
   const email = `onboarding-recovery-${randomUUID()}@example.invalid`;
+  const registeredIdentity = { ...identity, businessName: vertical === 'HOSPITALITY' ? `${identity.businessName} ${randomUUID()}` : identity.businessName };
   const response = await page.request.post(`${api}/auth/register`, { data: {
-    email, ...identity, vertical,
+    email, ...registeredIdentity, vertical,
     password: 'Onboarding-Test-2026!a', phoneCountry: 'KZ', phone: '7000000000', privacyAccepted: true,
   } });
-  expect(response.ok()).toBe(true);
+  expect(response.ok(), `registration HTTP ${response.status()}`).toBe(true);
   const mail = await (await page.request.get(`${api}/__onboarding-test/mail?email=${encodeURIComponent(email)}`)).json();
   expect(mail.link).toBeTruthy();
   await page.goto(mail.link);
@@ -24,7 +25,7 @@ async function register(page: Page, vertical = 'FOOD_SERVICE', identity = { name
   // Wait for the mount read before arming faults or opening a stale second form.
   await expect.poll(async () => (await page.request.get(`${desk}/register/setup/progress`)).status()).toBe(200);
   await expect(page.getByRole('main').getByLabel(vertical === 'HOSPITALITY' ? 'Название категории' : 'Название бизнеса', { exact: true })).toBeVisible();
-  return { email, ...identity };
+  return { email, ...registeredIdentity };
 }
 async function control(page: Page, mode: string) {
   expect((await page.request.post(`${api}/__onboarding-test/recovery`, { headers: await headers(page), data: { mode } })).ok()).toBe(true);
@@ -116,12 +117,29 @@ for (const mode of ['expire', 'STAFF', 'READ_ONLY']) {
     const before = await snapshot(page);
     const originalHeaders = await headers(page);
     await control(page, mode);
+    // Capture the actual denial before forwarding it: navigation can evict CDP response bodies.
+    let captureExpired!: (reply: { status: number; body: string; cacheControl: string | undefined }) => void;
+    const expiredReply = mode === 'expire'
+      ? new Promise<{ status: number; body: string; cacheControl: string | undefined }>(resolve => { captureExpired = resolve; })
+      : undefined;
+    if (mode === 'expire') {
+      await page.route('**/register/setup/progress', async route => {
+        if (route.request().method() !== 'POST') return route.continue();
+        const actualResponse = await route.fetch({ maxRedirects: 0 });
+        const body = await actualResponse.text();
+        captureExpired({ status: actualResponse.status(), body, cacheControl: actualResponse.headers()['cache-control'] });
+        await route.fulfill({ response: actualResponse });
+      });
+    }
     const reply = page.waitForResponse(r => r.url().endsWith('/register/setup/progress') && r.request().method() === 'POST');
     await button(page, 'Сохранить').click();
     const rejected = await reply;
     expect(rejected.status()).toBe(mode === 'expire' ? 401 : 403);
     if (mode === 'expire') {
-      const body = await rejected.json();
+      const captured = await expiredReply!;
+      expect(captured.status).toBe(401);
+      expect(captured.cacheControl).toContain('no-store');
+      const body = JSON.parse(captured.body);
       const url = new URL(body.loginUrl);
       expect(url.origin).toBe('http://127.0.0.1:55845');
       expect(url.hash).toBe('#login');

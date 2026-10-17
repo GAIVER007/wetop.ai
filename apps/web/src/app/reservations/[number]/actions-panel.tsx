@@ -933,7 +933,7 @@ function StayGuestsForm({
   return (
     <form
       action={action}
-      className="panel"
+      className="panel stay-guests-form"
       data-testid={`guests-form-${item.id}`}
       key={`${item.adults}/${item.children}/${state.attempt ?? 0}`}
     >

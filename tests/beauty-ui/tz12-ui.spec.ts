@@ -57,7 +57,14 @@ test('calendar compact controls preserve filtering and hidden occupancy', async 
   await page.goto(`/calendar?date=${date}`);
   const timeline = page.getByTestId('beauty-mobile-calendar').locator('.beauty-mobile-timeline');
   await expect(timeline).toBeVisible();
-  expect((await timeline.boundingBox())!.y).toBeLessThanOrEqual(422);
+  // Geometry-only diagnostics preserve the compactness limit without logging customer data.
+  const layout = await page.getByRole('main').evaluate((main) =>
+    Array.from(main.children).flatMap((node) => [node, ...Array.from(node.children)]).map((node) => {
+      const rect = node.getBoundingClientRect();
+      return { tag: node.tagName, classes: String(node.className), x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+    }),
+  );
+  expect((await timeline.boundingBox())!.y, JSON.stringify(layout)).toBeLessThanOrEqual(422);
   await expect(page.getByLabel('Статус записи', { exact: true })).not.toBeVisible();
   await page.getByText(/^Фильтры/).click();
   await page.getByLabel('Статус записи', { exact: true }).selectOption('DONE');

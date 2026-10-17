@@ -17,10 +17,10 @@ async function snapshot(page: Page) {
 async function hospitality(page: Page) {
   const email = `onboarding-recovery-${randomUUID()}@example.invalid`;
   const response = await page.request.post(`${api}/auth/register`, { data: {
-    email, name: 'Тестовый Владелец', businessName: 'Отель Проверки Гостя', vertical: 'HOSPITALITY',
+    email, name: 'Тестовый Владелец', businessName: `Отель Проверки Гостя ${randomUUID()}`, vertical: 'HOSPITALITY',
     password: 'Onboarding-Test-2026!a', phoneCountry: 'KZ', phone: '7000000000', privacyAccepted: true,
   } });
-  expect(response.ok()).toBe(true);
+  expect(response.ok(), `registration HTTP ${response.status()}`).toBe(true);
   const mail = await (await page.request.get(`${api}/__onboarding-test/mail?email=${encodeURIComponent(email)}`)).json();
   expect(mail.link).toBeTruthy();
   await page.goto(mail.link);
@@ -71,9 +71,11 @@ async function open(page: Page) {
   await page.getByRole('button', { name: 'Изменить гостя', exact: true }).click();
   await expect(page.getByTestId('guest-form')).toBeVisible();
 }
-async function deniedEditor(page: Page) {
+async function deniedEditor(page: Page, access: 'READ_ONLY' | 'restricted') {
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Изменить гостя', exact: true })).toBeDisabled();
+  const trigger = page.getByRole('button', { name: 'Изменить гостя', exact: true });
+  if (access === 'restricted') await expect(trigger).toHaveCount(0);
+  else await expect(trigger).toBeDisabled();
   await expect(page.getByTestId('guest-form')).toHaveCount(0);
 }
 test('REALGUEST owner edits in-card citizenship through server actions without changing occupancy or money', async ({ page }) => {
@@ -102,7 +104,7 @@ test('REALGUEST READ_ONLY hides cached editor and real PATCH is forbidden withou
   await open(page);
   const before = await snapshot(page);
   expect((await page.request.post(`${api}/__onboarding-test/recovery`, { headers: await headers(page), data: { mode: 'READ_ONLY' } })).status()).toBe(200);
-  await deniedEditor(page);
+  await deniedEditor(page, 'READ_ONLY');
   const write = await page.request.patch(`${api}/guests/${guest.id}`, { headers: await headers(page), data: { citizenship: 'KGZ' } });
   expect(write.status()).toBe(403);
   expect(await snapshot(page)).toEqual(before);
@@ -134,7 +136,7 @@ test('REALGUEST restricted branch membership denies own and foreign guest reads/
     expect(foreignBody).toContain(foreign.id);
     expect(foreignBody).not.toContain(guest.id);
     expect((await page.request.post(`${api}/__onboarding-test/guest-restrict`, { headers: h })).status()).toBe(200);
-    await deniedEditor(page);
+    await deniedEditor(page, 'restricted');
     // Replay the actual previously successful server action, not a mocked action or guessed ID.
     for (const id of [guest.id, foreign.id]) {
       const replay = await page.request.post(`${desk}/reservations/${guest.number}`, {

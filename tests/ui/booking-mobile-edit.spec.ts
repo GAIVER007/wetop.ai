@@ -52,7 +52,16 @@ test('fixture UI: Escape restores focus and reopening discards cached guest data
   await expect(page.getByTestId('guest-form')).toHaveCount(0);
   await expect(page).toHaveURL(original);
   // Change only synthetic guest data while the editor is closed. Reopen must load again.
-  await request.patch(`${FIXTURE_API}/guests/ui-guest`, { data: { citizenship: 'UZB' } });
+  // Direct fixture transport requires the canonical test-client header (otherwise 403).
+  const headers = { 'x-wetop-test-client': '1' };
+  const updated = await request.patch(`${FIXTURE_API}/guests/ui-guest`, {
+    headers,
+    data: { citizenship: 'UZB' },
+  });
+  expect(updated.ok(), `fixture guest PATCH: HTTP ${updated.status()}`).toBe(true);
+  const stored = await request.get(`${FIXTURE_API}/guests/ui-guest`, { headers });
+  expect(stored.ok(), `fixture guest GET: HTTP ${stored.status()}`).toBe(true);
+  expect(await stored.json()).toMatchObject({ citizenship: 'UZB' });
   const reopened = await openEditor(page);
   await expect(reopened.getByLabel(/Гражданство/)).toHaveValue('UZB');
   await page.keyboard.press('Escape');

@@ -1225,7 +1225,7 @@
       justify-self: end;
     }
   }
-  @media (max-width: 600px) {
+  @media (max-width: 360px) { /* slop-allow: breakpoint-literal Q-DES-4 13.10 technical narrow-phone control wrapping, not a separate visual rule */
     .beauty-calendar-actions .date-bar,
     .beauty-operational-toolbar .date-bar {
       grid-template-columns: 44px minmax(0, 1fr) 44px;

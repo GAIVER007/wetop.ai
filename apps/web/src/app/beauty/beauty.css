@@ -302,6 +302,10 @@
   .beauty-tile--confirmed {
     border-left: 3px solid var(--info);
   }
+  /* «В процессе» (§58): полоса тоном успеха без заливки, заливка у завершённой */
+  .beauty-tile--in_progress {
+    border-left: 3px solid var(--success);
+  }
   .beauty-tile--done {
     border-style: dashed;
     border-color: var(--border);
@@ -572,6 +576,9 @@
   .beauty-page .beauty-tile--confirmed {
     border-left-color: var(--primary);
     background: var(--primary-soft);
+  }
+  .beauty-page .beauty-tile--in_progress {
+    border-left-color: var(--success);
   }
   .beauty-page .beauty-tile--done {
     border-left-color: var(--success);

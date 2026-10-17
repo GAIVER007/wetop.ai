@@ -54,7 +54,7 @@ function isUniqueViolation(error: unknown): boolean {
  */
 
 /** Записи этих состояний место мастера занимают */
-export const BUSY: AppointmentStatus[] = ['BOOKED', 'CONFIRMED', 'DONE'];
+export const BUSY: AppointmentStatus[] = ['BOOKED', 'CONFIRMED', 'IN_PROGRESS', 'DONE'];
 
 /** Сетка дня, когда график мастеров ничего не подсказал */
 const DEFAULT_FROM = 8 * 60;

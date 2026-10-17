@@ -24,7 +24,7 @@ const PHONE_LIMIT = 32;
 const NOTES_LIMIT = 2000;
 
 /** Состояния записи, как в enum `AppointmentStatus` */
-export type AppointmentStatus = 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+export type AppointmentStatus = 'BOOKED' | 'CONFIRMED' | 'IN_PROGRESS' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
 
 /** Что уйдёт в строку `appointments` */
 export interface AppointmentPlan {
@@ -98,8 +98,10 @@ export function planAppointment(input: {
  * кнопкой) это отдельное решение владельца, а не тихое послабление здесь.
  */
 const NEXT: Record<AppointmentStatus, AppointmentStatus[]> = {
-  BOOKED: ['CONFIRMED', 'DONE', 'NO_SHOW', 'CANCELLED'],
-  CONFIRMED: ['DONE', 'NO_SHOW', 'CANCELLED'],
+  BOOKED: ['CONFIRMED', 'IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED'],
+  CONFIRMED: ['IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED'],
+  // клиент пришёл, мастер работает (§58): незаезда уже не бывает
+  IN_PROGRESS: ['DONE', 'CANCELLED'],
   DONE: [],
   NO_SHOW: [],
   CANCELLED: [],

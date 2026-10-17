@@ -182,6 +182,17 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await tile.click();
   await page.getByRole('dialog').getByRole('button', { name: 'Подтвердить', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
+  // «В процессе» (§58): клиент пришёл, незаезда у начатой записи уже нет
+  await tile.click();
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Не пришёл', exact: true })).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: 'Начать', exact: true }).click();
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await page.reload();
+  await expect(tile).toContainText('В процессе');
+  await tile.click();
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Не пришёл', exact: true })).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
   // оплата записи в кассу филиала (§49): часть картой, отмена с оплатой закрыта
   await tile.click();
   panel = page.getByRole('dialog');

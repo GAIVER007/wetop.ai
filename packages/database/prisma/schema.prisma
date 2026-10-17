@@ -3089,6 +3089,8 @@ enum EmployeeStatus {
 enum AppointmentStatus {
   BOOKED
   CONFIRMED
+  /// клиент пришёл, мастер работает (§58)
+  IN_PROGRESS
   DONE
   NO_SHOW
   CANCELLED

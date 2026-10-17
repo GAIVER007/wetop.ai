@@ -138,8 +138,8 @@ describe('statusChange', () => {
   });
 
   it('называет, что можно дальше', () => {
-    expect(nextStatuses('BOOKED')).toEqual(['CONFIRMED', 'DONE', 'NO_SHOW', 'CANCELLED']);
-    expect(nextStatuses('CONFIRMED')).toEqual(['DONE', 'NO_SHOW', 'CANCELLED']);
+    expect(nextStatuses('BOOKED')).toEqual(['CONFIRMED', 'IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED']);
+    expect(nextStatuses('CONFIRMED')).toEqual(['IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED']);
   });
 });
 
@@ -206,5 +206,15 @@ describe('parseAppointmentInput', () => {
     expect(
       parseAppointmentInput({ employeeId: 'e1', serviceId: 's1', startsAt: 'завтра', customerId: 'c1' }).ok,
     ).toBe(false);
+  });
+});
+
+describe('статус «В процессе» (§58)', () => {
+  it('начать можно из записанной и подтверждённой; из начатой только выполнить или отменить', () => {
+    expect(nextStatuses('BOOKED')).toContain('IN_PROGRESS');
+    expect(nextStatuses('CONFIRMED')).toContain('IN_PROGRESS');
+    expect(nextStatuses('IN_PROGRESS')).toEqual(['DONE', 'CANCELLED']);
+    expect(statusChange('IN_PROGRESS', 'NO_SHOW')).toEqual({ ok: false, reason: 'Из этого состояния запись так не меняют' });
+    expect(statusChange('DONE', 'IN_PROGRESS').ok).toBe(false);
   });
 });

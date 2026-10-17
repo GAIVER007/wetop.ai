@@ -114,7 +114,7 @@ export class EmployeePortalService {
     // Read only this employee's upcoming busy appointments, never branch-wide customer data.
     // The extra row makes an incomplete bounded check explicit rather than a false all-clear.
     const [upcoming,allHours]=b.vertical==='BEAUTY'?await Promise.all([
-      db.appointment.findMany({where:{employeeId:e.id,locationId:{in:assignedIds},location:{businessId:b.id},status:{in:['BOOKED','CONFIRMED','DONE']},endsAt:{gt:checkedFrom}},select:{id:true,locationId:true,startsAt:true,endsAt:true,service:{select:{name:true}}},orderBy:[{startsAt:'asc'},{id:'asc'}],take:501}),
+      db.appointment.findMany({where:{employeeId:e.id,locationId:{in:assignedIds},location:{businessId:b.id},status:{in:['BOOKED','CONFIRMED','IN_PROGRESS','DONE']},endsAt:{gt:checkedFrom}},select:{id:true,locationId:true,startsAt:true,endsAt:true,service:{select:{name:true}}},orderBy:[{startsAt:'asc'},{id:'asc'}],take:501}),
       db.workingHours.findMany({where:{employeeId:e.id,locationId:{in:assignedIds}}}),
     ]):[[],[]];
     const conflicts:EmployeePortalDto['scheduleConflicts']['items']=[];

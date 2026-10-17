@@ -154,4 +154,17 @@ describe('оплата записи салона (integration, §49)', () => {
     await expect(as(() => cash.voidCashOperation(ops[0]!.id))).rejects.toThrow('оформите возврат в карточке записи');
     expect((await as(() => service.day(DATE))).appointments.find((r) => r.id === a.id)).toMatchObject({ refundedMinor: '0' });
   });
+
+  it('«В процессе» (§58): держит время мастера, оплачивается, незаезда нет, выполняется', async () => {
+    const a = await book('09:00');
+    const started = await as(() => service.setStatus(a.id, { status: 'IN_PROGRESS' }));
+    expect(started.appointments.find((r) => r.id === a.id)).toMatchObject({ status: 'IN_PROGRESS', next: ['DONE', 'CANCELLED'] });
+    await expect(
+      as(() => service.create({ employeeId, serviceId: pricey, startsAt: at('09:30'), firstName: 'Жанна', phone: '+7 701 000 00 01' })),
+    ).rejects.toThrow('Мастер в это время уже занят');
+    await pay(a.id, 100000);
+    await expect(as(() => service.setStatus(a.id, { status: 'NO_SHOW' }))).rejects.toThrow('Из этого состояния запись так не меняют');
+    const done = await as(() => service.setStatus(a.id, { status: 'DONE' }));
+    expect(done.appointments.find((r) => r.id === a.id)).toMatchObject({ status: 'DONE', paidMinor: '100000' });
+  });
 });

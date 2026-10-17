@@ -54,7 +54,7 @@ import {
  */
 
 /** Записи этих состояний место мастера не занимают: так же считает exclusion constraint в §19.1 */
-const BUSY_STATUSES = ['BOOKED', 'CONFIRMED', 'DONE'] as const;
+const BUSY_STATUSES = ['BOOKED', 'CONFIRMED', 'IN_PROGRESS', 'DONE'] as const;
 
 @Injectable()
 export class BeautyScheduleService {

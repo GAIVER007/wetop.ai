@@ -130,63 +130,70 @@ test('новые фильтры шахматки, список броней и �
   await expect(page.getByRole('main').getByTestId('unit-row')).toHaveCount(88);
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/rooms-light.png` });
 });
-test('новые страницы и обе темы: адаптивность и отсутствие ошибок браузера', async ({ page }) => {
-  test.setTimeout(180000);
-  const errors: string[] = [];
-  page.on('pageerror', (e) => {
-    if (!devNoise.test(e.message)) errors.push(e.message);
-  });
-  page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text());
-  });
-  const routes = [
-    '/chessboard',
-    '/reservations',
-    '/guests',
-    '/inventory',
-    '/finance',
-    '/profile',
-    '/profile',
-    '/connections',
-    '/hotel-settings',
-    '/channels',
-    '/channels/sync',
-    '/journal',
-    '/incidents',
-    '/marketing',
-    '/website',
-    '/website/analytics',
-    '/management/analytics',
-    '/management/analytics/occupancy',
-    '/hotel-settings/services',
-  ];
-  for (const width of [320, 390, 768, 1280, 1440, 1920]) {
+const premiumRoutes = [
+  '/chessboard',
+  '/reservations',
+  '/guests',
+  '/inventory',
+  '/finance',
+  '/profile',
+  '/profile',
+  '/connections',
+  '/hotel-settings',
+  '/channels',
+  '/channels/sync',
+  '/journal',
+  '/incidents',
+  '/marketing',
+  '/website',
+  '/website/analytics',
+  '/management/analytics',
+  '/management/analytics/occupancy',
+  '/hotel-settings/services',
+];
+// Each sweep owns a fresh browser context and fixture reset. The old single test exhausted
+// its 180s budget after repeated full-document navigation, before reaching the dark sweep.
+const premiumSweeps = [
+  ...[320, 390, 768, 1280, 1440, 1920].map((width) => ({ width, theme: 'light' as const })),
+  { width: 1440, theme: 'dark' as const },
+];
+for (const { width, theme } of premiumSweeps) {
+  test(`новые страницы и обе темы: ${width}px ${theme}, адаптивность и отсутствие ошибок браузера`, async ({ page }) => {
+    test.setTimeout(180000);
+    const errors: string[] = [];
+    page.on('pageerror', (e) => {
+      if (!devNoise.test(e.message)) errors.push(e.message);
+    });
+    page.on('console', (message) => {
+      if (message.type() === 'error') errors.push(message.text());
+    });
     await page.setViewportSize({ width, height: 1000 });
-    for (const route of routes) {
-      await page.goto(route);
-      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-      if (width === 390 && route === '/finance')
-        await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-mobile.png` });
-      const overflow = await page.evaluate(() => {
-        const browser = globalThis as unknown as {
-          document: { documentElement: { scrollWidth: number } };
-          innerWidth: number;
-        };
-        return browser.document.documentElement.scrollWidth > browser.innerWidth + 1;
-      });
-      expect(overflow, `${width} ${route}`).toBe(false);
+    await page.emulateMedia({ colorScheme: 'light' });
+    if (theme === 'dark') {
+      await page.goto('/finance');
+      await page.getByRole('button', { name: 'Переключить тему', exact: true }).click();
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     }
-  }
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/finance');
-  await page.getByRole('button', { name: 'Переключить тему', exact: true }).click();
-  for (const route of routes) {
-    await page.goto(route);
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  }
-  expect(errors).toEqual([]);
-});
+    for (const route of premiumRoutes) {
+      await test.step(`${width}px ${theme} ${route}`, async () => {
+        await page.goto(route);
+        await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+        await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+        if (width === 390 && route === '/finance')
+          await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-mobile.png` });
+        const overflow = await page.evaluate(() => {
+          const browser = globalThis as unknown as {
+            document: { documentElement: { scrollWidth: number } };
+            innerWidth: number;
+          };
+          return browser.document.documentElement.scrollWidth > browser.innerWidth + 1;
+        });
+        expect(overflow, `${width} ${theme} ${route}`).toBe(false);
+      });
+    }
+    expect(errors).toEqual([]);
+  });
+}
 // вход настоящий (ADR-047): чужая почта с чужим паролем не пускает, и текст один для обоих случаев
 test('вход не пускает с чужой почтой и чужим паролем', async ({ page }) => {
   await page.goto('/auth/fallback');

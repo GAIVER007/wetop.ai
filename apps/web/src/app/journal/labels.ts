@@ -68,6 +68,7 @@ export const ACTION_RU: Record<string, string> = {
   'analytics.site.delete': 'сайт со счётчиком удалён',
   'user.login': 'вход в систему',
   'user.logout': 'выход из системы',
+  'user.organization.switched': 'Организация переключена',
   'user.password.changed': 'пароль изменён',
   'user.invited': 'сотрудник приглашён',
   'user.created': 'сотрудник добавлен',

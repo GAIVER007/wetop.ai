@@ -149,6 +149,14 @@ test('«Продажи, маркетинг, ИИ»: примеры подпис�
   // Каналы с условием подключения названы рядом с кнопкой, а не обещаны всем направлениям (17.10.2026)
   await expect(feed.locator('.growth__note')).toContainText(/ИИ-продавец отдельным расширением/);
   await expect(feed).not.toContainText(/Сайт салона|Цены и свободное время везде/);
+  // Ручной ввод сотрудником не выдаётся за телефонию, сроков без утверждённого плана нет (17.10.2026)
+  await expect(feed).toContainText('сотрудник вносит');
+  await expect(feed).not.toContainText(/скоро/i);
+  // Публикация сайтов клиентов ограничена (ADR-185): домен не обещается безусловно
+  await expect(page.locator('#market')).not.toContainText('Сайт с ИИ на своём домене');
+  await expect(page.locator('#market')).toContainText(
+    'Публикация сайта на домене включается отдельно',
+  );
   const axe = await new AxeBuilder({ page }).include('#sales').analyze();
   expect(axe.violations).toEqual([]);
 });

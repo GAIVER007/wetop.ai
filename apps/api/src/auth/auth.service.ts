@@ -630,6 +630,94 @@ export class AuthService {
   }
 
   /**
+   * Организации, в которые человек может войти: действующее членство в неархивной организации (§13.3, §31.2). Нужна,
+   * когда один аккаунт работает в нескольких организациях: сессия открыта в одной (`sessions.organization_id`, §13.5),
+   * перейти можно в любую из этого списка. Номера организаций служат выбором, а не доказательством права.
+   */
+  organizations(
+    token: string,
+    now = new Date(),
+  ): Promise<Array<{ id: string; name: string; role: string; current: boolean }>> {
+    return withServiceDatabase(async () => {
+      const found = await this.session(token, now);
+      if (!found) throw new UnauthorizedException('Войдите заново: сессия не годится');
+      const rows = await this.prisma.db.membership.findMany({
+        where: { userId: found.user.id, status: 'ACTIVE', organization: { status: { not: 'SUSPENDED' } } },
+        orderBy: { createdAt: 'asc' },
+        select: { organizationId: true, role: true, organization: { select: { name: true } } },
+      });
+      return rows.map((m) => ({
+        id: m.organizationId,
+        name: m.organization.name,
+        role: m.role,
+        current: m.organizationId === found.session.organizationId,
+      }));
+    });
+  }
+
+  /**
+   * Перейти в другую свою организацию. Сервер заново проверяет членство и состояние организации; прежний ключ гаснет,
+   * новый выдаётся с тем же сроком (смена не продлевается, ADR-049). Чужой, архивный или битый номер: 403, ничего не
+   * меняется.
+   */
+  switchOrganization(
+    token: string,
+    organizationId: unknown,
+    input: { userAgentFamily?: string | null } = {},
+    now = new Date(),
+  ): Promise<LoginResult> {
+    return withServiceDatabase(async () => {
+      const found = await this.session(token, now);
+      if (!found) throw new UnauthorizedException('Войдите заново: сессия не годится');
+      const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const target = typeof organizationId === 'string' && UUID.test(organizationId) ? organizationId : null;
+      const membership = target
+        ? await this.prisma.db.membership.findUnique({
+            where: { userId_organizationId: { userId: found.user.id, organizationId: target } },
+            select: { status: true, organization: { select: { status: true } } },
+          })
+        : null;
+      if (!target || membership?.status !== 'ACTIVE' || membership.organization.status === 'SUSPENDED')
+        throw new ForbiddenException('Эта организация вам недоступна');
+
+      const next = newSessionToken();
+      const expiresAt = found.session.expiresAt;
+      await this.prisma.db.$transaction(async (tx) => {
+        const revoked = await tx.session.updateMany({
+          where: { id: found.session.id, revokedAt: null },
+          data: { revokedAt: now },
+        });
+        // параллельный переход тем же ключом: выигрывает один, второй не получает сессию
+        if (revoked.count !== 1) throw new UnauthorizedException('Войдите заново: сессия не годится');
+        await tx.session.create({
+          data: {
+            userId: found.user.id,
+            organizationId: target,
+            tokenHash: hashSessionToken(next),
+            userAgent: input.userAgentFamily ?? found.session.userAgent ?? null,
+            issuedAt: now,
+            expiresAt,
+          },
+        });
+        await tx.auditLog.create({
+          data: {
+            organizationId: target,
+            userId: found.user.id, entityType: 'user', entityId: found.user.id,
+            action: 'user.organization.switched',
+            before: { organizationId: found.session.organizationId },
+            after: { organizationId: target },
+          },
+        });
+      });
+      return {
+        token: next,
+        expiresAt: expiresAt.toISOString(),
+        user: visible(found.user, target, await this.access(found.user.id, target)),
+      };
+    });
+  }
+
+  /**
    * Смена пароля своей учётной записи: прочие сессии этого сотрудника гаснут. Служебной ролью базы (SEC-1b): хеш
    * пароля читает и пишет только она, `wetop_app` доступа к `users.password_hash` не имеет.
    */

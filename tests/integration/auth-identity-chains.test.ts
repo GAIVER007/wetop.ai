@@ -106,6 +106,45 @@ describe.skipIf(!process.env.DATABASE_URL)('auth identity chains (integration)',
     expect(after.passwordHash).toBe(resetHash);
   });
 
+  // Г + Ж: человек с доступом в две организации переходит между ними без нового аккаунта; чужой номер не открывает ничего
+  it('a member of two organizations switches between them; a foreign or archived id opens nothing', async () => {
+    const a = await owner('HOSPITALITY', 'switch-home');
+    const b = await owner('BEAUTY', 'switch-other');
+    const stranger = await owner('FOOD_SERVICE', 'switch-stranger');
+    // a принял приглашение в b администратором
+    await db.membership.create({ data: { userId: a.userId, organizationId: b.organizationId, role: 'STAFF' } });
+    const first = await auth.login({ email: a.email, password });
+    expect(await sessionOrg(first.token)).toBe(a.organizationId);
+
+    const list = await auth.organizations(first.token);
+    expect(list.map((o) => [o.id, o.role, o.current])).toEqual([
+      [a.organizationId, 'OWNER', true],
+      [b.organizationId, 'STAFF', false],
+    ]);
+
+    const sessionsBefore = await db.session.count({ where: { userId: a.userId } });
+    for (const foreign of [stranger.organizationId, randomUUID(), 'not-a-uuid'])
+      await expect(auth.switchOrganization(first.token, foreign)).rejects.toThrow();
+    expect(await db.session.count({ where: { userId: a.userId } })).toBe(sessionsBefore);
+
+    const switched = await auth.switchOrganization(first.token, b.organizationId);
+    expect(await sessionOrg(switched.token)).toBe(b.organizationId);
+    expect(switched.user.role).toBe('STAFF');
+    // прежний ключ погашен, срок смены не продлён
+    const { hashSessionToken } = await import('@pms/domain');
+    const old = await db.session.findUniqueOrThrow({ where: { tokenHash: hashSessionToken(first.token) } });
+    expect(old.revokedAt).not.toBeNull();
+    expect(switched.expiresAt).toBe(first.expiresAt);
+    expect(await auth.whoami(first.token)).toBeNull();
+    // аккаунт один, организаций не прибавилось
+    expect(await db.user.count({ where: { email: a.email } })).toBe(1);
+    expect(await db.membership.count({ where: { userId: a.userId } })).toBe(2);
+
+    await db.organization.update({ where: { id: a.organizationId }, data: { status: 'SUSPENDED' } });
+    await expect(auth.switchOrganization(switched.token, a.organizationId)).rejects.toThrow();
+    expect((await auth.organizations(switched.token)).map((o) => o.id)).toEqual([b.organizationId]);
+  });
+
   // Г + И: доступ в архивной организации А не должен отнимать законный доступ в Б
   it('login skips an archived first organization and opens the next open membership', async () => {
     const a = await owner('BEAUTY', 'archived-first');

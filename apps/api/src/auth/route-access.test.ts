@@ -86,6 +86,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /auth/password': 'self',
   'GET /auth/sessions': 'self',
   'POST /auth/logout-all': 'self',
+  'GET /auth/organizations': 'self',
+  'POST /auth/organization': 'self',
   'POST /auth/invites': 'staff',
   'GET /auth/invites': 'staff',
   'DELETE /auth/invites/:id': 'staff',

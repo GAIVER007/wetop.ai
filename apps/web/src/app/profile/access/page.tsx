@@ -14,6 +14,9 @@ export default async function AccessPage() {
   });
   if (!me.user) redirect(publicAuthUrl('login', '/profile/access'));
   // Команда переехала на «Сотрудников» (TEAM1): здесь остались личные сеансы
-  const sessions = await authApi.sessions(token, await clientInfo());
-  return <AccessPanel user={me.user} sessions={sessions} />;
+  const info = await clientInfo();
+  const sessions = await authApi.sessions(token, info);
+  // список перехода: при сбое просто не показываем, личный доступ работает и без него
+  const organizations = await authApi.organizations(token, info).catch(() => []);
+  return <AccessPanel user={me.user} sessions={sessions} organizations={organizations} />;
 }

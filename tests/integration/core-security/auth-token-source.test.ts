@@ -18,8 +18,8 @@ describe.skipIf(!process.env.DATABASE_URL)('accounts routes act on the session t
   }, 180_000);
   afterAll(async () => {
     if (w) {
-      await w.db.invite.deleteMany({ where: { organizationId: { in: [w.ids.orgA, w.ids.orgB] } } });
-      await w.db.membership.deleteMany({ where: { organizationId: w.ids.orgB, role: 'MANAGER' } });
+      await w.db.invite.deleteMany({ where: { organizationId: { in: [w.ids.orgA!, w.ids.orgB!] } } });
+      await w.db.membership.deleteMany({ where: { organizationId: w.ids.orgB!, role: 'MANAGER' } });
     }
     await w?.close();
   }, 60_000);
@@ -27,11 +27,11 @@ describe.skipIf(!process.env.DATABASE_URL)('accounts routes act on the session t
   it('restricted cookie session in A plus unrestricted header session in B cannot invite into A', async () => {
     const me = await w.db.user.findUniqueOrThrow({ where: { email: `s2-h1mgr-${w.ids.m}@example.invalid` } });
     // тот же человек законно состоит и в организации B, без ограничений
-    await w.db.membership.create({ data: { userId: me.id, organizationId: w.ids.orgB, role: 'MANAGER' } });
+    await w.db.membership.create({ data: { userId: me.id, organizationId: w.ids.orgB!, role: 'MANAGER' } });
     const headerToken = newSessionToken();
     await w.db.session.create({
       data: {
-        userId: me.id, organizationId: w.ids.orgB, tokenHash: hashSessionToken(headerToken),
+        userId: me.id, organizationId: w.ids.orgB!, tokenHash: hashSessionToken(headerToken),
         expiresAt: new Date(Date.now() + 3_600_000),
       },
     });
@@ -46,6 +46,6 @@ describe.skipIf(!process.env.DATABASE_URL)('accounts routes act on the session t
     // Сейчас защищает RLS: запрос идёт в организации сессии из заголовка (B), и строка сессии A ему не видна.
     expect(res.status, res.text.slice(0, 200)).toBe(401);
 
-    expect(await w.db.invite.count({ where: { organizationId: w.ids.orgA, email } })).toBe(0);
+    expect(await w.db.invite.count({ where: { organizationId: w.ids.orgA!, email } })).toBe(0);
   });
 });

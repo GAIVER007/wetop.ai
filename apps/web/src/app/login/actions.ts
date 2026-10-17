@@ -356,3 +356,21 @@ export async function logoutAllAction(): Promise<void> {
   await clearSessionCookie();
   redirect(publicAuthUrl());
 }
+
+/**
+ * Перейти в другую свою организацию (один аккаунт в нескольких организациях). API заново проверяет членство; указатель
+ * филиала прежней организации снимается, дальше обычный выбор филиала.
+ */
+export async function switchOrganizationAction(organizationId: string): Promise<AuthActionResult> {
+  const token = await sessionToken();
+  if (!token) redirect(publicAuthUrl('login', '/profile/access'));
+  try {
+    const next = await authApi.switchOrganization(token, organizationId, await clientInfo());
+    await setSessionCookie(next.token, next.expiresAt);
+    await clearScopeCookie();
+  } catch (e) {
+    return { error: errorText(e) };
+  }
+  // выбор филиала новой организации: обработчик маршрута, поэтому загрузкой страницы
+  return { error: null, redirectTo: scopeResolvePath('/today') };
+}

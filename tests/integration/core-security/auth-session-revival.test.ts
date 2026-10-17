@@ -34,7 +34,7 @@ describe.skipIf(!process.env.DATABASE_URL)('revoked access stays revoked after r
     expect((await sessionRow(old)).revokedAt).not.toBeNull();
 
     // повторное приглашение принято: членство снова есть (как его заводит принятие приглашения)
-    await w.db.membership.create({ data: { userId: staff.id, organizationId: w.ids.orgA, role: 'STAFF' } });
+    await w.db.membership.create({ data: { userId: staff.id, organizationId: w.ids.orgA!, role: 'STAFF' } });
     expect((await me(old)).body.user ?? null).toBeNull();
   });
 
@@ -42,9 +42,9 @@ describe.skipIf(!process.env.DATABASE_URL)('revoked access stays revoked after r
     const old = w.tokens.FOREIGN;
     expect((await me(old)).body.user).not.toBeNull();
     const repo = new PrismaExtensionsRepository({ db: w.db } as never);
-    await repo.archive({ organizationId: w.ids.orgB, by: null, now: new Date() });
+    await repo.archive({ organizationId: w.ids.orgB!, by: null, now: new Date() });
     expect((await sessionRow(old)).revokedAt).not.toBeNull();
-    await repo.restore({ organizationId: w.ids.orgB, by: null, now: new Date() });
+    await repo.restore({ organizationId: w.ids.orgB!, by: null, now: new Date() });
     expect((await me(old)).body.user ?? null).toBeNull();
   });
 });

@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 17.10.2026 09:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит a68e9c5 (claude/auth-identity-1016), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-50-40Z-integration-50c2.json' 'tests/integration/core-security/auth-org-switch-http.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |integration| tests/integration/core-security/auth-org-switch-http.test.ts (1 test) 1062ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  21:50:41
+   Duration  4.39s (transform 47%, tests 29%, import 24%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-50-40Z-integration-50c2.json
+
+# код выхода 0 · 5 с

@@ -5,6 +5,7 @@ import { createPrismaClient, type Db } from '@pms/database';
 import { AuthService } from '../../apps/api/src/auth/auth.service';
 import { EmailVerificationService } from '../../apps/api/src/auth/email-verification.service';
 import { PasswordResetService } from '../../apps/api/src/auth/password-reset.service';
+import { OrganizationCreation } from '../../apps/api/src/platform/organization-creation';
 import { PrismaAccountsRepository } from '../../apps/api/src/accounts/accounts.prisma-repository';
 import { hashSessionToken } from '@pms/domain';
 import { isLocalDatabase } from '../tools/seed-local';
@@ -49,6 +50,7 @@ describe.skipIf(!process.env.DATABASE_URL)('auth identity chains (integration)',
       await tx.emailVerification.deleteMany({ where: { userId: { in: userIds } } });
       await tx.passwordReset.deleteMany({ where: { userId: { in: userIds } } });
       await tx.invite.deleteMany({ where: { organizationId: { in: orgIds } } });
+      await tx.passwordReset.deleteMany({ where: { user: { email: { in: emails } } } });
       await tx.property.deleteMany({ where: { organizationId: { in: orgIds } } });
       await tx.location.deleteMany({ where: { business: { organizationId: { in: orgIds } } } });
       await tx.business.deleteMany({ where: { organizationId: { in: orgIds } } });
@@ -171,6 +173,66 @@ describe.skipIf(!process.env.DATABASE_URL)('auth identity chains (integration)',
     expect(third.user.organizationId).toBe(o.organizationId);
 
     expect(await chain()).toEqual(before);
+  });
+
+  // Пробный период 7 дней (решение владельца 17.10.2026): срок ставится один раз при создании организации
+  const DAY = 86_400_000;
+  it.each(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)(
+    '%s: new trial is exactly 7 days from the registration moment',
+    async (vertical) => {
+      const now = new Date('2026-10-17T08:00:00.000Z');
+      const email = `authid-trial-${randomUUID()}@example.invalid`;
+      emails.push(email);
+      await auth.register({
+        email, vertical, businessName: `${prefix}-trial7-${vertical}`, name: 'Ольга Тестова', password,
+        phoneCountry: 'KZ', phone: '7015554433', privacyAccepted: true,
+      }, now);
+      const user = await db.user.findUniqueOrThrow({ where: { email }, include: { memberships: { include: { organization: true } } } });
+      const org = user.memberships[0]!.organization;
+      expect(org.status).toBe('TRIAL');
+      expect(org.trialEndsAt!.getTime() - now.getTime()).toBe(7 * DAY);
+    },
+  );
+
+  it('platform-created organization also gets 7 days', async () => {
+    const now = new Date('2026-10-17T08:00:00.000Z');
+    const ownerEmail = `authid-platform-${randomUUID()}@example.invalid`;
+    emails.push(ownerEmail);
+    const creation = new OrganizationCreation({ db } as never, null, 'https://app.example.invalid');
+    const made = await creation.create({ name: `${prefix}-platform-trial`, ownerEmail, vertical: 'BEAUTY', by: null }, now);
+    const org = await db.organization.findUniqueOrThrow({ where: { id: made.organizationId } });
+    expect(org.trialEndsAt!.getTime() - now.getTime()).toBe(7 * DAY);
+  });
+
+  it('a trial issued earlier for 14 days keeps its end date through login, repeat registration, invite, switch and reset', async () => {
+    const o = await owner('BEAUTY', 'trial-legacy');
+    const legacyEnd = new Date('2026-10-25T09:15:00.000Z');
+    await db.organization.update({ where: { id: o.organizationId }, data: { trialEndsAt: legacyEnd } });
+    const end = async () => (await db.organization.findUniqueOrThrow({ where: { id: o.organizationId } })).trialEndsAt!.toISOString();
+
+    const session = await auth.login({ email: o.email, password });
+    expect((await auth.whoami(session.token))?.organization?.trialEndsAt).toBe(legacyEnd.toISOString());
+    await expect(auth.register({
+      email: o.email, vertical: 'BEAUTY', businessName: `${prefix}-trial-legacy-again`, name: 'Ирина Тестова', password,
+      phoneCountry: 'KZ', phone: '7015554433', privacyAccepted: true,
+    })).rejects.toThrow();
+    // сотрудник принят приглашением, человек переходит между организациями
+    const other = await owner('FOOD_SERVICE', 'trial-legacy-other');
+    await db.membership.create({ data: { userId: other.userId, organizationId: o.organizationId, role: 'STAFF' } });
+    const staffSession = await auth.login({ email: other.email, password });
+    await auth.switchOrganization(staffSession.token, o.organizationId);
+    const resetMail: Array<{ to: string; text: string }> = [];
+    const reset = new PasswordResetService({ db } as never, { send: async (l) => void resetMail.push(l) }, 'https://app.example.invalid');
+    await reset.request(o.email);
+    const token = decodeURIComponent(resetMail.at(-1)!.text.match(/token=([^\s]+)/)![1]!.replace(/\+/g, '%20'));
+    await reset.confirm({ token, password: 'trial-legacy-reset-2026' });
+    await auth.login({ email: o.email, password: 'trial-legacy-reset-2026' });
+
+    expect(await end()).toBe(legacyEnd.toISOString());
+    // запущенный срок другой организации тоже не сдвинулся от её входа и приглашения сотрудника в чужую
+    const otherOrg = await db.organization.findUniqueOrThrow({ where: { id: other.organizationId } });
+    expect(otherOrg.trialEndsAt!.getTime() - otherOrg.createdAt.getTime()).toBeGreaterThanOrEqual(7 * DAY - 5_000);
+    expect(otherOrg.trialEndsAt!.getTime() - otherOrg.createdAt.getTime()).toBeLessThanOrEqual(7 * DAY + 5_000);
   });
 
   // Б: повтор регистрации, вход и сброс не заводят новых организаций, людей и бизнесов

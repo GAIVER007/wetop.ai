@@ -222,6 +222,31 @@ export class FoodOrdersController {
     return this.service.periodReport(q);
   }
 }
+/** Зарплата (§33.4, §19.2): общая у ресторана и салона (ADR-SALON-PAYROLL-20261016); адреса прежние */
+@Controller('food-service')
+@Access('desk')
+@RequiresBusinessCapability('branch.payroll')
+export class BranchPayrollController {
+  constructor(@Inject(RestaurantService) private readonly service: RestaurantService) {}
+  @Get('payroll') @Access('staff') payroll(@Query() q: Record<string, unknown>) {
+    return this.service.payroll(q);
+  }
+  @Put('employees/:id/pay-settings') @Access('staff') paySettings(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.setPaySettings(id, b);
+  }
+  @Post('employees/:id/payouts') @Access('staff') payout(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.payout(id, b);
+  }
+  @Post('employees/:id/pay-adjustments') @Access('staff') payAdjustment(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.addPayAdjustment(id, b);
+  }
+}
 /** Касса филиала (§35.2): общая у ресторана и салона (§48, ADR-178 этап 0); адреса прежние */
 @Controller('food-service')
 @Access('desk')
@@ -266,24 +291,6 @@ export class FoodStaffController {
   }
   @Put('employees/:id/working-hours') @Access('staff') setShifts(@Param('id') id: string, @Body() b: unknown) {
     return this.service.setShifts(id, b);
-  }
-  @Get('payroll') @Access('staff') payroll(@Query() q: Record<string, unknown>) {
-    return this.service.payroll(q);
-  }
-  @Put('employees/:id/pay-settings') @Access('staff') paySettings(
-    @Param('id') id: string,
-    @Body() b: unknown,
-  ) {
-    return this.service.setPaySettings(id, b);
-  }
-  @Post('employees/:id/payouts') @Access('staff') payout(@Param('id') id: string, @Body() b: unknown) {
-    return this.service.payout(id, b);
-  }
-  @Post('employees/:id/pay-adjustments') @Access('staff') payAdjustment(
-    @Param('id') id: string,
-    @Body() b: unknown,
-  ) {
-    return this.service.addPayAdjustment(id, b);
   }
 }
 /** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS): справочник `property`, приход и списания `desk` */
@@ -331,6 +338,7 @@ export class FoodStockController {
     FoodMenuController,
     FoodOrdersController,
     BranchCashController,
+    BranchPayrollController,
     FoodStaffController,
     FoodStockController,
     OrderRatingLinkController,

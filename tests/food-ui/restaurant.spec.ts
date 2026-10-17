@@ -819,6 +819,23 @@ test('бар филиала (ADR-178): ресторан и салон прода
   expect(salonAxe.violations).toEqual([]);
 });
 
+test('зарплата салона (§19.2): та же доска, процент от выполненных записей, без вкладок ресторана', async ({ page, request }) => {
+  const { f } = await seed(page, request);
+  const beauty = { 'x-wetop-scope': pointer(f.beauty, f.locations[3]!) };
+  await post(request, beauty, '/beauty/employees', { name: 'Мастер Дина' });
+  await scope(page, f.beauty, f.locations[3]!);
+  await page.goto('/today');
+  await page.goto('/payroll');
+  await expect(page.getByRole('main').getByRole('cell', { name: 'Мастер Дина' })).toBeVisible();
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { name: 'Зарплата и финансы', level: 1 })).toBeVisible();
+  await expect(main).toContainText('процент от выполненных записей');
+  await expect(main.getByRole('columnheader', { name: 'Услуги' })).toBeVisible();
+  await expect(main.getByRole('columnheader', { name: 'Продажи' })).toHaveCount(0);
+  await expect(main.getByRole('link', { name: 'График смен' })).toHaveCount(0);
+  expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+});
+
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({
   page,
   request,

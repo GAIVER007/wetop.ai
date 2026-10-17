@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 17.10.2026 08:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4a0ab4d (claude/salon-payroll), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' '-g' 'зарплата салона|зарплата: оклад'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:53242) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/food-ui/restaurant.spec.ts:451:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (11.6s)
+  ✘  2 tests/food-ui/restaurant.spec.ts:822:1 › зарплата салона (§19.2): та же доска, процент от выполненных записей, без вкладок ресторана (7.4s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:822:1 › зарплата салона (§19.2): та же доска, процент от выполненных записей, без вкладок ресторана 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('columnheader', { name: 'Услуги' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('columnheader', { name: 'Услуги' }) with timeout 5000ms
+      - waiting for getByRole('main').getByRole('columnheader', { name: 'Услуги' })
+
+
+      828 |   await expect(main.getByRole('heading', { name: 'Зарплата и финансы', level: 1 })).toBeVisible();
+      829 |   await expect(main).toContainText('процент от выполненных записей');
+    > 830 |   await expect(main.getByRole('columnheader', { name: 'Услуги' })).toBeVisible();
+          |                                                                    ^
+      831 |   await expect(main.getByRole('columnheader', { name: 'Продажи' })).toHaveCount(0);
+      832 |   await expect(main.getByRole('link', { name: 'График смен' })).toHaveCount(0);
+      833 |   expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/food-ui/restaurant.spec.ts:830:68
+
+    Error Context: test-results/restaurant-зарплата-салона-6bdfd-писей-без-вкладок-ресторана/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-зарплата-салона-6bdfd-писей-без-вкладок-ресторана/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-зарплата-салона-6bdfd-писей-без-вкладок-ресторана/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/restaurant.spec.ts:822:1 › зарплата салона (§19.2): та же доска, процент от выполненных записей, без вкладок ресторана 
+  1 passed (33.9s)
+
+# код выхода 1 · 37 с

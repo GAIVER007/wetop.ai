@@ -41,7 +41,7 @@ describe.skipIf(!url)('MV10 real API/DB and tenant role', () => {
       VerticalToolsService, { provide: PrismaService, useValue: prisma }, { provide: ExtensionsService, useValue: extensions },
       { provide: AuthService, useValue: { whoami: async () => null } }, { provide: APP_GUARD, useClass: SessionGuard },
     ] }).compile();
-    app = m.createNestApplication({ logger: false }); await app.init();
+    app = m.createNestApplication({ logger: false }); await app.listen(0, '127.0.0.1');
     vi.stubEnv('SELLER_QUOTE_KEY', 'synthetic-mv10-key'); vi.stubEnv('AUTH_REQUIRED', '1');
   });
   afterAll(async () => {

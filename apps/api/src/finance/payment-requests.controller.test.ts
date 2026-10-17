@@ -86,7 +86,7 @@ describe('запросы оплаты /finance/*payment-requests (DATA_MODEL §2
       ],
     }).compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(() => app.close());
   beforeEach(() => {

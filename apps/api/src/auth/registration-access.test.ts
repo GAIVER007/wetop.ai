@@ -56,7 +56,7 @@ describe('единая настройка самостоятельной рег�
     app = module.createNestApplication();
     auth = app.get(AuthService);
     app.useGlobalGuards(new SessionGuard(app.get(Reflector), auth));
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
 
   afterEach(async () => {

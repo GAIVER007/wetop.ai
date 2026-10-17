@@ -203,7 +203,7 @@ describe('бронь из чата продавца /bot/booking-intents (DATA_M
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     vi.useFakeTimers({ now: TODAY, toFake: ['Date'] });
   });
   afterAll(async () => {

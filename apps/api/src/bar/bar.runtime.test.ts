@@ -22,7 +22,7 @@ it('loads every empty Bar section without compiler-emitted constructor metadata,
     }).compile();
     const app = module.createNestApplication({ logger: false });
     try {
-      await app.init();
+      await app.listen(0, '127.0.0.1');
       for (const section of sections) {
         const response = await request(app.getHttpServer()).get(`/bar/${section}`);
         expect(response.status, section).toBe(200);

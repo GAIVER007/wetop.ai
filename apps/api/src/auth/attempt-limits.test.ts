@@ -108,7 +108,7 @@ describe('вход: предел попыток с одного адреса', (
     }).compile();
     app = module.createNestApplication();
     app.useGlobalGuards(new SessionGuard(app.get(Reflector), app.get(AuthService)));
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
 
   afterEach(async () => {

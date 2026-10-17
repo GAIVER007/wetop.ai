@@ -1,0 +1,43 @@
+# Модульные (unit) · 17.10.2026 16:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 58750c6 (claude/u1-feature-registry)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T11-08-16Z-unit-1ceb.json' 'tests/unit/ci-runner.test.ts' 'tests/unit/db-backup-offsite.test.ts' 'tests/unit/launchd-status.test.ts' 'tests/unit/local-db-migrate-target.test.ts' 'tests/unit/local-db-start.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/u1
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (25 tests) 3273ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 2290ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 883ms
+ ✓ |unit| tests/unit/local-db-start.test.ts (1 test) 4487ms
+   ✓ local-db start does not add a second set of stays to the populated test schema 4486ms
+ ✓ |unit| tests/unit/local-db-migrate-target.test.ts (1 test) 4636ms
+   ✓ local-db start migrates the local database even when .env carries DIRECT_URL 4634ms
+ ✓ |unit| tests/unit/launchd-status.test.ts (4 tests) 6872ms
+   ✓ status.sh: состояние туннеля (4)
+     ✓ ни tunnel, ни domain не загружены, но адрес отвечает — говорит, что туннель работает 2604ms
+     ✓ адрес молчит и задача не загружена — говорит, что туннеля нет 2370ms
+     ✓ задача загружена и адрес отвечает — обычная строка без предупреждения 938ms
+     ✓ задача загружена, а снаружи молчит — называет это расхождением 958ms
+ ✓ |unit| tests/unit/db-backup-offsite.test.ts (12 tests | 1 skipped) 8893ms
+   ✓ вторая копия вне сервера: наружу только шифротекст (ADR-137) (3)
+     ✓ последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан 2217ms
+     ✓ шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение 2576ms
+     ✓ закрытый ключ age в настройке: отказ до шифрования, закрытому ключу не место на сервере 307ms
+   ✓ вторая копия вне сервера: ключи R2 не светятся (ADR-137) (3)
+     ✓ ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет 657ms
+     ✓ настройки читаются из .env клона, как у db-backup.sh 629ms
+     ✓ Telegram: токен в адресе через stdin, а не аргументом 612ms
+   ✓ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     ✓ ночная копия старше 26 часов: наружу не несём, сообщаем 347ms
+     ✓ R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 547ms
+     ✓ размер в R2 не совпал: сбой, статус не тронут 582ms
+     ✓ rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401) 393ms
+
+ Test Files  5 passed (5)
+      Tests  42 passed | 1 skipped (43)
+   Start at  04:08:17
+   Duration  9.15s (tests 99%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T11-08-16Z-unit-1ceb.json
+
+# код выхода 0 · 10 с

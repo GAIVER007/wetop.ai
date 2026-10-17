@@ -100,6 +100,9 @@ export function MastersBoard({
     focusedEmployee.current = row.id;
     setEditing({ mode: 'edit', row });
     setAddress(row.id, true);
+    // Supersede an in-flight close navigation before its RSC response can erase this newer selection.
+    const address = new URL(location.href);
+    router.replace(`${address.pathname}${address.search}${address.hash}`, { scroll: false });
     setSchedule(null);
     setLoadError('');
     load(async () => {

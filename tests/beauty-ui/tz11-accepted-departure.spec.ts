@@ -5,7 +5,9 @@ for (const mode of ['same-date', 'different-date']) {
   await seed(page,request);
   await page.goto(`/appointments?date=${date}`);
   if(mode==='different-date') {
-   await page.getByTestId('beauty-day-date').fill('2026-10-20');
+   // Use the real day-navigation action for this history setup. A pre-hydration native date fill
+   // can change only the DOM value without dispatching the React navigation on a cold stream.
+   await page.getByRole('button',{name:'Следующий день',exact:true}).click();
    await expect(page).toHaveURL(/date=2026-10-20/);
   } else {
    await page.evaluate(()=>history.pushState({...history.state},'',location.href+'&reviewstep=1'));

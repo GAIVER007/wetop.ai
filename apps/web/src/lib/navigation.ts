@@ -646,8 +646,7 @@ export const beautyMenuSections: MenuSection[] = [
     // и уводили на «Главную» (аудит платформы 17.10.2026, Д1). Вернутся с подключениями направления
     items: [menuItem('/journal')],
   },
-  direct('help', '/help', 'help'),
-  direct('profile', '/profile', 'guests'),
+  // «Помощь» и «Профиль» в меню профиля у всех направлений (аудит 17.10.2026, Д4)
 ];
 
 /**
@@ -714,8 +713,7 @@ export const foodMenuSections: MenuSection[] = [
     // без «Подключений» и «Неисправностей»: см. салон выше (Д1)
     items: [menuItem('/restaurant-settings'), menuItem('/journal')],
   },
-  direct('help', '/help', 'help'),
-  direct('profile', '/profile', 'guests'),
+  // «Помощь» и «Профиль» в меню профиля у всех направлений (аудит 17.10.2026, Д4)
 ];
 
 /**

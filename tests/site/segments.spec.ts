@@ -119,7 +119,7 @@ const SEGMENTS = [
   {
     path: '/for/massage/',
     title: /массаж/i,
-    mustHave: /кабинет/i,
+    mustHave: /кушетк/i,
     photo: '/photos/massage.jpg',
     ...BEAUTY,
   },
@@ -212,12 +212,20 @@ for (const segment of SEGMENTS) {
     // Предпросмотр своего направления: файл отдаётся, данные обозначены как вымышленные
     const photo = hero.locator('img');
     await expect(photo).toHaveAttribute('alt', /вымышленные/);
+    // Четыре салонных типа со своими подписями услуг на рисунке (16.10.2026), остальные на рисунке вертикали
+    const own: Record<string, string> = {
+      '/for/barbershops/': 'beauty-barbershop',
+      '/for/spa/': 'beauty-spa',
+      '/for/nail-studios/': 'beauty-nails',
+      '/for/massage/': 'beauty-massage',
+    };
     const preview =
-      segment.vertical === 'HOSPITALITY'
+      own[segment.path] ??
+      (segment.vertical === 'HOSPITALITY'
         ? 'hospitality'
         : segment.vertical === 'BEAUTY'
           ? 'beauty'
-          : 'restaurant';
+          : 'restaurant');
     await expect(photo).toHaveAttribute('src', `/design-only/${preview}.svg`);
     await expect(hero.getByText('Источники бронирований', { exact: true })).toHaveCount(0);
 
@@ -299,14 +307,17 @@ test('у страниц типов свои карточки возможнос�
     await page.goto(segment.path);
     for (const card of await page.locator('#segment-features .card__text').allTextContents()) {
       const other = seen.get(card);
-      if (other) problems.push(`${segment.path} повторяет карточку ${other}: «${card.slice(0, 50)}»`);
+      if (other)
+        problems.push(`${segment.path} повторяет карточку ${other}: «${card.slice(0, 50)}»`);
       seen.set(card, segment.path);
     }
   }
   expect(problems).toEqual([]);
 });
 
-test('салонные страницы не обещают кабинеты и курсы, которых нет в модели записи', async ({ page }) => {
+test('салонные страницы не обещают кабинеты и курсы, которых нет в модели записи', async ({
+  page,
+}) => {
   // Запись в продукте: клиент, мастер, услуга, время (DATA_MODEL, Appointment). Кабинетов и абонементов нет.
   const paths = [
     ...SEGMENTS.filter((s) => s.vertical === 'BEAUTY').map((s) => s.path),
@@ -318,6 +329,8 @@ test('салонные страницы не обещают кабинеты и 
   for (const path of paths) {
     await page.goto(path);
     const text = (await page.locator('main').innerText()) + (await page.title());
-    expect(text, path).not.toMatch(/кабинет(ы|ов|ам)\b|календар\S* кабинет|кабинет занят|курс(ы|ов)? (процедур|визитов|из)|абонемент/i);
+    expect(text, path).not.toMatch(
+      /кабинет(ы|ов|ам)\b|календар\S* кабинет|кабинет занят|курс(ы|ов)? (процедур|визитов|из)|абонемент/i,
+    );
   }
 });

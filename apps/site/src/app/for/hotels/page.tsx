@@ -5,7 +5,6 @@ import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
-import { JsonLd, faqLd } from '../../../components/json-ld';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -164,7 +163,6 @@ export default function HotelLandingPage() {
 
           <SubtypeLinks direction="hotels" title={t.segments.typesTitle.hotels} />
 
-          {s.faq.length ? <JsonLd data={faqLd(s.faq)} /> : null}
           <MarketingBlock
             id="marketing"
             copy={t.marketing.hotel}

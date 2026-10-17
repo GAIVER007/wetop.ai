@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Icon } from '../../../components/icon';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
-import { JsonLd, faqLd } from '../../../components/json-ld';
 import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
@@ -121,7 +120,11 @@ export default async function SegmentPage({ params }: Props) {
               </ul>
             </div>
             <figure className="hotel-hero__figure">
-              <ProductPreview vertical={type.vertical} label={t.hero.dash.label} />
+              <ProductPreview
+                vertical={type.vertical}
+                src={'preview' in type ? type.preview : undefined}
+                label={t.hero.dash.label}
+              />
               <figcaption>{t.hero.dash.label}</figcaption>
             </figure>
           </section>
@@ -248,7 +251,6 @@ export default async function SegmentPage({ params }: Props) {
             withDirection
           />
 
-          {item.faq?.length ? <JsonLd data={faqLd(item.faq)} /> : null}
           <LandingFinal
             faq={{ title: t.hotel.faqTitle, items: item.faq ?? [] }}
             cta={{

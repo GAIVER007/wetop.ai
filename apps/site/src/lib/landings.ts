@@ -30,11 +30,31 @@ export const SUBTYPES = {
     photo: '/photos/capsule-hotels.jpg',
   },
   'beauty-salons': { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/salon.jpg' },
-  barbershops: { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/barbershop.jpg' },
-  spa: { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/spa.jpg' },
-  'nail-studios': { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/nails.jpg' },
+  barbershops: {
+    vertical: 'BEAUTY',
+    direction: 'salons',
+    photo: '/photos/barbershop.jpg',
+    preview: '/design-only/beauty-barbershop.svg',
+  },
+  spa: {
+    vertical: 'BEAUTY',
+    direction: 'salons',
+    photo: '/photos/spa.jpg',
+    preview: '/design-only/beauty-spa.svg',
+  },
+  'nail-studios': {
+    vertical: 'BEAUTY',
+    direction: 'salons',
+    photo: '/photos/nails.jpg',
+    preview: '/design-only/beauty-nails.svg',
+  },
   'hair-salons': { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/hair-salons.jpg' },
-  massage: { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/massage.jpg' },
+  massage: {
+    vertical: 'BEAUTY',
+    direction: 'salons',
+    photo: '/photos/massage.jpg',
+    preview: '/design-only/beauty-massage.svg',
+  },
   cosmetology: { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/cosmetology.jpg' },
   'brows-lashes': { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/brows-lashes.jpg' },
   epilation: { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/epilation.jpg' },
@@ -61,7 +81,8 @@ export const SUBTYPES = {
   },
 } as const satisfies Record<
   string,
-  { vertical: BusinessVertical; direction: Direction; photo: string }
+  // preview: свой рисунок экрана для первого экрана подтипа (16.10.2026), иначе общий рисунок вертикали
+  { vertical: BusinessVertical; direction: Direction; photo: string; preview?: string }
 >;
 export type Subtype = keyof typeof SUBTYPES;
 export const SUBTYPE_SLUGS = Object.keys(SUBTYPES) as Subtype[];

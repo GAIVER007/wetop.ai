@@ -1,8 +1,19 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { ApiError, authApi } from '../../lib/api';
-import { registrationAvailable } from './signed-in';
+import { registrationAvailable, signedInUser } from './signed-in';
 
 afterEach(() => vi.restoreAllMocks());
+
+it.each([403, 503])('signed-in lookup propagates API %s instead of logging out', async (status) => {
+  const error = new ApiError(status, 'Synthetic refusal');
+  vi.spyOn(authApi, 'me').mockRejectedValue(error);
+  await expect(signedInUser()).rejects.toBe(error);
+});
+it('signed-in lookup treats only API 401 as an absent session', async () => {
+  vi.spyOn(authApi, 'me').mockRejectedValue(new ApiError(401, 'Synthetic session expired'));
+  await expect(signedInUser()).resolves.toBeNull();
+});
+
 
 it.each([null, {}, { registrationEnabled: 'true' }, { registrationEnabled: false }])(
   'неполный или неразрешающий ответ API %j закрывает регистрацию',

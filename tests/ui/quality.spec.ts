@@ -1,5 +1,13 @@
 import { FIXTURE_API, expect, test } from './fixtures';
 const fixture = FIXTURE_API;
+
+// Failure injection is process-global: restore it even when a negative case fails.
+test.afterEach(async ({ request }) => {
+  const response = await request.post(`${fixture}/__test/reset`, {
+    headers: { 'x-wetop-test-client': '1' },
+  });
+  expect(response.ok()).toBe(true);
+});
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });

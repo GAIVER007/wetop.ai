@@ -466,6 +466,7 @@ test('archived service and employee preserve historical calendar appointments', 
   ).toContainText('Тестовый мастер Анна');
   await page.goto(`/appointments?date=${day}`);
   await expect(page.getByRole('table')).toContainText('Тестовый мастер Анна');
+  // The appointments list keeps inline filters; only the calendar uses a disclosure.
   await page.getByLabel('Мастер').selectOption({ label: 'Тестовый мастер Анна (не принимает)' });
   await expect(page.getByRole('table')).toContainText('Тестовая клиентка');
 });

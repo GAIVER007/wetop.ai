@@ -2,9 +2,11 @@ import { defineConfig } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { prepareIsolatedUiWorkers } from './isolated-workers';
+import { selectUiRuntimes } from './runtime-selection';
 
 const repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const isolated = prepareIsolatedUiWorkers(repoRoot);
+const selectedWorkers = selectUiRuntimes(isolated.workers, process.env.UI_RUNTIME_WORKERS);
 const uiExecutable = process.env.UI_BROWSER_EXECUTABLE || process.env.CHROMIUM_PATH;
 const fontResponses = process.env.NEXT_FONT_GOOGLE_MOCKED_RESPONSES;
 type WebServer = {
@@ -24,7 +26,7 @@ const browserUse = {
   trace: 'retain-on-failure' as const,
 };
 
-const webServers = isolated.workers.flatMap((worker): WebServer[] => [
+const webServers = selectedWorkers.flatMap((worker): WebServer[] => [
   {
     command: 'npx tsx tests/ui/fixture-api.ts',
     cwd: worker.root,
@@ -80,7 +82,7 @@ export default defineConfig({
   timeout: 45_000,
   expect: { timeout: 15_000 },
   snapshotPathTemplate: resolve(repoRoot, 'design/reference/kit/{arg}{ext}'),
-  projects: isolated.workers.map((worker) => ({
+  projects: selectedWorkers.map((worker) => ({
     name: `main-ui-${worker.index}`,
     testDir: worker.uiDir,
     testMatch: worker.testMatch,

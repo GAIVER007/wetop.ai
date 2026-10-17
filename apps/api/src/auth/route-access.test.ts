@@ -167,6 +167,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /marketing/ads/proposal': 'ads_launch',
   // запуск тратит деньги: креатив, запуск, «Остановить» и «Включить» под правом запуска; смотреть запуски: право раздела
   'POST /marketing/ads/creatives': 'ads_launch',
+  'GET /marketing/ads/assets': 'ads_launch',
+  'GET /marketing/ads/geo': 'ads_launch',
   'POST /marketing/ads/launches': 'ads_launch',
   'GET /marketing/ads/launches': 'marketing',
   'GET /marketing/ads/launches/:id': 'marketing',

@@ -126,8 +126,9 @@ test('кабинет Meta: одна кнопка в окно Facebook, выбо�
   await expect(main.getByTestId('meta-cabinet')).toContainText('2234567890');
   const row = main.getByTestId('marketing-ads-campaigns').getByRole('row', { name: /Meta: брони осень/ });
   await expect(row).toContainText('Кабинет');
-  await expect(row).toContainText('обновляет кабинет');
-  await expect(row.getByRole('button')).toHaveCount(0); // ручной правки у кампании кабинета нет
+  // ручной правки у кампании кабинета нет; владельцу доступна только остановка в Meta (§57)
+  await expect(row.getByRole('button')).toHaveCount(1);
+  await expect(row.getByRole('button', { name: 'Остановить' })).toBeVisible();
   mkdirSync(SHOTS, { recursive: true });
   await page.screenshot({ path: `${SHOTS}/meta-cabinet-light-1440.png`, fullPage: true });
 

@@ -4086,6 +4086,73 @@ export const metaConnectionApi = {
   disconnect: () => sendJson<{ disconnected: true }>('POST', '/marketing/ad-connections/meta/disconnect', {}),
 };
 
+/** Мастер запуска рекламы (DATA_MODEL §57, ADR-MKT-LAUNCH): кабинет, страницы, сколько ещё можно в день */
+export type MarketingAdAssets =
+  | { connected: false; reportingCurrency: string; roomDailyMinor: string | null }
+  | {
+      connected: true;
+      reportingCurrency: string;
+      /** Сколько ещё можно новой кампании в день, minor units валюты отчётности; null: плана Meta на месяц нет */
+      roomDailyMinor: string | null;
+      cabinet: { name: string; currency: string };
+      pages: Array<{ id: string; name: string; canAdvertise: boolean; instagramUserId: string | null }>;
+      pagesError: string | null;
+      defaults: { pageId: string | null; instagramUserId: string | null };
+    };
+
+/** Предложение ИИ-таргетолога после правил домена (`ad-proposal/0`) */
+export interface MarketingAdProposal {
+  headline: string;
+  primaryText: string;
+  description: string | null;
+  ageMin: number;
+  ageMax: number;
+  genders: number[];
+  interests: string[];
+  welcome: { text: string; autofill: string } | null;
+  notes: string[];
+}
+
+export interface MarketingAdLaunchView {
+  id: string;
+  status: 'RUNNING' | 'SUCCEEDED' | 'FAILED';
+  step: 'MEDIA' | 'CAMPAIGN' | 'ADSET' | 'CREATIVE' | 'AD' | 'DONE';
+  destination: string;
+  headline: string;
+  dailyBudgetMinor: string;
+  currency: string;
+  campaignId: string | null;
+  externalCampaignId: string | null;
+  error: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+}
+
+export const marketingAdsApi = {
+  assets: () => getJson<MarketingAdAssets>('/marketing/ads/assets'),
+  geo: (q: string, country: string) =>
+    getJson<Array<{ key: string; name: string; region: string }>>(
+      `/marketing/ads/geo?q=${encodeURIComponent(q)}&country=${encodeURIComponent(country)}`,
+    ),
+  /** Креатив картинками (фото base64) и оффер: ИИ предлагает текст и аудиторию, ничего не создаёт */
+  proposal: (body: unknown) => sendJson<MarketingAdProposal>('POST', '/marketing/ads/proposal', body),
+  /** Фото креатива: multipart, поле `file`, в закрытое хранилище */
+  uploadCreative: async (file: File): Promise<{ id: string; fileName: string; url: string }> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch('/marketing/ads/creatives', { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { id: string; fileName: string; url: string };
+  },
+  start: (body: unknown) => sendJson<{ id: string }>('POST', '/marketing/ads/launches', body),
+  launch: (id: string) => getJson<MarketingAdLaunchView>(`/marketing/ads/launches/${encodeURIComponent(id)}`),
+  launches: () => getJson<MarketingAdLaunchView[]>('/marketing/ads/launches'),
+  pause: (campaignId: string) =>
+    sendJson<{ status: string }>('POST', `/marketing/ads/campaigns/${encodeURIComponent(campaignId)}/pause`, {}),
+  resume: (campaignId: string) =>
+    sendJson<{ status: string }>('POST', `/marketing/ads/campaigns/${encodeURIComponent(campaignId)}/resume`, {}),
+};
+
 export const marketingCampaignsApi = {
   list: (month?: string) =>
     getJson<MarketingCampaignsView>(`/marketing/campaigns${month ? `?month=${encodeURIComponent(month)}` : ''}`),

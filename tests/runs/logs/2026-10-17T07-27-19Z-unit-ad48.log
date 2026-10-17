@@ -1,0 +1,56 @@
+# Модульные (unit) · 17.10.2026 12:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит b532b26 (claude/d10-site-assets), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T07-27-19Z-unit-ad48.json' 'apps/web/src/app/marketing/site/site-routes.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d10
+
+ ❯ |unit| apps/web/src/app/marketing/site/site-routes.test.ts (2 tests | 2 failed) 5ms
+   ❯ сайт салона и ресторана: медиатека и публикация (2)
+     × медиатека принимает те же направления, что редактор 4ms
+     × публикация: гостинице ссылка, салону и ресторану причина вместо перехода на «Главную» 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/marketing/site/site-routes.test.ts > сайт салона и ресторана: медиатека и публикация > медиатека принимает те же направления, что редактор
+AssertionError: expected [ 'HOSPITALITY' ] to deeply equal [ 'HOSPITALITY', 'BEAUTY', …(1) ]
+
+- Expected
++ Received
+
+  [
+    "HOSPITALITY",
+-   "BEAUTY",
+-   "FOOD_SERVICE",
+  ]
+
+ ❯ apps/web/src/app/marketing/site/site-routes.test.ts:18:44
+     16| describe('сайт салона и ресторана: медиатека и публикация', () => {
+     17|   it('медиатека принимает те же направления, что редактор', () => {
+     18|     expect(verticalsOf('assets/page.tsx')).toEqual(verticalsOf('editor…
+       |                                            ^
+     19|   });
+     20|   it('публикация: гостинице ссылка, салону и ресторану причина вместо …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/marketing/site/site-routes.test.ts > сайт салона и ресторана: медиатека и публикация > публикация: гостинице ссылка, салону и ресторану причина вместо перехода на «Главную»
+TypeError: publishTarget is not a function
+ ❯ apps/web/src/app/marketing/site/site-routes.test.ts:21:12
+     19|   });
+     20|   it('публикация: гостинице ссылка, салону и ресторану причина вместо …
+     21|     expect(publishTarget('HOSPITALITY')).toEqual({ href: '/marketing/s…
+       |            ^
+     22|     for (const v of ['BEAUTY', 'FOOD_SERVICE'] as const) {
+     23|       const t = publishTarget(v);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  00:27:21
+   Duration  107ms (transform 58%, import 19%, tests 16%, worker 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T07-27-19Z-unit-ad48.json
+
+# код выхода 1 · 2 с

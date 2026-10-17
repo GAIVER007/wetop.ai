@@ -1,0 +1,11 @@
+# Сквозные (e2e) · 17.10.2026 11:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 739b32c (claude/public-site-tz5)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/auth-dialog.spec.ts' '-g' 'путь посетителя'
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/site/auth-dialog.spec.ts:366:1 › путь посетителя: главная → салоны → спа → «Начать работу»; ошибка без ложного успеха, повтор проходит (3.9s)
+
+  1 passed (24.6s)
+
+# код выхода 0 · 33 с

@@ -31,7 +31,16 @@ const size = (bytes: number) =>
  * по подписанным адресам на срок. Удаление честно говорит, удержана ли картинка ради опубликованных версий и отката.
  * Выбора картинки для секции здесь нет (MKT9).
  */
-export function AssetLibrary({ library, readOnly }: { library: SiteAssetLibrary; readOnly: boolean }) {
+export function AssetLibrary({
+  library,
+  readOnly,
+  channex = true,
+}: {
+  library: SiteAssetLibrary;
+  readOnly: boolean;
+  /** Импорт фото менеджера каналов: только у гостиницы (Д10) */
+  channex?: boolean;
+}) {
   const [uploaded, upload, uploading] = useActionState(uploadAssetAction, null);
   const [pending, start] = useTransition();
   const [result, setResult] = useState<AssetResult | null>(null);
@@ -136,7 +145,7 @@ export function AssetLibrary({ library, readOnly }: { library: SiteAssetLibrary;
         )}
       </Panel>
 
-      {!readOnly && (
+      {!readOnly && channex && (
         <Panel aria-labelledby="site-assets-channex-title" data-testid="site-assets-channex">
           <PanelTitle>
             <span id="site-assets-channex-title">Импорт из менеджера каналов</span>

@@ -6,6 +6,21 @@
 
 17.10.2026. Проблема: Food учитывал только первый интервал без TimeOff, а разные редакторы недели использовали разные или необязательные revisions. Варианты: независимые расчёты либо общий чистый resolver существующих WorkingHours/TimeOff. По утверждённому срезу D выбран общий resolver с timezone филиала и обязательный исходный token недели в Beauty/Food/Portal. При conflict черновик сохраняется; перечитывание и принятие серверной недели разделены. Отсутствие считается по timezone филиала самой Appointment без изменения записи. Последствия: без новой модели, миграций, финансовых формул и Hotel staffing; ограничения и реальные журналы в `docs/contracts/tz21-working-time-d.md`.
 
+## ADR-RELEASE-FIXTURE-ROUTING-20261017: one coherent portal fixture repair
+
+17.10.2026. Unified authorized release candidate reviews #620 and #621 as competing answers to the same fixture-routing failure. #620 strictly extends the portal allowlist to the canonical owner-home CI service, with explicit marker and purpose-specific public-booking guard. #621 instead routes the seven portal suites to their already accepted disposable GitHub service, retaining unchanged fail-closed guards, and keeps the remaining integration suites on owner-home. Selected #621: no expansion of accepted database identities, explicit tracked-file selection with no empty matches and no dropped integration files. #620's coupled guard refactor, marker and tests are superseded together, not mixed into the selected design. #621's two schedule opener locator fixes remain. Full integration and complete release-checks must validate the selection before parent approves merge or deployment. This decision neither authorizes migrations nor asserts a green gate.
+
+## ADR-TRIAL-7-DAYS-20261017: пробный период 7 дней
+
+17.10.2026, решение владельца («пробный 7 дней»). Частично пересматривает ADR-102 в части срока; режим «только чтение»
+после окончания, ручное подтверждение оплаты и тариф не меняются. Проблема: продукт выдавал 14 дней
+(`TRIAL_DAYS`, ADR-102), а пользовательское соглашение на wetop.ai (`/terms/`) и прежние тексты сайта говорили 7.
+Решение: `TRIAL_DAYS = 7` в `packages/domain/src/accounts/trial.ts`; срок ставят регистрация (`auth.service.ts`) и
+создание организации главным администратором (`platform/organization-creation.ts`) через `trialEndsAt()`.
+Уже созданные организации сохраняют свой `trial_ends_at`: данные не переписываются, миграции нет. Отдельной
+команды изменить срок у существующей организации в коде нет; если понадобится, это отдельное решение. Сайт по ADR-147 срок в кнопках не печатает,
+соглашение уже говорит 7 и не меняется. Последствия: новые организации получают 7 суток с момента создания.
+
 ## ADR-OWNER-HOME-SHARED-V4-20261016
 
 16.10.2026. Проблема: три независимые главные не соответствуют утверждённому общему V4, а прототип содержит демонстрационные series и категории, отсутствующие в API. Варианты: копировать три экрана или одна серверная презентация фактической owner-summary. Выбрана единая `today/unified-owner.tsx` с typed DTO и существующим session/scope transport. Включение только APP_UNIFIED_OWNER_HOME=true, по умолчанию выключено; reports и выбранный филиал обязательны, окончательная авторизация на API. Без fallback-нулей при ошибках. Специализированные инструменты остаются на /today/operations и существующих маршрутах. Последствия: без новых финансовых расчётов, схем и миграций; currencies отдельно, BigInt formatting, PARTIAL workload без процента, ROOM/BED отдельно; график и сравнение честно недоступны, категории не придуманы. Контракт актуализирован перед UI. Production rollout и merge не разрешены этим срезом, backend gates и визуальная приёмка остаются открытыми.

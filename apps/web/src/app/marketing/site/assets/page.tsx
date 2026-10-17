@@ -15,7 +15,9 @@ import '../../marketing.css';
  * в MKT9. Право `marketing` и строгий scope филиала проверяет API.
  */
 export default async function SiteAssetsPage() {
-  await requireVertical(['HOSPITALITY']);
+  // редактор открыт трём направлениям, значит, и его изображения (Д10); импорт из Channex только у гостиницы
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const hotel = (me.context?.vertical ?? 'HOSPITALITY') === 'HOSPITALITY';
   const shell = await deskShell();
   const loaded = await siteAssetsApi
     .list()
@@ -33,7 +35,7 @@ export default async function SiteAssetsPage() {
     );
   return (
     <Page crumbs={<MarketingCrumb />} title={title} subtitle="Фото, логотип и значок сайта филиала.">
-      <AssetLibrary library={loaded.library} readOnly={shell.readOnly} />
+      <AssetLibrary library={loaded.library} readOnly={shell.readOnly} channex={hotel} />
     </Page>
   );
 }

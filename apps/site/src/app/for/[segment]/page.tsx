@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Icon } from '../../../components/icon';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
-import { JsonLd, faqLd } from '../../../components/json-ld';
 import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
@@ -18,7 +17,7 @@ import { registerLink } from '../../../lib/site';
  * Страницы типов гостиничных объектов (/for/hostels/, /for/mini-hotels/, /for/apart-hotels/), с 10.10.2026
  * на каркасе лендинга «Для гостиниц» (`app/for/hotels/page.tsx`): герой с цветным фото (свой файл из KIE,
  * не сток), возможности, настоящий экран календаря, честная строка «Пока нет», вопросы и общий финал.
- * Текст только из продукта (§19.9): ни цифр клиентов, ни цен; «7 дней» по ADR-098, один раз на экран.
+ * Текст только из продукта (§19.9): ни цифр клиентов, ни цен; условий trial нет (ADR-147).
  */
 export const dynamicParams = false;
 
@@ -121,7 +120,11 @@ export default async function SegmentPage({ params }: Props) {
               </ul>
             </div>
             <figure className="hotel-hero__figure">
-              <ProductPreview vertical={type.vertical} label={t.hero.dash.label} />
+              <ProductPreview
+                vertical={type.vertical}
+                src={t.segments.previews[slug] ? `/previews/${slug}.svg` : undefined}
+                label={t.hero.dash.label}
+              />
               <figcaption>{t.hero.dash.label}</figcaption>
             </figure>
           </section>
@@ -248,7 +251,6 @@ export default async function SegmentPage({ params }: Props) {
             withDirection
           />
 
-          {item.faq?.length ? <JsonLd data={faqLd(item.faq)} /> : null}
           <LandingFinal
             faq={{ title: t.hotel.faqTitle, items: item.faq ?? [] }}
             cta={{

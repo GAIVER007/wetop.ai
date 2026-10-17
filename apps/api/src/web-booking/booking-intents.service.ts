@@ -12,6 +12,7 @@ import { guestForStorage } from '@pms/shared';
 import { ANALYTICS_REPOSITORY, type AnalyticsRepository } from '../analytics/analytics.repository';
 import { withIntegrationPropertyScope, withOrganizationScope } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import { ExtensionsService } from '../platform/extensions.service';
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
 import type { ReservationCard } from '../reservations/reservation-card';
@@ -28,6 +29,7 @@ const CHANNEL_SOURCE = { whatsapp: 'WHATSAPP', widget: 'WEBSITE' } as const;
 type Channel = keyof typeof CHANNEL_SOURCE;
 const NOT_FOUND = 'Предложение не найдено';
 const STALE = 'Предложение устарело: нужна новая цена и новое согласие гостя';
+const AGENT_OFF = 'Агент недоступен';
 
 export interface IntentQuote {
   intent: string;
@@ -74,7 +76,23 @@ export class BookingIntentsService {
     @Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork,
     @Inject(ReservationsService) private readonly reservations: ReservationsService,
     @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
   ) {}
+
+  /**
+   * Бронирует только запущенный продавец организации с действующим расширением «ИИ-продавец» (аудит платформы
+   * 17.10.2026, Д9). Раньше черновик и агент на паузе проходили, а расширение проверял только сам бот; теперь
+   * это правило API, то же, что у инструментов направлений (`VerticalToolsService.context`).
+   */
+  private async requireLiveAgent(agent: string): Promise<void> {
+    const scope = await this.sites.agentScope(agent);
+    if (!scope || scope.lifecycle !== 'active' || scope.scenario !== 'sales')
+      throw new NotFoundException(AGENT_OFF);
+    const access = await withOrganizationScope(scope.organizationId, () =>
+      this.extensions.aiSeller(scope.organizationId),
+    );
+    if (access.access !== 'active') throw new NotFoundException(AGENT_OFF);
+  }
 
   async quote(raw: unknown, now: Date = new Date()): Promise<IntentQuote> {
     const b = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
@@ -87,6 +105,7 @@ export class BookingIntentsService {
     if (!(channel in CHANNEL_SOURCE)) throw new BadRequestException('channel: whatsapp или widget');
     const category = text(b.category, 64);
     if (!category) throw new BadRequestException('category: код категории');
+    await this.requireLiveAgent(agent);
     const site = await this.sites.bookingSiteForAgent(agent);
     if (!site || !site.organizationId || !site.propertyId || !site.bookingRatePlan)
       throw new NotFoundException('у агента нет сайта с включённым бронированием');
@@ -192,6 +211,8 @@ export class BookingIntentsService {
         true,
       );
     if (row.state === 'REJECTED') throw new ConflictException(STALE);
+    // повтор уже созданной брони выше отдаёт её и на паузе; новую бронь создаёт только запущенный агент
+    await this.requireLiveAgent(agent);
     if (row.expiresAt.getTime() <= now.getTime()) {
       await this.reject(row.id);
       throw new ConflictException(STALE);

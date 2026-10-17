@@ -1,0 +1,390 @@
+# Сквозные (e2e) · 17.10.2026 09:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7cb75aa (claude/public-site-tz5), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 176 tests using 2 workers
+
+  ✓    1 tests/site/blog.spec.ts:71:1 › каждая страница типа бизнеса закрыта статьёй блога (12ms)
+  ✓    2 tests/site/blog.spec.ts:84:1 › список статей: все опубликованы, черновика нет (1.1s)
+  ✓    3 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (1.3s)
+  ✓    4 tests/site/blog.spec.ts:92:3 › статья kak-vybrat-pms-dlya-khostela: один H1, ссылка на лендинг, внутренние ссылки живые (344ms)
+  ✓    6 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-salone-krasoty: один H1, ссылка на лендинг, внутренние ссылки живые (268ms)
+  ✓    7 tests/site/blog.spec.ts:92:3 › статья kak-prinimat-broni-stolov-v-restorane: один H1, ссылка на лендинг, внутренние ссылки живые (219ms)
+  ✓    8 tests/site/blog.spec.ts:92:3 › статья kak-upravlyat-mini-otelem: один H1, ссылка на лендинг, внутренние ссылки живые (324ms)
+  ✓    5 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (1.3s)
+  ✓    9 tests/site/blog.spec.ts:92:3 › статья kak-vesti-apart-otel: один H1, ссылка на лендинг, внутренние ссылки живые (303ms)
+  ✓   11 tests/site/blog.spec.ts:92:3 › статья kak-vesti-gostevoy-dom: один H1, ссылка на лендинг, внутренние ссылки живые (282ms)
+  ✓   12 tests/site/blog.spec.ts:92:3 › статья kak-vesti-bazu-otdyha: один H1, ссылка на лендинг, внутренние ссылки живые (344ms)
+  ✓   10 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (697ms)
+  ✓   13 tests/site/blog.spec.ts:92:3 › статья kak-sdavat-kvartiry-posutochno: один H1, ссылка на лендинг, внутренние ссылки живые (380ms)
+  ✓   15 tests/site/blog.spec.ts:92:3 › статья kak-vesti-glemping: один H1, ссылка на лендинг, внутренние ссылки живые (293ms)
+  ✓   14 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (711ms)
+  ✓   16 tests/site/blog.spec.ts:92:3 › статья kak-vesti-razmeshchenie-v-sanatorii: один H1, ссылка на лендинг, внутренние ссылки живые (439ms)
+  ✓   18 tests/site/blog.spec.ts:92:3 › статья kak-vesti-kapsulnyy-otel: один H1, ссылка на лендинг, внутренние ссылки живые (191ms)
+  ✓   19 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-barbershope: один H1, ссылка на лендинг, внутренние ссылки живые (241ms)
+  ✓   20 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-spa: один H1, ссылка на лендинг, внутренние ссылки живые (298ms)
+  ✓   21 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-nogtevoy-studii: один H1, ссылка на лендинг, внутренние ссылки живые (352ms)
+  ✓   22 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-parikmaherskoy: один H1, ссылка на лендинг, внутренние ссылки живые (328ms)
+  ✓   23 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-massazhnogo-salona: один H1, ссылка на лендинг, внутренние ссылки живые (313ms)
+  ✓   17 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (2.3s)
+  ✓   24 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-kosmetologii: один H1, ссылка на лендинг, внутренние ссылки живые (364ms)
+  ✓   25 tests/site/auth-dialog.spec.ts:199:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (282ms)
+  ✓   26 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-studii-brovey-i-resnic: один H1, ссылка на лендинг, внутренние ссылки живые (251ms)
+  ✓   27 tests/site/auth-dialog.spec.ts:212:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (327ms)
+  ✓   28 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-studii-epilyacii: один H1, ссылка на лендинг, внутренние ссылки живые (353ms)
+  ✓   30 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-tatu-studii: один H1, ссылка на лендинг, внутренние ссылки живые (218ms)
+  ✓   29 tests/site/auth-dialog.spec.ts:224:1 › на телефоне окно открывается из меню и не шире экрана (731ms)
+  ✓   31 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-v-kafe: один H1, ссылка на лендинг, внутренние ссылки живые (278ms)
+  ✓   33 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-bara: один H1, ссылка на лендинг, внутренние ссылки живые (410ms)
+  ✓   34 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-kofeyni: один H1, ссылка на лендинг, внутренние ссылки живые (178ms)
+  ✓   35 tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-v-kalyannoy: один H1, ссылка на лендинг, внутренние ссылки живые (207ms)
+  ✓   36 tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-komnat-v-karaoke: один H1, ссылка на лендинг, внутренние ссылки живые (216ms)
+  ✓   37 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-piccerii: один H1, ссылка на лендинг, внутренние ссылки живые (338ms)
+  ✓   38 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-stolovoy: один H1, ссылка на лендинг, внутренние ссылки живые (292ms)
+  ✓   39 tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-banketnogo-zala: один H1, ссылка на лендинг, внутренние ссылки живые (311ms)
+  ✓   40 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (382ms)
+  ✓   41 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (253ms)
+  ✓   42 tests/site/homepage-blocks.spec.ts:21:1 › главная объясняет платформу и оставляет регистрацию в мобильной шапке (305ms)
+  ✓   43 tests/site/homepage-blocks.spec.ts:32:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (441ms)
+  ✓   44 tests/site/homepage-blocks.spec.ts:66:1 › «Возможности» вкладками, три витрины продаж, четыре шага (437ms)
+  ✓   45 tests/site/homepage-blocks.spec.ts:93:1 › первый экран: две кнопки в строку, направления сразу после Hero (362ms)
+  ✓   46 tests/site/homepage-blocks.spec.ts:106:1 › карточки блоков читаются одной фразой, а не абзацем (371ms)
+  ✓   47 tests/site/homepage-blocks.spec.ts:121:1 › «Продажи, маркетинг, ИИ»: примеры подписаны вымышленными, ИИ назван отдельным расширением (1.2s)
+  ✓   48 tests/site/homepage-blocks.spec.ts:151:1 › первый экран: дашборд подписан примером и не имитирует кнопки (683ms)
+  ✓   32 tests/site/auth-dialog.spec.ts:241:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (7.2s)
+  ✓   49 tests/site/homepage-blocks.spec.ts:163:1 › первый экран: мокап переключается между гостиницей, салоном и рестораном (1.2s)
+  ✓   50 tests/site/auth-dialog.spec.ts:299:3 › BEAUTY registers like a hotel: no invitation, «Проверьте почту» (ADR-172) (899ms)
+  ✓   51 tests/site/homepage-blocks.spec.ts:184:1 › на главной нет дорожной карты направлений и слова «пилот» (599ms)
+  ✓   52 tests/site/auth-dialog.spec.ts:299:3 › FOOD_SERVICE registers like a hotel: no invitation, «Проверьте почту» (ADR-172) (904ms)
+  ✓   53 tests/site/homepage-blocks.spec.ts:197:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (412ms)
+  ✓   55 tests/site/homepage-blocks.spec.ts:209:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (364ms)
+  ✓   54 tests/site/auth-dialog.spec.ts:329:1 › registration: three countries, correct dial codes and English preference (816ms)
+  ✓   56 tests/site/homepage-blocks.spec.ts:219:1 › карточка призыва и подвал: правовые страницы, контакты, без чисел клиентов (389ms)
+  ✓   58 tests/site/homepage-blocks.spec.ts:247:1 › в текстах главной нет длинного тире и разделителя « · » (318ms)
+  ✓   57 tests/site/hotel-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (395ms)
+  ✓   60 tests/site/hotel-landing.spec.ts:35:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (330ms)
+  ✓   59 tests/site/homepage-blocks.spec.ts:255:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (599ms)
+  ✓   61 tests/site/hotel-landing.spec.ts:52:1 › снимок календаря: настоящий экран с подписью примера и альтернативным текстом (555ms)
+  ✓   62 tests/site/homepage-blocks.spec.ts:255:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (497ms)
+  ✓   63 tests/site/hotel-landing.spec.ts:68:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (547ms)
+  ✓   64 tests/site/homepage-blocks.spec.ts:255:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (489ms)
+  ✓   66 tests/site/homepage-blocks.spec.ts:255:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (532ms)
+  ✓   65 tests/site/hotel-landing.spec.ts:93:3 › доступность и вёрстка: light, 1440 (1.1s)
+  ✓   68 tests/site/hotel-landing.spec.ts:93:3 › доступность и вёрстка: dark, 1440 (1.1s)
+  ✓   67 tests/site/homepage-blocks.spec.ts:275:1 › блоки доступны в обеих темах (2.3s)
+  ✓   69 tests/site/hotel-landing.spec.ts:93:3 › доступность и вёрстка: light, 390 (996ms)
+  ✓   70 tests/site/homepage-blocks.spec.ts:289:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (615ms)
+  ✓   71 tests/site/hotel-landing.spec.ts:93:3 › доступность и вёрстка: dark, 390 (903ms)
+  ✓   72 tests/site/homepage-blocks.spec.ts:306:3 › /privacy/: заголовок, редакция, доступность (665ms)
+  ✓   74 tests/site/homepage-blocks.spec.ts:306:3 › /terms/: заголовок, редакция, доступность (1.4s)
+  ✓   73 tests/site/landing-rhythm.spec.ts:23:3 › одинаковые отступы между блоками лендингов, 1440 (1.5s)
+  ✓   75 tests/site/landing.spec.ts:23:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (313ms)
+  ✓   76 tests/site/landing-rhythm.spec.ts:23:3 › одинаковые отступы между блоками лендингов, 390 (1.4s)
+  ✓   78 tests/site/marketing-block.spec.ts:24:3 › /for/hotels/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (344ms)
+  ✓   77 tests/site/landing.spec.ts:29:3 › / — открывается, доступна и без «TODO» на экране (1.5s)
+  ✓   80 tests/site/landing.spec.ts:44:3 › / — на телефоне нет горизонтальной прокрутки (291ms)
+  ✓   79 tests/site/marketing-block.spec.ts:24:3 › /for/hostels/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (334ms)
+  ✓   82 tests/site/marketing-block.spec.ts:24:3 › /for/mini-hotels/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (318ms)
+  ✓   83 tests/site/marketing-block.spec.ts:24:3 › /for/apart-hotels/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (330ms)
+  ✓   81 tests/site/landing.spec.ts:29:3 › /blog/ — открывается, доступна и без «TODO» на экране (1.0s)
+  ✓   84 tests/site/marketing-block.spec.ts:24:3 › /for/salons/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (306ms)
+  ✓   85 tests/site/landing.spec.ts:44:3 › /blog/ — на телефоне нет горизонтальной прокрутки (433ms)
+  ✓   86 tests/site/marketing-block.spec.ts:24:3 › /for/beauty-salons/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (515ms)
+  ✓   88 tests/site/marketing-block.spec.ts:24:3 › /for/barbershops/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (329ms)
+  ✓   89 tests/site/marketing-block.spec.ts:24:3 › /for/spa/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (267ms)
+  ✓   90 tests/site/marketing-block.spec.ts:24:3 › /for/nail-studios/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (281ms)
+  ✓   91 tests/site/marketing-block.spec.ts:24:3 › /for/cafes/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (334ms)
+  ✓   87 tests/site/landing.spec.ts:29:3 › /for/hotels/ — открывается, доступна и без «TODO» на экране (1.4s)
+  ✓   93 tests/site/landing.spec.ts:44:3 › /for/hotels/ — на телефоне нет горизонтальной прокрутки (278ms)
+  ✓   92 tests/site/marketing-block.spec.ts:24:3 › /for/bars/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (318ms)
+  ✓   95 tests/site/marketing-block.spec.ts:24:3 › /for/restaurants/: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей (366ms)
+  ✓   94 tests/site/landing.spec.ts:29:3 › /for/salons/ — открывается, доступна и без «TODO» на экране (1.2s)
+  ✓   97 tests/site/landing.spec.ts:44:3 › /for/salons/ — на телефоне нет горизонтальной прокрутки (222ms)
+  ✓   96 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (960ms)
+  ✓   99 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (886ms)
+  ✓   98 tests/site/landing.spec.ts:29:3 › /for/restaurants/ — открывается, доступна и без «TODO» на экране (1.5s)
+  ✓  101 tests/site/landing.spec.ts:44:3 › /for/restaurants/ — на телефоне нет горизонтальной прокрутки (551ms)
+  ✓  100 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (1.6s)
+  ✓  102 tests/site/landing.spec.ts:29:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (2.7s)
+  ✓  103 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (2.4s)
+  ✓  104 tests/site/landing.spec.ts:44:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (1.1s)
+  ✓  105 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (2.9s)
+  ✓  106 tests/site/landing.spec.ts:29:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (3.3s)
+  ✓  108 tests/site/landing.spec.ts:44:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (286ms)
+  ✓  107 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (2.1s)
+  ✓  110 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (2.6s)
+  ✓  109 tests/site/landing.spec.ts:29:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (3.2s)
+  ✓  112 tests/site/landing.spec.ts:44:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (311ms)
+  ✓  111 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (1.6s)
+  ✓  113 tests/site/landing.spec.ts:29:3 › /calculator/ — открывается, доступна и без «TODO» на экране (1.5s)
+  ✓  114 tests/site/public-intro.spec.ts:68:1 › new header registration: keyboard activation and focus return on mobile (529ms)
+  ✓  115 tests/site/landing.spec.ts:44:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (235ms)
+  ✓  116 tests/site/public-intro.spec.ts:88:1 › direction pages preselect the correct vertical in existing AuthDialog (1.3s)
+  ✓  117 tests/site/landing.spec.ts:29:3 › /privacy/ — открывается, доступна и без «TODO» на экране (1.8s)
+  ✓  119 tests/site/landing.spec.ts:44:3 › /privacy/ — на телефоне нет горизонтальной прокрутки (223ms)
+  ✓  118 tests/site/public-intro.spec.ts:112:1 › hero chips open a description popover with a link to the direction page (1.1s)
+  ✓  121 tests/site/public-intro.spec.ts:134:1 › business positioning: three verticals, no maturity labels, five capabilities each (410ms)
+  ✓  120 tests/site/landing.spec.ts:29:3 › /terms/ — открывается, доступна и без «TODO» на экране (1.0s)
+  ✓  123 tests/site/landing.spec.ts:44:3 › /terms/ — на телефоне нет горизонтальной прокрутки (191ms)
+  ✓  122 tests/site/public-intro.spec.ts:154:1 › compact direction cards retain accessible links without subtype lists (532ms)
+  ✓  125 tests/site/restaurant-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (349ms)
+  ✓  126 tests/site/restaurant-landing.spec.ts:33:1 › полоса фактов и возможности: девять карточек, без выдуманных чисел (430ms)
+  ✓  127 tests/site/restaurant-landing.spec.ts:62:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (522ms)
+  ✓  124 tests/site/landing.spec.ts:57:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (1.6s)
+  ✓  129 tests/site/landing.spec.ts:75:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (400ms)
+  ✓  130 tests/site/landing.spec.ts:88:1 › главная: регистрация открыта, маркетинговых обещаний trial нет (385ms)
+  ✓  131 tests/site/landing.spec.ts:142:1 › первый экран объясняет платформу, направления и зрелость (357ms)
+  ✓  128 tests/site/restaurant-landing.spec.ts:87:3 › доступность и вёрстка: light, 1440 (1.6s)
+  ✓  132 tests/site/salon-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (409ms)
+  ✓  134 tests/site/salon-landing.spec.ts:41:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (443ms)
+  ✓  135 tests/site/salon-landing.spec.ts:58:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (474ms)
+  ✓  133 tests/site/restaurant-landing.spec.ts:87:3 › доступность и вёрстка: dark, 1440 (1.3s)
+  ✓  137 tests/site/restaurant-landing.spec.ts:87:3 › доступность и вёрстка: light, 390 (738ms)
+  ✓  138 tests/site/restaurant-landing.spec.ts:87:3 › доступность и вёрстка: dark, 390 (913ms)
+  ✓  136 tests/site/salon-landing.spec.ts:79:3 › доступность и вёрстка: light, компьютер и телефон (1.8s)
+  ✓  140 tests/site/segments.spec.ts:201:3 › /for/hostels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (353ms)
+  ✓  141 tests/site/segments.spec.ts:201:3 › /for/mini-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (242ms)
+  ✓  142 tests/site/segments.spec.ts:201:3 › /for/apart-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (264ms)
+  ✓  143 tests/site/segments.spec.ts:201:3 › /for/guest-houses/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (285ms)
+  ✓  139 tests/site/salon-landing.spec.ts:79:3 › доступность и вёрстка: dark, компьютер и телефон (1.5s)
+  ✓  144 tests/site/segments.spec.ts:201:3 › /for/resorts/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (348ms)
+  ✓  146 tests/site/segments.spec.ts:201:3 › /for/daily-rentals/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (434ms)
+  ✓  147 tests/site/segments.spec.ts:201:3 › /for/glamping/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (424ms)
+  ✓  148 tests/site/segments.spec.ts:201:3 › /for/sanatoriums/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (480ms)
+  ✓  149 tests/site/segments.spec.ts:201:3 › /for/capsule-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (425ms)
+  ✓  150 tests/site/segments.spec.ts:201:3 › /for/beauty-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (909ms)
+  ✓  145 tests/site/seo.spec.ts:8:1 › каждая страница sitemap: h1, title, description, canonical, og:image, JSON-LD; без дублей (10.5s)
+  ✓  152 tests/site/seo.spec.ts:70:1 › лендинги: FAQPage и хлебные крошки в разметке (436ms)
+  ✓  153 tests/site/seo.spec.ts:80:1 › /restaurants/ слита в /for/restaurants/: постоянный редирект и нет в sitemap (68ms)
+  ✓  154 tests/site/seo.spec.ts:90:1 › лендинги: видимые крошки, своя картинка ссылки (251ms)
+  ✓  155 tests/site/seo.spec.ts:100:1 › IndexNow: файл ключа отдаётся сайтом и совпадает с ключом скрипта (68ms)
+  ✓  156 tests/site/site-motion.spec.ts:3:1 › scroll motion works and respects reduced motion (771ms)
+  ✘  151 tests/site/segments.spec.ts:201:3 › /for/barbershops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.4s)
+  ✘  157 tests/site/segments.spec.ts:201:3 › /for/spa/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.8s)
+  ✘  158 tests/site/segments.spec.ts:201:3 › /for/nail-studios/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (11.2s)
+  ✓  159 tests/site/segments.spec.ts:201:3 › /for/hair-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (770ms)
+  ✘  160 tests/site/segments.spec.ts:201:3 › /for/massage/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (244ms)
+  ✓  161 tests/site/segments.spec.ts:201:3 › /for/cosmetology/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (263ms)
+  ✓  162 tests/site/segments.spec.ts:201:3 › /for/brows-lashes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (196ms)
+  ✓  163 tests/site/segments.spec.ts:201:3 › /for/epilation/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (212ms)
+  ✓  164 tests/site/segments.spec.ts:201:3 › /for/tattoo/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (231ms)
+  ✓  165 tests/site/segments.spec.ts:201:3 › /for/cafes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (215ms)
+  ✓  166 tests/site/segments.spec.ts:201:3 › /for/bars/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (226ms)
+  ✓  167 tests/site/segments.spec.ts:201:3 › /for/coffee-shops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (210ms)
+  ✓  168 tests/site/segments.spec.ts:201:3 › /for/hookah-lounges/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (243ms)
+  ✓  169 tests/site/segments.spec.ts:201:3 › /for/karaoke/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (230ms)
+  ✓  170 tests/site/segments.spec.ts:201:3 › /for/pizzerias/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (258ms)
+  ✓  171 tests/site/segments.spec.ts:201:3 › /for/canteens/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (259ms)
+  ✓  172 tests/site/segments.spec.ts:201:3 › /for/banquet-halls/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (234ms)
+  ✓  173 tests/site/segments.spec.ts:272:1 › карточки направлений на главной ведут на страницы по типам объектов (218ms)
+  ✓  174 tests/site/segments.spec.ts:285:1 › страницы направлений ведут карточками на свои типы бизнеса (287ms)
+  ✓  175 tests/site/segments.spec.ts:294:1 › у страниц типов свои карточки возможностей, не копия соседней страницы (1.8s)
+  ✓  176 tests/site/segments.spec.ts:310:1 › салонные страницы не обещают кабинеты и курсы, которых нет в модели записи (896ms)
+
+
+  1) tests/site/segments.spec.ts:201:3 › /for/barbershops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('.hotel-hero').locator('img')
+    Expected: "/design-only/beauty.svg"
+    Received: "/design-only/beauty-barbershop.svg"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.hotel-hero').locator('img') with timeout 10000ms
+      - waiting for locator('.hotel-hero').locator('img')
+        23 × locator resolved to <img width="720" height="540" data-nimg="1" loading="eager" decoding="async" src="/design-only/beauty-barbershop.svg" class="hero-preview-module__u_wpWq__image" alt="Пример интерфейса. Данные вымышленные."/>
+           - unexpected value "/design-only/beauty-barbershop.svg"
+
+
+      219 |           ? 'beauty'
+      220 |           : 'restaurant';
+    > 221 |     await expect(photo).toHaveAttribute('src', `/design-only/${preview}.svg`);
+          |                         ^
+      222 |     await expect(hero.getByText('Источники бронирований', { exact: true })).toHaveCount(0);
+      223 |
+      224 |     expect((await page.request.get((await photo.getAttribute('src')) ?? '')).status()).toBe(200);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-site/tests/site/segments.spec.ts:221:25
+
+    Error Context: test-results/segments--for-barbershops--a3c73-и-призыв-своего-направления/error-context.md
+
+  2) tests/site/segments.spec.ts:201:3 › /for/spa/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('.hotel-hero').locator('img')
+    Expected: "/design-only/beauty.svg"
+    Received: "/design-only/beauty-spa.svg"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.hotel-hero').locator('img') with timeout 10000ms
+      - waiting for locator('.hotel-hero').locator('img')
+        23 × locator resolved to <img width="720" height="540" data-nimg="1" loading="eager" decoding="async" src="/design-only/beauty-spa.svg" class="hero-preview-module__u_wpWq__image" alt="Пример интерфейса. Данные вымышленные."/>
+           - unexpected value "/design-only/beauty-spa.svg"
+
+
+      219 |           ? 'beauty'
+      220 |           : 'restaurant';
+    > 221 |     await expect(photo).toHaveAttribute('src', `/design-only/${preview}.svg`);
+          |                         ^
+      222 |     await expect(hero.getByText('Источники бронирований', { exact: true })).toHaveCount(0);
+      223 |
+      224 |     expect((await page.request.get((await photo.getAttribute('src')) ?? '')).status()).toBe(200);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-site/tests/site/segments.spec.ts:221:25
+
+    Error Context: test-results/segments--for-spa-—-герой--3aa66-и-призыв-своего-направления/error-context.md
+
+  3) tests/site/segments.spec.ts:201:3 › /for/nail-studios/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('.hotel-hero').locator('img')
+    Expected: "/design-only/beauty.svg"
+    Received: "/design-only/beauty-nails.svg"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.hotel-hero').locator('img') with timeout 10000ms
+      - waiting for locator('.hotel-hero').locator('img')
+        24 × locator resolved to <img width="720" height="540" data-nimg="1" loading="eager" decoding="async" src="/design-only/beauty-nails.svg" class="hero-preview-module__u_wpWq__image" alt="Пример интерфейса. Данные вымышленные."/>
+           - unexpected value "/design-only/beauty-nails.svg"
+
+
+      219 |           ? 'beauty'
+      220 |           : 'restaurant';
+    > 221 |     await expect(photo).toHaveAttribute('src', `/design-only/${preview}.svg`);
+          |                         ^
+      222 |     await expect(hero.getByText('Источники бронирований', { exact: true })).toHaveCount(0);
+      223 |
+      224 |     expect((await page.request.get((await photo.getAttribute('src')) ?? '')).status()).toBe(200);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-site/tests/site/segments.spec.ts:221:25
+
+    Error Context: test-results/segments--for-nail-studios-aeb6c-и-призыв-своего-направления/error-context.md
+
+  4) tests/site/segments.spec.ts:201:3 › /for/massage/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /кабинет/i
+    Received string:  "Главная
+    Для салонов красоты
+    Массажные салоны·
+    МАССАЖНЫЕ САЛОНЫ·
+    Массажный салон: сеансы без накладок и простоев·
+    Сеансы по 30, 60 и 90 минут встают в календарь без накладок, а история визитов показывает, кто ходит к вам регулярно.·
+    Попробовать бесплатно
+    Посмотреть возможности
+    Регулярные клиенты
+    Календарь массажистов
+    Длительность и цены
+    Пример интерфейса. Данные вымышленные.
+    Запись за минуту
+    клиент, услуга, мастер и время в одной форме
+    Без накладок
+    занятое время и выходные мастера записать нельзя
+    Клиенты под рукой
+    база с телефонами, нужный находится за секунду
+    Одна платформа
+    гостиница, салон и ресторан в одном аккаунте·
+    ВОЗМОЖНОСТИ·
+    Что есть в системе
+    Регулярные клиенты·
+    История клиента показывает все сеансы, даты и массажиста: видно, кто ходит регулярно и когда был последний визит.·
+    Календарь массажистов·
+    Массажисты колонками, длительность сеанса держит время сама: два клиента на одно время к мастеру не встанут.·
+    Длительность и цены·
+    У каждого вида массажа своя длительность и цена, в каждом филиале свои, если нужно.·
+    База клиентов·
+    Телефоны, заметки и противопоказания со слов клиента в карточке: массажист видит их перед сеансом.·
+    Статусы визитов·
+    Подтверждена, завершена или «не пришёл»: день массажиста виден по статусам.·
+    Несколько филиалов·
+    Филиалы ведутся в одной организации: у мастера отмечено, где он работает, цены свои по филиалам.·
+    МАССАЖНЫЕ САЛОНЫ·
+    Как проходит день с WETOP
+    1
+    Утро: день мастеров перед глазами·
+    На экране «Сегодня» все записи дня по статусам и мастера в работе. Видно свободные окна, которые ещё можно заполнить.·
+    2
+    День: запись за минуту·
+    Клиент позвонил или написал: выбрали услугу, мастера и свободное время, запись встала в календарь. Вне графика и на занятое время она не встанет.·
+    3
+    Вечер: итог по визитам·
+    Завершённые визиты отмечены, сорванные видны по статусу «не пришёл». Аналитика показывает, как прошли день и неделя.·
+    КАЛЕНДАРЬ ЗАПИСЕЙ·
+    День салона на одном экране·
+    Мастера колонками, записи со статусами и свободные окна видны сразу; новая запись добавляется щелчком по свободному времени.·
+    Интерфейс WETOP. Данные вымышленные.·
+    МАССАЖНЫЕ САЛОНЫ·
+    Программа для массажного салона: кушетка не простаивает·
+    Массажный салон зарабатывает, когда кушетка занята: сеансы разной длительности должны вставать плотно и без накладок. WETOP держит длительность каждого сеанса и показывает свободные окна мастеров сразу.·
+    История клиента хранит все сеансы и заметки мастера: видно, кто давно не приходил, и администратор может позвать его на следующий сеанс по телефону из карточки.·
+    МАРКЕТИНГ И ИИ·
+    Цифры салона каждый день, без таблиц и подсчётов вручную·
+    Записи дня по статусам и мастера видны с утра на одном экране. Следом в WETOP придут ИИ-продавец и маркетинг для салонов.·
+    Отчётность за каждый день·
+    На экране «Сегодня» все записи дня: запланировано, подтверждено, завершено, и сколько мастеров в работе. Открыли утром и знаете, как идёт день.·
+    Аналитика·
+    Работа салона за любой период в разделе аналитики: видно сильные и слабые дни.·
+    База клиентов·
+    Все клиенты салона с телефонами в одном месте: нужный находится за секунду, ничего не теряется в переписках.·
+    ИИ-продавец·
+    Будет отвечать клиентам в мессенджерах, подбирать свободное время у мастера и записывать.·
+    Сайт с ИИ и онлайн-запись·
+    Сайт салона по вашим данным и запись прямо с него, без звонков.·
+    Реклама и контент с ИИ·
+    Идеи постов, тексты и план публикаций под ваш салон.·
+    ДЛЯ КОГО·
+    Смотрите также
+    Для салонов красоты·
+    Общая страница направления: календарь записей, мастера, услуги, клиенты и касса салона.·
+    Подробнее
+    Косметология·
+    Журнал записи косметологии: чистки, пилинги и уходы с длительностью и ценой, история процедур клиента, графики специалистов.·
+    Подробнее
+    Брови и ресницы·
+    Журнал записи студии бровей и ресниц: коррекция и окрашивание бровей, наращивание и ламинирование ресниц, база клиенток.·
+    Подробнее
+    Студии эпиляции·
+    Журнал записи студии лазерной эпиляции и шугаринга: зоны с длительностью и ценой, история визитов, база клиенток.·
+    Подробнее
+    Частые вопросы
+    Как следить за клиентом, который ходит регулярно?
+    +
+    Можно ли задать разную длительность сеансов?
+    +
+    Видно ли свободные окна массажиста?
+    +
+    Как хранить заметки по клиенту?
+    +
+    Если массажист работает в двух филиалах?
+    +
+    Нужно ли что-то устанавливать?
+    +
+    ПОПРОБУЙТЕ НА СВОЁМ ОБЪЕКТЕ·
+    Создайте аккаунт и настройте свой бизнес: WETOP подготовит рабочее пространство.·
+    Регистрация
+    Для салонов красоты·
+    7 дней бесплатно. Карта не нужна."
+
+      204 |     await page.goto(segment.path);
+      205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+    > 206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+          |                                                    ^
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+      209 |       'href',
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-site/tests/site/segments.spec.ts:206:52
+
+    Error Context: test-results/segments--for-massage-—-ге-00b24-и-призыв-своего-направления/error-context.md
+
+  4 failed
+    tests/site/segments.spec.ts:201:3 › /for/barbershops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/spa/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/nail-studios/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/massage/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+  172 passed (2.0m)
+
+# код выхода 1 · 2 мин 5 с

@@ -16,6 +16,7 @@
 .owner-home :is(a, button, select, summary):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
 .owner-heading, .owner-toolbar, .owner-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
 .owner-heading { margin-bottom: var(--space-4); }
+.owner-heading__actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 .owner-heading .owner-eyebrow { letter-spacing: .1em; font-weight: 600; margin: 0 0 var(--space-2); }
 .owner-toolbar { margin-bottom: var(--space-4); }
 .owner-toolbar p { margin: 0; }

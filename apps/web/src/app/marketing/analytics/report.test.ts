@@ -73,3 +73,16 @@ describe('«Аналитика маркетинга» в CSV (МКТ-В6: отч
     expect(l).toContain('2026-09-02;10000,00;;;;;;');
   });
 });
+
+describe('салон и ресторан без результатов каналов (аудит 17.10.2026, Д7)', () => {
+  it('расход есть, выручки нет: ROMI недоступен, а не −100 %', () => {
+    const r = buildAnalyticsReport(VIEW, { ...RESULTS, supported: false, revenueCurrency: null, channels: [], days: [] } as MarketingResultsView);
+    expect(r.ok).toBe(false);
+    expect(r.funnel.romiAvailable).toBe(false);
+    expect(r.funnel.total.romiPct).toBeNull();
+    expect(r.funnel.rows.map((f) => f.romiPct).filter((v) => v !== null)).toEqual([]);
+    expect(r.calendar.total.romiPct).toBeNull();
+    expect(r.calendar.rows.map((d) => d.romiPct).filter((v) => v !== null)).toEqual([]);
+  });
+});
+

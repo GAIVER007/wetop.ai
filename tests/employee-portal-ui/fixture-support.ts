@@ -7,14 +7,20 @@ export type PortalVertical = 'BEAUTY' | 'FOOD_SERVICE';
 export type PortalActor = SignedInUser & { userId: string; scope: 'BUSINESS'; businessId: string; vertical: PortalVertical };
 
 /** Explicit owned loopback clusters, or the dedicated GitHub job DB. Never production/shared targets. */
-export function assertPortalDatabase() {
+export function assertPortalDatabase(purpose: 'portal' | 'public-booking' = 'portal') {
   const raw = process.env.DATABASE_URL;
   if (!raw || process.env.NODE_ENV === 'production') throw new Error('An explicit isolated portal fixture database is required');
   let u: URL;
   try { u = new URL(raw); } catch { throw new Error('Invalid portal fixture database target'); }
-  const ownLocal = (['55603', '55613'].includes(u.port) && u.pathname === '/pmslocal') || (u.port === '55743' && u.pathname === '/wetop_tz21');
-  const githubJob = process.env.CI === 'true' && process.env.GITHUB_ACTIONS === 'true'
-    && u.port === '5432' && u.pathname === '/pms_dev';
+  const ownLocal = ((['55603', '55613'].includes(u.port)
+    || (purpose === 'public-booking' && u.port === '55623')) && u.pathname === '/pmslocal')
+    || (u.port === '55743' && u.pathname === '/wetop_tz21');
+  const githubCi = process.env.CI === 'true' && process.env.GITHUB_ACTIONS === 'true';
+  const githubJob = githubCi && (
+    (u.port === '5432' && u.pathname === '/pms_dev') ||
+    (process.env.PMS_PORTAL_FIXTURE === 'owner-home-ci'
+      && u.username === 'owner_home_test' && u.port === '55516' && u.pathname === '/wetop_owner_home')
+  );
   if (u.protocol !== 'postgresql:' || u.hostname !== '127.0.0.1' || u.search || u.hash || (!ownLocal && !githubJob))
     throw new Error('Portal fixtures require an owned loopback cluster or the dedicated GitHub job database');
   return raw;

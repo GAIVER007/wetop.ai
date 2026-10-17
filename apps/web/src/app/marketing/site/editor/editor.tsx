@@ -138,6 +138,7 @@ export function SiteEditor({
   categories,
   assets,
   readOnly,
+  publish = { href: '/marketing/site' },
 }: {
   siteId: string;
   base: Base;
@@ -149,6 +150,8 @@ export function SiteEditor({
   categories: Array<{ code: string; name: string }>;
   assets: SiteAssetView[];
   readOnly: boolean;
+  /** «Опубликовать»: ссылка или причина, почему пока нельзя (Д10, `publishTarget`) */
+  publish?: { href: string } | { reason: string };
 }) {
   const [base, setBase] = useState<Base>(initialBase);
   const [spec, setSpec] = useState<Spec>(initialBase.spec);
@@ -676,11 +679,22 @@ export function SiteEditor({
               {saving ? 'Сохраняем…' : 'Сохранить черновик'}
             </Button>
             {/* публикация на своей странице (MKT7): там тариф бронирования, домен и подтверждение */}
-            <Link className="btn" href="/marketing/site" data-testid="editor-publication-link">
-              Опубликовать
-            </Link>
+            {'href' in publish ? (
+              <Link className="btn" href={publish.href} data-testid="editor-publication-link">
+                Опубликовать
+              </Link>
+            ) : (
+              <Button type="button" disabled title={publish.reason} aria-describedby="ed-publish-reason" data-testid="editor-publication-off">
+                Опубликовать
+              </Button>
+            )}
           </div>
         </div>
+        {'reason' in publish && (
+          <p className="muted" id="ed-publish-reason" data-testid="ed-publish-reason">
+            {publish.reason}
+          </p>
+        )}
         {project.builder.access !== 'active' && (
           <Alert boxed data-testid="ed-license-off">
             <b>Конструктор сайта не активен для этого филиала.</b>{' '}
@@ -772,6 +786,7 @@ export function SiteEditor({
                   Создайте сайт с помощью ИИ
                 </p>
                 <AiChat
+                  canPublish={'href' in publish}
                   items={items}
                   revisionOf={(id) => versions.find((v) => v.id === id)?.revision ?? null}
                   mode={mode}

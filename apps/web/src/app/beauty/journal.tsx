@@ -308,7 +308,13 @@ export function JournalBoard({
           <QuickReport
             key={`${day.date}:${master}`}
             date={day.date}
-            scope={`${day.location.name ?? 'Салон'}, ${master ? (columns.find((c) => c.id === master)?.name ?? 'Сотрудник недоступен') : 'Все специалисты'}${service || status ? ', С учётом фильтров календаря' : ''}`}
+            scope={[
+              day.location.name ?? 'Салон',
+              master
+                ? (columns.find((c) => c.id === master)?.name ?? 'Сотрудник недоступен')
+                : 'Все специалисты',
+              ...(service || status ? ['С учётом фильтров календаря'] : []),
+            ]}
             build={() => beautyQuickReport(reportRows)}
           />
           <Button

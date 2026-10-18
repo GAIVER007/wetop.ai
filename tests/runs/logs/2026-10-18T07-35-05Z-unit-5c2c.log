@@ -1,0 +1,174 @@
+# Модульные (unit) · 18.10.2026 12:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит fb0e786 (codex/salons-tz4-m6a), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T07-35-05Z-unit-5c2c.json' 'apps/api/src/beauty/appointment-status.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| apps/api/src/beauty/appointment-status.test.ts (11 tests | 3 failed) 18ms
+   ❯ Неявка только после наступления начала визита (11)
+     × BOOKED: отказывает за миллисекунду до начала без изменения записи и истории 8ms
+     ✓ BOOKED: разрешает на границе начала +0 мс и пишет один audit 1ms
+     ✓ BOOKED: разрешает на границе начала +1 мс и пишет один audit 1ms
+     × CONFIRMED: отказывает за миллисекунду до начала без изменения записи и истории 2ms
+     ✓ CONFIRMED: разрешает на границе начала +0 мс и пишет один audit 1ms
+     ✓ CONFIRMED: разрешает на границе начала +1 мс и пишет один audit 0ms
+     × не предлагает неявку в журнале будущего визита в поясе салона 1ms
+     ✓ предлагает неявку после наступления начала 1ms
+     ✓ сохраняет конфликт при конкурентном изменении и не пишет ложный audit 2ms
+     ✓ не раскрывает чужую запись и не изменяет её 0ms
+     ✓ не обходит режим только чтение организации 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-status.test.ts > Неявка только после наступления начала визита > BOOKED: отказывает за миллисекунду до начала без изменения записи и истории
+AssertionError: promise resolved "{ …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "appointments": [
++     {
++       "currency": "KZT",
++       "customer": {
++         "id": "customer",
++         "name": "Тестовый клиент",
++         "phone": null,
++       },
++       "employeeId": "employee",
++       "endMinutes": 1140,
++       "endsAt": "2026-10-18T14:00:00.000Z",
++       "id": "00000000-0000-4000-8000-000000000001",
++       "next": [
++         "CONFIRMED",
++         "IN_PROGRESS",
++         "DONE",
++         "NO_SHOW",
++         "CANCELLED",
++       ],
++       "notes": null,
++       "paidCashMinor": "0",
++       "paidMinor": "0",
++       "paidNonCashMinor": "0",
++       "priceMinor": "100000",
++       "refundedMinor": "0",
++       "serviceId": "service",
++       "serviceName": "Тестовая услуга",
++       "startMinutes": 1080,
++       "startsAt": "2026-10-18T13:00:00.000Z",
++       "status": "BOOKED",
++     },
++   ],
++   "bounds": {
++     "fromMinutes": 480,
++     "toMinutes": 1200,
++   },
++   "columns": [],
++   "date": "2026-10-18",
++   "location": {
++     "currency": "KZT",
++     "id": "location",
++     "name": "Тестовый салон",
++     "timezone": "Asia/Almaty",
++   },
++   "services": [],
+  }
+
+ ❯ apps/api/src/beauty/appointment-status.test.ts:45:80
+     43|     it(`${status}: отказывает за миллисекунду до начала без изменения …
+     44|       const f = fixture(status);
+     45|       await expect(f.run(() => f.service.setStatus(id, { status: 'NO_S…
+       |                                                                                ^
+     46|       expect(f.db.appointment.updateMany).not.toHaveBeenCalled();
+     47|       expect(f.db.auditLog.create).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-status.test.ts > Неявка только после наступления начала визита > CONFIRMED: отказывает за миллисекунду до начала без изменения записи и истории
+AssertionError: promise resolved "{ …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "appointments": [
++     {
++       "currency": "KZT",
++       "customer": {
++         "id": "customer",
++         "name": "Тестовый клиент",
++         "phone": null,
++       },
++       "employeeId": "employee",
++       "endMinutes": 1140,
++       "endsAt": "2026-10-18T14:00:00.000Z",
++       "id": "00000000-0000-4000-8000-000000000001",
++       "next": [
++         "IN_PROGRESS",
++         "DONE",
++         "NO_SHOW",
++         "CANCELLED",
++       ],
++       "notes": null,
++       "paidCashMinor": "0",
++       "paidMinor": "0",
++       "paidNonCashMinor": "0",
++       "priceMinor": "100000",
++       "refundedMinor": "0",
++       "serviceId": "service",
++       "serviceName": "Тестовая услуга",
++       "startMinutes": 1080,
++       "startsAt": "2026-10-18T13:00:00.000Z",
++       "status": "CONFIRMED",
++     },
++   ],
++   "bounds": {
++     "fromMinutes": 480,
++     "toMinutes": 1200,
++   },
++   "columns": [],
++   "date": "2026-10-18",
++   "location": {
++     "currency": "KZT",
++     "id": "location",
++     "name": "Тестовый салон",
++     "timezone": "Asia/Almaty",
++   },
++   "services": [],
+  }
+
+ ❯ apps/api/src/beauty/appointment-status.test.ts:45:80
+     43|     it(`${status}: отказывает за миллисекунду до начала без изменения …
+     44|       const f = fixture(status);
+     45|       await expect(f.run(() => f.service.setStatus(id, { status: 'NO_S…
+       |                                                                                ^
+     46|       expect(f.db.appointment.updateMany).not.toHaveBeenCalled();
+     47|       expect(f.db.auditLog.create).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-status.test.ts > Неявка только после наступления начала визита > не предлагает неявку в журнале будущего визита в поясе салона
+AssertionError: expected [ 'CONFIRMED', 'IN_PROGRESS', …(3) ] to not include 'NO_SHOW'
+ ❯ apps/api/src/beauty/appointment-status.test.ts:69:46
+     67|     const f = fixture();
+     68|     const result = await f.run(() => f.service.day('2026-10-18'));
+     69|     expect(result.appointments[0]!.next).not.toContain('NO_SHOW');
+       |                                              ^
+     70|     expect(result.appointments[0]!.next).toContain('CONFIRMED');
+     71|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 8 passed (11)
+   Start at  00:35:07
+   Duration  1.80s (transform 75%, import 24%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T07-35-05Z-unit-5c2c.json
+
+# код выхода 1 · 4 с

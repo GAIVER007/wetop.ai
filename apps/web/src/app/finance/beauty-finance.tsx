@@ -1,3 +1,6 @@
+import { financeDateRange } from '../../lib/finance-period';
+import type { SearchParams } from '../../lib/search-params';
+import { ApiError } from '../../lib/api-error';
 import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
@@ -13,19 +16,14 @@ import '../sales/sales.css';
 
 /**
  * «Финансы» салона (единая навигация всех направлений): деньги из записей салона, без выдуманных чисел.
- * Источник один: финансовый срез записей за день филиала, запрашивается по дням недели.
+ * Источник один: `GET /beauty/appointments?date=` (день филиала), запрашивается по дням периода.
  * - выручка: снимки цен записей в статусе DONE (Q-252);
  * - ожидается: BOOKED и CONFIRMED (ещё не оказано);
  * - потери: NO_SHOW и CANCELLED.
  * Касса и расходы салона отдельной моделью пока не ведутся: экран говорит об этом прямо.
  */
-const DAYS = 7;
-
-function shiftDate(iso: string, delta: number): string {
-  const d = new Date(`${iso}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + delta);
-  return d.toISOString().slice(0, 10);
-}
+/** Как у CSV записей: не больше месяца отдельных дневных запросов. */
+const MAX_DAYS = 31;
 
 const sum = (rows: BeautyAppointmentRow[]) =>
   rows.reduce((acc, a) => acc + BigInt(a.priceMinor || '0'), 0n);
@@ -111,24 +109,42 @@ export function buildBeautyFinanceGroups(days: BeautyDay[]): BeautyFinanceView[]
   }))));
 }
 
-async function loadWeek(): Promise<BeautyFinanceView[]> {
-  // Первый запрос без даты: сервер сам знает «сегодня» филиала в его часовом поясе
+async function loadPeriod(params: SearchParams): Promise<BeautyFinanceView[]> {
+  // Только API знает текущую дату филиала; сегодняшний ответ повторно не запрашиваем.
   const first = await beautyApi.financeDay();
-  const rest = await Promise.all(
-    Array.from({ length: DAYS - 1 }, (_, i) =>
-      beautyApi.financeDay(shiftDate(first.date, -(i + 1))),
-    ),
-  );
-  return buildBeautyFinanceGroups([...rest, first]);
+  const { dates } = financeDateRange(params, first.date, { period: 'week', maxDays: MAX_DAYS });
+  const days: BeautyDay[] = new Array(dates.length);
+  let cursor = 0;
+  let failed = false;
+  const worker = async () => {
+    while (!failed) {
+      const index = cursor++;
+      const date = dates[index];
+      if (!date) return;
+      try {
+        const day = date === first.date ? first : await beautyApi.financeDay(date);
+        if (day.date !== date || day.location.id !== first.location.id ||
+            day.location.timezone !== first.location.timezone) {
+          throw new ApiError(502, 'Данные периода не совпадают с филиалом отчёта.');
+        }
+        days[index] = day;
+      } catch (error) {
+        failed = true;
+        throw error;
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(4, dates.length) }, worker));
+  return buildBeautyFinanceGroups(days);
 }
 
 const timeOf = (iso: string, timeZone: string) =>
   new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone }).format(new Date(iso));
 
-export async function BeautyFinanceScreen() {
+export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?: SearchParams } = {}) {
   let views: BeautyFinanceView[];
   try {
-    views = await loadWeek();
+    views = await loadPeriod(searchParams);
   } catch (error: unknown) {
     unstable_rethrow(error);
     return (
@@ -167,14 +183,14 @@ function BeautyFinanceReport({ view, multiple }: { view: BeautyFinanceView; mult
             icon="money"
             label="Стоимость оказанных услуг"
             value={money(view.revenue)}
-            caption={view.refunded > 0n ? `снимки цен за 7 дней, не поступления, возвраты ${money(view.refunded)}` : 'снимки цен за 7 дней, не поступления'}
+            caption={view.refunded > 0n ? `снимки цен за выбранный период, не поступления, возвраты ${money(view.refunded)}` : 'снимки цен за выбранный период, не поступления'}
             testId="beauty-revenue"
           />
           <KpiTile
             icon="check"
             label="Выполнено записей"
             value={String(view.done.length)}
-            caption="выполнено за 7 дней"
+            caption="выполнено за выбранный период"
             testId="beauty-services-count"
             href="/appointments"
           />

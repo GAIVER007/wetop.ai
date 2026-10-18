@@ -140,6 +140,12 @@
     }
     .beauty-customers-controls > * {
       flex: 1 1 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+    .beauty-customers-controls > .btn {
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
     .beauty-customer-tools > .btn {
       flex: 1 1 100%;

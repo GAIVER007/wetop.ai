@@ -69,7 +69,7 @@ describe('MV4 explicit Beauty boundary', () => {
   }
   it('every existing Beauty handler has the canonical capability', () => {
     for (const [controller, methods, capability] of [
-      [BeautyCatalogController, ['customers'], 'beauty.customers'],
+      [BeautyCatalogController, ['customers', 'createCustomer', 'updateCustomer'], 'beauty.customers'],
       [
         BeautyCatalogController,
         ['services', 'createService', 'updateService', 'setLocationService'],

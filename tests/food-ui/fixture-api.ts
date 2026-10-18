@@ -36,6 +36,7 @@ const org = randomUUID(),
 let role: MembershipRole = 'OWNER';
 const calls: string[] = [];
 const creationKeys: string[] = [];
+const sessionExpiresAt = new Date(Date.now() + 24 * 3600_000).toISOString();
 let unavailable = false;
 let failCreate = false;
 await db.organization.create({ data: { id: org, name: `MV7-browser-${org}`, status: 'ACTIVE' } });
@@ -48,11 +49,13 @@ class FixtureController {
     return {
       user: {
         id: user,
+        organizationId: org,
         name: 'Тестовый владелец',
         email: 'owner@example.invalid',
         role,
         organization: await db.organization.findUniqueOrThrow({ where: { id: org } }),
       },
+      expiresAt: sessionExpiresAt,
       context: {
         businessId: currentBusinessId(),
         locationId: currentLocationId(),

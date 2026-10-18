@@ -1,0 +1,186 @@
+# Сквозные (e2e) · 18.10.2026 11:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 870563d (claude/main-red-after-nav), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-journal.spec.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1266ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+  ✘   1 tests/ui/beauty-journal.spec.ts:101:1 › запись из пустой клетки появляется в сетке и в списке дня (51.2s)
+  ✘   2 tests/ui/beauty-journal.spec.ts:117:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок (2.1m)
+  ✓   3 tests/ui/beauty-journal.spec.ts:158:1 › перенос мышью меняет время записи через существующий API (1.5m)
+  ✘   4 tests/ui/beauty-journal.spec.ts:176:1 › занятое время мастера не предлагается и отказ приходит словами (46.5s)
+  ✓   5 tests/ui/beauty-journal.spec.ts:189:1 › вне графика мастера клетки нерабочие (18.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓   6 tests/ui/beauty-journal.spec.ts:196:1 › состояния записи идут по жизни, из выполненной дороги нет (23.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓   7 tests/ui/beauty-journal.spec.ts:220:1 › отмена спрашивает и освобождает время мастера (18.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓   8 tests/ui/beauty-journal.spec.ts:242:1 › перенос меняет время записи (15.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✘   9 tests/ui/beauty-journal.spec.ts:258:1 › журнал на телефоне: день списком, без прокрутки вбок (49.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓  10 tests/ui/beauty-journal.spec.ts:273:3 › журнал доступен в светлой теме (21.8s)
+  ✓  11 tests/ui/beauty-journal.spec.ts:273:3 › журнал доступен в тёмной теме (18.6s)
+  ✓  12 tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (10.5s)
+  ✓  13 tests/ui/beauty-journal.spec.ts:339:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня (7.7s)
+
+
+  1) tests/ui/beauty-journal.spec.ts:101:1 › запись из пустой клетки появляется в сетке и в списке дня 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Добавить услугу', exact: true })
+        - locator resolved to <button class="btn" type="button">Добавить услугу</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      41 |   await page.goto('/beauty/services');
+      42 |   const main = page.getByRole('main');
+    > 43 |   await main.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+         |                                                                            ^
+      44 |   let panel = page.getByRole('dialog');
+      45 |   await panel.getByLabel('Название').fill('Маникюр');
+      46 |   await panel.getByLabel(/Длительность, минут/).fill('60');
+        at readySalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-journal.spec.ts:43:76)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-journal.spec.ts:102:3
+
+    Error Context: test-results/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-journal.spec.ts:117:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.goto: Target page, context or browser has been closed
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/fixtures.ts:166:30)
+        at openDay (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-journal.spec.ts:88:3)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-journal.spec.ts:123:3
+
+    Error Context: test-results/beauty-journal-неделя-пока-a4eb7--телефон-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-неделя-пока-a4eb7--телефон-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-неделя-пока-a4eb7--телефон-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-journal.spec.ts:176:1 › занятое время мастера не предлагается и отказ приходит словами 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('status')
+    Expected substring: "Настройки филиала сохранены"
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByRole('status') with timeout 15000ms
+      - waiting for getByRole('dialog').getByRole('status')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+    > 61 |   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+         |                                           ^
+      62 |
+      63 |   await page.goto('/beauty/masters');
+      64 |   await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+        at readySalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-journal.spec.ts:61:43)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-journal.spec.ts:180:3
+
+    Error Context: test-results/beauty-journal-занятое-вре-608ef-ся-и-отказ-приходит-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-занятое-вре-608ef-ся-и-отказ-приходит-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-занятое-вре-608ef-ся-и-отказ-приходит-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-journal.spec.ts:258:1 › журнал на телефоне: день списком, без прокрутки вбок ──
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3108/beauty?date=2026-10-12", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/fixtures.ts:166:30)
+        at openDay (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-journal.spec.ts:88:3)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-journal.spec.ts:263:3
+
+    Error Context: test-results/beauty-journal-журнал-на-т-47462--списком-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-журнал-на-т-47462--списком-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-журнал-на-т-47462--списком-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/beauty-journal.spec.ts:101:1 › запись из пустой клетки появляется в сетке и в списке дня 
+    tests/ui/beauty-journal.spec.ts:117:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок 
+    tests/ui/beauty-journal.spec.ts:176:1 › занятое время мастера не предлагается и отказ приходит словами 
+    tests/ui/beauty-journal.spec.ts:258:1 › журнал на телефоне: день списком, без прокрутки вбок ───
+  9 passed (10.5m)
+
+# код выхода 1 · 10 мин 37 с

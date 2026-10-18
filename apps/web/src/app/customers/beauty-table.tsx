@@ -1,7 +1,11 @@
 'use client';
 import Link from 'next/link';
-import { useId, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Alert, Badge, Button, Input, Select, Table } from '../../components/ui';
+import { Overlay } from '../../components/overlay';
+import { ImportCustomers } from './import-customers';
+import { CreateCustomer } from './create-customer';
 import type { BeautyCustomerRow } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
@@ -43,12 +47,25 @@ function segment(row: BeautyCustomerRow): { label: string; tone: 'info' | 'ok' |
 export function BeautyCustomersTable({
   items,
   canEdit = false,
-  scopeKey,
+  scopeKey = '',
+  businessId = '',
 }: {
   items: BeautyCustomerRow[];
   canEdit?: boolean;
-  scopeKey: string;
+  scopeKey?: string;
+  businessId?: string;
 }) {
+  const router = useRouter();
+  const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [saved, setSaved] = useState<{ id: string; created: boolean } | null>(null);
+  const onSaved = useCallback((id: string, created: boolean) => {
+    setCreating(false);
+    setQuery('');
+    setFilter('all');
+    setSaved({ id, created });
+    router.refresh();
+  }, [router]);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<BeautyCustomerSegmentFilter>('all');
   const [exporting, setExporting] = useState(false);
@@ -77,6 +94,9 @@ export function BeautyCustomersTable({
       setExporting(false);
     }
   };
+  useEffect(() => {
+    if (saved) document.getElementById(`customer-${saved.id}`)?.focus();
+  }, [saved, items]);
   return (
     <>
       <div className="beauty-bar">
@@ -86,6 +106,10 @@ export function BeautyCustomersTable({
             : `Показано ${rows.length} из ${items.length}`}
         </p>
         <div className="beauty-customers-controls">
+          {canEdit && <>
+            <Button type="button" onClick={() => setCreating(true)}>Добавить клиента</Button>
+            <Button type="button" onClick={() => setImporting(true)}>Проверить CSV</Button>
+          </>}
           <Input
             id={searchId}
             type="search"
@@ -118,6 +142,7 @@ export function BeautyCustomersTable({
         </div>
       </div>
       {exportError && <Alert>{exportError}</Alert>}
+      {saved && <p role="status">{saved.created ? 'Клиент создан.' : 'Клиент уже есть. Используем существующую карточку.'}</p>}
       <Table className="beauty-customers-table">
         <thead>
           <tr>
@@ -145,7 +170,7 @@ export function BeautyCustomersTable({
             const s = segment(row);
             const visitDate = row.lastVisitLocalDate;
             return (
-              <tr key={row.id}>
+              <tr key={row.id} id={`customer-${row.id}`} tabIndex={-1}>
                 <td data-label="Клиент">
                   <strong>
                     <Link href={`/customers/${encodeURIComponent(row.id)}`}>
@@ -188,6 +213,12 @@ export function BeautyCustomersTable({
           })}
         </tbody>
       </Table>
+      {canEdit && <Overlay open={importing} onClose={() => setImporting(false)} title="Проверка CSV клиентов" drawer trapFocus>
+        {importing && <ImportCustomers />}
+      </Overlay>}
+      {canEdit && <Overlay open={creating} onClose={() => setCreating(false)} title="Добавить клиента" drawer trapFocus>
+        {creating && <CreateCustomer key={businessId} businessId={businessId} onSaved={onSaved} />}
+      </Overlay>}
     </>
   );
 }

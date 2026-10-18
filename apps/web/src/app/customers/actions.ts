@@ -1,11 +1,16 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, beautyApi, type BeautyCustomerImportPreview } from '../../lib/api';
+import { ApiError, authApi, beautyApi, type BeautyCustomerImportPreview } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
 import { BeautyCustomerXlsxError, parseBeautyCustomersXlsx } from './xlsx';
 
 export type CustomerActionResult = { error: string | null; message?: string };
 export type CustomerImportPreviewResult = CustomerActionResult & { preview?: BeautyCustomerImportPreview };
+export interface CreateCustomerState {
+  error?: string;
+  id?: string;
+  created?: boolean;
+}
 
 const messageOf = (error: unknown) => {
   if (error instanceof ApiError) return error.message;
@@ -44,16 +49,39 @@ async function customerFileCsv(form: FormData): Promise<string> {
   }
 }
 
-export async function createBeautyCustomer(form: FormData): Promise<CustomerActionResult> {
+export function createBeautyCustomer(form: FormData): Promise<CustomerActionResult>;
+export function createBeautyCustomer(
+  previous: CreateCustomerState | null,
+  form: FormData,
+): Promise<CreateCustomerState>;
+export async function createBeautyCustomer(
+  previousOrForm: CreateCustomerState | null | FormData,
+  submittedForm?: FormData,
+): Promise<CustomerActionResult | CreateCustomerState> {
+  const form = submittedForm ?? previousOrForm;
+  const stateAction = submittedForm !== undefined;
+  if (!(form instanceof FormData)) return { error: 'Не удалось прочитать форму клиента' };
   try {
-    await assertCustomerScope(form);
-    await beautyApi.createCustomer({
+    if (stateAction) {
+      const expectedBusinessId = String(form.get('businessId') ?? '');
+      const { context } = await authApi.me();
+      if (!expectedBusinessId || context?.businessId !== expectedBusinessId)
+        return { error: 'Бизнес изменён. Закройте форму и откройте её в текущем салоне.' };
+    } else {
+      await assertCustomerScope(form);
+    }
+    const result = await beautyApi.createCustomer({
       firstName: String(form.get('firstName') ?? ''),
       lastName: String(form.get('lastName') ?? ''),
       phone: String(form.get('phone') ?? ''),
     });
     revalidatePath('/customers');
-    return { error: null, message: 'Клиент добавлен' };
+    return stateAction
+      ? result
+      : {
+          error: null,
+          message: result.created ? 'Клиент добавлен' : 'Клиент уже есть. Используем существующую карточку.',
+        };
   } catch (error) {
     return { error: messageOf(error) };
   }

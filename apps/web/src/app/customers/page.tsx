@@ -31,7 +31,9 @@ export default async function CustomersPage() {
           scopeKey={shell.scopeKey ?? ''}
         />
         <BeautyCustomersTable
+          key={me.context?.businessId}
           items={items}
+          businessId={me.context?.businessId ?? ''}
           canEdit={
             !shell.readOnly &&
             mayBeautyAccess(shell.access, 'customers', 'update', { legacy: 'desk' })

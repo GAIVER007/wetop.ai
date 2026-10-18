@@ -1,0 +1,39 @@
+# Модульные (unit) · 18.10.2026 12:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит fb0e786 (codex/salons-tz4-m6a), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T07-35-31Z-unit-161d.json' 'apps/web/src/app/beauty/appointment-card.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| apps/web/src/app/beauty/appointment-card.test.ts (3 tests | 1 failed) 16ms
+   ❯ Пояснение недоступной неявки (3)
+     × объясняет серверный запрет и не рисует кнопку преждевременной неявки 13ms
+     ✓ не показывает пояснение, когда сервер разрешил неявку 2ms
+     ✓ не показывает ограничение для завершённого визита или режима чтения 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/appointment-card.test.ts > Пояснение недоступной неявки > объясняет серверный запрет и не рисует кнопку преждевременной неявки
+AssertionError: expected '<div class="beauty-form"><dl class="b…' to contain 'Можно после начала визита'
+
+Expected: "Можно после начала визита"
+Received: "<div class="beauty-form"><dl class="beauty-facts"><div><dt>Клиент</dt><dd>Тестовый клиент</dd></div><div><dt>Услуга</dt><dd>Тестовая услуга</dd></div><div><dt>Мастер</dt><dd>не найден</dd></div><div><dt>Время</dt><dd>2026-10-18, 18:00 до 19:00</dd></div><div><dt>Цена</dt><dd>0 ₸</dd></div><div><dt>Оплачено</dt><dd data-testid="beauty-card-paid">0 ₸ из 0 ₸</dd></div><div><dt>Состояние</dt><dd data-testid="beauty-card-status">Записан</dd></div></dl><div class="beauty-bar"><button class="btn btn--secondary btn--sm" type="button">Подтвердить</button><button class="btn btn--secondary btn--sm" type="button">Начать</button><button class="btn btn--secondary btn--sm" type="button">Завершить</button><button class="btn btn--danger btn--sm" type="button">Отменить запись</button></div><form class="beauty-form" action="javascript:throw new Error(&#x27;React form unexpectedly submitted.&#x27;)"><input type="hidden" name="id" value="appointment"/><h3>Перенести</h3><label class="field">Мастер<select class="inp" name="employeeId"></select></label><label class="field">Начало<input class="inp" type="datetime-local" data-testid="beauty-move-start" value="2026-10-18T18:00"/></label><input type="hidden" name="startsAt" value="2026-10-18T13:00:00.000Z"/><button class="btn btn--secondary" type="submit">Перенести</button></form></div><script>addEventListener("submit",function(a){if(!a.defaultPrevented){var c=a.target,d=a.submitter,e=c.action,b=d;if(d){var f=d.getAttribute("formAction");null!=f&&(e=f,b=null)}"javascript:throw new Error('React form unexpectedly submitted.')"===e&&(a.preventDefault(),b?(a=document.createElement("input"),a.name=b.name,a.value=b.value,b.parentNode.insertBefore(a,b),b=new FormData(c),a.parentNode.removeChild(a)):b=new FormData(c),a=c.ownerDocument||c,(a.$$reactFormReplay=a.$$reactFormReplay||[]).push(c,d,b))}});</script>"
+
+ ❯ apps/web/src/app/beauty/appointment-card.test.ts:30:18
+     28|   it('объясняет серверный запрет и не рисует кнопку преждевременной не…
+     29|     const html = render();
+     30|     expect(html).toContain('Можно после начала визита');
+       |                  ^
+     31|     expect(html).not.toMatch(/<button[^>]*>Не пришёл<\/button>/);
+     32|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  00:35:32
+   Duration  235ms (import 55%, transform 35%, tests 9%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T07-35-31Z-unit-161d.json
+
+# код выхода 1 · 1 с

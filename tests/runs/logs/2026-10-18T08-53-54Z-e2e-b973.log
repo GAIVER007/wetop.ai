@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 18.10.2026 13:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 424e4b5 (claude/support-whatsnew), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/support-whatsnew.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1362ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-qHksFp/worker-0/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 [main-ui-1] › ../.wetop-main-ui-qHksFp/worker-1/tests/ui/support-whatsnew.spec.ts:18:1 › «Помощь»: блок поддержки с WhatsApp и Telegram, сообщение с названием объекта (40.0s)
+  ✓  2 [main-ui-1] › ../.wetop-main-ui-qHksFp/worker-1/tests/ui/support-whatsnew.spec.ts:32:1 › меню профиля ведёт к поддержке и к «Что нового»; точка гаснет после открытия (36.0s)
+  ✓  3 [main-ui-1] › ../.wetop-main-ui-qHksFp/worker-1/tests/ui/support-whatsnew.spec.ts:52:5 › axe: «Помощь» и «Что нового», light, 1440 px (40.0s)
+  ✘  4 [main-ui-1] › ../.wetop-main-ui-qHksFp/worker-1/tests/ui/support-whatsnew.spec.ts:52:5 › axe: «Помощь» и «Что нового», light, 390 px (46.8s)
+  ✓  5 [main-ui-1] › ../.wetop-main-ui-qHksFp/worker-1/tests/ui/support-whatsnew.spec.ts:52:5 › axe: «Помощь» и «Что нового», dark, 1440 px (15.2s)
+  ✓  6 [main-ui-1] › ../.wetop-main-ui-qHksFp/worker-1/tests/ui/support-whatsnew.spec.ts:52:5 › axe: «Помощь» и «Что нового», dark, 390 px (34.2s)
+
+
+  1) [main-ui-1] › ../.wetop-main-ui-qHksFp/worker-1/tests/ui/support-whatsnew.spec.ts:52:5 › axe: «Помощь» и «Что нового», light, 390 px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/support-whatsnew-axe-«Помощь»-и-«Что-нового»-light-390-px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-whatsnew-axe-«Помощь»-и-«Что-нового»-light-390-px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-whatsnew-axe-«Помощь»-и-«Что-нового»-light-390-px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [main-ui-1] › ../.wetop-main-ui-qHksFp/worker-1/tests/ui/support-whatsnew.spec.ts:52:5 › axe: «Помощь» и «Что нового», light, 390 px 
+  5 passed (6.1m)
+
+# код выхода 1 · 6 мин 24 с

@@ -1,6 +1,15 @@
 import { deskShell } from '../../lib/desk-shell';
 import Link from 'next/link';
 import { Page } from '../../components/page';
+import { hotelApi } from '../../lib/hotel-api';
+import { selectedWorkspaceBranch } from '../../lib/workspace-context';
+import { SupportBlock } from './support-block';
+
+/** Название филиала для начала сообщения в поддержку; оба запроса уже сделал макет (`cache`), новых рейсов нет */
+async function branchName(vertical: string): Promise<string | null> {
+  if (vertical === 'HOSPITALITY') return (await hotelApi.settings().catch(() => null))?.property.name ?? null;
+  return (await selectedWorkspaceBranch().catch(() => null))?.name ?? null;
+}
 
 /** Первые шаги по направлению филиала: у каждого свои разделы, справка другого направления сбивает (F5 плана DS2) */
 export default async function HelpPage() {
@@ -10,8 +19,10 @@ export default async function HelpPage() {
       <p>Выберите филиал, чтобы открыть инструкции для его направления.</p>
       <Link href="/branches">Выбрать филиал</Link>
       <p>Данные можно просматривать в режиме чтения. Вход и выход доступны через меню профиля.</p>
+      <SupportBlock />
     </Page>
   );
+  const support = <SupportBlock branch={await branchName(vertical)} />;
   const access = (
     <p>
       Время показывается в часовом поясе филиала. Доступ сотрудников к WETOP настраивается в разделе{' '}
@@ -34,6 +45,7 @@ export default async function HelpPage() {
           </li>
         </ol>
         {access}
+        {support}
       </Page>
     );
   if (vertical === 'BEAUTY')
@@ -55,6 +67,7 @@ export default async function HelpPage() {
           Если направление находится в режиме чтения, данные доступны, а изменения закрыты.
           Обратитесь к владельцу организации.
         </p>
+        {support}
       </Page>
     );
   return (
@@ -76,6 +89,7 @@ export default async function HelpPage() {
         </li>
       </ol>
       {access}
+      {support}
     </Page>
   );
 }

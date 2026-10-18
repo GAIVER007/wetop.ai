@@ -20,15 +20,12 @@ import {
   appointmentRefund,
   appointmentStatusAllowed,
   allocateStock,
-  BeautyCustomerImportError,
   foodCashBalances,
   nextStatuses,
-  normalizeBeautyCustomerPhone,
   milliOf,
   milliText,
   parseAppointmentInput,
   parseFoodPayment,
-  parseBeautyCustomerInput,
   planAppointment,
   statusChange,
   timeOffWindow,
@@ -38,6 +35,7 @@ import {
 } from '@pms/domain';
 import { currentUserId, currentBeautyOperation } from '../auth/request-context';
 import { currentBeautyPositionAccess } from './access';
+import { findOrCreateCustomer } from '../customers/identity';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import { BeautyAccess } from './access.decorator';
@@ -45,12 +43,6 @@ import { Prisma, type DbTx } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
 import { fitsSalonHours, intersectLocationHours, salonHours } from './location-hours-policy';
-import { lockBeautyCustomerPhone } from './customer-identity';
-
-/** Код P2002 у Prisma: нарушен уникальный индекс. Другие ошибки базы не глотаем. */
-function isUniqueViolation(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && (error as { code?: unknown }).code === 'P2002';
-}
 
 /**
  * Журнал записей салона (DATA_MODEL §19.1, срез B5): день филиала столбцами по мастерам.
@@ -126,7 +118,7 @@ function appointmentView(row: AppointmentViewRow, timezone: string, anchorDate: 
     startMinutes: localMinutes(row.startsAt, timezone, anchorDate),
     endMinutes: localMinutes(row.endsAt, timezone, anchorDate),
     status: row.status,
-    next: nextStatuses(row.status as AppointmentStatus),
+    next: nextStatuses(row.status as AppointmentStatus, { startsAt: row.startsAt, now: new Date() }),
     priceMinor: row.price.toString(),
     paidMinor: row.payments.reduce((sum, payment) => payment.kind === 'INCOME' ? sum + payment.amount : sum, 0n).toString(),
     paidCashMinor: row.payments.reduce((sum, payment) => payment.kind === 'INCOME' && payment.method === 'CASH' ? sum + payment.amount : sum, 0n).toString(),
@@ -372,13 +364,7 @@ export class BeautyAppointmentsService {
         if (!own) throw new NotFoundException('Клиент не найден');
         customerId = own.id;
       } else {
-        customerId = await findOrCreateCustomer(
-          tx,
-          scope.organizationId,
-          input.customer,
-          'Клиент в архиве',
-          { canonicalIdentity: true },
-        );
+        customerId = (await findOrCreateCustomer(tx, scope.organizationId, input.customer)).id;
       }
       // клиент становится виден бизнесу при первом обращении в него (§19.1)
       await tx.customerBusiness.createMany({
@@ -563,7 +549,7 @@ export class BeautyAppointmentsService {
     const { scope, row } = await this.own(id);
     const body = (raw ?? {}) as Record<string, unknown>;
     const to = String(body['status'] ?? '') as AppointmentStatus;
-    const change = statusChange(row.status as AppointmentStatus, to);
+    const change = statusChange(row.status as AppointmentStatus, to, { startsAt: row.startsAt, now: new Date() });
     if (!change.ok) throw new ConflictException(change.reason);
 
     await beautyTransaction(this.prisma, scope, async (tx) => {
@@ -1028,74 +1014,6 @@ export async function employeeBusy(
     select: { startsAt: true },
   });
   return busy !== null;
-}
-
-/**
- * Клиент по телефону: тот же телефон это тот же клиент (`customers` уникален по (organization_id, phone)), иначе новый.
- * Вызывается под замком филиала (`beautyTransaction` и запись с сайта берут его `FOR UPDATE`); если параллельный запрос
- * всё же успел завести того же клиента, проигравший откатывается целиком и получает 409 (CORE-SECURITY-FIX-01, U3-b).
- */
-export async function findOrCreateCustomer(
-  tx: Pick<DbTx, 'customer' | '$queryRaw'>,
-  organizationId: string,
-  customer: { firstName: string; lastName: string | null; phone: string | null },
-  archivedMessage = 'Клиент в архиве',
-  options: { canonicalIdentity?: boolean } = {},
-): Promise<string> {
-  let normalized = customer;
-  if (customer.phone && options.canonicalIdentity) {
-    try {
-      const parsed = parseBeautyCustomerInput(customer);
-      normalized = { firstName: parsed.firstName, lastName: parsed.lastName, phone: parsed.phone };
-    } catch (error) {
-      if (error instanceof BeautyCustomerImportError) throw new BadRequestException(error.message);
-      throw error;
-    }
-    await lockBeautyCustomerPhone(tx, organizationId, normalized.phone!);
-    const matches = await tx.customer.findMany({
-      where: { organizationId, phone: { not: null } },
-      orderBy: { id: 'asc' },
-      select: { id: true, firstName: true, lastName: true, phone: true, status: true },
-    });
-    const fullName = [normalized.firstName, normalized.lastName].filter(Boolean).join(' ');
-    const known = matches.filter((row) => {
-      try {
-        return normalizeBeautyCustomerPhone(row.phone) === normalized.phone;
-      } catch {
-        return false;
-      }
-    });
-    if (known.some((row) => row.status !== 'ACTIVE')) throw new ConflictException(archivedMessage);
-    if (known.some((row) => [row.firstName, row.lastName].filter(Boolean).join(' ').trim().replace(/\s+/g, ' ') !== fullName))
-      throw new ConflictException('Этот телефон уже принадлежит клиенту с другим именем');
-    if (known[0]) return known[0].id;
-  } else if (customer.phone) {
-    const known = await tx.customer.findFirst({
-      where: { organizationId, phone: customer.phone },
-      select: { id: true, status: true },
-    });
-    if (known && known.status !== 'ACTIVE') throw new ConflictException(archivedMessage);
-    if (known) return known.id;
-  }
-  const id = randomUUID();
-  try {
-    await tx.customer.create({
-      data: {
-        id,
-        organizationId,
-        firstName: normalized.firstName,
-        lastName: normalized.lastName,
-        phone: normalized.phone,
-      },
-    });
-  } catch (error) {
-    if (isUniqueViolation(error))
-      throw new ConflictException(
-        'Клиент с таким телефоном уже записывается: повторите запись через несколько секунд',
-      );
-    throw error;
-  }
-  return id;
 }
 
 /** `time` Prisma отдаёт как момент 1970-01-01 */

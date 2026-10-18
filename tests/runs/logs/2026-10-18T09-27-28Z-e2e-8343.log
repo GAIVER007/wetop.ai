@@ -1,0 +1,543 @@
+# Сквозные (e2e) · 18.10.2026 14:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 424e4b5 (claude/support-whatsnew), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/support-whatsnew.spec.ts' 'tests/ui/profile-menu-readiness.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/side-nav.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1724ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-0/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1422ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 1 worker
+
+  ✘   1 [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:62:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (49.6s)
+  ✘   2 [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:106:1 › меню телефона: вложенные адреса подсвечивают свой пункт, «Каталог» в «Услугах» (53.9s)
+  ✘   3 [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:134:1 › все пункты меню открывают существующие страницы (1.0m)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:178:3 › меню телефона и планшета ровное и доступное: light (39.3s)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:178:3 › меню телефона и планшета ровное и доступное: dark (1.8m)
+  ✘   6 [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:232:1 › «Гости и бронирования»: одна вкладка меню, список броней её пунктом (57.0s)
+  ✓   7 [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/profile-menu-readiness.spec.ts:52:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (35.4s)
+  ✘   8 [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/profile-menu-readiness.spec.ts:69:1 › после готовности меню открывается обычным кликом (49.8s)
+  ✘   9 [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/profile-menu-readiness.spec.ts:82:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (48.1s)
+  ✘  10 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (54.2s)
+  ✘  11 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:67:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (53.1s)
+  ✘  12 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:110:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (45.9s)
+  ✘  13 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:127:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (53.1s)
+  ✘  14 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:165:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (1.2m)
+  ✘  15 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:227:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (52.0s)
+  ✓  16 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:283:1 › владелец: зовёт управляющего и администратора, меняет роль (18.2s)
+  ✓  17 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:314:1 › администратор: сотрудниками ведают владелец и управляющий (35.8s)
+  ✓  18 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:326:5 › доступность: сотрудники и отказ по роли, light, 1440px (1.8m)
+  ✓  19 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:326:5 › доступность: сотрудники и отказ по роли, dark, 1440px (1.8m)
+  ✓  20 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:326:5 › доступность: сотрудники и отказ по роли, light, 390px (1.1m)
+  ✓  21 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:326:5 › доступность: сотрудники и отказ по роли, dark, 390px (1.8m)
+  ✘  22 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:61:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу (51.0s)
+  ✘  23 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:116:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (54.8s)
+  ✘  24 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:155:1 › вложенные адреса показывают свой раздел (1.6m)
+  ✓  25 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:186:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (28.8s)
+  ✓  26 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:200:3 › меню без прокрутки вбок и доступное: light (46.7s)
+  ✓  27 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:200:3 › меню без прокрутки вбок и доступное: dark (42.9s)
+  ✓  28 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:255:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (13.3s)
+  ✓  29 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:267:1 › menu panel offers an explicit close action and restores trigger focus (22.2s)
+  ✓  30 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts:20:1 › «Помощь»: блок поддержки с WhatsApp и Telegram, сообщение с названием объекта (51.4s)
+  ✓  31 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts:34:1 › меню профиля ведёт к поддержке и к «Что нового»; точка гаснет после открытия (1.3m)
+  ✓  32 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts:55:7 › axe: /help, light, 1440 px (19.8s)
+  ✓  33 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts:55:7 › axe: /help, light, 390 px (15.5s)
+  ✓  34 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts:55:7 › axe: /help, dark, 1440 px (38.7s)
+  ✓  35 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts:55:7 › axe: /help, dark, 390 px (13.8s)
+  ✓  36 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts:55:7 › axe: /whats-new, light, 1440 px (10.0s)
+  ✓  37 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts:55:7 › axe: /whats-new, light, 390 px (56.3s)
+  ✓  38 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts:55:7 › axe: /whats-new, dark, 1440 px (35.4s)
+  ✓  39 [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts:55:7 › axe: /whats-new, dark, 390 px (19.8s)
+
+
+  1) [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:62:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('dialog', { name: 'Навигация', exact: true }).getByRole('button', { name: 'Настройки', exact: true })
+    Expected: "false"
+    Received: ""
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('dialog', { name: 'Навигация', exact: true }).getByRole('button', { name: 'Настройки', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Навигация', exact: true }).getByRole('button', { name: 'Настройки', exact: true })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      84 |   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+      85 |   const sales = menu.getByRole('button', { name: 'Настройки', exact: true });
+    > 86 |   await expect(sales).toHaveAttribute('aria-expanded', 'false');
+         |                       ^
+      87 |   await sales.focus();
+      88 |   await page.keyboard.press('Space');
+      89 |   await expect(sales).toHaveAttribute('aria-expanded', 'true');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:86:23
+
+    Error Context: test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:106:1 › меню телефона: вложенные адреса подсвечивают свой пункт, «Каталог» в «Услугах» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings/services", waiting until "load"
+
+
+       at ../../../.wetop-main-ui-LswuSO/worker-0/tests/ui/fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-0/tests/ui/fixtures.ts:166:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:110:3
+
+    Error Context: test-results/navigation-меню-телефона-в-76293-пункт-«Каталог»-в-«Услугах»-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-в-76293-пункт-«Каталог»-в-«Услугах»-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-в-76293-пункт-«Каталог»-в-«Услугах»-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:134:1 › все пункты меню открывают существующие страницы 
+
+    Error: Timeout 15000ms exceeded while waiting on the predicate
+
+       at ../../../.wetop-main-ui-LswuSO/worker-0/tests/ui/fixtures.ts:276
+
+      274 |     if (await group.getAttribute('aria-expanded') === 'false') await group.click();
+      275 |     await expect(panel).toBeVisible({ timeout: 1_000 });
+    > 276 |   }).toPass({ timeout: 15_000 });
+          |      ^
+      277 |   return nav.locator('.sidenav__items:not([hidden])');
+      278 | }
+      279 |
+        at openSection (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-0/tests/ui/fixtures.ts:276:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:143:25
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:232:1 › «Гости и бронирования»: одна вкладка меню, список броней её пунктом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.sidenav__nav').locator('[aria-current="page"]')
+    Expected: "Клиенты"
+    Received: ""
+
+
+      237 |   // подразделы левого меню (ADR-161): каждый адрес один раз, текущий помечен
+      238 |   const menu = page.locator('.sidenav__nav');
+    > 239 |   await expect(menu.locator('[aria-current="page"]')).toHaveText('Клиенты');
+          |                                                       ^
+      240 |   await main.getByRole('link', { name: 'Список броней', exact: true }).click();
+      241 |   await expect(page).toHaveURL(/\/reservations$/);
+      242 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Брони');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:239:55
+
+    Error Context: test-results/navigation-«Гости-и-бронир-a9afb-ню-список-броней-её-пунктом-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-«Гости-и-бронир-a9afb-ню-список-броней-её-пунктом-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-«Гости-и-бронир-a9afb-ню-список-броней-её-пунктом-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/profile-menu-readiness.spec.ts:69:1 › после готовности меню открывается обычным кликом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Меню администратора' })
+        - locator resolved to <button aria-busy="false" data-tour="profile" aria-expanded="false" class="profile-trigger" aria-label="Меню администратора" aria-controls="profile-dropdown">…</button>
+
+
+      75 |   await expect(menu).toBeEnabled();
+      76 |   await expect(menu).toHaveAttribute('aria-busy', 'false');
+    > 77 |   await menu.click();
+         |              ^
+      78 |   await expect(menu).toHaveAttribute('aria-expanded', 'true');
+      79 |   await expect(page.locator('.profile-dropdown')).toBeVisible();
+      80 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-0/tests/ui/profile-menu-readiness.spec.ts:77:14
+
+    Error Context: test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/profile-menu-readiness.spec.ts:82:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByRole('button', { name: 'Меню администратора' })
+    Expected: enabled
+    Received: disabled
+
+    Call log:
+      - Expect "toBeEnabled" getByRole('button', { name: 'Меню администратора' }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Меню администратора' })
+        6 × locator resolved to <button disabled aria-busy="true" data-tour="profile" aria-expanded="false" class="profile-trigger" aria-label="Меню администратора" aria-controls="profile-dropdown">…</button>
+          - unexpected value "disabled"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      87 |   await expect(menu).toBeDisabled();
+      88 |   openGate();
+    > 89 |   await expect(menu).toBeEnabled();
+         |                      ^
+      90 |   await menu.focus();
+      91 |   await expect(menu).toBeFocused();
+      92 |   await page.keyboard.press('Enter');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-0/tests/ui/profile-menu-readiness.spec.ts:89:22
+
+    Error Context: test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Войти', exact: true })
+        - locator resolved to <button type="submit">Войти</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+
+
+      19 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+      20 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+    > 21 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+         |                                                                  ^
+      22 |   await page.waitForURL('**/today');
+      23 | }
+      24 |
+        at signIn (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:21:66)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:35:3
+
+    Error Context: test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:67:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3101/channels", waiting until "load"
+
+
+       at ../../../.wetop-main-ui-LswuSO/worker-1/tests/ui/fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/fixtures.ts:166:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:94:5
+
+    Error Context: test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:110:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link')
+    Expected: ["Диалоги"]
+    Received: undefined
+
+    Call log:
+      - Expect "toHaveText" getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link') with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      117 |   await page.waitForURL('**/ai-seller/dialogs');
+      118 |   const tabs = page.getByRole('navigation', { name: 'ИИ-продавец' });
+    > 119 |   await expect(tabs.getByRole('link')).toHaveText(['Диалоги']);
+          |                                        ^
+      120 |   await expect(page.getByRole('link', { name: 'Все агенты' })).toHaveCount(0);
+      121 |   await page.goto('/ai-seller/dialogs?id=3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c');
+      122 |   const card = page.getByRole('main').getByTestId('seller-dialog-card');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:119:40
+
+    Error Context: test-results/roles-администратор-в-«ИИ--14d51-ел-открывается-сразу-на-них-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-в-«ИИ--14d51-ел-открывается-сразу-на-них-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-в-«ИИ--14d51-ел-открывается-сразу-на-них-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:127:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3101/reservations/20260913-TESTAA", waiting until "load"
+
+
+       at ../../../.wetop-main-ui-LswuSO/worker-1/tests/ui/fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/fixtures.ts:166:30)
+        at pay (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:133:5)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:160:3
+
+    Error Context: test-results/roles-администратор-приним-a99d8-о-нет-у-управляющего-—-есть-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-приним-a99d8-о-нет-у-управляющего-—-есть-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-приним-a99d8-о-нет-у-управляющего-—-есть-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:165:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) 
+
+    Test timeout of 45000ms exceeded while setting up "page".
+
+    Error Context: test-results/roles-администратор-меняет-4bcf8-риф-со-штрафом-Q-200-Q-201--main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-меняет-4bcf8-риф-со-штрафом-Q-200-Q-201--main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-меняет-4bcf8-риф-со-штрафом-Q-200-Q-201--main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:227:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('member-row')
+    Expected: 2
+    Received: 3
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('member-row') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('member-row')
+        6 × locator resolved to 3 elements
+          - unexpected value "3"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      277 |     .getByRole('button', { name: 'Отключить' })
+      278 |     .click();
+    > 279 |   await expect(rows).toHaveCount(2);
+          |                      ^
+      280 |   await expect(main).not.toContainText('Юрий Тестов');
+      281 | });
+      282 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:279:22
+
+    Error Context: test-results/roles-управляющий-журнал-и-374ce-торов-и-отключает-только-их-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-управляющий-журнал-и-374ce-торов-и-отключает-только-их-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-управляющий-журнал-и-374ce-торов-и-отключает-только-их-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:61:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу 
+
+    Error: Test timeout of 45000ms exceeded
+
+       at ../../../.wetop-main-ui-LswuSO/worker-1/tests/ui/fixtures.ts:276
+
+      274 |     if (await group.getAttribute('aria-expanded') === 'false') await group.click();
+      275 |     await expect(panel).toBeVisible({ timeout: 1_000 });
+    > 276 |   }).toPass({ timeout: 15_000 });
+          |      ^
+      277 |   return nav.locator('.sidenav__items:not([hidden])');
+      278 | }
+      279 |
+        at openSection (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/fixtures.ts:276:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:100:9
+
+    Error Context: test-results/side-nav-UI3-1-кнопка-откр-29075-лы-ссылка-ведёт-на-страницу-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-UI3-1-кнопка-откр-29075-лы-ссылка-ведёт-на-страницу-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-UI3-1-кнопка-откр-29075-лы-ссылка-ведёт-на-страницу-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:116:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3101/finance", waiting until "load"
+
+
+       at ../../../.wetop-main-ui-LswuSO/worker-1/tests/ui/fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/fixtures.ts:166:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:119:3
+
+    Error Context: test-results/side-nav-ТЗ-§9-клавиатура--a6515-лы-←-назад-Escape-закрывает-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-ТЗ-§9-клавиатура--a6515-лы-←-назад-Escape-закрывает-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-ТЗ-§9-клавиатура--a6515-лы-←-назад-Escape-закрывает-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:155:1 › вложенные адреса показывают свой раздел 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.sidenav').locator('.sidenav__current')
+    Expected: "Настройки"
+    Received: ""
+
+
+      159 |   const current = nav.locator('[aria-current="page"]');
+      160 |   await page.goto('/hotel-settings/services');
+    > 161 |   await expect(trigger).toHaveText('Настройки');
+          |                         ^
+      162 |   await expect(current).toHaveText('Объект');
+      163 |   // номерной фонд это «Каталог» раздела «Услуги»
+      164 |   await page.goto('/rooms/categories');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:161:25
+
+    Error Context: test-results/side-nav-вложенные-адреса-показывают-свой-раздел-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-вложенные-адреса-показывают-свой-раздел-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-вложенные-адреса-показывают-свой-раздел-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/support-whatsnew.spec.ts (5.6m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  15 failed
+    [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:62:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+    [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:106:1 › меню телефона: вложенные адреса подсвечивают свой пункт, «Каталог» в «Услугах» 
+    [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:134:1 › все пункты меню открывают существующие страницы 
+    [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/navigation.spec.ts:232:1 › «Гости и бронирования»: одна вкладка меню, список броней её пунктом 
+    [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/profile-menu-readiness.spec.ts:69:1 › после готовности меню открывается обычным кликом 
+    [main-ui-0] › ../.wetop-main-ui-LswuSO/worker-0/tests/ui/profile-menu-readiness.spec.ts:82:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова 
+    [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+    [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:67:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+    [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:110:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них 
+    [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:127:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть 
+    [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:165:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) 
+    [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/roles.spec.ts:227:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их 
+    [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:61:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу 
+    [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:116:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает 
+    [main-ui-1] › ../.wetop-main-ui-LswuSO/worker-1/tests/ui/side-nav.spec.ts:155:1 › вложенные адреса показывают свой раздел 
+  24 passed (41.6m)
+
+# код выхода 1 · 42 мин 4 с

@@ -1,0 +1,157 @@
+# Сквозные (e2e) · 18.10.2026 14:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит 424e4b5 (claude/support-whatsnew), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/support-whatsnew.spec.ts' '-g' 'axe'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 2015ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9eqmZf/worker-0/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1479ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9eqmZf/worker-1/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✘  1 [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /help, light, 1440 px (53.3s)
+  ✘  2 [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /help, light, 390 px (48.2s)
+  ✓  3 [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /help, dark, 1440 px (23.1s)
+  ✓  4 [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /help, dark, 390 px (34.0s)
+  ✓  5 [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /whats-new, light, 1440 px (30.6s)
+  ✘  6 [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /whats-new, light, 390 px (49.0s)
+  ✓  7 [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /whats-new, dark, 1440 px (32.4s)
+  ✘  8 [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /whats-new, dark, 390 px (59.8s)
+
+
+  1) [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /help, light, 1440 px 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+       7 |  * блока нет, доказывает unit `apps/web/src/lib/support-contacts.test.ts`.
+       8 |  */
+    >  9 | test.beforeEach(async ({ page, request }) => {
+         |      ^
+      10 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      11 |   await page.goto('/auth/fallback');
+      12 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:9:6
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+      "domcontentloaded" event fired
+    ============================================================
+
+      13 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      14 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 15 |   await page.waitForURL('**/today');
+         |              ^
+      16 | });
+      17 |
+      18 | test('«Помощь»: блок поддержки с WhatsApp и Telegram, сообщение с названием объекта', async ({ page }) => {
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:15:14
+
+    Error Context: test-results/support-whatsnew-axe-help-light-1440-px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-whatsnew-axe-help-light-1440-px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-whatsnew-axe-help-light-1440-px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /help, light, 390 px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.evaluate: Target page, context or browser has been closed
+
+       at ../../../.wetop-main-ui-9eqmZf/worker-1/tests/ui/fixtures.ts:92
+
+      90 |   const page = (this as unknown as { page: Page }).page;
+      91 |   await page.evaluate(SETTLE_MOTION).catch(() => undefined);
+    > 92 |   return axeAnalyze.call(this);
+         |                     ^
+      93 | };
+      94 |
+      95 | export * from '@playwright/test';
+        at AxeBuilder.call (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/support-whatsnew/node_modules/@axe-core/playwright/dist/index.mjs:201:16)
+        at AxeBuilder.analyze (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9eqmZf/worker-1/tests/ui/fixtures.ts:92:21)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:57:24
+
+    Error Context: test-results/support-whatsnew-axe-help-light-390-px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-whatsnew-axe-help-light-390-px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-whatsnew-axe-help-light-390-px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /whats-new, light, 390 px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Target page, context or browser has been closed
+
+       at ../../../.wetop-main-ui-9eqmZf/worker-1/tests/ui/fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9eqmZf/worker-1/tests/ui/fixtures.ts:166:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:56:9
+
+    Error Context: test-results/support-whatsnew-axe-whats-new-light-390-px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-whatsnew-axe-whats-new-light-390-px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-whatsnew-axe-whats-new-light-390-px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /whats-new, dark, 390 px 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+       7 |  * блока нет, доказывает unit `apps/web/src/lib/support-contacts.test.ts`.
+       8 |  */
+    >  9 | test.beforeEach(async ({ page, request }) => {
+         |      ^
+      10 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      11 |   await page.goto('/auth/fallback');
+      12 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:9:6
+
+    Error Context: test-results/support-whatsnew-axe-whats-new-dark-390-px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-whatsnew-axe-whats-new-dark-390-px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-whatsnew-axe-whats-new-dark-390-px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /help, light, 1440 px 
+    [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /help, light, 390 px 
+    [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /whats-new, light, 390 px 
+    [main-ui-1] › ../.wetop-main-ui-9eqmZf/worker-1/tests/ui/support-whatsnew.spec.ts:53:7 › axe: /whats-new, dark, 390 px 
+  4 passed (11.0m)
+
+# код выхода 1 · 11 мин 20 с

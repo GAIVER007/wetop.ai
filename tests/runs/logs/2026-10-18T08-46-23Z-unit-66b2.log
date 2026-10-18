@@ -1,0 +1,51 @@
+# Модульные (unit) · 18.10.2026 13:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 89900c5 (codex/calendar-report-reference), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-46-23Z-unit-66b2.json' 'apps/web/src/components/quick-report.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP
+
+ ❯ |unit| apps/web/src/components/quick-report.test.ts (9 tests | 1 failed) 35ms
+   ❯ calendar quick reports (9)
+     × provides reference totals and status groups without losing no-shows or rounding money 13ms
+     ✓ counts unique customers and every status, keeping exact completed amounts by currency 13ms
+     ✓ splits appointment receipts by method without a redundant all-booking price 1ms
+     ✓ distinguishes no completed services from a completed service with a zero price 1ms
+     ✓ rejects duplicate records and malformed money rather than showing false totals 2ms
+     ✓ keeps booking counts separate from unavailable financial data 1ms
+     ✓ sums only closed orders and does not invent unique restaurant customer counts 1ms
+     ✓ shows actual appointment payments and refunds separately from prices 0ms
+     ✓ excludes voided order payments and keeps refunds separate from cash/card totals 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/components/quick-report.test.ts > calendar quick reports > provides reference totals and status groups without losing no-shows or rounding money
+AssertionError: expected undefined to deeply equal { KZT: '9007199254741000', USD: '10' }
+
+- Expected:
+{
+  "KZT": "9007199254741000",
+  "USD": "10",
+}
+
++ Received:
+undefined
+
+ ❯ apps/web/src/components/quick-report.test.ts:11:43
+      9|       { id: '3', status: 'NO_SHOW', priceMinor: '10', currency: 'USD',…
+     10|     ]);
+     11|     expect(report.reference?.totalPrices).toEqual({ KZT: '900719925474…
+       |                                           ^
+     12|     expect(report.reference?.statuses.map((s) => [s.label, s.count])).…
+     13|       ['Обслуженные', 1], ['В ожидании', 1], ['Отменённые', 0], ['Не п…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  01:46:29
+   Duration  425ms (transform 60%, tests 20%, import 15%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-46-23Z-unit-66b2.json
+
+# код выхода 1 · 7 с

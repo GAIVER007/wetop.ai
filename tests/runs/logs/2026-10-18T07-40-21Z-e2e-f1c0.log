@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 18.10.2026 12:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит fb0e786 (codex/salons-tz4-m6a), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-journal.spec.ts' '--grep' 'M6-A' '--workers=1'
+[WebServer] (node:84716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84749) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:84846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84907) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '581693384'
+[WebServer] }
+  ✘  1 tests/ui/beauty-journal.spec.ts:196:1 › M6-A: будущий визит объясняет запрет неявки на desktop, телефоне и планшете (14.4s)
+
+
+  1) tests/ui/beauty-journal.spec.ts:196:1 › M6-A: будущий визит объясняет запрет неявки на desktop, телефоне и планшете 
+
+    Error: frame.evaluate: Error: No elements found for include in page Context
+        at validateContext (eval at evaluate (:311:30), <anonymous>:19556:15)
+        at new Context (eval at evaluate (:311:30), <anonymous>:19537:7)
+        at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:19578:22)
+        at eval (eval at evaluate (:311:30), <anonymous>:4:27)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at validateContext (eval at evaluate (:311:30), <anonymous>:19556:15)
+        at Context (eval at evaluate (:311:30), <anonymous>:19537:7)
+        at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:19578:22)
+        at eval (eval at evaluate (:311:30), <anonymous>:4:27)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at AxeBuilder.runPartialRecursive (/Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/node_modules/@axe-core/playwright/dist/index.mjs:280:39)
+        at AxeBuilder.analyze (/Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/node_modules/@axe-core/playwright/dist/index.mjs:210:39)
+        at /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/ui/beauty-journal.spec.ts:214:27
+
+    Error Context: test-results/beauty-journal-M6-A-будущи-38912-desktop-телефоне-и-планшете/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-M6-A-будущи-38912-desktop-телефоне-и-планшете/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-M6-A-будущи-38912-desktop-телефоне-и-планшете/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-journal.spec.ts:196:1 › M6-A: будущий визит объясняет запрет неявки на desktop, телефоне и планшете 
+
+# код выхода 1 · 25 с

@@ -1,0 +1,77 @@
+# Сквозные (e2e) · 18.10.2026 14:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5fac3be (codex/calendar-report-gatefix), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-journal.spec.ts' '--grep' 'быстрый отчёт календаря' '--workers' '1'
+[WebServer] (node:56414) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56981) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58511) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58573) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1292ms. If /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:59902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/beauty-journal.spec.ts:333:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (1.5m)
+(node:60471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/beauty-journal.spec.ts:391:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня (3.1m)
+
+
+  1) tests/ui/beauty-journal.spec.ts:333:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Добавить бизнес или филиал' }).getByRole('status')
+    Expected substring: "Салон создан"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Добавить бизнес или филиал' }).getByRole('status') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Добавить бизнес или филиал' }).getByRole('status')
+
+
+      27 |   await creation.getByLabel('Название бизнеса', { exact: true }).fill('Студия Айна');
+      28 |   await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+    > 29 |   await expect(creation.getByRole('status')).toContainText('Салон создан');
+         |                                              ^
+      30 |   await page.reload();
+      31 |   await main.getByRole('button', { name: 'Открыть объект: Студия Айна', exact: true }).click();
+      32 |   // MV8: открытый салон начинает с общего рабочего экрана дня
+        at openSalon (/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/ui/beauty-journal.spec.ts:29:46)
+        at /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/ui/beauty-journal.spec.ts:338:3
+
+    Error Context: test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-journal.spec.ts:333:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон 
+  1 passed (6.2m)
+
+# код выхода 1 · 6 мин 31 с

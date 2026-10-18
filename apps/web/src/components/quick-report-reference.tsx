@@ -3,7 +3,7 @@ import { Icon } from './icon';
 import { formatMoney } from '../lib/money';
 import type { QuickReportData } from './quick-report-data';
 
-function Money({ values }: { values?: Record<string, string> }) {
+function Money({ values }: { values: Record<string, string> | undefined }) {
   if (!values || !Object.keys(values).length) return <>Нет данных</>;
   return (
     <>
@@ -20,7 +20,7 @@ function ReportRow({
   hint,
 }: {
   label: string;
-  values?: Record<string, string>;
+  values: Record<string, string> | undefined;
   hint: string;
 }) {
   return (
@@ -165,7 +165,7 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
         <dl className="quick-report-counts">
           {['Бонусная карта', 'Скидка (сумма)', 'Сертификаты (сумма)', 'Абонементы'].map(
             (label) => (
-              <ReportRow key={label} label={label} hint={unsupported} />
+              <ReportRow key={label} label={label} values={undefined} hint={unsupported} />
             ),
           )}
         </dl>
@@ -175,11 +175,7 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
         <dl className="quick-report-counts">
           {['Онлайн оплата', 'Сертификат от WETOP', 'Подарочная карта от WETOP', 'Предоплата'].map(
             (label) => (
-              <ReportRow
-                key={label}
-                label={label}
-                hint={unsupported}
-              />
+              <ReportRow key={label} label={label} values={undefined} hint={unsupported} />
             ),
           )}
         </dl>

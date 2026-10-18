@@ -1,4 +1,13 @@
-# Beauty zapis release: held migrations 131-135
+# Beauty zapis release: prepared ordinary133-137, production NOT applied
+
+## Подтверждённая подготовка, 18.10.2026
+
+Владелец явно разрешил: «Подготовить отдельный релиз пяти Beauty-миграций и согласовать схему с SQL. Production-БД не менять до зелёного гейта, проверенного бэкапа и точного допуска.» Полный блок перенесён в ordinary133-137 с неизменными SHA-256 всех десяти up/down SQL. Имёна held131-135 ниже сохраняются как происхождение. `schema.prisma` приведена к существующим SQL defaults, именам FK/индексов и referential actions, без новых правил и SQL-переписывания.
+
+`packages/database/prisma/beauty-release-preparation.json` имеет отдельное состояние PREPARED_NOT_APPLIED. Это не разрешение production migration. Сторож допускает только полный конкретный одобренный пятифайловый блок с проверкой всех десяти SHA и обязательностью полного гейта, точного production-допуска, backup/restore и доверенного cutover runner. Повреждённый manifest, неполный/дублированный/чужой блок или иной SQL отказывает. Исторический RELEASED_SEPARATELY не дополнен: применения в production не было. Условие отказа auto-deploy при новых миграциях не менялось. Остальные held114-118 не перенесены.
+
+Локальные доказательства: `tests/integration/beauty-release-schema.test.ts` на отдельно созданной owned БД проверяет fresh141, populated legacy backfill, Prisma diff0, FORCE RLS десяти таблиц, соседнего tenant, пять retained-data отказов down и dependency-safe reverse без потери старой записи. Это не заменяет полный release-checks, live mig status, настоящий backup/restore или production-допуск.
+
 
 Дата подготовки: 18.10.2026. Этот документ описывает будущий отдельный выпуск схемы для Beauty. Он не разрешает применять SQL в production. Для production migration каждый раз требуется отдельное явное разрешение владельца по AGENTS.md §14-15, свежая резервная копия и проверка восстановления.
 
@@ -15,7 +24,7 @@
 
 Предварительный manifest для текущей вершины:
 
-| Порядок | Текущая held-папка | Будущее release-имя | Зависимости |
+| Порядок | Исходная held-папка | Подготовленное ordinary-имя | Зависимости |
 |---|---|---|---|
 | 1 | `20261018000131_beauty_appointment_lines` | `20261018000133_beauty_appointment_lines` | ordinary 044, 109, 130 |
 | 2 | `20261018000132_beauty_reviews` | `20261018000134_beauty_reviews` | Beauty appointment lines |
@@ -27,9 +36,9 @@ Ordinary employee portal migrations 128/129 уже находятся в общ�
 
 ## Подготовка release commit
 
-1. Убедиться, что merge conflicts отсутствуют, `schema.prisma` содержит одновременно Beauty-модели и актуальные модели `main`, а последняя ordinary migration всё ещё 132. Если нет, пересчитать свободные номера.
+1. Убедиться, что merge conflicts отсутствуют, `schema.prisma` содержит одновременно Beauty-модели и актуальные модели `main`, а последняя ordinary migration до этого блока всё ещё 132. Подготовленный блок заканчивается137. Если появились другие новые миграции, пересчитать свободные номера.
 2. Переместить все пять папок через `git mv` из `migrations-hold/` в `migrations/` под итоговыми именами одного последовательного блока. Не переносить часть блока.
-3. В том же commit оставить согласованные `schema.prisma`, API и writers. Добавить выпущенные имена в `RELEASED_SEPARATELY` в `tests/unit/migrations-hold.test.ts` после фактического отдельного применения.
+3. В том же commit оставить согласованные `schema.prisma`, API и writers и точный PREPARED_NOT_APPLIED manifest. В `RELEASED_SEPARATELY` добавлять имена только после фактического отдельного production-применения; подготовка не считается применением.
 4. Пройти полный release gate на базе, собранной из обычной цепочки migrations. Отдельно проверить fresh apply, populated backfill, RLS service/app roles и отказ каждого empty-only down при retained data.
 5. Зафиксировать SHA-256 точных SQL из release commit:
 

@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "security_concerns": [],
+  "logic_errors": [],
+  "summary": "Read-only review passed: ten SQL byte/SHA matches; strict manifest and pre-client URL guard verified.",
+  "delegation": "deleg_729ce239",
+  "reviewer": "sa-0-ce076300",
+  "priorRequiredFix": "Query/protocol/fragment override rejection before any pg.Client connection, reproduced RED and verified GREEN."
+}

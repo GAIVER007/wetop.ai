@@ -1,0 +1,264 @@
+{
+  "status": "PREPARED_NOT_APPLIED",
+  "sourceBase": "f6751e30971b56df22856e245466c77781243437",
+  "currentMainObserved": "2a8f7aab9c8405e03999c005d99b61ffbe8efacf",
+  "finalRuns": [
+    {
+      "id": "2026-10-18T19-03-32Z-unit-3b58",
+      "suite": "unit",
+      "status": "passed",
+      "counts": {
+        "total": 6239,
+        "passed": 6232,
+        "failed": 0,
+        "skipped": 7,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema release final full unit after reviewed fixture isolation RED GREEN"
+    },
+    {
+      "id": "2026-10-18T19-07-15Z-integration-26c0",
+      "suite": "integration",
+      "status": "passed",
+      "counts": {
+        "total": 79,
+        "passed": 79,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema release final79 real DB after isolation guard fix"
+    },
+    {
+      "id": "2026-10-18T19-07-35Z-typecheck-f6c2",
+      "suite": "typecheck",
+      "status": "passed",
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema release final root API web types after isolation guard fix"
+    },
+    {
+      "id": "2026-10-18T19-08-38Z-lint-b7fe",
+      "suite": "lint",
+      "status": "passed",
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema release final lint after isolation guard fix"
+    },
+    {
+      "id": "2026-10-18T19-11-07Z-e2e-310e",
+      "suite": "e2e",
+      "status": "passed",
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty prepared ordinary141 real registration restricted app role schedule UI save reload onboarding conflict403409"
+    }
+  ],
+  "allPreparationRuns": [
+    {
+      "id": "2026-10-18T18-49-24Z-unit-5ba4",
+      "suite": "unit",
+      "status": "failed",
+      "counts": {
+        "total": 4,
+        "passed": 3,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema release RED guard lacks distinction between owner-approved preparation and production application; exact SQL preserved"
+    },
+    {
+      "id": "2026-10-18T18-52-25Z-unit-03b9",
+      "suite": "unit",
+      "status": "passed",
+      "counts": {
+        "total": 22,
+        "passed": 22,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty release preparation GREEN complete exact SHA block; production application list unchanged; manifest negatives fail closed"
+    },
+    {
+      "id": "2026-10-18T18-53-48Z-integration-1d57",
+      "suite": "integration",
+      "status": "failed",
+      "counts": {
+        "total": 42,
+        "passed": 41,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty prepared ordinary133-137 real DB appointments reviews materials positions hours RLS and retained rollback guards"
+    },
+    {
+      "id": "2026-10-18T18-57-50Z-integration-de79",
+      "suite": "integration",
+      "status": "passed",
+      "counts": {
+        "total": 51,
+        "passed": 51,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty prepared release fresh141 populated backfill Prisma RLS retained down and canonical phone identity; no production writes"
+    },
+    {
+      "id": "2026-10-18T18-59-14Z-integration-8c2c",
+      "suite": "integration",
+      "status": "passed",
+      "counts": {
+        "total": 79,
+        "passed": 79,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema preparation final DB canonical fresh backfill RLS rollback and current core API contracts"
+    },
+    {
+      "id": "2026-10-18T18-59-32Z-typecheck-545e",
+      "suite": "typecheck",
+      "status": "passed",
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema preparation root API web types final"
+    },
+    {
+      "id": "2026-10-18T19-00-41Z-lint-9dd8",
+      "suite": "lint",
+      "status": "passed",
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema preparation lint final"
+    },
+    {
+      "id": "2026-10-18T19-02-26Z-unit-eeba",
+      "suite": "unit",
+      "status": "failed",
+      "counts": {
+        "total": 16,
+        "passed": 6,
+        "failed": 10,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty fixture isolation RED pure parsing detects libpq query override; no unsafe connection attempted"
+    },
+    {
+      "id": "2026-10-18T19-02-59Z-unit-855a",
+      "suite": "unit",
+      "status": "passed",
+      "counts": {
+        "total": 38,
+        "passed": 38,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty fixture isolation GREEN rejects query protocol fragment overrides before connecting; manifest guards intact"
+    },
+    {
+      "id": "2026-10-18T19-03-32Z-unit-3b58",
+      "suite": "unit",
+      "status": "passed",
+      "counts": {
+        "total": 6239,
+        "passed": 6232,
+        "failed": 0,
+        "skipped": 7,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema release final full unit after reviewed fixture isolation RED GREEN"
+    },
+    {
+      "id": "2026-10-18T19-07-15Z-integration-26c0",
+      "suite": "integration",
+      "status": "passed",
+      "counts": {
+        "total": 79,
+        "passed": 79,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema release final79 real DB after isolation guard fix"
+    },
+    {
+      "id": "2026-10-18T19-07-35Z-typecheck-f6c2",
+      "suite": "typecheck",
+      "status": "passed",
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema release final root API web types after isolation guard fix"
+    },
+    {
+      "id": "2026-10-18T19-08-38Z-lint-b7fe",
+      "suite": "lint",
+      "status": "passed",
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "note": "Beauty schema release final lint after isolation guard fix"
+    },
+    {
+      "id": "2026-10-18T19-11-07Z-e2e-310e",
+      "suite": "e2e",
+      "status": "passed",
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty prepared ordinary141 real registration restricted app role schedule UI save reload onboarding conflict403409"
+    }
+  ],
+  "canonicalTenSqlUnchanged": true,
+  "ordinaryMigrationCount": 141,
+  "productionWrites": false,
+  "generatedDiffExecuted": false,
+  "strictUiSqlAggregate": {
+    "syntheticMasters": 1,
+    "persistedMondayIntervals": 1,
+    "allMonday1000to1800": true
+  },
+  "ownedCluster": {
+    "database": "salon_schema_release_20261018",
+    "dataDirectory": "/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/core-db/data",
+    "port": 55983,
+    "stopped": true
+  },
+  "review": {
+    "passed": true,
+    "security_concerns": [],
+    "logic_errors": [],
+    "summary": "Read-only review passed: ten SQL byte/SHA matches; strict manifest and pre-client URL guard verified.",
+    "delegation": "deleg_729ce239",
+    "reviewer": "sa-0-ce076300",
+    "priorRequiredFix": "Query/protocol/fragment override rejection before any pg.Client connection, reproduced RED and verified GREEN."
+  },
+  "mainCiObservedInProgress": 39156107469
+}

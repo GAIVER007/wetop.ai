@@ -1,0 +1,49 @@
+# Модульные (unit) · 18.10.2026 23:49 Алматы · srv1719674
+# коммит f6751e3 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-49-24Z-unit-5ba4.json' 'tests/unit/migrations-hold.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |unit| tests/unit/migrations-hold.test.ts (4 tests | 1 failed) 19ms
+   ❯ миграции отдельного релиза ждут вне общей цепочки (ADR-137) (4)
+     × в migrations/ метка «ОТДЕЛЬНЫЙ РЕЛИЗ» только у выпущенных: новая такая миграция лежит в migrations-hold/ 15ms
+     ✓ список выпущенных не врёт: каждая из них есть в migrations/ и несёт метку 1ms
+     ✓ у ждущей миграции есть migration.sql с меткой и down.sql (AGENTS.md §14), и её нет в общей цепочке 2ms
+     ✓ Prisma берёт миграции только из prisma/migrations: ждущие не применяются 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/migrations-hold.test.ts > миграции отдельного релиза ждут вне общей цепочки (ADR-137) > в migrations/ метка «ОТДЕЛЬНЫЙ РЕЛИЗ» только у выпущенных: новая такая миграция лежит в migrations-hold/
+AssertionError: перенести в packages/database/prisma/migrations-hold/ до релиза: expected [ …(5) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "20261018000133_beauty_appointment_lines",
++   "20261018000134_beauty_reviews",
++   "20261018000135_beauty_materials",
++   "20261018000136_beauty_positions",
++   "20261018000137_beauty_location_hours",
++ ]
+
+ ❯ tests/unit/migrations-hold.test.ts:44:91
+     42|       (name) => marked(MIGRATIONS, name) && !RELEASED_SEPARATELY.has(n…
+     43|     );
+     44|     expect(unreleased, 'перенести в packages/database/prisma/migration…
+       |                                                                                           ^
+     45|   });
+     46|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  18:49:25
+   Duration  188ms (transform 45%, tests 30%, import 18%, worker 7%)
+
+JSON report written to /tmp/pms-test-2026-10-18T18-49-24Z-unit-5ba4.json
+
+# код выхода 1 · 1 с

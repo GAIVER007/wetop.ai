@@ -1,4 +1,6 @@
-# HELD 131, Beauty appointment lines
+# PREPARED ordinary133, former HELD 131, Beauty appointment lines
+
+Подготовка одобрена18.10.2026; в production НЕ применено. Точные десять SQL SHA и отдельные обязательные cutover-допуски: `packages/database/prisma/beauty-release-preparation.json`, `docs/ops/beauty-zapis-release.md`.
 
 Отдельный релиз для BEAUTY-ZAPIS-20261017 A1/A2/A3/E2. Production application остаётся за владельцем.
 

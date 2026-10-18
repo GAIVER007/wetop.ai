@@ -26,9 +26,12 @@ export default async function BeautySchedulePage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/beauty/schedule');
-  const { week } = normalizeSearchParams(await searchParams);
+  const { week, group } = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
-  const loaded = await loadGrid(typeof week === 'string' ? week : undefined).then(
+  const loaded = await loadGrid(
+    typeof week === 'string' ? week : undefined,
+    typeof group === 'string' ? group : undefined,
+  ).then(
     (value) => ({ ok: true as const, value }),
     (error: unknown) => {
       // управление самого Next (переход на вход) пропускаем дальше, иначе страница его проглотит
@@ -70,26 +73,49 @@ export default async function BeautySchedulePage({
  * Список мастеров и неделя каждого. ponytail: запрос на мастера (в салоне их единицы); общий запрос сетки
  * в API, если мастеров станут десятки.
  */
-async function loadGrid(week: string | undefined): Promise<WeekGridData> {
-  const first = await beautyApi.schedule();
+async function loadGrid(
+  week: string | undefined,
+  group: string | undefined,
+): Promise<WeekGridData> {
+  const [first, staff, catalog] = await Promise.all([
+    beautyApi.schedule(),
+    beautyApi.employees(),
+    beautyApi.services(),
+  ]);
   const today = todayAt(first.location?.timezone ?? 'UTC');
   const here = first.employees.filter((e) => e.active && e.worksHere);
+  // профессия мастера это группы назначенных ему услуг («Волосы», «Ногти»): полей роли в модели нет (Q-SCHED-2)
+  const category = new Map(catalog.items.map((s) => [s.id, s.category?.trim() || null]));
+  const groupsOf = (id: string) =>
+    new Set(
+      (staff.items.find((e) => e.id === id)?.serviceIds ?? [])
+        .map((sid) => category.get(sid))
+        .filter((g): g is string => Boolean(g)),
+    );
+  const groups = [...new Set(here.flatMap((e) => [...groupsOf(e.id)]))].sort((x, y) =>
+    x.localeCompare(y, 'ru'),
+  );
+  const chosen = group && groups.includes(group) ? group : null;
   const masters = await Promise.all(
-    here.map(async (e) => {
-      const one = e.id === first.employee?.id ? first : await beautyApi.schedule(e.id);
-      return {
-        id: e.id,
-        name: e.name,
-        week: one.week,
-        weekRevision: one.weekRevision ?? null,
-        timeOffs: one.timeOffs,
-      };
-    }),
+    here
+      .filter((e) => !chosen || groupsOf(e.id).has(chosen))
+      .map(async (e) => {
+        const one = e.id === first.employee?.id ? first : await beautyApi.schedule(e.id);
+        return {
+          id: e.id,
+          name: e.name,
+          week: one.week,
+          weekRevision: one.weekRevision ?? null,
+          timeOffs: one.timeOffs,
+        };
+      }),
   );
   return {
     location: first.location,
     monday: mondayOf(week && isIsoDate(week) ? week : today),
     masters,
     elsewhere: first.employees.filter((e) => e.active && !e.worksHere).length,
+    groups,
+    group: chosen,
   };
 }

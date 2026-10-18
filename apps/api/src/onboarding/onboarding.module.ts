@@ -104,7 +104,7 @@ export class SharedOnboardingService {
           select: {
             name: true,
             vertical: true,
-            organization: { select: { status: true, trialEndsAt: true } },
+            organization: { select: { status: true, trialEndsAt: true, countryCode: true } },
           },
         },
       },
@@ -368,6 +368,8 @@ export class SharedOnboardingService {
       storedFlowVersion: saved?.flowVersion ?? null,
       currentStep,
       draft,
+      // страна организации из регистрации: от неё настройка подставляет пояс и валюту (Q-SCHED-3)
+      organizationCountry: location.business.organization.countryCode,
       profileApplied,
       completedFlowVersion,
       readiness,

@@ -1,0 +1,261 @@
+# Сквозные (e2e) · 17.10.2026 18:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит e1c64fa (claude/salon-setup-schedule-grid), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/beauty-schedule.spec.ts' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/beauty-journal.spec.ts' 'tests/ui/beauty-customers.spec.ts' '--config=tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 32 tests using 1 worker
+
+  ✓   1 tests/ui/beauty-catalog.spec.ts:47:1 › услуга каталога добавляется и видна в списке (9.5s)
+  ✓   2 tests/ui/beauty-catalog.spec.ts:60:1 › филиал включает услугу и ставит свою цену (13.5s)
+  ✓   3 tests/ui/beauty-catalog.spec.ts:83:1 › ошибки услуги словами, введённое не стирается (6.9s)
+  ✓   4 tests/ui/beauty-catalog.spec.ts:98:1 › мастер добавляется, умения ставятся и снимаются (11.7s)
+  ✓   5 tests/ui/beauty-catalog.spec.ts:138:1 › каталог салона на телефоне: без прокрутки вбок (6.2s)
+  ✓   6 tests/ui/beauty-catalog.spec.ts:157:3 › каталог салона доступен в светлой теме (7.6s)
+  ✓   7 tests/ui/beauty-catalog.spec.ts:157:3 › каталог салона доступен в тёмной теме (6.4s)
+  ✓   8 tests/ui/beauty-catalog.spec.ts:176:1 › типовая услуга подставляет поля, цена вводится в тенге, валют четыре (приёмка 17.10) (7.0s)
+  ✓   9 tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE (43.7s)
+  ✓  10 tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано (15.6s)
+  ✓  11 tests/ui/beauty-customers.spec.ts:157:1 › клиенты на телефоне: без прокрутки вбок (13.7s)
+  ✓  12 tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме (15.2s)
+  ✓  13 tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме (15.0s)
+  ✓  14 tests/ui/beauty-journal.spec.ts:99:1 › запись из пустой клетки появляется в сетке и в списке дня (13.3s)
+  ✓  15 tests/ui/beauty-journal.spec.ts:115:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок (10.9s)
+  ✓  16 tests/ui/beauty-journal.spec.ts:142:1 › перенос мышью меняет время записи через существующий API (54.5s)
+  ✓  17 tests/ui/beauty-journal.spec.ts:155:1 › занятое время мастера не предлагается и отказ приходит словами (37.0s)
+  ✓  18 tests/ui/beauty-journal.spec.ts:168:1 › вне графика мастера клетки нерабочие (21.7s)
+  ✓  19 tests/ui/beauty-journal.spec.ts:175:1 › состояния записи идут по жизни, из выполненной дороги нет (24.9s)
+  ✘  20 tests/ui/beauty-journal.spec.ts:199:1 › отмена спрашивает и освобождает время мастера (59.2s)
+  ✘  21 tests/ui/beauty-journal.spec.ts:221:1 › перенос меняет время записи (47.7s)
+  ✓  22 tests/ui/beauty-journal.spec.ts:237:1 › журнал на телефоне: день списком, без прокрутки вбок (25.2s)
+  ✘  23 tests/ui/beauty-journal.spec.ts:252:3 › журнал доступен в светлой теме (49.6s)
+  ✘  24 tests/ui/beauty-journal.spec.ts:252:3 › журнал доступен в тёмной теме (47.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1102322451'
+[WebServer] }
+  ✓  25 tests/ui/beauty-schedule.spec.ts:101:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) (19.6s)
+  ✘  26 tests/ui/beauty-schedule.spec.ts:123:1 › сетка недели: переключатель делает день рабочим и выходным (21.6s)
+  ✓  27 tests/ui/beauty-schedule.spec.ts:144:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (11.8s)
+  ✘  28 tests/ui/beauty-schedule.spec.ts:170:1 › два интервала через перерыв сохраняются (46.4s)
+  ✓  29 tests/ui/beauty-schedule.spec.ts:188:1 › отсутствие из модели видно в ячейке, раздела «Нерабочие дни» нет (19.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1102322451'
+[WebServer] }
+  ✓  30 tests/ui/beauty-schedule.spec.ts:216:1 › график на телефоне: страница без прокрутки вбок (14.2s)
+  ✘  31 tests/ui/beauty-schedule.spec.ts:227:3 › график доступен в светлой теме (50.5s)
+  ✓  32 tests/ui/beauty-schedule.spec.ts:227:3 › график доступен в тёмной теме (23.9s)
+
+
+  1) tests/ui/beauty-journal.spec.ts:199:1 › отмена спрашивает и освобождает время мастера ─────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3108/beauty/schedule", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/fixtures.ts:166:30)
+        at readySalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:71:3)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:200:3
+
+    Error Context: test-results/beauty-journal-отмена-спрашивает-и-освобождает-время-мастера/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-отмена-спрашивает-и-освобождает-время-мастера/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-отмена-спрашивает-и-освобождает-время-мастера/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-journal.spec.ts:221:1 › перенос меняет время записи ───────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/beauty-journal-перенос-меняет-время-записи/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-перенос-меняет-время-записи/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-перенос-меняет-время-записи/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-journal.spec.ts:252:3 › журнал доступен в светлой теме ────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('tab', { name: 'Услуги', exact: true })
+
+
+      64 |   await panel.getByLabel('Имя мастера').fill('Дина');
+      65 |   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
+    > 66 |   await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
+         |                                                            ^
+      67 |   await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
+      68 |   await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+      69 |   await expect(panel.getByRole('status')).toContainText('Услуги назначены');
+        at readySalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:66:60)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:256:5
+
+    Error Context: test-results/beauty-journal-журнал-доступен-в-светлой-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-журнал-доступен-в-светлой-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-журнал-доступен-в-светлой-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-journal.spec.ts:252:3 › журнал доступен в тёмной теме ─────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('tab', { name: 'Услуги', exact: true })
+
+
+      64 |   await panel.getByLabel('Имя мастера').fill('Дина');
+      65 |   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
+    > 66 |   await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
+         |                                                            ^
+      67 |   await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
+      68 |   await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+      69 |   await expect(panel.getByRole('status')).toContainText('Услуги назначены');
+        at readySalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:66:60)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:256:5
+
+    Error Context: test-results/beauty-journal-журнал-доступен-в-тёмной-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-журнал-доступен-в-тёмной-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-журнал-доступен-в-тёмной-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/beauty-schedule.spec.ts:123:1 › сетка недели: переключатель делает день рабочим и выходным 
+
+    Error: locator.check: Clicking the checkbox did not change its state
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ has: getByRole('rowheader', { name: 'Дина' }) }).getByRole('cell').nth(2).getByRole('switch')
+        - locator resolved to <input value="true" role="switch" type="checkbox" class="switch__input" name="works-bccc7f74-7c17-4989-9e38-97050b10931f-2026-10-14"/>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - performing click action
+        - click action done
+        - waiting for scheduled navigations to finish
+        - navigations have finished
+
+
+      129 |   await expect(cell(page, 'Дина', 2)).toContainText('Не работает');
+      130 |   const wednesday = cell(page, 'Дина', 2).getByRole('switch');
+    > 131 |   await wednesday.check();
+          |                   ^
+      132 |   await expect(cell(page, 'Дина', 2)).toContainText('Работает');
+      133 |   await expect(cell(page, 'Дина', 2)).toContainText('09:00–18:00');
+      134 |   // правило недели: следующая среда тоже рабочая
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:131:19
+
+    Error Context: test-results/beauty-schedule-сетка-неде-38071-ает-день-рабочим-и-выходным/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-сетка-неде-38071-ает-день-рабочим-и-выходным/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-сетка-неде-38071-ает-день-рабочим-и-выходным/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/beauty-schedule.spec.ts:170:1 › два интервала через перерыв сохраняются ──────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.check: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Добавить бизнес или филиал' }).getByLabel('Новый бизнес или бренд')
+
+
+      32 |     await creation.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
+      33 |   } else {
+    > 34 |     await creation.getByLabel('Новый бизнес или бренд').check();
+         |                                                         ^
+      35 |     await creation.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+      36 |     await creation.getByLabel('Название бизнеса', { exact: true }).fill(name);
+      37 |     await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+        at addBranch (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:34:57)
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:49:3)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:171:3
+
+    Error Context: test-results/beauty-schedule-два-интервала-через-перерыв-сохраняются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-два-интервала-через-перерыв-сохраняются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-два-интервала-через-перерыв-сохраняются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/beauty-schedule.spec.ts:227:3 › график доступен в светлой теме ───────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Target page, context or browser has been closed
+
+      50 |   if (second) await addBranch(page, 'Студия на Абая', 'Студия Айна');
+      51 |   await page.reload();
+    > 52 |   await page.getByRole('main').getByRole('button', { name: 'Открыть объект: Студия Айна', exact: true }).click();
+         |                                                                                                          ^
+      53 |   // MV8: открытый салон начинает с общего рабочего экрана дня
+      54 |   await page.waitForURL('**/today');
+      55 |   await page.goto('/calendar');
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:52:106)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:231:5
+
+    Error Context: test-results/beauty-schedule-график-доступен-в-светлой-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-график-доступен-в-светлой-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-график-доступен-в-светлой-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/ui/beauty-journal.spec.ts:199:1 › отмена спрашивает и освобождает время мастера ──────────
+    tests/ui/beauty-journal.spec.ts:221:1 › перенос меняет время записи ────────────────────────────
+    tests/ui/beauty-journal.spec.ts:252:3 › журнал доступен в светлой теме ─────────────────────────
+    tests/ui/beauty-journal.spec.ts:252:3 › журнал доступен в тёмной теме ──────────────────────────
+    tests/ui/beauty-schedule.spec.ts:123:1 › сетка недели: переключатель делает день рабочим и выходным 
+    tests/ui/beauty-schedule.spec.ts:170:1 › два интервала через перерыв сохраняются ───────────────
+    tests/ui/beauty-schedule.spec.ts:227:3 › график доступен в светлой теме ────────────────────────
+  25 passed (14.5m)
+
+# код выхода 1 · 14 мин 32 с

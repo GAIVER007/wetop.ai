@@ -154,7 +154,8 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await setScope(page, f.salon);
     const from = await callCount(request);
     await page.goto('/today');
-    await expect(page.getByRole('heading', { name: 'Сегодня', exact: true })).toBeVisible();
+    // «Главная» салона, как раздел меню (решение владельца 18.10.2026)
+    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
     await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
     const { day, m } = await expectedBeauty(request, f.salon);
     expect(m.masters).toBe(2);
@@ -173,7 +174,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(value(page, 'today-revenue')).toHaveText(m.revenue.length
       ? formatMoney(m.revenue[0]!.minor, m.revenue[0]!.currency)
       : formatMoney('0', day.location.currency));
-    await expect(page.getByText('Мастера на смене', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('Специалисты на смене', { exact: true }).first()).toBeVisible();
     const rows = page.getByTestId('today-upcoming').locator('li');
     await expect(rows).toHaveCount(m.upcoming.length);
     if (m.upcoming.some((u) => u.master === UNAVAILABLE_MASTER))
@@ -519,7 +520,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
           });
           if (vertical !== 'hospitality') {
             const action = page.getByRole('link', {
-              name: vertical === 'beauty' ? 'Открыть календарь' : 'Открыть план зала',
+              name: vertical === 'beauty' ? '+ Новая запись' : 'Открыть план зала',
               exact: true,
             });
             // с клавиатуры до главного действия экрана доходит Tab, Enter открывает раздел

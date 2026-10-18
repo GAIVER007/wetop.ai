@@ -25,7 +25,7 @@ export async function BeautyToday() {
   );
   if (!loaded.ok)
     return (
-      <Page title="Сегодня">
+      <Page title="Главная">
         <LoadError testId="today-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -35,22 +35,25 @@ export async function BeautyToday() {
     attention.push({
       text: `Ждут подтверждения: ${m.awaitingConfirmation}`,
       href: '/calendar',
-      action: 'Открыть календарь',
+      action: 'Открыть журнал',
       testId: 'today-attention-unconfirmed',
     });
   if (m.noShow > 0)
     attention.push({
       text: `Не пришли: ${m.noShow}`,
       href: '/calendar',
-      action: 'Открыть календарь',
+      action: 'Открыть журнал',
       testId: 'today-attention-no-show',
     });
   const [revenue, ...otherCurrencies] = m.revenue;
   return (
     <VerticalDay
       testId="beauty-today"
+      // подписи по меню салона (решение владельца 18.10.2026): «Главная», «Журнал», «Специалисты»
+      title="Главная"
       subtitle={`${day.location.name ?? 'Салон'}, ${displayDate(day.date, 'full')}`}
-      action={{ href: '/calendar', label: 'Открыть календарь' }}
+      // главное действие смены сразу видно; запись создаётся в журнале
+      action={{ href: '/calendar', label: '+ Новая запись', primary: true }}
       stats={[
         { label: 'Записи сегодня', value: m.total, testId: 'today-total', icon: 'booking' },
         {
@@ -63,9 +66,9 @@ export async function BeautyToday() {
               ? `и ${otherCurrencies.map((r) => formatMoney(r.minor, r.currency)).join(', ')}`
               : 'по завершённым записям',
         },
-        { label: 'Клиентов', value: m.clients, testId: 'today-clients', icon: 'guests' },
+        { label: 'Клиенты сегодня', value: m.clients, testId: 'today-clients', icon: 'guests' },
         {
-          label: 'Мастера на смене',
+          label: 'Специалисты на смене',
           value: `${m.onShift} из ${m.masters}`,
           testId: 'today-shift',
           icon: 'person',
@@ -82,7 +85,7 @@ export async function BeautyToday() {
       }))}
       empty="Записей впереди на сегодня нет."
       aside={{
-        title: 'Мастера на смене',
+        title: 'Специалисты на смене',
         empty: 'Сегодня смен нет.',
         rows: m.shift.map((s) => ({
           id: s.id,
@@ -91,11 +94,6 @@ export async function BeautyToday() {
           note: pluralRu(s.appointments, ['запись', 'записи', 'записей']),
         })),
       }}
-      quickActions={[
-        { href: '/calendar', label: 'Новая запись', icon: 'plus' },
-        { href: '/employees', label: 'Добавить мастера', icon: 'person' },
-        { href: '/services', label: 'Каталог услуг', icon: 'rates' },
-      ]}
     />
   );
 }

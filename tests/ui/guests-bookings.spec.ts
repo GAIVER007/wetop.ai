@@ -325,7 +325,8 @@ test('гости и бронирования: одна вкладка меню, 
   await expect(guestsGroup).toHaveAttribute('aria-expanded', 'false');
   await expect(menu.getByRole('link', { name: 'Клиенты', exact: true, includeHidden: true })).toHaveCount(1);
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
-  await guestsGroup.click();
+  await expect(guestsGroup).toHaveAttribute('aria-expanded', 'true');
+  await expect(tab).toBeVisible();
   await expect(tab).toHaveAccessibleName('Клиенты');
   await guestsGroup.click();
   await expect(guestsGroup).toHaveAttribute('aria-expanded', 'false');

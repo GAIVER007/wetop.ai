@@ -11,6 +11,7 @@ export interface QuickReportData {
   statuses: Array<{ key: string; label: string; count: number; tone: string }>;
   money: Array<{ label: string; values: Record<string, string>; hint: string }>;
   note: string;
+  reference?: { totalPrices: Record<string, string>; statuses: QuickReportData['statuses'] };
 }
 
 function statuses(registry: Record<string, StatusPresentation>, counts: Record<string, number>) {
@@ -81,10 +82,19 @@ export function beautyQuickReport(rows: BeautyRow[]): QuickReportData {
       },
     );
   }
-  if (rows.length && rows.every((r) => r.paidCashMinor !== undefined && r.paidNonCashMinor !== undefined)) {
-    for (const [label, field] of [['Оплата наличными', 'paidCashMinor'], ['Оплата безналом', 'paidNonCashMinor']] as const) {
-      money.push({ label, values: sums(rows.map((r) => ({ amount: r[field]!, currency: r.currency }))),
-        hint: 'Действующие приходы по выбранным записям за всё время. Возвраты показаны отдельно. Безнал включает карту и переводы.' });
+  if (
+    rows.length &&
+    rows.every((r) => r.paidCashMinor !== undefined && r.paidNonCashMinor !== undefined)
+  ) {
+    for (const [label, field] of [
+      ['Оплата наличными', 'paidCashMinor'],
+      ['Оплата безналом', 'paidNonCashMinor'],
+    ] as const) {
+      money.push({
+        label,
+        values: sums(rows.map((r) => ({ amount: r[field]!, currency: r.currency }))),
+        hint: 'Действующие приходы по выбранным записям за всё время. Возвраты показаны отдельно. Безнал включает карту и переводы.',
+      });
     }
   }
   return {
@@ -92,6 +102,20 @@ export function beautyQuickReport(rows: BeautyRow[]): QuickReportData {
     clients: new Set(rows.map((r) => r.customer.id)).size,
     itemLabel: 'Записей',
     statuses: statuses(beautyStatus, counts),
+    reference: {
+      totalPrices: sums(rows.map((r) => ({ amount: r.priceMinor, currency: r.currency }))),
+      statuses: [
+        { key: 'DONE', label: 'Обслуженные', count: counts.DONE ?? 0, tone: 'success' },
+        {
+          key: 'WAITING',
+          label: 'В ожидании',
+          count: (counts.BOOKED ?? 0) + (counts.CONFIRMED ?? 0) + (counts.IN_PROGRESS ?? 0),
+          tone: 'warning',
+        },
+        { key: 'CANCELLED', label: 'Отменённые', count: counts.CANCELLED ?? 0, tone: 'danger' },
+        { key: 'NO_SHOW', label: 'Не пришли', count: counts.NO_SHOW ?? 0, tone: 'neutral' },
+      ],
+    },
     money,
     note: 'Скидки и бонусы: отдельный учёт для записей пока не ведётся.',
   };

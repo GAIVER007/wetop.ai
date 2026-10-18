@@ -6,6 +6,7 @@ import { Alert, Button, Help } from './ui';
 import { formatMoney } from '../lib/money';
 import type { QuickReportData } from './quick-report-data';
 import './quick-report.css';
+import { ReferenceReport } from './quick-report-reference';
 
 const colors: Record<string, string> = {
   neutral: 'var(--text-2)',
@@ -40,7 +41,9 @@ export function QuickReport({
     month: 'short',
     year: 'numeric',
     timeZone: 'UTC',
-  }).format(new Date(`${date}T12:00:00Z`))}`;
+  })
+    .format(new Date(`${date}T12:00:00Z`))
+    .replace(' г.', '')}`;
   let offset = 0;
   return (
     <>
@@ -59,18 +62,21 @@ export function QuickReport({
         open={open}
         onClose={() => setOpen(false)}
         title={title}
-        className="quick-report"
+        className={`quick-report ${data?.reference ? 'quick-report-reference' : ''}`}
         trapFocus
       >
-        <p className="quick-report-scope">
-          {scope.map((line) => (
-            <span key={line}>{line}</span>
-          ))}
-        </p>
+        {!data?.reference && (
+          <p className="quick-report-scope">
+            {scope.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </p>
+        )}
         {failed && (
           <Alert>Не удалось составить отчёт: данные некорректны. Обновите страницу.</Alert>
         )}
-        {data && (
+        {data?.reference && <ReferenceReport data={data} scope={scope} />}
+        {data && !data.reference && (
           <>
             <div className="quick-report-top">
               <div>

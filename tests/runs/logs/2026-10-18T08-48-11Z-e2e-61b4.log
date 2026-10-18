@@ -1,0 +1,80 @@
+# Сквозные (e2e) · 18.10.2026 13:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 89900c5 (codex/calendar-report-reference), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-journal.spec.ts' '--grep' 'быстрый отчёт календаря' '--workers' '1'
+[WebServer] (node:3780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3821) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3822) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3914) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1356ms. If /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:3963) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/beauty-journal.spec.ts:333:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (1.8m)
+[WebServer] (node:4404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '430487214'
+[WebServer] }
+  ✘  2 tests/ui/beauty-journal.spec.ts:388:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня (1.0m)
+
+
+  1) tests/ui/beauty-journal.spec.ts:388:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: /Статистика за/ })
+    Expected substring: "Скидки и бонусы"
+    Received string:    "Статистика за 12 окт. 2026 г.Студия АйнаДинаСтудия АйнаДинаКлиентов1Записей1Статус записи:Обслуженные1В ожидании0Отменённые01ЗаписейОбщая сумма всех записей:8 000 ₸Финансы:Сумма завершённых услуг / число завершённых записей в каждой валюте. Остаток тиына отбрасывается, как в статистике клиентов.Средний чек8 000 ₸Стоимость записей со статусом «Завершена», как в аналитике салона. Это не сумма принятых оплат.Выручка (за один день)8 000 ₸Действующие приходы по выбранным записям за всё время. Возвраты показаны отдельно. Безнал включает карту и переводы.Оплата наличными0 ₸Действующие приходы по выбранным записям за всё время. Возвраты показаны отдельно. Безнал включает карту и переводы.Оплата безналом0 ₸Все действующие возвраты выбранных записей, независимо от даты возврата.Возвраты0 ₸Лояльность:Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Бонусная картаНет данныхИсточник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Скидка (сумма)Нет данныхИсточник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Сертификаты (сумма)Нет данныхИсточник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.АбонементыНет данныхZapis.kz:Интеграция с Zapis.kz не подключена. Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Онлайн оплатаНет данныхИнтеграция с Zapis.kz не подключена. Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Сертификат от ZapisНет данныхИнтеграция с Zapis.kz не подключена. Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Подарочная карта от ZapisНет данныхИнтеграция с Zapis.kz не подключена. Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.ПредоплатаНет данных"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: /Статистика за/ }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: /Статистика за/ })
+        32 × locator resolved to <dialog open="" aria-labelledby="_r_0_" class="ui-overlay   quick-report quick-report-reference">…</dialog>
+           - unexpected value "Статистика за 12 окт. 2026 г.Студия АйнаДинаСтудия АйнаДинаКлиентов1Записей1Статус записи:Обслуженные1В ожидании0Отменённые01ЗаписейОбщая сумма всех записей:8 000 ₸Финансы:Сумма завершённых услуг / число завершённых записей в каждой валюте. Остаток тиына отбрасывается, как в статистике клиентов.Средний чек8 000 ₸Стоимость записей со статусом «Завершена», как в аналитике салона. Это не сумма принятых оплат.Выручка (за один день)8 000 ₸Действующие приходы по выбранным записям за всё время. Возвраты показаны отдельно. Безнал включает карту и переводы.Оплата наличными0 ₸Действующие приходы по выбранным записям за всё время. Возвраты показаны отдельно. Безнал включает карту и переводы.Оплата безналом0 ₸Все действующие возвраты выбранных записей, независимо от даты возврата.Возвраты0 ₸Лояльность:Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Бонусная картаНет данныхИсточник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Скидка (сумма)Нет данныхИсточник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Сертификаты (сумма)Нет данныхИсточник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.АбонементыНет данныхZapis.kz:Интеграция с Zapis.kz не подключена. Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Онлайн оплатаНет данныхИнтеграция с Zapis.kz не подключена. Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Сертификат от ZapisНет данныхИнтеграция с Zapis.kz не подключена. Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Подарочная карта от ZapisНет данныхИнтеграция с Zapis.kz не подключена. Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.ПредоплатаНет данных"
+
+
+      468 |   await expect(report).toContainText('Оплата безналом');
+      469 |   await expect(report).not.toContainText('Стоимость всех записей');
+    > 470 |   await expect(report).toContainText('Скидки и бонусы');
+          |                        ^
+      471 |   await expect(report.locator('.quick-report-counts').first()).toContainText('Клиентов1');
+      472 |   await page.screenshot({
+      473 |     path: 'reports/calendar-quick-report-2026-10-17/beauty-master.png',
+        at /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/ui/beauty-journal.spec.ts:470:24
+
+    Error Context: test-results/beauty-journal-быстрый-отч-48565-р-сохраняется-при-смене-дня/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-быстрый-отч-48565-р-сохраняется-при-смене-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-быстрый-отч-48565-р-сохраняется-при-смене-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-journal.spec.ts:388:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня 
+  1 passed (3.4m)
+
+# код выхода 1 · 3 мин 27 с

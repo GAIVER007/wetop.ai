@@ -316,6 +316,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'DELETE /beauty/employees/:id/time-offs/:timeOffId': 'property',
   'GET /beauty/appointments': 'desk',
   'POST /beauty/appointments': 'desk',
+  // M4-A: самостоятельное создание клиента, тот же существующий доступ смены.
+  'POST /beauty/customers': 'desk',
   'PATCH /beauty/appointments/:id': 'desk',
   'POST /beauty/appointments/:id/status': 'desk',
   // оплата записи в кассу филиала (§49): принимает смена, как оплату заказа ресторана

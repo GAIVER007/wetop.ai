@@ -1,12 +1,13 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, beautyApi } from '../../lib/api';
+import { ApiError, authApi, beautyApi } from '../../lib/api';
 
 /**
  * Журнал записей салона (срез B5): создание записи, перенос и состояние.
  * Отказ API показывается словами, введённое в панели не стирается.
  */
 export interface JournalResult {
+  outcome?: 'rejected' | 'unknown';
   error?: string;
   message?: string;
 }
@@ -24,8 +25,19 @@ export async function createAppointment(
   _prev: JournalResult | null,
   form: FormData,
 ): Promise<JournalResult> {
+  // The initial scope is a guard, never an authority. API still checks all permissions.
   try {
-    await beautyApi.createAppointment({
+    const expected = JSON.parse(text(form, 'scopeKey')) as Record<string, unknown>;
+    const me = await authApi.me();
+    if (!expected.organizationId || !expected.businessId || !expected.locationId ||
+      me.user?.organizationId !== expected.organizationId ||
+      me.context?.businessId !== expected.businessId || me.context?.locationId !== expected.locationId)
+      return { outcome: 'rejected', error: 'Контекст изменён. Закройте старую форму и откройте запись в нужном филиале. Ввод сохранён.' };
+  } catch {
+    return { outcome: 'rejected', error: 'Не удалось проверить исходный контекст. Ввод сохранён, команда не отправлена.' };
+  }
+  try {
+    const saved = await beautyApi.createAppointment({
       employeeId: text(form, 'employeeId'),
       serviceId: text(form, 'serviceId'),
       startsAt: text(form, 'startsAt'),
@@ -35,6 +47,8 @@ export async function createAppointment(
       phone: text(form, 'phone'),
       notes: text(form, 'notes'),
     });
+    if (!saved?.appointments?.some((row) => typeof row.id === 'string' && row.id))
+      return { outcome: 'unknown', error: 'Результат не подтверждён. Проверьте список записей перед повторным созданием.' };
     revalidatePath('/calendar');
     revalidatePath('/appointments');
     revalidatePath('/employees');
@@ -43,7 +57,9 @@ export async function createAppointment(
     revalidatePath('/beauty');
     return { message: 'Запись создана' };
   } catch (e) {
-    return failed(e, 'Не удалось создать запись. Обновите страницу перед повтором.');
+    return e instanceof ApiError && e.status >= 400 && e.status < 500
+      ? { outcome: 'rejected', error: e.message }
+      : { outcome: 'unknown', error: 'Результат не подтверждён. Проверьте список записей перед повторным созданием. Автоматического повтора нет.' };
   }
 }
 

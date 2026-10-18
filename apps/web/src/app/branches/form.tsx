@@ -1,10 +1,9 @@
 'use client';
 import { useActionState, useEffect, useState } from 'react';
-import { currencyOptions, timezoneOptions } from '@pms/domain';
+import { SUPPORTED_COUNTRIES, countryOf, currencyOptions } from '@pms/domain';
 import { createBranch } from './actions';
 import type { BusinessCardView } from '../../lib/api';
 import type { WebVertical } from '../../lib/vertical-landing';
-const DEFAULT_BRANCH_TIMEZONE = 'Asia/Almaty'; // tz-allow: approved default for a newly created object
 export function BranchForm({
   id,
   onPendingChange,
@@ -28,6 +27,9 @@ export function BranchForm({
       ? 'LEGACY'
       : (initialMode ?? (businesses.length ? 'BRANCH' : 'BUSINESS')),
   );
+  // пояс идёт от страны, валюта по умолчанию тоже, но её можно сменить (Q-SCHED-3)
+  const [country, setCountry] = useState<string>(SUPPORTED_COUNTRIES[0].code);
+  const [currency, setCurrency] = useState<string>(SUPPORTED_COUNTRIES[0].currency);
   const [businessId, setBusinessId] = useState(initialBusinessId ?? businesses?.[0]?.id ?? '');
   const selected = businesses?.find((b) => b.id === businessId);
   useEffect(() => {
@@ -142,8 +144,34 @@ export function BranchForm({
         <input className="inp" name="address" maxLength={500} disabled={pending} />
       </label>
       <label>
+        Страна
+        <select
+          className="inp"
+          value={country}
+          disabled={pending}
+          onChange={(e) => {
+            setCountry(e.target.value);
+            setCurrency(countryOf({ code: e.target.value })?.currency ?? currency);
+          }}
+        >
+          {SUPPORTED_COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <input type="hidden" name="timezone" value={countryOf({ code: country })?.zone ?? ''} />
+      <label>
         Валюта
-        <select className="inp" name="currency" required defaultValue="KZT" disabled={pending}>
+        <select
+          className="inp"
+          name="currency"
+          required
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
+          disabled={pending}
+        >
           {currencyOptions().map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
@@ -151,28 +179,7 @@ export function BranchForm({
           ))}
         </select>
       </label>
-      <details className="branch-create__advanced">
-        <summary>Дополнительные настройки</summary>
-        <label>
-          Часовой пояс
-          <select
-            className="inp"
-            name="timezone"
-            required
-            defaultValue={DEFAULT_BRANCH_TIMEZONE}
-            disabled={pending}
-          >
-            {timezoneOptions().map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <p className="muted">
-          Определяет даты бронирований и отчётов. Для Казахстана уже выбрана Алматы.
-        </p>
-      </details>
+      <p className="muted">Часовой пояс задаёт страна: от него зависят даты записей и отчётов.</p>
       <p className="muted">
         {mode === 'BUSINESS'
           ? 'Создадим новый бизнес с первым объектом внутри вашей организации.'

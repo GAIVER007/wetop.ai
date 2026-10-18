@@ -4,10 +4,10 @@
 
 17.10.2026, замечания владельца с приёмки на рабочем сайте (тестовый салон). Решено и сделано в ветке `claude/salon-setup-schedule-grid`:
 
-1. Валюты и пояса в формах настройки салона, филиала и услуги берутся из одного списка `packages/domain/src/regions.ts`: KZT, USD, AED, QAR; Алматы, Дубай, Доха. Казахстан с 01.03.2024 в одном поясе, второго варианта нет. Сохранённое раньше значение вне списка форма показывает как есть. Сервер по-прежнему принимает любую ISO-валюту и пояс IANA: список ограничивает выбор, а не данные.
+1. Валюты и пояса в формах настройки салона, филиала и услуги берутся из одного списка `packages/domain/src/regions.ts`: валюты KZT, USD, AED, QAR; страны Казахстан, ОАЭ, Катар. Пояс идёт от страны (Q-SCHED-3, решение по поручению владельца): выбор страны ставит пояс и валюту по умолчанию, пояс показывается только для чтения, валюту можно сменить. Страна организации из регистрации подставляется в настройку салона (API настройки отдаёт `organizationCountry`). Казахстан с 01.03.2024 в одном поясе. Сохранённое раньше значение вне списка форма показывает как есть. Сервер по-прежнему принимает любую ISO-валюту и пояс IANA: список ограничивает выбор, а не данные.
 2. Цена услуги и своя цена филиала вводятся в валюте («5000» это 5 000 ₸); в базе и в API по-прежнему целые тиыны (ADR-008), перевод в браузере через `parseMoney` домена. Для новой услуги есть выбор из 14 типовых услуг салона (название, группа, длительность), цену человек вводит сам.
 3. Причина «после Сохранить ничего не сохраняется»: «Сделать рабочим» добавлял пустой интервал, а подсказки «09:00» и «18:00» в пустых полях выглядели как значения; пустые интервалы при сохранении отбрасывались, и неделя уходила без этого дня. Теперь новый рабочий день сразу получает 09:00–18:00 (или часы первого рабочего дня мастера) значением, подсказок-времени нет.
-4. «График» салона это сетка недели: мастера филиала строками, семь дат колонками, «Работает / Не работает» переключателем, переход по неделям. Переключатель правит обычную неделю мастера (модель хранит график по дням недели, DATA_MODEL §19): включённая среда значит каждую среду. Часы правятся окном по имени мастера. Отсутствия на даты из модели видны в ячейке только для чтения; раздел «Нерабочие дни» убран из стойки и из кабинета сотрудника, таблица `time_offs` и API не тронуты, миграций нет. Фильтров «роль» и «профессия» нет: в модели сотрудника нет таких полей (Q-SCHED-2).
+4. «График» салона это сетка недели: мастера филиала строками, семь дат колонками, переход по неделям. Переключатель меняет только эту дату (Q-SCHED-1, решение по поручению владельца): выключение = однодневное отсутствие в существующей модели, включение = его снятие, записи не отменяются и показываются предупреждением. Выходной по шаблону ведёт в окно недели мастера («изменится каждую среду»); шаблон и часы правятся только там. Отсутствие на несколько дней видно только для чтения. Раздел «Нерабочие дни» убран из стойки и из кабинета сотрудника, `time_offs` и API не тронуты, миграций нет. Отбор «Профессия» по группам назначенных мастеру услуг, «Роли» нет (Q-SCHED-2).
 5. Сотрудник свой график только видит: кабинет «Моя работа» показывает неделю без правки, API кабинета отвечает 403 на правку недели и отсутствий из собственной сессии; руководитель меняет график как раньше. Это сужает EMPLOYEE-PORTAL-20261016 в части самостоятельной правки графика по слову владельца.
 
 ## ADR-TZ21-WORKING-TIME-D-20261017
@@ -7686,3 +7686,42 @@ Beauty basic, Food employee и Portal profile используют writeEmployee
 **Отступление от скриншота:** в «Статистике» пункты названы «Отчёт по записям» и «Отчёт по заказам», а не
 «Записи» и «Заказы»: сторож дублей меню не пускает две одинаковые подписи у разных экранов одного направления.
 
+## OWNER-HOME-READ-ONLY-20261017: bounded V4 activation (17.10.2026)
+
+**Status:** accepted by the owner for publication through the existing candidate/main/release gates. This decision clarifies the narrow presentation rollout, not approval of held SQL or a complete financial release.
+
+**Problem and alternatives:** earlier rollout notes combined read-only presentation with held capture, historical currency and linked classification acceptance. Keeping the existing screen until every financial capability is complete unnecessarily couples two releases; enabling captures or weakening permissions to show V4 is not acceptable.
+
+**Decision:** default the deployed web `APP_UNIFIED_OWNER_HOME` to `true`, preserving explicit `0`/`false`. Show the existing accepted shared Main only to signed-in users already authorized for `reports` in the selected location. Keep the existing 403/non-reports operational dispatch and `/today/operations`. Do not change money logic, schema, backend flags, capture/link defaults, scope or RLS. Known source currencies remain separate; unknown historical hotel cash stays PARTIAL, never zero or the present property currency. Disabled workload and classification remain explicitly unavailable.
+
+**Verification and consequences:** release-checks must exercise the real OwnerSummaryService for all three verticals and today/week/month on the disposable canonical `pms_test` fixture before any held SQL is installed, using wetop_app/RLS and rollback-only synthetic fixtures. A separate flag-on browser gate runs the existing three real HTTP/database owner-home tests and checks the JSON report for missing/skipped/flaky tests. Real database/browser acceptance is pending CI; bounded local unit/lint checks do not replace it. Existing held installation in CI remains test-only and unchanged. Publication still requires reviewed candidate CI, main CI, automatic release, then authenticated live V4/operations verification. Explicit runtime OFF remains an operator-controlled opt-out, not something this package bypasses. Historical full-financial-release requirements remain valid for that separate release.
+
+
+
+## ТЗ1.1 F01 (2026-10-17): фильтр не меняет занятость
+
+Проблема: скрытая фильтром запись создавала ложную свободную кнопку. Решение: занятость определяется всем разрешённым набором day.appointments, плитки прежним отбором. CANCELLED/NO_SHOW не блокируют по прежнему контракту. Геометрия, API и статусы не меняются. Альтернатива считать занятость по плиткам отвергнута: это и есть дефект. RED/GREEN и PG409 в собственном tz11 evidence.
+
+
+## ТЗ1.1 F02 (2026-10-17): сохранность новой записи
+
+Проблема: X/Escape/backdrop уничтожали ввод. Варианты: менять все Overlay или opt-in оболочка только новой Beauty-записи. Выбран AppointmentEditor, общий для календаря и списка; Overlay и ConfirmDialog без изменения контрактов (chat3). Черновик только в памяти mounted формы, все поля включая дату/время входят в dirty. Закрытие pending блокируется, успех закрывает напрямую. До команды сервер сверяет исходные organization/business/location с auth/me текущего запроса. Клиентские идентификаторы не дают прав, API продолжает проверять scope. Транспорт/5xx и пустой success означают unknown, повтор в этой форме блокируется; сверка результата вручную в списке. Никаких автоповторов создания. Для ухода: opt-in перехват ссылок/branch controls, native beforeunload; отмена same-document traversal только при доступном cancelable Navigation API, не универсальное обещание для всех браузеров. Production/R01 вне среза.
+
+
+## ТЗ1.1 F03 (2026-10-17): контекст списка без нового PII-хранилища
+
+Проблема: локальные master/service/status терялись после reload и истории. Выбран действующий URL/history-паттерн MastersBoard: date/master/service/status/appointment имеют один источник в адресе, Next history state сохраняется. Карточка выбирается только из разрешённого day.appointments. Неизвестные/повторные IDs и статусы дают пустой результат с явным сбросом, не загрузку произвольного ID и не расширение доступа. При смене исходного org/business/location компонент remount по scopeKey, query не переходит между ними.
+
+Строка поиска клиента объединяется с этим контекстом только при фильтрации и живёт в памяти mounted экрана. Она сохраняется при открытии/закрытии карточки, но намеренно очищается после reload. Альтернатива sessionStorage могла бы выполнить восстановление строки после reload, однако отдельного разрешения для appointments нет: ADR-148 относится к BoardFilters. Точный вопрос сохранён в QUESTIONS.md. URL/hash/history.state/server/localStorage/sessionStorage для query не добавлялись. Это обозначенный частичный policy blocker F03, не заявление о полном выполнении persistence. Глобальный поиск не меняется.
+
+
+## ТЗ1.2 compatibility consolidation (2026-10-17)
+
+По поручению владельца перенесены только отсутствовавшие presentation-части 33ac9992 и 5d5de5d8: сворачиваемые фильтры и легенда, обезличенная маска занятых интервалов, контакты и действия списка, семантические группы общей формы и локальный scroll/sticky footer, мобильные карточки клиентов и приоритет действующей услуги филиала перед каталогом. Существующие Help/Table/Overlay сохранены. ServiceForm, денежный ввод и CAS не меняются. Полная дневная занятость, scopeKey, unknown-result lock и dirty-navigation guards остаются действующими. Browser TZ12 спеки входят в существующий beauty-ui glob; локально браузер и БД не запускались.
+
+Дополнительно по поручению владельца перенесён локальный food visual pilot: мобильная высота пустых KDS-колонок и сетка полей периодов бронирования. Именованная сетка ограничена Hours через rest-hours--editable, чтобы не менять строки длительности брони. Существующие заголовки, физическое расписание, payload и права не менялись. Визуальная браузерная проверка ожидает CI.
+
+
+## Consolidation clarification — 2026-10-17 (issue 642)
+
+The explicit owner approval of 2026-10-08 in `7c0d61e9e:plans/unified-acceptance-continuation-2026-10-07.md` supersedes the October 7 guest-count UI absence expectation only. Restore the existing guarded stay guest-count form with stored server values, preserving page canMutate and eligible-status filtering. No newer reversal established. The separate creation-time occupancy/default 1-or-2 and pricing question remains UNRESOLVED; this consolidation does not select capacity defaults, reprice stays, change schema, backend authorization, folio policy or financial rules. Calendar port is limited to rendered-rectangle trailing margin and Today/reload alignment; no CSS rollback or resize observer.

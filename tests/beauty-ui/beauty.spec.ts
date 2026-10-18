@@ -438,14 +438,23 @@ test('archived service and employee preserve historical calendar appointments', 
       })
     ).ok(),
   ).toBe(true);
-  expect(
-    (
-      await request.patch(`${api}/beauty/employees/${f.employee.id}`, {
-        headers: f.headers,
-        data: { active: false, expectedProfileRevision: f.employee.profileRevision },
-      })
-    ).ok(),
-  ).toBe(true);
+  // Archive uses the employee version from this intent's original API snapshot, not the stale seed POST.
+  const employeeSnapshot = await request.get(`${api}/beauty/employees`, { headers: f.headers });
+  expect(employeeSnapshot.ok(), `read archive source version: HTTP ${employeeSnapshot.status()}`).toBe(true);
+  const originalEmployee = (await employeeSnapshot.json()).items.find((employee: { id: string }) => employee.id === f.employee.id);
+  expect(originalEmployee?.profileRevision).toBeTruthy();
+  const archived = await request.patch(`${api}/beauty/employees/${f.employee.id}`, {
+    headers: f.headers,
+    data: { active: false, expectedProfileRevision: originalEmployee.profileRevision },
+  });
+  const archiveError = archived.ok() ? null : await archived.json().catch(() => null);
+  // Do not log raw responses: they may contain employee/contact data or internal diagnostics.
+  const safeError = archiveError && {
+    statusCode: typeof archiveError.statusCode === 'number' ? archiveError.statusCode : archived.status(),
+    error: ['Bad Request', 'Forbidden', 'Conflict', 'Not Found', 'Internal Server Error'].includes(archiveError.error) ? archiveError.error : 'Other error',
+    expectedProfileRevisionRejected: typeof archiveError.message === 'string' && archiveError.message.includes('expectedProfileRevision'),
+  };
+  expect(archived.ok(), `archive employee: HTTP ${archived.status()}, safe error ${JSON.stringify(safeError)}`).toBe(true);
   await page.reload();
   await expect(page.locator('.beauty-grid-day .beauty-tile')).toContainText('Тестовая клиентка');
   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
@@ -457,11 +466,12 @@ test('archived service and employee preserve historical calendar appointments', 
   ).toContainText('Тестовый мастер Анна');
   await page.goto(`/appointments?date=${day}`);
   await expect(page.getByRole('table')).toContainText('Тестовый мастер Анна');
+  // The appointments list keeps inline filters; only the calendar uses a disclosure.
   await page.getByLabel('Мастер').selectOption({ label: 'Тестовый мастер Анна (не принимает)' });
   await expect(page.getByRole('table')).toContainText('Тестовая клиентка');
 });
 
-test('TimeOff from employee drawer, server denial and timezone persisted', async ({
+test('TimeOff via manager API with compact employee drawer, server denial and timezone persisted', async ({
   page,
   request,
 }) => {
@@ -474,12 +484,25 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
     .click();
   const panel = page.getByRole('dialog');
   await panel.getByRole('tab', { name: 'График', exact: true }).click();
-  await panel.getByLabel('С какого дня').fill(day);
-  await panel.getByLabel('По какой день включительно').fill(day);
-  await panel.getByLabel(/Причина/).fill('Тестовое обучение');
-  await panel.getByRole('button', { name: 'Добавить отсутствие' }).click();
-  await expect(panel.getByRole('status')).toContainText('Отсутствие добавлено');
-  await expect(panel.getByRole('table')).toContainText('Тестовое обучение');
+  await expect(panel.getByRole('heading', { name: 'Обычная неделя', exact: true })).toBeVisible();
+  await expect(panel.getByRole('button', { name: 'Сохранить график', exact: true })).toBeVisible();
+  await expect(panel.getByLabel('С какого дня')).toHaveCount(0);
+  await expect(panel.getByLabel('По какой день включительно')).toHaveCount(0);
+  await expect(panel.getByLabel(/Причина/)).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Добавить отсутствие' })).toHaveCount(0);
+  // The compact drawer edits only the normal week; the owner API still manages dated absences.
+  const created = await request.post(`${api}/beauty/employees/${f.employee.id}/time-offs`, {
+    headers: f.headers,
+    data: { dateFrom: day, dateTo: day, reason: 'Тестовое обучение' },
+  });
+  expect(created.ok(), `manager absence fixture: HTTP ${created.status()}`).toBe(true);
+  const timeOffs = (await created.json()).timeOffs;
+  expect(timeOffs).toHaveLength(1);
+  expect(timeOffs).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ dateFrom: day, dateTo: day, reason: 'Тестовое обучение' }),
+    ]),
+  );
   await page.goto(`/calendar?date=${day}`);
   await expect(page.getByTestId('beauty-grid')).toContainText('Тестовое обучение');
   const rejected = await book(page);
@@ -535,6 +558,20 @@ test('Beauty onboarding v2 completes a ready branch and resumes Today', async ({
   await main.getByRole('button', { name: 'Настроить салон', exact: true }).click();
   await main.getByLabel('Название салона').fill('Тестовый салон');
   await main.getByLabel('Название филиала').fill('Тестовый филиал');
+  // пояс идёт от страны и только для чтения, валюта подставляется и меняется (Q-SCHED-3)
+  await expect(main.getByLabel('Часовой пояс')).toHaveJSProperty('readOnly', true);
+  await main.getByLabel('Страна').selectOption({ label: 'ОАЭ' });
+  await expect(main.getByLabel('Часовой пояс')).toHaveValue('Дубай (ОАЭ)');
+  await expect(main.getByLabel('Валюта')).toHaveValue('AED');
+  expect(await main.getByLabel('Валюта').locator('option').allTextContents()).toEqual([
+    'Тенге (KZT)',
+    'Доллар США (USD)',
+    'Дирхам ОАЭ (AED)',
+    'Катарский риал (QAR)',
+  ]);
+  await main.getByLabel('Страна').selectOption({ label: 'Казахстан' });
+  await expect(main.getByLabel('Часовой пояс')).toHaveValue('Алматы (Казахстан)');
+  await expect(main.getByLabel('Валюта')).toHaveValue('KZT');
   await main.getByRole('button', { name: 'Сохранить и продолжить', exact: true }).click();
   await expect(main.getByRole('button', { name: 'Завершить настройку' })).toBeDisabled();
   await seed(page, request, f);

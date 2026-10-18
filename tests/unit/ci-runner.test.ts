@@ -125,8 +125,23 @@ describe('свой раннер CI', () => {
     expect(onboarding).toMatch(/image: postgres:16/);
     expect(onboarding).toContain('npm run test:schema');
     expect(onboarding).toContain('npx playwright test --config tests/onboarding-real/playwright.config.ts --forbid-only');
-    expect(onboarding).toContain('node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 11');
+    expect(onboarding).toContain('node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 24');
     expect(onboarding).not.toMatch(/continue-on-error|--retries|--pass-with-no-tests/);
+  });
+
+  it('onboarding API inherits the canonical restricted tenant role and verifies it at runtime', () => {
+    const onboarding = withoutComments(job('onboarding-real'));
+    expect(onboarding).toContain('DATABASE_APP_URL: postgresql://wetop_app@127.0.0.1:5432/pms_dev');
+    expect(onboarding).toContain('POSTGRES_HOST_AUTH_METHOD: trust');
+    const provision = 'ALTER ROLE wetop_app LOGIN NOSUPERUSER NOBYPASSRLS';
+    expect(onboarding).toContain(provision);
+    expect(onboarding.indexOf(provision)).toBeGreaterThan(onboarding.indexOf('npm run test:schema'));
+    const config = read('tests/onboarding-real/playwright.config.ts');
+    expect(config).toContain('tests/onboarding-real/api.ts');
+    expect(config).not.toContain('DATABASE_APP_URL:'); // Playwright inherits the job env; no owner override.
+    const recovery = read('tests/onboarding-real/recovery-real.spec.ts');
+    expect(recovery).toContain('/__onboarding-test/runtime-role');
+    expect(recovery).toContain("{ role: 'wetop_app', rolsuper: false, rolbypassrls: false, owned: 0 }");
   });
 
   it('база и UI ждут быстрые проверки: при красном lint или unit минуты на них не тратятся', () => {

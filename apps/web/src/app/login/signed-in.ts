@@ -12,11 +12,11 @@ export async function registrationAvailable(): Promise<boolean> {
 
 /**
  * Кто вошёл — по cookie стойки, любым из двух входов (Q-146). `null` — куки нет, сессия протухла,
- * отозвана или API отказал: во всех этих случаях человеку показывают форму входа, а не ошибку.
+ * отозвана (401). Отказ в правах и сбой API не означают выход из учётной записи.
  */
 export async function signedInUser(): Promise<SignedIn | null> {
   const me = await authApi.me().catch((error: unknown) => {
-    if (error instanceof ApiError) return { user: null };
+    if (error instanceof ApiError && error.status === 401) return { user: null };
     throw error;
   });
   return me.user ?? null;

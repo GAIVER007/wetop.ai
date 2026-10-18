@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { FIXTURE_API, expect, test } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
@@ -127,4 +128,30 @@ test('кука сессии выписывается заново при раб�
   const cookie = (await context.cookies()).find((c) => c.name === 'wetop_session')!;
   expect(cookie.httpOnly).toBe(true);
   expect(cookie.sameSite).toBe('Lax');
+});
+
+// Экран «Управление доступом» собран из общих карточек (17.10.2026): доступность в двух темах, телефон без прокрутки вбок
+test('экран доступа: карточки, axe в светлой и тёмной теме, телефон без горизонтальной прокрутки', async ({ page }) => {
+  await login(page);
+  // снимки в рабочую папку, а не в копию изолированного исполнителя
+  const shots = `${process.env.INIT_CWD ?? process.cwd()}/reports/auth-identity-2026-10-16/screens`;
+  for (const [width, height] of [[1440, 1000], [390, 844]] as const) {
+    await page.setViewportSize({ width, height });
+    for (const colorScheme of ['light', 'dark'] as const) {
+      await page.emulateMedia({ colorScheme });
+      await page.goto('/profile/access');
+      await page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
+      const main = page.getByRole('main');
+      await expect(main.getByRole('heading', { name: 'Управление доступом' })).toBeVisible();
+      await expect(main.getByText('Вы вошли', { exact: true })).toBeVisible();
+      await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
+      const violations = (
+        await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
+      ).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`);
+      expect(violations, `${width} ${colorScheme}`).toEqual([]);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      expect(overflow, `${width} ${colorScheme}`).toBeLessThanOrEqual(0);
+      await page.screenshot({ path: `${shots}/profile-access-${width}-${colorScheme}.png`, fullPage: true });
+    }
+  }
 });

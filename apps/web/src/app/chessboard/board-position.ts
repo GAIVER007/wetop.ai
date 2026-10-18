@@ -42,6 +42,21 @@ export function useBoardPosition(
   useEffect(() => {
     const wrap = ref.current;
     if (!wrap || !window.matchMedia('(max-width: 600px)').matches) return;
+    const table = wrap.querySelector<HTMLElement>('table');
+    const units = wrap.querySelector<HTMLElement>('thead th');
+    const previousMargin = table?.style.marginInlineEnd ?? '';
+    const reserveEndSpace = () => {
+      const dates = wrap.querySelectorAll<HTMLElement>('thead [data-testid="date-col"]');
+      const last = dates.item(dates.length - 1);
+      if (table && units && last) {
+        // Keep the last day reachable beside the sticky column, including after reload.
+        table.style.marginInlineEnd = `${Math.max(
+          0,
+          wrap.clientWidth - units.getBoundingClientRect().width - last.getBoundingClientRect().width,
+        )}px`;
+      }
+    };
+    reserveEndSpace();
     const key = PREFIX + period;
     const save = () => {
       try {
@@ -93,8 +108,13 @@ export function useBoardPosition(
       wrap.scrollLeft = 0;
       wrap.scrollTop = 0;
       const today = wrap.querySelector<HTMLElement>('thead .is-today');
-      const first = wrap.querySelector<HTMLElement>('thead [data-testid="date-col"]');
-      if (today && first) wrap.scrollLeft = Math.max(0, today.offsetLeft - first.offsetLeft);
+      reserveEndSpace();
+      if (today && units) {
+        wrap.scrollLeft = Math.max(
+          0,
+          today.getBoundingClientRect().left - units.getBoundingClientRect().right,
+        );
+      }
       save();
     };
     saveRef.current = onScroll;
@@ -110,6 +130,7 @@ export function useBoardPosition(
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('pagehide', save);
       window.removeEventListener(RESET_BOARD_POSITION, reset);
+      if (table) table.style.marginInlineEnd = previousMargin;
     };
   }, [ref, period, restoreSelection]);
   useEffect(() => {

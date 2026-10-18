@@ -1,0 +1,39 @@
+# Модульные (unit) · 17.10.2026 19:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 700f4d6 (claude/profile-access-design), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T14-28-43Z-unit-0271.json' 'packages/domain/src/accounts/session-device.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ❯ |unit| packages/domain/src/accounts/session-device.test.ts (3 tests | 1 failed) 27ms
+   ❯ describeUserAgent (3)
+     ✓ браузер и система словами 8ms
+     ✓ пустое и незнакомое — «неизвестное устройство», без сырой строки 0ms
+     × сохранённая при входе подпись (не полная строка браузера) показывается как есть 14ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  07:29:24
+   Duration  4.41s (transform 95%, import 3%, worker 1%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T14-28-43Z-unit-0271.json
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/accounts/session-device.test.ts > describeUserAgent > сохранённая при входе подпись (не полная строка браузера) показывается как есть
+AssertionError: expected 'неизвестное устройство' to be 'Chrome' // Object.is equality
+
+Expected: "Chrome"
+Received: "неизвестное устройство"
+
+ ❯ packages/domain/src/accounts/session-device.test.ts:38:41
+     36|   it('сохранённая при входе подпись (не полная строка браузера) показы…
+     37|     // вход пишет в сессию короткую подпись, а не строку агента: до 17…
+     38|     expect(describeUserAgent('Chrome')).toBe('Chrome');
+       |                                         ^
+     39|     expect(describeUserAgent('Chrome, macOS')).toBe('Chrome, macOS');
+     40|     expect(describeUserAgent('')).toBe('неизвестное устройство');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+# код выхода 1 · 46 с

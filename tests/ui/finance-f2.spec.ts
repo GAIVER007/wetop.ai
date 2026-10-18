@@ -8,14 +8,26 @@ import { FIXTURE_API, expect, test } from './fixtures';
  */
 const fixture = FIXTURE_API;
 const report = 'reports/finance-compact-2026-10-01/operations';
-const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
-const add = (days: number) =>
-  new Date(Date.parse(today) + days * 86400000).toISOString().slice(0, 10);
-const from = add(-5);
-const url = `/finance?from=${from}&to=${today}`;
+// File cases run serially per worker; reset owns the fixture calendar, not the module clock.
+let today: string;
+let from: string;
+let url: string;
 
 test.beforeEach(async ({ request }) => {
-  await request.post(`${fixture}/__test/reset`);
+  const response = await request.post(`${fixture}/__test/reset`);
+  expect(response.ok()).toBe(true);
+  const reset = await response.json();
+  if (typeof reset?.today !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(reset.today)) {
+    throw new Error('Fixture reset must return a valid ISO calendar day');
+  }
+  const day = new Date(`${reset.today}T00:00:00Z`);
+  if (!Number.isFinite(day.getTime()) || day.toISOString().slice(0, 10) !== reset.today) {
+    throw new Error('Fixture reset must return a valid ISO calendar day');
+  }
+  today = reset.today;
+  day.setUTCDate(day.getUTCDate() - 5);
+  from = day.toISOString().slice(0, 10);
+  url = `/finance?from=${from}&to=${today}`;
 });
 test.afterEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

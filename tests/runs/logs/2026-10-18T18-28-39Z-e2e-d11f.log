@@ -1,0 +1,42 @@
+# Сквозные (e2e) · 18.10.2026 23:28 Алматы · srv1719674
+# коммит 5b409d1 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.schedule.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/onboarding-real/schedule-save-real.spec.ts:11:1 › real trial owner saves schedule, reloads persisted week and sees onboarding completed (222ms)
+
+
+  1) tests/onboarding-real/schedule-save-real.spec.ts:11:1 › real trial owner saves schedule, reloads persisted week and sees onboarding completed 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:55844
+    Call log:
+      - → POST http://127.0.0.1:55844/auth/register
+        - user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - content-type: application/json
+        - content-length: 274
+
+
+      11 | test('real trial owner saves schedule, reloads persisted week and sees onboarding completed',async({page})=>{
+      12 |   const email=`onboarding-recovery-schedule-${randomUUID()}@example.invalid`;
+    > 13 |   const registered=await page.request.post(`${api}/auth/register`,{data:{email,name:'Synthetic owner',businessName:'Synthetic salon',vertical:'BEAUTY',password:'<скрыто>',phoneCountry:'KZ',phone:'7000000000',privacyAccepted:true}});
+         |                                       ^
+      14 |   expect(registered.ok(),`register ${registered.status()}`).toBe(true);
+      15 |   const mail=await(await page.request.get(`${api}/__onboarding-test/mail?email=${encodeURIComponent(email)}`)).json();
+      16 |   expect(mail.link).toBeTruthy();
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/onboarding-real/schedule-save-real.spec.ts:13:39
+
+    Error Context: test-results/schedule-save-real-real-tr-3e193-d-sees-onboarding-completed/error-context.md
+
+  1 failed
+    tests/onboarding-real/schedule-save-real.spec.ts:11:1 › real trial owner saves schedule, reloads persisted week and sees onboarding completed 
+
+# код выхода 1 · 15 с

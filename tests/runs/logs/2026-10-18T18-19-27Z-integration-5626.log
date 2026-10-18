@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 18.10.2026 23:19 Алматы · srv1719674
+# коммит 5b409d1 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-19-27Z-integration-5626.json' 'tests/integration/beauty-customers.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |integration| tests/integration/beauty-customers.test.ts (4 tests | 1 failed) 829ms
+   ❯ Beauty: canonical customer across businesses (4)
+     × serializes two businesses and reuses one exact name plus normalized phone 107ms
+     ✓ rejects a conflicting name atomically without creating the other CSV row 55ms
+     ✓ opens a shared customer but returns history only from the selected business 119ms
+     ✓ returns not found for a customer outside the selected business or organization 28ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-customers.test.ts > Beauty: canonical customer across businesses > serializes two businesses and reuses one exact name plus normalized phone
+ConflictException: Клиент с таким телефоном уже добавляется. Обновите список и повторите действие.
+ ❯ findOrCreateCustomer apps/api/src/customers/identity.ts:29:13
+     27|   } catch (error) {
+     28|     if (typeof error === 'object' && error !== null && (error as { cod…
+     29|       throw new ConflictException('Клиент с таким телефоном уже добавл…
+       |             ^
+     30|     throw error;
+     31|   }
+ ❯ apps/api/src/beauty/beauty.module.ts:289:22
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/scope.ts:121:13
+ ❯ Proxy._transactionWithCallback ../wetop-audit-main/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ beautyTransaction apps/api/src/beauty/scope.ts:104:12
+ ❯ apps/api/src/auth/request-context.ts:76:41
+ ❯ tests/integration/beauty-customers.test.ts:124:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  18:19:28
+   Duration  4.41s (transform 49%, tests 30%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-18T18-19-27Z-integration-5626.json
+
+# код выхода 1 · 6 с

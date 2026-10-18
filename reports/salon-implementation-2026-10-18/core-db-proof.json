@@ -1,0 +1,18 @@
+{
+  "database": "salon_core_utf8_20261018",
+  "host": "127.0.0.1",
+  "port": 55983,
+  "schema": "pms_test",
+  "ordinaryMigrations": 136,
+  "serverEncoding": "UTF8",
+  "strictUiRun": "2026-10-18T18-18-45Z-e2e-346a",
+  "standaloneDefaultPortUiRun": "2026-10-18T18-29-21Z-e2e-4437",
+  "finalSqlAggregate": {"syntheticMasters": 2, "persistedIntervals": 2, "allMonday1000To1800": true},
+  "clusterDisposition": "Own PGDATA retained, own cluster stopped with pg_ctl after data_directory and zero other client sessions verified; API/web/DB own ports no longer listening",
+  "uiPassed": 1,
+  "codeChangedDuringRun": false,
+  "independentSqlPersistedWeek": [{"employee": "Synthetic master", "weekday": 1, "timeFrom": "10:00:00", "timeTo": "18:00:00"}],
+  "independentSqlRuntimeRole": {"role": "wetop_app", "superuser": false, "bypassRls": false, "ownedObjects": 0},
+  "foreignTenantWorkingHoursVisible": 0,
+  "foreignTenantProof": "BEGIN; SET LOCAL search_path TO pms_test,public; SET LOCAL ROLE wetop_app; set_config app.org_id to synthetic nonmember organization; SELECT count(*) FROM working_hours; ROLLBACK"
+}

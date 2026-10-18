@@ -44,3 +44,13 @@ Production не менялся; auth/session-файлы и реальные по
 ## Следующий срез
 
 Изолированная синтетическая БД: фактическое сохранение рабочих часов, read-back/reload/onboarding, конфликты и права; исправление устаревшего customer integration contract с реальным выполнением. Затем остальные части утверждённого реестра, без выдуманных моделей/денежных правил/провайдерских запусков. Нужен отдельный доказанный release gate, а не вывод «всё готово» из этого экрана.
+
+## Обновление core-среза после первого handoff
+
+Предыдущие baseline-результаты выше сохранены как история. Актуальный отчёт: [core-verification.md](core-verification.md), SQL/RLS агрегаты: [core-db-proof.json](core-db-proof.json), независимый read-only review: [core-source-review-final.json](core-source-review-final.json).
+
+- Customer integration переведён на существующий BeautyCatalogService.createCustomer; concurrent409 обрабатывается явным повтором только проверенного конфликта. Tenant/history/atomic CSV assertions сохранены. Настоящая собственная UTF8 БД: `2026-10-18T18-25-44Z-integration-3f18`,20/20, включая12 графика и4 customer RLS.
+- Реальный AppModule, регистрация/session/wetop_app, UI save → API readback → reload → onboarding4/4, conflict409, revoked-role403: `2026-10-18T18-18-45Z-e2e-346a`,1/1; повтор standalone-конфига без переменной порта после RED/review fix: `2026-10-18T18-29-21Z-e2e-4437`,1/1. Это не fixture-замена БД. Продуктовый код графика не менялся: текущая реализация проходит сценарий.
+- Устранены салонные fixture/mock/label несовместимости:35/35 targeted. Полный unit `2026-10-18T18-20-55Z-unit-1190`:6190passed/3failed/7skipped. Остались только те же3 bar/actions baseline failures, исходники ресторана не менялись; новых failures/skips нет. Полный release gate не зелёный.
+- Root/API/web types прошли после реального DB-подтверждения customer contract, без compatibility stub. Финальные typecheck/lint после review-правки перечислены в core-отчёте.
+- Скриншоты schedule-save-desktop/mobile рядом. Mobile является viewport-снимком, не отдельным touch-прогоном. Production, held-публикация и deployment не выполнялись; все94 сценария не закрыты.

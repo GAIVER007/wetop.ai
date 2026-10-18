@@ -1,0 +1,33 @@
+# Интеграционные (integration) · 18.10.2026 23:59 Алматы · srv1719674
+# коммит f6751e3 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-59-14Z-integration-8c2c.json' 'tests/integration/beauty-release-schema.test.ts' 'tests/integration/beauty-appointment-lines.test.ts' 'tests/integration/beauty-position-storage.test.ts' 'tests/integration/kitchen-stock.test.ts' 'tests/integration/beauty-customers.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/customers-create.test.ts' 'tests/integration/beauty-positions-api.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:3634976) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-lines.test.ts (27 tests) 3761ms
+   ✓ Beauty: строки услуг записи и совместимость старых writers (27)
+     ✓ хранит один отзыв мастеру за DONE-визит и показывает только отзывы выбранного мастера 476ms
+     ✓ сохраняет техкарту по revision, считает FIFO и списывает материалы только при первом DONE 335ms
+ ✓ |integration| tests/integration/beauty-customers.test.ts (4 tests) 646ms
+ ✓ |integration| tests/integration/beauty-position-storage.test.ts (10 tests) 202ms
+ ✓ |integration| tests/integration/beauty-positions-api.test.ts (8 tests) 660ms
+stdout | tests/integration/beauty-release-schema.test.ts > Beauty schema release on a separate owned canonical database
+Owned release proof salon_release_proof_8e25236755954a1d95b6a4378fd61df8: 141 canonical migrations, one populated legacy appointment
+
+ ✓ |integration| tests/integration/beauty-release-schema.test.ts (9 tests) 2654ms
+   ✓ Beauty schema release on a separate owned canonical database (9)
+     ✓ matches Prisma declarations exactly on the real ordinary-chain public schema 1315ms
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 983ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 670ms
+ ✓ |integration| tests/integration/kitchen-stock.test.ts (5 tests) 123ms
+
+ Test Files  8 passed (8)
+      Tests  79 passed (79)
+   Start at  18:59:15
+   Duration  16.60s (tests 69%, import 19%, transform 11%)
+
+JSON report written to /tmp/pms-test-2026-10-18T18-59-14Z-integration-8c2c.json
+
+# код выхода 0 · 18 с

@@ -1,0 +1,17 @@
+# Модульные (unit) · 18.10.2026 23:52 Алматы · srv1719674
+# коммит f6751e3 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-52-25Z-unit-03b9.json' 'tests/unit/migrations-hold.test.ts' 'tests/unit/beauty-release-preparation.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 10ms
+ ✓ |unit| tests/unit/beauty-release-preparation.test.ts (18 tests) 16ms
+
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+   Start at  18:52:26
+   Duration  305ms (import 63%, transform 26%, tests 8%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-18T18-52-25Z-unit-03b9.json
+
+# код выхода 0 · 1 с

@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 19.10.2026 00:11 Алматы · srv1719674
+# коммит f6751e3 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.schedule.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:3675562) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/onboarding-real/schedule-save-real.spec.ts:11:1 › real trial owner saves schedule, reloads persisted week and sees onboarding completed (11.7s)
+
+  1 passed (25.0s)
+
+# код выхода 0 · 26 с

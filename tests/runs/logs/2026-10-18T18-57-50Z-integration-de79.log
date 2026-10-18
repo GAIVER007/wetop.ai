@@ -1,0 +1,29 @@
+# Интеграционные (integration) · 18.10.2026 23:57 Алматы · srv1719674
+# коммит f6751e3 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-57-50Z-integration-de79.json' 'tests/integration/beauty-release-schema.test.ts' 'tests/integration/beauty-appointment-lines.test.ts' 'tests/integration/beauty-position-storage.test.ts' 'tests/integration/kitchen-stock.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:3632228) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-lines.test.ts (27 tests) 3552ms
+   ✓ Beauty: строки услуг записи и совместимость старых writers (27)
+     ✓ хранит один отзыв мастеру за DONE-визит и показывает только отзывы выбранного мастера 432ms
+     ✓ сохраняет техкарту по revision, считает FIFO и списывает материалы только при первом DONE 327ms
+ ✓ |integration| tests/integration/beauty-position-storage.test.ts (10 tests) 191ms
+stdout | tests/integration/beauty-release-schema.test.ts > Beauty schema release on a separate owned canonical database
+Owned release proof salon_release_proof_b1ba50b765b8426fa3acfeea737e02cd: 141 canonical migrations, one populated legacy appointment
+
+ ✓ |integration| tests/integration/beauty-release-schema.test.ts (9 tests) 3542ms
+   ✓ Beauty schema release on a separate owned canonical database (9)
+     ✓ matches Prisma declarations exactly on the real ordinary-chain public schema 1513ms
+ ✓ |integration| tests/integration/kitchen-stock.test.ts (5 tests) 116ms
+
+ Test Files  4 passed (4)
+      Tests  51 passed (51)
+   Start at  18:57:51
+   Duration  11.83s (tests 74%, transform 14%, import 12%)
+
+JSON report written to /tmp/pms-test-2026-10-18T18-57-50Z-integration-de79.json
+
+# код выхода 0 · 13 с

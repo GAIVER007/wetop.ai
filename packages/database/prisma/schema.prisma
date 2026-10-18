@@ -3261,7 +3261,7 @@ model BeautyPosition {
   revision   Int       @default(1)
   archivedAt DateTime? @map("archived_at") @db.Timestamptz(6)
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   business    Business                     @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   permissions BeautyPositionPermission[]
@@ -3296,9 +3296,9 @@ model BeautyPositionAssignment {
   revision       Int       @default(1)
   revokedAt      DateTime? @map("revoked_at") @db.Timestamptz(6)
   createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  membership Membership     @relation(fields: [userId, organizationId], references: [userId, organizationId], onDelete: Restrict, onUpdate: NoAction)
+  membership Membership     @relation(fields: [userId, organizationId], references: [userId, organizationId], map: "beauty_position_assignments_membership_fkey", onDelete: Restrict, onUpdate: NoAction)
   business   Business       @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   position   BeautyPosition @relation(fields: [positionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   location   Location?      @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
@@ -3395,14 +3395,14 @@ model EmployeeServicePrice {
   currency        String                   @db.VarChar(3)
   revision        Int                      @default(1)
   createdAt       DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt       DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  employee Employee      @relation(fields: [employeeId], references: [id], onDelete: Restrict)
-  service  BeautyService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  location Location      @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  employee Employee      @relation(fields: [employeeId], references: [id], map: "employee_service_prices_employee_fkey", onDelete: Restrict)
+  service  BeautyService @relation(fields: [serviceId], references: [id], map: "employee_service_prices_service_fkey", onDelete: Restrict)
+  location Location      @relation(fields: [locationId], references: [id], map: "employee_service_prices_location_fkey", onDelete: Restrict)
 
   @@id([employeeId, serviceId, locationId])
-  @@index([locationId, serviceId])
+  @@index([locationId, serviceId], map: "employee_service_prices_location_service_idx")
   @@map("employee_service_prices")
 }
 
@@ -3413,11 +3413,11 @@ model BeautyServiceMaterial {
   normQty   Decimal @map("norm_qty") @db.Decimal(14, 3)
   unit      String  @db.VarChar(8)
 
-  service BeautyService  @relation(fields: [serviceId], references: [id], onDelete: Restrict, onUpdate: NoAction)
-  product KitchenProduct @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  service BeautyService  @relation(fields: [serviceId], references: [id], map: "beauty_service_materials_service_fkey", onDelete: Restrict, onUpdate: NoAction)
+  product KitchenProduct @relation(fields: [productId], references: [id], map: "beauty_service_materials_product_fkey", onDelete: Restrict, onUpdate: NoAction)
 
   @@id([serviceId, productId])
-  @@index([productId])
+  @@index([productId], map: "beauty_service_materials_product_idx")
   @@map("beauty_service_materials")
 }
 
@@ -3425,9 +3425,9 @@ model BeautyServiceMaterial {
 model BeautyServiceMaterialRevision {
   serviceId String   @id @map("service_id") @db.Uuid
   revision  Int      @default(1)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  service BeautyService @relation(fields: [serviceId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  service BeautyService @relation(fields: [serviceId], references: [id], map: "beauty_service_material_revisions_service_fkey", onDelete: Restrict, onUpdate: NoAction)
 
   @@map("beauty_service_material_revisions")
 }
@@ -3524,16 +3524,16 @@ model AppointmentLine {
   currency        String   @db.VarChar(3)
   discountPercent Int?     @map("discount_percent")
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  appointment Appointment  @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
-  service     BeautyService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  employee    Employee      @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  appointment Appointment  @relation(fields: [appointmentId], references: [id], map: "appointment_lines_appointment_fkey", onDelete: Restrict)
+  service     BeautyService @relation(fields: [serviceId], references: [id], map: "appointment_lines_service_fkey", onDelete: Restrict)
+  employee    Employee      @relation(fields: [employeeId], references: [id], map: "appointment_lines_employee_fkey", onDelete: Restrict)
   stockMovements KitchenStockMovement[]
 
-  @@unique([appointmentId, position])
-  @@index([employeeId, startsAt])
-  @@index([serviceId])
+  @@unique([appointmentId, position], map: "appointment_lines_appointment_position_key")
+  @@index([employeeId, startsAt], map: "appointment_lines_employee_starts_idx")
+  @@index([serviceId], map: "appointment_lines_service_idx")
   @@map("appointment_lines")
 }
 
@@ -3545,11 +3545,11 @@ model BeautyAppointmentReview {
   comment       String?
   submittedAt   DateTime @default(now()) @map("submitted_at") @db.Timestamptz(6)
 
-  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict, onUpdate: NoAction)
-  employee    Employee    @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  appointment Appointment @relation(fields: [appointmentId], references: [id], map: "beauty_appointment_reviews_appointment_fkey", onDelete: Restrict, onUpdate: NoAction)
+  employee    Employee    @relation(fields: [employeeId], references: [id], map: "beauty_appointment_reviews_employee_fkey", onDelete: Restrict, onUpdate: NoAction)
 
   @@id([appointmentId, employeeId])
-  @@index([employeeId, submittedAt])
+  @@index([employeeId, submittedAt], map: "beauty_appointment_reviews_employee_submitted_idx")
   @@map("beauty_appointment_reviews")
 }
 
@@ -3560,7 +3560,7 @@ model BeautyReviewInvitation {
   expiresAt     DateTime  @map("expires_at") @db.Timestamptz(6)
   submittedAt   DateTime? @map("submitted_at") @db.Timestamptz(6)
 
-  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  appointment Appointment @relation(fields: [appointmentId], references: [id], map: "beauty_review_invitations_appointment_fkey", onDelete: Restrict, onUpdate: NoAction)
 
   @@map("beauty_review_invitations")
 }
@@ -3979,12 +3979,12 @@ model KitchenStockMovement {
   product   KitchenProduct   @relation(fields: [productId], references: [id])
   lot       KitchenStockLot? @relation(fields: [lotId], references: [id])
   order     RestaurantOrder? @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  appointmentLine AppointmentLine? @relation(fields: [appointmentLineId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  appointmentLine AppointmentLine? @relation(fields: [appointmentLineId], references: [id], map: "kitchen_stock_movements_appointment_line_fkey", onDelete: Restrict, onUpdate: NoAction)
   createdBy User?            @relation(fields: [createdById], references: [id])
 
   @@index([locationId, createdAt])
   @@index([orderId])
-  @@index([appointmentLineId])
+  @@index([appointmentLineId], map: "kitchen_stock_movements_appointment_line_idx")
   @@index([productId])
   @@index([lotId])
   @@map("kitchen_stock_movements")
@@ -4163,19 +4163,19 @@ enum SiteLeadStatus {
   SPAM
 }
 
-/// BEAUTY-LOCATION-HOURS-20261018, owner-approved salon hours, held135.
+/// BEAUTY-LOCATION-HOURS-20261018, owner-approved salon hours, prepared release137 (not production-applied).
 model BeautyLocationHours {
   locationId String @id @map("location_id") @db.Uuid
   intervals Json
   revision Int @default(1)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   location Location @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   @@map("beauty_location_hours")
 }
 
 /// SL4-M4B2: durable import journal, owner-only API, 30 day contents TTL.
 model CustomerImport {
-  id                String   @id @default(uuid()) @db.Uuid
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId    String   @map("organization_id") @db.Uuid
   businessId        String   @map("business_id") @db.Uuid
   createdBy         String   @map("created_by") @db.Uuid
@@ -4201,9 +4201,9 @@ model CustomerImport {
   undoDeadline      DateTime? @map("undo_deadline") @db.Timestamptz(6)
   contentsExpireAt  DateTime @map("contents_expire_at") @db.Timestamptz(6)
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
-  actor User @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  actor User @relation(fields: [createdBy], references: [id], onDelete: Restrict, onUpdate: NoAction)
   rows CustomerImportRow[]
 
   @@unique([organizationId, clientRequestId])
@@ -4214,7 +4214,7 @@ model CustomerImport {
 }
 
 model CustomerImportRow {
-  id               String   @id @default(uuid()) @db.Uuid
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId   String   @map("organization_id") @db.Uuid
   importId         String   @map("import_id") @db.Uuid
   ordinal          Int
@@ -4227,7 +4227,7 @@ model CustomerImportRow {
   linkBaseline     DateTime? @map("link_baseline") @db.Timestamptz(6)
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  run CustomerImport @relation(fields: [importId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  run CustomerImport @relation(fields: [importId, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: NoAction, map: "customer_import_rows_tenant_fkey")
 
   @@unique([importId, ordinal])
   @@index([organizationId])

@@ -1,4 +1,6 @@
-# HELD 133, Beauty materials
+# PREPARED ordinary135, former HELD 133, Beauty materials
+
+Подготовка одобрена18.10.2026; в production НЕ применено. Точные десять SQL SHA и отдельные обязательные cutover-допуски: `packages/database/prisma/beauty-release-preparation.json`, `docs/ops/beauty-zapis-release.md`.
 
 Отдельный релиз для утверждённой модели BEAUTY-MATERIALS-20261018. Production application остаётся за владельцем.
 

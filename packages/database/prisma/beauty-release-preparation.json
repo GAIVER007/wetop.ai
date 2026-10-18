@@ -1,0 +1,39 @@
+{
+  "status": "PREPARED_NOT_APPLIED",
+  "approval": "Подготовить отдельный релиз пяти Beauty-миграций и согласовать схему с SQL. Production-БД не менять до зелёного гейта, проверенного бэкапа и точного допуска.",
+  "productionApplied": false,
+  "requirements": {
+    "fullReleaseGate": true,
+    "pinnedProductionApproval": true,
+    "backupAndRestoreCheck": true,
+    "trustedCutoverRunner": true,
+    "automaticApplyAllowed": false
+  },
+  "migrations": [
+    {
+      "name": "20261018000133_beauty_appointment_lines",
+      "migrationSha256": "db336544977ff3de6406a86c0ef4715b594a5a4c00a0056da5b3303692112fcf",
+      "downSha256": "2612ea440c9503e160506f7000666eb23b708bec08022282ea00d0e2c246d199"
+    },
+    {
+      "name": "20261018000134_beauty_reviews",
+      "migrationSha256": "58a1c26566b13d6fd31cb9f226bb74ab40df575540988944d6207ac4691abffe",
+      "downSha256": "8b920ed7e5f4676289b5bf964703cc5dd0b862f351bdeb7033143a2dbc89231c"
+    },
+    {
+      "name": "20261018000135_beauty_materials",
+      "migrationSha256": "1ce9a2e0b281ec50dd050d529f8de79ab85bbdb4a2087f942cef1d2001048748",
+      "downSha256": "57ef11ff0477a9f067abd3ea9bc17508889c87e39aba72b5c4ab4806646fb844"
+    },
+    {
+      "name": "20261018000136_beauty_positions",
+      "migrationSha256": "e942079adbfcb56123c083c3e4d5517202ba1aec1a8501640e1cbce22450ad69",
+      "downSha256": "a86adfa75e486c59ed2d2f5c2058630bd094269a76ca021e12010062645e29d2"
+    },
+    {
+      "name": "20261018000137_beauty_location_hours",
+      "migrationSha256": "5320973d700da020324b16456115df358e960dc0ba14a6aa74eea8ebb8fc987d",
+      "downSha256": "fe46f634c71baaaffdc722d8286f4c9ac630684657c698a769a773d0525b67fc"
+    }
+  ]
+}

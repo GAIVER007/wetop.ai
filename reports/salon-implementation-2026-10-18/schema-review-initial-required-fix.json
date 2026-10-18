@@ -1,0 +1,31 @@
+{
+  "passed": false,
+  "security_concerns": [
+    {
+      "severity": "required",
+      "file": "tests/integration/beauty-release-schema.test.ts:47-59",
+      "issue": "The exact-endpoint guard validates URL hostname/port/username, but passes its unchecked query parameters to pg.Client for the admin connection. Installed pg-connection-string/index.js:40-64 explicitly lets query parameters override host, port and user. Thus an otherwise allowed CI URL with ?host=another-host&port=5432 passes this guard and can CREATE DATABASE on a different cluster. The local branch also connects before checking data_directory. Clearing url.search at line 59 happens after the admin connection and CREATE DATABASE, so it is too late.",
+      "recommendation": "Fail closed before connecting: reject query parameters and non-PostgreSQL protocols, or construct the admin connection from explicitly validated connection fields without forwarding arbitrary URL options. Add negative guard cases for host/port/user query overrides. Please resolve this before approving the fixture guard."
+    }
+  ],
+  "logic_errors": [],
+  "suggestions": [
+    "Keep unrelated screenshot, plans and generated evidence changes outside the release-preparation source commit.",
+    "Optionally pin the ten approved baseline hashes in an independent immutable expectation: current verification detects SQL-only changes, but simultaneous edits to SQL and manifest hashes remain possible. This is not an arbitrary migration-name bypass; the five-name allowlist remains strict."
+  ],
+  "summary": {
+    "verified": [
+      "All 15 staged migration files are R100 renames. All ten forward/down SQL files match f6751e309 old held paths byte-for-byte and match manifest SHA-256 values.",
+      "Only held131-135 move to ordinary133-137. Unrelated held114-118 remain held; canonical chain contains 141 directories.",
+      "Manifest validator admits exactly five unique allowlisted names, strict approval/status/requirements and matching forward/down hashes. Historical RELEASED_SEPARATELY list is unchanged and separate from PREPARED_NOT_APPLIED.",
+      "Inspected all 18 manifest positive/negative cases. Existing recorded unit evidence reports 22/22 passing, including four hold-guard tests.",
+      "Schema mappings, timestamp defaults, customer-import UUID defaults and NO ACTION annotations correspond to existing SQL. No financial/security SQL guards were rewritten.",
+      "Three integration rollback references use the promoted paths. Phone acceptance now follows DATA_MODEL.md:4621-4629: canonical reuse, no name/contact overwrite, one identity, archived-card refusal.",
+      "Actual CI fixture is 127.0.0.1:55516, owner_home_test/wetop_owner_home. Global integration schema remains pms_test; the new proof test creates a uniquely named child database and preserves it.",
+      "Recorded integration entry and log report 51/51 across four files, including nine schema-proof cases, 141 canonical migrations and a populated legacy appointment. Reviewed coverage includes Prisma diff exit 0, FORCE RLS/foreign visibility, five retained-data rollback refusals and reverse dependency restoration of column/constraint/index signature."
+    ],
+    "limitations": "Read-only source/evidence review; no tests, processes or database operations executed. Full frozen-source release gate remains pending; this is not production authorization.",
+    "files_created_or_modified": [],
+    "outcome": "Release contents and schema reconciliation look consistent, but approval is withheld pending the concrete connection-query override fix."
+  }
+}

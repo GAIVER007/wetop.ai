@@ -1,4 +1,6 @@
-# HELD 134, Beauty positions and permissions
+# PREPARED ordinary136, former HELD 134, Beauty positions and permissions
+
+Подготовка одобрена18.10.2026; в production НЕ применено. Точные десять SQL SHA и отдельные обязательные cutover-допуски: `packages/database/prisma/beauty-release-preparation.json`, `docs/ops/beauty-zapis-release.md`.
 
 Модели BEAUTY-ACCESS-20261018 и BEAUTY-ACCESS-REVOCATION-20261018 утверждены владельцем 18.10.2026. Миграция аддитивная, существующим участникам должности автоматически не назначает. Пока у участника нет ни одной строки назначения, сервер сохраняет прежнюю совместимость. После первой строки, включая отозванную, сервер применяет только новые назначения.
 

@@ -3,6 +3,7 @@ import { salePriceFromMarkup } from '@pms/domain';
 import { revalidatePath } from 'next/cache';
 import { ApiError, barApi, type BarScanResult } from '../../lib/api';
 import { loadBarContext } from './load-context';
+import { currentMe } from '../../lib/desk-shell';
 
 export interface BarActionResult { error: string | null; ok: number; message?: string }
 /** Результат скана накладной: те же поля обратной связи плюс разобранный документ */
@@ -135,7 +136,11 @@ export async function sellBarRetailAction(
   fd: FormData,
 ): Promise<BarActionResult> {
   try {
-    await verifyContext(fd);
+    const context = await verifyContext(fd);
+    const me = await currentMe();
+    const expected = [me.user?.organizationId ?? '', me.context?.businessId ?? '', me.context?.locationId ?? '', me.user?.id ?? '', context.propertyId, context.currency, me.expiresAt ?? ''];
+    if (expected.some(part => !part) || value(fd, 'retailRecoveryScope') !== JSON.stringify(expected) || !Number.isFinite(Date.parse(me.expiresAt ?? '')) || Date.parse(me.expiresAt ?? '') <= Date.now())
+      throw new Error('Объект формы изменился. Обновите страницу и восстановите исходный контекст.');
     const sale = await barApi.sellRetail({
       productId: value(fd, 'productId'),
       quantityUnits: value(fd, 'quantityUnits'),

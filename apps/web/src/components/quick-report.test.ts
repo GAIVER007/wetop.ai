@@ -2,6 +2,26 @@ import { describe, expect, it } from 'vitest';
 import { beautyQuickReport, foodQuickReport, orderQuickReport } from './quick-report-data';
 
 describe('calendar quick reports', () => {
+  it('provides reference totals and status groups without losing no-shows or rounding money', () => {
+    const report = beautyQuickReport([
+      {
+        id: '1',
+        status: 'DONE',
+        priceMinor: '9007199254740993',
+        currency: 'KZT',
+        customer: { id: 'a' },
+      },
+      { id: '2', status: 'BOOKED', priceMinor: '7', currency: 'KZT', customer: { id: 'b' } },
+      { id: '3', status: 'NO_SHOW', priceMinor: '10', currency: 'USD', customer: { id: 'c' } },
+    ]);
+    expect(report.reference?.totalPrices).toEqual({ KZT: '9007199254741000', USD: '10' });
+    expect(report.reference?.statuses.map((s) => [s.label, s.count])).toEqual([
+      ['Обслуженные', 1],
+      ['В ожидании', 1],
+      ['Отменённые', 0],
+      ['Не пришли', 1],
+    ]);
+  });
   it('counts unique customers and every status, keeping exact completed amounts by currency', () => {
     const row = (
       id: string,
@@ -24,8 +44,17 @@ describe('calendar quick reports', () => {
     expect(report.money[0]?.values).toEqual({ KZT: '9007199254741000', USD: '120' });
   });
   it('splits appointment receipts by method without a redundant all-booking price', () => {
-    const report = beautyQuickReport([{ id: 'a', status: 'DONE', priceMinor: '100', currency: 'KZT',
-      customer: { id: 'c' }, paidCashMinor: '40', paidNonCashMinor: '60' }]);
+    const report = beautyQuickReport([
+      {
+        id: 'a',
+        status: 'DONE',
+        priceMinor: '100',
+        currency: 'KZT',
+        customer: { id: 'c' },
+        paidCashMinor: '40',
+        paidNonCashMinor: '60',
+      },
+    ]);
     expect(report.money.find((m) => m.label === 'Оплата наличными')?.values).toEqual({ KZT: '40' });
     expect(report.money.find((m) => m.label === 'Оплата безналом')?.values).toEqual({ KZT: '60' });
     expect(report.money.some((m) => m.label === 'Стоимость всех записей')).toBe(false);

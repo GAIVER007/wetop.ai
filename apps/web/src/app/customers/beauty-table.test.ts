@@ -8,11 +8,13 @@ describe('Дата последнего визита клиента салона
   it('позволяет добавить клиента без визита, если разрешена запись', () => {
     const html = renderToStaticMarkup(createElement(BeautyCustomersTable, { items: [], canEdit: true }));
     expect(html).toContain('Добавить клиента');
+    expect(html).toContain('Проверить CSV');
     expect(html).not.toContain('Новый клиент добавляется при создании записи');
   });
   it('не предлагает создание в режиме чтения', () => {
     const html = renderToStaticMarkup(createElement(BeautyCustomersTable, { items: [] }));
     expect(html).not.toContain('Добавить клиента');
+    expect(html).not.toContain('Проверить CSV');
   });
   it('показывает локальный день визита вместо предыдущего дня UTC', () => {
     const html = renderToStaticMarkup(createElement(BeautyCustomersTable, {

@@ -4,6 +4,8 @@ import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
 import { barApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
+import { workspaceTimezone } from '../../../lib/workspace-context';
+import { propertyClock } from '../../../lib/property-time';
 import { Tabs } from '../../../components/tabs';
 import { Page } from '../../../components/page';
 import { Badge, EmptyState, SectionTitle, Table } from '../../../components/ui';
@@ -53,6 +55,7 @@ export default async function BarOperationsPage() {
   if (!stock.ok || !sales.ok || !movements.ok) return null;
   // контекст денежных форм: сервер сверяет объект и валюту (D-CUR); у салона вместо объекта филиал
   const context = await loadBarContext();
+  const clock = propertyClock(await workspaceTimezone());
   return (
     <Page
       width="wide"
@@ -91,7 +94,7 @@ export default async function BarOperationsPage() {
                     <tbody>
                       {sales.value.map((sale) => (
                         <tr key={sale.id}>
-                          <td>{sale.createdAt.slice(0, 10)}</td>
+                          <td>{clock.full(sale.createdAt)}</td>
                           <td>
                             {sale.lines
                               .map((line) => `${line.product.name} × ${line.quantityUnits}`)
@@ -148,7 +151,7 @@ export default async function BarOperationsPage() {
                     <tbody>
                       {movements.value.map((movement) => (
                         <tr key={movement.id}>
-                          <td>{movement.createdAt.slice(0, 16).replace('T', ' ')}</td>
+                          <td>{clock.full(movement.createdAt)}</td>
                           <td>{movement.product.name}</td>
                           <td>{MOVEMENT_LABEL[movement.kind] ?? movement.kind}</td>
                           <td>{movement.units}</td>

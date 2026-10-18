@@ -261,7 +261,14 @@ export function MastersBoard({
       createdNavigation.current = true;
       router.replace(`${url.pathname}${url.search}${url.hash}`, {scroll:false});
       focusedEmployee.current = row.id;
-    } else setNotice('Профиль сохранён');
+    } else {
+      setNotice('Профиль сохранён');
+      // Профиль меняет общую версию сотрудника: прежний редактор недели уже не пригоден для записи.
+      // Несохранённые формы защищены EmployeeTransitionGuard при переходе на вкладку профиля.
+      generation.current++;
+      setSchedule(null);
+      void refreshSchedule();
+    }
   };
   const close = () => {
     generation.current++;

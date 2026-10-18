@@ -111,10 +111,10 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
   });
 }
 
-// Д4 аудита платформы (17.10.2026): меню профиля одинаково у трёх направлений, «Помощь» и «Профиль» живут в нём,
-// а не отдельными пунктами меню только у салона и ресторана
+// Д4: «Профиль», «Филиалы» и «Помощь» в профиле у всех направлений;
+// «Помощь» также остаётся отдельным разделом навигации (#655).
 for (const vertical of ['hotel', 'beauty', 'food'] as const) {
-  test(`Д4: ${vertical} меню профиля с «Профилем» и «Помощью»`, async ({ page, request }) => {
+  test(`Д4: ${vertical} профиль, филиалы и помощь в профиле, помощь также в навигации`, async ({ page, request }) => {
     const f = await (await request.post(`${api}/__test/reset`)).json();
     const scope = {
       hotel: `business=${f.hotel};location=${f.locations[4]}`,
@@ -127,11 +127,18 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await page.goto('/marketing');
     await page.locator('.profile-trigger').click();
     const dropdown = page.locator('#profile-dropdown');
-    await expect(dropdown.getByRole('link', { name: 'Профиль' })).toHaveAttribute('href', '/profile');
-    await expect(dropdown.getByRole('link', { name: 'Помощь' })).toHaveAttribute('href', '/help');
-    await expect(dropdown.getByRole('link', { name: 'Филиалы' })).toHaveAttribute('href', '/branches');
+    await expect(dropdown.getByRole('link', { name: 'Профиль', exact: true })).toHaveAttribute('href', '/profile');
+    const profileHelp = dropdown.getByRole('link', { name: 'Помощь', exact: true });
+    await expect(profileHelp).toBeVisible();
+    await expect(profileHelp).toHaveAttribute('href', '/help');
+    await expect(dropdown.getByRole('link', { name: 'Филиалы', exact: true })).toHaveAttribute('href', '/branches');
     await page.keyboard.press('Escape');
-    // с верхним меню 17.10.2026 «Помощь» ещё и своим разделом у всех направлений: в строке разделов шапки
-    await expect(page.locator('.tabnav a[href="/help"]')).toBeVisible();
+    await expect(dropdown).toBeHidden();
+    await expect(page.locator('.profile-trigger')).toBeFocused();
+    // с 18.10.2026 от 1280 px «Помощь» своим разделом в строке разделов шапки, кнопки ☰ там нет
+    const help = page.getByRole('navigation', { name: 'Главное меню' }).getByRole('link', { name: 'Помощь', exact: true });
+    await expect(help).toBeVisible();
+    await expect(help).toHaveAttribute('href', '/help');
+    await expect(page.locator('.tabnav a[href="/help"]')).toHaveCount(1);
   });
 }

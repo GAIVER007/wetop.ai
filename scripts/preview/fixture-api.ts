@@ -2142,6 +2142,8 @@ let registrationEnabled = true;
 const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 /** Сессии стенда: ключ → кто вошёл. Вход один — по паролю (ADR-053). */
 const uiSessions = new Map<string, UiUser>();
+// Stable synthetic session lifetime, matching /auth/me without remounting recovery on each read.
+const uiSessionExpiresAt = new Date(Date.now() + 24 * 3600_000).toISOString();
 // ── Роли, главный администратор и расширение «ИИ-продавец» (ADR-083) — как отвечает API. Меняются через
 // `POST /__test/control { role, platformAdmin, sellerExtension, sellerDaysLeft, sellerTrial }`, сбрасываются `reset`.
 let uiRole: MembershipRole = 'OWNER';
@@ -6854,6 +6856,7 @@ createServer(async (req, res) => {
       return send(200, {
         user,
         organization,
+        expiresAt: uiSessionExpiresAt,
         access: { aiSeller: aiSellerView(who.organizationId) },
         context: {
           scope: scoped ? 'LOCATION' : 'ORGANIZATION',

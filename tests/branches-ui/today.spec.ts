@@ -215,11 +215,11 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('today-attention-no-table')).toContainText(
       String(m.withoutTable),
     );
-    // Скрытое меню UI3.1 держит разделы в панели: открыть «Зал» и найти «Брони столов».
+    // Скрытое меню UI3.1 держит разделы в панели: брони столов это «Записи» раздела «Клиенты» (17.10.2026).
     const nav = page.getByRole('navigation', { name: 'Разделы' });
     await nav.locator('.sidenav__current').click();
-    await nav.getByRole('button', { name: 'Зал', exact: true }).click();
-    await expect(nav.getByRole('link', { name: 'Брони столов', exact: true }).first()).toBeVisible();
+    await nav.getByRole('button', { name: 'Клиенты', exact: true }).click();
+    await expect(nav.getByRole('link', { name: 'Записи', exact: true }).first()).toBeVisible();
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|desk|hotel|chessboard|finance)\b/.test(c))).toBe(false);
     expect(calls.filter((c) => c === '/food-service/reservations').length).toBeGreaterThanOrEqual(

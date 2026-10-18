@@ -21,6 +21,7 @@ import type {
   UnitStats,
 } from '@pms/domain';
 import { ApiError } from './api-error';
+import { callerFrames, diagnosticId, diagnosticsEnabled, settingsRequest, SETTINGS_DIAGNOSTIC_HEADER, transportEvent } from './settings-request-diagnostics';
 import type {
   SupportLastMessage,
   SupportPriority,
@@ -123,6 +124,16 @@ async function backendFetch(
   if (!testing && new URL(endpoint).port === '4311') {
     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.');
   }
+  let diagnostic: { id: string; callers: string[] } | undefined;
+  if (diagnosticsEnabled(process.env) && settingsRequest(path, options.method)) {
+    diagnostic = { id: 'unbound', callers: callerFrames(new Error().stack) };
+    try {
+      const { headers } = await import('next/headers');
+      diagnostic.id = diagnosticId((await headers()).get(SETTINGS_DIAGNOSTIC_HEADER));
+    } catch { /* No request context: label unbound, never intercept business fetch failures. */ }
+    try { console.info(JSON.stringify(transportEvent(diagnostic.id, 'start', diagnostic.callers))); }
+    catch { /* Diagnostics are best effort. */ }
+  }
   let response: Response;
   try {
     response = await fetch(`${endpoint.replace(/\/$/, '')}${path}`, {
@@ -142,6 +153,10 @@ async function backendFetch(
       signal: AbortSignal.timeout(60_000),
     });
   } catch (error) {
+    if (diagnostic) {
+      try { console.info(JSON.stringify(transportEvent(diagnostic.id, 'throw', diagnostic.callers))); }
+      catch { /* Never replace a business or framework exception with a logging error. */ }
+    }
     // Next.js also throws here to switch static prerendering to request-time rendering.
     // Only translate actual fetch failures; framework control flow must propagate unchanged.
     if (!(
@@ -156,6 +171,10 @@ async function backendFetch(
         ? 'Нет ответа API. Проверьте результат операции перед повтором.'
         : 'Нет связи с API. Проверьте подключение.',
     );
+  }
+  if (diagnostic) {
+    try { console.info(JSON.stringify(transportEvent(diagnostic.id, 'end', diagnostic.callers, response.status))); }
+    catch { /* Diagnostics are best effort. */ }
   }
   // Сессия кончилась: при включённом замке человека ведём на вход. Ответы самого входа исключены —
   // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046). Подпись помощника

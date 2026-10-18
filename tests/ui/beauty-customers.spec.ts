@@ -46,9 +46,10 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await expect(panel.getByRole('status')).toHaveText('Услуга создана. Включите её в выбранном филиале ниже.');
   await page.goto('/beauty/services');
   await main
-    .getByRole('row')
-    .filter({ hasText: 'Маникюр' })
-    .getByRole('button', { name: 'Изменить' })
+    .locator('[data-service-list="catalog"]')
+    .getByRole('article')
+    .filter({ has: page.getByText('Маникюр', { exact: true }) })
+    .getByRole('button', { name: 'Изменить', exact: true })
     .click();
   panel = page.getByRole('dialog');
   await panel.getByLabel('Филиал оказывает эту услугу').check();
@@ -58,11 +59,35 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
-  await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
-  await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
-  await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
+  await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  // Здесь только подготовка каталога для customer/journal UI: синтетический API не реализует портал.
+  // Назначение/снятие через UI отдельно обязательно проверяет real-portal набор на настоящей БД.
+  const employeeId = new URL(page.url()).pathname.split('/')[2]!;
+  const cookies = await page.context().cookies();
+  const scopeCookie = cookies.find(cookie => cookie.name === 'wetop_scope')?.value;
+  const session = cookies.find(cookie => cookie.name === 'wetop_session')?.value;
+  expect(scopeCookie).toBeTruthy(); expect(session).toBeTruthy();
+  const scope = decodeURIComponent(scopeCookie!);
+  const locationId = /(?:^|;)location=([^;]+)/.exec(scope)?.[1];
+  expect(locationId).toBeTruthy();
+  const headers = { 'x-wetop-test-client': '1', 'x-wetop-scope': scope, 'x-wetop-session': session! };
+  const catalogResponse = await page.request.get(`${FIXTURE_API}/beauty/services`, { headers });
+  expect(catalogResponse.status()).toBe(200);
+  const catalog = await catalogResponse.json() as { locationId: string; items: Array<{ id: string; name: string }> };
+  expect(catalog.locationId).toBe(locationId);
+  const matches = catalog.items.filter(service => service.name === 'Маникюр');
+  expect(matches).toHaveLength(1);
+  const serviceIds = [matches[0]!.id];
+  const assigned = await page.request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, { headers, data: { serviceIds } });
+  expect(assigned.status()).toBe(200);
+  const assignedRow = await assigned.json() as { id: string; serviceIds: string[] };
+  expect(assignedRow.id).toBe(employeeId); expect(assignedRow.serviceIds).toEqual(serviceIds);
+  const readback = await page.request.get(`${FIXTURE_API}/beauty/employees/${employeeId}`, { headers });
+  expect(readback.status()).toBe(200);
+  const persisted = await readback.json() as { id: string; serviceIds: string[] };
+  expect(persisted.id).toBe(employeeId); expect(persisted.serviceIds).toEqual(serviceIds);
   await page.goto('/beauty/schedule');
   await main.getByRole('button', { name: 'Дина', exact: true }).click();
   panel = page.getByRole('dialog');

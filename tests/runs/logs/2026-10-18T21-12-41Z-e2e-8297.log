@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 19.10.2026 02:12 Алматы · srv1719674
+# коммит b194d49 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/playwright.onboarding-owned.config.ts' 'onboarding-compatibility.spec.ts' '--grep' 'create then immediate services' '--workers=1' '--output=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/final-services-compat-artifacts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:3908767) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab uses one canonical profile without profile rewrites (21.5s)
+
+  1 passed (47.7s)
+
+# код выхода 0 · 50 с

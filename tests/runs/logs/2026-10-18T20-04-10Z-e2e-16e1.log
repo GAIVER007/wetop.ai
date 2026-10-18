@@ -1,0 +1,42 @@
+# Сквозные (e2e) · 19.10.2026 01:04 Алматы · srv1719674
+# коммит b194d49 (feat/salon-draft-implementation-20261018)
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/employee-portal-ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 26 tests using 2 workers
+
+  ✓   1 tests/employee-portal-ui/portal.spec.mjs:41:1 › HTTP actor boundaries and public whitelist (2.0s)
+  ✓   3 tests/employee-portal-ui/portal.spec.mjs:58:1 › both original profile versions reject stale writes without rereading tokens (359ms)
+  ✓   2 tests/employee-portal-ui/site-booking.spec.ts:107:3 › generated public form in a real DOM (intercepted HTTP only) › prefills profile IDs, queries an explicit master, renders only canonical slots/timezone/price and posts a backend-accepted ISO (1.7s)
+  ✓   5 tests/employee-portal-ui/site-booking.spec.ts:131:3 › generated public form in a real DOM (intercepted HTTP only) › populates a missing service/staff from canonical response without silently changing profile target (698ms)
+  ✓   6 tests/employee-portal-ui/site-booking.spec.ts:142:3 › generated public form in a real DOM (intercepted HTTP only) › clears selected slots immediately on date/service/master changes; any master requires a visible choice (1.3s)
+  ✓   7 tests/employee-portal-ui/site-booking.spec.ts:166:3 › generated public form in a real DOM (intercepted HTTP only) › fails closed on empty/error/ineligible responses and retains unavailable URL master (never any fallback) (694ms)
+  ✓   8 tests/employee-portal-ui/site-booking.spec.ts:183:3 › generated public form in a real DOM (intercepted HTTP only) › reuses request UUID, captcha, honeypot on network retry and clears stale slots on conflict without success (1.7s)
+  ✓   9 tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 409 with a fresh CAPTCHA and the same request key (1.8s)
+  ✓  10 tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 403 with a fresh CAPTCHA and the same request key (1.7s)
+  ✓  11 tests/employee-portal-ui/site-booking.spec.ts:235:3 › generated public form in a real DOM (intercepted HTTP only) › does not claim a booking on an empty successful HTTP response and retries with the same key (1.0s)
+  ✓  12 tests/employee-portal-ui/site-booking.spec.ts:250:3 › generated public form in a real DOM (intercepted HTTP only) › retains invalid URL master until an explicit visible alternative is chosen (1.1s)
+  ✓  13 tests/employee-portal-ui/site-booking.spec.ts:264:3 › generated public form in a real DOM (intercepted HTTP only) › preserves an offset ISO verbatim and rejects slots for a different master or without a zone (821ms)
+  ✓  14 tests/employee-portal-ui/site-booking.spec.ts:288:5 › generated public form in a real DOM (intercepted HTTP only) › preserves CALLBACK submission and does not fetch Beauty slots or apply URL targeting (379ms)
+  ✓  15 tests/employee-portal-ui/site-booking.spec.ts:288:5 › generated public form in a real DOM (intercepted HTTP only) › preserves TABLE_RESERVATION submission and does not fetch Beauty slots or apply URL targeting (567ms)
+  ✓   4 tests/employee-portal-ui/portal.spec.mjs:68:1 › real browser avatar/profile persistence, work approval and three views (23.0s)
+  ✓  16 tests/employee-portal-ui/portal.spec.mjs:97:1 › specialist list opens one canonical profile and creation lands on the same screen (15.3s)
+  ✓  17 tests/employee-portal-ui/portal.spec.mjs:107:1 › waiter owns orders and existing payroll without salon controls (2.6s)
+  ✓  18 tests/employee-portal-ui/portal.spec.mjs:114:1 › own schedule is read-only for the employee; the manager sets it (3.6s)
+  ✓  19 tests/employee-portal-ui/portal.spec.mjs:129:1 › compact schedule fits one screen without dated-exceptions block (9.7s)
+  ✓  20 tests/employee-portal-ui/portal.spec.mjs:159:1 › schedule add-time action stays next to hours and persists a split day (6.5s)
+  ✓  21 tests/employee-portal-ui/portal.spec.mjs:169:1 › my services add button opens catalog and persists selection (4.8s)
+  ✓  22 tests/employee-portal-ui/portal.spec.mjs:177:1 › manager sets exact service price and duration while employee sees read-only services (7.0s)
+  ✓  23 tests/employee-portal-ui/portal.spec.mjs:188:1 › master sees own reviews and manager sees reviews of the selected master (4.4s)
+  ✓  24 tests/employee-portal-ui/portal.spec.mjs:206:1 › manager saves an exact service material norm and sees server-calculated cost (7.2s)
+  ✓  25 tests/employee-portal-ui/portal.spec.mjs:215:1 › personal finance shows real server amounts and never invents unavailable earnings (9.5s)
+  ✓  26 tests/employee-portal-ui/portal.spec.mjs:229:1 › public missing profile uses not-found handling (1.2s)
+
+  26 passed (1.9m)
+
+# код выхода 0 · 1 мин 54 с

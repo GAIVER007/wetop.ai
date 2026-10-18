@@ -1,0 +1,11 @@
+# Линтер (lint) · 19.10.2026 02:07 Алматы · srv1719674
+# коммит b194d49 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 15
+# npx eslint .
+
+/srv/hermes/workspace/wetop-all-release-20261017/test-results/beauty-schema-release/salon_release_proof_aa4cef89ab0d410b894b5c00c45cb466/prisma.config.mjs
+  1:136  error  'process' is not defined  no-undef
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 55 с

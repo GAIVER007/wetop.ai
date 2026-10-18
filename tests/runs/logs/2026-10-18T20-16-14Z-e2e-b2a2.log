@@ -1,0 +1,171 @@
+# Сквозные (e2e) · 19.10.2026 01:16 Алматы · srv1719674
+# коммит b194d49 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/playwright.onboarding-owned.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 25 tests using 1 worker
+
+[WebServer] (node:3797224) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <RedirectBoundary>
+[WebServer]       <RedirectErrorBoundary router={{...}}>
+[WebServer]         <InnerLayoutRouter url="/calendar?..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]           <SegmentViewNode type="page" pagePath="calendar/p...">
+[WebServer]             <SegmentTrieNode>
+[WebServer]             <GuardedPage>
+[WebServer]               <Page>
+[WebServer]                 <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                   <header>
+[WebServer]                   <nav>
+[WebServer]                   <JournalBoard day={{location:{...}, ...}} customers={[...]} employees={[...]} readOnly={false} ...>
+[WebServer]                     <div className="beauty-bar...">
+[WebServer]                       <div className="beauty-cal...">
+[WebServer]                         <EmployeeFilter options={[...]} value="" onChange={function setMaster} allLabel="Все специа...">
+[WebServer]                           <details ref={{current:null}} className="employee-f..." onKeyDown={function onKeyDown}>
+[WebServer]                             <summary>
+[WebServer]                             <div className="employee-f...">
+[WebServer]                               <Input type="search" aria-label="Поиск сотр..." placeholder="Найти по и..." value="" ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск сотрудника"
+[WebServer]                                   placeholder="Найти по имени"
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                               ...
+[WebServer]                         ...
+[WebServer]                           <Field label={<span>}>
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <span>
+[WebServer]                               <DateInput data-testid="beauty-day..." type="date" value="2026-10-19" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     data-testid="beauty-day-date"
+[WebServer]                                     value="2026-10-19"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]                     ...
+[WebServer]           ...
+[WebServer]         ...
+[WebServer]  
+[WebServer]     at <unknown> (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:3241:25)
+[WebServer]     at runWithFiberInDEV (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:761:74)
+[WebServer]     at emitPendingHydrationWarnings (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:3240:13)
+[WebServer]     at completeWork (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:6892:32)
+[WebServer]     at runWithFiberInDEV (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:761:74)
+[WebServer]     at completeUnitOfWork (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:9452:23)
+[WebServer]     at performUnitOfWork (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:9387:28)
+[WebServer]     at workLoopSync (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:9279:40)
+[WebServer]     at renderRootSync (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:9263:13)
+[WebServer]     at performWorkOnRoot (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:8891:186)
+[WebServer]     at performSyncWorkOnRoot (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:10093:9)
+[WebServer]     at flushSyncWorkAcrossRoots_impl (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:10009:316)
+[WebServer]     at processRootScheduleInMicrotask (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:10030:106)
+[WebServer]     at <unknown> (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:10104:158) (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next-ui/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:3241:25)
+  ✓   1 tests/onboarding-real/beauty-onboarding.spec.ts:70:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar (52.7s)
+  ✓   2 tests/onboarding-real/beauty-onboarding.spec.ts:244:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (13.5s)
+  ✓   3 tests/onboarding-real/beauty-onboarding.spec.ts:294:1 › O07c: a closed employee card leaves the router on the list, so later actions cannot restore it (10.6s)
+  ✓   4 tests/onboarding-real/beauty-onboarding.spec.ts:335:1 › O07/O08: partial assignment and a lost create response recover one Employee ID (24.4s)
+  ✓   5 tests/onboarding-real/beauty-onboarding.spec.ts:489:1 › O02/O17: unverified and expired confirmation do not bypass real guards (308ms)
+  ✓   6 tests/onboarding-real/guest-editor-real.spec.ts:81:1 › REALGUEST owner edits in-card citizenship through server actions without changing occupancy or money (15.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '12529542'
+[WebServer] }
+  ✓   7 tests/onboarding-real/guest-editor-real.spec.ts:102:1 › REALGUEST READ_ONLY hides cached editor and real PATCH is forbidden without guest or ledger mutation (8.1s)
+  ✓   8 tests/onboarding-real/guest-editor-real.spec.ts:112:1 › REALGUEST restricted branch membership denies own and foreign guest reads/writes and discards cached form (15.2s)
+  ✓   9 tests/onboarding-real/onboarding-compatibility.spec.ts:36:1 › O21 Food v1 real registration, saved location and completion (5.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '12529542'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '12529542'
+[WebServer] }
+  ✓  10 tests/onboarding-real/onboarding-compatibility.spec.ts:53:1 › O21 Hospitality v1 real registration, category persistence and provisioning (4.3s)
+  ✓  11 tests/onboarding-real/onboarding-compatibility.spec.ts:68:1 › O22/O23 Beauty extreme widths, reduced motion, keyboard and accessible errors (10.4s)
+  ✓  12 tests/onboarding-real/onboarding-compatibility.spec.ts:95:1 › O02/O03 confirmation in fresh browser and repeated link preserve original context (2.5s)
+  ✘  13 tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab uses one canonical profile without profile rewrites (28.2s)
+  ✓  14 tests/onboarding-real/onboarding-compatibility.spec.ts:186:1 › Employee mobile typography, confirmed scope and create cancellation (4.3s)
+  ✓  15 tests/onboarding-real/recovery-real.spec.ts:43:1 › U07 real authenticated API uses non-owning restricted tenant role (2.4s)
+  ✓  16 tests/onboarding-real/recovery-real.spec.ts:52:3 › U07 real FOOD_SERVICE: outage retains draft and retry persists (2.8s)
+  ✓  17 tests/onboarding-real/recovery-real.spec.ts:73:3 › U07 real FOOD_SERVICE: postcommit lost acknowledgement is read back without duplicate version (3.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '12529542'
+[WebServer] }
+  ✓  18 tests/onboarding-real/recovery-real.spec.ts:52:3 › U07 real HOSPITALITY: outage retains draft and retry persists (3.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '12529542'
+[WebServer] }
+  ✓  19 tests/onboarding-real/recovery-real.spec.ts:73:3 › U07 real HOSPITALITY: postcommit lost acknowledgement is read back without duplicate version (2.6s)
+  ✓  20 tests/onboarding-real/recovery-real.spec.ts:93:1 › U07 real two-page 409 preserves local input until explicit saved load (3.2s)
+  ✓  21 tests/onboarding-real/recovery-real.spec.ts:114:3 › U07 real expire: guarded denial leaves persisted draft unchanged (2.6s)
+  ✓  22 tests/onboarding-real/recovery-real.spec.ts:114:3 › U07 real STAFF: guarded denial leaves persisted draft unchanged (2.3s)
+  ✓  23 tests/onboarding-real/recovery-real.spec.ts:114:3 › U07 real READ_ONLY: guarded denial leaves persisted draft unchanged (3.0s)
+  ✓  24 tests/onboarding-real/recovery-real.spec.ts:159:1 › U07 real foreign business and location pointers never expose or adopt another organization (4.9s)
+  ✓  25 tests/onboarding-real/schedule-save-real.spec.ts:11:1 › real trial owner saves schedule, reloads persisted week and sees onboarding completed (8.3s)
+
+
+  1) tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab uses one canonical profile without profile rewrites 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:55843/employees/515f8bcc-2ce3-416d-be8d-f678d252b8dc/profile"
+    Received: "http://127.0.0.1:55843/employees/515f8bcc-2ce3-416d-be8d-f678d252b8dc/profile#services"
+    Timeout:  20000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 20000ms
+        43 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__3qmb-a__variable">…</html>
+           - unexpected value "http://127.0.0.1:55843/employees/515f8bcc-2ce3-416d-be8d-f678d252b8dc/profile#services"
+
+
+      163 |  expect({ name: saved.items[0].name, phone: saved.items[0].phone, email: saved.items[0].email, active: saved.items[0].active, profileRevision: saved.items[0].profileRevision }).toEqual(profileBefore);
+      164 |  await page.reload();
+    > 165 |  await expect(page).toHaveURL(canonicalUrl);
+          |                     ^
+      166 |  await page.getByTestId('employee-manager').getByRole('tab', { name: 'Услуги', exact: true }).click();
+      167 |  await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+      168 |  skills = page.getByTestId('portal-services-form');
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/onboarding-real/onboarding-compatibility.spec.ts:165:21
+
+    Error Context: test-results/onboarding-compatibility-c-fca51-le-without-profile-rewrites/error-context.md
+
+  1 failed
+    tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab uses one canonical profile without profile rewrites 
+  24 passed (4.3m)
+
+# код выхода 1 · 4 мин 20 с

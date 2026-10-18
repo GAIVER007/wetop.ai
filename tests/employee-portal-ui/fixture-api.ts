@@ -19,6 +19,8 @@ import { DiskPortalStorage } from './disk-storage';
 import { assertPortalDatabase, seedPortalFixture, type PortalActor } from './fixture-support';
 
 const db = createPrismaClient(assertPortalDatabase(), 'pms_test');
+// Isolated synthetic replay receipts; never inherit a production signing secret.
+process.env.SESSION_SECRET = 'synthetic-employee-portal-fixture-replay-key';
 const port = Number(process.env.EMPLOYEE_PORTAL_API_PORT || '26831');
 const storage = new DiskPortalStorage(undefined, `http://127.0.0.1:${port}`);
 const prisma = { db } as PrismaService;

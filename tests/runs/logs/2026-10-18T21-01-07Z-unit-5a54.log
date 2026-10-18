@@ -1,0 +1,30 @@
+# Модульные (unit) · 19.10.2026 02:01 Алматы · srv1719674
+# коммит b194d49 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T21-01-07Z-unit-5a54.json' 'tests/unit/preview-beauty-appointment-selection.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |unit| tests/unit/preview-beauty-appointment-selection.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/preview-beauty-appointment-selection.test.ts [ tests/unit/preview-beauty-appointment-selection.test.ts ]
+Error: Cannot find module '../../scripts/preview/beauty-appointment-selection' imported from /srv/hermes/workspace/wetop-all-release-20261017/tests/unit/preview-beauty-appointment-selection.test.ts
+ ❯ tests/unit/preview-beauty-appointment-selection.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { previewBeautySingleSelection } from '../../scripts/preview/be…
+       | ^
+      3|
+      4| describe('explicit single-item boundary of the generic synthetic Beaut…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  21:01:08
+   Duration  190ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-10-18T21-01-07Z-unit-5a54.json
+
+# код выхода 1 · 1 с

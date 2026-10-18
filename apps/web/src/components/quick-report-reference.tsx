@@ -3,7 +3,7 @@ import { Icon } from './icon';
 import { formatMoney } from '../lib/money';
 import type { QuickReportData } from './quick-report-data';
 
-function Money({ values }: { values?: Record<string, string> }) {
+function Money({ values }: { values?: Record<string, string> | undefined }) {
   if (!values || !Object.keys(values).length) return <>Нет данных</>;
   return (
     <>
@@ -20,7 +20,7 @@ function ReportRow({
   hint,
 }: {
   label: string;
-  values?: Record<string, string>;
+  values?: Record<string, string> | undefined;
   hint: string;
 }) {
   return (

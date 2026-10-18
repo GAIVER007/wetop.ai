@@ -7694,6 +7694,10 @@ Beauty basic, Food employee и Portal profile используют writeEmployee
 работы» и «Зарплаты», у салона нет «Объекта» в настройках). Главная, Журнал и Помощь прямые ссылки у всех,
 остальные разделы у всех открывают список. Права страниц прежние.
 
+**Уточнение владельца 18.10.2026:** кнопка ☰ на широком экране дублирует строку разделов, её нет: от 1280 px слева
+знак «W» с надписью WETOP.AI, разделы открываются строкой. Уже 1280 px меню по-прежнему под ☰. «Главная» салона
+названа как раздел меню, главная кнопка экрана «+ Новая запись», плитки «Клиенты сегодня» и «Специалисты на смене».
+
 ## OWNER-HOME-READ-ONLY-20261017: bounded V4 activation (17.10.2026)
 
 **Status:** accepted by the owner for publication through the existing candidate/main/release gates. This decision clarifies the narrow presentation rollout, not approval of held SQL or a complete financial release.

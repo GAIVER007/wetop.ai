@@ -56,6 +56,10 @@ export default defineConfig({
         APP_DEMO_MODE: '',
         APP_API_URL: FIXTURE,
         APP_ALLOW_TEST_DATA: '1',
+      // вымышленные контакты поддержки (SUP1): блок «Связаться с поддержкой» виден стенду
+      SUPPORT_WHATSAPP: '77000000000',
+      SUPPORT_TELEGRAM: 'wetop_support_test',
+      SUPPORT_HOURS: 'Ежедневно 9:00–21:00 по Алматы',
         APP_URL: WEB,
         WETOP_SITE_URL: 'http://127.0.0.1:3002',
       },

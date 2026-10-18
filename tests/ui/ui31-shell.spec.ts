@@ -2,6 +2,8 @@ import { mkdirSync } from 'node:fs';
 import { FIXTURE_API, expect, test } from './fixtures';
 
 const shots = 'reports/ui3-1-2026-10-11';
+// кнопка ☰ до 1280 px; шире разделы строкой в шапке, кнопки нет (решение владельца 18.10.2026, tab-nav.spec)
+test.use({ viewport: { width: 1024, height: 800 } });
 test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
   mkdirSync(shots, { recursive: true });
@@ -84,7 +86,6 @@ test('UI3.1: граница desktop/mobile и узкий экран', async ({ p
     await page.setViewportSize({ width, height: 800 });
     const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
     await expect(trigger).toHaveCount(1);
-    await expect(trigger).toBeEnabled();
     const header = (await page.locator('.workspace-header').boundingBox())!;
     expect(header.height).toBe(56);
     expect(
@@ -95,6 +96,12 @@ test('UI3.1: граница desktop/mobile и узкий экран', async ({ p
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
       true,
     );
+    if (width >= 1280) {
+      await expect(trigger).toBeHidden();
+      await expect(page.locator('.tabnav')).toBeVisible();
+      continue;
+    }
+    await expect(trigger).toBeEnabled();
     await trigger.click();
     if (width > 960) await expect(page.locator('.sidenav__panel')).toBeVisible();
     else {
@@ -115,7 +122,7 @@ test('UI3.1: граница desktop/mobile и узкий экран', async ({ p
 test('UI3.1: размеры целей шапки и мобильной поверхности', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toBeEnabled();
-  for (const width of [1440, 360]) {
+  for (const width of [1024, 360]) {
     await page.setViewportSize({ width, height: 640 });
     await expect(page.getByRole('button', { name: 'Найти гостя или бронь', exact: true })).toHaveCount(0);
     for (const name of ['Открыть меню', 'Переключить тему']) {
@@ -125,7 +132,7 @@ test('UI3.1: размеры целей шапки и мобильной пове
     }
   }
   await page.goto('/finance');
-  for (const width of [1440, 360]) {
+  for (const width of [1024, 360]) {
     await page.setViewportSize({ width, height: 640 });
     const search = page.getByRole('button', { name: 'Найти гостя или бронь', exact: true });
     await expect(search).toBeVisible();
@@ -146,7 +153,7 @@ test('UI3.1: размеры целей шапки и мобильной пове
   expect(box.y + box.height).toBeLessThanOrEqual(632);
 });
 
-for (const width of [1440, 390]) {
+for (const width of [1024, 390]) {
   test(`UI3.1: история периода закрывает меню ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/chessboard');

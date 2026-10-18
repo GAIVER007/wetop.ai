@@ -362,6 +362,9 @@ test('быстрый отчёт календаря: пустой день, ка�
       await expect(report).toContainText('Сертификат от WETOP');
       await expect(report).toContainText('Подарочная карта от WETOP');
       await expect(report).not.toContainText('0 ₸');
+      const countsBox = await report.locator('.quick-report-counts').first().boundingBox();
+      const headingBox = await report.locator('.overlay-heading').boundingBox();
+      expect(countsBox!.y).toBeGreaterThanOrEqual(headingBox!.y + headingBox!.height);
       const box = await report.boundingBox();
       expect(box!.x).toBeGreaterThanOrEqual(0);
       expect(box!.x + box!.width).toBeLessThanOrEqual(width);

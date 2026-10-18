@@ -58,7 +58,9 @@ export function QuickReport({
       >
         <Icon name="pie" />
       </Button>
+      {/* Новый dialog при открытии сбрасывает прокрутку после смены темы или размера экрана. */}
       <Overlay
+        key={open ? 'open' : 'closed'}
         open={open}
         onClose={() => setOpen(false)}
         title={title}

@@ -27,6 +27,12 @@ import { visitorKey } from './attempt-limits';
 import { Access } from './access.decorator';
 import { scopeView } from './request-context';
 
+/** Подпись устройства для списка «Где вы вошли»: браузер и система словами, строку агента целиком не храним */
+function sessionDevice(userAgent: string | undefined): string | null {
+  const d = deviceFromUserAgent(userAgent ?? null, null);
+  return d.browser ? [d.browser, d.os].filter(Boolean).join(', ') : null;
+}
+
 const text = (value: unknown, field: string, max = 200): string => {
   if (typeof value !== 'string' || value.trim() === '')
     throw new BadRequestException(`${field}: ожидается непустая строка`);
@@ -103,7 +109,7 @@ export class AuthController {
       email: text(body?.email, 'email'),
       password: text(body?.password, 'password', 200),
       // семейство браузера — тем же разбором, что в аналитике сайта; полный User-Agent не храним (ADR-018)
-      userAgentFamily: deviceFromUserAgent(userAgent ?? null, null).browser,
+      userAgentFamily: sessionDevice(userAgent),
     });
   }
 
@@ -161,7 +167,7 @@ export class AuthController {
     return this.auth.startSession({
       userId: confirmed.userId,
       organizationId: confirmed.organizationId,
-      userAgentFamily: deviceFromUserAgent(userAgent ?? null, null).browser,
+      userAgentFamily: sessionDevice(userAgent),
     });
   }
 
@@ -260,7 +266,7 @@ export class AuthController {
     const token = tokenFromHeaders(headers);
     if (!token) throw new UnauthorizedException('Войдите заново: сессия не годится');
     return this.auth.switchOrganization(token, body?.organizationId, {
-      userAgentFamily: deviceFromUserAgent(userAgent ?? null, null).browser,
+      userAgentFamily: sessionDevice(userAgent),
     });
   }
 

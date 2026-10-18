@@ -10,6 +10,7 @@ import { moveAppointment, payAppointment, refundAppointment, setAppointmentStatu
 import { clock, instantOf, localInput } from './time';
 import { ACTION_WORD } from './appointment-status';
 import { beautyStatus } from '../../lib/status/beauty';
+import { NO_SHOW_BEFORE_START_MESSAGE } from '@pms/domain';
 
 export function AppointmentCard({
   day,
@@ -153,6 +154,10 @@ export function AppointmentCard({
             </Button>
           ))}
         </div>
+      )}
+
+      {canEdit && (row.status === 'BOOKED' || row.status === 'CONFIRMED') && !row.next.includes('NO_SHOW') && (
+        <p className="muted">{beautyStatus.NO_SHOW.label}: {NO_SHOW_BEFORE_START_MESSAGE}</p>
       )}
 
       {payable && (

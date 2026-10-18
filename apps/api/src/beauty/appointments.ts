@@ -139,6 +139,7 @@ export class BeautyAppointmentsService {
     }));
 
     const minutes = columns.flatMap((c) => c.intervals).flatMap((i) => [clockMinutes(i.timeFrom), clockMinutes(i.timeTo)]);
+    const now = new Date();
     const placed = rows.map((r) => ({
       id: r.id,
       employeeId: r.employeeId,
@@ -154,7 +155,7 @@ export class BeautyAppointmentsService {
       startMinutes: localMinutes(r.startsAt, timezone, date),
       endMinutes: localMinutes(r.endsAt, timezone, date),
       status: r.status,
-      next: nextStatuses(r.status as AppointmentStatus),
+      next: nextStatuses(r.status as AppointmentStatus, { startsAt: r.startsAt, now }),
       priceMinor: r.price.toString(),
       paidMinor: r.payments.reduce((sum, p) => (p.kind === 'INCOME' ? sum + p.amount : sum), 0n).toString(),
       paidCashMinor: r.payments.reduce((sum, p) => p.kind === 'INCOME' && p.method === 'CASH' ? sum + p.amount : sum, 0n).toString(),
@@ -322,7 +323,7 @@ export class BeautyAppointmentsService {
     const { scope, row } = await this.own(id);
     const body = (raw ?? {}) as Record<string, unknown>;
     const to = String(body['status'] ?? '') as AppointmentStatus;
-    const change = statusChange(row.status as AppointmentStatus, to);
+    const change = statusChange(row.status as AppointmentStatus, to, { startsAt: row.startsAt, now: new Date() });
     if (!change.ok) throw new ConflictException(change.reason);
 
     await beautyTransaction(this.prisma, scope, async (tx) => {

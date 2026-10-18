@@ -1,0 +1,24 @@
+# Модульные (unit) · 18.10.2026 12:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит fb0e786 (codex/salons-tz4-m6a), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T07-35-51Z-unit-45a1.json' 'apps/api/src/beauty/appointment-status.test.ts' 'apps/web/src/app/beauty/appointment-card.test.ts' 'packages/domain/src/beauty' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ✓ |unit| packages/domain/src/beauty/schedule.test.ts (22 tests) 25ms
+ ✓ |unit| packages/domain/src/beauty/appointments.test.ts (17 tests) 22ms
+ ✓ |unit| packages/domain/src/beauty/beauty.test.ts (17 tests) 18ms
+ ✓ |unit| packages/domain/src/beauty/catalog.test.ts (15 tests) 9ms
+ ✓ |unit| apps/api/src/beauty/appointment-status.test.ts (11 tests) 66ms
+ ✓ |unit| packages/domain/src/beauty/slots.test.ts (6 tests) 18ms
+ ✓ |unit| packages/domain/src/beauty/working-time.test.ts (4 tests) 22ms
+ ✓ |unit| packages/domain/src/beauty/payment.test.ts (5 tests) 3ms
+ ✓ |unit| apps/web/src/app/beauty/appointment-card.test.ts (3 tests) 88ms
+
+ Test Files  9 passed (9)
+      Tests  100 passed (100)
+   Start at  00:35:52
+   Duration  8.18s (transform 64%, import 32%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T07-35-51Z-unit-45a1.json
+
+# код выхода 0 · 10 с

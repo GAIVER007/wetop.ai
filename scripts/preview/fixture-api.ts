@@ -13,6 +13,8 @@ import { fixtureAssetById, resetSiteAssetsFixture, siteAssetsFixture } from './f
 import { createServer } from 'node:http';
 import {
   parseMoney,
+  nextStatuses,
+  statusChange,
   parseReceiptNumber,
   assertAllocationsMatch,
   buildDashboard,
@@ -5657,15 +5659,6 @@ interface FixtureAppointment {
 }
 const fixtureBeautyAppointments: Array<{ employeeId: string; date: string }> = [];
 const fixtureAppointments: FixtureAppointment[] = [];
-const NEXT_STATUS: Record<string, string[]> = {
-  BOOKED: ['CONFIRMED', 'IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED'],
-  CONFIRMED: ['IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED'],
-  // как в домене (§58)
-  IN_PROGRESS: ['DONE', 'CANCELLED'],
-  DONE: [],
-  NO_SHOW: [],
-  CANCELLED: [],
-};
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
@@ -7263,7 +7256,7 @@ createServer(async (req, res) => {
             startMinutes: a.startMinutes,
             endMinutes: a.endMinutes,
             status: a.status,
-            next: NEXT_STATUS[a.status] ?? [],
+            next: nextStatuses(a.status, { startsAt: new Date(isoOf(a.date, a.startMinutes)), now: new Date() }),
             priceMinor: a.priceMinor,
             // касса филиала (§49) у подставного салона пуста
             paidMinor: '0',
@@ -7417,7 +7410,7 @@ createServer(async (req, res) => {
           (a) => a.id === decodeURIComponent(moveAppointment[1]!),
         );
         if (!row) return send(404, { message: 'Запись не найдена' });
-        if (!(NEXT_STATUS[row.status] ?? []).length)
+        if (!nextStatuses(row.status).length)
           return send(409, { message: 'Запись закрыта, переносить её уже нельзя' });
         const startsAt = String(body['startsAt'] ?? '');
         const length = row.endMinutes - row.startMinutes;
@@ -7449,10 +7442,12 @@ createServer(async (req, res) => {
           (a) => a.id === decodeURIComponent(appointmentStatus[1]!),
         );
         if (!row) return send(404, { message: 'Запись не найдена' });
-        const to = String(body['status'] ?? '');
-        if (!(NEXT_STATUS[row.status] ?? []).includes(to))
-          return send(409, { message: 'Из этого состояния запись так не меняют' });
-        row.status = to as FixtureAppointment['status'];
+        const to = String(body['status'] ?? '') as FixtureAppointment['status'];
+        const change = statusChange(row.status, to, {
+          startsAt: new Date(isoOf(row.date, row.startMinutes)), now: new Date(),
+        });
+        if (!change.ok) return send(409, { message: change.reason });
+        row.status = to;
         return send(200, dayView(row.date));
       }
       const employeeLocations = /^\/beauty\/employees\/([^/]+)\/locations$/.exec(path);

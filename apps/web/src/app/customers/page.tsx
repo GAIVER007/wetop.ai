@@ -20,9 +20,10 @@ export default async function CustomersPage() {
       <Page
         className="beauty-page"
         title="Клиенты"
-        subtitle="Клиенты этого бизнеса. Новый клиент добавляется при создании записи."
+        subtitle="Клиенты этого бизнеса и история их визитов."
       >
-        <BeautyCustomersTable items={items} canEdit={!shell.readOnly && mayAccess(shell.access, 'desk')} />
+        <BeautyCustomersTable key={me.context?.businessId} items={items} businessId={me.context?.businessId ?? ''}
+          canEdit={!shell.readOnly && mayAccess(shell.access, 'desk')} />
       </Page>
     );
   } catch (error) {

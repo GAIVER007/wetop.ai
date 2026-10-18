@@ -3792,6 +3792,8 @@ export interface BeautyCustomerRow {
 
 export const beautyApi = {
   customers: () => getJson<{ items: BeautyCustomerRow[] }>('/beauty/customers'),
+  createCustomer: (body: { firstName: string; lastName: string; phone: string }) =>
+    sendJson<{ id: string; created: boolean }>('POST', '/beauty/customers', body),
   /** VIP и день рождения клиента салона (§36) */
   updateCustomer: (id: string, body: { isVip: boolean; birthDate: string | null }) =>
     sendJson<unknown>('PATCH', `/beauty/customers/${encodeURIComponent(id)}`, body),

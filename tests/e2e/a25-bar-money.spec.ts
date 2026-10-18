@@ -465,6 +465,25 @@ test('UI-05 invalid USD purchase price preserves editable input without partial 
   expect(await query('SELECT count(*)::int n FROM bar_receipts WHERE property_id=$1', [scope('USD').property])).toEqual(before);
 });
 
+test('UI-05 non-KZT receipt: new product price rounds up to a whole unit and the receipt is saved (ADR-187)', async ({ page }) => {
+  await enter(page, 'USD');
+  const property = scope('USD').property;
+  const receipts = async () => (await query('SELECT count(*)::int n FROM bar_receipts WHERE property_id=$1', [property]))[0].n;
+  const before = await receipts();
+  // ADR-187 (18.10.2026): строка «новый товар» в объекте не в тенге больше не отклоняется:
+  // 10,20 USD без наценки → цена продажи вверх до целого доллара, 11,00 USD
+  const form = await fillReceipt(page, 'A25 USD goods', 'A25-USD-AUTO', '1', '10.20');
+  await form.getByRole('button', { name: 'Нет в списке' }).click();
+  await form.locator('input[name="newName.0"]').fill('A25 USD new goods');
+  await form.locator('input[name="unitCost.0"]').fill('10.20');
+  await form.locator('input[name="markup.0"]').fill('0');
+  await expect(form).not.toContainText('еще не утверждена');
+  await form.getByRole('button', { name: 'Сохранить приход' }).click();
+  await expect(form.getByRole('status')).toContainText(/Приход проведен|Черновик прихода сохранен/);
+  expect(await receipts()).toBe(before + 1);
+  expect(await query('SELECT sale_price::text p FROM bar_products WHERE property_id=$1 AND name=$2', [property, 'A25 USD new goods'])).toEqual([{ p: '1100' }]);
+});
+
 test('UI-07 unavailable stock and cross-property draft have no partial effect', async ({ page }) => {
   await overview(page, 'KZT');
   const sale = await readySaleForm(page);

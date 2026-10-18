@@ -1,0 +1,129 @@
+# Модульные (unit) · 18.10.2026 13:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит ef17fbd (codex/salons-tz4-m4b), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-21-41Z-unit-a2e8.json' 'packages/domain/src/customer-import.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| packages/domain/src/customer-import.test.ts (12 tests | 12 failed) 7ms
+   ❯ M4-B1 CSV: проверка без записи (12)
+     × BOM/CRLF и разделитель ; 2ms
+     × BOM/CRLF и разделитель , 0ms
+     × BOM/CRLF и разделитель 	 0ms
+     × кавычки, разделитель и перенос внутри поля 0ms
+     × повтор канонического номера, отсутствие номера, пустая строка и плохой телефон 0ms
+     × ручное сопоставление и отсутствие обязательных колонок 0ms
+     × повреждённые кавычки отклоняются 2ms
+     × повреждённые кавычки отклоняются 0ms
+     × повреждённые кавычки отклоняются 0ms
+     × не принимает строки с лишними ячейками и слишком длинными полями 0ms
+     × ограничивает количество строк 50 000 0ms
+     × не утрачивает нулевой индекс колонки и отвергает поддельные индексы 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > BOM/CRLF и разделитель ;
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > BOM/CRLF и разделитель ,
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > BOM/CRLF и разделитель 	
+Error: Проверка CSV ещё не реализована
+ ❯ readCustomerCsv packages/domain/src/customer-import.ts:1:61
+      1| export function readCustomerCsv(_text: string): any { throw new Error(…
+       |                                                             ^
+      2| export function previewCustomerCsv(_file: any, _mapping: any): any { t…
+      3|
+ ❯ packages/domain/src/customer-import.test.ts:6:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > кавычки, разделитель и перенос внутри поля
+Error: Проверка CSV ещё не реализована
+ ❯ readCustomerCsv packages/domain/src/customer-import.ts:1:61
+      1| export function readCustomerCsv(_text: string): any { throw new Error(…
+       |                                                             ^
+      2| export function previewCustomerCsv(_file: any, _mapping: any): any { t…
+      3|
+ ❯ packages/domain/src/customer-import.test.ts:12:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > повтор канонического номера, отсутствие номера, пустая строка и плохой телефон
+Error: Проверка CSV ещё не реализована
+ ❯ readCustomerCsv packages/domain/src/customer-import.ts:1:61
+      1| export function readCustomerCsv(_text: string): any { throw new Error(…
+       |                                                             ^
+      2| export function previewCustomerCsv(_file: any, _mapping: any): any { t…
+      3|
+ ❯ packages/domain/src/customer-import.test.ts:16:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > ручное сопоставление и отсутствие обязательных колонок
+Error: Проверка CSV ещё не реализована
+ ❯ readCustomerCsv packages/domain/src/customer-import.ts:1:61
+      1| export function readCustomerCsv(_text: string): any { throw new Error(…
+       |                                                             ^
+      2| export function previewCustomerCsv(_file: any, _mapping: any): any { t…
+      3|
+ ❯ packages/domain/src/customer-import.test.ts:23:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > повреждённые кавычки отклоняются
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > повреждённые кавычки отклоняются
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > повреждённые кавычки отклоняются
+AssertionError: expected [Function] to throw error including 'кавыч' but got 'Проверка CSV ещё не реализована'
+
+Expected: "кавыч"
+Received: "Проверка CSV ещё не реализована"
+
+ ❯ packages/domain/src/customer-import.test.ts:29:41
+     27|   });
+     28|   it.each(['Имя;Телефон\n"Оборвано;7000001001', 'Имя;Телефон\n"Тест"oo…
+     29|     expect(() => readCustomerCsv(text)).toThrow('кавыч');
+       |                                         ^
+     30|   });
+     31|   it('не принимает строки с лишними ячейками и слишком длинными полями…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > не принимает строки с лишними ячейками и слишком длинными полями
+Error: Проверка CSV ещё не реализована
+ ❯ readCustomerCsv packages/domain/src/customer-import.ts:1:61
+      1| export function readCustomerCsv(_text: string): any { throw new Error(…
+       |                                                             ^
+      2| export function previewCustomerCsv(_file: any, _mapping: any): any { t…
+      3|
+ ❯ packages/domain/src/customer-import.test.ts:32:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > ограничивает количество строк 50 000
+Error: Проверка CSV ещё не реализована
+ ❯ readCustomerCsv packages/domain/src/customer-import.ts:1:61
+      1| export function readCustomerCsv(_text: string): any { throw new Error(…
+       |                                                             ^
+      2| export function previewCustomerCsv(_file: any, _mapping: any): any { t…
+      3|
+ ❯ packages/domain/src/customer-import.test.ts:36:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > не утрачивает нулевой индекс колонки и отвергает поддельные индексы
+Error: Проверка CSV ещё не реализована
+ ❯ readCustomerCsv packages/domain/src/customer-import.ts:1:61
+      1| export function readCustomerCsv(_text: string): any { throw new Error(…
+       |                                                             ^
+      2| export function previewCustomerCsv(_file: any, _mapping: any): any { t…
+      3|
+ ❯ packages/domain/src/customer-import.test.ts:40:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed (12)
+   Start at  01:21:42
+   Duration  116ms (transform 52%, tests 23%, import 18%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-21-41Z-unit-a2e8.json
+
+# код выхода 1 · 2 с

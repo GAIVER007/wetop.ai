@@ -1,0 +1,21 @@
+# Модульные (unit) · 18.10.2026 15:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5fac3be (codex/calendar-report-gatefix), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-04-46Z-unit-6acf.json' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/components/quick-report.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP
+
+ ✓ |unit| apps/web/src/components/quick-report.test.ts (9 tests) 279ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 1448ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 1394ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 50ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 124ms
+
+ Test Files  4 passed (4)
+      Tests  45 passed (45)
+   Start at  03:05:18
+   Duration  39.88s (import 51%, transform 45%, tests 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-04-46Z-unit-6acf.json
+
+# код выхода 0 · 1 мин 12 с

@@ -1,6 +1,10 @@
 'use client';
-import { useId, useState } from 'react';
-import { Badge, Input, Select, Table } from '../../components/ui';
+import { useCallback, useEffect, useId, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Badge, Button, Input, Select, Table } from '../../components/ui';
+import { Overlay } from '../../components/overlay';
+import { ImportCustomers } from './import-customers';
+import { CreateCustomer } from './create-customer';
 import type { BeautyCustomerRow } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
@@ -36,10 +40,26 @@ function segment(row: BeautyCustomerRow): { label: string; tone: 'info' | 'ok' |
     : { label: 'Новый', tone: 'info' };
 }
 
-export function BeautyCustomersTable({ items, canEdit = false }: { items: BeautyCustomerRow[]; canEdit?: boolean }) {
+export function BeautyCustomersTable({ items, canEdit = false, businessId = '' }: {
+  items: BeautyCustomerRow[]; canEdit?: boolean; businessId?: string;
+}) {
+  const router = useRouter();
+  const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [saved, setSaved] = useState<{ id: string; created: boolean } | null>(null);
+  const onSaved = useCallback((id: string, created: boolean) => {
+    setCreating(false);
+    setQuery('');
+    setFilter('all');
+    setSaved({ id, created });
+    router.refresh();
+  }, [router]);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<SegmentFilter>('all');
   const searchId = useId();
+  useEffect(() => {
+    if (saved) document.getElementById(`customer-${saved.id}`)?.focus();
+  }, [saved, items]);
   const needle = query.trim().toLowerCase();
   const rows = items.filter((row) => {
     const name = [row.firstName, row.lastName].filter(Boolean).join(' ');
@@ -60,6 +80,10 @@ export function BeautyCustomersTable({ items, canEdit = false }: { items: Beauty
             : `Показано ${rows.length} из ${items.length}`}
         </p>
         <div className="beauty-customers-controls">
+          {canEdit && <>
+            <Button type="button" onClick={() => setCreating(true)}>Добавить клиента</Button>
+            <Button type="button" onClick={() => setImporting(true)}>Проверить CSV</Button>
+          </>}
           <Input
             id={searchId}
             type="search"
@@ -81,6 +105,7 @@ export function BeautyCustomersTable({ items, canEdit = false }: { items: Beauty
           </Select>
         </div>
       </div>
+      {saved && <p role="status">{saved.created ? 'Клиент создан.' : 'Клиент уже есть. Используем существующую карточку.'}</p>}
       <Table className="beauty-customers-table">
         <thead>
           <tr>
@@ -99,7 +124,7 @@ export function BeautyCustomersTable({ items, canEdit = false }: { items: Beauty
             <tr>
               <td colSpan={canEdit ? 8 : 7}>
                 {items.length === 0
-                  ? 'Клиентов пока нет. Новый клиент добавляется при создании записи.'
+                  ? 'Клиентов пока нет.'
                   : 'Никого не нашли. Поменяйте поиск или сегмент.'}
               </td>
             </tr>
@@ -108,7 +133,7 @@ export function BeautyCustomersTable({ items, canEdit = false }: { items: Beauty
             const s = segment(row);
             const visitDate = row.lastVisitLocalDate;
             return (
-              <tr key={row.id}>
+              <tr key={row.id} id={`customer-${row.id}`} tabIndex={-1}>
                 <td data-label="Клиент">
                   <strong>{[row.firstName, row.lastName].filter(Boolean).join(' ')}</strong>{' '}
                   {row.isVip && <Badge tone="warn">VIP</Badge>}
@@ -147,6 +172,12 @@ export function BeautyCustomersTable({ items, canEdit = false }: { items: Beauty
           })}
         </tbody>
       </Table>
+      {canEdit && <Overlay open={importing} onClose={() => setImporting(false)} title="Проверка CSV клиентов" drawer trapFocus>
+        {importing && <ImportCustomers />}
+      </Overlay>}
+      {canEdit && <Overlay open={creating} onClose={() => setCreating(false)} title="Добавить клиента" drawer trapFocus>
+        {creating && <CreateCustomer key={businessId} businessId={businessId} onSaved={onSaved} />}
+      </Overlay>}
     </>
   );
 }

@@ -40,9 +40,9 @@ import {
   BUSY,
   clockOf,
   employeeBusy,
-  findOrCreateCustomer,
   planBeautyAppointment,
 } from '../beauty/appointments';
+import { findOrCreateCustomer } from '../customers/identity';
 import { TurnstileService, turnstileFailureError } from '../web-booking/turnstile';
 import type { RequestContext } from '../web-booking/web-booking.service';
 
@@ -275,7 +275,7 @@ export class SiteFormsService {
           const plan = await planBeautyAppointment(tx, scope, employeeId, req.serviceId, req.startsAt);
           if (await employeeBusy(tx, employeeId, plan.startsAt, plan.endsAt, null))
             throw new ConflictException('Это время уже занято, выберите другое');
-          const customerId = await findOrCreateCustomer(
+          const { id: customerId } = await findOrCreateCustomer(
             tx,
             fs.organizationId,
             { firstName: req.name, lastName: null, phone: req.phone },
@@ -477,7 +477,7 @@ export class SiteFormsService {
           closed: closed !== null,
         });
         if (violation) throw new ConflictException(violation);
-        const customerId = await findOrCreateCustomer(
+        const { id: customerId } = await findOrCreateCustomer(
           tx,
           fs.organizationId,
           { firstName: req.name, lastName: null, phone: req.phone },

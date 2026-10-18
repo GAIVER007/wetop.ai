@@ -107,17 +107,25 @@ const NEXT: Record<AppointmentStatus, AppointmentStatus[]> = {
   CANCELLED: [],
 };
 
-export function nextStatuses(from: AppointmentStatus): AppointmentStatus[] {
-  return NEXT[from] ?? [];
+export const NO_SHOW_BEFORE_START_MESSAGE = 'Можно после начала визита';
+
+type AppointmentStatusTime = { startsAt: Date; now: Date };
+
+export function nextStatuses(from: AppointmentStatus, time?: AppointmentStatusTime): AppointmentStatus[] {
+  const next = NEXT[from] ?? [];
+  return time && time.now < time.startsAt ? next.filter((status) => status !== 'NO_SHOW') : next;
 }
 
 export function statusChange(
   from: AppointmentStatus,
   to: AppointmentStatus,
+  time?: AppointmentStatusTime,
 ): { ok: true } | { ok: false; reason: string } {
   if (from === to) return { ok: false, reason: 'Запись уже в этом состоянии' };
   if (!nextStatuses(from).includes(to))
     return { ok: false, reason: 'Из этого состояния запись так не меняют' };
+  if (to === 'NO_SHOW' && time && time.now < time.startsAt)
+    return { ok: false, reason: NO_SHOW_BEFORE_START_MESSAGE };
   return { ok: true };
 }
 

@@ -1,0 +1,16 @@
+# Модульные (unit) · 18.10.2026 12:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0ae6325 (claude/gate-0ae6-fixes), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T07-28-15Z-unit-f81a.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-tokens-guard.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 2ms
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  00:28:17
+   Duration  315ms (import 89%, transform 8%, worker 1%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T07-28-15Z-unit-f81a.json
+
+# код выхода 0 · 1 с

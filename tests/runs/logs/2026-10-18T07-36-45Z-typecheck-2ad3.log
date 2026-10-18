@@ -1,0 +1,18 @@
+# Типы (typecheck) · 18.10.2026 12:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит fb0e786 (codex/salons-tz4-m6a), незакоммиченных файлов набора: 5
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/beauty/appointment-status.test.ts(108,47): error TS2322: Type '"READ_ONLY"' is not assignable to type 'MembershipRole | null | undefined'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 2 мин 42 с

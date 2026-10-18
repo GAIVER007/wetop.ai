@@ -358,7 +358,9 @@ test('UI-02 real compatible USD retail, stock, history and cash', async ({ page 
   await page.goto('/bar/products');
   await expect(page.locator('.bar-price-form input[name=salePrice]').first()).toHaveAttribute('aria-label', 'Своя цена продажи в USD');
   await page.goto('/bar/receipts/new');
-  await expect(page.locator('.bar-receipt-form')).toContainText('Автоматическая цена для этой валюты');
+  // ADR-187: автоцена не в тенге утверждена (вверх до целой единицы), форма прихода больше не отказывает
+  await expect(page.locator('.bar-receipt-form')).toContainText('Рекомендованная продажа');
+  await expect(page.locator('.bar-receipt-form')).not.toContainText('еще не утверждена');
   const SQL = (
     await query(
       `SELECT (SELECT sum(total_revenue)::text FROM bar_sales WHERE property_id=$1 AND status='POSTED') revenue,(SELECT sum(total_cost)::text FROM bar_sales WHERE property_id=$1 AND status='POSTED') cost,(SELECT sum(remaining_units*unit_cost)::text FROM bar_stock_lots WHERE property_id=$1) stock,(SELECT sum(CASE WHEN kind='INCOME' THEN amount ELSE -amount END)::text FROM cash_operations WHERE property_id=$1 AND status='COMPLETED') cash`,

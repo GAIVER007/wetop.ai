@@ -1,5 +1,6 @@
 'use client';
 import { startTransition, useActionState, useEffect, useRef, useState } from 'react';
+import { salePriceFromMarkup } from '@pms/domain';
 import type { BarProductRow, BarSupplierRow } from '../../../../lib/api';
 import { formatMoney, minorToInput } from '../../../../lib/money';
 import { Button, Field, Input, Select, Textarea } from '../../../../components/ui';
@@ -66,8 +67,6 @@ const parseMinor = (raw: string) => {
   return match ? BigInt(match[1]!) * 100n + BigInt((match[2] ?? '').padEnd(2, '0') || '0') : null;
 };
 const parseBasis = parseMinor;
-const divideRoundUp = (valueMinor: bigint, divisor: bigint) => (valueMinor + divisor - 1n) / divisor;
-const roundUpToTenTenge = (minorUnits: bigint) => divideRoundUp(minorUnits, 1_000n) * 1_000n;
 
 export function NewReceipt({ products, suppliers, today, context }: { products: BarProductRow[]; suppliers: BarSupplierRow[]; today: string; context: BarFormContext }) {
   const [state, action, pending] = useActionState(createBarReceiptAction, initial);
@@ -191,8 +190,9 @@ function ReceiptLine({ index, line, products, currency, onChange, remove }: {
   const parsedQuantity = /^\d+$/.test(line.quantity) ? BigInt(line.quantity) : null;
   const parsedMarkup = parseBasis(line.markup);
   const purchaseAmount = parsedCost !== null && parsedQuantity !== null ? parsedCost * parsedQuantity : null;
-  const recommendedPrice = parsedCost !== null && parsedMarkup !== null
-    ? roundUpToTenTenge(divideRoundUp(parsedCost * (10_000n + parsedMarkup), 10_000n))
+  // то же правило, что при проведении прихода: валюта филиала (ADR-187); пустая закупка цены не даёт
+  const recommendedPrice = parsedCost !== null && parsedCost > 0n && parsedMarkup !== null
+    ? salePriceFromMarkup(parsedCost, parsedMarkup, currency)
     : null;
   const pickProduct = (productId: string) => {
     const picked = products.find((item) => item.id === productId);
@@ -225,7 +225,7 @@ function ReceiptLine({ index, line, products, currency, onChange, remove }: {
     </div>
     <div className="bar-line-calculation" aria-live="polite">
       <span>Сумма закупки: <b>{purchaseAmount === null ? 'Введите количество и цену' : formatMoney(purchaseAmount, currency)}</b></span>
-      <span>Рекомендованная продажа: <b>{currency !== 'KZT' ? 'Автоматическая цена для этой валюты еще не утверждена' : recommendedPrice === null ? 'Введите цену и наценку' : formatMoney(recommendedPrice, currency)}</b></span>
+      <span>Рекомендованная продажа: <b>{recommendedPrice === null ? 'Введите цену и наценку' : formatMoney(recommendedPrice, currency)}</b></span>
       {line.mode === 'new'
         ? <small>Карточка товара создастся вместе с приходом: рекомендованная цена станет ценой продажи.</small>
         : <small>{product ? 'После проведения рекомендованная цена станет текущей. Её можно изменить во вкладке «Товары».' : 'Выберите товар или нажмите «Нет в списке», чтобы создать карточку.'}</small>}

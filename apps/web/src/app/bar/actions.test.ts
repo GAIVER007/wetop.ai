@@ -79,21 +79,23 @@ describe('форма прихода бара', () => {
     }));
   });
 
-  it('объект не в тенге: приход отклоняется до записи, карточка нового товара не создаётся (D-CUR)', async () => {
+  it('объект не в тенге: новый товар получает цену вверх до целой единицы, приход уходит в API (ADR-187)', async () => {
     vi.mocked(hotelApi.settings).mockResolvedValue({
       property: { id: 'property-usd', currency: 'USD' },
     } as Awaited<ReturnType<typeof hotelApi.settings>>);
+    vi.mocked(barApi.createProduct).mockResolvedValue({ id: 'product-usd' } as never);
     const fd = new FormData();
     Object.entries({
       barPropertyId: 'property-usd', barCurrency: 'USD',
       lineCount: '1', supplierId: 'supplier-1', documentNumber: 'USD-1', documentDate: '2026-10-09',
       receivedDate: '2026-10-09',
-      'productId.0': '', 'newName.0': 'Juice', 'newCode.0': 'JUICE', 'quantityUnits.0': '1', 'unitCost.0': '10', 'markup.0': '0',
+      'productId.0': '', 'newName.0': 'Juice', 'newCode.0': 'JUICE', 'quantityUnits.0': '1', 'unitCost.0': '10.20', 'markup.0': '0',
     }).forEach(([key, value]) => fd.set(key, value));
     const result = await createBarReceiptAction({ error: null, ok: 0 }, fd);
-    expect(result.error).toContain('Автоматическая цена');
-    expect(barApi.createProduct).not.toHaveBeenCalled();
-    expect(barApi.createReceipt).not.toHaveBeenCalled();
+    expect(result.error).toBeNull();
+    // 10,20 USD без наценки → вверх до целого доллара: 11,00 USD
+    expect(barApi.createProduct).toHaveBeenCalledWith(expect.objectContaining({ salePriceMinor: '1100' }));
+    expect(barApi.createReceipt).toHaveBeenCalledWith(expect.objectContaining({ currency: 'USD' }));
   });
 
   it('строка без товара и без названия не уходит в API', async () => {

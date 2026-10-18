@@ -1,0 +1,28 @@
+# Модульные (unit) · 18.10.2026 09:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 33b587c (claude/bar-money-currency-rules), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-56-09Z-unit-08cd.json' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/status-dictionary-guard.test.ts' 'apps/web/src/app/team/session-navigation-a27.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ✓ |unit| tests/unit/status-dictionary-guard.test.ts (2 tests) 1042ms
+   ✓ вне lib/status нет своих словарей статусов 1034ms
+ ✓ |unit| apps/web/src/app/team/session-navigation-a27.test.ts (2 tests) 2201ms
+   ✓ team navigation preserves the common session redirect 1612ms
+   ✓ a non-session API failure retains the existing safe team fallback 585ms
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 15080ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 3343ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 4092ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 2834ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 1487ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 1490ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 1751ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  21:56:14
+   Duration  15.80s (tests 97%, transform 2%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-56-09Z-unit-08cd.json
+
+# код выхода 0 · 24 с

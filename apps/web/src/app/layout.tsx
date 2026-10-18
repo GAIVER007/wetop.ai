@@ -14,6 +14,7 @@ import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
 import { ToastProvider } from '../components/toast';
 import { TopNav } from '../components/top-nav';
+import { supportContacts } from '../lib/support-contacts';
 import { AccountMenu } from '../components/shell/account-menu';
 import { AssistantWidget } from '../components/shell/assistant-widget';
 import { ClearAssistantOnPublicEntry } from '../components/shell/assistant-widget-script';
@@ -192,6 +193,7 @@ export default async function RootLayout({
                       process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'
                     }
                     desk={desk}
+                    support={supportContacts(process.env) !== null}
                     property={{
                       name: (
                         <Suspense fallback="Объект не загружен">

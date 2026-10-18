@@ -1,4 +1,5 @@
 import { FIXTURE_API, expect, test, type Page, sideNav, openSection } from './fixtures';
+import { signInForBar } from './bar-auth';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -73,6 +74,7 @@ test('обзор как на макете: пять KPI, графики, ком�
 });
 
 test('быстрая продажа одной строкой и фильтры доски', async ({ page }) => {
+  await signInForBar(page);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);

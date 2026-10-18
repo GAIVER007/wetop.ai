@@ -1,4 +1,5 @@
 import { FIXTURE_API, test, expect } from './fixtures';
+import { signInForBar } from './bar-auth';
 for(const width of [1333,390]) test(`bar reference layout ${width}`,async({page})=>{
  await page.setViewportSize({width,height:973}); await page.goto('/bar');
  const main=page.getByRole('main').filter({visible:true});
@@ -61,6 +62,7 @@ for(const width of [1333,960,390]) for(const theme of ['light','dark'] as const)
 
 for (const width of [1333,390]) test(`direct sale visible labels and journal ${width}`,async({page,request})=>{
  await request.post(`${FIXTURE_API}/__test/reset`);
+ await signInForBar(page);
  await page.setViewportSize({width,height:973});await page.goto('/bar');
  await page.getByRole('main').filter({visible:true}).getByRole('link',{name:'Продажа',exact:true}).filter({visible:true}).click();
  const panel=page.getByRole('tabpanel',{name:'Продажа напрямую',exact:true});

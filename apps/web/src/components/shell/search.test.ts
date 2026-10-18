@@ -8,14 +8,16 @@ const hrefs = (vertical: Parameters<typeof searchMatches>[1], q: string) =>
 
 /** Д3 аудита платформы (17.10.2026): быстрый переход строится по меню своего направления */
 describe('быстрый переход поиска', () => {
-  it('салон: «Календарь» это календарь записей, шахматки нет', () => {
-    expect(hrefs('BEAUTY', 'кал')).toEqual(['/calendar']);
+  // верхнее меню 17.10.2026: календарь записей салона называется «Журнал», шахматка гостиницы «Шахматка»
+  it('салон: «Журнал» это календарь записей, шахматки нет', () => {
+    expect(hrefs('BEAUTY', 'жур')).toEqual(['/calendar']);
+    expect(hrefs('BEAUTY', 'шах')).toEqual([]);
   });
   it('ресторан: свои разделы, гостиничных нет', () => {
     expect(hrefs('FOOD_SERVICE', 'план')).toEqual(['/floor-plan']);
     expect(hrefs('FOOD_SERVICE', 'кал')).toEqual([]);
   });
-  it('гостиница: как прежде', () => {
-    expect(hrefs('HOSPITALITY', 'кал')).toEqual(['/chessboard']);
+  it('гостиница: шахматка своим словом', () => {
+    expect(hrefs('HOSPITALITY', 'шах')).toEqual(['/chessboard']);
   });
 });

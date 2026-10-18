@@ -8,6 +8,7 @@ import { Icon } from './icon';
 import { Sidebar } from './shell/sidebar';
 import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/property-block';
 import { SideNav } from './shell/side-nav';
+import { TabNav } from './shell/tab-nav';
 import { GlobalSearch } from './shell/search';
 import styles from './top-nav.module.css';
 import { Overlay } from './overlay';
@@ -203,14 +204,8 @@ export function TopNav({
               </span>
             </Link>
 
-            {/* объект и филиал: переехали сюда из бокового меню (ADR-134); до 960 px они вверху меню телефона */}
-            <div className="workspace-header__property">
-              <Suspense
-                fallback={<PropertyBlock property={property} settings={false} close={undefined} />}
-              >
-                <GrantedProperty desk={desk} property={property} close={undefined} path={path} />
-              </Suspense>
-            </div>
+            {/* строка разделов (решение владельца 17.10.2026): от 1280 px, уже выдвижное меню слева */}
+            <TabNav path={path} desk={desk} />
             {path !== '/chessboard' && (
               <button
                 className="workspace-search"
@@ -228,6 +223,14 @@ export function TopNav({
                 <kbd>{searchKey}</kbd>
               </button>
             )}
+            {/* филиал справа, рядом с профилем (верхнее меню 17.10.2026); до 960 px он вверху меню телефона */}
+            <div className="workspace-header__property">
+              <Suspense
+                fallback={<PropertyBlock property={property} settings={false} close={undefined} />}
+              >
+                <GrantedProperty desk={desk} property={property} close={undefined} path={path} />
+              </Suspense>
+            </div>
             <div className="header-tools">
               {demo && (
                 <span
@@ -301,10 +304,13 @@ export function TopNav({
                         <Icon name="person" />
                         Профиль
                       </Link>
-                      <Link href="/help" onClick={() => setProfile(false)}>
-                        <Icon name="help" />
-                        Помощь
-                      </Link>
+                      {/* «Помощь» с 17.10.2026 своим разделом меню; «Моя работа» (личный экран сотрудника) здесь */}
+                      {(beauty || food) && (
+                        <Link href="/my-work" onClick={() => setProfile(false)}>
+                          <Icon name="person" />
+                          Моя работа
+                        </Link>
+                      )}
                       {allowedItem(routeRule('/branches') ?? {}, shell?.access ?? PENDING_ACCESS) && (
                         <Link href="/branches" onClick={() => setProfile(false)}>
                           <Icon name="hotel" />

@@ -76,8 +76,8 @@ export default async function JournalPage({
   const desk = await deskShell();
   if (!mayAccess(desk.access, 'journal'))
     return (
-      <Page title="Журнал операций">
-        <Notice>Журнал операций доступен только владельцу.</Notice>
+      <Page title="История действий">
+        <Notice>История действий доступна только владельцу.</Notice>
       </Page>
     );
   const { type, q, system, actor, from, to, group, action, cursor } = normalizeSearchParams(
@@ -146,7 +146,7 @@ export default async function JournalPage({
   ].filter(Boolean);
   return (
     <Page
-      title="Журнал операций"
+      title="История действий"
       subtitle={`Действия сотрудников и изменения денег. Время: ${clock.timezone}.`}
       actions={<RefreshButton />}
     >

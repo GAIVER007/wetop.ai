@@ -38,7 +38,7 @@ export default async function BeautySchedulePage({
   );
   if (!loaded.ok)
     return (
-      <Page title="График">
+      <Page title="График работы">
         <LoadError testId="beauty-schedule-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -47,7 +47,7 @@ export default async function BeautySchedulePage({
   return (
     <Page
       className="beauty-page"
-      title="График"
+      title="График работы"
       subtitle={
         loaded.value.location
           ? `Кто работает в филиале «${loaded.value.location.name ?? 'без имени'}» по дням недели.`

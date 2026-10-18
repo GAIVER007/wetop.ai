@@ -72,6 +72,13 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   const settings = await openSection(page, 'Настройки');
   await expect(settings.getByRole('link', { name: 'Организации' })).toBeVisible();
   await shot(page, 'menu-platform-admin');
+
+  await control(request, { sellerExtension: 'off', platformAdmin: false });
+  await page.goto('/finance');
+  await expect.poll(() => menuLinks(page)).toContain('/ai-agents');
+  expect(await menuLinks(page)).not.toContain('/platform');
+  await expect(footer).toContainText('Владелец');
+  await expect(footer).not.toContainText('главный администратор');
 });
 
 test('расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же', async ({

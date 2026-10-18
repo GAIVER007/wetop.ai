@@ -8,25 +8,26 @@ import { restaurantShell } from '../food/restaurant-load';
 import '../food/food.css';
 import '../food/restaurant.css';
 
-const DAY = /^\d{4}-\d{2}-\d{2}$/;
+import { financeDateRange } from '../../lib/finance-period';
+import type { SearchParams } from '../../lib/search-params';
 
 /** «Финансы» ресторана по макету владельца (экран 12): выручка, расходы и поступления из кассы (§35).
  * Период считает сервер (ADR-181): фильтр последних 100 строк в браузере занижал итоги. */
 export default async function RestaurantFinancePage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; to?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const params = await searchParams;
   try {
     const shell = await restaurantShell();
-    const to = DAY.test(params.to ?? '') ? params.to! : shell.date;
-    const from = DAY.test(params.from ?? '') ? params.from! : `${to.slice(0, 8)}01`;
-    const cash = await restaurantApi.cash(from <= to ? { from, to } : { from: to, to });
+    // Тот же предел, что в RestaurantService.cash: не смешиваем его с гостиничным годом.
+    const { from, to } = financeDateRange(params, shell.date, { period: 'month', maxDays: 93 });
+    const cash = await restaurantApi.cash({ from, to });
     return (
       <Page title="Финансы">
         <div key={shell.scopeKey}>
-          <FinanceBoard cash={cash} timezone={shell.timezone} from={from <= to ? from : to} to={to} />
+          <FinanceBoard cash={cash} timezone={shell.timezone} from={from} to={to} />
         </div>
       </Page>
     );

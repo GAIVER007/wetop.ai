@@ -211,6 +211,24 @@ describe('deploy/compose.yml', () => {
     }
 
     /** Переменные окружения, которые читает код стойки (без тестов): `process.env.ИМЯ` и `env.ИМЯ` в lib. */
+    function productionEnvOccurrences(file: string, text: string): string[] {
+      return [...text.matchAll(/\benv\.([A-Z][A-Z0-9_]+)\b/g)]
+        .map((m) => m[1] ?? '')
+        .filter((name) => !(file === join(ROOT, 'apps/web/src/lib/settings-request-diagnostics.ts') &&
+          ['CI', 'WETOP_DIAG_HOTEL_SETTINGS'].includes(name)));
+    }
+
+    it('diagnostic exclusions are exact occurrence/file scoped, never production forwarded', () => {
+      const text = 'env.CI env.WETOP_DIAG_HOTEL_SETTINGS env.UNRELATED';
+      expect(productionEnvOccurrences(join(ROOT, 'apps/web/src/lib/settings-request-diagnostics.ts'), text)).toEqual(['UNRELATED']);
+      for (const file of ['apps/web/src/lib/other.ts', 'apps/web/next.config.ts'])
+        expect(productionEnvOccurrences(join(ROOT, file), text)).toEqual(['CI', 'WETOP_DIAG_HOTEL_SETTINGS', 'UNRELATED']);
+      for (const name of ['CI', 'WETOP_DIAG_HOTEL_SETTINGS']) {
+        expect(webEnvAllowlist()).not.toContain(name);
+        expect(DEV_ONLY).not.toContain(name);
+      }
+    });
+
     function webEnvReads(): string[] {
       const dir = join(ROOT, 'apps/web/src');
       const files = (readdirSync(dir, { recursive: true }) as string[])
@@ -220,7 +238,7 @@ describe('deploy/compose.yml', () => {
       const names = new Set<string>();
       for (const file of files) {
         const text = readFileSync(file, 'utf8');
-        for (const m of text.matchAll(/\benv\.([A-Z][A-Z0-9_]+)\b/g)) names.add(m[1] ?? '');
+        for (const name of productionEnvOccurrences(file, text)) names.add(name);
       }
       return [...names].sort();
     }

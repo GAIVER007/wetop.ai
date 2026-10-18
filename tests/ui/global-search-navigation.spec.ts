@@ -11,6 +11,8 @@ test('поиск гостиницы предлагает гостиничные 
   const dialog = page.getByRole('dialog', { name: 'Быстрый поиск' });
   await expect(dialog.getByRole('link', { name: 'План зала', exact: true })).toHaveCount(0);
   await expect(dialog.getByRole('link', { name: 'Кухня', exact: true })).toHaveCount(0);
+  // The common «Журнал» label must not hide a foreign vertical's destination.
+  await expect(dialog.locator('a[href="/floor-plan"], a[href="/calendar"]')).toHaveCount(0);
   // одно меню у всех направлений (17.10.2026): шахматка гостиницы это «Журнал»
   await dialog.getByRole('textbox', { name: 'Запрос' }).fill('Журнал');
   const calendar = dialog.getByRole('link', { name: 'Журнал', exact: true });

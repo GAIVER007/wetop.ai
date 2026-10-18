@@ -16,6 +16,7 @@ type WebServer = {
   url: string;
   reuseExistingServer: boolean;
   timeout?: number;
+  stdout?: 'pipe' | 'ignore';
 };
 
 const browserUse = {
@@ -37,6 +38,8 @@ const webServers = selectedWorkers.flatMap((worker): WebServer[] => [
   {
     command: `npm exec -w apps/web -- next dev --port ${worker.webPort} --hostname 127.0.0.1`,
     cwd: worker.root,
+    // Playwright ignores stdout by default; expose only the opt-in CI correlation run.
+    stdout: process.env.CI === 'true' && process.env.WETOP_DIAG_HOTEL_SETTINGS === '1' ? 'pipe' : 'ignore',
     env: {
       APP_UI_TEST: '1',
       APP_DEMO_MODE: '',

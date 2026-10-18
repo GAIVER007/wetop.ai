@@ -9,6 +9,53 @@ import type { Page, APIRequestContext } from '@playwright/test';
  */
 const SNAPSHOTS = 'reports/beauty-b3-2026-10-03';
 
+test('M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются', async ({ page, request }) => {
+  test.setTimeout(180_000);
+  await openSalon(page, request);
+  await page.goto('/customers');
+  const main = page.getByRole('main');
+  const before = await main.getByRole('row').count();
+  await main.getByRole('button', { name: 'Проверить CSV', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: 'Проверка CSV клиентов' });
+  const writes: string[] = [];
+  page.on('request', (req) => { if (req.method() === 'POST') writes.push(req.url()); });
+  const csv = 'Имя;Телефон\r\nПервый тест;87000001001\r\nПовтор тест;+7 (700) 000-10-01\r\nБез номера;\r\nОшибка тест;abc';
+  await panel.getByLabel('CSV с клиентами').setInputFiles({ name: 'synthetic.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  await expect(panel.getByLabel('Колонка имени')).toHaveValue('0');
+  await expect(panel.getByLabel('Колонка телефона')).toHaveValue('1');
+  await panel.getByRole('button', { name: 'Проверить строки', exact: true }).click();
+  await expect(panel.getByRole('heading', { name: 'Готовы: 1', exact: true })).toBeVisible();
+  await expect(panel.getByRole('heading', { name: 'Повторы в файле: 1', exact: true })).toBeVisible();
+  await expect(panel.getByRole('heading', { name: 'С замечаниями: 1', exact: true })).toBeVisible();
+  await expect(panel.getByRole('heading', { name: 'Пропустим: 1', exact: true })).toBeVisible();
+  await expect(panel.getByText('Проверка завершена. Данные ещё не импортированы.', { exact: true })).toBeVisible();
+  await expect(panel.getByRole('link', { name: 'Скачать шаблон CSV' })).toHaveAttribute('download', 'wetop-customers-template.csv');
+  for (const width of [375, 768, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.evaluate((dark) => { document.documentElement.dataset.theme = dark ? 'dark' : 'light'; }, width === 375);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const headingBox = await panel.getByRole('heading', { name: 'Проверка завершена. Данные ещё не импортированы.', exact: true }).boundingBox();
+    const titleBox = await panel.locator('.overlay-heading').boundingBox();
+    expect(headingBox!.y).toBeGreaterThanOrEqual(titleBox!.y + titleBox!.height);
+    expect((await new AxeBuilder({ page }).include('dialog, [role="dialog"]').analyze()).violations).toEqual([]);
+    await page.screenshot({ path: `reports/salons-m4b-2026-10-18/preview-${width}.png`, fullPage: true });
+  }
+  await panel.getByLabel('Колонка телефона').selectOption('0');
+  await expect(panel.getByText('Проверка завершена. Данные ещё не импортированы.', { exact: true })).not.toBeVisible();
+  await panel.getByRole('button', { name: 'Проверить строки', exact: true }).click();
+  await expect(panel.getByRole('alert')).toContainText('дважды');
+  await expect(panel.getByRole('alert')).toBeFocused();
+  await panel.getByLabel('CSV с клиентами').setInputFiles({ name: 'wrong.xlsx', mimeType: 'application/octet-stream', buffer: Buffer.from('synthetic') });
+  await expect(panel.getByRole('alert')).toContainText('Выберите CSV');
+  await expect(panel.getByRole('button', { name: 'Проверить строки', exact: true })).not.toBeVisible();
+  expect(writes).toEqual([]);
+  await page.keyboard.press('Escape');
+  await expect(panel).not.toBeVisible();
+  await expect(main.getByRole('row')).toHaveCount(before);
+  await page.reload();
+  await expect(main.getByRole('row').filter({ hasText: 'Первый тест' })).toHaveCount(0);
+});
+
 test('M4-A: клиент без записи, повтор номера и сохранение ввода при ошибке', async ({ page, request }) => {
   test.setTimeout(180_000);
   await openSalon(page, request);

@@ -50,6 +50,27 @@ const dto = (key: 'today' | 'week' | 'month' = 'today'): OwnerSummaryDto => ({
   },
 });
 describe('unified owner actual DTO', () => {
+  for (const vertical of ['BEAUTY', 'FOOD_SERVICE', 'HOSPITALITY']) {
+    for (const [key, from] of [['today', '2026-10-18'], ['week', '2026-10-12'], ['month', '2026-10-01']] as const) {
+      it(`preserves API dates in every finance link: ${vertical}/${key}`, () => {
+        const d = dto(key);
+        d.scope.vertical = vertical;
+        d.period.fromDate = from;
+        d.period.toDate = '2026-10-18';
+        const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: d }));
+        const links = [...html.matchAll(/href="([^"]+)"/g)]
+          .map((m) => new URL(m[1]!.replaceAll('&amp;', '&'), 'https://unit.invalid'))
+          .filter((url) => ['/finance', '/restaurant-finance'].includes(url.pathname));
+        expect(links.length).toBeGreaterThanOrEqual(4);
+        for (const url of links) {
+          expect(url.pathname).toBe(vertical === 'FOOD_SERVICE' ? '/restaurant-finance' : '/finance');
+          expect(url.searchParams.get('from')).toBe(from);
+          expect(url.searchParams.get('to')).toBe('2026-10-18');
+          expect([...url.searchParams.keys()].sort()).toEqual(['from', 'to']);
+        }
+      });
+    }
+  }
   it('provides the skip-link main landmark in supported and unsupported views', () => {
     for (const vertical of ['BEAUTY', 'UNKNOWN']) {
       const d = dto(); d.scope.vertical = vertical;

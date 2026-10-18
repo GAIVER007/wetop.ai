@@ -8,9 +8,17 @@ name: ui-snapshots
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Manual observation mode (not a release gate)
+        type: choice
+        default: snapshots
+        options:
+          - snapshots
+          - settings-diagnostic
 
 concurrency:
-  group: ui-snapshots-${{ github.ref }}
+  group: ui-snapshots-${{ inputs.mode || 'snapshots' }}-${{ github.ref }}-${{ inputs.mode == 'settings-diagnostic' && github.run_id || 'snapshot' }}
   cancel-in-progress: true
 
 permissions:
@@ -18,6 +26,7 @@ permissions:
 
 jobs:
   kit:
+    if: ${{ (inputs.mode || 'snapshots') == 'snapshots' }}
     name: эталоны дизайн-системы (Linux)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -53,3 +62,50 @@ jobs:
           git commit -m "test(ui): design-system -linux references from the GitHub runner (ui-snapshots #${{ github.run_number }})"
           git push origin "HEAD:refs/heads/$BRANCH"
           echo "Новые эталоны: ветка $BRANCH" >> "$GITHUB_STEP_SUMMARY"
+
+  settings-diagnostic:
+    if: ${{ inputs.mode == 'settings-diagnostic' }}
+    name: settings request correlation (observation only)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      UI_BROWSER_CHANNEL: chromium
+      UI_RUNTIME_WORKERS: '1'
+      WETOP_DIAG_HOTEL_SETTINGS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      - name: Strict today request contract (three observations, no retries)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p settings-observation
+          npx playwright test --config tests/ui/playwright.config.ts requests.spec.ts \
+            --grep 'экран /today:' --workers=1 --repeat-each=3 2>&1 | tee settings-observation/observer-on.log
+          node scripts/ci/check-settings-observation.mjs settings-observation/observer-on.log
+      - name: Strict today request contract (observer off, three observations, no retries)
+        env:
+          WETOP_DIAG_HOTEL_SETTINGS: '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx playwright test --config tests/ui/playwright.config.ts requests.spec.ts \
+            --grep 'экран /today:' --workers=1 --repeat-each=3 2>&1 | tee settings-observation/observer-off.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: settings-diagnostic-results
+          path: |
+            test-results/
+            settings-observation/
+          retention-days: 7

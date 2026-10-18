@@ -113,7 +113,7 @@ test('shared form groups and save stay accessible in short viewport', async ({ p
 
 for (const width of [320, 768, 1440])
   for (const theme of ['light', 'dark'] as const)
-    test(`operational reflow ${width} ${theme}`, async ({ page, request }) => {
+    test(`operational reflow ${width} ${theme}`, async ({ page, request }, testInfo) => {
       await populated(page, request);
       await page.setViewportSize({ width, height: 844 });
       await page.emulateMedia({ colorScheme: theme });
@@ -125,9 +125,27 @@ for (const width of [320, 768, 1440])
             const sizes = elements.map(el => parseFloat(getComputedStyle(el).fontSize));
             elements.forEach((el, index) => { el.style.fontSize = `${sizes[index]! * 2}px`; });
           });
-        expect(
-          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-          path,
-        ).toBeTruthy();
+        const reflow = await page.evaluate(() => ({
+          fits: document.documentElement.scrollWidth <= innerWidth,
+          viewport: innerWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          overflow: [...document.querySelectorAll<HTMLElement>('main *')]
+            .map((el) => {
+              const box = el.getBoundingClientRect();
+              const style = getComputedStyle(el);
+              return { tag: el.tagName, className: el.className, left: box.left, right: box.right,
+                width: box.width, fontSize: style.fontSize, minWidth: style.minWidth,
+                gridTemplateColumns: style.gridTemplateColumns };
+            })
+            .filter((el) => el.width > 0 && (el.right > innerWidth || el.left < 0))
+            .slice(0, 30),
+        }));
+        if (!reflow.fits) {
+          await testInfo.attach(`reflow-${path}-${width}-${theme}`, {
+            body: JSON.stringify(reflow), contentType: 'application/json',
+          });
+          console.info('REFLOW_OVERFLOW', JSON.stringify({ path, width, theme, ...reflow }));
+        }
+        expect(reflow.fits, path).toBeTruthy();
       }
     });

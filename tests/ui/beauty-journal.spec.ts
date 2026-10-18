@@ -193,6 +193,30 @@ test('вне графика мастера клетки нерабочие', asy
   await expect(page.getByRole('button', { name: 'Дина, 09:00, свободно' })).toHaveCount(1);
 });
 
+test('M6-A: будущий визит объясняет запрет неявки на desktop, телефоне и планшете', async ({ page, request }) => {
+  test.setTimeout(180_000);
+  await readySalon(page, request);
+  const date = new Date();
+  do date.setUTCDate(date.getUTCDate() + 1);
+  while (date.getUTCDay() !== 1);
+  const futureDay = date.toISOString().slice(0, 10);
+  await page.goto(`/beauty?date=${futureDay}`);
+  await book(page, '12:00', 'Тестовый клиент M6');
+  await page.goto(`/beauty?date=${futureDay}`);
+  await page.getByRole('main').getByRole('button').filter({ hasText: 'Тестовый клиент M6' }).first().click();
+  const card = page.getByRole('dialog');
+  for (const width of [1440, 375, 768]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.evaluate((dark) => { document.documentElement.dataset.theme = dark ? 'dark' : 'light'; }, width === 375);
+    await expect(card.getByText('Не пришёл: Можно после начала визита', { exact: true })).toBeVisible();
+    await expect(card.getByRole('button', { name: 'Не пришёл', exact: true })).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const accessibility = await new AxeBuilder({ page }).include('dialog, [role="dialog"]').analyze();
+    expect(accessibility.violations).toEqual([]);
+    await page.screenshot({ path: `reports/salons-m6a-2026-10-18/card-${width}.png`, fullPage: true });
+  }
+});
+
 test('состояния записи идут по жизни, из выполненной дороги нет', async ({ page, request }) => {
   await readySalon(page, request);
   await openDay(page);

@@ -7667,3 +7667,42 @@ v2.41). Модели оплаты прежние: оклад, процент, о
 
 Beauty basic, Food employee и Portal profile используют writeEmployeeCommon, атомарную обязательную проверку исходного Employee.updated_at с microseconds. Portal дополнительно проверяет исходную public revision в той же транзакции. Запрос без исходной версии получает400, старый versionless compatibility bypass удалён по прямому поручению ТЗ2.1. Сохраняются существующие id, связи, согласие и права, новые сущности/миграции не нужны. Контракты форм обновлены, конфликт сохраняет черновик и требует осознанной перечитки. Результаты и фактический контур тестов: reports/tz21/C-employee.md.
 
+## OWNER-HOME-READ-ONLY-20261017: bounded V4 activation (17.10.2026)
+
+**Status:** accepted by the owner for publication through the existing candidate/main/release gates. This decision clarifies the narrow presentation rollout, not approval of held SQL or a complete financial release.
+
+**Problem and alternatives:** earlier rollout notes combined read-only presentation with held capture, historical currency and linked classification acceptance. Keeping the existing screen until every financial capability is complete unnecessarily couples two releases; enabling captures or weakening permissions to show V4 is not acceptable.
+
+**Decision:** default the deployed web `APP_UNIFIED_OWNER_HOME` to `true`, preserving explicit `0`/`false`. Show the existing accepted shared Main only to signed-in users already authorized for `reports` in the selected location. Keep the existing 403/non-reports operational dispatch and `/today/operations`. Do not change money logic, schema, backend flags, capture/link defaults, scope or RLS. Known source currencies remain separate; unknown historical hotel cash stays PARTIAL, never zero or the present property currency. Disabled workload and classification remain explicitly unavailable.
+
+**Verification and consequences:** release-checks must exercise the real OwnerSummaryService for all three verticals and today/week/month on the disposable canonical `pms_test` fixture before any held SQL is installed, using wetop_app/RLS and rollback-only synthetic fixtures. A separate flag-on browser gate runs the existing three real HTTP/database owner-home tests and checks the JSON report for missing/skipped/flaky tests. Real database/browser acceptance is pending CI; bounded local unit/lint checks do not replace it. Existing held installation in CI remains test-only and unchanged. Publication still requires reviewed candidate CI, main CI, automatic release, then authenticated live V4/operations verification. Explicit runtime OFF remains an operator-controlled opt-out, not something this package bypasses. Historical full-financial-release requirements remain valid for that separate release.
+
+
+
+## ТЗ1.1 F01 (2026-10-17): фильтр не меняет занятость
+
+Проблема: скрытая фильтром запись создавала ложную свободную кнопку. Решение: занятость определяется всем разрешённым набором day.appointments, плитки прежним отбором. CANCELLED/NO_SHOW не блокируют по прежнему контракту. Геометрия, API и статусы не меняются. Альтернатива считать занятость по плиткам отвергнута: это и есть дефект. RED/GREEN и PG409 в собственном tz11 evidence.
+
+
+## ТЗ1.1 F02 (2026-10-17): сохранность новой записи
+
+Проблема: X/Escape/backdrop уничтожали ввод. Варианты: менять все Overlay или opt-in оболочка только новой Beauty-записи. Выбран AppointmentEditor, общий для календаря и списка; Overlay и ConfirmDialog без изменения контрактов (chat3). Черновик только в памяти mounted формы, все поля включая дату/время входят в dirty. Закрытие pending блокируется, успех закрывает напрямую. До команды сервер сверяет исходные organization/business/location с auth/me текущего запроса. Клиентские идентификаторы не дают прав, API продолжает проверять scope. Транспорт/5xx и пустой success означают unknown, повтор в этой форме блокируется; сверка результата вручную в списке. Никаких автоповторов создания. Для ухода: opt-in перехват ссылок/branch controls, native beforeunload; отмена same-document traversal только при доступном cancelable Navigation API, не универсальное обещание для всех браузеров. Production/R01 вне среза.
+
+
+## ТЗ1.1 F03 (2026-10-17): контекст списка без нового PII-хранилища
+
+Проблема: локальные master/service/status терялись после reload и истории. Выбран действующий URL/history-паттерн MastersBoard: date/master/service/status/appointment имеют один источник в адресе, Next history state сохраняется. Карточка выбирается только из разрешённого day.appointments. Неизвестные/повторные IDs и статусы дают пустой результат с явным сбросом, не загрузку произвольного ID и не расширение доступа. При смене исходного org/business/location компонент remount по scopeKey, query не переходит между ними.
+
+Строка поиска клиента объединяется с этим контекстом только при фильтрации и живёт в памяти mounted экрана. Она сохраняется при открытии/закрытии карточки, но намеренно очищается после reload. Альтернатива sessionStorage могла бы выполнить восстановление строки после reload, однако отдельного разрешения для appointments нет: ADR-148 относится к BoardFilters. Точный вопрос сохранён в QUESTIONS.md. URL/hash/history.state/server/localStorage/sessionStorage для query не добавлялись. Это обозначенный частичный policy blocker F03, не заявление о полном выполнении persistence. Глобальный поиск не меняется.
+
+
+## ТЗ1.2 compatibility consolidation (2026-10-17)
+
+По поручению владельца перенесены только отсутствовавшие presentation-части 33ac9992 и 5d5de5d8: сворачиваемые фильтры и легенда, обезличенная маска занятых интервалов, контакты и действия списка, семантические группы общей формы и локальный scroll/sticky footer, мобильные карточки клиентов и приоритет действующей услуги филиала перед каталогом. Существующие Help/Table/Overlay сохранены. ServiceForm, денежный ввод и CAS не меняются. Полная дневная занятость, scopeKey, unknown-result lock и dirty-navigation guards остаются действующими. Browser TZ12 спеки входят в существующий beauty-ui glob; локально браузер и БД не запускались.
+
+Дополнительно по поручению владельца перенесён локальный food visual pilot: мобильная высота пустых KDS-колонок и сетка полей периодов бронирования. Именованная сетка ограничена Hours через rest-hours--editable, чтобы не менять строки длительности брони. Существующие заголовки, физическое расписание, payload и права не менялись. Визуальная браузерная проверка ожидает CI.
+
+
+## Consolidation clarification — 2026-10-17 (issue 642)
+
+The explicit owner approval of 2026-10-08 in `7c0d61e9e:plans/unified-acceptance-continuation-2026-10-07.md` supersedes the October 7 guest-count UI absence expectation only. Restore the existing guarded stay guest-count form with stored server values, preserving page canMutate and eligible-status filtering. No newer reversal established. The separate creation-time occupancy/default 1-or-2 and pricing question remains UNRESOLVED; this consolidation does not select capacity defaults, reprice stays, change schema, backend authorization, folio policy or financial rules. Calendar port is limited to rendered-rectangle trailing margin and Today/reload alignment; no CSS rollback or resize observer.

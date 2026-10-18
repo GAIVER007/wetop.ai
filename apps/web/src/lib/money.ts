@@ -4,7 +4,7 @@
  * `formatMinor` из lib/api.ts печатает копейки всегда и остаётся для счёта; здесь — для плашек,
  * таблиц и показателей, где тиыны только шумят.
  */
-import { parseMoney } from '@pms/domain';
+import { parseMoney } from '../../../../packages/domain/src/finance/finance';
 export function formatMoney(minor: string | bigint, currency = 'KZT'): string {
   const v = typeof minor === 'bigint' ? minor : BigInt(minor);
   const neg = v < 0n;

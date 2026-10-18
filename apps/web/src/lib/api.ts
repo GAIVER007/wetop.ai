@@ -110,6 +110,7 @@ async function backendFetch(
   path: string,
   options: RequestInit = {},
   reportScope?: string,
+  preserveUnauthorized = false,
 ): Promise<Response> {
   const endpoint = process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001';
   const demo =
@@ -159,7 +160,7 @@ async function backendFetch(
   // Сессия кончилась: при включённом замке человека ведём на вход. Ответы самого входа исключены —
   // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046). Подпись помощника
   // тоже: её просит макет на каждой странице, включая сам экран входа, и 401 там значит «чат анонимный».
-  if (response.status === 401 && !QUIET_401_PATHS.some((p) => path.startsWith(p))) {
+  if (!preserveUnauthorized && response.status === 401 && !QUIET_401_PATHS.some((p) => path.startsWith(p))) {
     const { redirectToLoginIfRequired } = await import('./session');
     await redirectToLoginIfRequired();
   }
@@ -186,8 +187,8 @@ async function sessionHeader(): Promise<Record<string, string>> {
   }
 }
 
-async function getJson<T>(path: string, headers: Record<string, string> = {}): Promise<T> {
-  const res = await backendFetch(path, { headers });
+async function getJson<T>(path: string, headers: Record<string, string> = {}, preserveUnauthorized = false): Promise<T> {
+  const res = await backendFetch(path, { headers }, undefined, preserveUnauthorized);
   if (!res.ok) {
     // Текст отказа NestJS (400/404/422) — администратору нужен он, а не «HTTP 400» (волна 3)
     let message = `API ${path}: HTTP ${res.status}`;
@@ -502,13 +503,14 @@ export async function sendJson<T>(
   path: string,
   body: unknown,
   headers: Record<string, string> = {},
+  preserveUnauthorized = false,
 ): Promise<T> {
   const res = await backendFetch(path, {
     method,
     headers: { 'content-type': 'application/json', ...headers },
     body: JSON.stringify(body),
     cache: 'no-store',
-  });
+  }, undefined, preserveUnauthorized);
   if (!res.ok) {
     let message = `HTTP ${res.status}`;
     try {
@@ -4277,12 +4279,12 @@ export interface SharedOnboardingState {
   >;
 }
 export const sharedOnboardingApi = {
-  status: () => getJson<SharedOnboardingState>('/onboarding'),
+  status: (options?: { preserveUnauthorized?: boolean }) => getJson<SharedOnboardingState>('/onboarding', {}, options?.preserveUnauthorized),
   save: (body: {
     action: 'save' | 'next' | 'back' | 'complete' | 'apply-profile';
     draft: Record<string, unknown>;
     updatedAt: string | null;
-  }) => sendJson<SharedOnboardingState>('POST', '/onboarding', body),
+  }, options?: { preserveUnauthorized?: boolean }) => sendJson<SharedOnboardingState>('POST', '/onboarding', body, {}, options?.preserveUnauthorized),
 };
 
 export interface BarCategoryRow {

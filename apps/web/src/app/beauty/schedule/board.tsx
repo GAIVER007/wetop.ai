@@ -182,14 +182,13 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
           {data.masters.map((m) => (
             <tr key={m.id}>
               <th scope="row">
-                <Button
-                  type="button"
-                  tone="ghost"
-                  size="sm"
-                  onClick={() => setEditing({ master: m })}
-                >
-                  {m.name}
-                </Button>
+                {canEdit ? (
+                  <Button type="button" tone="ghost" size="sm" onClick={() => setEditing({ master: m })}>
+                    {m.name}
+                  </Button>
+                ) : (
+                  <span>{m.name}</span>
+                )}
               </th>
               {days.map((d) => {
                 const hours = m.week.find((w) => w.weekday === d.weekday)?.intervals ?? [];
@@ -267,12 +266,12 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         </p>
       )}
       <Overlay
-        open={editing !== null}
+        open={canEdit && editing !== null}
         onClose={() => setEditing(null)}
         title={editing ? `Часы работы: ${editing.master.name}` : ''}
         drawer
       >
-        {editing && (
+        {canEdit && editing && (
           <>
             {editing.weekday !== undefined && (
               <p className="beauty-note" data-testid="beauty-week-hint">

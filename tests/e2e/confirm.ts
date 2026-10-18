@@ -19,9 +19,21 @@ export async function confirmDialog(page: Page, button: string, expectText?: str
   const dialog = openDialog(page);
   await expect(dialog, 'окно подтверждения не открылось').toHaveCount(1);
   if (expectText) await expect(dialog).toContainText(expectText);
+  const previousAlerts = await page.getByRole('alert').allTextContents();
   await dialog.getByRole('button', { name: button, exact: true }).click();
-  // Following confirmation (for example outstanding debt) may open immediately.
-  await expect(dialog.getByRole('button', { name: button, exact: true })).toHaveCount(0);
+  let outcome = '';
+  await expect.poll(async () => {
+    const alerts = await page.getByRole('alert').filter({ visible: true }).allTextContents();
+    const error = alerts.find((text) => text.trim() && !previousAlerts.includes(text));
+    if (error) return (outcome = `error: ${error.trim()}`);
+    if (await dialog.count() === 0) return (outcome = 'closed');
+    // Checkout alone has a known follow-up confirmation for outstanding debt.
+    const next = dialog.getByRole('button', { name: 'Выселить с долгом', exact: true });
+    if (button === 'Выселить' && await next.count() === 1 && await next.isEnabled())
+      return (outcome = 'next');
+    return (outcome = 'pending');
+  }, { message: `Подтверждение «${button}» не завершилось` }).toMatch(/^(closed|next|error:)/);
+  if (outcome.startsWith('error:')) throw new Error(outcome);
 }
 
 /** То же без проверки текста — для окон вне карточки (переселение в календаре, закрытие счёта). */

@@ -937,7 +937,37 @@ test('пустые ответы дают нули; сбой API не выдаё�
     '/management/analytics/occupancy',
     '/connections',
   ]) {
-    await page.goto(route);
+    const assetPath = await page.locator('script[src]').evaluateAll((nodes) =>
+      nodes.map((node) => node.getAttribute('src')).find((src) => src?.startsWith('/_next/static/')) ?? null,
+    );
+    const origin = new URL(page.url()).origin;
+    try {
+      await page.goto(route);
+    } catch (navigationError) {
+      // Failure-only transport evidence: never retry navigation or relax its 45s test budget.
+      const started = Date.now();
+      const probe = await (async () => {
+        if (!assetPath) return { attempted: false };
+        try {
+          const response = await fetch(new URL(assetPath, origin), {
+            signal: AbortSignal.timeout(2000), redirect: 'error',
+          });
+          const bytes = (await response.arrayBuffer()).byteLength;
+          return { attempted: true, status: response.status, bytes };
+        } catch (error) {
+          return { attempted: true, error: error instanceof Error ? error.name : 'unknown' };
+        }
+      })();
+      try {
+        await test.info().attach('failed-navigation-static-transport', {
+          body: JSON.stringify({ route, assetPath, elapsedMs: Date.now() - started, ...probe }),
+          contentType: 'application/json',
+        });
+      } catch (attachmentError) {
+        console.warn('Static transport attachment failed:', attachmentError instanceof Error ? attachmentError.name : 'unknown');
+      }
+      throw navigationError;
+    }
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
     await expect(page.getByTestId('inventory-summary')).toHaveCount(0);

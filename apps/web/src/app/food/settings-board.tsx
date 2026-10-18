@@ -119,7 +119,7 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
       <h2 id="rest-settings-title">Периоды приёма броней</h2>
       <p className="muted">Эти периоды не определяют физические часы работы зала.</p>
       {error && <Alert>{error}</Alert>}
-      <ul className="rest-hours" aria-busy={pending}>
+      <ul className="rest-hours rest-hours--editable" aria-busy={pending}>
         {WEEK.map(([weekday, name]) => {
           const day = data.periods
             .filter((p) => p.weekday === weekday)
@@ -141,7 +141,7 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
           return (
             <li key={weekday} data-on={on || undefined}>
               <span className="rest-hours__day">{name}</span>
-              <Field label={<span className="sr-only">{name}, начало</span>}>
+              <Field className="rest-hours__from" label={<><span aria-hidden="true">С</span><span className="sr-only">{name}, начало</span></>}>
                 <Input
                   type="time"
                   disabled={!write || !p}
@@ -155,7 +155,7 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
                 />
               </Field>
               <span aria-hidden="true">–</span>
-              <Field label={<span className="sr-only">{name}, конец</span>}>
+              <Field className="rest-hours__to" label={<><span aria-hidden="true">До</span><span className="sr-only">{name}, конец</span></>}>
                 <Input
                   type="time"
                   disabled={!write || !p}

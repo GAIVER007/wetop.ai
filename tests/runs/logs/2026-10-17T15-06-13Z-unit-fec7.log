@@ -1,0 +1,28 @@
+# Модульные (unit) · 17.10.2026 20:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит e4e574b (claude/salon-blocks-edit), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T15-06-13Z-unit-fec7.json' 'scripts/design' 'tests/unit/design-guards.test.ts' 'tests/unit/design-slop.test.ts' 'apps/web/src/lib/api.test.ts' 'apps/web/src/lib/hotel-time.test.ts' '--testTimeout=60000'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks
+
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 22ms
+ ✓ |unit| scripts/design/dead-css.test.ts (2 tests) 489ms
+   ✓ dead-css: сверка с исходниками (1)
+     ✓ живой класс не мёртвый, похожий на динамический помечается, а не считается мёртвым 481ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 1534ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 1481ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 6ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 480ms
+   ✓ сохраняет HTTP-статус, чтобы отличить отсутствующую бронь от сбоя API 325ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 6137ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 5588ms
+   ✓ API не ответил — пояс платформы, страница не падает 455ms
+
+ Test Files  6 passed (6)
+      Tests  70 passed (70)
+   Start at  08:06:43
+   Duration  9.09s (tests 39%, transform 36%, import 24%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T15-06-13Z-unit-fec7.json
+
+# код выхода 0 · 40 с

@@ -32,7 +32,7 @@ test('повторяющиеся параметры поиска не обруш
   await page.goto('/guests?q=Тест&q=Другой');
   await expect(page.getByRole('heading', { name: 'Гости и бронирования', exact: true })).toBeVisible();
   await page.goto('/journal?q=TEST&q=OTHER');
-  await expect(page.getByRole('heading', { name: 'Журнал операций', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'История действий', exact: true })).toBeVisible();
 });
 
 test('операция проживания блокирует повторное нажатие до ответа сервера', async ({ page }) => {

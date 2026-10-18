@@ -178,9 +178,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(rows).toHaveCount(m.upcoming.length);
     if (m.upcoming.some((u) => u.master === UNAVAILABLE_MASTER))
       await expect(page.getByTestId('today-upcoming')).toContainText(UNAVAILABLE_MASTER);
-    // меню салона: «Сегодня» первым пунктом и текущим
+    // меню салона: «Главная» первым пунктом и текущим (верхнее меню 17.10.2026)
     // левая навигация (ADR-161): текущий раздел показывает кнопка колонки, а не ссылка с aria-current
-    await expect(page.locator('.sidenav__current')).toContainText('Сегодня');
+    await expect(page.locator('.sidenav__current')).toContainText('Главная');
     const calls = await callsSince(request, from);
     expect(calls.filter((c) => c.startsWith('/beauty/'))).toEqual(
       calls.filter((c) => c === '/beauty/appointments'),
@@ -215,11 +215,11 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('today-attention-no-table')).toContainText(
       String(m.withoutTable),
     );
-    // Скрытое меню UI3.1 держит разделы в панели: открыть «Зал» и найти «Бронирования».
+    // Скрытое меню UI3.1 держит разделы в панели: открыть «Зал» и найти «Брони столов».
     const nav = page.getByRole('navigation', { name: 'Разделы' });
     await nav.locator('.sidenav__current').click();
     await nav.getByRole('button', { name: 'Зал', exact: true }).click();
-    await expect(nav.getByRole('link', { name: 'Бронирования', exact: true }).first()).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Брони столов', exact: true }).first()).toBeVisible();
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|desk|hotel|chessboard|finance)\b/.test(c))).toBe(false);
     expect(calls.filter((c) => c === '/food-service/reservations').length).toBeGreaterThanOrEqual(

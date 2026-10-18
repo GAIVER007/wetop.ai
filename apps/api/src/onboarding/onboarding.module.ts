@@ -264,6 +264,9 @@ export class SharedOnboardingService {
                   appointments: true,
                   workingHours: true,
                   barStockMovements: true,
+                  // деньги ресторана и кассы филиала в старой валюте (ADR-187): пересчёт без курса невозможен
+                  restaurantPayments: true,
+                  restaurantCashOps: true,
                 },
               },
             },
@@ -449,6 +452,9 @@ export class SharedOnboardingService {
                     employees: true,
                     // проведённые документы бара в старой валюте (ADR-186): без курса пересчёт невозможен
                     barStockMovements: true,
+                    // деньги ресторана и кассы филиала в старой валюте (ADR-187): пересчёт без курса невозможен
+                    restaurantPayments: true,
+                    restaurantCashOps: true,
                   },
                 },
               },

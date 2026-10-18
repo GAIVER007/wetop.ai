@@ -539,14 +539,13 @@ export class PrismaBarRepository implements BarRepository {
     if (!supplier || products !== new Set(input.lines.map(line => line.productId)).size) throw new ConflictException('Поставщик или товар недоступен в этом объекте');
     if (!supplier.active) throw new ConflictException('Поставщик в архиве: верните его из архива, чтобы принять приход');
     this.compatible(input.currency, currency);
-    if (currency !== 'KZT') throw new ConflictException({ code: 'BAR_AUTO_PRICE_UNDEFINED', message: 'Автоматическая цена для этой валюты еще не утверждена. Используйте операции с заданной ценой.' });
     const totalAmount = input.lines.reduce((s, l) => s + l.quantityUnits * l.unitCostMinor, 0n);
     const row = await (tx as any).barReceipt.create({
       data: {
         propertyId, locationId, supplierId: input.supplierId, documentNumber: input.documentNumber,
         documentDate: new Date(`${input.documentDate}T00:00:00Z`), receivedDate: new Date(`${input.receivedDate}T00:00:00Z`),
         currency: input.currency, totalAmount, note: input.note, createdById: auditUserId(),
-        lines: { create: input.lines.map((l) => ({ productId: l.productId, quantityUnits: l.quantityUnits, unitCost: l.unitCostMinor, amount: l.quantityUnits * l.unitCostMinor, markupBasis: Number(l.markupBasis), calculatedPrice: salePriceFromMarkup(l.unitCostMinor, l.markupBasis) })) },
+        lines: { create: input.lines.map((l) => ({ productId: l.productId, quantityUnits: l.quantityUnits, unitCost: l.unitCostMinor, amount: l.quantityUnits * l.unitCostMinor, markupBasis: Number(l.markupBasis), calculatedPrice: salePriceFromMarkup(l.unitCostMinor, l.markupBasis, currency) })) },
       }, include: { lines: true },
     });
     return {
@@ -571,7 +570,6 @@ export class PrismaBarRepository implements BarRepository {
       if (receipt.status !== 'DRAFT') return { kind: 'already_posted' as const };
       const currency = await this.currency(tx, locationId);
       this.compatible(receipt.currency, currency);
-      if (currency !== 'KZT') throw new ConflictException({ code: 'BAR_AUTO_PRICE_UNDEFINED', message: 'Автоматическая цена для этой валюты еще не утверждена' });
       for (const line of receipt.lines) await this.costSources(tx, locationId, currency, line.productId);
       const now = new Date();
       for (const line of receipt.lines) {

@@ -7725,3 +7725,21 @@ Beauty basic, Food employee и Portal profile используют writeEmployee
 ## Consolidation clarification — 2026-10-17 (issue 642)
 
 The explicit owner approval of 2026-10-08 in `7c0d61e9e:plans/unified-acceptance-continuation-2026-10-07.md` supersedes the October 7 guest-count UI absence expectation only. Restore the existing guarded stay guest-count form with stored server values, preserving page canMutate and eligible-status filtering. No newer reversal established. The separate creation-time occupancy/default 1-or-2 and pricing question remains UNRESOLVED; this consolidation does not select capacity defaults, reprice stays, change schema, backend authorization, folio policy or financial rules. Calendar port is limited to rendered-rectangle trailing margin and Today/reload alignment; no CSS rollback or resize observer.
+
+
+## ADR-187: автоцена бара не в тенге и запрет смены валюты при деньгах ресторана (18.10.2026)
+
+**Контекст.** После ADR-186 остались два денежных вопроса: приход бара в филиале не в тенге отклонялся (округление «вверх до
+10 тенге», Q-BAR-2, утверждено только для KZT), а запрет смены валюты филиала смотрел только на документы бара, гостиницы и
+салона. Владелец 18.10.2026 выбрал предложенные варианты.
+
+**Решение.**
+- **Автоцена не в тенге:** цена продажи после наценки округляется вверх до целой единицы валюты филиала (USD, AED, QAR и
+  другие с копейками: 4,20 → 5,00). Тенге без изменений: вверх до 10 ₸. Правило одно, в домене
+  (`priceStepMinor`, `salePriceFromMarkup` с валютой); копии в стойке (форма прихода, карточка товара, серверное действие)
+  берут его из домена. Отказы «автоматическая цена для этой валюты не утверждена» сняты в API и в стойке.
+- **Смена валюты филиала:** запрещена и при деньгах ресторана: оплаты заказов (`restaurant_payments`) и операции кассы филиала
+  (`restaurant_cash_operations`, общей у ресторана и салона). Без утверждённого курса пересчёт истории невозможен.
+
+**Последствия.** Миграций нет. Цены уже созданных товаров не пересчитываются; новое правило действует на новые приходы и
+кнопку «Изменить цены».

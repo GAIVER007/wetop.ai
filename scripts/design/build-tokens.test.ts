@@ -113,6 +113,7 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--module-fill', // marketing.css: плитка значка модуля хаба по модулю, объявлена в .marketing-module (MKT10)
       '--module-ink', // marketing.css: цвет значка модуля, там же
       '--sidenav-w', // side-nav.css: ширина левого меню, объявлена в .workspace (ADR-161)
+      '--tabnav-left', // tab-nav.tsx: левый край списка раздела под его вкладкой, ставится на .tabnav (17.10.2026)
       '--chart-', // `var(--chart-${n})` в daily-chart.tsx — шаблон, а не имя
       '--space-', // `var(--space-${n})` на странице /design-system — тоже шаблон
       '--text-', //  `var(--text-${s})` там же

@@ -1,5 +1,5 @@
 {
-  "base": "main d96217c6a, before the menu links fix",
+  "base": "top menu 17.10.2026: labels only, rights unchanged",
   "paths": [
     "/",
     "/ai-agents",
@@ -288,8 +288,8 @@
     },
     "/bar/operations": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/operations",
+        "label": "Движение товаров",
         "requires": "reports"
       },
       "gate": {
@@ -304,8 +304,8 @@
     },
     "/bar/products": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/products",
+        "label": "Номенклатура",
         "requires": "reports"
       },
       "gate": {
@@ -352,8 +352,8 @@
     },
     "/bar/suppliers": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/suppliers",
+        "label": "Поставщики",
         "requires": "reports"
       },
       "gate": {
@@ -401,7 +401,7 @@
     "/beauty/schedule": {
       "rule": {
         "href": "/beauty/schedule",
-        "label": "График",
+        "label": "График работы",
         "requires": "desk"
       },
       "gate": {
@@ -445,7 +445,7 @@
     "/calendar": {
       "rule": {
         "href": "/calendar",
-        "label": "Календарь",
+        "label": "Журнал",
         "requires": "desk"
       },
       "gate": {
@@ -641,7 +641,7 @@
     "/employees": {
       "rule": {
         "href": "/employees",
-        "label": "Мастера",
+        "label": "Специалисты",
         "requires": "desk"
       },
       "gate": {
@@ -829,7 +829,7 @@
     "/journal": {
       "rule": {
         "href": "/journal",
-        "label": "Журнал операций",
+        "label": "История действий",
         "requires": "journal"
       },
       "gate": {
@@ -1348,8 +1348,8 @@
     },
     "/reports/finance": {
       "rule": {
-        "href": "/reports",
-        "label": "Отчёты",
+        "href": "/reports/finance",
+        "label": "Финансовый отчёт",
         "requires": "reports"
       },
       "gate": {

@@ -183,12 +183,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
             <tr key={m.id}>
               <th scope="row">
                 {canEdit ? (
-                  <Button
-                    type="button"
-                    tone="ghost"
-                    size="sm"
-                    onClick={() => setEditing({ master: m })}
-                  >
+                  <Button type="button" tone="ghost" size="sm" onClick={() => setEditing({ master: m })}>
                     {m.name}
                   </Button>
                 ) : (

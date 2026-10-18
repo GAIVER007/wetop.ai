@@ -1,0 +1,170 @@
+# Сквозные (e2e) · 18.10.2026 09:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит 62838a9 (claude/salon-schedule-grid-sync)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-schedule.spec.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 397ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/ui/beauty-schedule.spec.ts:101:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) (53.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✘  2 tests/ui/beauty-schedule.spec.ts:140:1 › сетка: выходной по графику ведёт в окно недели, переключатель меняет только дату (Q-SCHED-1) (45.9s)
+  ✘  3 tests/ui/beauty-schedule.spec.ts:194:1 › отбор «Профессия» по группам услуг мастера, отбора «Роль» нет (Q-SCHED-2) (46.1s)
+  ✓  4 tests/ui/beauty-schedule.spec.ts:223:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (15.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓  5 tests/ui/beauty-schedule.spec.ts:249:1 › два интервала через перерыв сохраняются (41.5s)
+  ✘  6 tests/ui/beauty-schedule.spec.ts:267:1 › отсутствие на несколько дней видно в ячейке только для чтения, раздела «Нерабочие дни» нет (52.1s)
+  ✓  7 tests/ui/beauty-schedule.spec.ts:303:1 › график на телефоне: страница без прокрутки вбок (40.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓  8 tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в светлой теме (30.1s)
+  ✓  9 tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в тёмной теме (39.7s)
+
+
+  1) tests/ui/beauty-schedule.spec.ts:101:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3108/beauty/schedule", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/fixtures.ts:166:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-schedule.spec.ts:107:3
+
+    Error Context: test-results/beauty-schedule-«Сделать-р-0fa50--ввода-часов-приёмка-17-10-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-«Сделать-р-0fa50--ввода-часов-приёмка-17-10-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-«Сделать-р-0fa50--ввода-часов-приёмка-17-10-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-schedule.spec.ts:140:1 › сетка: выходной по графику ведёт в окно недели, переключатель меняет только дату (Q-SCHED-1) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: apiRequestContext.get: Target page, context or browser has been closed
+
+      133 | async function masterId(page: Page, request: APIRequestContext, name: string) {
+      134 |   const { items } = (await (
+    > 135 |     await request.get(`${FIXTURE_API}/beauty/employees`, { headers: await apiHeaders(page) })
+          |                   ^
+      136 |   ).json()) as { items: Array<{ id: string; name: string }> };
+      137 |   return items.find((e) => e.name === name)!.id;
+      138 | }
+        at masterId (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-schedule.spec.ts:135:19)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-schedule.spec.ts:172:48
+
+    Error Context: test-results/beauty-schedule-сетка-выхо-0bcfd-няет-только-дату-Q-SCHED-1-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-сетка-выхо-0bcfd-няет-только-дату-Q-SCHED-1-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-сетка-выхо-0bcfd-няет-только-дату-Q-SCHED-1-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-schedule.spec.ts:194:1 › отбор «Профессия» по группам услуг мастера, отбора «Роль» нет (Q-SCHED-2) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status').filter({ hasText: 'Мастер создан' })
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status').filter({ hasText: 'Мастер создан' }) with timeout 15000ms
+      - waiting for getByRole('status').filter({ hasText: 'Мастер создан' })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      63 |   await panel.getByLabel('Имя мастера').fill(name);
+      64 |   await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+    > 65 |   await expect(page.getByRole('status').filter({hasText:'Мастер создан'})).toBeVisible();
+         |                                                                            ^
+      66 | }
+      67 |
+      68 | /** Окно часов мастера открывается по его имени в сетке */
+        at addMaster (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-schedule.spec.ts:65:76)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-schedule.spec.ts:199:3
+
+    Error Context: test-results/beauty-schedule-отбор-«Про-99917-тбора-«Роль»-нет-Q-SCHED-2-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-отбор-«Про-99917-тбора-«Роль»-нет-Q-SCHED-2-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-отбор-«Про-99917-тбора-«Роль»-нет-Q-SCHED-2-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-schedule.spec.ts:267:1 › отсутствие на несколько дней видно в ячейке только для чтения, раздела «Нерабочие дни» нет 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3108/calendar", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/fixtures.ts:166:30)
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-schedule.spec.ts:55:3)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/beauty-schedule.spec.ts:268:3
+
+    Error Context: test-results/beauty-schedule-отсутствие-04b65-раздела-«Нерабочие-дни»-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-отсутствие-04b65-раздела-«Нерабочие-дни»-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-отсутствие-04b65-раздела-«Нерабочие-дни»-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/beauty-schedule.spec.ts:101:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) 
+    tests/ui/beauty-schedule.spec.ts:140:1 › сетка: выходной по графику ведёт в окно недели, переключатель меняет только дату (Q-SCHED-1) 
+    tests/ui/beauty-schedule.spec.ts:194:1 › отбор «Профессия» по группам услуг мастера, отбора «Роль» нет (Q-SCHED-2) 
+    tests/ui/beauty-schedule.spec.ts:267:1 › отсутствие на несколько дней видно в ячейке только для чтения, раздела «Нерабочие дни» нет 
+  5 passed (7.6m)
+
+# код выхода 1 · 7 мин 46 с

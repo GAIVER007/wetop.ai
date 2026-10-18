@@ -58,7 +58,7 @@ test('все разделы, карточки и печать открывают
     ['/channels/mapping', 'Сопоставление'],
     ['/channels/sync', 'Синхронизация'],
     ['/channels/events', 'События'],
-    ['/journal', 'Журнал операций'],
+    ['/journal', 'История действий'],
     ['/incidents', 'Неисправности'],
     ['/marketing', 'Продвижение'],
     ['/website', 'Сайт и онлайн-бронирование'],
@@ -128,17 +128,17 @@ test('вложенные разделы: раскрытие, один актив
   await page.goto('/finance');
   // Скрытое меню: прямой раздел находится в первом столбце, подраздел во втором.
   const menuPanel = page.locator('.sidenav__panel');
-  await goViaMenu(page, 'Продвижение', 'Конкуренты');
+  await goViaMenu(page, 'Продвижение', 'Анализ конкурентов');
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Конкуренты');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
   // переход закрывает панель; кнопка показывает раздел текущего экрана
   await expect(page.locator('.sidenav__panel')).toBeHidden();
   await expect(page.locator('.sidenav__current')).toHaveText('Продвижение');
-  // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
+  // «Номера» (экран «Номерной фонд»): прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Номера');
   // вкладка модуля сайта подсвечивает один пункт «Сайт и SEO» группы «Маркетинг» (MKT2)
   await page.goto('/website/settings');
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
@@ -287,7 +287,7 @@ test('показатели за период: готовые отрезки и �
   await openMenu.click();
   await page
     .getByRole('dialog', { name: 'Навигация' })
-    .getByRole('link', { name: 'Календарь', exact: true })
+    .getByRole('link', { name: 'Шахматка', exact: true })
     .click();
   await expect(page).toHaveURL(/\/chessboard/);
   await expect(page.getByRole('dialog', { name: 'Навигация' })).not.toBeVisible();

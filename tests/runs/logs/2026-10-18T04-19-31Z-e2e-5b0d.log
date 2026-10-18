@@ -1,0 +1,37 @@
+# Сквозные (e2e) · 18.10.2026 09:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 62838a9 (claude/salon-schedule-grid-sync)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-schedule.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/beauty-schedule.spec.ts:101:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) (16.3s)
+  ✓  2 tests/ui/beauty-schedule.spec.ts:140:1 › сетка: выходной по графику ведёт в окно недели, переключатель меняет только дату (Q-SCHED-1) (9.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓  3 tests/ui/beauty-schedule.spec.ts:194:1 › отбор «Профессия» по группам услуг мастера, отбора «Роль» нет (Q-SCHED-2) (12.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓  4 tests/ui/beauty-schedule.spec.ts:223:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (9.0s)
+  ✓  5 tests/ui/beauty-schedule.spec.ts:249:1 › два интервала через перерыв сохраняются (8.5s)
+  ✓  6 tests/ui/beauty-schedule.spec.ts:267:1 › отсутствие на несколько дней видно в ячейке только для чтения, раздела «Нерабочие дни» нет (12.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓  7 tests/ui/beauty-schedule.spec.ts:303:1 › график на телефоне: страница без прокрутки вбок (7.6s)
+  ✓  8 tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в светлой теме (9.6s)
+  ✓  9 tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в тёмной теме (11.9s)
+
+  9 passed (1.8m)
+
+# код выхода 0 · 1 мин 56 с

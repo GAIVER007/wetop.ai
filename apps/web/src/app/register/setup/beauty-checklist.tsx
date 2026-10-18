@@ -378,7 +378,7 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
   );
 }
 
-/** Defaults only for a missing timezone; existing values remain subject to server validation. */
+/** Страна заполняет только отсутствующие значения; сохранённый ввод остаётся для действующей проверки. */
 function withCountry(draft: Record<string, unknown>, code: string | null | undefined) {
   const country = countryOf({ code });
   // An existing timezone does not establish the organization's country/currency.

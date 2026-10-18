@@ -43,13 +43,22 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   await expect(item).toHaveAttribute('aria-expanded', 'true');
   await expect(siteLink).toBeFocused();
   await expect(siteLink).toHaveAttribute('href', '/marketing');
-  // ADR-184: «Продвижение» — обзор, реклама, конкуренты, контент, бюджет, аналитика
-  await expect(menu.locator('.sidenav__items:not([hidden]) a')).toHaveText(['Обзор', 'Реклама', 'Конкуренты', 'Контент', 'Бюджет', 'Аналитика']);
+  // ADR-184 и верхнее меню 17.10.2026: «Продвижение» вместе с бывшими «Продажами»
+  await expect(menu.locator('.sidenav__items:not([hidden]) a')).toHaveText([
+    'Обзор',
+    'ИИ-таргетолог',
+    'Контент',
+    'ИИ-продавец',
+    'Анализ конкурентов',
+    'Обзор продаж',
+    'Бюджет',
+    'Аналитика рекламы',
+  ]);
   await expect(items.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
     'href',
     '/marketing/budget',
   );
-  await expect(items.getByRole('link', { name: 'Аналитика', exact: true })).toHaveAttribute(
+  await expect(items.getByRole('link', { name: 'Аналитика рекламы', exact: true })).toHaveAttribute(
     'href',
     '/marketing/analytics',
   );
@@ -66,9 +75,8 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   await expect(page).toHaveURL(/\/marketing$/);
   await expect(trigger).toHaveText('Продвижение');
   await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Обзор');
-  // «Продажи» без сайта
-  const salesList = await openSection(page, 'Продажи');
-  await expect(salesList.locator('a')).toHaveText(['Обзор продаж', 'Каналы продаж', 'ИИ-продавцы']);
+  // отдельных «Продаж» нет, сайт пунктом меню не стоит
+  await expect(menu.locator('.sidenav__section', { hasText: /^Продажи$/ })).toHaveCount(0);
   await expect(
     menu.getByRole('link', { name: 'Сайт и онлайн-бронирование', includeHidden: true }),
   ).toHaveCount(0);
@@ -253,11 +261,10 @@ test('администратор (без права marketing): вкладки �
   await request.post(`${fixture}/__test/control`, { data: { role: 'STAFF' } });
   await page.goto('/finance');
   const menu = menuOf(page);
-  await expect(menu.locator('.sidenav__section', { hasText: /^Продажи$/ })).toHaveCount(1);
-  // ADR-184: в «Продвижении» администратору виден только пункт «Конкуренты» (право `reports`)
+  // верхнее меню 17.10.2026: в «Продвижении» администратору видны продавец, конкуренты (право `reports`) и обзор продаж
   await expect(menu.locator('.sidenav__section', { hasText: /^Продвижение$/ })).toHaveCount(1);
   const promo = await openSection(page, 'Продвижение');
-  await expect(promo.locator('a')).toHaveText(['Конкуренты']);
+  await expect(promo.locator('a')).toHaveText(['ИИ-продавец', 'Анализ конкурентов', 'Обзор продаж']);
   await page.keyboard.press('Escape');
   for (const path of ['/marketing', '/website', '/marketing/ads', '/marketing/content']) {
     await page.goto(path);

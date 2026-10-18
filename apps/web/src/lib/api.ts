@@ -3725,6 +3725,8 @@ export interface BeautyAppointmentRow {
   priceMinor: string;
   /** оплачено в кассу филиала (§49), действующие приходы */
   paidMinor: string;
+  paidCashMinor?: string;
+  paidNonCashMinor?: string;
   /** возвращено по выполненной записи (§54), действующие расходы */
   refundedMinor: string;
   currency: string;

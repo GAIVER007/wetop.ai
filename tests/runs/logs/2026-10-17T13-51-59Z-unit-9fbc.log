@@ -1,0 +1,47 @@
+# Модульные (unit) · 17.10.2026 18:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (codex/calendar-quick-report), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T13-51-59Z-unit-9fbc.json' 'apps/web/src/components/quick-report.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /private/tmp/wetop-calendar-quick-report
+
+ ❯ |unit| apps/web/src/components/quick-report.test.ts (6 tests | 1 failed) 28ms
+   ❯ calendar quick reports (6)
+     ✓ counts unique customers and every status, keeping exact completed amounts by currency 19ms
+     ✓ distinguishes no completed services from a completed service with a zero price 0ms
+     ✓ rejects duplicate records and malformed money rather than showing false totals 1ms
+     ✓ keeps booking counts separate from unavailable financial data 0ms
+     ✓ sums only closed orders and does not invent unique restaurant customer counts 0ms
+     × shows actual appointment payments and refunds separately from prices 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/components/quick-report.test.ts > calendar quick reports > shows actual appointment payments and refunds separately from prices
+AssertionError: expected undefined to deeply equal { KZT: '30001' }
+
+- Expected:
+{
+  "KZT": "30001",
+}
+
++ Received:
+undefined
+
+ ❯ apps/web/src/components/quick-report.test.ts:58:86
+     56|       { id: 'b', status: 'DONE', priceMinor: '20000', currency: 'KZT',…
+     57|     ]);
+     58|     expect(report.money.find((m) => m.label === 'Принято оплат по запи…
+       |                                                                                      ^
+     59|     expect(report.money.find((m) => m.label === 'Возвращено по записям…
+     60|     expect(report.money.find((m) => m.label === 'Средняя стоимость зав…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  06:52:08
+   Duration  338ms (transform 50%, tests 31%, import 12%, worker 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T13-51-59Z-unit-9fbc.json
+
+# код выхода 1 · 9 с

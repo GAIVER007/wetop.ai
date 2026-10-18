@@ -1,0 +1,106 @@
+# Сквозные (e2e) · 18.10.2026 10:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2e9a53e (codex/calendar-quick-report)
+# npx playwright test --workers=2 --reporter=list,json 'tests/beauty-ui/calendar-master-selection.spec.ts' '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:49505) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:49545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:49546) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:49558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:49601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:49602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:49614) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:49546) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✘  1 tests/beauty-ui/calendar-master-selection.spec.ts:30:1 › mobile master filter and visible calendar select the same master (8.8s)
+(node:49843) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/beauty-ui/calendar-master-selection.spec.ts:46:1 › new appointment defaults to the master selected in the desktop filter (6.5s)
+
+
+  1) tests/beauty-ui/calendar-master-selection.spec.ts:30:1 › mobile master filter and visible calendar select the same master 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.beauty-current-master')
+    Expected: "Дарья Тестовая"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('.beauty-current-master') with timeout 5000ms
+      - waiting for locator('.beauty-current-master')
+
+
+      35 |   await chooseCalendarEmployee(page, masters[1].name);
+      36 |   await expect(calendar).toHaveValue(masters[1].id);
+    > 37 |   await expect(page.locator('.beauty-current-master')).toHaveText(masters[1].name);
+         |                                                        ^
+      38 |   await page.locator('.beauty-mobile-calendar').getByRole('button', { name: `${masters[1].name}, 09:00, свободно`, exact: true }).click();
+      39 |   await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Мастер', exact: true })).toHaveValue(masters[1].id);
+      40 |   await page.keyboard.press('Escape');
+        at /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/beauty-ui/calendar-master-selection.spec.ts:37:56
+
+    Error Context: test-results/calendar-master-selection--8d3c1-ndar-select-the-same-master/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/calendar-master-selection--8d3c1-ndar-select-the-same-master/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/calendar-master-selection--8d3c1-ndar-select-the-same-master/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/calendar-master-selection.spec.ts:46:1 › new appointment defaults to the master selected in the desktop filter 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('dialog').getByRole('combobox', { name: 'Мастер', exact: true })
+    Expected: "152b3f4c-83b0-49b2-9ca9-f590582327d8"
+    Received: "15a5e5c5-d482-40d3-b255-c67bc0dec408"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('dialog').getByRole('combobox', { name: 'Мастер', exact: true }) with timeout 5000ms
+      - waiting for getByRole('dialog').getByRole('combobox', { name: 'Мастер', exact: true })
+        14 × locator resolved to <select class="inp" required="" name="employeeId" aria-label="Мастер">…</select>
+           - unexpected value "15a5e5c5-d482-40d3-b255-c67bc0dec408"
+
+
+      48 |   await chooseCalendarEmployee(page, masters[1].name);
+      49 |   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
+    > 50 |   await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Мастер', exact: true })).toHaveValue(masters[1].id);
+         |                                                                                                 ^
+      51 |   await page.screenshot({ path: testInfo.outputPath('selected-master-new-appointment.png') });
+      52 | });
+      53 |
+        at /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/beauty-ui/calendar-master-selection.spec.ts:50:97
+
+    Error Context: test-results/calendar-master-selection--7b3bb-ected-in-the-desktop-filter/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/calendar-master-selection--7b3bb-ected-in-the-desktop-filter/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/calendar-master-selection--7b3bb-ected-in-the-desktop-filter/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/beauty-ui/calendar-master-selection.spec.ts:30:1 › mobile master filter and visible calendar select the same master 
+    tests/beauty-ui/calendar-master-selection.spec.ts:46:1 › new appointment defaults to the master selected in the desktop filter 
+
+# код выхода 1 · 27 с

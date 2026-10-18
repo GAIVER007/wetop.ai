@@ -1,0 +1,9 @@
+# Типы (typecheck) · 18.10.2026 10:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 330f488 (codex/calendar-quick-report), незакоммиченных файлов набора: 1
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+# код выхода —, сигнал SIGTERM · 3 мин 2 с

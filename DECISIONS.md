@@ -7726,6 +7726,16 @@ Beauty basic, Food employee и Portal profile используют writeEmployee
 
 The explicit owner approval of 2026-10-08 in `7c0d61e9e:plans/unified-acceptance-continuation-2026-10-07.md` supersedes the October 7 guest-count UI absence expectation only. Restore the existing guarded stay guest-count form with stored server values, preserving page canMutate and eligible-status filtering. No newer reversal established. The separate creation-time occupancy/default 1-or-2 and pricing question remains UNRESOLVED; this consolidation does not select capacity defaults, reprice stays, change schema, backend authorization, folio policy or financial rules. Calendar port is limited to rendered-rectangle trailing margin and Today/reload alignment; no CSS rollback or resize observer.
 
+## ADR-CALENDAR-2026-10-17: быстрый отчёт на существующих данных
+
+Дата: 2026-10-17. Статус: принят владельцем с планом в чате. Проблема: отчёт и выбор сотрудника нужны прямо в календаре. Варианты: отдельный агрегирующий API или существующие ответы дня и расчёты. Решение: beautyPeriod/foodPeriod, реестры статусов, Overlay и DateInput; employee/service/status сохраняются в URL, область филиала проверяется сервером. Средняя цена DONE считается целочисленно в каждой валюте, как avgCheckMinor статистики клиентов. Оплаты и возвраты салона берутся из paidMinor/refundedMinor с явной подписью, что это суммы по выбранным записям, а не движения кассы за дату. Ресторанная статистика заказов ограничена openedAt выбранного дня; стоимость CLOSED не называется выручкой по closedAt. Старые открытые заказы остаются в рабочем списке. Причина: новые правила денег и миграции не нужны. Последствия: отсутствующие способы оплаты салона и лояльность не подменяются нулями.
+
+### ADR-CALENDAR-2026-10-17, дополнение оплат
+
+По поручению владельца удалена стоимость всех записей. API дня салона дополнен paidCashMinor/paidNonCashMinor из существующих COMPLETED CashOperation INCOME. CASH отдельно, остальные способы вместе, возвраты отдельно. Область: выбранные записи и все даты поступлений. Модель и проводки не меняются. Владелец разрешил публикацию в этом чате.
+
+Дополнение при проверке: общий видимый список сотрудников заменяет дублирующий мобильный селектор. Optimistic-фильтры сохраняют выбранного мастера до ответа маршрутизатора, создание записи блокируется на время смены фильтра. Основание: браузерный RED на настоящем API воспроизвёл создание у предыдущего мастера. Существующие правила записи и занятости не меняются.
+
 
 ## ADR-187: автоцена бара не в тенге и запрет смены валюты при деньгах ресторана (18.10.2026)
 

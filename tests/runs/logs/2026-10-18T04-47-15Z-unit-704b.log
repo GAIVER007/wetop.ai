@@ -1,0 +1,76 @@
+# Модульные (unit) · 18.10.2026 09:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит b2965e9 (codex/calendar-quick-report), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-47-15Z-unit-704b.json' 'apps/web/src/components/quick-report.test.ts' 'apps/api/src/beauty/appointment-report.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP
+
+ ❯ |unit| apps/web/src/components/quick-report.test.ts (8 tests | 1 failed) 12ms
+   ❯ calendar quick reports (8)
+     ✓ counts unique customers and every status, keeping exact completed amounts by currency 7ms
+     × splits appointment receipts by method without a redundant all-booking price 3ms
+     ✓ distinguishes no completed services from a completed service with a zero price 0ms
+     ✓ rejects duplicate records and malformed money rather than showing false totals 0ms
+     ✓ keeps booking counts separate from unavailable financial data 0ms
+     ✓ sums only closed orders and does not invent unique restaurant customer counts 0ms
+     ✓ shows actual appointment payments and refunds separately from prices 0ms
+     ✓ excludes voided order payments and keeps refunds separate from cash/card totals 0ms
+ ❯ |unit| apps/api/src/beauty/appointment-report.test.ts (1 test | 1 failed) 6ms
+   ❯ appointment report cash projection (1)
+     × returns exact receipt amounts by method while keeping refunds separate and location scoped 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-report.test.ts > appointment report cash projection > returns exact receipt amounts by method while keeping refunds separate and location scoped
+AssertionError: expected { id: 'record', …(15) } to match object { …(4) }
+(17 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "paidCashMinor": "9007199254740993",
+    "paidMinor": "9007199254741093",
+-   "paidNonCashMinor": "100",
+    "refundedMinor": "20",
+  }
+
+ ❯ apps/api/src/beauty/appointment-report.test.ts:23:36
+     21|       appointment: { findMany }, beautyService: { findMany: vi.fn().mo…
+     22|     const result = await new BeautyAppointmentsService({ db } as unkno…
+     23|     expect(result.appointments[0]).toMatchObject({ paidCashMinor: '900…
+       |                                    ^
+     24|       paidMinor: '9007199254741093', refundedMinor: '20' });
+     25|     expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/components/quick-report.test.ts > calendar quick reports > splits appointment receipts by method without a redundant all-booking price
+AssertionError: expected undefined to deeply equal { KZT: '40' }
+
+- Expected:
+{
+  "KZT": "40",
+}
+
++ Received:
+undefined
+
+ ❯ apps/web/src/components/quick-report.test.ts:29:78
+     27|     const report = beautyQuickReport([{ id: 'a', status: 'DONE', price…
+     28|       customer: { id: 'c' }, paidCashMinor: '40', paidNonCashMinor: '6…
+     29|     expect(report.money.find((m) => m.label === 'Оплата наличными')?.v…
+       |                                                                              ^
+     30|     expect(report.money.find((m) => m.label === 'Оплата безналом')?.va…
+     31|     expect(report.money.some((m) => m.label === 'Стоимость всех записе…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 7 passed (9)
+   Start at  21:47:16
+   Duration  1.13s (transform 58%, import 40%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-47-15Z-unit-704b.json
+
+# код выхода 1 · 2 с

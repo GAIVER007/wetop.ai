@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import type { BeautyDay } from '../../lib/api';
 
-vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh() {} }), unstable_rethrow() {} }));
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh() {} }), useSearchParams: () => new URLSearchParams(), usePathname: () => '/calendar', unstable_rethrow() {} }));
 vi.mock('../../components/overlay', () => ({ Overlay: () => null }));
 vi.mock('./appointment-form', () => ({ AppointmentForm: () => null }));
 vi.mock('./appointment-card', () => ({ AppointmentCard: () => null }));

@@ -315,7 +315,10 @@ test('вход и профиль: «Вы вошли» без точек, при�
   // иначе следующий переход обрывается на середине второго (ERR_ABORTED, гейт 12.10.2026)
   await expect(page).toHaveURL(/\/today/);
   await page.goto('/profile/access');
-  await expect(main).toContainText('как Дана Тестова, admin@wetop.test');
+  await expect(main.getByText('Вы вошли', { exact: true })).toBeVisible();
+  const fact = (label: string) => main.locator('.fact__label').filter({ hasText: new RegExp(`^${label}$`) }).locator('..').locator('.fact__value');
+  await expect(fact('Имя')).toHaveText('Дана Тестова');
+  await expect(fact('Почта')).toHaveText('admin@wetop.test');
   await expect(main).not.toContainText(' · ');
   // приглашение: API не ответил — сбой с повтором, повтор открывает приглашение
   await request.post(`${fixture}/__test/control`, {

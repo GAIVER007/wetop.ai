@@ -1,0 +1,254 @@
+@layer sections {
+  .quick-report-trigger {
+    min-width: 44px;
+    min-height: 44px;
+    margin-left: auto;
+  }
+  .quick-report .overlay-content {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .quick-report-scope {
+    margin: 0;
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+  .quick-report-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px;
+    gap: var(--space-6);
+    align-items: center;
+  }
+  .quick-report h3 {
+    font-size: var(--text-lg);
+    margin: 0 0 var(--space-4);
+  }
+  .quick-report-counts,
+  .quick-report-statuses {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .quick-report-top .quick-report-counts {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+  .quick-report-counts > div,
+  .quick-report-statuses > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-4);
+  }
+  .quick-report dt {
+    color: var(--text-2);
+  }
+  .quick-report dd {
+    margin: 0;
+    text-align: right;
+    font-weight: var(--weight-semibold);
+  }
+  .quick-report dd span {
+    display: block;
+  }
+  .quick-report-statuses dt {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .quick-report-statuses i {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+  }
+  .quick-report-chart {
+    position: relative;
+    width: 180px;
+    aspect-ratio: 1;
+  }
+  .quick-report-chart svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .quick-report-chart > div {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+  }
+  .quick-report-chart strong {
+    font-size: var(--text-4xl);
+    font-variant-numeric: tabular-nums;
+  }
+  .quick-report-chart span {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .quick-report-finance {
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border);
+  }
+  .quick-report-finance .quick-report-counts {
+    gap: var(--space-4);
+  }
+  .quick-report-finance .context-help {
+    margin-top: var(--space-4);
+  }
+  .quick-report-note {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    margin: var(--space-2) 0 0;
+  }
+  .quick-report-empty {
+    padding: var(--space-4);
+    background: var(--surface-muted);
+    border-radius: var(--radius-control);
+    margin: 0;
+  }
+  .employee-filter {
+    position: relative;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .employee-filter summary {
+    list-style: none;
+    min-height: 44px;
+  }
+  .employee-filter summary::-webkit-details-marker {
+    display: none;
+  }
+  .employee-filter summary span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 240px;
+  }
+  .employee-filter[open] summary {
+    background: var(--primary-soft);
+  }
+  .employee-filter-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: var(--layer-overlay);
+    width: min(320px, calc(100vw - 48px));
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .employee-filter-menu > .inp {
+    width: 100%;
+  }
+  .employee-filter-list {
+    display: grid;
+    max-height: 280px;
+    overflow-y: auto;
+    gap: var(--space-1);
+    padding-top: var(--space-2);
+  }
+  .employee-filter-list .btn {
+    justify-content: flex-start;
+    min-height: 44px;
+    white-space: normal;
+    text-align: left;
+  }
+  .employee-filter-list [aria-pressed='true'] {
+    background: var(--primary-soft);
+  }
+  .calendar-toolbar {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    width: 100%;
+  }
+  .calendar-toolbar .date-bar {
+    align-items: center;
+  }
+  .calendar-toolbar .date-bar > .field {
+    margin: 0;
+  }
+  @media (max-width: 600px) {
+    .quick-report-top {
+      grid-template-columns: minmax(0, 1fr) 120px;
+      gap: var(--space-2);
+    }
+    .quick-report-chart {
+      width: 120px;
+    }
+    .quick-report-counts > div {
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .quick-report dd {
+      overflow-wrap: anywhere;
+    }
+    .calendar-toolbar {
+      gap: var(--space-2);
+    }
+    .calendar-toolbar > .employee-filter {
+      flex: 1;
+    }
+    .calendar-toolbar > .date-bar {
+      order: 3;
+      flex-basis: 100%;
+    }
+    .calendar-toolbar .date-field {
+      min-width: 0;
+      width: 100%;
+    }
+    .quick-report-trigger {
+      flex-shrink: 0;
+    }
+  }
+}
+
+@layer components {
+  .beauty-bar:has(.employee-filter[open]),
+  .calendar-toolbar:has(.employee-filter[open]) {
+    position: relative;
+    z-index: var(--layer-overlay);
+  }
+}
+
+@layer sections {
+  @media (max-width: 600px) {
+    .beauty-page:has(.quick-report-trigger) .beauty-mobile-calendar .beauty-current-master + .beauty-note {
+      margin: 0;
+    }
+    .beauty-calendar-actions > .employee-filter {
+      grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
+    }
+    .beauty-calendar-actions > .quick-report-trigger {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
+    .beauty-calendar-actions > .date-bar {
+      grid-row: 2;
+    }
+    .beauty-calendar-actions > .btn--primary {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .beauty-calendar-toolbar > .context-help {
+      grid-column: 2;
+      grid-row: 3;
+    }
+    .beauty-calendar-toolbar > .context-help[open] {
+      grid-column: 1 / -1;
+      grid-row: 4;
+    }
+  }
+}

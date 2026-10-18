@@ -1,3 +1,4 @@
+import { chooseCalendarEmployee } from './calendar-employee';
 import { test, expect } from '../ui/fixtures';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { seed, date, evidence } from './tz11-helpers';
@@ -52,7 +53,7 @@ test('calendar compact controls preserve filtering and hidden occupancy', async 
   page,
   request,
 }) => {
-  const f = await populated(page, request);
+  await populated(page, request);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/calendar?date=${date}`);
   const timeline = page.getByTestId('beauty-mobile-calendar').locator('.beauty-mobile-timeline');
@@ -75,8 +76,8 @@ test('calendar compact controls preserve filtering and hidden occupancy', async 
   await expect(timeline).not.toContainText(longName);
   await page.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click();
   await expect(timeline.locator('.beauty-tile')).toHaveCount(3);
-  await page.getByLabel('Мастер', { exact: true }).selectOption(f.employees[1]!.id);
-  await expect(page.getByLabel('Мастер календаря')).toHaveValue(f.employees[1]!.id);
+  await chooseCalendarEmployee(page, 'Тест Борис');
+  await expect(page.locator('.employee-filter summary')).toContainText('Тест Борис');
 });
 
 test('list mobile cards retain contact semantics and honest record action', async ({

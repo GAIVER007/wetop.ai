@@ -1,0 +1,31 @@
+# Модульные (unit) · 18.10.2026 09:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 793ef66 (codex/calendar-quick-report)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-54-56Z-unit-51d7.json' 'apps/web/src/components/quick-report.test.ts' 'apps/api/src/beauty/appointment-report.test.ts' 'apps/web/src/app/beauty' 'apps/web/src/app/food/orders-board.test.ts' 'apps/web/src/components/dialog-focus.test.ts' 'apps/web/src/components/primitives.test.ts' 'apps/web/src/app/management/analytics/vertical' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP
+
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 22ms
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (5 tests) 131ms
+ ✓ |unit| apps/web/src/app/beauty/services/popularity.test.ts (2 tests) 71ms
+ ✓ |unit| apps/web/src/app/food/orders-board.test.ts (3 tests) 114ms
+ ✓ |unit| apps/web/src/app/beauty/page.test.ts (2 tests) 34ms
+ ✓ |unit| apps/web/src/app/beauty/employee-workspace.test.ts (4 tests) 60ms
+ ✓ |unit| apps/web/src/app/beauty/actions.test.ts (6 tests) 57ms
+ ✓ |unit| apps/web/src/components/quick-report.test.ts (8 tests) 32ms
+ ✓ |unit| apps/web/src/app/beauty/masters/address.test.ts (3 tests) 42ms
+ ✓ |unit| apps/web/src/app/beauty/schedule/read-only.test.ts (2 tests) 68ms
+ ✓ |unit| apps/web/src/components/dialog-focus.test.ts (17 tests) 24ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests) 68ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 39ms
+ ✓ |unit| apps/api/src/beauty/appointment-report.test.ts (1 test) 47ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/status-completeness.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/app/beauty/schedule/week.test.ts (1 test) 6ms
+
+ Test Files  16 passed (16)
+      Tests  85 passed (85)
+   Start at  21:55:04
+   Duration  24.85s (transform 61%, import 34%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-54-56Z-unit-51d7.json
+
+# код выхода 0 · 34 с

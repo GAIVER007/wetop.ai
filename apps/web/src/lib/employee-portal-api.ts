@@ -3,6 +3,7 @@ import type { EmployeePortalDto, PublicEmployeeDto, PortalProfileInput, PortalPu
 import { portalTransport } from './api';
 import { ApiError } from './api-error';
 export type PortalTarget = { employeeId: string | null };
+export type EmployeeAccountOption = { userId: string; name: string | null; email: string };
 const base = (target: PortalTarget) => target.employeeId
   ? `/employee-portal/employees/${encodeURIComponent(target.employeeId)}` : '/employee-portal/me';
 export const employeePortalApi = {
@@ -20,6 +21,7 @@ export const employeePortalApi = {
   timeOff: (target: PortalTarget, input: { dateFrom: string; dateTo: string; reason: string }) => portalTransport<EmployeePortalDto>(`${base(target)}/time-offs`, 'POST', input),
   removeTimeOff: (target: PortalTarget, id: string) => portalTransport<EmployeePortalDto>(`${base(target)}/time-offs/${encodeURIComponent(id)}`, 'DELETE'),
   account: (target: PortalTarget, userId: string) => portalTransport<EmployeePortalDto>(`${base(target)}/account`, 'PUT', { userId }),
+  accountOptions: (employeeId: string) => portalTransport<EmployeeAccountOption[]>(`/employee-portal/employees/${encodeURIComponent(employeeId)}/account-options`),
   unlink: (target: PortalTarget) => portalTransport<EmployeePortalDto>(`${base(target)}/account`, 'DELETE'),
   pay: (target: PortalTarget, input: { model: string; fixedMinor: string; percent: number }) => portalTransport<EmployeePortalDto>(`${base(target)}/pay-settings`, 'PUT', input),
   payPolicy: (percentBasis: PortalPercentBasis, expectedRevision?: string) => portalTransport<{ percentBasis: PortalPercentBasis; revision: string }>('/employee-portal/pay-policy', 'PUT', { percentBasis, ...(expectedRevision ? { expectedRevision } : {}) }),

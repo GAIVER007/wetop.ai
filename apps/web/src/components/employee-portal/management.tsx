@@ -1,8 +1,20 @@
 'use client';
 import type { EmployeePortalDto } from '@pms/domain';
 import { Field, Input, Select } from '../ui';
+import { minorToInput } from '../../lib/money';
 import { PortalForm, type PortalContext } from './forms';
-export function PortalManagement({ data, context }: { data: EmployeePortalDto; context: PortalContext }) {
+export type PortalAccountOption = { userId: string; label: string };
+
+export function PortalManagement({
+  data,
+  context,
+  accountOptions,
+}: {
+  data: EmployeePortalDto;
+  context: PortalContext;
+  /** undefined: список не запрашивали; null: запрос завершился ошибкой */
+  accountOptions?: PortalAccountOption[] | null | undefined;
+}) {
   if (data.access !== 'MANAGER') return null;
   return <section className="panel portal-section" data-testid="portal-manager-controls">
     <h2>Настройки руководителя</h2>
@@ -15,17 +27,30 @@ export function PortalManagement({ data, context }: { data: EmployeePortalDto; c
     <h3>Доступ сотрудника</h3>
     <p>{data.employee.accountLinked ? 'Аккаунт привязан.' : 'Аккаунт не привязан. Личный кабинет пока недоступен.'} Используйте существующий вход по коду или приглашение в команду, без создания пароля.</p>
     <a href="/team">Участники команды и приглашения</a>
-    <PortalForm context={context} command="account" label="Привязать подтверждённого участника">
-      <Field label="ID существующего подтверждённого участника команды"><Input name="userId" required autoComplete="off" /></Field>
-      <p>Только проверенный ID из команды. Сервер проверит участника и разрешение на привязку; не вводите придуманный ID.</p>
-    </PortalForm>
+    {!data.employee.accountLinked && accountOptions === null && (
+      <p role="alert">Не удалось загрузить участников команды. Обновите страницу и попробуйте снова.</p>
+    )}
+    {!data.employee.accountLinked && accountOptions !== undefined && accountOptions !== null && accountOptions.length === 0 && (
+      <p>Нет подтверждённых участников с доступом к этому филиалу. Сначала добавьте участника в команду или настройте его доступ.</p>
+    )}
+    {!data.employee.accountLinked && accountOptions && accountOptions.length > 0 && (
+      <PortalForm context={context} command="account" label="Привязать подтверждённого участника">
+        <Field label="Участник команды">
+          <Select name="userId" required defaultValue="">
+            <option value="" disabled>Выберите участника</option>
+            {accountOptions.map((option) => <option key={option.userId} value={option.userId}>{option.label}</option>)}
+          </Select>
+        </Field>
+        <p>Сервер повторно проверит активное членство, подтверждённый вход и доступ к филиалу.</p>
+      </PortalForm>
+    )}
     {data.employee.accountLinked && <PortalForm context={context} command="unlink" label="Отвязать аккаунт" />}
     <h3>Условия оплаты труда</h3>
     <PortalForm context={context} command="pay" label="Сохранить условия оплаты">
       <Field label="Модель оплаты"><Select name="model" defaultValue={data.pay.model ?? ''} required><option value="" disabled>Выберите модель</option><option value="FIXED">Фиксированная</option><option value="PERCENT">Процент</option><option value="FIXED_PLUS_PERCENT">Фиксированная + процент</option><option value="BONUS_ONLY">Только бонусы</option></Select></Field>
-      <Field label="Фиксированная ставка, minor units (для KZT: тиын)"><Input name="fixedMinor" inputMode="numeric" pattern="[0-9]+" required defaultValue={data.pay.fixedMinor ?? ''} /></Field>
+      <Field label={`Фиксированная ставка, ${data.pay.currency === 'KZT' ? '₸' : data.pay.currency}`}><Input name="fixedAmount" inputMode="decimal" required defaultValue={data.pay.fixedMinor === null ? '' : minorToInput(data.pay.fixedMinor)} /></Field>
       <Field label="Процент, от 0 до 100"><Input name="percent" type="number" min={0} max={100} step={1} required defaultValue={data.pay.percent ?? ''} /></Field>
-      <p>Сумма целым числом в минимальных единицах валюты, не в тенге. Расчёт выполняет сервер.</p>
+      <p>Введите сумму в выбранной валюте. Расчёт выполняет сервер.</p>
     </PortalForm>
     {data.business.vertical === 'BEAUTY' && <>
       <h3>База процента для бизнеса</h3>

@@ -6,7 +6,7 @@ import { currentMe } from '../../lib/desk-shell';
 import { stockApi } from '../../lib/food-api';
 import type { StockLotView, StockProductInput, StockReceiptInput } from '../../lib/food-types';
 
-/** Склад кухни FS2 (DATA_MODEL §34): действия стойки; деньги уже приходят целыми тиынами */
+/** Склад FS2 (DATA_MODEL §34): действия стойки; деньги приходят целыми minor units выбранной валюты. */
 type StockCommand =
   | { kind: 'product'; id?: string; body: Partial<StockProductInput> }
   | { kind: 'receipt'; body: StockReceiptInput }
@@ -16,13 +16,19 @@ type StockCommand =
 
 async function scope(key: string) {
   const { context } = await currentMe();
+  const vertical = context?.vertical;
   if (
-    context?.vertical !== 'FOOD_SERVICE' ||
+    !context ||
+    (vertical !== 'BEAUTY' && vertical !== 'FOOD_SERVICE') ||
     !context.businessId ||
     !context.locationId ||
     key !== `${context.businessId}:${context.locationId}`
   )
-    throw new ApiError(409, 'Выбран другой ресторан. Откройте форму заново.');
+    throw new ApiError(
+      409,
+      `Выбран другой ${context?.vertical === 'BEAUTY' ? 'салон' : 'ресторан'}. Откройте форму заново.`,
+    );
+  return vertical;
 }
 
 export async function mutateStock(
@@ -30,7 +36,7 @@ export async function mutateStock(
   command: StockCommand,
 ): Promise<{ error: string | null }> {
   try {
-    await scope(scopeKey);
+    const vertical = await scope(scopeKey);
     switch (command.kind) {
       case 'product':
         if (command.id) await stockApi.updateProduct(command.id, command.body);
@@ -49,7 +55,7 @@ export async function mutateStock(
         await stockApi.inventory(command.body);
         break;
     }
-    revalidatePath('/stock');
+    revalidatePath(vertical === 'BEAUTY' ? '/bar/consumables' : '/stock');
     return { error: null };
   } catch (error) {
     unstable_rethrow(error);

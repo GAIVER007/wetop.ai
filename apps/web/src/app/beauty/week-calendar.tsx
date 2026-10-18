@@ -9,16 +9,26 @@ import type { BeautyDay, BeautyEmployeeRow } from '../../lib/api';
 import { displayDate, displayPeriod } from '../../lib/display-date';
 import { CalendarLegend } from './calendar-legend';
 import { clock } from './time';
-import { calendarColumns } from './calendar-columns';
+import { calendarColumns, matchesAppointment } from './calendar-columns';
 
-export function WeekCalendar({ days, selectedDate, employees }: { days: BeautyDay[]; selectedDate: string; employees: BeautyEmployeeRow[] }) {
+export function WeekCalendar({
+  days,
+  selectedDate,
+  employees,
+}: {
+  days: BeautyDay[];
+  selectedDate: string;
+  employees: BeautyEmployeeRow[];
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const employee = params.get('employee') ?? '';
   const service = params.get('service') ?? '';
   const status = params.get('status') ?? '';
   const options = [
-    ...new Map(days.flatMap((day) => calendarColumns(day, employees).map((c) => [c.id, c] as const))).values(),
+    ...new Map(
+      days.flatMap((day) => calendarColumns(day, employees).map((c) => [c.id, c] as const)),
+    ).values(),
   ];
   const href = (date: string, week = true, master = employee) => {
     const query = new URLSearchParams(params.toString());
@@ -31,10 +41,7 @@ export function WeekCalendar({ days, selectedDate, employees }: { days: BeautyDa
   };
   const visible = (day: BeautyDay) =>
     day.appointments.filter(
-      (r) =>
-        (!employee || r.employeeId === employee) &&
-        (!service || r.serviceId === service) &&
-        (!status || r.status === status),
+      (r) => matchesAppointment(r, employee, service) && (!status || r.status === status),
     );
   const selected = days.find((d) => d.date === selectedDate) ?? days[0]!;
   const first = days[0]!;
@@ -62,15 +69,25 @@ export function WeekCalendar({ days, selectedDate, employees }: { days: BeautyDa
         <QuickReport
           key={`${selected.date}:${employee}`}
           date={selected.date}
-          scope={[employee ? (options.find((e) => e.id === employee)?.name ?? 'Сотрудник недоступен') : 'Все специалисты', 'Выбранный день', ...(service || status ? ['С учётом фильтров'] : [])]}
+          scope={[
+            employee
+              ? (options.find((e) => e.id === employee)?.name ?? 'Сотрудник недоступен')
+              : 'Все специалисты',
+            'Выбранный день',
+            ...(service || status ? ['С учётом фильтров'] : []),
+          ]}
           build={() => beautyQuickReport(visible(selected))}
         />
       </div>
       <CalendarLegend />
       <div className="beauty-week-calendar">
         {days.map((day) => {
-          const masters = new Map(calendarColumns(day, employees).map((master) => [master.id, master.name]));
-          const rows = visible(day).sort((a, b) => a.startMinutes - b.startMinutes || a.id.localeCompare(b.id));
+          const masters = new Map(
+            calendarColumns(day, employees).map((master) => [master.id, master.name]),
+          );
+          const rows = visible(day).sort(
+            (a, b) => a.startMinutes - b.startMinutes || a.id.localeCompare(b.id),
+          );
           return (
             <Panel key={day.date} title={displayDate(day.date, 'full')}>
               <Link className="btn btn--secondary" href={href(day.date, false)}>
@@ -87,8 +104,22 @@ export function WeekCalendar({ days, selectedDate, employees }: { days: BeautyDa
                           {clock(row.startMinutes)}–{clock(row.endMinutes)}
                         </time>
                         <b>{row.customer.name}</b>
-                        <span>{row.serviceName}</span>
-                        <span>{masters.get(row.employeeId) ?? 'Мастер недоступен'}</span>
+                        {row.items?.length ? (
+                          row.items.map((item) => (
+                            <span key={item.id}>
+                              {clock(item.startMinutes)}–{clock(item.endMinutes)} ·{' '}
+                              {item.serviceName} ·{' '}
+                              {item.employeeName ||
+                                masters.get(item.employeeId) ||
+                                'Мастер недоступен'}
+                            </span>
+                          ))
+                        ) : (
+                          <>
+                            <span>{row.serviceName}</span>
+                            <span>{masters.get(row.employeeId) ?? 'Мастер недоступен'}</span>
+                          </>
+                        )}
                         <StatusBadge kind="beauty" value={row.status} />
                       </Link>
                     </li>

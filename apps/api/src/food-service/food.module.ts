@@ -1,3 +1,4 @@
+import { BeautyAccess } from '../beauty/access.decorator';
 import 'reflect-metadata';
 import {
   Body,
@@ -228,18 +229,22 @@ export class FoodOrdersController {
 @RequiresBusinessCapability('branch.payroll')
 export class BranchPayrollController {
   constructor(@Inject(RestaurantService) private readonly service: RestaurantService) {}
+  @BeautyAccess('payroll','view')
   @Get('payroll') @Access('staff') payroll(@Query() q: Record<string, unknown>) {
     return this.service.payroll(q);
   }
+  @BeautyAccess('payroll','update')
   @Put('employees/:id/pay-settings') @Access('staff') paySettings(
     @Param('id') id: string,
     @Body() b: unknown,
   ) {
     return this.service.setPaySettings(id, b);
   }
+  @BeautyAccess('payroll','create',{also:[{section:'finance',action:'create'}]})
   @Post('employees/:id/payouts') @Access('staff') payout(@Param('id') id: string, @Body() b: unknown) {
     return this.service.payout(id, b);
   }
+  @BeautyAccess('payroll','update')
   @Post('employees/:id/pay-adjustments') @Access('staff') payAdjustment(
     @Param('id') id: string,
     @Body() b: unknown,
@@ -253,17 +258,21 @@ export class BranchPayrollController {
 @RequiresBusinessCapability('branch.cash')
 export class BranchCashController {
   constructor(@Inject(RestaurantService) private readonly service: RestaurantService) {}
+  @BeautyAccess('finance','view')
   @Get('cash') cash(@Query() q: Record<string, unknown>) {
     return this.service.cash(q);
   }
+  @BeautyAccess('finance','create')
   @Post('cash/operations') cashOperation(@Body() b: unknown) {
     return this.service.cashOperation(b);
   }
+  @BeautyAccess('finance','refund')
   @Post('cash/operations/:id/void') @Access('refunds') @HttpCode(200) voidCashOperation(
     @Param('id') id: string,
   ) {
     return this.service.voidCashOperation(id);
   }
+  @BeautyAccess('finance','update')
   @Post('cash/reconciliations') cashReconciliation(@Body() b: unknown) {
     return this.service.cashReconciliation(b);
   }
@@ -296,36 +305,45 @@ export class FoodStaffController {
 /** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS): справочник `property`, приход и списания `desk` */
 @Controller('food-service')
 @Access('desk')
-@RequiresBusinessCapability('food.stock')
+@RequiresBusinessCapability('branch.stock')
 export class FoodStockController {
   constructor(@Inject(StockService) private readonly service: StockService) {}
+  @BeautyAccess('stock', 'view')
   @Get('stock/products') products() {
     return this.service.products();
   }
+  @BeautyAccess('stock', 'create')
   @Post('stock/products') @Access('property') createProduct(@Body() b: unknown) {
     return this.service.createProduct(b);
   }
+  @BeautyAccess('stock', 'update')
   @Patch('stock/products/:id') @Access('property') updateProduct(
     @Param('id') id: string,
     @Body() b: unknown,
   ) {
     return this.service.updateProduct(id, b);
   }
+  @BeautyAccess('stock', 'view')
   @Get('stock/lots') lots(@Query() q: Record<string, unknown>) {
     return this.service.lots(q);
   }
+  @BeautyAccess('stock', 'view')
   @Get('stock/movements') movements(@Query() q: Record<string, unknown>) {
     return this.service.movements(q);
   }
+  @BeautyAccess('stock', 'create')
   @Post('stock/receipts') receipt(@Body() b: unknown) {
     return this.service.receipt(b);
   }
+  @BeautyAccess('stock', 'delete')
   @Post('stock/lots/:id/reverse') @Access('property') reverse(@Param('id') id: string) {
     return this.service.reverseLot(id);
   }
+  @BeautyAccess('stock', 'update')
   @Post('stock/write-offs') writeOff(@Body() b: unknown) {
     return this.service.writeOff(b);
   }
+  @BeautyAccess('stock', 'update')
   @Post('stock/inventory') inventory(@Body() b: unknown) {
     return this.service.inventory(b);
   }

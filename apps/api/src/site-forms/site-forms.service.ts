@@ -188,9 +188,9 @@ export class SiteFormsService {
           name: true,
           workingHours: { where: { locationId: fs.locationId }, select: { weekday: true, timeFrom: true, timeTo: true } },
           timeOffs: { select: { dateFrom: true, dateTo: true } },
-          appointments: {
+          appointmentLines: {
             where: {
-              status: { in: BUSY },
+              appointment: { status: { in: BUSY } },
               // запись мастера в любом филиале занимает его время; окно суток с запасом в длительность
               startsAt: { lt: new Date(window.toUtcExclusive.getTime() + durationMinutes * 60_000) },
               endsAt: { gt: new Date(window.fromUtc.getTime() - durationMinutes * 60_000) },
@@ -209,7 +209,7 @@ export class SiteFormsService {
           id: m.id,
           workingHours: m.workingHours.map((h) => ({ weekday: h.weekday, timeFrom: clockOf(h.timeFrom), timeTo: clockOf(h.timeTo) })),
           timeOffs: m.timeOffs.map((t) => ({ dateFrom: t.dateFrom.toISOString().slice(0, 10), dateTo: t.dateTo.toISOString().slice(0, 10) })),
-          busy: m.appointments,
+          busy: m.appointmentLines,
         })),
       });
       return {

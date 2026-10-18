@@ -3,7 +3,70 @@ import { ConflictException, ForbiddenException } from '@nestjs/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { withSignedInUser } from '../auth/request-context';
 import type { PrismaService } from '../database/prisma.provider';
-import { CustomerImportService } from './customer-import';
+import { BeautyCustomerImportService, CustomerImportService } from './customer-import';
+
+const previewActor = {
+  userId: 'user',
+  organizationId: 'org',
+  role: 'OWNER' as const,
+  scope: 'BUSINESS' as const,
+  businessId: 'business',
+  vertical: 'BEAUTY' as const,
+};
+
+function database(existing: Array<{ id: string; firstName: string; lastName: string | null; phone: string; status: 'ACTIVE' | 'ARCHIVED' }> = []) {
+  const db = {
+    organization: { findUnique: vi.fn().mockResolvedValue({ status: 'ACTIVE', trialEndsAt: null }) },
+    business: { findFirst: vi.fn().mockResolvedValue({ id: 'business', name: 'Тестовый салон' }) },
+    customer: {
+      findMany: vi.fn().mockResolvedValue(existing),
+      findFirst: vi.fn().mockImplementation(({ where }: { where: { phone: string } }) => Promise.resolve(existing.find((row) => row.phone === where.phone) ?? null)),
+      create: vi.fn().mockImplementation(({ data }: { data: Record<string, unknown> }) => Promise.resolve({ id: 'created', status: 'ACTIVE', ...data })),
+    },
+    customerBusiness: { createMany: vi.fn().mockResolvedValue({ count: 1 }) },
+    auditLog: { create: vi.fn().mockResolvedValue({}) },
+    $queryRaw: vi.fn().mockResolvedValue([]),
+  };
+  return {
+    ...db,
+    $transaction: vi.fn(async (fn: (tx: typeof db) => unknown) => fn(db)),
+  };
+}
+
+describe('D1/D2: клиент без записи и безопасный импорт', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('preview ничего не пишет и различает создание, точный повтор и конфликт имени', async () => {
+    const db = database([
+      { id: 'same', firstName: 'Точный Клиент', lastName: null, phone: '+77011111111', status: 'ACTIVE' },
+      { id: 'conflict', firstName: 'Другое Имя', lastName: null, phone: '+77012222222', status: 'ACTIVE' },
+    ]);
+    const service = new BeautyCustomerImportService({ db } as unknown as PrismaService);
+    const csv = 'Имя;Телефон\nНовый Клиент;+77010000000\nТочный Клиент;8 701 111 11 11\nНовое Имя;+77012222222';
+    const result = await withSignedInUser(previewActor, () => service.preview({ csv }));
+    expect(result.rows.map((row) => ({ line: row.line, status: row.status }))).toEqual([
+      { line: 2, status: 'CREATE' },
+      { line: 3, status: 'ALREADY_EXISTS' },
+      { line: 4, status: 'CONFLICT' },
+    ]);
+    expect(result.totals).toEqual({ create: 1, alreadyExists: 1, conflicts: 1, duplicatesInFile: 0 });
+    expect(db.customer.create).not.toHaveBeenCalled();
+    expect(db.customerBusiness.createMany).not.toHaveBeenCalled();
+    expect(db.auditLog.create).not.toHaveBeenCalled();
+  });
+
+  it('apply повторно сверяет CSV и при конфликте не пишет частичный импорт', async () => {
+    const db = database([
+      { id: 'conflict', firstName: 'Другое Имя', lastName: null, phone: '+77012222222', status: 'ACTIVE' },
+    ]);
+    const service = new BeautyCustomerImportService({ db } as unknown as PrismaService);
+    const csv = 'Имя;Телефон\nНовый Клиент;+77010000000\nНовое Имя;+77012222222';
+    await expect(withSignedInUser(previewActor, () => service.apply({ csv }))).rejects.toBeInstanceOf(ConflictException);
+    expect(db.customer.create).not.toHaveBeenCalled();
+    expect(db.customerBusiness.createMany).not.toHaveBeenCalled();
+    expect(db.auditLog.create).not.toHaveBeenCalled();
+  });
+});
 
 const actor = {
   userId: '00000000-0000-4000-8000-000000000011',

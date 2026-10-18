@@ -54,21 +54,25 @@ export interface BeautyFinanceView {
 export function buildBeautyFinance(days: BeautyDay[]): BeautyFinanceView {
   const sorted = [...days].sort((a, b) => a.date.localeCompare(b.date));
   const today = sorted.at(-1)?.date ?? '';
-  const currency = sorted.at(-1)?.location.currency ?? 'KZT';
+  const currencies = new Set(sorted.flatMap((day) => day.appointments.map((row) => row.currency)));
+  if (currencies.size > 1) throw new Error('Different currencies require separate finance totals');
+  const currency = [...currencies][0] ?? sorted.at(-1)?.location.currency ?? 'KZT';
   const names = new Map<string, string>();
   for (const day of sorted) for (const c of day.columns) names.set(c.id, c.name);
   const all = sorted.flatMap((d) => d.appointments.map((a) => ({ a, date: d.date })));
   const done = all.filter((x) => x.a.status === 'DONE');
   const masters = new Map<string, { name: string; count: number; revenue: bigint }>();
   for (const { a } of done) {
-    const m = masters.get(a.employeeId) ?? {
-      name: names.get(a.employeeId) ?? 'Мастер',
-      count: 0,
-      revenue: 0n,
-    };
-    m.count += 1;
-    m.revenue += BigInt(a.priceMinor || '0');
-    masters.set(a.employeeId, m);
+    const counted = new Set<string>();
+    for (const item of a.items?.length ? a.items : [a]) {
+      const master = masters.get(item.employeeId) ?? {
+        name: names.get(item.employeeId) ?? 'Мастер', count: 0, revenue: 0n,
+      };
+      if (!counted.has(item.employeeId)) master.count += 1;
+      counted.add(item.employeeId);
+      master.revenue += BigInt(item.priceMinor || '0');
+      masters.set(item.employeeId, master);
+    }
   }
   return {
     today,
@@ -94,9 +98,20 @@ export function buildBeautyFinance(days: BeautyDay[]): BeautyFinanceView {
   };
 }
 
-async function loadPeriod(params: SearchParams): Promise<BeautyFinanceView> {
+/** Historical currencies stay separate; no exchange rate is inferred from the current settings. */
+export function buildBeautyFinanceGroups(days: BeautyDay[]): BeautyFinanceView[] {
+  const current = days.at(-1)?.location.currency ?? 'KZT';
+  const currencies = new Set([current, ...days.flatMap((day) => day.appointments.map((row) => row.currency))]);
+  return [...currencies].map((currency) => buildBeautyFinance(days.map((day) => ({
+    ...day,
+    location: { ...day.location, currency },
+    appointments: day.appointments.filter((row) => row.currency === currency),
+  }))));
+}
+
+async function loadPeriod(params: SearchParams): Promise<BeautyFinanceView[]> {
   // Только API знает текущую дату филиала; сегодняшний ответ повторно не запрашиваем.
-  const first = await beautyApi.day();
+  const first = await beautyApi.financeDay();
   const { dates } = financeDateRange(params, first.date, { period: 'week', maxDays: MAX_DAYS });
   const days: BeautyDay[] = new Array(dates.length);
   let cursor = 0;
@@ -107,11 +122,10 @@ async function loadPeriod(params: SearchParams): Promise<BeautyFinanceView> {
       const date = dates[index];
       if (!date) return;
       try {
-        const day = date === first.date ? first : await beautyApi.day(date);
+        const day = date === first.date ? first : await beautyApi.financeDay(date);
         if (day.date !== date || day.location.id !== first.location.id ||
-            day.location.currency !== first.location.currency || day.location.timezone !== first.location.timezone ||
-            day.appointments.some((a) => a.currency !== first.location.currency)) {
-          throw new ApiError(502, 'Данные периода не совпадают с филиалом и валютой отчёта.');
+            day.location.timezone !== first.location.timezone) {
+          throw new ApiError(502, 'Данные периода не совпадают с филиалом отчёта.');
         }
         days[index] = day;
       } catch (error) {
@@ -121,16 +135,16 @@ async function loadPeriod(params: SearchParams): Promise<BeautyFinanceView> {
     }
   };
   await Promise.all(Array.from({ length: Math.min(4, dates.length) }, worker));
-  return buildBeautyFinance(days);
+  return buildBeautyFinanceGroups(days);
 }
 
 const timeOf = (iso: string, timeZone: string) =>
   new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone }).format(new Date(iso));
 
 export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?: SearchParams } = {}) {
-  let view: BeautyFinanceView;
+  let views: BeautyFinanceView[];
   try {
-    view = await loadPeriod(searchParams);
+    views = await loadPeriod(searchParams);
   } catch (error: unknown) {
     unstable_rethrow(error);
     return (
@@ -139,8 +153,7 @@ export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?
       </Page>
     );
   }
-  const avg = view.done.length ? view.revenue / BigInt(view.done.length) : 0n;
-  const money = (v: bigint) => formatMoney(v, view.currency);
+  const view = views[0]!;
   return (
     <Page
       title="Финансы"
@@ -152,7 +165,19 @@ export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?
         </a>
       }
     >
-      <div data-testid="beauty-finance">
+      {views.length > 1 && <p>Итоги показаны отдельно по валютам записей. Пересчёт валют не выполняется.</p>}
+      {views.map((group) => <BeautyFinanceReport key={group.currency} view={group} multiple={views.length > 1} />)}
+    </Page>
+  );
+}
+
+
+function BeautyFinanceReport({ view, multiple }: { view: BeautyFinanceView; multiple: boolean }) {
+  const avg = view.done.length ? view.revenue / BigInt(view.done.length) : 0n;
+  const money = (value: bigint) => formatMoney(value, view.currency);
+  return (
+      <section data-testid="beauty-finance" aria-label={`Финансы, ${view.currency}`}>
+        {multiple && <SectionTitle>{view.currency}</SectionTitle>}
         <div className="kpi-row" data-testid="beauty-finance-kpis">
           <KpiTile
             icon="money"
@@ -163,13 +188,13 @@ export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?
           />
           <KpiTile
             icon="check"
-            label="Оказано услуг"
+            label="Выполнено записей"
             value={String(view.done.length)}
             caption="выполнено за выбранный период"
             testId="beauty-services-count"
             href="/appointments"
           />
-          <KpiTile icon="receipt" label="Средняя стоимость услуги" value={money(avg)} caption="по выполненным записям" testId="beauty-avg" />
+          <KpiTile icon="receipt" label="Средняя стоимость записи" value={money(avg)} caption="по выполненным записям" testId="beauty-avg" />
           <KpiTile
             icon="booking"
             label="Ожидается по записям"
@@ -193,7 +218,7 @@ export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?
             <thead>
               <tr>
                 <th>День</th>
-                <th>Услуг</th>
+                <th>Записей</th>
                 <th>Стоимость оказанных услуг</th>
               </tr>
             </thead>
@@ -221,7 +246,7 @@ export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?
               <thead>
                 <tr>
                   <th>Мастер</th>
-                  <th>Услуг</th>
+                  <th>Записей</th>
                   <th>Стоимость оказанных услуг</th>
                 </tr>
               </thead>
@@ -238,7 +263,7 @@ export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?
           </Panel>
         )}
 
-        <SectionTitle>Оказанные услуги</SectionTitle>
+        <SectionTitle>Выполненные записи</SectionTitle>
         {view.done.length === 0 ? (
           <EmptyState title="Нет выполненных записей за неделю" />
         ) : (
@@ -259,7 +284,7 @@ export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?
                     <td>{displayDate(view.doneByDate.get(a.id) ?? view.today)}</td>
                     <td>{timeOf(a.startsAt, view.timezone)}</td>
                     <td>{a.customer.name}</td>
-                    <td>{a.serviceName}</td>
+                    <td>{a.items?.length ? a.items.map((item) => item.serviceName).join(', ') : a.serviceName}</td>
                     <td>{formatMoney(a.priceMinor, a.currency)}</td>
                   </tr>
                 ))}
@@ -270,7 +295,6 @@ export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?
         <p className="settings-note beauty-finance__note">
           Здесь снимки цен записей, а не денежные поступления. Отмены и неявки не означают потерю денег. Фактические поступления и возвраты: в <Link href="/cashbox">кассе</Link>. Оплата труда ведётся отдельно.
         </p>
-      </div>
-    </Page>
+      </section>
   );
 }

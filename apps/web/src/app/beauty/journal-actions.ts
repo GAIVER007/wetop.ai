@@ -29,17 +29,57 @@ export async function createAppointment(
   try {
     const expected = JSON.parse(text(form, 'scopeKey')) as Record<string, unknown>;
     const me = await authApi.me();
-    if (!expected.organizationId || !expected.businessId || !expected.locationId ||
+    if (
+      !expected.organizationId ||
+      !expected.businessId ||
+      !expected.locationId ||
       me.user?.organizationId !== expected.organizationId ||
-      me.context?.businessId !== expected.businessId || me.context?.locationId !== expected.locationId)
-      return { outcome: 'rejected', error: 'Контекст изменён. Закройте старую форму и откройте запись в нужном филиале. Ввод сохранён.' };
+      me.context?.businessId !== expected.businessId ||
+      me.context?.locationId !== expected.locationId
+    )
+      return {
+        outcome: 'rejected',
+        error:
+          'Контекст изменён. Закройте старую форму и откройте запись в нужном филиале. Ввод сохранён.',
+      };
   } catch {
-    return { outcome: 'rejected', error: 'Не удалось проверить исходный контекст. Ввод сохранён, команда не отправлена.' };
+    return {
+      outcome: 'rejected',
+      error: 'Не удалось проверить исходный контекст. Ввод сохранён, команда не отправлена.',
+    };
+  }
+  let selection: Record<string, unknown> = {
+    employeeId: text(form, 'employeeId'),
+    serviceId: text(form, 'serviceId'),
+  };
+  if (form.has('items')) {
+    try {
+      const items: unknown = JSON.parse(text(form, 'items'));
+      if (
+        !Array.isArray(items) ||
+        !items.length ||
+        items.some(
+          (item) =>
+            !item ||
+            typeof item !== 'object' ||
+            typeof item.employeeId !== 'string' ||
+            !item.employeeId ||
+            typeof item.serviceId !== 'string' ||
+            !item.serviceId,
+        )
+      )
+        throw new Error('items');
+      selection = { items };
+    } catch {
+      return {
+        outcome: 'rejected',
+        error: 'Проверьте список услуг и мастеров. Ввод сохранён, команда не отправлена.',
+      };
+    }
   }
   try {
     const saved = await beautyApi.createAppointment({
-      employeeId: text(form, 'employeeId'),
-      serviceId: text(form, 'serviceId'),
+      ...selection,
       startsAt: text(form, 'startsAt'),
       customerId: text(form, 'customerId'),
       firstName: text(form, 'firstName'),
@@ -48,7 +88,10 @@ export async function createAppointment(
       notes: text(form, 'notes'),
     });
     if (!saved?.appointments?.some((row) => typeof row.id === 'string' && row.id))
-      return { outcome: 'unknown', error: 'Результат не подтверждён. Проверьте список записей перед повторным созданием.' };
+      return {
+        outcome: 'unknown',
+        error: 'Результат не подтверждён. Проверьте список записей перед повторным созданием.',
+      };
     revalidatePath('/calendar');
     revalidatePath('/appointments');
     revalidatePath('/employees');
@@ -59,7 +102,11 @@ export async function createAppointment(
   } catch (e) {
     return e instanceof ApiError && e.status >= 400 && e.status < 500
       ? { outcome: 'rejected', error: e.message }
-      : { outcome: 'unknown', error: 'Результат не подтверждён. Проверьте список записей перед повторным созданием. Автоматического повтора нет.' };
+      : {
+          outcome: 'unknown',
+          error:
+            'Результат не подтверждён. Проверьте список записей перед повторным созданием. Автоматического повтора нет.',
+        };
   }
 }
 
@@ -68,8 +115,21 @@ export async function moveAppointment(
   form: FormData,
 ): Promise<JournalResult> {
   try {
+    let changes: Record<string, unknown> = { employeeId: text(form, 'employeeId') };
+    if (form.has('items')) {
+      const items: unknown = JSON.parse(text(form, 'items'));
+      if (
+        !Array.isArray(items) ||
+        !items.length ||
+        items.some(
+          (item) => !item || typeof item !== 'object' || !item.employeeId || !item.serviceId,
+        )
+      )
+        return { outcome: 'rejected', error: 'Проверьте услуги и мастеров.' };
+      changes = { items, notes: text(form, 'notes') };
+    }
     await beautyApi.moveAppointment(text(form, 'id'), {
-      employeeId: text(form, 'employeeId'),
+      ...changes,
       startsAt: text(form, 'startsAt'),
     });
     revalidatePath('/calendar');
@@ -84,7 +144,7 @@ export async function moveAppointment(
   }
 }
 
-/** Оплата записи в кассу филиала (§49): сумма в тиынах, новый ключ на каждое нажатие */
+/** Оплата записи в кассу филиала (§49): сумма в минимальных единицах валюты, новый ключ на каждое нажатие */
 export async function payAppointment(
   id: string,
   method: string,

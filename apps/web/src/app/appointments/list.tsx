@@ -2,12 +2,22 @@
 import { useState, useSyncExternalStore } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { Alert, Button, EmptyState, Field, Input, Select, StatusBadge, Table } from '../../components/ui';
+import {
+  Alert,
+  Button,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  StatusBadge,
+  Table,
+} from '../../components/ui';
 import type { BeautyCustomerRow, BeautyDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
-import { DateBar } from '../../components/date-bar';
+import { displayDate } from '../../lib/display-date';
 import { AppointmentCard } from '../beauty/appointment-card';
-import { clock } from '../beauty/time';
+import { matchesAppointment } from '../beauty/calendar-columns';
+import { clock, localInput } from '../beauty/time';
 import { beautyStatus } from '../../lib/status/beauty';
 import { AppointmentEditor } from '../beauty/appointment-editor';
 function subscribeAddress(changed: () => void) {
@@ -22,15 +32,29 @@ export function AppointmentsList({
   day,
   customers,
   readOnly,
+  canCreate = !readOnly,
+  canUpdate = !readOnly,
+  canPay = !readOnly,
   canRefund = false,
+  canIssueReview = false,
+  canAdjustPrice = false,
   scopeKey = '',
+  period = { from: day.date, to: day.date },
+  creationUnavailableReason,
 }: {
   day: BeautyDay;
   customers: BeautyCustomerRow[];
   readOnly: boolean;
+  canCreate?: boolean;
+  canUpdate?: boolean;
+  canPay?: boolean;
   /** возврат по выполненной записи (§54) */
   canRefund?: boolean;
+  canIssueReview?: boolean;
+  canAdjustPrice?: boolean;
   scopeKey?: string;
+  period?: { from: string; to: string };
+  creationUnavailableReason?: string;
 }) {
   const [creating, setCreating] = useState(false);
   // Non-PII context has one source: the URL (same pattern as MastersBoard).
@@ -38,15 +62,28 @@ export function AppointmentsList({
   const [query, setQuery] = useState('');
   const router = useRouter();
   const initialParams = useSearchParams();
-  const search = useSyncExternalStore(subscribeAddress, () => location.search, () => {
-    const initial = initialParams.toString();
-    return initial ? `?${initial}` : '';
-  });
+  const search = useSyncExternalStore(
+    subscribeAddress,
+    () => location.search,
+    () => {
+      const initial = initialParams.toString();
+      return initial ? `?${initial}` : '';
+    },
+  );
   const params = new URLSearchParams(search);
-  const services = Array.from(new Map([
-    ...day.services,
-    ...day.appointments.map((a) => ({ id: a.serviceId, name: a.serviceName })),
-  ].map((s) => [s.id, s])).values());
+  const services = Array.from(
+    new Map(
+      [
+        ...day.services,
+        ...day.appointments.flatMap((a) =>
+          (a.items?.length ? a.items : [a]).map((item) => ({
+            id: item.serviceId,
+            name: item.serviceName,
+          })),
+        ),
+      ].map((s) => [s.id, s]),
+    ).values(),
+  );
   let invalid = false;
   const read = (key: string, allowed: string[]) => {
     const values = params.getAll(key);
@@ -58,19 +95,32 @@ export function AppointmentsList({
   };
   const context = {
     date: day.date,
-    employee: read('master', day.columns.map((e) => e.id)),
-    service: read('service', services.map((s) => s.id)),
+    employee: read(
+      'master',
+      day.columns.map((e) => e.id),
+    ),
+    service: read(
+      'service',
+      services.map((s) => s.id),
+    ),
     status: read('status', Object.keys(beautyStatus)),
-    appointment: read('appointment', day.appointments.map((a) => a.id)),
+    appointment: read(
+      'appointment',
+      day.appointments.map((a) => a.id),
+    ),
     query,
   };
   const { employee, service, status } = context;
   const selected = !invalid ? day.appointments.find((r) => r.id === context.appointment) : null;
-  const address = (patch: Partial<Record<'master' | 'service' | 'status' | 'appointment', string>>, push = true) => {
+  const address = (
+    patch: Partial<Record<'master' | 'service' | 'status' | 'appointment', string>>,
+    push = true,
+  ) => {
     const url = new URL(location.href);
     url.searchParams.set('date', context.date);
     for (const [key, value] of Object.entries(patch)) {
-      if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
+      if (value) url.searchParams.set(key, value);
+      else url.searchParams.delete(key);
     }
     // Preserve Next's own history state. No customer data is added to it.
     history[push ? 'pushState' : 'replaceState']({ ...history.state }, '', url);
@@ -78,43 +128,67 @@ export function AppointmentsList({
   };
   const changeDate = (next?: string) => {
     const url = new URL(location.href);
-    if (next) url.searchParams.set('date', next); else url.searchParams.delete('date');
+    if (next) url.searchParams.set('date', next);
+    else url.searchParams.delete('date');
     url.searchParams.delete('appointment');
+    url.searchParams.delete('from');
+    url.searchParams.delete('to');
     router.push(`${url.pathname}${url.search}`);
   };
-  const shift = (days: number) => {
-    const at = new Date(`${context.date}T12:00:00Z`);
-    at.setUTCDate(at.getUTCDate() + days);
-    changeDate(at.toISOString().slice(0, 10));
-  };
-  const rows = invalid ? [] : day.appointments.filter(
-    (r) =>
-      (!status || r.status === status) &&
-      (!employee || r.employeeId === employee) &&
-      (!service || r.serviceId === service) &&
-      `${r.customer.name} ${r.customer.phone ?? ''}`
-        .toLocaleLowerCase('ru')
-        .includes(context.query.trim().toLocaleLowerCase('ru')),
-  );
+  const rows = invalid
+    ? []
+    : day.appointments.filter(
+        (r) =>
+          (!status || r.status === status) &&
+          matchesAppointment(r, employee, service) &&
+          `${r.customer.name} ${r.customer.phone ?? ''}`
+            .toLocaleLowerCase('ru')
+            .includes(context.query.trim().toLocaleLowerCase('ru')),
+      );
   return (
     <>
       <div className="beauty-bar beauty-operational-toolbar">
-        <DateBar
-          date={context.date}
-          onToday={() => changeDate()}
-          onPrevious={() => shift(-1)}
-          onNext={() => shift(1)}
-          onDateChange={changeDate}
-          inputProps={{ 'data-testid': 'beauty-day-date' }}
-          compact
-        />
+        <form
+          className="beauty-period-filter"
+          key={`${period.from}:${period.to}`}
+          onSubmit={(event) => {
+            event.preventDefault();
+            const values = new FormData(event.currentTarget);
+            const url = new URL(location.href);
+            url.searchParams.set('from', String(values.get('from') ?? ''));
+            url.searchParams.set('to', String(values.get('to') ?? ''));
+            url.searchParams.delete('date');
+            url.searchParams.delete('appointment');
+            router.push(`${url.pathname}${url.search}`);
+          }}
+        >
+          <Field label="Период с">
+            <Input
+              name="from"
+              type="date"
+              required
+              defaultValue={period.from}
+              data-testid="beauty-day-date"
+            />
+          </Field>
+          <Field label="Период по">
+            <Input name="to" type="date" required defaultValue={period.to} />
+          </Field>
+          <Button type="submit" tone="secondary">
+            Показать период
+          </Button>
+          <Button type="button" tone="ghost" onClick={() => changeDate()}>
+            Сегодня
+          </Button>
+        </form>
         <Button
-          disabled={readOnly || !day.columns.length || !day.services.length}
+          disabled={!canCreate || !day.columns.length || !day.services.length}
           onClick={() => setCreating(true)}
         >
           + Новая запись
         </Button>
       </div>
+      {creationUnavailableReason && <Alert>{creationUnavailableReason}</Alert>}
       <div className="beauty-filters beauty-list-filters">
         <Field label="Статус">
           <Select
@@ -164,7 +238,7 @@ export function AppointmentsList({
               onChange={(e) => setQuery(e.target.value)}
             />
           </Field>
-          <p className="beauty-note">Поиск только по выбранному дню.</p>
+          <p className="beauty-note">Поиск по выбранному периоду.</p>
           <p className="beauty-note">После перезагрузки поиск клиента очищается.</p>
         </div>
       </div>
@@ -186,12 +260,13 @@ export function AppointmentsList({
       </Button>
       {rows.length === 0 ? (
         <EmptyState title="Записей не найдено">
-          Выберите другой день или измените фильтры.
+          Выберите другой период или измените фильтры.
         </EmptyState>
       ) : (
         <Table className="beauty-appointments-table">
           <thead>
             <tr>
+              <th>Дата</th>
               <th>Время</th>
               <th>Клиент</th>
               <th>Телефон</th>
@@ -205,6 +280,9 @@ export function AppointmentsList({
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
+                <td data-label="Дата">
+                  {displayDate(localInput(r.startsAt, day.location.timezone).slice(0, 10))}
+                </td>
                 <td data-label="Время">
                   {clock(r.startMinutes)}–{clock(r.endMinutes)}
                 </td>
@@ -225,9 +303,15 @@ export function AppointmentsList({
                     'Не указан'
                   )}
                 </td>
-                <td data-label="Услуга">{r.serviceName}</td>
+                <td data-label="Услуга">
+                  {r.items?.length
+                    ? r.items.map((item) => item.serviceName).join(', ')
+                    : r.serviceName}
+                </td>
                 <td data-label="Мастер">
-                  {day.columns.find((e) => e.id === r.employeeId)?.name ?? 'Мастер в архиве'}
+                  {r.items?.length
+                    ? [...new Set(r.items.map((item) => item.employeeName))].join(', ')
+                    : (day.columns.find((e) => e.id === r.employeeId)?.name ?? 'Мастер в архиве')}
                 </td>
                 <td data-label="Статус">
                   <StatusBadge kind="beauty" value={r.status} />
@@ -246,7 +330,8 @@ export function AppointmentsList({
         </Table>
       )}
       <AppointmentEditor
-        open={creating}
+        canAdjustPrice={canAdjustPrice}
+        open={canCreate && creating}
         onClose={() => setCreating(false)}
         scopeKey={scopeKey}
         day={day}
@@ -262,14 +347,20 @@ export function AppointmentsList({
         open={Boolean(selected)}
         onClose={() => address({ appointment: '' }, false)}
         title="Запись"
-        drawer
+        size="lg"
+        className="appointment-card-modal"
       >
         {selected && (
           <AppointmentCard
+            canAdjustPrice={canAdjustPrice}
+            scopeKey={scopeKey}
             day={day}
             row={selected}
-            canEdit={!readOnly}
+            canCreate={canCreate}
+            canUpdate={canUpdate}
+            canPay={canPay}
             canRefund={canRefund}
+            canIssueReview={canIssueReview}
             onDone={() => {
               address({ appointment: '' }, false);
               router.refresh();

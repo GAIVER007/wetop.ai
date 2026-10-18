@@ -325,6 +325,10 @@ test('existing customer can be selected for another appointment without duplicat
   await expect(await book(page)).toBeHidden();
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
   const panel = page.getByRole('dialog');
+  await panel.getByLabel('Телефон или имя', { exact: true }).fill('Несуществующий клиент');
+  await expect(panel.getByLabel('Клиент', { exact: true }).locator('option')).toHaveCount(1);
+  await panel.getByLabel('Телефон или имя', { exact: true }).fill('КЛИЕНТКА');
+  await expect(panel.getByLabel('Клиент', { exact: true }).locator('option')).toHaveCount(2);
   await panel.getByLabel('Клиент', { exact: true }).selectOption({ label: 'Тестовая клиентка' });
   await expect(panel.getByLabel('Имя клиента', { exact: true })).toHaveCount(0);
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });

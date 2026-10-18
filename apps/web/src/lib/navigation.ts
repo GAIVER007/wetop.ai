@@ -3,8 +3,12 @@ import { featureVerticals } from './features';
 import {
   ORGANIZATION_LEVEL_PERMISSIONS,
   can,
+  parseBeautyPermissions,
   parseMembershipRole,
   rolesWith,
+  type BeautyAction,
+  type BeautyPositionAccess,
+  type BeautySection,
   type MembershipRole,
   type Permission,
 } from '@pms/domain';
@@ -33,6 +37,8 @@ export interface NavigationAccess {
    * адресу открывается как есть (`pageOpen`): решает API, а «нет доступа» было бы неправдой.
    */
   unknown?: true;
+  /** Exact Beauty position grants for the selected salon. Missing means legacy/non-Beauty access. */
+  beautyAccess?: BeautyPositionAccess;
 }
 
 /** Никто не вошёл (или API не ответил): «Платформы» нет, разделы по ролям не прячутся */
@@ -77,6 +83,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       // макет ресторана из 14 экранов (12.10.2026): бар, финансы и настройки ресторана своими экранами
       { href: '/drinks', label: 'Напитки', icon: 'breakfast', requires: 'desk', description: 'Напитки: заказы бара и витрина' },
       { href: '/restaurant-finance', label: 'Финансы', icon: 'money', requires: 'reports', description: 'Выручка, расходы и поступления ресторана' },
+      { href: '/beauty-settings', label: 'Настройки салона', icon: 'settings', requires: 'desk', description: 'Режим работы выбранного салона.' },
       { href: '/restaurant-settings', label: 'Настройки', icon: 'settings', requires: 'property', description: 'Часы работы, бронирования и разделы ресторана' },
 
       {
@@ -262,6 +269,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Бар',
         icon: 'receipt',
         description: 'Приходы, товары, остатки, наценка и долги поставщикам.',
+      },
+      {
+        href: '/bar/consumables',
+        requires: 'reports',
+        label: 'Расходники',
+        icon: 'stock',
+        description: 'Материалы услуг, приходы, списания и остатки салона.',
       },
       // подстраницы бара пунктами раздела «Склад» (верхнее меню 17.10.2026); право то же, что у `/bar`
       {
@@ -613,6 +627,7 @@ const ROW: Array<{
     icon: 'stock',
     items: [
       { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
+      { label: 'Расходники', at: { BEAUTY: '/bar/consumables' } },
       { label: 'Номенклатура', at: ALL('/bar/products') },
       { label: 'Продажи', at: ALL('/bar') },
       { label: 'Движение товаров', at: ALL('/bar/operations') },
@@ -635,7 +650,7 @@ const ROW: Array<{
     label: 'Настройки',
     icon: 'settings',
     items: [
-      { label: 'Объект', at: { HOSPITALITY: '/hotel-settings', FOOD_SERVICE: '/restaurant-settings' } },
+      { label: 'Объект', at: { HOSPITALITY: '/hotel-settings', BEAUTY: '/beauty-settings', FOOD_SERVICE: '/restaurant-settings' } },
       { label: 'Каналы продаж', at: { HOSPITALITY: '/channels' } },
       { label: 'Подключения', at: { HOSPITALITY: '/connections' } },
       // право `desk`: администратор видит неисправности (ADR-107)
@@ -644,7 +659,7 @@ const ROW: Array<{
       // «Организации» только главному администратору (отметка `platform`)
       { label: 'Организации', at: ALL('/platform') },
     ],
-    match: ['/branches', '/hotel-settings', '/connections', '/channel-manager', '/platform'],
+    match: ['/branches', '/beauty-settings', '/hotel-settings', '/connections', '/channel-manager', '/platform'],
   },
   {
     // «Продвижение» (ADR-184): бывшие «Маркетинг» и «Продажи»
@@ -711,13 +726,92 @@ export function mayAccess(access: NavigationAccess, permission: Permission): boo
   return access.role === null || can(access.role, permission);
 }
 
+/** Exact Beauty permission. Legacy roles remain the fallback only until a position has been assigned. */
+export function mayBeautyAccess(
+  access: NavigationAccess,
+  section: BeautySection,
+  action: BeautyAction,
+  options: { legacy: Permission; own?: boolean },
+): boolean {
+  if (access.role === 'OWNER') return true;
+  const projection = access.beautyAccess;
+  if (!projection || projection.mode === 'LEGACY') return mayAccess(access, options.legacy);
+  if (!projection.assigned) return false;
+  const grant = projection.permissions.find(
+    (permission) => permission.section === section && permission.action === action,
+  );
+  return grant?.scope === 'BUSINESS' || (options.own === true && grant?.scope === 'OWN');
+}
+
+interface BeautyRouteAccess {
+  section: BeautySection;
+  legacy: Permission;
+}
+
+const BEAUTY_ROUTES: Array<{ href: string; access: BeautyRouteAccess }> = [
+  { href: '/beauty-settings', access: { section: 'settings', legacy: 'desk' } },
+  { href: '/beauty/schedule', access: { section: 'journal', legacy: 'desk' } },
+  { href: '/beauty/masters', access: { section: 'employees', legacy: 'desk' } },
+  { href: '/beauty/services', access: { section: 'services', legacy: 'desk' } },
+  { href: '/appointments', access: { section: 'appointments', legacy: 'desk' } },
+  { href: '/customers', access: { section: 'customers', legacy: 'desk' } },
+  { href: '/employees', access: { section: 'employees', legacy: 'desk' } },
+  { href: '/services', access: { section: 'services', legacy: 'desk' } },
+  { href: '/calendar', access: { section: 'journal', legacy: 'desk' } },
+  { href: '/payroll', access: { section: 'payroll', legacy: 'staff' } },
+  { href: '/cashbox', access: { section: 'finance', legacy: 'desk' } },
+  { href: '/finance', access: { section: 'finance', legacy: 'reports' } },
+  { href: '/journal', access: { section: 'settings', legacy: 'journal' } },
+  { href: '/bar', access: { section: 'stock', legacy: 'reports' } },
+  { href: '/beauty', access: { section: 'journal', legacy: 'desk' } },
+  { href: '/today', access: { section: 'journal', legacy: 'desk' } },
+];
+
+const within = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
+
+function beautyRouteAccess(path: string): BeautyRouteAccess | undefined {
+  return BEAUTY_ROUTES.filter((route) => within(path, route.href)).sort(
+    (left, right) => right.href.length - left.href.length,
+  )[0]?.access;
+}
+
+function personalBeautyWork(access: NavigationAccess): boolean {
+  if (access.role === 'OWNER') return true;
+  const projection = access.beautyAccess;
+  if (!projection || projection.mode === 'LEGACY') return mayAccess(access, 'desk');
+  if (!projection.assigned) return false;
+  return projection.permissions.some(
+    (permission) =>
+      permission.action === 'view' &&
+      ['journal', 'appointments', 'payroll', 'reviews'].includes(permission.section),
+  );
+}
+
+/** Whether a path needs the selected salon's exact position projection in addition to its legacy route rule. */
+export function carriesBeautyAccess(path: string): boolean {
+  return (
+    path === '/my-work' ||
+    path.startsWith('/my-work/') ||
+    path === '/team' ||
+    path.startsWith('/team/') ||
+    beautyRouteAccess(path) !== undefined
+  );
+}
+
 /**
  * Открыть ли страницу, пришедшую по адресу (ADR-107): право есть — да; роль не узнали — тоже да: данных без права API
  * всё равно не отдаст, а при недоступном API страница сама скажет, что связи нет, — вместо «Нет доступа… ваша роль —
  * администратор», неправды для владельца. Кнопки возврата и сторно этим не открываются: они смотрят `mayAccess`.
  */
-export function pageOpen(access: NavigationAccess, permission: Permission): boolean {
-  return mayAccess(access, permission) || access.unknown === true;
+export function pageOpen(access: NavigationAccess, permission: Permission, path?: string): boolean {
+  if (!path || !access.beautyAccess) return mayAccess(access, permission) || access.unknown === true;
+  if (access.role === 'OWNER') return true;
+  if (path === '/my-work' || path.startsWith('/my-work/')) return personalBeautyWork(access);
+  if (path === '/team' || path.startsWith('/team/'))
+    return mayAccess(access, 'staff') && mayBeautyAccess(access, 'employees', 'view', { legacy: 'staff' });
+  const route = beautyRouteAccess(path);
+  if (!route) return access.beautyAccess.mode === 'LEGACY' && (mayAccess(access, permission) || access.unknown === true);
+  return mayBeautyAccess(access, route.section, 'view', { legacy: route.legacy });
 }
 
 /** Открыт ли пункт этому вошедшему */
@@ -770,9 +864,12 @@ export function menuSectionsFor(
     .map((section) => ({
       ...section,
       // реестр функций (У1): пункт чужого направления в меню не попадает, даже если его поставили в состав по ошибке
-      items: section.items.filter(
-        (item) => allowedItem(item, access) && featureVerticals(item.href).includes(vertical),
-      ),
+      items: section.items.filter((item) => {
+        if (!featureVerticals(item.href).includes(vertical)) return false;
+        if (vertical !== 'BEAUTY' || !access.beautyAccess) return allowedItem(item, access);
+        if (!item.requires || item.requires === 'platform') return allowedItem(item, access);
+        return pageOpen(access, item.requires, item.href);
+      }),
     }))
     .filter((section) => section.items.length > 0);
 }
@@ -785,16 +882,30 @@ export function deskAccessOf(
   me: {
     user: { platformAdmin?: boolean; role?: string; restricted?: boolean } | null;
     access?: { aiSeller?: { access?: string } | null } | null;
+    beautyAccess?: unknown;
   } | null,
 ): NavigationAccess {
   if (!me?.user) return CLOSED_ACCESS;
   const seller = me.access?.aiSeller?.access;
+  const beautyAccess = normalizeBeautyAccess(me.beautyAccess);
   return {
     aiSeller: seller === 'active' || seller === 'expired',
     platform: me.user.platformAdmin === true,
     role: (me.user.role && parseMembershipRole(me.user.role)) || 'STAFF',
     ...(me.user.restricted === true ? { restricted: true as const } : {}),
+    ...(beautyAccess ? { beautyAccess } : {}),
   };
+}
+
+function normalizeBeautyAccess(raw: unknown): BeautyPositionAccess | undefined {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const value = raw as Record<string, unknown>;
+  if (value.mode === 'LEGACY') return { mode: 'LEGACY', assigned: false, permissions: [] };
+  if (value.mode !== 'ASSIGNED') return undefined;
+  const parsed = parseBeautyPermissions(value.permissions);
+  if (!parsed.ok || typeof value.assigned !== 'boolean')
+    return { mode: 'ASSIGNED', assigned: false, permissions: [] };
+  return { mode: 'ASSIGNED', assigned: value.assigned, permissions: parsed.value };
 }
 
 /**

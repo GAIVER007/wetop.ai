@@ -150,11 +150,12 @@ test('услуга каталога добавляется и видна в сп
   await addService(page, 'Маникюр', '60', '8000');
   await page.goto('/beauty/services');
   const main = page.getByRole('main');
-  const row = main.getByRole('row').filter({ hasText: 'Маникюр' });
-  await expect(row).toContainText('60 мин');
-  await expect(row).toContainText('8 000');
-  // филиал услугу ещё не включил: продавать её нельзя, и экран говорит это словами
-  await expect(row).toContainText('Филиал не оказывает');
+  const catalog = main.locator('[data-service-list="catalog"]');
+  const item = catalog.locator('.beauty-service-item').filter({ has: catalog.getByText('Маникюр', { exact: true }) });
+  await expect(item).toContainText('60 мин');
+  await expect(item).toContainText('8 000');
+  // Услуга уже есть в общем каталоге, но филиал добавляет её отдельно.
+  await expect(item.getByRole('button', { name: 'Добавить в салон: Маникюр' })).toBeVisible();
   await page.screenshot({ path: `${SNAPSHOTS}/services-1440.png`, fullPage: true });
 });
 
@@ -164,8 +165,8 @@ test('филиал включает услугу и ставит свою цен
   await page.goto('/beauty/services');
   const main = page.getByRole('main');
   await main
-    .getByRole('row')
-    .filter({ hasText: 'Маникюр' })
+    .locator('[data-service-list="catalog"] .beauty-service-item')
+    .filter({ has: main.getByText('Маникюр', { exact: true }) })
     .getByRole('button', { name: 'Изменить' })
     .click();
   const panel = page.getByRole('dialog');
@@ -175,10 +176,69 @@ test('филиал включает услугу и ставит свою цен
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
   await page.goto('/beauty/services');
-  const row = main.getByRole('row').filter({ hasText: 'Маникюр' });
-  await expect(row).toContainText('9 500');
-  await expect(row).toContainText('90 мин');
-  await expect(row).toContainText('своя цена филиала');
+  const salonItem = main
+    .locator('[data-service-list="salon"] .beauty-service-item')
+    .filter({ hasText: 'Маникюр' });
+  await expect(salonItem).toContainText('9 500');
+  await expect(salonItem).toContainText('90 мин');
+  await expect(
+    main.locator('[data-service-list="catalog"]').getByRole('button', { name: 'В салоне: Маникюр' }),
+  ).toBeDisabled();
+});
+
+test('каталог переносит услуги кнопками и drag-and-drop на 1440 и складывается на 390', async ({
+  page,
+  request,
+}) => {
+  await openSalon(page, request);
+  await addService(page, 'Услуга стрелкой', '45', '5000');
+  await addService(page, 'Услуга перетаскиванием', '60', '7000');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/beauty/services');
+
+  const main = page.getByRole('main');
+  const salon = main.locator('[data-service-list="salon"]');
+  const catalog = main.locator('[data-service-list="catalog"]');
+  const desktopSalonBox = await salon.boundingBox();
+  const desktopCatalogBox = await catalog.boundingBox();
+  expect(desktopSalonBox).not.toBeNull();
+  expect(desktopCatalogBox).not.toBeNull();
+  expect(desktopSalonBox!.x).toBeLessThan(desktopCatalogBox!.x);
+
+  await catalog.getByRole('button', { name: 'Добавить в салон: Услуга стрелкой' }).click();
+  await expect(
+    salon.locator('.beauty-service-item').filter({ hasText: 'Услуга стрелкой' }),
+  ).toBeVisible();
+  await expect(catalog.getByRole('button', { name: 'В салоне: Услуга стрелкой' })).toBeDisabled();
+
+  await catalog
+    .locator('.beauty-service-item')
+    .filter({ hasText: 'Услуга перетаскиванием' })
+    .dragTo(salon);
+  await expect(
+    salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
+  ).toBeVisible();
+  await expect(catalog.getByRole('button', { name: 'В салоне: Услуга перетаскиванием' })).toBeDisabled();
+
+  await salon
+    .locator('.beauty-service-item')
+    .filter({ hasText: 'Услуга перетаскиванием' })
+    .dragTo(catalog);
+  await expect(
+    salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
+  ).toHaveCount(0);
+  await expect(catalog.getByRole('button', { name: 'Добавить в салон: Услуга перетаскиванием' })).toBeVisible();
+  await page.screenshot({ path: `${SNAPSHOTS}/services-transfer-1440.png`, fullPage: true });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobileSalonBox = await salon.boundingBox();
+  const mobileCatalogBox = await catalog.boundingBox();
+  expect(mobileSalonBox).not.toBeNull();
+  expect(mobileCatalogBox).not.toBeNull();
+  expect(mobileSalonBox!.y).toBeLessThan(mobileCatalogBox!.y);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expect(catalog.getByRole('button', { name: 'Добавить в салон: Услуга перетаскиванием' })).toBeVisible();
+  await page.screenshot({ path: `${SNAPSHOTS}/services-transfer-390.png`, fullPage: true });
 });
 
 test('ошибки услуги словами, введённое не стирается', async ({ page, request }) => {
@@ -196,7 +256,7 @@ test('ошибки услуги словами, введённое не стир
   await expect(panel.getByLabel(/Цена каталога/)).toHaveValue('5000');
 });
 
-test('мастер добавляется, умения ставятся и снимаются', async ({ page, request }) => {
+test('мастер добавляется, а карточка показывает назначенные услуги и статус дня', async ({ page, request }) => {
   await openSalon(page, request);
   await addService(page, 'Маникюр', '60', '8000');
   await addService(page, 'Стрижка', '45', '5000');
@@ -206,11 +266,17 @@ test('мастер добавляется, умения ставятся и сн
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
-  await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
-  await panel.getByRole('checkbox', { name: 'Стрижка' }).check();
-  await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const employeeId = page.url().split('/').at(-2)!;
+  const servicesResponse = await request.get(`${FIXTURE_API}/beauty/services`);
+  expect(servicesResponse.ok()).toBe(true);
+  const services = (await servicesResponse.json()).items as Array<{ id: string; name: string }>;
+  const manicure = services.find((item) => item.name === 'Маникюр')!;
+  const haircut = services.find((item) => item.name === 'Стрижка')!;
+  const assigned = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    data: { serviceIds: [manicure.id, haircut.id] },
+  });
+  expect(assigned.ok()).toBe(true);
   await page.goto('/beauty/masters');
   // карточки вместо таблицы (ТЗ салона 09.10.2026): умения и филиалы остаются на виду
   const row = main.getByRole('listitem').filter({ hasText: 'Дина' });
@@ -222,13 +288,15 @@ test('мастер добавляется, умения ставятся и сн
   await expect(row).toContainText('Сегодня не работает');
   await page.screenshot({ path: `${SNAPSHOTS}/masters-1440.png`, fullPage: true });
 
-  // снятая галочка должна сниматься, а не копиться
-  await row.getByRole('button', { name: 'Открыть' }).click();
-  const edit = page.getByRole('dialog');
-  await edit.getByRole('tab', { name: 'Услуги', exact: true }).click();
-  await edit.getByRole('checkbox', { name: 'Стрижка' }).uncheck();
-  await edit.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
-  await expect(edit.getByRole('status')).toContainText('Услуги назначены');
+  await expect(row.getByRole('link', { name: 'Открыть' })).toHaveAttribute(
+    'href',
+    `/employees/${employeeId}/profile`,
+  );
+  // UI назначения и снятия проверяет real-portal набор; здесь фиксируем отображение ответа каталога.
+  const reduced = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    data: { serviceIds: [manicure.id] },
+  });
+  expect(reduced.ok()).toBe(true);
   await page.goto('/beauty/masters');
   await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).toContainText('Маникюр');
   await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).not.toContainText(
@@ -293,5 +361,32 @@ test('типовая услуга подставляет поля, цена вв
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('Услуга создана');
   await page.goto('/beauty/services');
-  await expect(page.getByRole('main').getByRole('row').filter({ hasText: 'Маникюр' })).toContainText('5 000');
+  await expect(
+    page.getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: page.getByRole('main').getByText('Маникюр', { exact: true }) }),
+  ).toContainText('5 000');
+});
+
+test('стартовая услуга справа требует цену и после настройки появляется слева', async ({ page, request }) => {
+  await openSalon(page, request);
+  await page.goto('/beauty/services');
+  const main = page.getByRole('main');
+  const catalog = main.locator('[data-service-list="catalog"]');
+  await expect(catalog.getByText('Стрижка мужская', { exact: true })).toBeVisible();
+  await expect(catalog).toContainText('Цена задаётся при добавлении');
+  await catalog.getByRole('button', { name: 'Настроить и добавить в салон: Стрижка мужская' }).click();
+  const panel = page.getByRole('dialog');
+  await expect(panel.getByLabel('Название')).toHaveValue('Стрижка мужская');
+  await expect(panel.getByLabel(/Группа/)).toHaveValue('Волосы');
+  await expect(panel.getByLabel(/Длительность, минут/)).toHaveValue('45');
+  await expect(panel.getByLabel(/Цена каталога/)).toHaveValue('');
+  await panel.getByLabel(/Цена каталога/).fill('35.50');
+  await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
+  await expect(panel.getByRole('status')).toContainText('Услуга создана');
+  await expect(panel.getByLabel('Филиал оказывает эту услугу')).toBeChecked();
+  await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+  await page.goto('/beauty/services');
+  await expect(
+    main.locator('[data-service-list="salon"] .beauty-service-item').filter({ has: main.getByText('Стрижка мужская', { exact: true }) }),
+  ).toContainText('35,50');
 });

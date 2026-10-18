@@ -1,3 +1,4 @@
+import { filterBeautyLocations } from '../beauty/access';
 import 'reflect-metadata';
 import {
   BadRequestException,
@@ -71,7 +72,7 @@ function validateShared(draft: SharedDraft) {
 @Injectable()
 export class SharedOnboardingService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-  private async context(db: Pick<DbTx, 'location'> = this.prisma.db) {
+  private async context(db: Pick<DbTx, 'location' | 'beautyPositionAssignment'> = this.prisma.db) {
     const organizationId = currentOrganizationId();
     const businessId = currentBusinessId();
     const locationId = currentLocationId();
@@ -110,6 +111,7 @@ export class SharedOnboardingService {
       },
     });
     if (!location) throw new ForbiddenException('Филиал недоступен');
+    if (!(await filterBeautyLocations(db, [{id:location.id,businessId:location.businessId,vertical:location.business.vertical}])).length) throw new ForbiddenException('Нет назначения в этот салон или филиал');
     return location;
   }
   async status() {

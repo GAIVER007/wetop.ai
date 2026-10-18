@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 18.10.2026 13:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит ef17fbd (codex/salons-tz4-m4b), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-catalog.spec.ts' '--grep' 'M4-B1' '--workers=1'
+[WebServer] (node:89395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89469) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:89537) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/beauty-catalog.spec.ts:12:1 › M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются (11.4s)
+
+
+  1) tests/ui/beauty-catalog.spec.ts:12:1 › M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 68
+    Received:    47
+
+      37 |     const headingBox = await panel.getByRole('heading', { name: 'Проверка завершена. Данные ещё не импортированы.', exact: true }).boundingBox();
+      38 |     const titleBox = await panel.locator('.overlay-heading').boundingBox();
+    > 39 |     expect(headingBox!.y).toBeGreaterThanOrEqual(titleBox!.y + titleBox!.height);
+         |                           ^
+      40 |     expect((await new AxeBuilder({ page }).include('dialog, [role="dialog"]').analyze()).violations).toEqual([]);
+      41 |     await page.screenshot({ path: `reports/salons-m4b-2026-10-18/preview-${width}.png`, fullPage: true });
+      42 |   }
+        at /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/ui/beauty-catalog.spec.ts:39:27
+
+    Error Context: test-results/beauty-catalog-M4-B1-CSV-п-02eed-няются-клиенты-не-создаются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-catalog-M4-B1-CSV-п-02eed-няются-клиенты-не-создаются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-catalog-M4-B1-CSV-п-02eed-няются-клиенты-не-создаются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-catalog.spec.ts:12:1 › M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются 
+
+# код выхода 1 · 23 с

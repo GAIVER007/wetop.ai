@@ -52,12 +52,13 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   await expect.poll(() => menuLinks(page)).toContain('/platform');
   // расширение выключено, а пункт остаётся (ADR-090): закрытый доступ объясняет сам раздел
   expect(await menuLinks(page)).toContain('/ai-agents');
+  // одно меню у всех направлений (17.10.2026)
   await expect(page.locator('.sidenav__section')).toHaveText([
     'Главная',
-    'Шахматка',
+    'Журнал',
     'Персонал',
-    'Гости',
-    'Номера',
+    'Клиенты',
+    'Услуги',
     'Статистика',
     'Склад',
     'Финансы',

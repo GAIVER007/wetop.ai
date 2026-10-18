@@ -83,9 +83,10 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
   test(`Д3: ${vertical} поиск открывает быстрый поиск по своему меню`, async ({ page, request }) => {
     const f = await (await request.post(`${api}/__test/reset`)).json();
     const branch = {
-      hotel: { business: f.hotel, location: f.locations[4], own: 'Шахматка', ownHref: '/chessboard' },
+      // одно меню у всех направлений (17.10.2026): «Журнал» ведёт в свой экран направления
+      hotel: { business: f.hotel, location: f.locations[4], own: 'Журнал', ownHref: '/chessboard' },
       beauty: { business: f.beauty, location: f.locations[3], own: 'Журнал', ownHref: '/calendar' },
-      food: { business: f.business, location: f.locations[0], own: 'План зала', ownHref: '/floor-plan' },
+      food: { business: f.business, location: f.locations[0], own: 'Журнал', ownHref: '/floor-plan' },
     }[vertical];
     await page.context().addCookies([
       {
@@ -109,10 +110,10 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
   });
 }
 
-// Д4: «Профиль» и «Филиалы» остаются в профиле у трёх направлений,
-// «Помощь» — отдельный раздел навигации (ADR-TOPNAV-20261017).
+// Д4: «Профиль», «Филиалы» и «Помощь» в профиле у всех направлений;
+// «Помощь» также остаётся отдельным разделом навигации (#655).
 for (const vertical of ['hotel', 'beauty', 'food'] as const) {
-  test(`Д4: ${vertical} профиль и филиалы в профиле, помощь в навигации`, async ({ page, request }) => {
+  test(`Д4: ${vertical} профиль, филиалы и помощь в профиле, помощь также в навигации`, async ({ page, request }) => {
     const f = await (await request.post(`${api}/__test/reset`)).json();
     const scope = {
       hotel: `business=${f.hotel};location=${f.locations[4]}`,
@@ -126,7 +127,9 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await page.locator('.profile-trigger').click();
     const dropdown = page.locator('#profile-dropdown');
     await expect(dropdown.getByRole('link', { name: 'Профиль', exact: true })).toHaveAttribute('href', '/profile');
-    await expect(dropdown.locator('a[href="/help"]')).toHaveCount(0);
+    const profileHelp = dropdown.getByRole('link', { name: 'Помощь', exact: true });
+    await expect(profileHelp).toBeVisible();
+    await expect(profileHelp).toHaveAttribute('href', '/help');
     await expect(dropdown.getByRole('link', { name: 'Филиалы', exact: true })).toHaveAttribute('href', '/branches');
     await page.keyboard.press('Escape');
     await expect(dropdown).toBeHidden();
@@ -137,5 +140,6 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     const help = navigation.getByRole('link', { name: 'Помощь', exact: true });
     await expect(help).toBeVisible();
     await expect(help).toHaveAttribute('href', '/help');
+    await expect(navigation.locator('a[href="/help"]')).toHaveCount(1);
   });
 }

@@ -62,22 +62,18 @@ test('в салоне меню без гостиничных разделов: �
   await signIn(page, request);
   // все разделы направления в панели левого меню (ADR-161); она закрыта, поэтому проверяем разметку
   const menu = page.locator('.sidenav__sections');
-  // до переключения это обычная гостиница: шахматка своим словом (верхнее меню 17.10.2026)
-  await expect(menu.getByRole('link', { name: 'Шахматка', exact: true, includeHidden: true })).toHaveCount(1);
+  // одно меню у всех направлений (17.10.2026): «Журнал» гостиницы ведёт в шахматку, салона в журнал записей
+  const journal = menu.getByRole('link', { name: 'Журнал', exact: true, includeHidden: true });
+  await expect(journal).toHaveAttribute('href', '/chessboard');
   await createAndOpenSalon(page, 'Студия Айна');
-  await expect(menu.getByRole('link', { name: 'Шахматка', exact: true, includeHidden: true })).toHaveCount(0);
-  for (const label of ['Финансы', 'Брони', 'Номерной фонд', 'Номера', 'Гости', 'Гости и брони']) {
-    await expect(menu.getByRole('link', { name: label, exact: true, includeHidden: true })).toHaveCount(0);
+  await expect(journal).toHaveAttribute('href', '/calendar');
+  for (const href of ['/chessboard', '/inventory', '/guests', '/reservations', '/rates']) {
+    await expect(menu.locator(`a[href="${href}"]`)).toHaveCount(0);
   }
   // MV8: «Главная» салона на общем адресе
   await expect(menu.getByRole('link', { name: 'Главная', exact: true, includeHidden: true })).toHaveAttribute(
     'href',
     '/today',
-  );
-  // календарь записей салона называется «Журнал» (решение владельца 17.10.2026)
-  await expect(menu.getByRole('link', { name: 'Журнал', exact: true, includeHidden: true })).toHaveAttribute(
-    'href',
-    '/calendar',
   );
   // мастера салона это «Специалисты» в «Персонале», учётные записи там же «Сотрудники»
   await expect(menu.getByRole('link', { name: 'Специалисты', exact: true, includeHidden: true })).toHaveAttribute(

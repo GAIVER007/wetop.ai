@@ -219,6 +219,7 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
   await page.goto('/calendar');
+  // журнал записей салона; заголовок страницы, не подпись навигации
   await expect(page.getByRole('main').getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
   await choose(page, 'Тестовый отель');
   await expect(page).toHaveURL(/\/today$/);

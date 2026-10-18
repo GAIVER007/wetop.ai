@@ -304,7 +304,11 @@ export function TopNav({
                         <Icon name="person" />
                         Профиль
                       </Link>
-                      {/* «Помощь» с 17.10.2026 своим разделом меню; «Моя работа» (личный экран сотрудника) здесь */}
+                      <Link href="/help" onClick={() => setProfile(false)}>
+                        <Icon name="help" />
+                        Помощь
+                      </Link>
+                      {/* «Моя работа» (личный экран сотрудника) здесь, не в разделах (17.10.2026) */}
                       {(beauty || food) && (
                         <Link href="/my-work" onClick={() => setProfile(false)}>
                           <Icon name="person" />

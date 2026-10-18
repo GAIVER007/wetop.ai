@@ -11,8 +11,10 @@ test('поиск гостиницы предлагает гостиничные 
   const dialog = page.getByRole('dialog', { name: 'Быстрый поиск' });
   await expect(dialog.getByRole('link', { name: 'План зала', exact: true })).toHaveCount(0);
   await expect(dialog.getByRole('link', { name: 'Кухня', exact: true })).toHaveCount(0);
-  await dialog.getByRole('textbox', { name: 'Запрос' }).fill('Шахматка');
-  const calendar = dialog.getByRole('link', { name: 'Шахматка', exact: true });
+  // The common «Журнал» label must not hide a foreign vertical's destination.
+  await expect(dialog.locator('a[href="/floor-plan"], a[href="/calendar"]')).toHaveCount(0);
+  await dialog.getByRole('textbox', { name: 'Запрос' }).fill('Журнал');
+  const calendar = dialog.getByRole('link', { name: 'Журнал', exact: true });
   await expect(calendar).toHaveAttribute('href', '/chessboard');
   mkdirSync('reports/navigation-qa-2026-10-11', { recursive: true });
   await page.screenshot({ path: 'reports/navigation-qa-2026-10-11/search-fixed.png' });

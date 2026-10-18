@@ -1,0 +1,87 @@
+# Сквозные (e2e) · 18.10.2026 09:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит 33b587c (claude/pr638-grid-qsched)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/pr638-grid.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/beauty-ui/pr638-grid.spec.ts:5:1 › PR638 grid persists default hours, weekly template and selected master only (6.8s)
+  ✘  2 tests/beauty-ui/pr638-grid.spec.ts:45:1 › PR638 stale grid rejects repeated writes without replacing the competing week (6.8s)
+
+
+  1) tests/beauty-ui/pr638-grid.spec.ts:5:1 › PR638 grid persists default hours, weekly template and selected master only 
+
+    Error: expect(locator).not.toBeChecked() failed
+
+    Locator: getByRole('row').filter({ has: getByRole('button', { name: 'Тест Анна', exact: true }) }).getByRole('switch').first()
+    Expected: not checked
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "not toBeChecked" getByRole('row').filter({ has: getByRole('button', { name: 'Тест Анна', exact: true }) }).getByRole('switch').first() with timeout 5000ms
+      - waiting for getByRole('row').filter({ has: getByRole('button', { name: 'Тест Анна', exact: true }) }).getByRole('switch').first()
+
+
+      20 |   const row = page.getByRole('row').filter({ has: page.getByRole('button', { name: 'Тест Анна', exact: true }) });
+      21 |   const monday = row.getByRole('switch').first();
+    > 22 |   await expect(monday).not.toBeChecked();
+         |                            ^
+      23 |   await monday.check();
+      24 |   await expect.poll(async () => (await read(a.id)).week.find((d: { weekday: number }) => d.weekday === 1).intervals)
+      25 |     .toEqual([{ timeFrom: '09:00', timeTo: '18:00' }]);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-643/tests/beauty-ui/pr638-grid.spec.ts:22:28
+
+    Error Context: test-results/pr638-grid-PR638-grid-pers-be860-te-and-selected-master-only/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/pr638-grid-PR638-grid-pers-be860-te-and-selected-master-only/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/pr638-grid-PR638-grid-pers-be860-te-and-selected-master-only/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/pr638-grid.spec.ts:45:1 › PR638 stale grid rejects repeated writes without replacing the competing week 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Данные изменены в другом окне' })
+    Expected substring: "Данные изменены в другом окне"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('alert').filter({ hasText: 'Данные изменены в другом окне' }) with timeout 5000ms
+      - waiting for getByRole('alert').filter({ hasText: 'Данные изменены в другом окне' })
+
+
+      67 |     await monday.uncheck();
+      68 |     await expect(page.getByRole('alert').filter({ hasText: 'Данные изменены в другом окне' }))
+    > 69 |       .toContainText('Данные изменены в другом окне');
+         |        ^
+      70 |     await expect(monday).toBeChecked();
+      71 |     const stored = await read(); // Assertion only: this GET never updates the editor's token.
+      72 |     expect(stored.weekRevision).toBe(competing.weekRevision);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-643/tests/beauty-ui/pr638-grid.spec.ts:69:8
+
+    Error Context: test-results/pr638-grid-PR638-stale-gri-493a0-eplacing-the-competing-week/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/pr638-grid-PR638-stale-gri-493a0-eplacing-the-competing-week/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/pr638-grid-PR638-stale-gri-493a0-eplacing-the-competing-week/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/beauty-ui/pr638-grid.spec.ts:5:1 › PR638 grid persists default hours, weekly template and selected master only 
+    tests/beauty-ui/pr638-grid.spec.ts:45:1 › PR638 stale grid rejects repeated writes without replacing the competing week 
+
+# код выхода 1 · 22 с

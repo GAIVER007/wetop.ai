@@ -35,8 +35,10 @@ BEGIN
   IF TG_OP = 'UPDATE' AND (NEW.location_id <> OLD.location_id OR NEW.product_id <> OLD.product_id) THEN RAISE EXCEPTION 'Kitchen parent is immutable'; END IF;
   SELECT p.business_id INTO biz FROM kitchen_products p WHERE p.id = NEW.product_id;
   IF NOT EXISTS (SELECT 1 FROM locations WHERE id = NEW.location_id AND business_id = biz) THEN RAISE EXCEPTION 'Kitchen product belongs to another business'; END IF;
+  -- вложенный IF: PL/pgSQL не обещает короткое замыкание AND, а у партий поля lot_id нет
   IF TG_TABLE_NAME = 'kitchen_stock_movements' THEN
-   IF NEW.lot_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM kitchen_stock_lots WHERE id = NEW.lot_id AND location_id = NEW.location_id AND product_id = NEW.product_id) THEN
+   IF NEW.lot_id IS NOT NULL
+      AND NOT EXISTS (SELECT 1 FROM kitchen_stock_lots WHERE id = NEW.lot_id AND location_id = NEW.location_id AND product_id = NEW.product_id) THEN
     RAISE EXCEPTION 'Kitchen lot belongs to another location or product';
    END IF;
   END IF;
@@ -59,5 +61,13 @@ BEGIN
   END IF;
  END IF;
  RETURN NEW;
+END $$;
+
+DO $$
+DECLARE s text := current_schema(); path text;
+BEGIN
+ path := CASE WHEN s='public' THEN 'public, pg_temp' ELSE format('%I, public, pg_temp',s) END;
+ EXECUTE format('ALTER FUNCTION %I.kitchen_stock_guard() SET search_path = %s',s,path);
+ EXECUTE format('ALTER FUNCTION %I.kitchen_link_guard() SET search_path = %s',s,path);
 END $$;
 COMMIT;

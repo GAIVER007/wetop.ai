@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { personnelKindEnabled, parsePersonnelKindCommand, readPersonnelKinds, writePersonnelKind } from './personnel-kind';
+import { personnelKindEnabled, parsePersonnelKindCommand, readPersonnelEmployeeProfiles, writePersonnelKind } from './personnel-kind';
 import { canManageStaff, canWrite } from '@pms/domain';
 import { writeEmployeeCommon } from '../employee-portal/employee-common';
 import { randomUUID } from 'node:crypto';
@@ -407,17 +407,17 @@ export class BeautyCatalogService {
     const role = currentRole();
     const canAssignPersonnelKind = !!(enabled && role && canManageStaff(role) && actorMay('property') &&
       org && canWrite(org.status, org.trialEndsAt, new Date()));
-    return this.prisma.db.$transaction(async (tx) => {
-    const profiles = await employeeProfiles(tx, scope.businessId);
-    const children = await employeeChildren(tx, profiles.map((row) => row.id));
-    const kinds = await readPersonnelKinds(tx, scope, profiles.map((row) => row.id));
+    const profiles = enabled
+      ? await readPersonnelEmployeeProfiles(this.prisma.db, scope)
+      : await employeeProfiles(this.prisma.db, scope.businessId);
+    const children = await employeeChildren(this.prisma.db, profiles.map((row) => row.id));
     return {
       locationId: scope.locationId,
       personnelKindEnabled: enabled,
       canAssignPersonnelKind,
       items: profiles.map((profile) => ({
         ...employeeView(profile, children.get(profile.id)),
-        ...(enabled ? { personnelKind: kinds.get(profile.id)! } : {}),
+        ...(enabled ? { personnelKind: 'personnelKind' in profile ? profile.personnelKind : null } : {}),
         profileRevision: profile.profileRevision,
         servicesRevision: canonicalRevision(
           (children.get(profile.id)?.services ?? []).map((row) => [
@@ -427,7 +427,6 @@ export class BeautyCatalogService {
         ),
       })),
     };
-    });
   }
 
   async assignPersonnelKind(id: string, raw: unknown) {

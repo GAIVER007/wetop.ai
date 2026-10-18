@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { parsePersonnelKind, type PersonnelKind } from '@pms/domain';
 import type { DbTx } from '@pms/database';
-import { employeeProfileRevision } from '../employee-portal/employee-common';
+import { employeeProfileRevision, type EmployeeCommon } from '../employee-portal/employee-common';
 
 type PersonnelDb = Pick<DbTx, '$queryRaw'>;
 type PersonnelScope = { organizationId: string; businessId: string };
@@ -20,18 +20,21 @@ export function parsePersonnelKindCommand(raw: unknown) {
   return { personnelKind, expectedProfileRevision: employeeProfileRevision(body.expectedProfileRevision) };
 }
 
-/** Only existing authorized list ids; never a separate employee discovery query. */
-export async function readPersonnelKinds(db: PersonnelDb, scope: PersonnelScope, ids: string[]) {
-  if (!personnelKindEnabled()) return new Map<string, PersonnelKind | null>();
+/** Full canonical business list narrowed by verified organization; one row snapshot.
+ * Always references the held column when ON, including an empty business.
+ */
+export async function readPersonnelEmployeeProfiles(db: PersonnelDb, scope: PersonnelScope): Promise<Array<EmployeeCommon & { personnelKind: PersonnelKind | null }>> {
+  if (!personnelKindEnabled()) return [];
   try {
-    const rows = await db.$queryRaw<Array<{id:string;personnelKind:PersonnelKind|null}>>`
-      SELECT e.id::text, e.personnel_kind AS "personnelKind"
+    const rows = await db.$queryRaw<Array<EmployeeCommon & { personnelKind: PersonnelKind | null }>>`
+      SELECT e.id::text, e.name, e.phone, e.email, e.status::text AS status,
+        to_char(e.updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "profileRevision",
+        e.personnel_kind AS "personnelKind"
       FROM employees e JOIN businesses b ON b.id=e.business_id
       WHERE e.business_id=${scope.businessId}::uuid AND b.organization_id=${scope.organizationId}::uuid
-        AND e.id=ANY(${ids}::uuid[])
+      ORDER BY e.status ASC, e.name ASC, e.id ASC
     `;
-    if (rows.length !== ids.length) throw unavailable();
-    return new Map(rows.map(row => [row.id, row.personnelKind === null ? null : parsePersonnelKind(row.personnelKind)]));
+    return rows.map(row => ({ ...row, personnelKind: row.personnelKind === null ? null : parsePersonnelKind(row.personnelKind) }));
   } catch { throw unavailable(); }
 }
 

@@ -1,26 +1,34 @@
 # What users of the original hate and want
 
-110 reviews from 2 sources (app-store, google-play). 110 had star ratings.
+204 reviews from 3 sources (app-store, google-play, zapis-2gis). 204 had star ratings.
+1 duplicate reviews removed.
 
 ## What they hate
 
 | rank | theme | score | reviews | share | avg stars | sources |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Запись, брони, овербукинг | 17.9 | 43 | 39% | 2.8 | 2 |
-| 2 | Вылеты, зависания, ошибки | 9.4 | 20 | 18% | 2.2 | 2 |
-| 3 | Уведомления, WhatsApp, SMS (thin) | 6.5 | 11 | 10% | 1.9 | 1 |
-| 4 | Вход, пароль, аккаунт | 4.3 | 9 | 8% | 1.9 | 2 |
-| 5 | Поддержка | 4.3 | 7 | 6% | 2.1 | 2 |
-| 6 | Обновления ломают привычное | 2.8 | 8 | 7% | 2.8 | 2 |
-| 7 | Цена и доплаты | 2.4 | 10 | 9% | 4.0 | 2 |
-| 8 | Неудобный интерфейс | 1.5 | 4 | 4% | 3.5 | 2 |
-| 9 | Склад, техкарты, учёт | 1.0 | 3 | 3% | 2.7 | 2 |
-| 10 | Списания, возвраты, отключение | 0.8 | 4 | 4% | 4.5 | 2 |
+| 1 | Запись, брони, овербукинг | 27.4 | 74 | 36% | 3.2 | 3 |
+| 2 | Поддержка | 11.7 | 34 | 17% | 3.7 | 3 |
+| 3 | Вылеты, зависания, ошибки | 11.5 | 24 | 12% | 2.2 | 3 |
+| 4 | Уведомления, WhatsApp, SMS | 7.6 | 16 | 8% | 2.6 | 2 |
+| 5 | Цена и доплаты | 6.4 | 20 | 10% | 3.3 | 3 |
+| 6 | Вход, пароль, аккаунт | 4.3 | 9 | 4% | 1.9 | 2 |
+| 7 | Неудобный интерфейс | 3.0 | 10 | 5% | 3.7 | 3 |
+| 8 | Обновления ломают привычное | 2.8 | 8 | 4% | 2.8 | 2 |
+| 9 | Списания, возвраты, отключение | 1.6 | 7 | 3% | 4.1 | 3 |
+| 10 | Склад, техкарты, учёт | 1.1 | 4 | 2% | 3.2 | 3 |
+| 11 | Касса, чеки, ОФД, Kaspi (thin) | 1.0 | 1 | 0% | 1.0 | 1 |
+| 12 | Регистрация гостей, eQonaq, МВД (thin) | 1.0 | 1 | 0% | 1.0 | 1 |
 
 **Запись, брони, овербукинг**
+- "Но запись ведется через приложение!" (zapis-2gis, 1*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews
 - "Как можно так косячить в наше время?" (app-store, 1*) https://apps.apple.com/kz/app/zapis-partner-crm/id6745208696?see-all=reviews
 - "Тебе надо,а ты не видишь свои записи." (google-play, 1*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=48d67194-2a27-4f99-8685-0b3ba8bc6fa1
-- "По факту их отменяют перед посещением салона." (app-store, 1*) https://apps.apple.com/ru/app/zapis/id1310410749?see-all=reviews
+
+**Поддержка**
+- "Служба поддержки данный вопрос не решает." (google-play, 1*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=a91836c7-9ee5-4fde-b768-c2aceb81cafe
+- "Не отвечает на телефонный звонок не смс в ватсаппе." (google-play, 1*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=85720985-24f9-4477-ba3a-b1c97f498ba8
+- "Пишет что нету доступа, и нужно написать в поддержку" (app-store, 1*) https://apps.apple.com/kz/app/zapis-partner/id1461453128?see-all=reviews
 
 **Вылеты, зависания, ошибки**
 - "Глюков куча!" (app-store, 1*) https://apps.apple.com/kz/app/zapis-partner-crm/id6745208696?see-all=reviews
@@ -29,45 +37,45 @@
 
 **Уведомления, WhatsApp, SMS**
 - "не приходит смс даже." (google-play, 1*) https://play.google.com/store/apps/details?id=kz.zapis.client_app&hl=en&gl=KZ&reviewId=8c4fc2f2-c0b0-4b07-a5a6-cc70ce6ee076
+- "Предварительного уведомления не было." (zapis-2gis, 1*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews
 - "Из за этого пропускаю уведомления о появлении новой записи" (google-play, 1*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=bab9e5fc-69f5-4f7a-961a-752863bf4624
-- "код отправляют только на ватсап, но, не у всех есть ватсап." (google-play, 1*) https://play.google.com/store/apps/details?id=kz.zapis.client_app&hl=en&gl=KZ&reviewId=685a7694-62aa-4ec2-9144-6b62c41d3584
+
+**Цена и доплаты**
+- "На момент покупки подписки ни о чем не предупреждают." (google-play, 1*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=f0e9a832-a163-4f67-a298-5cdd11588ceb
+- "Запис кз не работет.просто деньги на ветер.без ответственный" (zapis-2gis, 1*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews
+- "Салоны будут брать с вас двойную стоимость, Zapis ответит, что это «общеустановленная норма»." (zapis-2gis, 1*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews
 
 **Вход, пароль, аккаунт**
 - "Забыла пароль." (app-store, 1*) https://apps.apple.com/ru/app/zapis/id1310410749?see-all=reviews
 - "Скачала приложение, но не могу авторизоваться- смс код не приходит." (google-play, 1*) https://play.google.com/store/apps/details?id=kz.zapis.client_app&hl=ru&gl=KZ&reviewId=38ed7fae-5324-4a17-8cee-4af5051f164e
 - "Каждый раз нужно было вводить пароль и логин, а теперь и вовсе не могу зайти, оно тупо вылетает." (google-play, 1*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=8fb3a120-4a2b-4f3f-90e7-9b06d902b7cb
 
-**Поддержка**
-- "Служба поддержки данный вопрос не решает." (google-play, 1*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=a91836c7-9ee5-4fde-b768-c2aceb81cafe
-- "Не отвечает на телефонный звонок не смс в ватсаппе." (google-play, 1*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=85720985-24f9-4477-ba3a-b1c97f498ba8
-- "Пишет что нету доступа, и нужно написать в поддержку" (app-store, 1*) https://apps.apple.com/kz/app/zapis-partner/id1461453128?see-all=reviews
-
-**Обновления ломают привычное**
-- "Верните старую версию!" (app-store, 1*) https://apps.apple.com/kz/app/zapis-partner/id1461453128?see-all=reviews
-- "После обновления много неприятных "сюрпризов", всё время лагает." (google-play, 1*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=51625fe9-541d-46dd-b597-5cdaf7fff31c
-- "До вашего обновления работало отлично." (google-play, 2*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=0ccaae71-528e-4cab-b472-5636e2c67e3f
-
 ## What they ask for
 
 | rank | theme | score | reviews | share | avg stars | sources |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Сотрудники, зарплата, права | 5.5 | 19 | 17% | 4.0 | 2 |
-| 2 | Интеграции (thin) | 1.1 | 4 | 4% | 3.8 | 1 |
-| 3 | Казахский язык и локализация (thin) | 0.9 | 2 | 2% | 1.5 | 1 |
+| 1 | Сотрудники, зарплата, права | 8.1 | 29 | 14% | 4.0 | 3 |
+| 2 | Интеграции | 4.8 | 14 | 7% | 3.8 | 2 |
+| 3 | Казахский язык и локализация | 1.1 | 3 | 2% | 2.7 | 2 |
+| 4 | Отчёты и аналитика (thin) | 0.2 | 1 | 0% | 5.0 | 1 |
 
 **Сотрудники, зарплата, права**
 - "У мастеров пропала возможность видеть свой график, исчезла эта графа." (app-store, 1*) https://apps.apple.com/kz/app/zapis-partner-crm/id6745208696?see-all=reviews
+- "По рекомендации сотрудников салона "Красного яблока" загрузила приложение." (zapis-2gis, 1*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews
 - "не получается записаться открыл салон-> выбрал мастера-> нажал зарезервировать-> перекинуло на белый экран и ничего не происходит." (google-play, 1*) https://play.google.com/store/apps/details?id=kz.zapis.client_app&hl=en&gl=KZ&reviewId=fb6a65a2-21f0-456f-aabf-e668f989b55e
-- "Смысл в нем, если мой мастер работает и в нужное мне время свободен (выяснилось при последующей связи с салоном),а приложение показывает, что в 1день в отпуске, 2й-на больничном, 3й день-занят и нет свободного окна, что..." (google-play, 2*) https://play.google.com/store/apps/details?id=kz.zapis.client_app&hl=ru&gl=KZ&reviewId=ef73d46b-feb8-4345-bb24-79ab6c45ad46
 
 **Интеграции**
+- "Zapis kz просто ужасная компания!!!" (zapis-2gis, 1*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews
 - "В приложении zapis.kz моя запись тоже исчезла." (google-play, 1*) https://play.google.com/store/apps/details?id=kz.zapis.client_app&hl=ru&gl=KZ&reviewId=a164e88c-f992-4ec8-8ca0-03865e04e0de
-- "Я пользуюсь приложением Zapis, и оно мне очень нравится удобное и приятное в использовании." (google-play, 4*) https://play.google.com/store/apps/details?id=kz.zapis.client_app&hl=ru&gl=KZ&reviewId=33dde35f-a74e-4ccf-b93f-68a7e7d473bf
-- "Спасибо Zapis.kz😘😘😘" (google-play, 5*) https://play.google.com/store/apps/details?id=kz.zapis.client_app&hl=ru&gl=KZ&reviewId=47e95418-e5e6-455e-83d5-210218784972
+- "По словам сотрудникам zapis у них закончился срок предоставления бонусной системы." (zapis-2gis, 1*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews
 
 **Казахский язык и локализация**
 - "web interface, және жазылғанна кейін келетін хабарламалар қазақ тіліңде қосыңызшы" (google-play, 1*) https://play.google.com/store/apps/details?id=kz.zapis.client_app&hl=kk&gl=KZ&reviewId=10e38196-d1bd-4be0-9ee8-1b604e3b938b
 - "В Казахстане кроме Алматы есть и другие часовые пояса." (google-play, 2*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=b5d344a7-c495-4c0f-b197-f68722335058
+- "Очень рад что есть отечественные Казахстанский IT продукт." (zapis-2gis, 5*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews
+
+**Отчёты и аналитика**
+- "В целом программа удобная, есть статистика и по услугам, и по клиентам, и по загруженности, и по финансам." (zapis-2gis, 5*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews
 
 ## Asked for in their own words
 
@@ -78,6 +86,7 @@
 - "Нерв не хватает." (google-play, 2*) https://play.google.com/store/apps/details?id=io.absoft.mirsalonovandroidpartner&hl=ru&gl=KZ&reviewId=0ccaae71-528e-4cab-b472-5636e2c67e3f
 - "Нет возможности выбрать салон по ценовой политике, по геолокации." (google-play, 2*) https://play.google.com/store/apps/details?id=kz.zapis.client_app&hl=ru&gl=KZ&reviewId=66d24af8-2869-41ad-b6ee-ef16e45f600b
 - "Невозможно произвести вход." (app-store, 2*) https://apps.apple.com/kz/app/zapis-partner/id1461453128?see-all=reviews
+- "Записываюсь на услуги почти каждые 2-3 недели, хотелось бы чтобы было больше поддержки постоянных пользователей, так как не у всех салонов есть бонусы" (zapis-2gis, 5*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews
 
 ## Read these by hand
 
@@ -100,3 +109,4 @@ Low ratings that matched no theme. Either noise, or a theme themes.json does not
 Никому не рекомендую это приложение. Купили на пол года и это будет пол года страданий и мучений…"
 - (app-store, 1*) https://apps.apple.com/kz/app/zapis/id1310410749?see-all=reviews: "Feedback from user
 Doesn’t support IPhone 6 👎🏻"
+- (zapis-2gis, 1*) https://2gis.kz/almaty/firm/70000001028629636/tab/reviews: "Не советую пользоваться данным приложением, салоны даже не в курсе о скидках"

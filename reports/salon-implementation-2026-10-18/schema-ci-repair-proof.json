@@ -1,0 +1,95 @@
+{
+  "status": "LOCAL_REPAIR_VERIFIED_NOT_DEPLOYED",
+  "base": "4eae89543e95c31e553837c7eabc0d649121c6cc",
+  "failedCandidateCi": 39158206059,
+  "failure": "TS2307 undeclared root zod import; downstream UI wrapper failed on skipped dependencies",
+  "fix": "Node-built-in strict JSON validation, no new dependency or product/SQL change",
+  "runs": [
+    {
+      "id": "2026-10-18T19-25-35Z-unit-75fe",
+      "suite": "unit",
+      "status": "passed",
+      "counts": {
+        "total": 52,
+        "passed": 52,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty CI root dependency fix: zero third-party guard imports, all strict object/hash/type/endpoint negatives retained"
+    },
+    {
+      "id": "2026-10-18T19-27-05Z-typecheck-0806",
+      "suite": "typecheck",
+      "status": "passed",
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "note": "Beauty CI repair final root API web typecheck: built-in-only strict manifest guard"
+    },
+    {
+      "id": "2026-10-18T19-28-08Z-lint-17e5",
+      "suite": "lint",
+      "status": "passed",
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "note": "Beauty CI repair final lint: built-in-only strict manifest guard"
+    },
+    {
+      "id": "2026-10-18T19-29-01Z-unit-f4a5",
+      "suite": "unit",
+      "status": "passed",
+      "counts": {
+        "total": 6253,
+        "passed": 6246,
+        "failed": 0,
+        "skipped": 7,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty CI repair final full unit: preserve strict gate and add malformed object/type cases"
+    },
+    {
+      "id": "2026-10-18T19-32-50Z-integration-4cc3",
+      "suite": "integration",
+      "status": "passed",
+      "counts": {
+        "total": 79,
+        "passed": 79,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty CI repair final strict manifest consumed by real DB79 candidate on owned fixture"
+    },
+    {
+      "id": "2026-10-18T19-33-09Z-e2e-126a",
+      "suite": "e2e",
+      "status": "passed",
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Beauty CI repair final strict real UI API DB unchanged application on canonical141 chain"
+    }
+  ],
+  "review": {
+    "verdict": "approve",
+    "findings": [],
+    "summary": "Reviewed only the two-file diff against 4eae89543. JSON contract strictness preserved: exact keys, literal approvals/flags, five unique allowed names, hash format and actual hashes. No new paths, authorization bypasses, permissive fallbacks or dependencies.",
+    "verification": "Read-only; no edits or tests executed."
+  },
+  "ownedPgStoppedDataRetained": true,
+  "latestSyntheticScheduleSqlAggregate": {
+    "syntheticMasters": 2,
+    "persistedMondayIntervals": 2,
+    "allMonday1000to1800": true
+  },
+  "productionWrites": false,
+  "requiredNewExactCi": "pending commit/push/dispatch"
+}

@@ -17,7 +17,8 @@ describe('owner-approved Beauty preparation is not a production application clai
     'applied status', 'production applied', 'missing approval', 'gate bypass', 'missing pinned approval',
     'missing restore', 'missing cutover runner', 'automatic apply', 'missing migration', 'extra migration',
     'duplicate migration', 'unrelated held migration', 'changed forward hash', 'changed rollback hash',
-    'unexpected property',
+    'unexpected property', 'extra requirement', 'extra row property', 'null requirements', 'null migration',
+    'nonarray migrations', 'wrong hash type', 'short hash', 'uppercase hash', 'nonboolean gate', 'nonboolean production flag',
   ])('rejects %s rather than widening the ordinary-chain exception', (change) => {
     const m = fresh();
     if (change === 'applied status') m.status = 'APPLIED';
@@ -35,7 +36,21 @@ describe('owner-approved Beauty preparation is not a production application clai
     if (change === 'changed forward hash') m.migrations[0].migrationSha256 = '0'.repeat(64);
     if (change === 'changed rollback hash') m.migrations[0].downSha256 = '0'.repeat(64);
     if (change === 'unexpected property') m.allowAllMigrations = true;
+    if (change === 'extra requirement') m.requirements.allowAll = true;
+    if (change === 'extra row property') m.migrations[0].allowAll = true;
+    if (change === 'null requirements') m.requirements = null;
+    if (change === 'null migration') m.migrations[0] = null;
+    if (change === 'nonarray migrations') m.migrations = {};
+    if (change === 'wrong hash type') m.migrations[0].migrationSha256 = 42;
+    if (change === 'short hash') m.migrations[0].migrationSha256 = 'abc';
+    if (change === 'uppercase hash') m.migrations[0].migrationSha256 = 'A'.repeat(64);
+    if (change === 'nonboolean gate') m.requirements.fullReleaseGate = 1;
+    if (change === 'nonboolean production flag') m.productionApplied = 0;
     expect(() => approvedBeautyPreparationNames(prisma, m)).toThrow();
+  });
+
+  it.each([null, [], 1, 'invalid'])('rejects a non-object manifest %s', (value) => {
+    expect(() => approvedBeautyPreparationNames(prisma, value)).toThrow();
   });
 
   it('rejects changed canonical SQL even if all manifest requirements are present', () => {

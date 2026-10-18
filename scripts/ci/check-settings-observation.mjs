@@ -1,5 +1,9 @@
+import { Buffer } from 'node:buffer';
+import console from 'node:console';
 import { readFileSync, statSync } from 'node:fs';
+import process from 'node:process';
 import { pathToFileURL } from 'node:url';
+import { stripVTControlCharacters } from 'node:util';
 
 const MAX_BYTES = 16 * 1024 * 1024;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -12,7 +16,7 @@ export function validateSettingsObservation(text) {
   const transports = [];
   let events = 0;
   for (const raw of text.split('\n')) {
-    const line = raw.replace(/\u001b\[[0-9;]*m/g, '');
+    const line = stripVTControlCharacters(raw);
     const start = line.indexOf('{"event":"settings-diag-');
     if (start < 0) continue;
     if (++events > 50000 || line.length > 65536) return fail('event bounds exceeded');

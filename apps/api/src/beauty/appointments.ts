@@ -111,7 +111,7 @@ export class BeautyAppointmentsService {
         service: { select: { name: true } },
         customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
         // оплата записи в кассу филиала (§49): действующие приходы
-        payments: { where: { status: 'COMPLETED' }, select: { kind: true, amount: true } },
+        payments: { where: { status: 'COMPLETED' }, select: { kind: true, amount: true, method: true } },
       },
     });
 
@@ -157,6 +157,8 @@ export class BeautyAppointmentsService {
       next: nextStatuses(r.status as AppointmentStatus),
       priceMinor: r.price.toString(),
       paidMinor: r.payments.reduce((sum, p) => (p.kind === 'INCOME' ? sum + p.amount : sum), 0n).toString(),
+      paidCashMinor: r.payments.reduce((sum, p) => p.kind === 'INCOME' && p.method === 'CASH' ? sum + p.amount : sum, 0n).toString(),
+      paidNonCashMinor: r.payments.reduce((sum, p) => p.kind === 'INCOME' && p.method !== 'CASH' ? sum + p.amount : sum, 0n).toString(),
       // возвраты по выполненной записи (§54)
       refundedMinor: r.payments.reduce((sum, p) => (p.kind === 'EXPENSE' ? sum + p.amount : sum), 0n).toString(),
       currency: r.currency,

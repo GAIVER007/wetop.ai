@@ -319,7 +319,7 @@ test('быстрый отчёт календаря: пустой день, ка�
       await page.keyboard.press('Shift+Tab');
       await expect(report.locator('.context-help summary')).toBeFocused();
       await page.keyboard.press('Enter');
-      await expect(report.locator('.context-help')).toContainText('Стоимость, указанная при записи');
+      await expect(report.locator('.context-help')).toContainText('Сумма завершённых услуг');
       await page.keyboard.press('Enter');
       await page.keyboard.press('Tab');
       await expect(report.getByRole('button', { name: /Закрыть/ })).toBeFocused();
@@ -415,6 +415,10 @@ test('быстрый отчёт календаря: выбранный маст�
   let report = page.getByRole('dialog', { name: /Статистика за/ });
   await expect(report).toContainText('Дина');
   await expect(report).toContainText('8 000 ₸');
+  await expect(report).toContainText('Оплата наличными');
+  await expect(report).toContainText('Оплата безналом');
+  await expect(report).not.toContainText('Стоимость всех записей');
+  await expect(report).toContainText('Скидки и бонусы');
   await expect(report.locator('.quick-report-counts').first()).toContainText('Клиентов1');
   await page.screenshot({
     path: 'reports/calendar-quick-report-2026-10-17/beauty-master.png',

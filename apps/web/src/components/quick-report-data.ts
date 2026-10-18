@@ -38,6 +38,8 @@ type BeautyRow = {
   priceMinor: string;
   paidMinor?: string;
   refundedMinor?: string;
+  paidCashMinor?: string;
+  paidNonCashMinor?: string;
   currency: string;
   customer: { id: string };
 };
@@ -55,11 +57,6 @@ export function beautyQuickReport(rows: BeautyRow[]): QuickReportData {
       label: 'Сумма завершённых услуг',
       values: revenue,
       hint: 'Стоимость записей со статусом «Завершена», как в аналитике салона. Это не сумма принятых оплат.',
-    },
-    {
-      label: 'Стоимость всех записей',
-      values: sums(rows.map((r) => ({ amount: r.priceMinor, currency: r.currency }))),
-      hint: 'Стоимость, указанная при записи, по выбранным фильтрам, включая отменённые.',
     },
     {
       label: 'Средняя стоимость завершённой записи',
@@ -84,13 +81,19 @@ export function beautyQuickReport(rows: BeautyRow[]): QuickReportData {
       },
     );
   }
+  if (rows.length && rows.every((r) => r.paidCashMinor !== undefined && r.paidNonCashMinor !== undefined)) {
+    for (const [label, field] of [['Оплата наличными', 'paidCashMinor'], ['Оплата безналом', 'paidNonCashMinor']] as const) {
+      money.push({ label, values: sums(rows.map((r) => ({ amount: r[field]!, currency: r.currency }))),
+        hint: 'Действующие приходы по выбранным записям за всё время. Возвраты показаны отдельно. Безнал включает карту и переводы.' });
+    }
+  }
   return {
     total: rows.length,
     clients: new Set(rows.map((r) => r.customer.id)).size,
     itemLabel: 'Записей',
     statuses: statuses(beautyStatus, counts),
     money,
-    note: 'Разбивка оплат по способам и данные лояльности пока недоступны в этом отчёте.',
+    note: 'Скидки и бонусы: отдельный учёт для записей пока не ведётся.',
   };
 }
 
@@ -171,6 +174,6 @@ export function orderQuickReport(
     itemLabel: 'Заказов',
     statuses: statuses(foodOrderStatus, counts),
     money,
-    note: 'Уникальные клиенты и лояльность не определяются по заказам. Движения денег за конкретную дату смотрите в кассе.',
+    note: 'Скидки и бонусы: отдельный учёт в заказах пока не ведётся. Уникальные клиенты не определяются по заказам. Движения денег за конкретную дату смотрите в кассе.',
   };
 }

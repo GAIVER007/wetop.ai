@@ -23,6 +23,13 @@ describe('calendar quick reports', () => {
     expect(report.statuses.find((s) => s.key === 'DONE')?.count).toBe(3);
     expect(report.money[0]?.values).toEqual({ KZT: '9007199254741000', USD: '120' });
   });
+  it('splits appointment receipts by method without a redundant all-booking price', () => {
+    const report = beautyQuickReport([{ id: 'a', status: 'DONE', priceMinor: '100', currency: 'KZT',
+      customer: { id: 'c' }, paidCashMinor: '40', paidNonCashMinor: '60' }]);
+    expect(report.money.find((m) => m.label === 'Оплата наличными')?.values).toEqual({ KZT: '40' });
+    expect(report.money.find((m) => m.label === 'Оплата безналом')?.values).toEqual({ KZT: '60' });
+    expect(report.money.some((m) => m.label === 'Стоимость всех записей')).toBe(false);
+  });
   it('distinguishes no completed services from a completed service with a zero price', () => {
     expect(beautyQuickReport([]).money[0]?.values).toEqual({});
     expect(

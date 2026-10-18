@@ -1,0 +1,183 @@
+# Типы (typecheck) · 18.10.2026 09:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит b2965e9 (codex/calendar-quick-report), незакоммиченных файлов набора: 8
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/beauty/appointments.ts(331,134): error TS2322: Type 'AppointmentStatus' is not assignable to type 'AppointmentStatus | EnumAppointmentStatusFieldUpdateOperationsInput'.
+  Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus | EnumAppointmentStatusFieldUpdateOperationsInput'.
+apps/api/src/beauty/appointments.ts(607,17): error TS2322: Type 'AppointmentStatus[]' is not assignable to type 'AppointmentStatus[] | FieldRef<"Appointment", "AppointmentStatus[]"> | undefined'.
+  Type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/domain/src/beauty/appointments").AppointmentStatus[]' is not assignable to type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/database/src/generated/prisma/enums").AppointmentStatus[]'.
+    Type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/domain/src/beauty/appointments").AppointmentStatus' is not assignable to type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/database/src/generated/prisma/enums").AppointmentStatus'.
+      Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/beauty/schedule.ts(306,21): error TS2322: Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[] | FieldRef<"Appointment", "AppointmentStatus[]"> | undefined'.
+  Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[]'.
+    Type '"CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED"' is not assignable to type 'AppointmentStatus'.
+      Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/beauty/schedule.ts(416,38): error TS2322: Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[] | FieldRef<"Appointment", "AppointmentStatus[]"> | undefined'.
+  Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[]'.
+    Type '"CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED"' is not assignable to type 'AppointmentStatus'.
+      Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/beauty/schedule.ts(421,73): error TS2551: Property 'location' does not exist on type '{ locationId: string; id: string; currency: string; createdAt: Date; updatedAt: Date; status: AppointmentStatus; serviceId: string; price: bigint; source: AppointmentSource; ... 7 more ...; createdById: string | null; }'. Did you mean 'locationId'?
+apps/api/src/beauty/schedule.ts(422,111): error TS2322: Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[] | FieldRef<"Appointment", "AppointmentStatus[]"> | undefined'.
+  Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[]'.
+    Type '"CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED"' is not assignable to type 'AppointmentStatus'.
+      Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/employee-portal/employee-portal.service.ts(5,25): error TS2305: Module '"@pms/database"' has no exported member 'EmployeeMedia'.
+apps/api/src/employee-portal/employee-portal.service.ts(60,29): error TS2339: Property 'employeePublicProfile' does not exist on type 'TransactionClient | Db'.
+  Property 'employeePublicProfile' does not exist on type 'TransactionClient'.
+apps/api/src/employee-portal/employee-portal.service.ts(63,15): error TS2339: Property 'employeePublicProfile' does not exist on type 'TransactionClient | Db'.
+  Property 'employeePublicProfile' does not exist on type 'TransactionClient'.
+apps/api/src/employee-portal/employee-portal.service.ts(77,65): error TS2339: Property 'beautyPayrollPolicy' does not exist on type 'TransactionClient | Db'.
+  Property 'beautyPayrollPolicy' does not exist on type 'TransactionClient'.
+apps/api/src/employee-portal/employee-portal.service.ts(81,31): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,66): error TS7006: Parameter 'v' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,83): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,85): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,116): error TS7006: Parameter 'v' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,133): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,135): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(82,727): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(101,32): error TS2339: Property 'employeeMedia' does not exist on type 'Db'.
+apps/api/src/employee-portal/employee-portal.service.ts(102,10): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Db'.
+apps/api/src/employee-portal/employee-portal.service.ts(119,143): error TS2322: Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/employee-portal/employee-portal.service.ts(125,255): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(126,234): error TS2551: Property 'service' does not exist on type '{ locationId: string; id: string; currency: string; createdAt: Date; updatedAt: Date; status: AppointmentStatus; serviceId: string; price: bigint; source: AppointmentSource; ... 7 more ...; createdById: string | null; }'. Did you mean 'serviceId'?
+apps/api/src/employee-portal/employee-portal.service.ts(128,29): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(130,51): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(135,51): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(136,29): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(136,258): error TS7006: Parameter 'k' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(136,416): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(137,29): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(157,18): error TS2339: Property 'employeePublicProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(160,18): error TS2339: Property 'employeePublicProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(203,29): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(204,44): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(205,221): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(206,18): error TS2339: Property 'employeePublicProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(208,38): error TS2339: Property 'employeeMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(209,18): error TS2339: Property 'employeePublicProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(222,26): error TS2339: Property 'beautyPayrollPolicy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(224,24): error TS2339: Property 'beautyPayrollPolicy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(248,21): error TS2339: Property 'employeeMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(249,21): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(251,37): error TS2339: Property 'employeeMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(252,30): error TS2339: Property 'employeeMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(253,40): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(254,55): error TS2339: Property 'employeePublicProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(271,24): error TS2339: Property 'employeePublicProfile' does not exist on type 'Db'.
+apps/api/src/employee-portal/employee-portal.service.ts(272,107): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(273,48): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(275,60): error TS7031: Binding element 's' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(275,91): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(279,262): error TS7006: Parameter 'w' implicitly has an 'any' type.
+apps/api/src/site-forms/site-forms.service.ts(193,25): error TS2322: Type 'AppointmentStatus[]' is not assignable to type 'AppointmentStatus[] | FieldRef<"Appointment", "AppointmentStatus[]"> | undefined'.
+  Type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/domain/src/beauty/appointments").AppointmentStatus[]' is not assignable to type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/database/src/generated/prisma/enums").AppointmentStatus[]'.
+    Type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/domain/src/beauty/appointments").AppointmentStatus' is not assignable to type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/database/src/generated/prisma/enums").AppointmentStatus'.
+      Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/site-forms/site-forms.service.ts(210,27): error TS2339: Property 'workingHours' does not exist on type '{ id: string; name: string; phone: string | null; email: string | null; createdAt: Date; updatedAt: Date; status: EmployeeStatus; businessId: string; userId: string | null; }'.
+apps/api/src/site-forms/site-forms.service.ts(210,45): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/site-forms/site-forms.service.ts(211,23): error TS2339: Property 'timeOffs' does not exist on type '{ id: string; name: string; phone: string | null; email: string | null; createdAt: Date; updatedAt: Date; status: EmployeeStatus; businessId: string; userId: string | null; }'.
+apps/api/src/site-forms/site-forms.service.ts(211,37): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/site-forms/site-forms.service.ts(212,19): error TS2339: Property 'appointments' does not exist on type '{ id: string; name: string; phone: string | null; email: string | null; createdAt: Date; updatedAt: Date; status: EmployeeStatus; businessId: string; userId: string | null; }'.
+tests/integration/employee-common-writer.test.ts(28,15): error TS2339: Property 'employeePublicProfile' does not exist on type 'PrismaClient'.
+tests/integration/employee-common-writer.test.ts(36,25): error TS2339: Property 'employeePublicProfile' does not exist on type 'PrismaClient'.
+tests/integration/employee-portal-media-retry.test.ts(28,21): error TS2339: Property 'employeeMedia' does not exist on type 'PrismaClient'.
+tests/integration/employee-portal-media-retry.test.ts(38,21): error TS2339: Property 'employeePortfolioItem' does not exist on type 'PrismaClient'.
+tests/integration/employee-portal-rls.test.ts(31,12): error TS2339: Property 'employeePublicProfile' does not exist on type 'PrismaClient'.
+tests/integration/employee-portal-rls.test.ts(32,12): error TS2339: Property 'employeeMedia' does not exist on type 'PrismaClient'.
+tests/integration/employee-portal-rls.test.ts(33,12): error TS2339: Property 'employeePortfolioItem' does not exist on type 'PrismaClient'.
+tests/integration/employee-portal-rls.test.ts(34,12): error TS2339: Property 'beautyPayrollPolicy' does not exist on type 'PrismaClient'.
+tests/integration/employee-portal-rls.test.ts(67,14): error TS2339: Property 'employeePublicProfile' does not exist on type 'PrismaClient'.
+tests/integration/employee-portal-rls.test.ts(69,14): error TS2339: Property 'employeePublicProfile' does not exist on type 'PrismaClient'.
+tests/integration/employee-portal.test.ts(84,42): error TS2339: Property 'employeeMedia' does not exist on type 'PrismaClient'.
+tests/integration/employee-portal.test.ts(86,67): error TS18046: 'saved' is of type 'unknown'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/beauty/appointments.ts(331,134): error TS2322: Type 'AppointmentStatus' is not assignable to type 'AppointmentStatus | EnumAppointmentStatusFieldUpdateOperationsInput'.
+  Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus | EnumAppointmentStatusFieldUpdateOperationsInput'.
+apps/api/src/beauty/appointments.ts(607,17): error TS2322: Type 'AppointmentStatus[]' is not assignable to type 'AppointmentStatus[] | FieldRef<"Appointment", "AppointmentStatus[]"> | undefined'.
+  Type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/domain/src/beauty/appointments").AppointmentStatus[]' is not assignable to type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/database/src/generated/prisma/enums").AppointmentStatus[]'.
+    Type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/domain/src/beauty/appointments").AppointmentStatus' is not assignable to type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/database/src/generated/prisma/enums").AppointmentStatus'.
+      Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/beauty/schedule.ts(306,21): error TS2322: Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[] | FieldRef<"Appointment", "AppointmentStatus[]"> | undefined'.
+  Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[]'.
+    Type '"CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED"' is not assignable to type 'AppointmentStatus'.
+      Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/beauty/schedule.ts(416,38): error TS2322: Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[] | FieldRef<"Appointment", "AppointmentStatus[]"> | undefined'.
+  Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[]'.
+    Type '"CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED"' is not assignable to type 'AppointmentStatus'.
+      Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/beauty/schedule.ts(421,73): error TS2551: Property 'location' does not exist on type '{ locationId: string; id: string; currency: string; createdAt: Date; updatedAt: Date; status: AppointmentStatus; serviceId: string; price: bigint; source: AppointmentSource; ... 7 more ...; creationFingerprint: string | null; }'. Did you mean 'locationId'?
+apps/api/src/beauty/schedule.ts(422,111): error TS2322: Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[] | FieldRef<"Appointment", "AppointmentStatus[]"> | undefined'.
+  Type '("CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED")[]' is not assignable to type 'AppointmentStatus[]'.
+    Type '"CONFIRMED" | "IN_PROGRESS" | "DONE" | "BOOKED"' is not assignable to type 'AppointmentStatus'.
+      Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/employee-portal/employee-portal.service.ts(5,25): error TS2305: Module '"@pms/database"' has no exported member 'EmployeeMedia'.
+apps/api/src/employee-portal/employee-portal.service.ts(60,29): error TS2339: Property 'employeePublicProfile' does not exist on type 'TransactionClient | Db'.
+  Property 'employeePublicProfile' does not exist on type 'TransactionClient'.
+apps/api/src/employee-portal/employee-portal.service.ts(63,15): error TS2339: Property 'employeePublicProfile' does not exist on type 'TransactionClient | Db'.
+  Property 'employeePublicProfile' does not exist on type 'TransactionClient'.
+apps/api/src/employee-portal/employee-portal.service.ts(77,65): error TS2339: Property 'beautyPayrollPolicy' does not exist on type 'TransactionClient | Db'.
+  Property 'beautyPayrollPolicy' does not exist on type 'TransactionClient'.
+apps/api/src/employee-portal/employee-portal.service.ts(81,31): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,66): error TS7006: Parameter 'v' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,83): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,85): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,116): error TS7006: Parameter 'v' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,133): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(81,135): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(82,727): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(101,32): error TS2339: Property 'employeeMedia' does not exist on type 'Db'.
+apps/api/src/employee-portal/employee-portal.service.ts(102,10): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Db'.
+apps/api/src/employee-portal/employee-portal.service.ts(119,143): error TS2322: Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/employee-portal/employee-portal.service.ts(125,255): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(126,234): error TS2551: Property 'service' does not exist on type '{ locationId: string; id: string; currency: string; createdAt: Date; updatedAt: Date; status: AppointmentStatus; serviceId: string; price: bigint; source: AppointmentSource; ... 7 more ...; creationFingerprint: string | null; }'. Did you mean 'serviceId'?
+apps/api/src/employee-portal/employee-portal.service.ts(128,29): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(130,51): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(135,51): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(136,29): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(136,258): error TS7006: Parameter 'k' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(136,416): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(137,29): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(157,18): error TS2339: Property 'employeePublicProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(160,18): error TS2339: Property 'employeePublicProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(203,29): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(204,44): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(205,221): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(206,18): error TS2339: Property 'employeePublicProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(208,38): error TS2339: Property 'employeeMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(209,18): error TS2339: Property 'employeePublicProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(222,26): error TS2339: Property 'beautyPayrollPolicy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(224,24): error TS2339: Property 'beautyPayrollPolicy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(248,21): error TS2339: Property 'employeeMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(249,21): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(251,37): error TS2339: Property 'employeeMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(252,30): error TS2339: Property 'employeeMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(253,40): error TS2339: Property 'employeePortfolioItem' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(254,55): error TS2339: Property 'employeePublicProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/employee-portal/employee-portal.service.ts(271,24): error TS2339: Property 'employeePublicProfile' does not exist on type 'Db'.
+apps/api/src/employee-portal/employee-portal.service.ts(272,107): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(273,48): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(275,60): error TS7031: Binding element 's' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(275,91): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(279,262): error TS7006: Parameter 'w' implicitly has an 'any' type.
+apps/api/src/site-forms/site-forms.service.ts(193,25): error TS2322: Type 'AppointmentStatus[]' is not assignable to type 'AppointmentStatus[] | FieldRef<"Appointment", "AppointmentStatus[]"> | undefined'.
+  Type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/domain/src/beauty/appointments").AppointmentStatus[]' is not assignable to type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/database/src/generated/prisma/enums").AppointmentStatus[]'.
+    Type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/domain/src/beauty/appointments").AppointmentStatus' is not assignable to type 'import("/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/packages/database/src/generated/prisma/enums").AppointmentStatus'.
+      Type '"IN_PROGRESS"' is not assignable to type 'AppointmentStatus'.
+apps/api/src/site-forms/site-forms.service.ts(210,27): error TS2339: Property 'workingHours' does not exist on type '{ id: string; name: string; phone: string | null; email: string | null; createdAt: Date; updatedAt: Date; status: EmployeeStatus; businessId: string; userId: string | null; }'.
+apps/api/src/site-forms/site-forms.service.ts(210,45): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/site-forms/site-forms.service.ts(211,23): error TS2339: Property 'timeOffs' does not exist on type '{ id: string; name: string; phone: string | null; email: string | null; createdAt: Date; updatedAt: Date; status: EmployeeStatus; businessId: string; userId: string | null; }'.
+apps/api/src/site-forms/site-forms.service.ts(211,37): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/site-forms/site-forms.service.ts(212,19): error TS2339: Property 'appointments' does not exist on type '{ id: string; name: string; phone: string | null; email: string | null; createdAt: Date; updatedAt: Date; status: EmployeeStatus; businessId: string; userId: string | null; }'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 3 мин 16 с

@@ -266,6 +266,7 @@ export function JournalBoard({
     <>
       <div className="beauty-bar beauty-calendar-toolbar">
         <div className="beauty-calendar-actions">
+          <EmployeeFilter options={columns} value={master} onChange={setMaster} allLabel="Все специалисты" />
           <DateBar date={day.date} path="/calendar" />
           <QuickReport key={`${day.date}:${master}`} date={day.date}
             scope={`${day.location.name ?? 'Салон'} · ${master ? (columns.find((c) => c.id === master)?.name ?? 'Сотрудник недоступен') : 'Все специалисты'}${service || status ? ' · С учётом фильтров календаря' : ''}`}
@@ -283,9 +284,6 @@ export function JournalBoard({
           title={`Фильтры${master || service || status ? `\nАктивных: ${[master, service, status].filter(Boolean).length}` : ''}`}
         >
           <div className="beauty-filters">
-            <Field label={<span>Мастер</span>}>
-              <EmployeeFilter options={columns} value={master} onChange={setMaster} allLabel="Все специалисты" />
-            </Field>
             <Field label={<span>Услуга</span>}>
               <Select
                 aria-label="Услуга"

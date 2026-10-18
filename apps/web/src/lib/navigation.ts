@@ -616,8 +616,8 @@ const ROW: Array<{
     icon: 'chart',
     items: [
       { label: 'Аналитика бизнеса', at: ALL('/management/analytics') },
-      // `/reports` салону и ресторану перенаправляет на «Аналитику бизнеса» (аудит 17.10.2026, Д2)
-      { label: 'Все отчёты', at: { HOSPITALITY: '/reports' } },
+      // Отчёты салона теперь отдельный рабочий экран, не редирект в аналитику.
+      { label: 'Все отчёты', at: { HOSPITALITY: '/reports', BEAUTY: '/reports' } },
     ],
     match: ['/management', '/reports'],
   },

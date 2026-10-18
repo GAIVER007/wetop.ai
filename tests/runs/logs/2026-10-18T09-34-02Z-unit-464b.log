@@ -1,0 +1,301 @@
+# Модульные (unit) · 18.10.2026 14:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T09-34-02Z-unit-464b.json' 'packages/domain/src/customer-import-job.test.ts' 'apps/api/src/beauty/customer-import.test.ts' 'apps/api/src/beauty/customer-import.worker.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| packages/domain/src/customer-import-job.test.ts (9 tests | 7 failed) 81ms
+   ❯ M4-B2: durable customer import domain contract (9)
+     × parses an idempotent start request and rejects unsafe bounds 31ms
+     × accepts a bounded sequential chunk and keeps only mapped row fields 0ms
+     ✓ rejects malformed chunk structure without echoing personal content 20ms
+     × measures the complete serialized UTF-8 envelope and fails safely when it cannot serialize 18ms
+     × normalizes valid row fields without accepting forged identifiers 2ms
+     × uses the approved default name only for a valid phone without a name 0ms
+     × allows a named customer without phone and classifies row errors with safe codes 0ms
+     × keeps the undo boundary strict and UTC-instant based 0ms
+     ✓ exports the approved states, outcomes and exact public view shape 4ms
+ ❯ |unit| apps/api/src/beauty/customer-import.worker.test.ts (4 tests | 4 failed) 96ms
+   ❯ CustomerImportWorker (4)
+     × claims one queued job with a fresh lease token and no parent locks 89ms
+     × revalidates active owner, organization and salon for every processing batch 3ms
+     × fences every checkpoint update by the lease token 1ms
+     × clears retained input and baselines only for expired terminal jobs 1ms
+ ❯ |unit| apps/api/src/beauty/customer-import.test.ts (6 tests | 6 failed) 127ms
+   ❯ CustomerImportService (6)
+     × starts an owner import in the server-derived organization and business 28ms
+     × returns the same job for the same start request and rejects a changed request 1ms
+     × stores one ordered chunk and repeats the same digest as a no-op 0ms
+     × rejects a changed repeat chunk without changing rows 96ms
+     × submits only a complete upload and keeps aggregate DTO free of row PII 0ms
+     × allows staff to read aggregate progress but keeps rows owner-only 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/customer-import-job.test.ts > M4-B2: durable customer import domain contract > parses an idempotent start request and rejects unsafe bounds
+CustomerImportError: INVALID_ENVELOPE
+ ❯ parseCustomerImportStart packages/domain/src/customer-import-job.ts:76:9
+     74|
+     75| export function parseCustomerImportStart(_raw: unknown): CustomerImpor…
+     76|   throw new CustomerImportError('INVALID_ENVELOPE');
+       |         ^
+     77| }
+     78|
+ ❯ packages/domain/src/customer-import-job.test.ts:29:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/17]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import-job.test.ts > M4-B2: durable customer import domain contract > accepts a bounded sequential chunk and keeps only mapped row fields
+CustomerImportError: INVALID_ENVELOPE
+ ❯ parseCustomerImportChunk packages/domain/src/customer-import-job.ts:80:9
+     78|
+     79| export function parseCustomerImportChunk(_raw: unknown): CustomerImpor…
+     80|   throw new CustomerImportError('INVALID_ENVELOPE');
+       |         ^
+     81| }
+     82|
+ ❯ packages/domain/src/customer-import-job.test.ts:45:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/17]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import-job.test.ts > M4-B2: durable customer import domain contract > measures the complete serialized UTF-8 envelope and fails safely when it cannot serialize
+AssertionError: expected 'INVALID_ENVELOPE' to be 'PAYLOAD_TOO_LARGE' // Object.is equality
+
+Expected: "PAYLOAD_TOO_LARGE"
+Received: "INVALID_ENVELOPE"
+
+ ❯ expectSafeError packages/domain/src/customer-import-job.test.ts:22:49
+     20|   } catch (error) {
+     21|     expect(error).toBeInstanceOf(CustomerImportError);
+     22|     expect((error as CustomerImportError).code).toBe(code);
+       |                                                 ^
+     23|     expect((error as Error).message).toBe(code);
+     24|   }
+ ❯ packages/domain/src/customer-import-job.test.ts:80:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/17]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import-job.test.ts > M4-B2: durable customer import domain contract > normalizes valid row fields without accepting forged identifiers
+CustomerImportError: INVALID_ENVELOPE
+ ❯ customerImportRowInput packages/domain/src/customer-import-job.ts:84:9
+     82|
+     83| export function customerImportRowInput(_row: CustomerImportRawRow): Cu…
+     84|   throw new CustomerImportError('INVALID_ENVELOPE');
+       |         ^
+     85| }
+     86|
+ ❯ packages/domain/src/customer-import-job.test.ts:88:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/17]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import-job.test.ts > M4-B2: durable customer import domain contract > uses the approved default name only for a valid phone without a name
+CustomerImportError: INVALID_ENVELOPE
+ ❯ customerImportRowInput packages/domain/src/customer-import-job.ts:84:9
+     82|
+     83| export function customerImportRowInput(_row: CustomerImportRawRow): Cu…
+     84|   throw new CustomerImportError('INVALID_ENVELOPE');
+       |         ^
+     85| }
+     86|
+ ❯ packages/domain/src/customer-import-job.test.ts:101:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/17]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import-job.test.ts > M4-B2: durable customer import domain contract > allows a named customer without phone and classifies row errors with safe codes
+CustomerImportError: INVALID_ENVELOPE
+ ❯ customerImportRowInput packages/domain/src/customer-import-job.ts:84:9
+     82|
+     83| export function customerImportRowInput(_row: CustomerImportRawRow): Cu…
+     84|   throw new CustomerImportError('INVALID_ENVELOPE');
+       |         ^
+     85| }
+     86|
+ ❯ packages/domain/src/customer-import-job.test.ts:108:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/17]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import-job.test.ts > M4-B2: durable customer import domain contract > keeps the undo boundary strict and UTC-instant based
+CustomerImportError: INVALID_ENVELOPE
+ ❯ canUndoCustomerImport packages/domain/src/customer-import-job.ts:88:9
+     86|
+     87| export function canUndoCustomerImport(_undoDeadline: Date | null, _now…
+     88|   throw new CustomerImportError('INVALID_ENVELOPE');
+       |         ^
+     89| }
+     90|
+ ❯ packages/domain/src/customer-import-job.test.ts:127:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/17]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.test.ts > CustomerImportService > starts an owner import in the server-derived organization and business
+Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED
+ ❯ CustomerImportService.start apps/api/src/beauty/customer-import.ts:38:11
+     36|   async start(_raw: unknown): Promise<CustomerImportDto> {
+     37|     void this.prisma;
+     38|     throw new Error('CUSTOMER_IMPORT_NOT_IMPLEMENTED');
+       |           ^
+     39|   }
+     40|
+ ❯ apps/api/src/beauty/customer-import.test.ts:87:48
+ ❯ apps/api/src/auth/request-context.ts:67:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:67:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:77:10
+ ❯ asActor apps/api/src/beauty/customer-import.test.ts:84:48
+ ❯ apps/api/src/beauty/customer-import.test.ts:87:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/17]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.test.ts > CustomerImportService > returns the same job for the same start request and rejects a changed request
+Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED
+ ❯ CustomerImportService.start apps/api/src/beauty/customer-import.ts:38:11
+     36|   async start(_raw: unknown): Promise<CustomerImportDto> {
+     37|     void this.prisma;
+     38|     throw new Error('CUSTOMER_IMPORT_NOT_IMPLEMENTED');
+       |           ^
+     39|   }
+     40|
+ ❯ apps/api/src/beauty/customer-import.test.ts:105:46
+ ❯ apps/api/src/auth/request-context.ts:67:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:67:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:77:10
+ ❯ asActor apps/api/src/beauty/customer-import.test.ts:84:48
+ ❯ apps/api/src/beauty/customer-import.test.ts:105:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/17]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.test.ts > CustomerImportService > stores one ordered chunk and repeats the same digest as a no-op
+Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED
+ ❯ CustomerImportService.uploadRows apps/api/src/beauty/customer-import.ts:42:11
+     40|
+     41|   async uploadRows(_id: string, _raw: unknown): Promise<CustomerImport…
+     42|     throw new Error('CUSTOMER_IMPORT_NOT_IMPLEMENTED');
+       |           ^
+     43|   }
+     44|
+ ❯ apps/api/src/beauty/customer-import.test.ts:117:47
+ ❯ apps/api/src/auth/request-context.ts:67:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:67:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:77:10
+ ❯ asActor apps/api/src/beauty/customer-import.test.ts:84:48
+ ❯ apps/api/src/beauty/customer-import.test.ts:117:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/17]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.test.ts > CustomerImportService > rejects a changed repeat chunk without changing rows
+AssertionError: expected Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED to be an instance of ConflictException
+ ❯ apps/api/src/beauty/customer-import.test.ts:136:9
+    134|       offset: 0,
+    135|       rows: [{ sourceLine: 2, firstName: 'Другое', lastName: null, pho…
+    136|     }))).rejects.toBeInstanceOf(ConflictException);
+       |         ^
+    137|     expect(db.customerImportRow.createMany).not.toHaveBeenCalled();
+    138|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/17]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.test.ts > CustomerImportService > submits only a complete upload and keeps aggregate DTO free of row PII
+Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED
+ ❯ CustomerImportService.submit apps/api/src/beauty/customer-import.ts:46:11
+     44|
+     45|   async submit(_id: string): Promise<CustomerImportDto> {
+     46|     throw new Error('CUSTOMER_IMPORT_NOT_IMPLEMENTED');
+       |           ^
+     47|   }
+     48|
+ ❯ apps/api/src/beauty/customer-import.test.ts:142:48
+ ❯ apps/api/src/auth/request-context.ts:67:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:67:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:77:10
+ ❯ asActor apps/api/src/beauty/customer-import.test.ts:84:48
+ ❯ apps/api/src/beauty/customer-import.test.ts:142:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/17]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.test.ts > CustomerImportService > allows staff to read aggregate progress but keeps rows owner-only
+AssertionError: promise rejected "Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED" instead of resolving
+ ❯ apps/api/src/beauty/customer-import.test.ts:149:55
+    147|   it('allows staff to read aggregate progress but keeps rows owner-onl…
+    148|     actor.role = 'STAFF';
+    149|     await expect(asActor(() => service.get(row().id))).resolves.toMatc…
+       |                                                       ^
+    150|     await expect(asActor(() => service.rows(row().id, '0'))).rejects.t…
+    151|     await expect(asActor(() => service.start({ clientRequestId: reques…
+
+Caused by: Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED
+ ❯ CustomerImportService.get apps/api/src/beauty/customer-import.ts:50:11
+ ❯ apps/api/src/beauty/customer-import.test.ts:149:40
+ ❯ apps/api/src/auth/request-context.ts:67:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:67:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:77:10
+ ❯ asActor apps/api/src/beauty/customer-import.test.ts:84:48
+ ❯ apps/api/src/beauty/customer-import.test.ts:149:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/17]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.worker.test.ts > CustomerImportWorker > claims one queued job with a fresh lease token and no parent locks
+AssertionError: promise rejected "Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED" instead of resolving
+ ❯ apps/api/src/beauty/customer-import.worker.test.ts:52:33
+     50|   it('claims one queued job with a fresh lease token and no parent loc…
+     51|     db.$queryRaw.mockResolvedValueOnce([{ ...claim, organization_id: c…
+     52|     await expect(worker.claim()).resolves.toMatchObject({ id: claim.id…
+       |                                 ^
+     53|     expect(db.$queryRaw.mock.calls.flat().join(' ')).not.toContain('or…
+     54|   });
+
+Caused by: Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED
+ ❯ CustomerImportWorker.claim apps/api/src/beauty/customer-import.worker.ts:17:11
+ ❯ apps/api/src/beauty/customer-import.worker.test.ts:52:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/17]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.worker.test.ts > CustomerImportWorker > revalidates active owner, organization and salon for every processing batch
+Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED
+ ❯ CustomerImportWorker.process apps/api/src/beauty/customer-import.worker.ts:21:11
+     19|
+     20|   async process(_claim: CustomerImportClaim): Promise<void> {
+     21|     throw new Error('CUSTOMER_IMPORT_NOT_IMPLEMENTED');
+       |           ^
+     22|   }
+     23|
+ ❯ apps/api/src/beauty/customer-import.worker.test.ts:62:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/17]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.worker.test.ts > CustomerImportWorker > fences every checkpoint update by the lease token
+Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED
+ ❯ CustomerImportWorker.process apps/api/src/beauty/customer-import.worker.ts:21:11
+     19|
+     20|   async process(_claim: CustomerImportClaim): Promise<void> {
+     21|     throw new Error('CUSTOMER_IMPORT_NOT_IMPLEMENTED');
+       |           ^
+     22|   }
+     23|
+ ❯ apps/api/src/beauty/customer-import.worker.test.ts:77:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/17]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.worker.test.ts > CustomerImportWorker > clears retained input and baselines only for expired terminal jobs
+AssertionError: promise rejected "Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED" instead of resolving
+ ❯ apps/api/src/beauty/customer-import.worker.test.ts:85:48
+     83|   it('clears retained input and baselines only for expired terminal jo…
+     84|     db.$queryRaw.mockResolvedValueOnce([{ id: claim.id }]);
+     85|     await expect(worker.purgeExpiredContents()).resolves.toBe(1);
+       |                                                ^
+     86|     expect(db.customerImportRow.updateMany).toHaveBeenCalledWith(expec…
+     87|       data: { input: expect.anything(), customerBaseline: expect.anyth…
+
+Caused by: Error: CUSTOMER_IMPORT_NOT_IMPLEMENTED
+ ❯ CustomerImportWorker.purgeExpiredContents apps/api/src/beauty/customer-import.worker.ts:25:11
+ ❯ apps/api/src/beauty/customer-import.worker.test.ts:85:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/17]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  17 failed | 2 passed (19)
+   Start at  02:34:14
+   Duration  12.65s (import 63%, transform 35%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T09-34-02Z-unit-464b.json
+
+# код выхода 1 · 30 с

@@ -1,3 +1,4 @@
+import { customerImportFixture, resetCustomerImportFixture } from './customer-import-fixture';
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
@@ -6095,6 +6096,7 @@ createServer(async (req, res) => {
       fixtureBeautyAppointments.length = 0;
       fixtureAppointments.length = 0;
       fixtureCustomerProfiles.length = 0;
+      resetCustomerImportFixture();
       resetMarket();
       resetMarketingBudget();
       resetAgentFixture();
@@ -6207,6 +6209,7 @@ createServer(async (req, res) => {
         fixtureBeautyAppointments.length = 0;
         fixtureAppointments.length = 0;
       fixtureCustomerProfiles.length = 0;
+      resetCustomerImportFixture();
         for (const row of body['beautyAppointments'] as Array<Record<string, unknown>>)
           fixtureBeautyAppointments.push({
             employeeId: String(row['employeeId'] ?? ''),
@@ -7307,6 +7310,8 @@ createServer(async (req, res) => {
         };
       };
       const customerBusinessId = /^business=([^;]+)/.exec(String(req.headers['x-wetop-scope'] ?? ''))?.[1] ?? '';
+      const importResponse = customerImportFixture({ path, method: req.method, body, businessId: customerBusinessId, role: uiRole, customerProfiles: fixtureCustomerProfiles });
+      if (importResponse) return send(importResponse.status, importResponse.body);
       if (path === '/beauty/customers' && req.method === 'POST') {
         if (!customerBusinessId) return send(403, { message: 'Выберите бизнес салона' });
         const parsed = parseCustomerInput(body);

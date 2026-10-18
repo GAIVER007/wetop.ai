@@ -46,6 +46,8 @@ import { PrismaService } from '../database/prisma.provider';
 import { BeautyAppointmentsController, BeautyAppointmentsService } from './appointments';
 import { BeautyScheduleController, BeautyScheduleService } from './schedule';
 import { findOrCreateCustomer } from '../customers/identity';
+import { CustomerImportsController, CustomerImportService } from './customer-import';
+import { CustomerImportWorker } from './customer-import.worker';
 import {
   beautyScope,
   beautyTransaction,
@@ -837,9 +839,11 @@ export class BeautyCatalogController {
 }
 
 @Module({
-  controllers: [BeautyCatalogController, BeautyScheduleController, BeautyAppointmentsController],
+  controllers: [BeautyCatalogController, BeautyScheduleController, BeautyAppointmentsController, CustomerImportsController],
   providers: [
     BeautyCatalogService,
+    CustomerImportService,
+    CustomerImportWorker,
     BeautyScheduleService,
     BeautyAppointmentsService,
     PrismaService,

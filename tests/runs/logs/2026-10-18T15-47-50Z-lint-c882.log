@@ -1,0 +1,11 @@
+# Линтер (lint) · 18.10.2026 20:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6b97be5 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 28
+# npx eslint .
+
+/Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/integration/customer-import-runtime.test.ts
+  4:8  error  'pg' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 4 мин 24 с

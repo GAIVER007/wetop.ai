@@ -1,0 +1,333 @@
+# Интеграционные (integration) · 18.10.2026 15:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-08-59Z-integration-aac1.json' 'tests/integration/customer-import-storage.test.ts' 'tests/integration/customer-import-runtime.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+[pms_test] миграций применено 1; данные на месте
+ ❯ |integration| tests/integration/customer-import-runtime.test.ts (13 tests | 9 failed | 1 skipped) 3444ms
+   ❯ M4-B2: durable customer import, real RLS and transactions (13)
+     × exposes an owner-only real HTTP endpoint with dependency injection 630ms
+     ✓ stages without customers, repeats requests/chunks, rejects changed payload and incomplete submit 135ms
+     × creates, reuses canonical phone, defaults name, skips bad rows and atomically undoes 155ms
+     × links a sibling identity without changing it; undo removes only the imported link 46ms
+     × rejects the whole undo if its last customer changed 63ms
+     × keeps cancelled beauty history when undo is requested 139ms
+     × keeps cancelled food history when undo is requested 125ms
+     ✓ denies every management read/write to staff, and hides sibling-business jobs 21ms
+     ✓ rejects a stale worker token and recovers the expired lease without double creation 92ms
+     × rolls back a failed batch, schedules a safe retry and creates only once 33ms
+     × rechecks the owner between batches and allows safe undo of partial failure 484ms
+     × clears expired terminal input/baselines, retaining customer, totals and outcome 225ms
+     ↓ 50 000 synthetic rows: durable upload, process and atomic undo budget
+ ❯ |integration| tests/integration/customer-import-storage.test.ts (6 tests | 3 failed) 326ms
+   ❯ M4-B2: durable tenant storage (5)
+     × has both tables with forced tenant RLS 14ms
+     × retains audit journal by denying tenant DELETE 2ms
+     × keeps row source identity and run immutable even to a service writer 7ms
+     ✓ cannot forge tenant or use a foreign parent through wetop_app 5ms
+     ✓ has no FK on a deletable customer and no cascade to business data 4ms
+   ✓ M4-B2 migration rollback in an isolated synthetic schema (1)
+     ✓ preserves old customers, refuses nonempty rollback, removes only empty journal 126ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > exposes an owner-only real HTTP endpoint with dependency injection
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ tests/integration/customer-import-runtime.test.ts:106:31
+    104|     try {
+    105|       const response = await call(server.base, 'owner', 'POST', '/beau…
+    106|       expect(response.status).toBe(201);
+       |                               ^
+    107|       expect(response.json).toMatchObject({ state: 'UPLOADING', totalR…
+    108|       expect((await call(server.base, 'staff', 'GET', '/beauty/custome…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |integration| tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > creates, reuses canonical phone, defaults name, skips bad rows and atomically undoes
+PrismaClientKnownRequestError: 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `N/A`. Message: `Failed to deserialize column of type 'void'. If you're using $queryRaw and this column is explicitly marked as `Unsupported` in your Prisma schema, try casting this column to any supported Prisma type such as `String`.`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/customer-import.ts:114:7
+    112|     if(!UUID.test(id))throw new BadRequestException('Проверьте идентиф…
+    113|     return this.prisma.db.$transaction(async tx=>{
+    114|       await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended…
+       |       ^
+    115|       await tx.$queryRaw`SELECT id FROM organizations WHERE id=${scope…
+    116|       await tx.$queryRaw`SELECT id FROM businesses WHERE id=${scope.bu…
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/customer-import-runtime.test.ts:139:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |integration| tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > links a sibling identity without changing it; undo removes only the imported link
+PrismaClientKnownRequestError: 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `N/A`. Message: `Failed to deserialize column of type 'void'. If you're using $queryRaw and this column is explicitly marked as `Unsupported` in your Prisma schema, try casting this column to any supported Prisma type such as `String`.`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/customer-import.ts:114:7
+    112|     if(!UUID.test(id))throw new BadRequestException('Проверьте идентиф…
+    113|     return this.prisma.db.$transaction(async tx=>{
+    114|       await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended…
+       |       ^
+    115|       await tx.$queryRaw`SELECT id FROM organizations WHERE id=${scope…
+    116|       await tx.$queryRaw`SELECT id FROM businesses WHERE id=${scope.bu…
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/customer-import-runtime.test.ts:151:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |integration| tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > rejects the whole undo if its last customer changed
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of ConflictException
+ ❯ tests/integration/customer-import-runtime.test.ts:161:46
+    159|     const ids = await createdIds(id);
+    160|     await admin.customer.update({ where: { id: ids.at(-1)! }, data: { …
+    161|     await expect(run(() => service.undo(id))).rejects.toBeInstanceOf(C…
+       |                                              ^
+    162|     expect(await admin.customer.count({ where: { id: { in: ids } } }))…
+    163|     expect((await admin.customerImport.findUniqueOrThrow({ where: { id…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |integration| tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > keeps cancelled beauty history when undo is requested
+ FAIL  |integration| tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > keeps cancelled food history when undo is requested
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of ConflictException
+ ❯ tests/integration/customer-import-runtime.test.ts:170:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |integration| tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > rolls back a failed batch, schedules a safe retry and creates only once
+AssertionError: promise rejected "Error: Synthetic transient failure" instead of resolving
+ ❯ tests/integration/customer-import-runtime.test.ts:203:46
+    201|     const faultWorker = new CustomerImportWorker({ db: faultDb } as un…
+    202|     const claim = await faultWorker.claim(); expect(claim?.id).toBe(id…
+    203|     await expect(faultWorker.process(claim!)).resolves.toBe(false);
+       |                                              ^
+    204|     const retry = await admin.customerImport.findUniqueOrThrow({ where…
+    205|     expect(retry).toMatchObject({ state: 'QUEUED', processedRows: 0, c…
+
+Caused by: Error: Synthetic transient failure
+ ❯ Array.createMany tests/integration/customer-import-runtime.test.ts:198:35
+ ❯ node_modules/@prisma/client/runtime/client.js:11:9329
+ ❯ o node_modules/@prisma/client/runtime/client.js:65:1048
+ ❯ PrismaPromise.then node_modules/@prisma/client/runtime/client.js:65:1144
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |integration| tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > rechecks the owner between batches and allows safe undo of partial failure
+PrismaClientKnownRequestError: 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `N/A`. Message: `Failed to deserialize column of type 'void'. If you're using $queryRaw and this column is explicitly marked as `Unsupported` in your Prisma schema, try casting this column to any supported Prisma type such as `String`.`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/customer-import.ts:114:7
+    112|     if(!UUID.test(id))throw new BadRequestException('Проверьте идентиф…
+    113|     return this.prisma.db.$transaction(async tx=>{
+    114|       await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended…
+       |       ^
+    115|       await tx.$queryRaw`SELECT id FROM organizations WHERE id=${scope…
+    116|       await tx.$queryRaw`SELECT id FROM businesses WHERE id=${scope.bu…
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/customer-import-runtime.test.ts:221:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  |integration| tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > clears expired terminal input/baselines, retaining customer, totals and outcome
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of ConflictException
+ ❯ tests/integration/customer-import-runtime.test.ts:236:46
+    234|     expect(await admin.customer.count({ where: { id: { in: ids } } }))…
+    235|     expect((await run(() => service.get(id))).contentsExpired).toBe(tr…
+    236|     await expect(run(() => service.undo(id))).rejects.toBeInstanceOf(C…
+       |                                              ^
+    237|   });
+    238|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  |integration| tests/integration/customer-import-storage.test.ts > M4-B2: durable tenant storage > has both tables with forced tenant RLS
+AssertionError: expected [ { …(3) }, { …(3) } ] to deeply equal [ { …(3) }, { …(3) } ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "relforcerowsecurity": true,
++     "relforcerowsecurity": false,
+      "relname": "customer_import_rows",
+      "relrowsecurity": true,
+    },
+    {
+-     "relforcerowsecurity": true,
++     "relforcerowsecurity": false,
+      "relname": "customer_imports",
+      "relrowsecurity": true,
+    },
+  ]
+
+ ❯ tests/integration/customer-import-storage.test.ts:31:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  |integration| tests/integration/customer-import-storage.test.ts > M4-B2: durable tenant storage > retains audit journal by denying tenant DELETE
+AssertionError: expected { parent: true, child: true } to deeply equal { parent: false, child: false }
+
+- Expected
++ Received
+
+  {
+-   "child": false,
+-   "parent": false,
++   "child": true,
++   "parent": true,
+  }
+
+ ❯ tests/integration/customer-import-storage.test.ts:35:20
+     33|   it('retains audit journal by denying tenant DELETE', async () => {
+     34|     const result = (await db.query("SELECT has_table_privilege('wetop_…
+     35|     expect(result).toEqual({parent:false,child:false});
+       |                    ^
+     36|   });
+     37|   it('keeps row source identity and run immutable even to a service wr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  |integration| tests/integration/customer-import-storage.test.ts > M4-B2: durable tenant storage > keeps row source identity and run immutable even to a service writer
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/customer-import-storage.test.ts:44:60
+     42|     ] as const) {
+     43|       await db.query('BEGIN');
+     44|       try { await expect(db.query(query[0], [...query[1]])).rejects.to…
+       |                                                            ^
+     45|       finally { await db.query('ROLLBACK'); }
+     46|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  12 failed | 6 passed | 1 skipped (19)
+   Start at  03:09:11
+   Duration  17.21s (import 35%, transform 33%, tests 33%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-08-59Z-integration-aac1.json
+
+# код выхода 1 · 30 с

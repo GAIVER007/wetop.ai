@@ -1,0 +1,25 @@
+# Модульные (unit) · 18.10.2026 20:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6b97be5 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 23
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T15-46-06Z-unit-6620.json' 'packages/domain/src/customer-import-job.test.ts' 'packages/domain/src/customer-import.test.ts' 'packages/domain/src/customers.test.ts' 'apps/api/src/beauty/customer-import.test.ts' 'apps/api/src/beauty/customer-import.worker.test.ts' 'apps/api/src/beauty/customers-create.test.ts' 'apps/api/src/auth/route-access.test.ts' 'apps/web/src/app/customers/customer-import-actions.test.ts' 'apps/web/src/app/customers/beauty-table.test.ts' 'tests/unit/migrations-hold.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ✓ |unit| packages/domain/src/customer-import.test.ts (13 tests) 38ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 59ms
+ ✓ |unit| apps/api/src/beauty/customer-import.test.ts (9 tests) 12ms
+ ✓ |unit| apps/api/src/beauty/customer-import.worker.test.ts (8 tests) 6ms
+ ✓ |unit| packages/domain/src/customer-import-job.test.ts (10 tests) 5ms
+ ✓ |unit| apps/api/src/beauty/customers-create.test.ts (13 tests) 187ms
+ ✓ |unit| apps/web/src/app/customers/beauty-table.test.ts (3 tests) 9ms
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 13ms
+ ✓ |unit| apps/web/src/app/customers/customer-import-actions.test.ts (6 tests) 9ms
+ ✓ |unit| packages/domain/src/customers.test.ts (14 tests) 2ms
+
+ Test Files  10 passed (10)
+      Tests  83 passed (83)
+   Start at  08:46:08
+   Duration  5.48s (import 50%, transform 42%, tests 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T15-46-06Z-unit-6620.json
+
+# код выхода 0 · 8 с

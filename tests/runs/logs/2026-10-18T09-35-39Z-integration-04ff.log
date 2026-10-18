@@ -1,0 +1,64 @@
+# Интеграционные (integration) · 18.10.2026 14:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T09-35-39Z-integration-04ff.json' 'tests/integration/customer-import-storage.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |integration| tests/integration/customer-import-storage.test.ts (2 tests | 2 failed) 420ms
+   ❯ M4-B2: durable tenant storage (2)
+     × хранит обе таблицы журнала и tenant RLS 109ms
+     × журнал не ссылается FK на удаляемого клиента и не каскадит бизнес-данные 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/customer-import-storage.test.ts > M4-B2: durable tenant storage > хранит обе таблицы журнала и tenant RLS
+AssertionError: expected [] to deeply equal [ { …(2) }, { …(2) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "relname": "customer_import_rows",
+-     "relrowsecurity": true,
+-   },
+-   {
+-     "relname": "customer_imports",
+-     "relrowsecurity": true,
+-   },
+- ]
++ []
+
+ ❯ tests/integration/customer-import-storage.test.ts:10:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/customer-import-storage.test.ts > M4-B2: durable tenant storage > журнал не ссылается FK на удаляемого клиента и не каскадит бизнес-данные
+AssertionError: expected null to be truthy
+
+- Expected:
+true
+
++ Received:
+null
+
+ ❯ tests/integration/customer-import-storage.test.ts:14:19
+     12|   it('журнал не ссылается FK на удаляемого клиента и не каскадит бизне…
+     13|     const table = (await db.query("SELECT to_regclass('pms_test.custom…
+     14|     expect(table).toBeTruthy();
+       |                   ^
+     15|     const refs = (await db.query("SELECT confrelid::regclass::text AS …
+     16|     expect(refs.some((r) => r.target.endsWith('customers'))).toBe(fals…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  02:36:34
+   Duration  9.35s (import 76%, tests 12%, transform 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T09-35-39Z-integration-04ff.json
+
+# код выхода 1 · 1 мин 7 с

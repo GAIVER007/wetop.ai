@@ -16,7 +16,9 @@ test('филиалы: создание, сохранение после reload �
       .evaluate((element) => getComputedStyle(element).display),
   ).toBe('flex');
   expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
-  await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toHaveCount(1);
+  // От 1280 px разделы находятся в шапке, кнопка выдвижного меню скрыта из доступного интерфейса.
+  await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Главное меню', exact: true })).toBeVisible();
   const monthControls = await page
     .locator('.org-month a, .org-month input, .org-month button')
     .evaluateAll((elements) =>

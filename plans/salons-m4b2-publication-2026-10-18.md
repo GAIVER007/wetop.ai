@@ -12,3 +12,13 @@
 8. Проверить рабочий app.wetop.ai: финальный URL, страницу клиентов под OWNER и права, отсутствие ошибок, наличие нового импорта. Production не использовать для импорта реальных или тестовых клиентов без отдельного разрешения на запись.
 
 Готовность: изменения доступны на рабочем адресе; SHA и health подтверждены; локальные проверки и точный GitHub gate зелёные. Push, merge и HTTP200 отдельно публикацию не доказывают. Публичный marketing site не менялся в M4-B2; обновляется рабочая платформа.
+
+## Блокер release-checks 39141813995: широкая шапка
+
+1. Сохранить проверку страницы филиалов при ширине 1440 px.
+2. Проверять утверждённый контракт шапки от 1280 px: кнопка «Открыть меню» отсутствует в доступном интерфейсе, навигация «Главное меню» видима.
+3. После завершения общей интеграции запустить целевой браузерный сценарий через обязательный журнал тестов.
+
+## Linux visual references
+
+CI run 39141813995 failed on four header-only visual differences after the approved WETOP.AI shell update. Reviewed all four diff images: states and confirm-dialog, light and dark. Generate references using the canonical ui-snapshots workflow on merged branch commit 007cb37b0 (run 39144677100). Accept only the four reviewed files; preserve the 0.002 comparison threshold and all component assertions. Validate the final revision through release-checks before publication.

@@ -1021,6 +1021,7 @@ export class BeautyCatalogController {
     return this.service.customers();
   }
   @RequiresBusinessCapability('beauty.customers')
+  @BeautyAccess('customers', 'create')
   @Post('customers')
   createCustomer(@Body() body: unknown) {
     return this.service.createCustomer(body);

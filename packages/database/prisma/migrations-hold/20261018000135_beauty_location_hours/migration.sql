@@ -1,4 +1,6 @@
 -- ОТДЕЛЬНЫЙ РЕЛИЗ: BEAUTY-LOCATION-HOURS-20261018, owner-approved model.
+BEGIN;
+
 CREATE FUNCTION beauty_location_hours_valid(data jsonb) RETURNS boolean
 LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE item jsonb;
@@ -85,3 +87,5 @@ BEGIN
   EXECUTE format('ALTER FUNCTION %I.beauty_location_hours_guard() SET search_path = %s',s,path);
   EXECUTE format('ALTER FUNCTION %I.beauty_appointment_location_hours_guard() SET search_path = %s',s,path);
 END $$;
+
+COMMIT;

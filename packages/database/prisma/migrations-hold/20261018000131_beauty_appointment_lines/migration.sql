@@ -1,6 +1,8 @@
 -- 🔴 ОТДЕЛЬНЫЙ РЕЛИЗ: BEAUTY-ZAPIS-20261017 A1/A2/A3/E2.
 -- Apply only with the compatible API release after backup and validation described in README.md.
 
+BEGIN;
+
 CREATE TYPE "EmployeeServicePriceType" AS ENUM ('FIXED', 'RANGE', 'FREE', 'UNFIXED');
 
 CREATE TABLE "employee_service_prices" (
@@ -209,3 +211,5 @@ BEGIN
   EXECUTE format('ALTER FUNCTION %I.beauty_appointment_legacy_sync() SET search_path = %s',s,path);
   EXECUTE format('ALTER FUNCTION %I.beauty_appointment_status_overlap_guard() SET search_path = %s',s,path);
 END $$;
+
+COMMIT;

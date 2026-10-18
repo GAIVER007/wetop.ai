@@ -1,4 +1,5 @@
 BEGIN;
+LOCK TABLE beauty_location_hours, appointment_lines IN ACCESS EXCLUSIVE MODE;
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM beauty_location_hours) THEN
     RAISE EXCEPTION 'Export salon opening hours before rollback';

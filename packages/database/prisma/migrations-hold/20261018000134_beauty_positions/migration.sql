@@ -1,6 +1,8 @@
 -- ОТДЕЛЬНЫЙ РЕЛИЗ: BEAUTY-ACCESS-20261018 + BEAUTY-ACCESS-REVOCATION-20261018.
 -- Модель и сохранение отозванных назначений утверждены владельцем 18.10.2026.
 
+BEGIN;
+
 CREATE TABLE beauty_positions (
   id uuid PRIMARY KEY,
   business_id uuid NOT NULL REFERENCES businesses(id) ON DELETE RESTRICT ON UPDATE NO ACTION,
@@ -188,3 +190,5 @@ BEGIN
   EXECUTE format('ALTER FUNCTION %I.beauty_position_assignment_guard() SET search_path = %s', s, path);
   EXECUTE format('ALTER FUNCTION %I.beauty_position_assignment_retain() SET search_path = %s', s, path);
 END $$;
+
+COMMIT;

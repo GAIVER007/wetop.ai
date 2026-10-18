@@ -59,7 +59,6 @@ describe('Beauty route action metadata', () => {
       history: { section: 'appointments', action: 'view' },
     });
     expectRoutes(BeautyCustomerImportController, {
-      create: { section: 'customers', action: 'create' },
       preview: { section: 'customers', action: 'create' },
       apply: { section: 'customers', action: 'create' },
     });
@@ -68,6 +67,7 @@ describe('Beauty route action metadata', () => {
     });
     expectRoutes(BeautyCatalogController, {
       customers: { section: 'customers', action: 'view' },
+      createCustomer: { section: 'customers', action: 'create' },
       updateCustomer: { section: 'customers', action: 'update' },
       services: { section: 'services', action: 'view' },
       createService: { section: 'services', action: 'create' },

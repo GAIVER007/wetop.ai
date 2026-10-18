@@ -1,6 +1,8 @@
 -- 🔴 ОТДЕЛЬНЫЙ РЕЛИЗ: BEAUTY-MATERIALS-20261018.
 -- Apply only with the compatible API release after backup and validation described in README.md.
 
+BEGIN;
+
 CREATE TABLE "beauty_service_material_revisions" (
   "service_id" UUID NOT NULL,
   "revision" INTEGER NOT NULL DEFAULT 1,
@@ -141,3 +143,5 @@ BEGIN
   EXECUTE format('ALTER FUNCTION %I.kitchen_stock_guard() SET search_path = %s',s,path);
   EXECUTE format('ALTER FUNCTION %I.kitchen_link_guard() SET search_path = %s',s,path);
 END $$;
+
+COMMIT;

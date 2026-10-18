@@ -34,11 +34,21 @@ ADR-137, замечание ментора 02.10.2026.
 ## Сейчас ждут
 
 114 expense links, 115 table occupancy, 116 restaurant capacity + opening.sql,
-117 beauty workload, 118 hospitality workload — пять held-папок, шесть SQL apply-файлов.
+117 beauty workload, 118 hospitality workload: пять held-папок, шесть SQL apply-файлов owner-home.
 Ничего не перенесено в общую цепочку. `owner-home-release.sql` задаёт точный порядок
 в одной транзакции с ON_ERROR_STOP; это не разрешение выполнять его в production.
 Offline-проверка: `node tests/tools/held-release-manifest.mjs --dry-run` печатает SHA-256
 runner, шести apply и пяти down в обратном порядке. Снимок: reports/held-release-manifest.json.
+
+Beauty zapis release также ждёт отдельно:
+
+1. `20261018000131_beauty_appointment_lines`
+2. `20261018000132_beauty_reviews`
+3. `20261018000133_beauty_materials`
+4. `20261018000134_beauty_positions`
+5. `20261018000135_beauty_location_hours`
+
+Эти номера являются held-именами, а не именами будущей ordinary chain. В текущем `main` номера 131 и 132 уже заняты customer phone normalization и customer imports. Перед release весь Beauty-блок переносится одним commit под следующими свободными последовательными именами, предварительно 133-137. Точный manifest, зависимости, backup, validation, SHA и reverse order: `docs/ops/beauty-zapis-release.md`. Все пять forward SQL транзакционные. Production application требует отдельного явного разрешения владельца.
 
 Down допускается только для полностью пустого, никогда не наблюдавшего историю состояния:
 118 → 117 → 116 (включая opening) → 115 → 114. Любая строка, включая отменённую,
@@ -51,4 +61,4 @@ Populated/partial schema требует сохранения hooks/history и с
 валидность business fixtures или конкурентную нагрузку. Она клонирует metadata без source FK/triggers;
 malformed retained fixtures изолированы savepoint. Реальная проверка backup/restore остаётся блокером.
 
-- `20261018000135_beauty_location_hours`: утверждённые часы салона и граница новой записи. Требует held131 и совместимого API, backup/validation/rollback в README миграции; production применяет владелец.
+- `20261018000135_beauty_location_hours`: утверждённые часы салона и граница новой записи. Требует appointment lines и совместимого API; production применяет владелец только по отдельному разрешению и общему release manifest.

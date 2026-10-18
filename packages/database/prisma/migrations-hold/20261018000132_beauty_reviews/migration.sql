@@ -1,6 +1,8 @@
 -- 🔴 ОТДЕЛЬНЫЙ РЕЛИЗ: BEAUTY-REVIEWS-20261018.
 -- Apply only with the compatible API release after backup and validation described in README.md.
 
+BEGIN;
+
 CREATE TABLE "beauty_appointment_reviews" (
   "appointment_id" UUID NOT NULL,
   "employee_id" UUID NOT NULL,
@@ -81,3 +83,5 @@ BEGIN
   path := CASE WHEN s='public' THEN 'public, pg_temp' ELSE format('%I, public, pg_temp',s) END;
   EXECUTE format('ALTER FUNCTION %I.beauty_appointment_review_guard() SET search_path = %s',s,path);
 END $$;
+
+COMMIT;

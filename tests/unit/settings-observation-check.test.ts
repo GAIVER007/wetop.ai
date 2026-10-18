@@ -10,7 +10,7 @@ const fixture = () => Array.from({ length: 3 }, (_, i) => {
     { event: 'settings-diag-transport', id, phase: 'end', status: 200 },
   ];
 }).flat();
-const log = (events = fixture()) => events.map(event => `[WebServer] ${JSON.stringify(event)}`).join('\n');
+const log = (events: unknown[] = fixture()) => events.map(event => `[WebServer] ${JSON.stringify(event)}`).join('\n');
 describe('settings observation acceptance (synthetic fixtures)', () => {
   it('rejects empty logs and echoed source without emitted events', () => {
     expect(validateSettingsObservation('').ok).toBe(false);

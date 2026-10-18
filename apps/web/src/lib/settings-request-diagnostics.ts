@@ -11,7 +11,7 @@ export function settingsRequest(path: string, method = 'GET'): boolean {
   return path === '/hotel/settings' && method === 'GET';
 }
 export function routeClass(path: string): 'today' | 'chessboard' | 'static' | 'other' {
-  const pathname = path.split('?')[0];
+  const pathname = path.split('?')[0] ?? '';
   if (pathname === '/today') return 'today';
   if (pathname === '/chessboard') return 'chessboard';
   if (pathname.startsWith('/_next/static/') || pathname.startsWith('/_next/image') ||

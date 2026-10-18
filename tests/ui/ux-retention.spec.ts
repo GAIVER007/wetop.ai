@@ -80,11 +80,10 @@ test('меню телефона сохраняет порядок основны
   const sections = (await menu.locator('.sidebar-section-toggle').allTextContents()).map((s) =>
     s.trim(),
   );
+  // одно меню у всех направлений (17.10.2026)
   expect(
-    sections.filter((label) =>
-      ['Финансы', 'Календарь', 'Гости и бронирования', 'Продажи'].includes(label),
-    ),
-  ).toEqual(['Календарь', 'Гости и бронирования', 'Финансы', 'Продажи']);
+    sections.filter((label) => ['Финансы', 'Журнал', 'Клиенты', 'Продвижение'].includes(label)),
+  ).toEqual(['Журнал', 'Клиенты', 'Финансы', 'Продвижение']);
 });
 
 test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7)', async ({ page }) => {

@@ -54,7 +54,7 @@ test('UI3.1: mobile освобождает низ и возвращает фок
   const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
   await expect(drawer).toBeVisible();
   await page.screenshot({ path: `${shots}/after-mobile-menu.png` });
-  await expect(drawer.getByRole('link', { name: 'Шахматка', exact: true })).toBeVisible();
+  await expect(drawer.getByRole('link', { name: 'Журнал', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(drawer).toBeHidden();
   await expect(trigger).toBeFocused();
@@ -175,9 +175,9 @@ test('UI3.1: мобильный переход фокусирует готово
   await page.goto('/chessboard');
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
-  // прямая ссылка раздела (верхнее меню 17.10.2026: «Номера» без раскрывашки)
-  await drawer.getByRole('link', { name: 'Номера', exact: true }).click();
-  await expect(page).toHaveURL(/\/inventory$/);
+  // прямая ссылка раздела (одно меню у всех направлений, 17.10.2026)
+  await drawer.getByRole('link', { name: 'Помощь', exact: true }).click();
+  await expect(page).toHaveURL(/\/help$/);
   await expect(drawer).toBeHidden();
   await expect(page.locator('#main-content')).toBeFocused();
 });

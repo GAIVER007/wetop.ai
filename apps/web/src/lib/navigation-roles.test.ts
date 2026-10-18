@@ -41,7 +41,7 @@ describe('меню по ролям', () => {
       ['today', ['/today']],
       ['journal', ['/chessboard']],
       ['clients', ['/guests', '/reservations']],
-      ['stats', ['/reports', '/management/analytics']],
+      ['stats', ['/management/analytics', '/reports']],
       // склад на экранах бара: администратор смотрит, как все отчёты (право `reports`)
       ['stock', ['/bar/products', '/bar', '/bar/operations', '/bar/suppliers']],
       ['money', ['/finance', '/reports/finance']],

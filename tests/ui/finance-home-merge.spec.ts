@@ -124,12 +124,12 @@ test('очередь «Требуют внимания» открывается 
   await expect(page.locator('#day-attention')).toHaveCount(1);
 });
 
-// верхнее меню 17.10.2026: Главная, Шахматка, ..., «Финансы» восьмым разделом
+// верхнее меню 17.10.2026: Главная, Журнал, ..., «Финансы» восьмым разделом
 test('меню: «Главная» первой вкладкой, «Финансы» группой после склада', async ({ page }) => {
   await page.goto('/finance');
   const menu = sideNav(page);
   await expect(menu.locator('.sidenav__section').first()).toHaveText('Главная');
-  await expect(menu.locator('.sidenav__section').nth(1)).toHaveText('Шахматка');
+  await expect(menu.locator('.sidenav__section').nth(1)).toHaveText('Журнал');
   await expect(menu.locator('.sidenav__section').nth(7)).toHaveText('Финансы');
   // активная отметка живёт на пункте группы: на /finance это «Движение денег»
   await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Движение денег');

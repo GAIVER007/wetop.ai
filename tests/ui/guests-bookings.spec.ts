@@ -318,13 +318,25 @@ test('гости и бронирования: одна вкладка меню, 
   const menu = page.locator('.sidenav__panel');
   const tab = menu.locator('.sidenav__sections a[href="/guests"]');
   await expect(tab).toHaveAttribute('aria-current', 'page');
+  const guestsGroup = menu.getByRole('button', { name: 'Гости', exact: true, includeHidden: true });
+  await expect(guestsGroup).toHaveCount(1);
+  await expect(guestsGroup).toHaveClass(/\bhas-current-page\b/);
+  await expect(guestsGroup).toHaveAttribute('aria-expanded', 'false');
   await expect(menu.getByRole('link', { name: 'Гости', exact: true, includeHidden: true })).toHaveCount(0);
   await expect(menu.getByRole('link', { name: 'Брони', exact: true, includeHidden: true })).toHaveCount(0);
 
-  // классический список броней живёт по прежнему адресу, и меню там подсвечивает ту же вкладку
+  // классический список броней — отдельный текущий пункт той же группы «Гости»
   await page.getByRole('main').getByRole('link', { name: 'Список броней', exact: true }).click();
-  await expect(page).toHaveURL(/\/reservations$/);
-  await expect(tab).toHaveAttribute('aria-current', 'page');
+  await expect(page).toHaveURL(new URL('/reservations', page.url()).href);
+  const reservations = menu.getByRole('link', {
+    name: 'Список броней', exact: true, includeHidden: true,
+  });
+  await expect(reservations).toHaveAttribute('href', '/reservations');
+  await expect(reservations).toHaveAttribute('aria-current', 'page');
+  await expect(tab).not.toHaveAttribute('aria-current', 'page');
+  await expect(guestsGroup).toHaveCount(1);
+  await expect(guestsGroup).toHaveClass(/\bhas-current-page\b/);
+  await expect(guestsGroup).toHaveAttribute('aria-expanded', 'false');
   await page.goto('/guests');
   await page.getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true }).first().click();
   await expect(page).toHaveURL(/\/reservations\/new/);

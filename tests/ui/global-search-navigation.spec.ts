@@ -11,8 +11,8 @@ test('поиск гостиницы предлагает гостиничные 
   const dialog = page.getByRole('dialog', { name: 'Быстрый поиск' });
   await expect(dialog.getByRole('link', { name: 'План зала', exact: true })).toHaveCount(0);
   await expect(dialog.getByRole('link', { name: 'Кухня', exact: true })).toHaveCount(0);
-  await dialog.getByRole('textbox', { name: 'Запрос' }).fill('Календарь');
-  const calendar = dialog.getByRole('link', { name: 'Календарь', exact: true });
+  await dialog.getByRole('textbox', { name: 'Запрос' }).fill('Шахматка');
+  const calendar = dialog.getByRole('link', { name: 'Шахматка', exact: true });
   await expect(calendar).toHaveAttribute('href', '/chessboard');
   mkdirSync('reports/navigation-qa-2026-10-11', { recursive: true });
   await page.screenshot({ path: 'reports/navigation-qa-2026-10-11/search-fixed.png' });

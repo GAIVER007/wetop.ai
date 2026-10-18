@@ -83,8 +83,8 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
   test(`Д3: ${vertical} поиск открывает быстрый поиск по своему меню`, async ({ page, request }) => {
     const f = await (await request.post(`${api}/__test/reset`)).json();
     const branch = {
-      hotel: { business: f.hotel, location: f.locations[4], own: 'Календарь', ownHref: '/chessboard' },
-      beauty: { business: f.beauty, location: f.locations[3], own: 'Календарь', ownHref: '/calendar' },
+      hotel: { business: f.hotel, location: f.locations[4], own: 'Шахматка', ownHref: '/chessboard' },
+      beauty: { business: f.beauty, location: f.locations[3], own: 'Журнал', ownHref: '/calendar' },
       food: { business: f.business, location: f.locations[0], own: 'План зала', ownHref: '/floor-plan' },
     }[vertical];
     await page.context().addCookies([
@@ -101,7 +101,7 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await expect(dialog).toBeVisible();
     await expect(page).toHaveURL(/\/marketing$/);
     await dialog.getByRole('textbox', { name: 'Запрос' }).fill(branch.own.slice(0, 4));
-    await expect(dialog.getByRole('link', { name: branch.own })).toHaveAttribute('href', branch.ownHref);
+    await expect(dialog.getByRole('link', { name: branch.own, exact: true })).toHaveAttribute('href', branch.ownHref);
     if (vertical !== 'hotel') await expect(dialog.locator('a[href="/chessboard"]')).toHaveCount(0);
     await page.keyboard.press('Escape');
     await page.keyboard.press('ControlOrMeta+k');
@@ -109,10 +109,10 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
   });
 }
 
-// Д4 аудита платформы (17.10.2026): меню профиля одинаково у трёх направлений, «Помощь» и «Профиль» живут в нём,
-// а не отдельными пунктами меню только у салона и ресторана
+// Д4: «Профиль» и «Филиалы» остаются в профиле у трёх направлений,
+// «Помощь» — отдельный раздел навигации (ADR-TOPNAV-20261017).
 for (const vertical of ['hotel', 'beauty', 'food'] as const) {
-  test(`Д4: ${vertical} меню профиля с «Профилем» и «Помощью»`, async ({ page, request }) => {
+  test(`Д4: ${vertical} профиль и филиалы в профиле, помощь в навигации`, async ({ page, request }) => {
     const f = await (await request.post(`${api}/__test/reset`)).json();
     const scope = {
       hotel: `business=${f.hotel};location=${f.locations[4]}`,
@@ -125,11 +125,17 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await page.goto('/marketing');
     await page.locator('.profile-trigger').click();
     const dropdown = page.locator('#profile-dropdown');
-    await expect(dropdown.getByRole('link', { name: 'Профиль' })).toHaveAttribute('href', '/profile');
-    await expect(dropdown.getByRole('link', { name: 'Помощь' })).toHaveAttribute('href', '/help');
-    await expect(dropdown.getByRole('link', { name: 'Филиалы' })).toHaveAttribute('href', '/branches');
+    await expect(dropdown.getByRole('link', { name: 'Профиль', exact: true })).toHaveAttribute('href', '/profile');
+    await expect(dropdown.locator('a[href="/help"]')).toHaveCount(0);
+    await expect(dropdown.getByRole('link', { name: 'Филиалы', exact: true })).toHaveAttribute('href', '/branches');
     await page.keyboard.press('Escape');
+    await expect(dropdown).toBeHidden();
+    await expect(page.locator('.profile-trigger')).toBeFocused();
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
-    await expect(page.locator('.sidenav__panel a[href="/help"]')).toHaveCount(0);
+    const navigation = page.locator('.sidenav__panel');
+    await expect(navigation).toBeVisible();
+    const help = navigation.getByRole('link', { name: 'Помощь', exact: true });
+    await expect(help).toBeVisible();
+    await expect(help).toHaveAttribute('href', '/help');
   });
 }

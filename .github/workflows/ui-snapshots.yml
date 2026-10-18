@@ -86,12 +86,26 @@ jobs:
       - run: npm run generate -w @pms/database
       - run: npx playwright install --with-deps chromium
       - name: Strict today request contract (three observations, no retries)
-        run: >-
-          npx playwright test --config tests/ui/playwright.config.ts requests.spec.ts
-          --grep 'экран /today:' --workers=1 --repeat-each=3
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p settings-observation
+          npx playwright test --config tests/ui/playwright.config.ts requests.spec.ts \
+            --grep 'экран /today:' --workers=1 --repeat-each=3 2>&1 | tee settings-observation/observer-on.log
+          node scripts/ci/check-settings-observation.mjs settings-observation/observer-on.log
+      - name: Strict today request contract (observer off, three observations, no retries)
+        env:
+          WETOP_DIAG_HOTEL_SETTINGS: '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx playwright test --config tests/ui/playwright.config.ts requests.spec.ts \
+            --grep 'экран /today:' --workers=1 --repeat-each=3 2>&1 | tee settings-observation/observer-off.log
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: settings-diagnostic-results
-          path: test-results/
+          path: |
+            test-results/
+            settings-observation/
           retention-days: 7

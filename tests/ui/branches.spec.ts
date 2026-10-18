@@ -16,7 +16,9 @@ test('филиалы: создание, сохранение после reload �
       .evaluate((element) => getComputedStyle(element).display),
   ).toBe('flex');
   expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
-  await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toHaveCount(1);
+  // от 1280 px кнопки ☰ нет, разделы строкой в шапке (решение владельца 18.10.2026)
+  await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Главное меню' })).toBeVisible();
   const monthControls = await page
     .locator('.org-month a, .org-month input, .org-month button')
     .evaluateAll((elements) =>

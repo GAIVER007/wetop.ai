@@ -85,7 +85,8 @@ test('UI3.1: граница desktop/mobile и узкий экран', async ({ p
   for (const width of [1536, 1366, 1024, 961, 960, 959, 768, 390, 360, 320]) {
     await page.setViewportSize({ width, height: 800 });
     const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
-    await expect(trigger).toHaveCount(1);
+    // от 1280 px кнопки нет (18.10.2026), уже одна
+    await expect(trigger).toHaveCount(width >= 1280 ? 0 : 1);
     const header = (await page.locator('.workspace-header').boundingBox())!;
     expect(header.height).toBe(56);
     expect(

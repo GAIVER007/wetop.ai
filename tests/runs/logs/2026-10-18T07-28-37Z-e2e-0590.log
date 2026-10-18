@@ -1,0 +1,568 @@
+# Сквозные (e2e) · 18.10.2026 12:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0ae6325 (claude/gate-0ae6-fixes), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/tz12-states.spec.ts' 'tests/beauty-ui/tz12-ui.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 1 worker
+
+[WebServer] (node:74411) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   1 tests/beauty-ui/tz12-states.spec.ts:7:1 › calendar outside schedule has a visible non-color state (2.3s)
+[WebServer] [Nest] 74411  - 10/18/2026, 12:28:51 AM   ERROR [ExceptionsHandler] RangeError: Invalid time zone specified: Invalid/SyntheticZone
+[WebServer]     at new DateTimeFormat (<anonymous>)
+[WebServer]     at fmt (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/beauty/schedule.ts:180:9)
+[WebServer]     at zoneOffsetMs (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/beauty/schedule.ts:197:25)
+[WebServer]     at localMidnightUtc (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/beauty/schedule.ts:171:23)
+[WebServer]     at timeOffWindow (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/beauty/schedule.ts:154:14)
+[WebServer]     at BeautyAppointmentsService.day (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/apps/api/src/beauty/appointments.ts:76:20)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer] [Nest] 74411  - 10/18/2026, 12:28:51 AM   ERROR [ExceptionsHandler] RangeError: Invalid time zone specified: Invalid/SyntheticZone
+[WebServer]     at new DateTimeFormat (<anonymous>)
+[WebServer]     at fmt (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/web-analytics/metrics.ts:75:9)
+[WebServer]     at parts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/web-analytics/metrics.ts:101:5)
+[WebServer]     at localDate (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/web-analytics/metrics.ts:117:23)
+[WebServer]     at BeautyCatalogService.customers (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/apps/api/src/beauty/beauty.module.ts:96:19)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer] [Nest] 74411  - 10/18/2026, 12:28:51 AM   ERROR [ExceptionsHandler] RangeError: Invalid time zone specified: Invalid/SyntheticZone
+[WebServer]     at new DateTimeFormat (<anonymous>)
+[WebServer]     at fmt (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/beauty/schedule.ts:180:9)
+[WebServer]     at zoneOffsetMs (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/beauty/schedule.ts:197:25)
+[WebServer]     at localMidnightUtc (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/beauty/schedule.ts:171:23)
+[WebServer]     at timeOffWindow (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/beauty/schedule.ts:154:14)
+[WebServer]     at BeautyAppointmentsService.day (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/apps/api/src/beauty/appointments.ts:76:20)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer] [Nest] 74411  - 10/18/2026, 12:28:51 AM   ERROR [ExceptionsHandler] RangeError: Invalid time zone specified: Invalid/SyntheticZone
+[WebServer]     at new DateTimeFormat (<anonymous>)
+[WebServer]     at fmt (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/web-analytics/metrics.ts:75:9)
+[WebServer]     at parts (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/web-analytics/metrics.ts:101:5)
+[WebServer]     at localDate (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/domain/src/web-analytics/metrics.ts:117:23)
+[WebServer]     at BeautyCatalogService.customers (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/apps/api/src/beauty/beauty.module.ts:96:19)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+  ✓   2 tests/beauty-ui/tz12-states.spec.ts:16:1 › empty one dense no result and real API error remain distinct (3.4s)
+  ✓   3 tests/beauty-ui/tz12-states.spec.ts:47:3 › keyboard focus labels contrast and mobile targets light (5.0s)
+  ✓   4 tests/beauty-ui/tz12-states.spec.ts:47:3 › keyboard focus labels contrast and mobile targets dark (3.5s)
+  ✓   5 tests/beauty-ui/tz12-ui.spec.ts:20:1 › capture paired operational screens (10.0s)
+  ✓   6 tests/beauty-ui/tz12-ui.spec.ts:52:1 › calendar compact controls preserve filtering and hidden occupancy (1.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓   7 tests/beauty-ui/tz12-ui.spec.ts:83:1 › list mobile cards retain contact semantics and honest record action (852ms)
+  ✓   8 tests/beauty-ui/tz12-ui.spec.ts:98:1 › shared form groups and save stay accessible in short viewport (844ms)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ScrollAndMaybeFocusHandler cacheNode={{rsc:{...}, ...}}>
+[WebServer]       <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+[WebServer]         <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]           <LoadingBoundary name="calendar/" loading={null}>
+[WebServer]             <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]               <RedirectBoundary>
+[WebServer]                 <RedirectErrorBoundary router={{...}}>
+[WebServer]                   <InnerLayoutRouter url="/calendar?..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                     <SegmentViewNode type="page" pagePath="calendar/p...">
+[WebServer]                       <SegmentTrieNode>
+[WebServer]                       <GuardedPage>
+[WebServer]                         <Page>
+[WebServer]                           <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                             <header className="page__head">
+[WebServer]                               <div className="page__heading">
+[WebServer]                                 <h1
+[WebServer]                                   className="page__title"
+[WebServer] -                                 style={{font-size:"52px"}}
+[WebServer]                                 >
+[WebServer] +                                 Журнал
+[WebServer]                                 <div
+[WebServer]                                   className="page__subtitle"
+[WebServer] -                                 style={{font-size:"30px"}}
+[WebServer]                                 >
+[WebServer] +                                 Расписание мастеров и услуг салона, Тестовый филиал Центр
+[WebServer]                             <nav className="beauty-cal..." aria-label="Вид календаря">
+[WebServer]                               <LinkComponent>
+[WebServer]                                 <LinkComponent className="btn btn--s..." aria-current="page" href={"/calenda..."}>
+[WebServer]                                   <a
+[WebServer]                                     className="btn btn--secondary"
+[WebServer]                                     aria-current="page"
+[WebServer]                                     ref={function}
+[WebServer]                                     onClick={function onClick}
+[WebServer]                                     onMouseEnter={function onMouseEnter}
+[WebServer]                                     onTouchStart={function onTouchStart}
+[WebServer]                                     href={"/calendar?date=2026-10-19&"}
+[WebServer] -                                   style={{font-size:"30px"}}
+[WebServer]                                   >
+[WebServer] +                                   День
+[WebServer]                               <LinkComponent>
+[WebServer]                                 <LinkComponent className="btn btn--s..." href={"/calenda..."}>
+[WebServer]                                   <a
+[WebServer]                                     className="btn btn--secondary"
+[WebServer]                                     ref={function}
+[WebServer]                                     onClick={function onClick}
+[WebServer]                                     onMouseEnter={function onMouseEnter}
+[WebServer]                                     onTouchStart={function onTouchStart}
+[WebServer]                                     href={"/calendar?date=2026-10-19&view=week&"}
+[WebServer] -                                   style={{font-size:"30px"}}
+[WebServer]                                   >
+[WebServer] +                                   Неделя
+[WebServer]                             <JournalBoard day={{location:{...}, ...}} customers={[...]} employees={[...]} ...>
+[WebServer]                               <div className="beauty-bar...">
+[WebServer]                                 <div className="beauty-cal...">
+[WebServer]                                   <EmployeeFilter options={[...]} value="" onChange={function setMaster} ...>
+[WebServer]                                     <details ref={{current:null}} className="employee-f..." ...>
+[WebServer]                                       <summary
+[WebServer]                                         className="btn btn--secondary"
+[WebServer]                                         aria-label="Выбрать сотрудника: Все специалисты"
+[WebServer] -                                       style={{font-size:"30px"}}
+[WebServer]                                       >
+[WebServer]                                       <div className="employee-f...">
+[WebServer]                                         <Input type="search" aria-label="Поиск сотр..." placeholder="Найти по и..." ...>
+[WebServer]                                           <input
+[WebServer]                                             className="inp"
+[WebServer]                                             type="search"
+[WebServer]                                             aria-label="Поиск сотрудника"
+[WebServer]                                             placeholder="Найти по имени"
+[WebServer]                                             value=""
+[WebServer]                                             onChange={function onChange}
+[WebServer] -                                           style={{font-size:"34px"}}
+[WebServer]                                           >
+[WebServer]                                         <div className="employee-f..." aria-label="Сотрудники">
+[WebServer]                                           <Button tone="ghost" aria-pressed={true} onClick={function onClick}>
+[WebServer]                                             <button
+[WebServer]                                               className="btn btn--ghost"
+[WebServer]                                               aria-pressed={true}
+[WebServer]                                               onClick={function onClick}
+[WebServer] -                                             style={{font-size:"30px"}}
+[WebServer]                                             >
+[WebServer] +                                             Все специалисты
+[WebServer]                                           <Button tone="ghost" aria-pressed={false} onClick={function onClick}>
+[WebServer]                                             <button
+[WebServer]                                               className="btn btn--ghost"
+[WebServer]                                               aria-pressed={false}
+[WebServer]                                               onClick={function onClick}
+[WebServer] -                                             style={{font-size:"30px"}}
+[WebServer]                                             >
+[WebServer] +                                             Тест Анна
+[WebServer]                                           <Button tone="ghost" aria-pressed={false} onClick={function onClick}>
+[WebServer]                                             <button
+[WebServer]                                               className="btn btn--ghost"
+[WebServer]                                               aria-pressed={false}
+[WebServer]                                               onClick={function onClick}
+[WebServer] -                                             style={{font-size:"30px"}}
+[WebServer]                                             >
+[WebServer] +                                             Тест Борис
+[WebServer]                                   <DateBar date="2026-10-19" path="/calendar" filters={{employee:"", ...}}>
+[WebServer]                                     <DateBar calendar={true} date="2026-10-19" onToday={function onToday} ...>
+[WebServer]                                       <div className="date-bar">
+[WebServer]                                         <Button tone="secondary" type="button" onClick={function onToday}>
+[WebServer]                                           <button
+[WebServer]                                             className="btn btn--secondary"
+[WebServer]                                             type="button"
+[WebServer]                                             onClick={function onToday}
+[WebServer] -                                           style={{font-size:"30px"}}
+[WebServer]                                           >
+[WebServer] +                                           Сегодня
+[WebServer]                                         <Button tone="ghost" type="button" aria-label="Предыдущий..." ...>
+[WebServer]                                           <button
+[WebServer]                                             className="btn btn--ghost"
+[WebServer]                                             type="button"
+[WebServer]                                             aria-label="Предыдущий день"
+[WebServer]                                             onClick={function onPrevious}
+[WebServer] -                                           style={{font-size:"30px"}}
+[WebServer]                                           >
+[WebServer]                                         <Field label={<span>}>
+[WebServer]                                           <label htmlFor={undefined} className="field">
+[WebServer]                                             <span
+[WebServer]                                               className="sr-only"
+[WebServer] -                                             style={{font-size:"28px"}}
+[WebServer]                                             >
+[WebServer] +                                             Дата
+[WebServer]                                             <DateInput data-testid="beauty-day..." type="date" value="2026-10-19" ...>
+[WebServer]                                               <span
+[WebServer]                                                 className="date-field"
+[WebServer] -                                               style={{font-size:"28px"}}
+[WebServer]                                               >
+[WebServer]                                                 <input
+[WebServer]                                                   ref={{current:null}}
+[WebServer]                                                   type="date"
+[WebServer]                                                   className="inp date-field__input"
+[WebServer]                                                   id={undefined}
+[WebServer]                                                   data-testid="beauty-day-date"
+[WebServer]                                                   value="2026-10-19"
+[WebServer]                                                   onChange={function onChange}
+[WebServer]                                                   aria-describedby={undefined}
+[WebServer]                                                   aria-invalid={undefined}
+[WebServer] -                                                 style={{font-size:"34px"}}
+[WebServer]                                                 >
+[WebServer]                                                 ...
+[WebServer]                                         <Button tone="ghost" type="button" aria-label="Следующий ..." ...>
+[WebServer]                                           <button
+[WebServer]                                             className="btn btn--ghost"
+[WebServer]                                             type="button"
+[WebServer]                                             aria-label="Следующий день"
+[WebServer]                                             onClick={function onNext}
+[WebServer] -                                           style={{font-size:"30px"}}
+[WebServer]                                           >
+[WebServer]                                   <QuickReport date="2026-10-19" scope={[...]} build={function build}>
+[WebServer]                                     <Button tone="secondary" className="quick-repo..." type="button" ...>
+[WebServer]                                       <button
+[WebServer]                                         className="btn btn--secondary quick-report-trigger"
+[WebServer]                                         type="button"
+[WebServer]                                         aria-label="Быстрый отчёт"
+[WebServer]                                         title="Быстрый отчёт"
+[WebServer]                                         aria-haspopup="dialog"
+[WebServer]                                         onClick={function onClick}
+[WebServer] -                                       style={{font-size:"30px"}}
+[WebServer]                                       >
+[WebServer]                                     ...
+[WebServer]                                   <Button disabled={false} onClick={function onClick}>
+[WebServer]                                     <button
+[WebServer]                                       className="btn"
+[WebServer]                                       disabled={false}
+[WebServer]                                       onClick={function onClick}
+[WebServer] -                                     style={{font-size:"30px"}}
+[WebServer]                                     >
+[WebServer] +                                     + Новая запись
+[WebServer]                                 <Help title="Фильтры">
+[WebServer]                                   <details className="context-help">
+[WebServer]                                     <summary
+[WebServer] -                                     style={{font-size:"28px"}}
+[WebServer]                                     >
+[WebServer] +                                     Фильтры
+[WebServer]                                     <div>
+[WebServer]                                       <div className="beauty-fil...">
+[WebServer]                                         <Field label={<span>}>
+[WebServer]                                           <label htmlFor={undefined} className="field">
+[WebServer]                                             <span
+[WebServer] -                                             style={{font-size:"26px"}}
+[WebServer]                                             >
+[WebServer] +                                             Услуга
+[WebServer]                                             <Select aria-label="Услуга" value="" onChange={function onChange} ...>
+[WebServer]                                               <select
+[WebServer]                                                 className="inp"
+[WebServer]                                                 aria-label="Услуга"
+[WebServer]                                                 value=""
+[WebServer]                                                 onChange={function onChange}
+[WebServer]                                                 id={undefined}
+[WebServer]                                                 aria-describedby={undefined}
+[WebServer]                                                 aria-invalid={undefined}
+[WebServer] -                                               style={{font-size:"34px"}}
+[WebServer]                                               >
+[WebServer]                                         <Field label={<span>}>
+[WebServer]                                           <label htmlFor={undefined} className="field">
+[WebServer]                                             <span
+[WebServer] -                                             style={{font-size:"26px"}}
+[WebServer]                                             >
+[WebServer] +                                             Статус
+[WebServer]                                             <Select aria-label="Статус записи" value="" onChange={function onChange} ...>
+[WebServer]                                               <select
+[WebServer]                                                 className="inp"
+[WebServer]                                                 aria-label="Статус записи"
+[WebServer]                                                 value=""
+[WebServer]                                                 onChange={function onChange}
+[WebServer]                                                 id={undefined}
+[WebServer]                                                 aria-describedby={undefined}
+[WebServer]                                                 aria-invalid={undefined}
+[WebServer] -                                               style={{font-size:"34px"}}
+[WebServer]                                               >
+[WebServer]                                       <CalendarLegend>
+[WebServer]                                       <p
+[WebServer]                                         className="beauty-note"
+[WebServer] -                                       style={{font-size:"28px"}}
+[WebServer]                                       >
+[WebServer] +                                       Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые инт...
+[WebServer]                               <p
+[WebServer]                                 className="beauty-note"
+[WebServer]                                 data-testid="beauty-day-summary"
+[WebServer] -                               style={{font-size:"26px"}}
+[WebServer]                               >
+[WebServer] +                               Записей: 5
+[WebServer]                               ...
+[WebServer]                                 <div className="beauty-mob..." data-testid="beauty-mob...">
+[WebServer]                                   <div>
+[WebServer]                                     <p>
+[WebServer]                                     <p
+[WebServer]                                       className="beauty-note"
+[WebServer] -                                     style={{font-size:"26px"}}
+[WebServer]                                     >
+[WebServer] +                                     09:00–18:00
+[WebServer]                                     ...
+[WebServer]                               ...
+[WebServer]                     ...
+[WebServer]                   ...
+[WebServer]         ...
+[WebServer]  
+  ✓   9 tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 320 light (2.9s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ScrollAndMaybeFocusHandler cacheNode={{rsc:{...}, ...}}>
+[WebServer]       <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+[WebServer]         <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]           <LoadingBoundary name="calendar/" loading={null}>
+[WebServer]             <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]               <RedirectBoundary>
+[WebServer]                 <RedirectErrorBoundary router={{...}}>
+[WebServer]                   <InnerLayoutRouter url="/calendar?..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                     <SegmentViewNode type="page" pagePath="calendar/p...">
+[WebServer]                       <SegmentTrieNode>
+[WebServer]                       <GuardedPage>
+[WebServer]                         <Page>
+[WebServer]                           <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                             <header className="page__head">
+[WebServer]                               <div className="page__heading">
+[WebServer]                                 <h1
+[WebServer]                                   className="page__title"
+[WebServer] -                                 style={{font-size:"52px"}}
+[WebServer]                                 >
+[WebServer] +                                 Журнал
+[WebServer]                                 <div
+[WebServer]                                   className="page__subtitle"
+[WebServer] -                                 style={{font-size:"30px"}}
+[WebServer]                                 >
+[WebServer] +                                 Расписание мастеров и услуг салона, Тестовый филиал Центр
+[WebServer]                             <nav className="beauty-cal..." aria-label="Вид календаря">
+[WebServer]                               <LinkComponent>
+[WebServer]                                 <LinkComponent className="btn btn--s..." aria-current="page" href={"/calenda..."}>
+[WebServer]                                   <a
+[WebServer]                                     className="btn btn--secondary"
+[WebServer]                                     aria-current="page"
+[WebServer]                                     ref={function}
+[WebServer]                                     onClick={function onClick}
+[WebServer]                                     onMouseEnter={function onMouseEnter}
+[WebServer]                                     onTouchStart={function onTouchStart}
+[WebServer]                                     href={"/calendar?date=2026-10-19&"}
+[WebServer] -                                   style={{font-size:"30px"}}
+[WebServer]                                   >
+[WebServer] +                                   День
+[WebServer]                               <LinkComponent>
+[WebServer]                                 <LinkComponent className="btn btn--s..." href={"/calenda..."}>
+[WebServer]                                   <a
+[WebServer]                                     className="btn btn--secondary"
+[WebServer]                                     ref={function}
+[WebServer]                                     onClick={function onClick}
+[WebServer]                                     onMouseEnter={function onMouseEnter}
+[WebServer]                                     onTouchStart={function onTouchStart}
+[WebServer]                                     href={"/calendar?date=2026-10-19&view=week&"}
+[WebServer] -                                   style={{font-size:"30px"}}
+[WebServer]                                   >
+[WebServer] +                                   Неделя
+[WebServer]                             <JournalBoard day={{location:{...}, ...}} customers={[...]} employees={[...]} ...>
+[WebServer]                               <div className="beauty-bar...">
+[WebServer]                                 <div className="beauty-cal...">
+[WebServer]                                   <EmployeeFilter options={[...]} value="" onChange={function setMaster} ...>
+[WebServer]                                     <details ref={{current:null}} className="employee-f..." ...>
+[WebServer]                                       <summary
+[WebServer]                                         className="btn btn--secondary"
+[WebServer]                                         aria-label="Выбрать сотрудника: Все специалисты"
+[WebServer] -                                       style={{font-size:"30px"}}
+[WebServer]                                       >
+[WebServer]                                       <div className="employee-f...">
+[WebServer]                                         <Input type="search" aria-label="Поиск сотр..." placeholder="Найти по и..." ...>
+[WebServer]                                           <input
+[WebServer]                                             className="inp"
+[WebServer]                                             type="search"
+[WebServer]                                             aria-label="Поиск сотрудника"
+[WebServer]                                             placeholder="Найти по имени"
+[WebServer]                                             value=""
+[WebServer]                                             onChange={function onChange}
+[WebServer] -                                           style={{font-size:"34px"}}
+[WebServer]                                           >
+[WebServer]                                         <div className="employee-f..." aria-label="Сотрудники">
+[WebServer]                                           <Button tone="ghost" aria-pressed={true} onClick={function onClick}>
+[WebServer]                                             <button
+[WebServer]                                               className="btn btn--ghost"
+[WebServer]                                               aria-pressed={true}
+[WebServer]                                               onClick={function onClick}
+[WebServer] -                                             style={{font-size:"30px"}}
+[WebServer]                                             >
+[WebServer] +                                             Все специалисты
+[WebServer]                                           <Button tone="ghost" aria-pressed={false} onClick={function onClick}>
+[WebServer]                                             <button
+[WebServer]                                               className="btn btn--ghost"
+[WebServer]                                               aria-pressed={false}
+[WebServer]                                               onClick={function onClick}
+[WebServer] -                                             style={{font-size:"30px"}}
+[WebServer]                                             >
+[WebServer] +                                             Тест Анна
+[WebServer]                                           <Button tone="ghost" aria-pressed={false} onClick={function onClick}>
+[WebServer]                                             <button
+[WebServer]                                               className="btn btn--ghost"
+[WebServer]                                               aria-pressed={false}
+[WebServer]                                               onClick={function onClick}
+[WebServer] -                                             style={{font-size:"30px"}}
+[WebServer]                                             >
+[WebServer] +                                             Тест Борис
+[WebServer]                                   <DateBar date="2026-10-19" path="/calendar" filters={{employee:"", ...}}>
+[WebServer]                                     <DateBar calendar={true} date="2026-10-19" onToday={function onToday} ...>
+[WebServer]                                       <div className="date-bar">
+[WebServer]                                         <Button tone="secondary" type="button" onClick={function onToday}>
+[WebServer]                                           <button
+[WebServer]                                             className="btn btn--secondary"
+[WebServer]                                             type="button"
+[WebServer]                                             onClick={function onToday}
+[WebServer] -                                           style={{font-size:"30px"}}
+[WebServer]                                           >
+[WebServer] +                                           Сегодня
+[WebServer]                                         <Button tone="ghost" type="button" aria-label="Предыдущий..." ...>
+[WebServer]                                           <button
+[WebServer]                                             className="btn btn--ghost"
+[WebServer]                                             type="button"
+[WebServer]                                             aria-label="Предыдущий день"
+[WebServer]                                             onClick={function onPrevious}
+[WebServer] -                                           style={{font-size:"30px"}}
+[WebServer]                                           >
+[WebServer]                                         <Field label={<span>}>
+[WebServer]                                           <label htmlFor={undefined} className="field">
+[WebServer]                                             <span
+[WebServer]                                               className="sr-only"
+[WebServer] -                                             style={{font-size:"28px"}}
+[WebServer]                                             >
+[WebServer] +                                             Дата
+[WebServer]                                             <DateInput data-testid="beauty-day..." type="date" value="2026-10-19" ...>
+[WebServer]                                               <span
+[WebServer]                                                 className="date-field"
+[WebServer] -                                               style={{font-size:"28px"}}
+[WebServer]                                               >
+[WebServer]                                                 <input
+[WebServer]                                                   ref={{current:null}}
+[WebServer]                                                   type="date"
+[WebServer]                                                   className="inp date-field__input"
+[WebServer]                                                   id={undefined}
+[WebServer]                                                   data-testid="beauty-day-date"
+[WebServer]                                                   value="2026-10-19"
+[WebServer]                                                   onChange={function onChange}
+[WebServer]                                                   aria-describedby={undefined}
+[WebServer]                                                   aria-invalid={undefined}
+[WebServer] -                                                 style={{font-size:"34px"}}
+[WebServer]                                                 >
+[WebServer]                                                 ...
+[WebServer]                                         <Button tone="ghost" type="button" aria-label="Следующий ..." ...>
+[WebServer]                                           <button
+[WebServer]                                             className="btn btn--ghost"
+[WebServer]                                             type="button"
+[WebServer]                                             aria-label="Следующий день"
+[WebServer]                                             onClick={function onNext}
+[WebServer] -                                           style={{font-size:"30px"}}
+[WebServer]                                           >
+[WebServer]                                   <QuickReport date="2026-10-19" scope={[...]} build={function build}>
+[WebServer]                                     <Button tone="secondary" className="quick-repo..." type="button" ...>
+[WebServer]                                       <button
+[WebServer]                                         className="btn btn--secondary quick-report-trigger"
+[WebServer]                                         type="button"
+[WebServer]                                         aria-label="Быстрый отчёт"
+[WebServer]                                         title="Быстрый отчёт"
+[WebServer]                                         aria-haspopup="dialog"
+[WebServer]                                         onClick={function onClick}
+[WebServer] -                                       style={{font-size:"30px"}}
+[WebServer]                                       >
+[WebServer]                                     ...
+[WebServer]                                   <Button disabled={false} onClick={function onClick}>
+[WebServer]                                     <button
+[WebServer]                                       className="btn"
+[WebServer]                                       disabled={false}
+[WebServer]                                       onClick={function onClick}
+[WebServer] -                                     style={{font-size:"30px"}}
+[WebServer]                                     >
+[WebServer] +                                     + Новая запись
+[WebServer]                                 <Help title="Фильтры">
+[WebServer]                                   <details className="context-help">
+[WebServer]                                     <summary
+[WebServer] -                                     style={{font-size:"28px"}}
+[WebServer]                                     >
+[WebServer] +                                     Фильтры
+[WebServer]                                     <div>
+[WebServer]                                       <div className="beauty-fil...">
+[WebServer]                                         <Field label={<span>}>
+[WebServer]                                           <label htmlFor={undefined} className="field">
+[WebServer]                                             <span
+[WebServer] -                                             style={{font-size:"26px"}}
+[WebServer]                                             >
+[WebServer] +                                             Услуга
+[WebServer]                                             <Select aria-label="Услуга" value="" onChange={function onChange} ...>
+[WebServer]                                               <select
+[WebServer]                                                 className="inp"
+[WebServer]                                                 aria-label="Услуга"
+[WebServer]                                                 value=""
+[WebServer]                                                 onChange={function onChange}
+[WebServer]                                                 id={undefined}
+[WebServer]                                                 aria-describedby={undefined}
+[WebServer]                                                 aria-invalid={undefined}
+[WebServer] -                                               style={{font-size:"34px"}}
+[WebServer]                                               >
+[WebServer]                                         <Field label={<span>}>
+[WebServer]                                           <label htmlFor={undefined} className="field">
+[WebServer]                                             <span
+[WebServer] -                                             style={{font-size:"26px"}}
+[WebServer]                                             >
+[WebServer] +                                             Статус
+[WebServer]                                             <Select aria-label="Статус записи" value="" onChange={function onChange} ...>
+[WebServer]                                               <select
+[WebServer]                                                 className="inp"
+[WebServer]                                                 aria-label="Статус записи"
+[WebServer]                                                 value=""
+[WebServer]                                                 onChange={function onChange}
+[WebServer]                                                 id={undefined}
+[WebServer]                                                 aria-describedby={undefined}
+[WebServer]                                                 aria-invalid={undefined}
+[WebServer] -                                               style={{font-size:"34px"}}
+[WebServer]                                               >
+[WebServer]                                       <CalendarLegend>
+[WebServer]                                       <p
+[WebServer]                                         className="beauty-note"
+[WebServer] -                                       style={{font-size:"28px"}}
+[WebServer]                                       >
+[WebServer] +                                       Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые инт...
+[WebServer]                               <p
+[WebServer]                                 className="beauty-note"
+[WebServer]                                 data-testid="beauty-day-summary"
+[WebServer] -                               style={{font-size:"26px"}}
+[WebServer]                               >
+[WebServer] +                               Записей: 5
+[WebServer]                               ...
+[WebServer]                                 <div className="beauty-mob..." data-testid="beauty-mob...">
+[WebServer]                                   <div>
+[WebServer]                                     <p>
+[WebServer]                                     <p
+[WebServer]                                       className="beauty-note"
+[WebServer] -                                     style={{font-size:"26px"}}
+[WebServer]                                     >
+[WebServer] +                                     09:00–18:00
+[WebServer]                                     ...
+[WebServer]                               ...
+[WebServer]                     ...
+[WebServer]                   ...
+[WebServer]         ...
+[WebServer]  
+  ✓  10 tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 320 dark (3.5s)
+  ✓  11 tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 768 light (3.9s)
+  ✓  12 tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 768 dark (3.3s)
+  ✓  13 tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 1440 light (2.9s)
+  ✓  14 tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 1440 dark (3.5s)
+
+  14 passed (56.1s)
+
+# код выхода 0 · 57 с

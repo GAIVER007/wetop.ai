@@ -21,7 +21,8 @@ export function QuickReport({
   build,
 }: {
   date: string;
-  scope: string;
+  /** части подписи отчёта, каждая своей строкой, без разделителя-точки (DESIGN.md §14) */
+  scope: string[];
   build: () => QuickReportData;
 }) {
   const [open, setOpen] = useState(false);
@@ -61,7 +62,11 @@ export function QuickReport({
         className="quick-report"
         trapFocus
       >
-        <p className="quick-report-scope">{scope}</p>
+        <p className="quick-report-scope">
+          {scope.map((line) => (
+            <span key={line}>{line}</span>
+          ))}
+        </p>
         {failed && (
           <Alert>Не удалось составить отчёт: данные некорректны. Обновите страницу.</Alert>
         )}
@@ -86,7 +91,7 @@ export function QuickReport({
                   {data.statuses.map((s) => (
                     <div key={s.key}>
                       <dt>
-                        <i style={{ background: colors[s.tone] }} aria-hidden="true" />
+                        <i className={`quick-report-dot--${s.tone}`} aria-hidden="true" />
                         {s.label}
                       </dt>
                       <dd>{s.count}</dd>

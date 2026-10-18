@@ -1,0 +1,72 @@
+# Сквозные (e2e) · 18.10.2026 20:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 24
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/customer-import.spec.ts' '--grep' 'владелец импортирует' '--workers=1'
+[WebServer] (node:28852) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28897) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28985) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29021) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29027) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1995ms. If /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:29044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29234) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/customer-import.spec.ts:7:1 › M4-B2: владелец импортирует CSV, восстанавливает результат и безопасно отменяет (1.1m)
+
+
+  1) tests/ui/customer-import.spec.ts:7:1 › M4-B2: владелец импортирует CSV, восстанавливает результат и безопасно отменяет 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByRole('row').filter({ hasText: 'Импорт Тест Первый' })
+    Expected: 1
+    Received: 2
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByRole('row').filter({ hasText: 'Импорт Тест Первый' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Импорт Тест Первый' })
+        32 × locator resolved to 2 elements
+           - unexpected value "2"
+
+
+      30 |   await expect(panel.getByText('Уже были в салоне').locator('..')).toContainText('1');
+      31 |   await expect(panel.getByText('Пропущены').locator('..')).toContainText('1');
+    > 32 |   await expect(main.getByRole('row').filter({ hasText: 'Импорт Тест Первый' })).toHaveCount(1);
+         |                                                                                 ^
+      33 |   await expect(main.getByRole('row').filter({ hasText: 'Повтор не заменяет' })).toHaveCount(0);
+      34 |   // Повтор той же команды с тем же clientRequestId возвращает завершённый job и не открывает upload заново.
+      35 |   await repeatImport.click();
+        at /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/ui/customer-import.spec.ts:32:81
+
+    Error Context: test-results/customer-import-M4-B2-влад-a3924-ультат-и-безопасно-отменяет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/customer-import-M4-B2-влад-a3924-ультат-и-безопасно-отменяет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/customer-import-M4-B2-влад-a3924-ультат-и-безопасно-отменяет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/customer-import.spec.ts:7:1 › M4-B2: владелец импортирует CSV, восстанавливает результат и безопасно отменяет 
+
+# код выхода 1 · 1 мин 59 с

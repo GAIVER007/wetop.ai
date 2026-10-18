@@ -298,6 +298,13 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /food-service/stock/write-offs': 'desk',
   'POST /food-service/stock/inventory': 'desk',
   'GET /beauty/customers': 'desk',
+  'GET /beauty/customer-imports': 'owner',
+  'GET /beauty/customer-imports/:id': 'owner',
+  'GET /beauty/customer-imports/:id/rows': 'owner',
+  'POST /beauty/customer-imports': 'owner',
+  'PUT /beauty/customer-imports/:id/rows': 'owner',
+  'POST /beauty/customer-imports/:id/submit': 'owner',
+  'POST /beauty/customer-imports/:id/undo': 'owner',
   // VIP и день рождения клиента салона (§36)
   'PATCH /beauty/customers/:id': 'desk',
   'GET /beauty/services': 'desk',

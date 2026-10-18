@@ -12,6 +12,8 @@ const SNAPSHOTS = 'reports/beauty-b3-2026-10-03';
 test('M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются', async ({ page, request }) => {
   test.setTimeout(180_000);
   await openSalon(page, request);
+  // Локальный preview доступен администратору; durable import и его recovery проверяются отдельно у OWNER.
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { role: 'STAFF' } });
   await page.goto('/customers');
   const main = page.getByRole('main');
   const before = await main.getByRole('row').count();

@@ -40,8 +40,8 @@ function segment(row: BeautyCustomerRow): { label: string; tone: 'info' | 'ok' |
     : { label: 'Новый', tone: 'info' };
 }
 
-export function BeautyCustomersTable({ items, canEdit = false, businessId = '' }: {
-  items: BeautyCustomerRow[]; canEdit?: boolean; businessId?: string;
+export function BeautyCustomersTable({ items, canEdit = false, canImport = false, businessId = '' }: {
+  items: BeautyCustomerRow[]; canEdit?: boolean; canImport?: boolean; businessId?: string;
 }) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
@@ -173,7 +173,7 @@ export function BeautyCustomersTable({ items, canEdit = false, businessId = '' }
         </tbody>
       </Table>
       {canEdit && <Overlay open={importing} onClose={() => setImporting(false)} title="Проверка CSV клиентов" drawer trapFocus>
-        {importing && <ImportCustomers />}
+        {importing && <ImportCustomers businessId={businessId} canImport={canImport} />}
       </Overlay>}
       {canEdit && <Overlay open={creating} onClose={() => setCreating(false)} title="Добавить клиента" drawer trapFocus>
         {creating && <CreateCustomer key={businessId} businessId={businessId} onSaved={onSaved} />}

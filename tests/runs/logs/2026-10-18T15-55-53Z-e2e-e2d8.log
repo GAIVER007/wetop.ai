@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 18.10.2026 20:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6b97be5 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 25
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/customer-import.spec.ts' 'tests/ui/beauty-catalog.spec.ts' '--grep' 'M4-|филиал включает услугу|ошибки услуги' '--timeout=180000' '--workers=1'
+[WebServer] (node:88182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88222) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88225) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88274) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88318) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88322) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+(node:88394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88547) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/beauty-catalog.spec.ts:12:1 › M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются (11.6s)
+[WebServer] (node:88694) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/beauty-catalog.spec.ts:61:1 › M4-A: клиент без записи, повтор номера и сохранение ввода при ошибке (7.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '581693384'
+[WebServer] }
+[WebServer] (node:88739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/beauty-catalog.spec.ts:161:1 › филиал включает услугу и ставит свою цену (9.1s)
+[WebServer] (node:88789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/beauty-catalog.spec.ts:184:1 › ошибки услуги словами, введённое не стирается (7.0s)
+[WebServer] (node:88818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/ui/customer-import.spec.ts:7:1 › M4-B2: владелец импортирует CSV, восстанавливает результат и безопасно отменяет (10.7s)
+[WebServer] (node:89017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/ui/customer-import.spec.ts:62:1 › M4-B2: незавершённая загрузка после reload продолжает тот же job и сверяет пакеты с offset 0 (6.6s)
+
+  6 passed (1.0m)
+
+# код выхода 0 · 1 мин 2 с

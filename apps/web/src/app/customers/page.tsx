@@ -23,7 +23,8 @@ export default async function CustomersPage() {
         subtitle="Клиенты этого бизнеса и история их визитов."
       >
         <BeautyCustomersTable key={me.context?.businessId} items={items} businessId={me.context?.businessId ?? ''}
-          canEdit={!shell.readOnly && mayAccess(shell.access, 'desk')} />
+          canEdit={!shell.readOnly && mayAccess(shell.access, 'desk')}
+          canImport={!shell.readOnly && mayAccess(shell.access, 'desk') && shell.access.role === 'OWNER'} />
       </Page>
     );
   } catch (error) {

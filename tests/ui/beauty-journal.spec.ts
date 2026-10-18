@@ -86,7 +86,7 @@ async function readySalon(page: Page, request: APIRequestContext) {
 
 async function openDay(page: Page) {
   await page.goto(`/beauty?date=${DAY}`);
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Календарь');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Журнал');
 }
 
 async function book(page: Page, time: string, name: string) {

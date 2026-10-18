@@ -41,9 +41,9 @@ test('владелец: таблица людей с ролями и датам�
   // «Был в системе» — дата последнего входа (формат displayDate); не входил — слова, а не прочерк
   await expect(rows.nth(1)).toContainText('28 сент.');
   await expect(rows.nth(2)).toContainText('ещё не входил');
-  // в левом меню раздел «Настройки» ведёт сюда (ADR-161)
-  const settings = await openSection(page, 'Настройки');
-  await expect(settings.locator('a[href="/team"]')).toBeVisible();
+  // в меню раздел «Персонал» ведёт сюда (одно меню у всех направлений, 17.10.2026)
+  const staff = await openSection(page, 'Персонал');
+  await expect(staff.locator('a[href="/team"]')).toBeVisible();
 });
 
 test('приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа»', async ({ page }) => {

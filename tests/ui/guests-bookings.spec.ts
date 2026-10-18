@@ -316,15 +316,16 @@ test('гости и бронирования: одна вкладка меню, 
   await page.goto('/guests');
   // подразделы левого меню (ADR-161) в панели, она закрыта: ищем с учётом скрытых
   const menu = page.locator('.sidenav__panel');
-  const tab = menu.locator('.sidenav__sections a[href="/guests"]');
+  // одно меню у всех направлений (17.10.2026): раздел «Клиенты», пункты «Клиенты» и «Записи»
+  const tab = menu.locator('.sidenav__items a[href="/guests"]');
   await expect(tab).toHaveAttribute('aria-current', 'page');
   await expect(menu.getByRole('link', { name: 'Гости', exact: true, includeHidden: true })).toHaveCount(0);
   await expect(menu.getByRole('link', { name: 'Брони', exact: true, includeHidden: true })).toHaveCount(0);
 
-  // классический список броней живёт по прежнему адресу, и меню там подсвечивает ту же вкладку
+  // классический список броней живёт по прежнему адресу, в меню это «Записи» того же раздела
   await page.getByRole('main').getByRole('link', { name: 'Список броней', exact: true }).click();
   await expect(page).toHaveURL(/\/reservations$/);
-  await expect(tab).toHaveAttribute('aria-current', 'page');
+  await expect(menu.locator('.sidenav__items a[href="/reservations"]')).toHaveAttribute('aria-current', 'page');
   await page.goto('/guests');
   await page.getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true }).first().click();
   await expect(page).toHaveURL(/\/reservations\/new/);

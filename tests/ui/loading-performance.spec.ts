@@ -34,7 +34,7 @@ test('«Финансы» показывают блоки, пока настро�
     await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.getByTestId('owner-risks')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('owner-risks').filter({ visible: true })).toBeVisible({ timeout: 5000 });
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Объект не загружен',
     );
@@ -67,7 +67,7 @@ test('стойка и её шахматка запрашиваются пара�
       { timeout: 2000 },
     )
     .toBe(1);
-  await expect(page.getByTestId('owner-risks')).toBeVisible();
+  await expect(page.getByTestId('owner-risks').filter({ visible: true })).toBeVisible();
 });
 
 test('мобильное меню использует уже загруженную свежесть без второго опроса', async ({ page }) => {
@@ -108,7 +108,7 @@ test('замер: блоки «Финансов» при задержке нас
       [
         ['heading', page.getByRole('heading', { name: 'Главная', exact: true })],
         ['today', page.getByTestId('biz-arrivals')],
-        ['risks', page.getByTestId('owner-risks')],
+        ['risks', page.getByTestId('owner-risks').filter({ visible: true })],
       ].map(async ([key, locator]) => {
         await expect(locator as import('@playwright/test').Locator).toBeVisible();
         sample[key as string] = Math.round(performance.now() - start);

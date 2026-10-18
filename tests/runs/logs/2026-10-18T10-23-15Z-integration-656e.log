@@ -1,0 +1,85 @@
+# Интеграционные (integration) · 18.10.2026 15:23 Алматы · srv1719674
+# коммит 228ecdf (fix/owner-report-period-20261018)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T10-23-15Z-integration-656e.json' 'tests/integration/beauty-appointment-payment.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-pr599-reconcile
+
+[pms_test] роли wetop_app включён вход (локальная база)
+ ❯ |integration| tests/integration/beauty-appointment-payment.test.ts (6 tests | 6 failed) 1948ms
+   ❯ оплата записи салона (integration, §49) (6)
+     × частями и разными способами до цены; повтор ключа не создаёт второй приход; больше остатка нельзя 88ms
+     × отмена и незаезд с оплатой закрыты, перенос не опускает цену ниже оплаченного; после аннулирования можно 40ms
+     × после «Выполнено» платить можно, аннулировать оплату нельзя 52ms
+     × база: со ссылкой на запись только приход и возврат, только своего филиала, и после вставки не меняется 65ms
+     × возврат (§54): только после «Выполнено», с причиной, не больше чистой оплаты и остатка способа, повтор по ключу 41ms
+     × «В процессе» (§58): держит время мастера, оплачивается, незаезда нет, выполняется 50ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-appointment-payment.test.ts > оплата записи салона (integration, §49) > частями и разными способами до цены; повтор ключа не создаёт второй приход; больше остатка нельзя
+ FAIL  |integration| tests/integration/beauty-appointment-payment.test.ts > оплата записи салона (integration, §49) > отмена и незаезд с оплатой закрыты, перенос не опускает цену ниже оплаченного; после аннулирования можно
+ FAIL  |integration| tests/integration/beauty-appointment-payment.test.ts > оплата записи салона (integration, §49) > после «Выполнено» платить можно, аннулировать оплату нельзя
+ FAIL  |integration| tests/integration/beauty-appointment-payment.test.ts > оплата записи салона (integration, §49) > база: со ссылкой на запись только приход и возврат, только своего филиала, и после вставки не меняется
+ FAIL  |integration| tests/integration/beauty-appointment-payment.test.ts > оплата записи салона (integration, §49) > возврат (§54): только после «Выполнено», с причиной, не больше чистой оплаты и остатка способа, повтор по ключу
+ FAIL  |integration| tests/integration/beauty-appointment-payment.test.ts > оплата записи салона (integration, §49) > «В процессе» (§58): держит время мастера, оплачивается, незаезда нет, выполняется
+PrismaClientValidationError: 
+Invalid `prisma.customer.findFirst()` invocation:
+
+{
+  where: {
+    organizationId: "1fd2a523-7bf8-44ab-8173-c9687e51838d",
+    phoneNormalized: "<телефон>",
+    ~~~~~~~~~~~~~~~
+?   AND?: CustomerWhereInput | CustomerWhereInput[],
+?   OR?: CustomerWhereInput[],
+?   NOT?: CustomerWhereInput | CustomerWhereInput[],
+?   id?: UuidFilter | String,
+?   firstName?: StringFilter | String,
+?   lastName?: StringNullableFilter | String | Null,
+?   phone?: StringNullableFilter | String | Null,
+?   email?: StringNullableFilter | String | Null,
+?   notes?: StringNullableFilter | String | Null,
+?   status?: EnumCustomerStatusFilter | CustomerStatus,
+?   isVip?: BoolFilter | Boolean,
+?   birthDate?: DateTimeNullableFilter | DateTime | Null,
+?   createdAt?: DateTimeFilter | DateTime,
+?   updatedAt?: DateTimeFilter | DateTime,
+?   organization?: OrganizationScalarRelationFilter | OrganizationWhereInput,
+?   businesses?: CustomerBusinessListRelationFilter,
+?   appointments?: AppointmentListRelationFilter,
+?   restaurantReservations?: RestaurantReservationListRelationFilter
+  },
+  select: {
+    id: true,
+    status: true
+  }
+}
+
+Unknown argument `phoneNormalized`. Available options are marked with ?.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ findOrCreateCustomer apps/api/src/customers/identity.ts:15:7
+     13|   const key = customerPhoneKey(customer.phone);
+     14|   const known = customer.phone
+     15|     ? await tx.customer.findFirst({
+       |       ^
+     16|         where: { organizationId, ...(key ? { phoneNormalized: key } : …
+     17|         select: { id: true, status: true },
+ ❯ apps/api/src/beauty/appointments.ts:215:23
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/scope.ts:112:24
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  10:23:17
+   Duration  13.47s (transform 54%, tests 25%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-18T10-23-15Z-integration-656e.json
+
+# код выхода 1 · 16 с

@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 18.10.2026 15:28 Алматы · srv1719674
+# коммит 228ecdf (fix/release-acceptance-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T10-28-49Z-integration-92c4.json' 'tests/integration/beauty-appointment-payment.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-pr599-reconcile
+
+ ✓ |integration| tests/integration/beauty-appointment-payment.test.ts (6 tests) 2298ms
+   ✓ оплата записи салона (integration, §49) (6)
+     ✓ после «Выполнено» платить можно, аннулировать оплату нельзя 302ms
+     ✓ возврат (§54): только после «Выполнено», с причиной, не больше чистой оплаты и остатка способа, повтор по ключу 416ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  10:28:51
+   Duration  6.67s (tests 52%, transform 33%, import 14%)
+
+JSON report written to /tmp/pms-test-2026-10-18T10-28-49Z-integration-92c4.json
+
+# код выхода 0 · 9 с

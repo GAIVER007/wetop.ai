@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 18.10.2026 15:24 Алматы · srv1719674
+# коммит 228ecdf (fix/owner-report-period-20261018)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T10-24-38Z-integration-042d.json' 'tests/integration/beauty-appointment-payment.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-pr599-reconcile
+
+ ❯ |integration| tests/integration/beauty-appointment-payment.test.ts (6 tests | 1 failed) 2173ms
+   ❯ оплата записи салона (integration, §49) (6)
+     ✓ частями и разными способами до цены; повтор ключа не создаёт второй приход; больше остатка нельзя 309ms
+     × отмена и незаезд с оплатой закрыты, перенос не опускает цену ниже оплаченного; после аннулирования можно 160ms
+     ✓ после «Выполнено» платить можно, аннулировать оплату нельзя 187ms
+     ✓ база: со ссылкой на запись только приход и возврат, только своего филиала, и после вставки не меняется 86ms
+     ✓ возврат (§54): только после «Выполнено», с причиной, не больше чистой оплаты и остатка способа, повтор по ключу 351ms
+     ✓ «В процессе» (§58): держит время мастера, оплачивается, незаезда нет, выполняется 184ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-appointment-payment.test.ts > оплата записи салона (integration, §49) > отмена и незаезд с оплатой закрыты, перенос не опускает цену ниже оплаченного; после аннулирования можно
+AssertionError: expected [Function] to throw error including 'Сначала аннулируйте оплату записи в к…' but got 'Можно после начала визита'
+
+Expected: "Сначала аннулируйте оплату записи в кассе"
+Received: "Можно после начала визита"
+
+ ❯ tests/integration/beauty-appointment-payment.test.ts:98:75
+     96|     await pay(a.id, 500000);
+     97|     await expect(as(() => service.setStatus(a.id, { status: 'CANCELLED…
+     98|     await expect(as(() => service.setStatus(a.id, { status: 'NO_SHOW' …
+       |                                                                           ^
+     99|     await expect(as(() => service.move(a.id, { serviceId: cheap }))).r…
+    100|     const op = await db.restaurantCashOperation.findFirstOrThrow({ whe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  10:24:39
+   Duration  11.42s (transform 47%, tests 35%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-10-18T10-24-38Z-integration-042d.json
+
+# код выхода 1 · 13 с

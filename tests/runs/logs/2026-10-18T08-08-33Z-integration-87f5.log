@@ -1,0 +1,311 @@
+# Интеграционные (integration) · 18.10.2026 13:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит a1c5d36 (codex/salons-tz4-m4a), незакоммиченных файлов набора: 17
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-08-33Z-integration-87f5.json' 'tests/integration/customers-create.test.ts' 'tests/integration/customer-phone.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/site-forms.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+(node:8673) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-forms.test.ts (23 tests) 780ms
+ ❯ |integration| tests/integration/beauty-appointments.test.ts (14 tests | 11 failed) 312ms
+   ❯ журнал записей салона (integration, DATA_MODEL §19.1) (14)
+     ✓ день пустой: мастер в столбцах, его часы и услуги для формы 12ms
+     × запись новому клиенту: клиент заводится, цена снимается с каталога 11ms
+     × в занятое время того же мастера второй записи нет 7ms
+     × вплотную записать можно 5ms
+     ✓ мимо графика мастера записи нет 3ms
+     × в день отсутствия записи нет, а уже созданные остаются 13ms
+     × чужой клиент к записи не привязывается 3ms
+     × повторная запись выбранному клиенту второго клиента не плодит 4ms
+     × тот же телефон это тот же клиент, второго не заводим 2ms
+     × перенос меняет время и пишется в журнал 3ms
+     × перенос в занятое время не проходит 4ms
+     × состояния идут по жизни записи, из выполненной дороги нет 4ms
+     × отменённая запись место мастера больше не держит 4ms
+     ✓ чужая запись не найдена 2ms
+ ✓ |integration| tests/integration/customer-phone.test.ts (9 tests) 31ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 220ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > запись новому клиенту: клиент заводится, цена снимается с каталога
+PrismaClientValidationError: 
+Invalid `prisma.customer.create()` invocation:
+
+{
+  data: {
+    id: "32b77bbb-922f-4a41-9a42-fdabab55fd39",
+    organizationId: "792c5b50-91f7-4493-98ee-7da17219c560",
+    kind: "new",
+    ~~~~
+    firstName: "Айгуль",
+    lastName: null,
+    phone: "<телефон>",
+?   phoneNormalized?: String | Null,
+?   email?: String | Null,
+?   notes?: String | Null,
+?   status?: CustomerStatus,
+?   isVip?: Boolean,
+?   birthDate?: DateTime | Null,
+?   createdAt?: DateTime,
+?   updatedAt?: DateTime,
+?   businesses?: CustomerBusinessUncheckedCreateNestedManyWithoutCustomerInput,
+?   appointments?: AppointmentUncheckedCreateNestedManyWithoutCustomerInput,
+?   restaurantReservations?: RestaurantReservationUncheckedCreateNestedManyWithoutCustomerInput
+  }
+}
+
+Unknown argument `kind`. Did you mean `id`? Available options are marked with ?.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ findOrCreateCustomer apps/api/src/customers/identity.ts:24:5
+     22|   const id = randomUUID();
+     23|   try {
+     24|     await tx.customer.create({ data: { id, organizationId, ...customer…
+       |     ^
+     25|   } catch (error) {
+     26|     if (typeof error === 'object' && error !== null && (error as { cod…
+ ❯ apps/api/src/beauty/appointments.ts:215:23
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/scope.ts:112:24
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > в занятое время того же мастера второй записи нет
+AssertionError: expected error to be instance of ConflictException
+
+- Expected:
+[Function ConflictException]
+
++ Received:
+PrismaClientValidationError {
+  "message": "
+Invalid `prisma.customer.create()` invocation:
+
+{
+  data: {
+    id: \"34dfa409-388c-4ee9-988f-33108fecb4c9\",
+    organizationId: \"792c5b50-91f7-4493-98ee-7da17219c560\",
+    kind: \"new\",
+    ~~~~
+    firstName: \"Сауле\",
+    lastName: null,
+    phone: null,
+?   phoneNormalized?: String | Null,
+?   email?: String | Null,
+?   notes?: String | Null,
+?   status?: CustomerStatus,
+?   isVip?: Boolean,
+?   birthDate?: DateTime | Null,
+?   createdAt?: DateTime,
+?   updatedAt?: DateTime,
+?   businesses?: CustomerBusinessUncheckedCreateNestedManyWithoutCustomerInput,
+?   appointments?: AppointmentUncheckedCreateNestedManyWithoutCustomerInput,
+?   restaurantReservations?: RestaurantReservationUncheckedCreateNestedManyWithoutCustomerInput
+  }
+}
+
+Unknown argument `kind`. Did you mean `id`? Available options are marked with ?.",
+  "name": "PrismaClientValidationError",
+  "clientVersion": "7.10.0",
+}
+
+ ❯ tests/integration/beauty-appointments.test.ts:185:23
+    183|       service.create({ employeeId, serviceId, startsAt: at('10:30'), f…
+    184|     );
+    185|     await expect(call).rejects.toThrow(ConflictException);
+       |                       ^
+    186|     await expect(call).rejects.toThrow(/уже занят/i);
+    187|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > вплотную записать можно
+PrismaClientValidationError: 
+Invalid `prisma.customer.create()` invocation:
+
+{
+  data: {
+    id: "923d8fbd-4723-4511-8f25-5f4f8f1645f3",
+    organizationId: "792c5b50-91f7-4493-98ee-7da17219c560",
+    kind: "new",
+    ~~~~
+    firstName: "Сауле",
+    lastName: null,
+    phone: null,
+?   phoneNormalized?: String | Null,
+?   email?: String | Null,
+?   notes?: String | Null,
+?   status?: CustomerStatus,
+?   isVip?: Boolean,
+?   birthDate?: DateTime | Null,
+?   createdAt?: DateTime,
+?   updatedAt?: DateTime,
+?   businesses?: CustomerBusinessUncheckedCreateNestedManyWithoutCustomerInput,
+?   appointments?: AppointmentUncheckedCreateNestedManyWithoutCustomerInput,
+?   restaurantReservations?: RestaurantReservationUncheckedCreateNestedManyWithoutCustomerInput
+  }
+}
+
+Unknown argument `kind`. Did you mean `id`? Available options are marked with ?.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ findOrCreateCustomer apps/api/src/customers/identity.ts:24:5
+     22|   const id = randomUUID();
+     23|   try {
+     24|     await tx.customer.create({ data: { id, organizationId, ...customer…
+       |     ^
+     25|   } catch (error) {
+     26|     if (typeof error === 'object' && error !== null && (error as { cod…
+ ❯ apps/api/src/beauty/appointments.ts:215:23
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/scope.ts:112:24
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > в день отсутствия записи нет, а уже созданные остаются
+AssertionError: expected [] to have a length of 2 but got +0
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ tests/integration/beauty-appointments.test.ts:208:30
+    206|     ).rejects.toThrow(/отсутствие/i);
+    207|     const day = await as('STAFF', () => service.day(DATE));
+    208|     expect(day.appointments).toHaveLength(2);
+       |                              ^
+    209|     expect(day.columns[0]?.timeOff).toBe(true);
+    210|     // отсутствие снимаем, дальше оно мешает
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > чужой клиент к записи не привязывается
+AssertionError: expected [Function] to throw error matching /Клиент не найден/i but got 'У мастера в этот день отсутствие'
+
+- Expected:
+/Клиент не найден/i
+
++ Received:
+"У мастера в этот день отсутствие"
+
+ ❯ tests/integration/beauty-appointments.test.ts:220:6
+    218|         service.create({ employeeId, serviceId, startsAt: at('15:00'),…
+    219|       ),
+    220|     ).rejects.toThrow(/Клиент не найден/i);
+       |      ^
+    221|   });
+    222|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > повторная запись выбранному клиенту второго клиента не плодит
+BadRequestException: Выберите клиента или впишите имя
+ ❯ BeautyAppointmentsService.create apps/api/src/beauty/appointments.ts:196:27
+    194|     if (!scope.locationId) throw new ConflictException('Сначала выбери…
+    195|     const parsed = parseAppointmentInput(raw);
+    196|     if (!parsed.ok) throw new BadRequestException(parsed.reason);
+       |                           ^
+    197|     const input = parsed.value;
+    198|
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/beauty-appointments.test.ts:226:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > тот же телефон это тот же клиент, второго не заводим
+ConflictException: У мастера в этот день отсутствие
+ ❯ planBeautyAppointment apps/api/src/beauty/appointments.ts:586:23
+    584|     })),
+    585|   });
+    586|   if (!plan.ok) throw new ConflictException(plan.reason);
+       |                       ^
+    587|   return plan.value;
+    588| }
+ ❯ BeautyAppointmentsService.create apps/api/src/beauty/appointments.ts:199:18
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/beauty-appointments.test.ts:237:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > перенос меняет время и пишется в журнал
+NotFoundException: Запись не найдена
+ ❯ BeautyAppointmentsService.own apps/api/src/beauty/appointments.ts:481:31
+    479|   /** Запись своего филиала. Чужая и несуществующая одинаково не найде…
+    480|   private async own(id: string) {
+    481|     if (!UUID.test(id)) throw new NotFoundException('Запись не найдена…
+       |                               ^
+    482|     const scope = await beautyScope(this.prisma, true);
+    483|     if (!scope.locationId) throw new ConflictException('Сначала выбери…
+ ❯ BeautyAppointmentsService.move apps/api/src/beauty/appointments.ts:263:39
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/beauty-appointments.test.ts:255:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > перенос в занятое время не проходит
+AssertionError: expected [Function] to throw error matching /уже занят/i but got 'Запись не найдена'
+
+- Expected:
+/уже занят/i
+
++ Received:
+"Запись не найдена"
+
+ ❯ tests/integration/beauty-appointments.test.ts:266:81
+    264|     const before = await as('STAFF', () => service.day(DATE));
+    265|     const id = before.appointments.find((a) => a.startMinutes === 780)…
+    266|     await expect(as('STAFF', () => service.move(id, { startsAt: at('10…
+       |                                                                                 ^
+    267|   });
+    268|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > состояния идут по жизни записи, из выполненной дороги нет
+NotFoundException: Запись не найдена
+ ❯ BeautyAppointmentsService.own apps/api/src/beauty/appointments.ts:481:31
+    479|   /** Запись своего филиала. Чужая и несуществующая одинаково не найде…
+    480|   private async own(id: string) {
+    481|     if (!UUID.test(id)) throw new NotFoundException('Запись не найдена…
+       |                               ^
+    482|     const scope = await beautyScope(this.prisma, true);
+    483|     if (!scope.locationId) throw new ConflictException('Сначала выбери…
+ ❯ BeautyAppointmentsService.setStatus apps/api/src/beauty/appointments.ts:319:39
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/beauty-appointments.test.ts:272:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  |integration| tests/integration/beauty-appointments.test.ts > журнал записей салона (integration, DATA_MODEL §19.1) > отменённая запись место мастера больше не держит
+NotFoundException: Запись не найдена
+ ❯ BeautyAppointmentsService.own apps/api/src/beauty/appointments.ts:481:31
+    479|   /** Запись своего филиала. Чужая и несуществующая одинаково не найде…
+    480|   private async own(id: string) {
+    481|     if (!UUID.test(id)) throw new NotFoundException('Запись не найдена…
+       |                               ^
+    482|     const scope = await beautyScope(this.prisma, true);
+    483|     if (!scope.locationId) throw new ConflictException('Сначала выбери…
+ ❯ BeautyAppointmentsService.setStatus apps/api/src/beauty/appointments.ts:319:39
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/beauty-appointments.test.ts:284:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  11 failed | 39 passed (50)
+   Start at  01:08:34
+   Duration  3.58s (tests 51%, import 31%, transform 19%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-08-33Z-integration-87f5.json
+
+# код выхода 1 · 4 с

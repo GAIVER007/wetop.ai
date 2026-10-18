@@ -1,0 +1,39 @@
+# Модульные (unit) · 18.10.2026 13:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит a1c5d36 (codex/salons-tz4-m4a), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-04-00Z-unit-7a4c.json' 'apps/web/src/app/customers/beauty-table.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| apps/web/src/app/customers/beauty-table.test.ts (3 tests | 1 failed) 9ms
+   ❯ Дата последнего визита клиента салона (3)
+     × позволяет добавить клиента без визита, если разрешена запись 7ms
+     ✓ не предлагает создание в режиме чтения 1ms
+     ✓ показывает локальный день визита вместо предыдущего дня UTC 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/customers/beauty-table.test.ts > Дата последнего визита клиента салона > позволяет добавить клиента без визита, если разрешена запись
+AssertionError: expected '<div class="beauty-bar"><p role="stat…' to contain 'Добавить клиента'
+
+Expected: "Добавить клиента"
+Received: "<div class="beauty-bar"><p role="status">0 клиентов</p><div class="beauty-customers-controls"><input class="inp" id="_R_0_" type="search" aria-label="Поиск по имени или телефону" placeholder="Имя или телефон" value=""/><select class="inp" aria-label="Сегмент"><option value="all" selected="">Все клиенты</option><option value="new">Новые</option><option value="regular">Постоянные</option><option value="vip">VIP</option><option value="archived">В архиве</option></select></div></div><div class="table-scroll" tabindex="0" role="region" aria-label="Таблица, прокрутка по горизонтали"><table class="tbl beauty-customers-table"><thead><tr><th>Клиент</th><th>Телефон</th><th class="beauty-col-wide">Последний визит</th><th>Всего визитов</th><th class="beauty-col-wide">Средний чек</th><th>Статус</th><th>День рождения</th><th><span class="sr-only">Действия</span></th></tr></thead><tbody><tr><td colSpan="8">Клиентов пока нет. Новый клиент добавляется при создании записи.</td></tr></tbody></table></div>"
+
+ ❯ apps/web/src/app/customers/beauty-table.test.ts:10:18
+      8|   it('позволяет добавить клиента без визита, если разрешена запись', (…
+      9|     const html = renderToStaticMarkup(createElement(BeautyCustomersTab…
+     10|     expect(html).toContain('Добавить клиента');
+       |                  ^
+     11|     expect(html).not.toContain('Новый клиент добавляется при создании …
+     12|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  01:04:01
+   Duration  586ms (transform 59%, import 39%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-04-00Z-unit-7a4c.json
+
+# код выхода 1 · 2 с

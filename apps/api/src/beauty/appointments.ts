@@ -28,17 +28,13 @@ import {
   type AppointmentPlan,
   type AppointmentStatus,
 } from '@pms/domain';
+import { findOrCreateCustomer } from '../customers/identity';
 import { currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import type { DbTx } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
-
-/** Код P2002 у Prisma: нарушен уникальный индекс. Другие ошибки базы не глотаем. */
-function isUniqueViolation(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && (error as { code?: unknown }).code === 'P2002';
-}
 
 /**
  * Журнал записей салона (DATA_MODEL §19.1, срез B5): день филиала столбцами по мастерам.
@@ -216,7 +212,7 @@ export class BeautyAppointmentsService {
         if (!own) throw new NotFoundException('Клиент не найден');
         customerId = own.id;
       } else {
-        customerId = await findOrCreateCustomer(tx, scope.organizationId, input.customer);
+        customerId = (await findOrCreateCustomer(tx, scope.organizationId, input.customer)).id;
       }
       // клиент становится виден бизнесу при первом обращении в него (§19.1)
       await tx.customerBusiness.createMany({
@@ -613,46 +609,6 @@ export async function employeeBusy(
     select: { startsAt: true },
   });
   return busy !== null;
-}
-
-/**
- * Клиент по телефону: тот же телефон это тот же клиент (`customers` уникален по (organization_id, phone)), иначе новый.
- * Вызывается под замком филиала (`beautyTransaction` и запись с сайта берут его `FOR UPDATE`); если параллельный запрос
- * всё же успел завести того же клиента, проигравший откатывается целиком и получает 409 (CORE-SECURITY-FIX-01, U3-b).
- */
-export async function findOrCreateCustomer(
-  tx: Pick<DbTx, 'customer'>,
-  organizationId: string,
-  customer: { firstName: string; lastName: string | null; phone: string | null },
-  archivedMessage = 'Клиент в архиве',
-): Promise<string> {
-  const known = customer.phone
-    ? await tx.customer.findFirst({
-        where: { organizationId, phone: customer.phone },
-        select: { id: true, status: true },
-      })
-    : null;
-  if (known && known.status !== 'ACTIVE') throw new ConflictException(archivedMessage);
-  if (known) return known.id;
-  const id = randomUUID();
-  try {
-    await tx.customer.create({
-      data: {
-        id,
-        organizationId,
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        phone: customer.phone,
-      },
-    });
-  } catch (error) {
-    if (isUniqueViolation(error))
-      throw new ConflictException(
-        'Клиент с таким телефоном уже записывается: повторите запись через несколько секунд',
-      );
-    throw error;
-  }
-  return id;
 }
 
 /** `time` Prisma отдаёт как момент 1970-01-01 */

@@ -1,0 +1,28 @@
+# Интеграционные (integration) · 18.10.2026 13:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит a1c5d36 (codex/salons-tz4-m4a), незакоммиченных файлов набора: 18
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-12-38Z-integration-df04.json' 'tests/integration/customers-create.test.ts' 'tests/integration/customer-phone.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/site-forms.test.ts' 'tests/integration/mv6-food.test.ts' 'tests/integration/function-search-path.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+[pms_test] миграций применено 1; данные на месте
+(node:11705) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv6-food.test.ts (19 tests) 1588ms
+   ✓ MV6 real PostgreSQL (19)
+     ✓ HTTP reload and every route enforce vertical, scope, permissions and READ_ONLY 639ms
+(node:11731) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-forms.test.ts (23 tests) 798ms
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 605ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 250ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 96ms
+ ✓ |integration| tests/integration/customer-phone.test.ts (9 tests) 31ms
+
+ Test Files  6 passed (6)
+      Tests  71 passed (71)
+   Start at  01:12:39
+   Duration  5.99s (tests 65%, import 23%, transform 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-12-38Z-integration-df04.json
+
+# код выхода 0 · 7 с

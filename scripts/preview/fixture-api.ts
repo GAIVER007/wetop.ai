@@ -13,6 +13,8 @@ import { fixtureAssetById, resetSiteAssetsFixture, siteAssetsFixture } from './f
 import { createServer } from 'node:http';
 import {
   parseMoney,
+  customerPhoneKey,
+  parseCustomerInput,
   nextStatuses,
   statusChange,
   parseReceiptNumber,
@@ -5659,6 +5661,7 @@ interface FixtureAppointment {
 }
 const fixtureBeautyAppointments: Array<{ employeeId: string; date: string }> = [];
 const fixtureAppointments: FixtureAppointment[] = [];
+const fixtureCustomerProfiles: Array<{ id: string; firstName: string; lastName: string | null; phone: string; status: string; businessIds: string[] }> = [];
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
@@ -6089,6 +6092,7 @@ createServer(async (req, res) => {
       fixtureBeautyTimeOffs.length = 0;
       fixtureBeautyAppointments.length = 0;
       fixtureAppointments.length = 0;
+      fixtureCustomerProfiles.length = 0;
       resetMarket();
       resetMarketingBudget();
       resetAgentFixture();
@@ -6200,6 +6204,7 @@ createServer(async (req, res) => {
       if (Array.isArray(body['beautyAppointments'])) {
         fixtureBeautyAppointments.length = 0;
         fixtureAppointments.length = 0;
+      fixtureCustomerProfiles.length = 0;
         for (const row of body['beautyAppointments'] as Array<Record<string, unknown>>)
           fixtureBeautyAppointments.push({
             employeeId: String(row['employeeId'] ?? ''),
@@ -7298,12 +7303,32 @@ createServer(async (req, res) => {
           },
         };
       };
+      const customerBusinessId = /^business=([^;]+)/.exec(String(req.headers['x-wetop-scope'] ?? ''))?.[1] ?? '';
+      if (path === '/beauty/customers' && req.method === 'POST') {
+        if (!customerBusinessId) return send(403, { message: 'Выберите бизнес салона' });
+        const parsed = parseCustomerInput(body);
+        if (!parsed.ok) return send(400, { message: parsed.reason });
+        const key = customerPhoneKey(parsed.value.phone);
+        let known = fixtureCustomerProfiles.find((c) => customerPhoneKey(c.phone) === key);
+        const existing = fixtureAppointments.find((a) => customerPhoneKey(a.customer.phone) === key)?.customer;
+        const created = !known && !existing;
+        if (!known) {
+          known = existing
+            ? { id: existing.id, firstName: existing.name, lastName: null, phone: existing.phone!, status: 'ACTIVE', businessIds: [] }
+            : { id: crypto.randomUUID(), ...parsed.value, status: 'ACTIVE', businessIds: [] };
+          fixtureCustomerProfiles.push(known);
+        }
+        if (!known.businessIds.includes(customerBusinessId)) known.businessIds.push(customerBusinessId);
+        return send(201, { id: known.id, created });
+      }
       if (path === '/beauty/customers' && req.method === 'GET') {
         // как настоящий API: визиты, последний визит и средний чек по DONE (снимки цен, Q-252)
         const mine = fixtureAppointments.filter((a) => a.locationId === locationId);
-        const customers = new Map(mine.map((a) => [a.customer.id, {
+        const customers = new Map<string, { id: string; firstName: string; lastName: string | null; phone: string | null; status: string }>(mine.map((a) => [a.customer.id, {
           id: a.customer.id, firstName: a.customer.name, lastName: null,
           phone: a.customer.phone, status: 'ACTIVE' }]));
+        for (const profile of fixtureCustomerProfiles.filter((c) => c.businessIds.includes(customerBusinessId)))
+          customers.set(profile.id, { id: profile.id, firstName: profile.firstName, lastName: profile.lastName, phone: profile.phone, status: profile.status });
         const items = [...customers.values()].map((c) => {
           const done = mine.filter((a) => a.customer.id === c.id && a.status === 'DONE');
           const sum = done.reduce((t, a) => t + BigInt(a.priceMinor), 0n);
@@ -7379,9 +7404,10 @@ createServer(async (req, res) => {
         if (!String(body['customerId'] ?? '') && !name)
           return send(400, { message: 'Выберите клиента или впишите имя' });
         const customerId = String(body['customerId'] ?? '');
-        const existingCustomer = customerId ? fixtureAppointments.find(
+        const profile = fixtureCustomerProfiles.find((c) => c.id === customerId && c.businessIds.includes(customerBusinessId));
+        const existingCustomer = customerId ? (fixtureAppointments.find(
           (a) => a.locationId === locationId && a.customer.id === customerId,
-        )?.customer : null;
+        )?.customer ?? (profile ? { id: profile.id, name: [profile.firstName, profile.lastName].filter(Boolean).join(' '), phone: profile.phone } : null)) : null;
         if (customerId && !existingCustomer)
           return send(404, { message: 'Клиент не найден' });
         fixtureAppointments.push({

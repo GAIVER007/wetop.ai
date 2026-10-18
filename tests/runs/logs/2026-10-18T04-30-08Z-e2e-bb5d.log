@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 18.10.2026 09:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит 606ef79 (claude/salon-blocks-edit), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/bar.spec.ts' 'tests/ui/finance-home-merge.spec.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/sales-hub.spec.ts' 'tests/ui/ai-agents.spec.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/market.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+Error: No "exports" main defined in /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/node_modules/@pms/domain/package.json
+
+   at ../../apps/web/src/lib/money.ts:7
+
+   5 |  * таблиц и показателей, где тиыны только шумят.
+   6 |  */
+>  7 | import { parseMoney } from '@pms/domain';
+     | ^
+   8 | export function formatMoney(minor: string | bigint, currency = 'KZT'): string {
+   9 |   const v = typeof minor === 'bigint' ? minor : BigInt(minor);
+  10 |   const neg = v < 0n;
+    at Object.<anonymous> (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/apps/web/src/lib/money.ts:7:1)
+
+
+# код выхода 1 · 5 с

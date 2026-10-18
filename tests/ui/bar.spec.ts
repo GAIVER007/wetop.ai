@@ -202,16 +202,20 @@ test('«Добавить товар» открывает карточку нов
   await expect(card.getByRole('status').last()).toContainText('Товар добавлен');
 });
 
-test('меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её', async ({ page }) => {
+// верхнее меню 17.10.2026: экраны бара стали разделом «Склад»
+test('меню: экраны бара в разделе «Склад», адреса бара подсвечивают его', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar/products');
-  // левое меню (ADR-161): на кнопке раздел «Финансы», «Бар» его подраздел, а не свой раздел
   const nav = sideNav(page);
-  await expect(nav.locator('.sidenav__current')).toHaveText('Финансы');
+  await expect(nav.locator('.sidenav__current')).toHaveText('Склад');
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
-  await openSection(page, 'Финансы');
-  await expect(nav.locator('.sidenav__items').getByRole('link', { name: 'Оплаты и касса', exact: true })).toBeVisible();
-  await expect(nav.locator('.sidenav__items').getByRole('link', { name: 'Бар', exact: true })).toHaveAttribute('aria-current', 'page');
+  const items = await openSection(page, 'Склад');
+  await expect(items.locator('a')).toHaveText(['Номенклатура', 'Продажи', 'Движение товаров', 'Настройки']);
+  await expect(items.getByRole('link', { name: 'Номенклатура', exact: true })).toHaveAttribute('aria-current', 'page');
+  // приходы это движение товаров
+  await page.goto('/bar/receipts');
+  await expect(nav.locator('.sidenav__current')).toHaveText('Склад');
+  await expect(nav.locator('.sidenav__items [aria-current="page"]')).toHaveText('Движение товаров');
 });
 
 test('новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом', async ({ page }) => {

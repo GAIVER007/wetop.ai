@@ -43,7 +43,7 @@ export const PERMISSIONS: Readonly<Record<Permission, { label: string }>> = {
   marketing: { label: 'Маркетинг и продвижение' },
   // запуск рекламы в подключённом кабинете (тратит деньги) и её остановка (ADR-MKT-LAUNCH, §57)
   ads_launch: { label: 'Запуск и остановка рекламы' },
-  journal: { label: 'Журнал операций' },
+  journal: { label: 'История действий' },
   seller: { label: 'Настройки ИИ-продавца' },
   staff: { label: 'Сотрудники и приглашения' },
   owner: { label: 'Управляющие, роли и платные расширения' },

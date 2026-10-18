@@ -100,7 +100,7 @@ function Tabs({ sections, path }: { sections: MenuSection[]; path: string }) {
     <nav
       ref={root}
       className="tabnav"
-      aria-label="Разделы"
+      aria-label="Главное меню"
       onBlur={(event) => {
         if (event.relatedTarget instanceof Node && !event.currentTarget.contains(event.relatedTarget))
           setOpen(undefined);

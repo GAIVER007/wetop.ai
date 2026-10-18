@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 18.10.2026 09:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 606ef79 (claude/salon-blocks-edit), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/navigation.spec.ts:133' 'tests/ui/owner-journal.spec.ts:14' 'tests/ui/quality.spec.ts:88' 'tests/ui/quality.spec.ts:187' 'tests/ui/roles.spec.ts:31' 'tests/ui/roles.spec.ts:62' 'tests/ui/workspace.spec.ts:33' 'tests/ui/workspace.spec.ts:127' 'tests/ui/workspace.spec.ts:167' 'tests/ui/workspace.spec.ts:190' 'tests/ui/workspace.spec.ts:450'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+  ✓   1 tests/ui/navigation.spec.ts:133:1 › все пункты меню открывают существующие страницы (1.5m)
+  ✓   2 tests/ui/owner-journal.spec.ts:14:1 › владелец: вкладка, суммы, было/стало, фильтры и вся история (12.0s)
+  ✓   3 tests/ui/quality.spec.ts:88:1 › список гостей и вторая бронь открывают собственные карточки (18.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   4 tests/ui/quality.spec.ts:187:3 › отказ API сохраняет поля: профиль гостя (4.8s)
+  ✓   5 tests/ui/quality.spec.ts:187:3 › отказ API сохраняет поля: документ гостя (3.0s)
+  ✓   6 tests/ui/quality.spec.ts:187:3 › отказ API сохраняет поля: блокировка номера (9.6s)
+  ✓   7 tests/ui/quality.spec.ts:187:3 › отказ API сохраняет поля: сайт аналитики (3.7s)
+  ✓   8 tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (3.5s)
+  ✓   9 tests/ui/workspace.spec.ts:33:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (2.3m)
+  ✓  10 tests/ui/workspace.spec.ts:127:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (6.6s)
+  ✓  11 tests/ui/workspace.spec.ts:167:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (5.9s)
+  ✓  12 tests/ui/workspace.spec.ts:190:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (4.3s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:201:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:45:13)
+[WebServer]   199 |         /* тело не JSON */
+[WebServer]   200 |       }
+[WebServer] > 201 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   202 |   }
+[WebServer]   203 |   return (await res.json()) as T;
+[WebServer]   204 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  13 tests/ui/workspace.spec.ts:450:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (6.6s)
+
+  13 passed (5.2m)
+
+# код выхода 0 · 5 мин 12 с

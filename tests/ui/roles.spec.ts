@@ -38,20 +38,25 @@ test('администратор: в меню — работа с гостями
   await expect
     .poll(() => menuLinks(page))
     .toEqual([
-      // «Главная» первой (ADR-180), дальше порядок владельца 13.10 (#501); «Бар» в группе «Финансы» (ADR-157)
+      // верхнее меню 17.10.2026 (ADR-TOPNAV-20261017): те же права, новая группировка
       '/today',
       '/chessboard',
-      // «Гости и бронирования» (поручение владельца 09.10.2026): одна вкладка на месте «Броней» и «Гостей»
       '/guests',
-      '/finance',
-      '/bar',
-      '/sales',
-      '/ai-agents',
-      // «Конкуренты» в группе «Продвижение», не в «Продажах» (PROMO-1, ADR-184)
-      '/market',
+      '/reservations',
       '/reports',
       '/management/analytics',
+      '/bar/products',
+      '/bar',
+      '/bar/operations',
+      '/bar/suppliers',
+      '/finance',
+      '/reports/finance',
       '/incidents',
+      // «Продвижение»: администратору продавец, конкуренты (право `reports`) и обзор продаж
+      '/ai-agents',
+      '/market',
+      '/sales',
+      '/help',
     ]);
   await expect(page.locator('.workspace-header .profile-caption')).toContainText('Администратор');
   // объект в шапке в настройки гостиницы не ведёт
@@ -67,7 +72,7 @@ test('администратор: закрытые разделы по адре�
   await asRole(request, 'STAFF');
   const main = page.getByRole('main');
   for (const [route, title, text] of [
-    ['/journal', 'Журнал операций', '«Журнал операций»: доступ есть только у владельца.'],
+    ['/journal', 'История действий', '«История действий»: доступ есть только у владельца.'],
     ['/channels', 'Каналы продаж', '«Каналы продаж»: доступ есть у владельца и управляющего.'],
     [
       '/hotel-settings',

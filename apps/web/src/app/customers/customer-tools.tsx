@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useTransition, type FormEvent } from 'react';
+import { useRef, useState, useTransition, type FormEvent, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Button, Field, Input, Notice, Stack, Table } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
@@ -23,10 +23,12 @@ export function BeautyCustomerTools({
   canEdit,
   scopeKey,
   showCreate = true,
+  importHistory,
 }: {
   canEdit: boolean;
   scopeKey: string;
   showCreate?: boolean;
+  importHistory?: ReactNode;
 }) {
   const [mode, setMode] = useState<'create' | 'import' | null>(null);
   const [result, setResult] = useState<CustomerActionResult | null>(null);
@@ -113,62 +115,71 @@ export function BeautyCustomerTools({
 
       <Overlay open={mode === 'import'} onClose={close} title="Импортировать клиентов" trapFocus size="lg">
         <Stack gap="sm">
-          <Notice tone="muted">
-            Поддерживаются XLSX и CSV в UTF-8 или Windows-1251. В CSV разделитель может быть точкой с запятой,
-            запятой или табуляцией.
-            Сначала проверьте отчёт, затем подтвердите импорт.
-          </Notice>
-          <form ref={importForm} className="settings-form" onSubmit={submitPreview}>
-            <input type="hidden" name="scopeKey" value={draftScope} />
-            <Field label="CSV или XLSX" controlId="beauty-customer-import-file" required>
-              <Input
-                id="beauty-customer-import-file"
-                name="file"
-                type="file"
-                accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                disabled={pending}
-                onChange={() => {
-                  setPreview(null);
-                  setResult(null);
-                }}
-              />
-            </Field>
-            <Button type="submit" tone="secondary" disabled={pending} aria-busy={pending}>Проверить файл</Button>
-          </form>
-          {result?.error && <Alert>{result.error}</Alert>}
-          {result?.message && <Notice>{result.message}</Notice>}
-          {preview && (
-            <>
-              <p role="status">
-                Будет создано: {preview.totals.create}. Уже есть: {preview.totals.alreadyExists}.
-                Конфликтов: {preview.totals.conflicts}. Повторов в файле: {preview.totals.duplicatesInFile}.
-              </p>
-              <Table aria-label="Предпросмотр импорта клиентов">
-                <thead><tr><th>Строка</th><th>Имя</th><th>Телефон</th><th>Результат</th></tr></thead>
-                <tbody>
-                  {preview.rows.map((row) => (
-                    <tr key={row.line}>
-                      <td data-label="Строка">{row.line}</td>
-                      <td data-label="Имя">{row.name}</td>
-                      <td data-label="Телефон">{row.phone}</td>
-                      <td data-label="Результат">{importStatus[row.status]}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-              <div className="form-actions">
-                <Button type="button" tone="ghost" onClick={close}>Отмена</Button>
-                <Button
-                  type="button"
-                  onClick={applyImport}
-                  disabled={pending || preview.totals.conflicts > 0 || !!result?.message}
-                  aria-busy={pending}
-                >
-                  Импортировать
-                </Button>
-              </div>
-            </>
+          {importHistory && (
+            <section aria-labelledby="beauty-customer-import-history-title">
+              <h3 id="beauty-customer-import-history-title">Надёжный импорт CSV и история</h3>
+              {importHistory}
+            </section>
           )}
+          <section aria-labelledby="beauty-customer-import-file-title">
+            <h3 id="beauty-customer-import-file-title">Импорт CSV или XLSX до 500 строк</h3>
+            <Notice tone="muted">
+              Поддерживаются XLSX и CSV в UTF-8 или Windows-1251. В CSV разделитель может быть точкой с запятой,
+              запятой или табуляцией.
+              Сначала проверьте отчёт, затем подтвердите импорт.
+            </Notice>
+            <form ref={importForm} className="settings-form" onSubmit={submitPreview}>
+              <input type="hidden" name="scopeKey" value={draftScope} />
+              <Field label="CSV или XLSX" controlId="beauty-customer-import-file" required>
+                <Input
+                  id="beauty-customer-import-file"
+                  name="file"
+                  type="file"
+                  accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  disabled={pending}
+                  onChange={() => {
+                    setPreview(null);
+                    setResult(null);
+                  }}
+                />
+              </Field>
+              <Button type="submit" tone="secondary" disabled={pending} aria-busy={pending}>Проверить файл</Button>
+            </form>
+            {result?.error && <Alert>{result.error}</Alert>}
+            {result?.message && <Notice>{result.message}</Notice>}
+            {preview && (
+              <>
+                <p role="status">
+                  Будет создано: {preview.totals.create}. Уже есть: {preview.totals.alreadyExists}.
+                  Конфликтов: {preview.totals.conflicts}. Повторов в файле: {preview.totals.duplicatesInFile}.
+                </p>
+                <Table aria-label="Предпросмотр импорта клиентов">
+                  <thead><tr><th>Строка</th><th>Имя</th><th>Телефон</th><th>Результат</th></tr></thead>
+                  <tbody>
+                    {preview.rows.map((row) => (
+                      <tr key={row.line}>
+                        <td data-label="Строка">{row.line}</td>
+                        <td data-label="Имя">{row.name}</td>
+                        <td data-label="Телефон">{row.phone}</td>
+                        <td data-label="Результат">{importStatus[row.status]}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+                <div className="form-actions">
+                  <Button type="button" tone="ghost" onClick={close}>Отмена</Button>
+                  <Button
+                    type="button"
+                    onClick={applyImport}
+                    disabled={pending || preview.totals.conflicts > 0 || !!result?.message}
+                    aria-busy={pending}
+                  >
+                    Импортировать
+                  </Button>
+                </div>
+              </>
+            )}
+          </section>
         </Stack>
       </Overlay>
     </>

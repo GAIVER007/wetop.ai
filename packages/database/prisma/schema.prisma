@@ -43,6 +43,7 @@ enum LocationStatus {
 /// Направление/бренд партнёра (Platform P1, ADR-104, DATA_MODEL §18.1): «Luxx Hotels», «Alma Beauty».
 /// У организации N бизнесов; вертикаль — здесь. Тёзки внутри организации допустимы (§18.1).
 model Business {
+  customerImports CustomerImport[]
   id             String           @id @default(uuid()) @db.Uuid
   organizationId String           @map("organization_id") @db.Uuid
   name           String           @db.VarChar(200)
@@ -2508,6 +2509,7 @@ enum UserStatus {
 /// Арендатор: одна организация — один клиент платформы (DATA_MODEL §13, ADR-046).
 /// Разделения данных объекта по организациям в срезе 13 нет: пробный период пускает в демо-объект.
 model Organization {
+  customerImports CustomerImport[]
   id                String             @id @default(uuid()) @db.Uuid
   name              String             @db.VarChar(200)
   status            OrganizationStatus @default(TRIAL)
@@ -2545,6 +2547,7 @@ model Organization {
 /// Человек. Почта в нижнем регистре — за этим следит CHECK в миграции, Prisma такого не описывает.
 /// Паролей нет намеренно (ADR-046): вход по одноразовому коду на почту.
 model User {
+  customerImports CustomerImport[]
   id              String     @id @default(uuid()) @db.Uuid
   email           String     @unique @db.VarChar(320)
   name            String?    @db.VarChar(200)
@@ -4168,4 +4171,66 @@ model BeautyLocationHours {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
   location Location @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   @@map("beauty_location_hours")
+}
+
+/// SL4-M4B2: durable import journal, owner-only API, 30 day contents TTL.
+model CustomerImport {
+  id                String   @id @default(uuid()) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
+  businessId        String   @map("business_id") @db.Uuid
+  createdBy         String   @map("created_by") @db.Uuid
+  clientRequestId   String   @map("client_request_id") @db.Uuid
+  requestDigest     String   @map("request_digest") @db.VarChar(64)
+  state             String   @default("UPLOADING") @db.VarChar(16)
+  totalRows         Int      @map("total_rows")
+  uploadedRows      Int      @default(0) @map("uploaded_rows")
+  processedRows     Int      @default(0) @map("processed_rows")
+  createdCount      Int      @default(0) @map("created_count")
+  linkedCount       Int      @default(0) @map("linked_count")
+  unchangedCount    Int      @default(0) @map("unchanged_count")
+  skippedCount      Int      @default(0) @map("skipped_count")
+  uploadReceipts    Json     @default("{}") @map("upload_receipts")
+  leaseToken        String?  @map("lease_token") @db.Uuid
+  leaseExpiresAt    DateTime? @map("lease_expires_at") @db.Timestamptz(6)
+  attempts          Int      @default(0)
+  nextAttemptAt     DateTime @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  errorCode         String?  @map("error_code") @db.VarChar(64)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  completedAt       DateTime? @map("completed_at") @db.Timestamptz(6)
+  undoDeadline      DateTime? @map("undo_deadline") @db.Timestamptz(6)
+  contentsExpireAt  DateTime @map("contents_expire_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  actor User @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  rows CustomerImportRow[]
+
+  @@unique([organizationId, clientRequestId])
+  @@unique([id, organizationId])
+  @@index([state, nextAttemptAt, leaseExpiresAt])
+  @@index([organizationId, businessId, createdAt])
+  @@map("customer_imports")
+}
+
+model CustomerImportRow {
+  id               String   @id @default(uuid()) @db.Uuid
+  organizationId   String   @map("organization_id") @db.Uuid
+  importId         String   @map("import_id") @db.Uuid
+  ordinal          Int
+  sourceLine       Int      @map("source_line")
+  input            Json?
+  outcome          String   @default("PENDING") @db.VarChar(16)
+  errorCode        String?  @map("error_code") @db.VarChar(64)
+  customerId       String?  @map("customer_id") @db.Uuid
+  customerBaseline Json?    @map("customer_baseline")
+  linkBaseline     DateTime? @map("link_baseline") @db.Timestamptz(6)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  run CustomerImport @relation(fields: [importId, organizationId], references: [id, organizationId], onDelete: Restrict)
+
+  @@unique([importId, ordinal])
+  @@index([organizationId])
+  @@index([customerId])
+  @@map("customer_import_rows")
 }

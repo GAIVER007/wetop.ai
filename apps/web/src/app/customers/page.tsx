@@ -9,6 +9,7 @@ import { BeautyCustomersTable } from './beauty-table';
 import { deskShell } from '../../lib/desk-shell';
 import { mayBeautyAccess } from '../../lib/navigation';
 import { BeautyCustomerTools } from './customer-tools';
+import { ImportCustomers } from './import-customers';
 import '../beauty/beauty.css';
 
 /** Клиенты салона по макету ТЗ (09.10.2026): сегменты, визиты и средний чек считает API по DONE */
@@ -21,6 +22,7 @@ export default async function CustomersPage() {
       && mayBeautyAccess(shell.access, 'customers', 'create', { legacy: 'desk' });
     const canUpdate = !shell.readOnly
       && mayBeautyAccess(shell.access, 'customers', 'update', { legacy: 'desk' });
+    const canImport = canCreate && shell.access.role === 'OWNER';
     return (
       <Page
         className="beauty-page"
@@ -31,6 +33,9 @@ export default async function CustomersPage() {
           canEdit={canCreate}
           scopeKey={shell.scopeKey ?? ''}
           showCreate={false}
+          importHistory={canImport ? (
+            <ImportCustomers businessId={me.context?.businessId ?? ''} canImport />
+          ) : undefined}
         />
         <BeautyCustomersTable
           key={me.context?.businessId}
@@ -38,7 +43,6 @@ export default async function CustomersPage() {
           businessId={me.context?.businessId ?? ''}
           canCreate={canCreate}
           canEdit={canUpdate}
-          canImportPreview={false}
           scopeKey={shell.scopeKey ?? ''}
         />
       </Page>

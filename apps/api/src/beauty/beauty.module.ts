@@ -65,6 +65,8 @@ import {
 } from './reviews';
 import { BeautyScheduleController, BeautyScheduleService } from './schedule';
 import { findOrCreateCustomer } from '../customers/identity';
+import { CustomerImportsController, CustomerImportService } from './customer-import';
+import { CustomerImportWorker } from './customer-import.worker';
 import {
   beautyScope,
   beautyTransaction,
@@ -1158,6 +1160,7 @@ function parseExpectedPriceRevision(raw: unknown): number {
 @Module({
   controllers: [
     BeautyCatalogController,
+    CustomerImportsController,
     BeautyCustomerImportController,
     BeautyCustomerDetailController,
     BeautyAppointmentHistoryController,
@@ -1170,6 +1173,8 @@ function parseExpectedPriceRevision(raw: unknown): number {
   ],
   providers: [
     BeautyCatalogService,
+    CustomerImportService,
+    CustomerImportWorker,
     BeautyCustomerImportService,
     BeautyCustomerDetailService,
     BeautyAppointmentHistoryService,

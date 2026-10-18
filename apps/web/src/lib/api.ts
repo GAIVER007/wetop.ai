@@ -1,6 +1,11 @@
 import type { WebVertical } from './vertical-landing';
 import type { ActionPreview } from './action-preview';
-import type { GuestMainStay } from '@pms/domain';
+import type {
+  CustomerImportChunkInput,
+  CustomerImportStartInput,
+  CustomerImportView,
+  GuestMainStay,
+} from '@pms/domain';
 export type { ActionPreview } from './action-preview';
 export type { GuestMainStay, GuestMainStayKind, GuestStayMoney } from '@pms/domain';
 
@@ -4055,6 +4060,30 @@ export const beautyApi = {
   /** VIP и день рождения клиента салона (§36) */
   updateCustomer: (id: string, body: { isVip: boolean; birthDate: string | null }) =>
     sendJson<unknown>('PATCH', `/beauty/customers/${encodeURIComponent(id)}`, body),
+  listCustomerImports: () =>
+    getJson<{ items: CustomerImportView[] }>('/beauty/customer-imports'),
+  getCustomerImport: (id: string) =>
+    getJson<CustomerImportView>(`/beauty/customer-imports/${encodeURIComponent(id)}`),
+  startCustomerImport: (body: CustomerImportStartInput) =>
+    sendJson<CustomerImportView>('POST', '/beauty/customer-imports', body),
+  uploadCustomerImportRows: (id: string, body: CustomerImportChunkInput) =>
+    sendJson<CustomerImportView>(
+      'PUT',
+      `/beauty/customer-imports/${encodeURIComponent(id)}/rows`,
+      body,
+    ),
+  submitCustomerImport: (id: string) =>
+    sendJson<CustomerImportView>(
+      'POST',
+      `/beauty/customer-imports/${encodeURIComponent(id)}/submit`,
+      {},
+    ),
+  undoCustomerImport: (id: string) =>
+    sendJson<CustomerImportView>(
+      'POST',
+      `/beauty/customer-imports/${encodeURIComponent(id)}/undo`,
+      {},
+    ),
   services: () =>
     getJson<{
       locationId: string | null;

@@ -4630,10 +4630,26 @@ Customer сохраняет исходное nullable поле phone. Добав
 
 Миграция additive и совместима по полям со старым кодом, production применяет владелец после backup и проверки коллизий. Backup/validation/rollback: plans/salons-m4a-2026-10-18.md.
 
-## SL4-M4B-PROPOSAL-20261018: журнал импорта клиентов (предложение)
+## SL4-M4B-PROPOSAL-20261018: журнал импорта клиентов (история предложения)
 
-Статус: ожидает утверждения владельца. Предпросмотр CSV не требует этой модели и не пишет данные.
+Историческая запись предложения. Актуальный статус: УТВЕРЖДЕНО, см. SL4-M4B-OWNER-APPROVAL-20261018 ниже. Предпросмотр CSV не пишет данные.
 
 Предлагается CustomerImport: id, organizationId, businessId, createdBy, state (QUEUED/PROCESSING/COMPLETED/FAILED/UNDOING/UNDONE), createdAt/completedAt, undoDeadline (24 часа от завершения), агрегаты и безопасный errorCode. CustomerImportRow: importId, rowNumber, state, errorCode, customerId, операция CREATED/LINKED/UNCHANGED, снимок только полей/связей, изменённых этим импортом, для контролируемого undo. Доступ по tenant RLS, строки и снимки персональных данных не попадают в audit/logs; срок хранения требует отдельного решения до включения фонового импорта.
 
 Первый пишущий срез предлагает не объединять существующие карточки: совпадение канонического телефона использует существующую без перезаписи; повтор внутри файла учитывается как повтор; создаются отсутствующие клиенты и связи. Undo до 24 часов удаляет только созданные импортом карточки и связи, если они не менялись и не получили обращений в любой вертикали; при конфликте весь undo блокируется с отчётом. История, оплаты и старые дубли не перемещаются. Полный merge из ТЗ остаётся отдельным срезом с отдельным утверждением. Номер без имени требует утверждённого отображаемого имени; автоматически выдумывать имя запрещено.
+
+Уточнённый технический план SL4-M4B: `plans/salons-m4b2-2026-10-18.md`, разделы 3–6 (также **предложение, не утверждено**). До пишущего кода нужны UPLOADING/checkpoint/digests, межпроцессный lease fencing и минимальные mapped-поля строк для фоновой обработки; очистка содержимого не раньше конца окна undo. Полный исходный файл не хранится. Выбор owner-only доступа в первом срезе предложен по сценарию ТЗ, расширение прав не выполняется без решения. Точная FK журнала на удаляемого клиента определяется до schema, чтобы журнал не мешал undo и не удалялся каскадно вместе с клиентом.
+
+### SL4-M4B-PENDING-20261018 (история согласования)
+
+Статус: ожидает явного подтверждения перечисленных условий. Общее «давай дальше» было интерпретировано агентом как согласие, но автоматическая проверка отклонила эту интерпретацию. Новая schema/RLS/migration не созданы; подробный вопрос отправлен владельцу. Ниже техническое предложение, не утверждённая модель.
+
+Техническая модель реализации: CustomerImport (customer_imports) с organizationId/businessId/createdBy, clientRequestId/requestDigest, state UPLOADING/QUEUED/PROCESSING/COMPLETED/FAILED/UNDOING/UNDONE, totalRows/uploadedRows/processedRows, createdCount/linkedCount/unchangedCount/skippedCount, uploadReceipts JSON, leaseToken/leaseExpiresAt, attempts/nextAttemptAt, errorCode, createdAt/updatedAt/completedAt/undoDeadline/contentsExpireAt. Уникальность organizationId+clientRequestId. CustomerImportRow (customer_import_rows): organizationId/importId, ordinal (0-based), sourceLine, input JSON nullable (только firstName/lastName/phone), outcome PENDING/CREATED/LINKED/UNCHANGED/SKIPPED, errorCode, customerId UUID nullable как scalar без FK на Customer (как entityId audit, сохраняется после undo), customerBaseline JSON nullable, linkBaseline DateTime nullable, createdAt. Уникальность importId+ordinal. FK на import RESTRICT, tenant-scoped RLS на обе таблицы. Organization/Business/actor удаление RESTRICT; archive не каскадит импорт. Полный CSV/имя файла не сохраняются. Retention очищает input/customerBaseline/linkBaseline по TTL только терминальных задач; агрегаты и журнал исходов остаются. Окно undo строго now < undoDeadline. Внешние платежи, согласия и история не переносятся.
+
+### SL4-M4B-OWNER-APPROVAL-20261018
+
+Статус: УТВЕРЖДЕНО 18.10.2026. Владелец процитировал полный вопрос о CustomerImport/CustomerImportRow, миграции и коде M4-B2 и ответил: «Утверждаю модель и все перечисленные условия». Подтверждены OWNER-only импорт/отчёт; отсутствие merge/перезаписи; имя «Клиент» для валидного телефона без имени; 30 дней содержимого; отмена до 24 часов только без последующих изменений/обращений. Production migration выполняет владелец. Предыдущая отметка PENDING и блокировка автоматической проверки сняты этим явным ответом.
+
+Техническая модель SL4-M4B-PENDING выше и план plans/salons-m4b2-2026-10-18.md утверждены для реализации. Для частично обработанной FAILED задачи безопасная отмена использует те же ограничения и окно от терминального завершения, чтобы ошибка процесса не оставляла созданные карточки без пути отмены. Поля и RLS перечислены в технической модели выше; существующие сущности/финансовые правила не меняются.
+
+Уточнение хранения SL4-M4B2: uploadReceipts содержат хэши принятых исходных пакетов и очищаются до пустого объекта по тому же TTL 30 дней, включая задачи, у которых input уже NULL. Агрегаты, исходы строк и технический requestDigest от одного totalRows остаются. Новых полей и сущностей это уточнение не добавляет.

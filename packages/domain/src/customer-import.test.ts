@@ -18,6 +18,7 @@ describe('M4-B1 CSV: проверка без записи', () => {
     expect(result.counts).toEqual({ ready: 1, warning: 2, duplicate: 1, skipped: 2 });
     expect(result.rows[1]).toMatchObject({ status: 'duplicate', duplicateOf: 2 });
     expect(result.rows[3]).toMatchObject({ status: 'skipped', line: 5 });
+    expect(result.rows[5]?.reason).toBe('Имя не указано: при импорте будет «Клиент»');
   });
   it('ручное сопоставление и отсутствие обязательных колонок', () => {
     const file = readCustomerCsv('A;B\n7000001001;Тест');

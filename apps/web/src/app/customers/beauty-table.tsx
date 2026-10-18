@@ -4,7 +4,6 @@ import { useCallback, useEffect, useId, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Badge, Button, Input, Select, Table } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
-import { ImportCustomers } from './import-customers';
 import { CreateCustomer } from './create-customer';
 import type { BeautyCustomerRow } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
@@ -48,20 +47,17 @@ export function BeautyCustomersTable({
   items,
   canCreate = false,
   canEdit = false,
-  canImportPreview = false,
   scopeKey = '',
   businessId = '',
 }: {
   items: BeautyCustomerRow[];
   canCreate?: boolean;
   canEdit?: boolean;
-  canImportPreview?: boolean;
   scopeKey?: string;
   businessId?: string;
 }) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
-  const [importing, setImporting] = useState(false);
   const [saved, setSaved] = useState<{ id: string; created: boolean } | null>(null);
   const onSaved = useCallback((id: string, created: boolean) => {
     setCreating(false);
@@ -111,7 +107,6 @@ export function BeautyCustomersTable({
         </p>
         <div className="beauty-customers-controls">
           {canCreate && <Button type="button" onClick={() => setCreating(true)}>Добавить клиента</Button>}
-          {canImportPreview && <Button type="button" onClick={() => setImporting(true)}>Проверить CSV</Button>}
           <Input
             id={searchId}
             type="search"
@@ -215,9 +210,6 @@ export function BeautyCustomersTable({
           })}
         </tbody>
       </Table>
-      {canImportPreview && <Overlay open={importing} onClose={() => setImporting(false)} title="Проверка CSV клиентов" drawer trapFocus>
-        {importing && <ImportCustomers />}
-      </Overlay>}
       {canCreate && <Overlay open={creating} onClose={() => setCreating(false)} title="Добавить клиента" drawer trapFocus>
         {creating && <CreateCustomer key={businessId} businessId={businessId} onSaved={onSaved} />}
       </Overlay>}

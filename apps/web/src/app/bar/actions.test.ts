@@ -37,7 +37,9 @@ describe('форма прихода бара', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(currentMe).mockResolvedValue({
-      context: { vertical: 'HOSPITALITY', locationId: 'property-1' },
+      user: { id: 'user-1', organizationId: 'org-1' },
+      context: { vertical: 'HOSPITALITY', businessId: 'business-1', locationId: 'location-1' },
+      expiresAt: '2099-01-01T00:00:00Z',
     } as Awaited<ReturnType<typeof currentMe>>);
     vi.mocked(selectedWorkspaceBranch).mockResolvedValue(null);
     vi.mocked(hotelApi.settings).mockResolvedValue({
@@ -367,7 +369,9 @@ describe('Bar scope/currency/replay regressions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(currentMe).mockResolvedValue({
-      context: { vertical: 'HOSPITALITY', locationId: 'property-1' },
+      user: { id: 'user-1', organizationId: 'org-1' },
+      context: { vertical: 'HOSPITALITY', businessId: 'business-1', locationId: 'location-1' },
+      expiresAt: '2099-01-01T00:00:00Z',
     } as Awaited<ReturnType<typeof currentMe>>);
     vi.mocked(selectedWorkspaceBranch).mockResolvedValue(null);
     vi.mocked(hotelApi.settings).mockResolvedValue({

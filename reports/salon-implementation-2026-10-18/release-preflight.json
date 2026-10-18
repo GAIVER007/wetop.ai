@@ -1,0 +1,126 @@
+{
+  "status": "BLOCKED_SCHEMA_RELEASE",
+  "publishedPr": "https://github.com/GAIVER007/wetop.ai/pull/677",
+  "publishedBaseHead": "71c57164aa13069d973787c06e369eefae76ea28",
+  "testRuns": [
+    {
+      "id": "2026-10-18T18-37-55Z-unit-078d",
+      "suite": "unit",
+      "status": "failed",
+      "counts": {
+        "total": 28,
+        "passed": 25,
+        "failed": 3,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Release preparation RED unchanged bar fixture baseline; no restaurant production changes"
+    },
+    {
+      "id": "2026-10-18T18-38-35Z-unit-cbf8",
+      "suite": "unit",
+      "status": "passed",
+      "counts": {
+        "total": 28,
+        "passed": 28,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Release preparation GREEN complete synthetic retail authorization fixture; all guards and assertions retained"
+    },
+    {
+      "id": "2026-10-18T18-38-53Z-unit-5bf6",
+      "suite": "unit",
+      "status": "passed",
+      "counts": {
+        "total": 6200,
+        "passed": 6193,
+        "failed": 0,
+        "skipped": 7,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "note": "Release preparation full unit after fixture-only retail context repair"
+    },
+    {
+      "id": "2026-10-18T18-42-35Z-typecheck-ecbf",
+      "suite": "typecheck",
+      "status": "passed",
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "note": "Release preparation root API web types after fixture-only gate repair"
+    },
+    {
+      "id": "2026-10-18T18-43-39Z-lint-bc0f",
+      "suite": "lint",
+      "status": "passed",
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "note": "Release preparation lint after fixture-only gate repair"
+    }
+  ],
+  "heldSqlManifest": [
+    {
+      "path": "packages/database/prisma/migrations-hold/20261018000131_beauty_appointment_lines/down.sql",
+      "sha256": "2612ea440c9503e160506f7000666eb23b708bec08022282ea00d0e2c246d199"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261018000131_beauty_appointment_lines/migration.sql",
+      "sha256": "db336544977ff3de6406a86c0ef4715b594a5a4c00a0056da5b3303692112fcf"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261018000132_beauty_reviews/down.sql",
+      "sha256": "8b920ed7e5f4676289b5bf964703cc5dd0b862f351bdeb7033143a2dbc89231c"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261018000132_beauty_reviews/migration.sql",
+      "sha256": "58a1c26566b13d6fd31cb9f226bb74ab40df575540988944d6207ac4691abffe"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261018000133_beauty_materials/down.sql",
+      "sha256": "57ef11ff0477a9f067abd3ea9bc17508889c87e39aba72b5c4ab4806646fb844"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261018000133_beauty_materials/migration.sql",
+      "sha256": "1ce9a2e0b281ec50dd050d529f8de79ab85bbdb4a2087f942cef1d2001048748"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261018000134_beauty_positions/down.sql",
+      "sha256": "a86adfa75e486c59ed2d2f5c2058630bd094269a76ca021e12010062645e29d2"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261018000134_beauty_positions/migration.sql",
+      "sha256": "e942079adbfcb56123c083c3e4d5517202ba1aec1a8501640e1cbce22450ad69"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261018000135_beauty_location_hours/down.sql",
+      "sha256": "fe46f634c71baaaffdc722d8286f4c9ac630684657c698a769a773d0525b67fc"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261018000135_beauty_location_hours/migration.sql",
+      "sha256": "5320973d700da020324b16456115df358e960dc0ba14a6aa74eea8ebb8fc987d"
+    }
+  ],
+  "localDb": "salon_release_preflight_20261018",
+  "ownedPort": 55983,
+  "ordinaryMigrationCount": 136,
+  "lastOrdinary": "20261018000132_customer_imports",
+  "beforeHeldPrismaDiffExit": 2,
+  "missingBeautyTables": 10,
+  "afterExistingHeldApplyExitCodes": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "afterHeldPrismaDiffExit": 2,
+  "ownedPgStopped": true,
+  "productionWrites": false,
+  "mergeAttempted": false,
+  "ciDispatched": false,
+  "diagnosticSqlExecuted": false
+}

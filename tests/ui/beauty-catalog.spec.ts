@@ -9,6 +9,58 @@ import type { Page, APIRequestContext } from '@playwright/test';
  */
 const SNAPSHOTS = 'reports/beauty-b3-2026-10-03';
 
+test('M4-A: клиент без записи, повтор номера и сохранение ввода при ошибке', async ({ page, request }) => {
+  test.setTimeout(180_000);
+  await openSalon(page, request);
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto('/customers');
+  const main = page.getByRole('main');
+  await main.getByRole('button', { name: 'Добавить клиента', exact: true }).click();
+  let panel = page.getByRole('dialog', { name: 'Добавить клиента' });
+  await panel.getByLabel('Имя', { exact: true }).fill('Тестовый клиент M4');
+  await panel.getByLabel('Фамилия', { exact: true }).fill('Синтетический');
+  await panel.getByLabel('Телефон', { exact: true }).fill('8 (700) 000-50-01');
+  await panel.getByRole('button', { name: 'Сохранить клиента', exact: true }).click();
+  await expect(panel).not.toBeVisible();
+  let row = main.getByRole('row').filter({ hasText: 'Тестовый клиент M4' });
+  await expect(row).toContainText('8 (700) 000-50-01');
+  await expect(row.locator('[data-label="Всего визитов"]')).toHaveText('0');
+  await expect(main.getByRole('status').filter({ hasText: 'Клиент создан.' })).toBeVisible();
+  await page.screenshot({ path: 'reports/salons-m4a-2026-10-18/customers-375.png', fullPage: true });
+
+  await main.getByRole('button', { name: 'Добавить клиента', exact: true }).click();
+  panel = page.getByRole('dialog', { name: 'Добавить клиента' });
+  await panel.getByLabel('Имя', { exact: true }).fill('Имя дубля');
+  await panel.getByLabel('Телефон', { exact: true }).fill('+77000005001');
+  await panel.getByRole('button', { name: 'Сохранить клиента', exact: true }).click();
+  await expect(panel).not.toBeVisible();
+  await expect(main.getByRole('status').filter({ hasText: 'Клиент уже есть.' })).toBeVisible();
+  await expect(main.getByRole('row').filter({ hasText: 'Тестовый клиент M4' })).toHaveCount(1);
+  await expect(main.getByRole('row').filter({ hasText: 'Имя дубля' })).toHaveCount(0);
+
+  await main.getByRole('button', { name: 'Добавить клиента', exact: true }).click();
+  panel = page.getByRole('dialog', { name: 'Добавить клиента' });
+  await panel.getByLabel('Имя', { exact: true }).fill('Сохранённый ввод M4');
+  await panel.getByLabel('Телефон', { exact: true }).fill('invalid');
+  await panel.getByRole('button', { name: 'Сохранить клиента', exact: true }).click();
+  await expect(panel.getByRole('alert')).toContainText('Укажите телефон');
+  await expect(panel.getByLabel('Имя', { exact: true })).toHaveValue('Сохранённый ввод M4');
+  await expect(panel.getByLabel('Телефон', { exact: true })).toHaveValue('invalid');
+  for (const width of [375, 768, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.evaluate((dark) => { document.documentElement.dataset.theme = dark ? 'dark' : 'light'; }, width === 375);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const result = await new AxeBuilder({ page }).include('dialog, [role="dialog"]').analyze();
+    expect(result.violations).toEqual([]);
+    await page.screenshot({ path: `reports/salons-m4a-2026-10-18/create-error-${width}.png`, fullPage: true });
+  }
+  await panel.getByLabel('Телефон', { exact: true }).fill('7000005002');
+  await panel.getByRole('button', { name: 'Сохранить клиента', exact: true }).click();
+  await expect(panel).not.toBeVisible();
+  row = main.getByRole('row').filter({ hasText: 'Сохранённый ввод M4' });
+  await expect(row).toBeVisible();
+});
+
 async function openSalon(page: Page, request: APIRequestContext) {
   await request.post(`${FIXTURE_API}/__test/reset`);
   await page.goto('/auth/fallback');

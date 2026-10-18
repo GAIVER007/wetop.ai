@@ -1,0 +1,17 @@
+# Модульные (unit) · 18.10.2026 13:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит a1c5d36 (codex/salons-tz4-m4a), незакоммиченных файлов набора: 23
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-14-58Z-unit-82a5.json' 'apps/api/src/beauty/customers-create.test.ts' 'apps/api/src/customers/identity.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ✓ |unit| apps/api/src/customers/identity.test.ts (2 tests) 2ms
+ ✓ |unit| apps/api/src/beauty/customers-create.test.ts (13 tests) 151ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  01:14:59
+   Duration  922ms (transform 54%, import 34%, tests 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-14-58Z-unit-82a5.json
+
+# код выхода 0 · 2 с

@@ -1,0 +1,71 @@
+# Модульные (unit) · 18.10.2026 13:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит a1c5d36 (codex/salons-tz4-m4a), незакоммиченных файлов набора: 23
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-14-48Z-unit-c2da.json' 'apps/api/src/beauty/customers-create.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| apps/api/src/beauty/customers-create.test.ts (13 tests | 4 failed) 123ms
+   ❯ POST /beauty/customers: клиент без записи (13)
+     ✓ создаёт клиента в серверном scope, сохраняет исходный номер и audit без контактов 89ms
+     × повтор <телефон>: использует каноническую карточку без перезаписи профиля 9ms
+     × повтор <телефон>: использует каноническую карточку без перезаписи профиля 3ms
+     × повтор 7000001001: использует каноническую карточку без перезаписи профиля 2ms
+     × повтор <телефон>: использует каноническую карточку без перезаписи профиля 3ms
+     ✓ не восстанавливает архивного клиента 2ms
+     ✓ повтор в том же бизнесе не создаёт ложную историю привязки 2ms
+     ✓ отклоняет некорректный ввод {"phone":"<телефон>"} 2ms
+     ✓ отклоняет некорректный ввод {"firstName":"Тест"} 2ms
+     ✓ отклоняет некорректный ввод {"firstName":"Тест","phone":"abc123"} 2ms
+     ✓ не обходит backend право записи 2ms
+     ✓ не пишет в read-only организации 3ms
+     ✓ конкурентный UNIQUE даёт 409 без привязки и ложного audit 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > повтор <телефон>: использует каноническую карточку без перезаписи профиля
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > повтор <телефон>: использует каноническую карточку без перезаписи профиля
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > повтор 7000001001: использует каноническую карточку без перезаписи профиля
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > повтор <телефон>: использует каноническую карточку без перезаписи профиля
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
++   {
++     "select": {
++       "id": true,
++       "status": true,
++     },
+      "where": {
+        "organizationId": "org",
+-       "phoneNormalized": "<телефон>",
++       "phone": "<телефон>",
+      },
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/api/src/beauty/customers-create.test.ts:72:37
+     70|         .send({ firstName: 'Другое имя', phone }).expect(201);
+     71|       expect(result.body).toEqual({ id: customerId, created: false });
+     72|       expect(db.customer.findFirst).toHaveBeenCalledWith(expect.object…
+       |                                     ^
+     73|         where: { organizationId: 'org', phoneNormalized: '<телефон>…
+     74|       }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 9 passed (13)
+   Start at  01:14:49
+   Duration  957ms (transform 49%, import 37%, tests 14%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-14-48Z-unit-c2da.json
+
+# код выхода 1 · 2 с

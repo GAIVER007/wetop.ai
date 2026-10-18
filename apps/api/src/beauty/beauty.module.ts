@@ -21,6 +21,7 @@ import {
   effectiveService,
   localDate,
   parseCustomerMarks,
+  parseCustomerInput,
   zonedStartOfDay,
   parseBeautyServiceInput,
   parseEmployeeInput,
@@ -44,6 +45,7 @@ import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { BeautyAppointmentsController, BeautyAppointmentsService } from './appointments';
 import { BeautyScheduleController, BeautyScheduleService } from './schedule';
+import { findOrCreateCustomer } from '../customers/identity';
 import {
   beautyScope,
   beautyTransaction,
@@ -149,6 +151,30 @@ export class BeautyCatalogService {
         };
       }),
     };
+  }
+
+  /** Самостоятельное создание по ТЗ 4, M4-A; имя и контакты существующей карточки не перезаписываются. */
+  async createCustomer(raw: unknown) {
+    await mayBeautyWrite(this.prisma, 'desk');
+    const scope = await this.scope();
+    const parsed = parseCustomerInput(raw);
+    if (!parsed.ok) throw new BadRequestException(parsed.reason);
+    return beautyTransaction(this.prisma, scope, async (tx) => {
+      const result = await findOrCreateCustomer(tx, scope.organizationId, parsed.value);
+      const pair = { customerId: result.id, businessId: scope.businessId };
+      const linked = !result.created && await tx.customerBusiness.findUnique({
+        where: { customerId_businessId: pair }, select: { customerId: true },
+      });
+      if (!linked) {
+        await tx.customerBusiness.upsert({ where: { customerId_businessId: pair }, create: pair, update: {} });
+        await tx.auditLog.create({ data: {
+          organizationId: scope.organizationId, userId: currentUserId(), entityType: 'customer',
+          entityId: result.id, action: result.created ? 'beauty.customer.created' : 'beauty.customer.linked',
+          after: { businessId: scope.businessId, hasPhone: true },
+        } });
+      }
+      return result;
+    });
   }
 
   /** VIP-метка и дата рождения клиента салона (§36, общие с рестораном): клиент виден в бизнесе; дата в журнал не пишется */
@@ -751,6 +777,11 @@ export class BeautyCatalogController {
   @Get('customers')
   customers() {
     return this.service.customers();
+  }
+  @RequiresBusinessCapability('beauty.customers')
+  @Post('customers')
+  createCustomer(@Body() body: unknown) {
+    return this.service.createCustomer(body);
   }
   // VIP и день рождения (§36): ставит смена, как у ресторана
   @RequiresBusinessCapability('beauty.customers')

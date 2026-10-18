@@ -1,0 +1,74 @@
+# Интеграционные (integration) · 18.10.2026 13:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит a1c5d36 (codex/salons-tz4-m4a), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-00-58Z-integration-cb4a.json' 'tests/integration/customer-phone.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+[pms_test] миграций применено 134; данные на месте
+[pms_test] роли wetop_app включён вход (локальная база)
+ ❯ |integration| tests/integration/customer-phone.test.ts (5 tests | 3 failed) 15ms
+   ❯ Customer: канонический телефон организации (M4-A) (5)
+     × сырой и форматированный номер не создают двух клиентов организации 4ms
+     × сохраняет исходный номер и вычисляет ключ для старого писателя 1ms
+     × не позволяет подделать производный ключ и обновляет его при смене телефона 1ms
+     ✓ одинаковый номер допустим в разных организациях 1ms
+     ✓ несколько клиентов без телефона остаются допустимы 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/customer-phone.test.ts > Customer: канонический телефон организации (M4-A) > сырой и форматированный номер не создают двух клиентов организации
+AssertionError: promise resolved "'ee8f9d78-198c-442d-8e00-a4d47b8c780e'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"ee8f9d78-198c-442d-8e00-a4d47b8c780e"
+
+ ❯ tests/integration/customer-phone.test.ts:35:46
+     33|   it('сырой и форматированный номер не создают двух клиентов организац…
+     34|     await insert('<телефон>');
+     35|     await expect(insert('<телефон>')).rejects.toThrow(/phone_n…
+       |                                              ^
+     36|   });
+     37|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/customer-phone.test.ts > Customer: канонический телефон организации (M4-A) > сохраняет исходный номер и вычисляет ключ для старого писателя
+error: column "phone_normalized" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/customer-phone.test.ts:40:18
+     38|   it('сохраняет исходный номер и вычисляет ключ для старого писателя',…
+     39|     const id = await insert('7000002002');
+     40|     const row = (await client.query('SELECT phone, phone_normalized FR…
+       |                  ^
+     41|     expect(row).toEqual({ phone: '7000002002', phone_normalized: '+770…
+     42|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/customer-phone.test.ts > Customer: канонический телефон организации (M4-A) > не позволяет подделать производный ключ и обновляет его при смене телефона
+error: column "phone_normalized" of relation "customers" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/customer-phone.test.ts:46:5
+     44|   it('не позволяет подделать производный ключ и обновляет его при смен…
+     45|     const id = await insert('<телефон>');
+     46|     await client.query('UPDATE customers SET phone=$1, phone_normalize…
+       |     ^
+     47|     const row = (await client.query('SELECT phone_normalized FROM cust…
+     48|     expect(row.phone_normalized).toBe('<телефон>');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 passed (5)
+   Start at  01:00:59
+   Duration  1.54s (import 44%, tests 41%, transform 10%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-00-58Z-integration-cb4a.json
+
+# код выхода 1 · 3 с

@@ -1,0 +1,262 @@
+{
+  "baseSha": "b194d49866c2fd8e40ae1db04859204e9f966528",
+  "status": "LOCAL_SCOPED_GATES_VERIFIED_FULL_CI_REQUIRED",
+  "productionApplied": false,
+  "deployed": false,
+  "mergeAuthorized": false,
+  "sourceFiles": {
+    "apps/web/src/app/customers/actions.ts": "c5ac247cd6086104d937e2f598cff6342cff093a37a236dd3b9afc9dbf45699b",
+    "packages/database/prisma/beauty-release-preparation.json": "0ebbef4a27e95e93de540a6850e4cff9a06641edd4d38683c70b028c89873bed",
+    "packages/database/prisma/migrations/20261018000135_beauty_materials/down.sql": "86e6e1b6d2af3113f38ee6146f280d1a53da9cdf85074ea9a37a30eb014c8291",
+    "tests/integration/beauty-release-schema.test.ts": "0f7082749416d51fa86baf51a2419029ba7626d77b6948a84ae15b53cb54f94b",
+    "docs/ops/beauty-zapis-release.md": "8ec9bb7a82114f77f94b63f580f9cc210554a6cb1135a4f62113493930bdc2d7",
+    "scripts/preview/beauty-appointment-selection.ts": "8d1bb7e78dcab6e9f332f032d4f16c311fe28695b7043b543ac6f044deaaf714",
+    "scripts/preview/fixture-api.ts": "e77e455d509a72b721c069fe55c8b3d2fef846d9e1b3e327bdaa0aa5d403d7e6",
+    "tests/unit/preview-beauty-appointment-selection.test.ts": "a8eaa29ac279b6ad1696a72fc93dca9c7663b9e9f7444ebd0dad0fcf14abae0a",
+    "tests/branches-ui/fixture-api.ts": "2587af0f284368a921db536af1d31c323302c7ab207c3a9d85deb67774ce372b",
+    "tests/employee-portal-ui/fixture-api.ts": "f27c3070c11febf371de5a8757f6f79bcf6601b9dff51e719dcd97202185e267",
+    "tests/onboarding-real/beauty-onboarding.spec.ts": "315f535b2409b1900de97080bf4bd2d122e1a81290e6e1e1caaee35818d42712",
+    "tests/onboarding-real/onboarding-compatibility.spec.ts": "54fb9a82814a5ffd77e53b16c44071d82249932845c7ae127077a74b388e039d",
+    "tests/ui/beauty-customers.spec.ts": "9a87b03c7db6670ce182d560dabbd59fd0beb6b0d8ed74f254373a812d611469",
+    "tests/ui/beauty-journal.spec.ts": "96388efc9ffe308814ffd93f81776d4eb70a2f8ae281cc790fbce652c6423afa",
+    "tests/ui/beauty-schedule.spec.ts": "558591199747db2236e597c25e0867085755c34488c9f7b4e6a56b64d45e327b",
+    "tests/ui/chessboard-card.spec.ts": "5ffa340813cd3e53e9b3b97c6d0fbe3c1f98b97dcdd7b2b7cae5dbb7f2602c11"
+  },
+  "independentReviews": [
+    {
+      "passed": true,
+      "security_concerns": [],
+      "logic_errors": [],
+      "suggestions": [],
+      "summary": "APPROVED for the scoped independent read-only SOURCE review against b194d49866c2fd8e40ae1db04859204e9f966528. Read every requested per-file diff and each complete current file. Byte comparisons confirm all five Beauty UP SQL files and the four other DOWN files are unchanged; the tracked migration.sql diff is empty. All ten SQL SHA-256 values match the preparation manifest. The only manifest edit pins materials DOWN to 86e6e1b6d2af3113f38ee6146f280d1a53da9cdf85074ea9a37a30eb014c8291; PREPARED_NOT_APPLIED, productionApplied=false, all four mandatory release requirements, and automaticApplyAllowed=false are unchanged. This is a corrected candidate hash, not a gate bypass. Materials DOWN changes only the historical stock-guard comment/line formatting and restoration of the two kitchen function search_path settings. Both restored function bodies match historical ordinary089/093 exactly, normalizing only CREATE versus CREATE OR REPLACE; schema-aware path expressions and ALTER FUNCTION statements match their historical settings. Existing retained-data refusals, exclusive locks, transaction, and rollback operations are preserved. The regression expands the pre-UP/post-reverse signature to include every public trigger function's identity, pg_get_functiondef, and proconfig, so the existing equality assertion now detects the exact function-definition/search_path rollback defect rather than merely table/index equality. Customer actions differ solely by async on two overload declarations; the implementation and authorization behavior are byte-unchanged. No datasource/schema diff, new model, money-rule change, production authorization, or production application is introduced by the reviewed patch. Documentation distinguishes the original ten-file hashes from the subsequent single-DOWN correction and explicitly says this is not a new full CI or production application. Verification provenance: the request reports real-DB 79 passing including the nine release tests, strengthened-signature RED 8 passing/1 failing followed by GREEN 9/9, and unit 52 passing with positive/negative coverage. The reviewed document records the named RED run and GREEN 9/9 and 52/52 runs, but does not independently establish the aggregate 79 or RED 8/1 counts. Those runtime results are supplied context, NOT independently executed or log-verified in this source-only review. No DB, test, process-management, code, index, or Git writes were performed; the only write is this review artifact. Approval is a source verdict, not runtime certification or permission to deploy.",
+      "filesReviewed": [
+        "apps/web/src/app/customers/actions.ts",
+        "packages/database/prisma/beauty-release-preparation.json",
+        "packages/database/prisma/migrations/20261018000135_beauty_materials/down.sql",
+        "tests/integration/beauty-release-schema.test.ts",
+        "docs/ops/beauty-zapis-release.md"
+      ]
+    },
+    {
+      "passed": true,
+      "security_concerns": [],
+      "logic_errors": [],
+      "suggestions": [],
+      "summary": "Independent READ-ONLY source review passed for the 11 explicitly allowed files against b194d49866c2fd8e40ae1db04859204e9f966528. Reviewed each tracked file's actual diff and both new files in full, including explicit new-file diffs against /dev/null. Owned appointmentLine cleanup uses the same organization-scoped parent relation as appointment cleanup, immediately before parent deletion inside the existing marker-guarded transaction. The synthetic replay key is assigned only after assertPortalDatabase() is evaluated. Onboarding assertions preserve partial-assignment error/input state and exact persisted employee identity; lost-response recovery still checks the persisted employee and stable row count, while the separate later-create regression verifies distinct IDs and the list action URL. Compatibility coverage checks canonical service audit increments and absence of legacy service/profile dual writes at both checkpoints, exact service readback and unchanged profile fields, both #services reload URLs, and focused keyboard activation of the services save button. Generic customer/journal tests use explicitly scoped API assignment only as setup for a backend without portal support, and verify both the acknowledged exact assignment and an independent exact GET readback; this does not replace the separately mandatory real portal UI suite. The bounded adapter preserves legacy lookup behavior, accepts only one unadjusted items row, rejects malformed/mixed/multiple/extra-field pricing or duration item payloads before existing appointment guards, and leaves downstream scheduling, pricing, overlap, customer checks and persistence unchanged. The schedule test derives the selected week once from the browser clock and reuses it for the seeded date. The chessboard regression selects exact TEST3, asserts its actual two-night interval, the exact caption span of two, and retains no-menu/short-name assertions without changing production calendar behavior. No skip or timeout loosening appears in the reviewed diffs. This is source approval only: no tests, browser flows, DB operations, or application processes were run. Reported main 8 passing, adapter 19 passing, branches 70 passing/4 pre-existing skips, 27 foreign lines stable, and separate real portal UI 26 remain caller-supplied runtime/context claims, not independently executed or recertified here. Prior identifier 5075bcb8 is not resolvable in this repository; approval was therefore based on the current source and requested full base comparison, not that prior approval. No repository files, Git state, database, tests, or running processes were modified; this JSON is the sole written artifact.",
+      "filesReviewed": [
+        "scripts/preview/beauty-appointment-selection.ts",
+        "scripts/preview/fixture-api.ts",
+        "tests/unit/preview-beauty-appointment-selection.test.ts",
+        "tests/branches-ui/fixture-api.ts",
+        "tests/employee-portal-ui/fixture-api.ts",
+        "tests/onboarding-real/beauty-onboarding.spec.ts",
+        "tests/onboarding-real/onboarding-compatibility.spec.ts",
+        "tests/ui/beauty-customers.spec.ts",
+        "tests/ui/beauty-journal.spec.ts",
+        "tests/ui/beauty-schedule.spec.ts",
+        "tests/ui/chessboard-card.spec.ts"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "id": "2026-10-18T21-06-31Z-typecheck-ff20",
+      "suite": "typecheck",
+      "command": "npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]",
+      "args": [],
+      "note": "Final CI repair root API and web typecheck",
+      "counts": null,
+      "exitCode": 0,
+      "codeChangedDuringRun": false,
+      "durationMs": 75341,
+      "startedAt": "2026-10-18T21:06:31.384Z",
+      "log": "tests/runs/logs/2026-10-18T21-06-31Z-typecheck-ff20.log",
+      "fingerprint": "46679a0d6067e051aa033745118873c94c06adf9a69e7854b6693b8c47dd0dff"
+    },
+    {
+      "id": "2026-10-18T21-10-16Z-lint-9643",
+      "suite": "lint",
+      "command": "npx eslint .",
+      "args": [],
+      "note": "Final unchanged source lint; owned generated DB proof relocated intact outside source via existing evidence convention, hashes preserved, no rule disabled or file deleted",
+      "counts": null,
+      "exitCode": 0,
+      "codeChangedDuringRun": false,
+      "durationMs": 69234,
+      "startedAt": "2026-10-18T21:10:16.421Z",
+      "log": "tests/runs/logs/2026-10-18T21-10-16Z-lint-9643.log",
+      "fingerprint": "3fa03b9e346134b34fcfa960530a42523e09d7f2d5c3f674e5d2e2c464ab8ee6"
+    },
+    {
+      "id": "2026-10-18T21-08-43Z-unit-0d4c",
+      "suite": "unit",
+      "command": "npx vitest run --project unit --reporter=default --reporter=json --outputFile.json=<отчёт>",
+      "args": [],
+      "note": "Final full unit including strict manifest, endpoint and synthetic item boundary negatives",
+      "counts": {
+        "total": 6272,
+        "passed": 6265,
+        "failed": 0,
+        "skipped": 7,
+        "flaky": 0
+      },
+      "exitCode": 0,
+      "codeChangedDuringRun": false,
+      "durationMs": 410257,
+      "startedAt": "2026-10-18T21:08:43.281Z",
+      "log": "tests/runs/logs/2026-10-18T21-08-43Z-unit-0d4c.log",
+      "fingerprint": "f87991371aacdb9506ae88c27bee70bdef48feff6031ada9bac25316fbd34c09"
+    },
+    {
+      "id": "2026-10-18T21-06-56Z-integration-5e3b",
+      "suite": "integration",
+      "command": "npx vitest run --project integration --reporter=default --reporter=json --outputFile.json=<отчёт> 'tests/integration/beauty-release-schema.test.ts' 'tests/integration/beauty-appointment-lines.test.ts' 'tests/integration/beauty-position-storage.test.ts' 'tests/integration/kitchen-stock.test.ts' 'tests/integration/beauty-customers.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/customers-create.test.ts' 'tests/integration/beauty-positions-api.test.ts' '--maxWorkers=1'",
+      "args": [
+        "tests/integration/beauty-release-schema.test.ts",
+        "tests/integration/beauty-appointment-lines.test.ts",
+        "tests/integration/beauty-position-storage.test.ts",
+        "tests/integration/kitchen-stock.test.ts",
+        "tests/integration/beauty-customers.test.ts",
+        "tests/integration/beauty-schedule.test.ts",
+        "tests/integration/customers-create.test.ts",
+        "tests/integration/beauty-positions-api.test.ts",
+        "--maxWorkers=1"
+      ],
+      "note": "Final complete owned realDB79 with stronger exact function/proconfig rollback signature and unchanged money/tenant/concurrency guards",
+      "counts": {
+        "total": 79,
+        "passed": 79,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "exitCode": 0,
+      "codeChangedDuringRun": false,
+      "durationMs": 29196,
+      "startedAt": "2026-10-18T21:06:56.579Z",
+      "log": "tests/runs/logs/2026-10-18T21-06-56Z-integration-5e3b.log",
+      "fingerprint": "adb2864a58f951465554dc54a8dd08140dd71f2cdf6e8dc03466254ae0647f49"
+    },
+    {
+      "id": "2026-10-18T21-02-28Z-e2e-69de",
+      "suite": "e2e",
+      "command": "npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-customers.spec.ts' 'tests/ui/beauty-journal.spec.ts' 'tests/ui/beauty-schedule.spec.ts' 'tests/ui/chessboard-card.spec.ts' '--grep' 'клиенты|поиск и сегмент|сетка: выходной|30 дней: плашка|запись из пустой клетки' '--workers=1' '--output=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-items-artifacts'",
+      "args": [
+        "--config=tests/ui/playwright.alt.config.ts",
+        "tests/ui/beauty-customers.spec.ts",
+        "tests/ui/beauty-journal.spec.ts",
+        "tests/ui/beauty-schedule.spec.ts",
+        "tests/ui/chessboard-card.spec.ts",
+        "--grep",
+        "клиенты|поиск и сегмент|сетка: выходной|30 дней: плашка|запись из пустой клетки",
+        "--workers=1",
+        "--output=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-items-artifacts"
+      ],
+      "note": "Direct8 regression after explicit single-item synthetic serialization boundary; existing validations/prices/timeouts intact; exact caption-bearing two-night TEST3 selected",
+      "counts": {
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "exitCode": 0,
+      "codeChangedDuringRun": false,
+      "durationMs": 208195,
+      "startedAt": "2026-10-18T21:02:28.160Z",
+      "log": "tests/runs/logs/2026-10-18T21-02-28Z-e2e-69de.log",
+      "fingerprint": "0b81bf4759f0c42924885d31bf95955ebe2a3b63d089a173c38cc762f2cf00ad"
+    },
+    {
+      "id": "2026-10-18T21-12-41Z-e2e-8297",
+      "suite": "e2e",
+      "command": "npx playwright test --workers=2 --reporter=list,json '--config=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/playwright.onboarding-owned.config.ts' 'onboarding-compatibility.spec.ts' '--grep' 'create then immediate services' '--workers=1' '--output=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/final-services-compat-artifacts'",
+      "args": [
+        "--config=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/playwright.onboarding-owned.config.ts",
+        "onboarding-compatibility.spec.ts",
+        "--grep",
+        "create then immediate services",
+        "--workers=1",
+        "--output=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/final-services-compat-artifacts"
+      ],
+      "note": "Final realDB canonical services: both persisted hash reloads, native focused keyboard submit, one ID, exact fields, canonical+legacy audit no-dualwrite and profile-zero invariants",
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "exitCode": 0,
+      "codeChangedDuringRun": false,
+      "durationMs": 49609,
+      "startedAt": "2026-10-18T21:12:41.008Z",
+      "log": "tests/runs/logs/2026-10-18T21-12-41Z-e2e-8297.log",
+      "fingerprint": "0b81bf4759f0c42924885d31bf95955ebe2a3b63d089a173c38cc762f2cf00ad"
+    }
+  ],
+  "sqlByteProvenance": [
+    {
+      "path": "packages/database/prisma/migrations/20261018000133_beauty_appointment_lines/migration.sql",
+      "sha256": "db336544977ff3de6406a86c0ef4715b594a5a4c00a0056da5b3303692112fcf",
+      "unchangedFromPreviousCandidate": true
+    },
+    {
+      "path": "packages/database/prisma/migrations/20261018000133_beauty_appointment_lines/down.sql",
+      "sha256": "2612ea440c9503e160506f7000666eb23b708bec08022282ea00d0e2c246d199",
+      "unchangedFromPreviousCandidate": true
+    },
+    {
+      "path": "packages/database/prisma/migrations/20261018000134_beauty_reviews/migration.sql",
+      "sha256": "58a1c26566b13d6fd31cb9f226bb74ab40df575540988944d6207ac4691abffe",
+      "unchangedFromPreviousCandidate": true
+    },
+    {
+      "path": "packages/database/prisma/migrations/20261018000134_beauty_reviews/down.sql",
+      "sha256": "8b920ed7e5f4676289b5bf964703cc5dd0b862f351bdeb7033143a2dbc89231c",
+      "unchangedFromPreviousCandidate": true
+    },
+    {
+      "path": "packages/database/prisma/migrations/20261018000135_beauty_materials/migration.sql",
+      "sha256": "1ce9a2e0b281ec50dd050d529f8de79ab85bbdb4a2087f942cef1d2001048748",
+      "unchangedFromPreviousCandidate": true
+    },
+    {
+      "path": "packages/database/prisma/migrations/20261018000135_beauty_materials/down.sql",
+      "sha256": "86e6e1b6d2af3113f38ee6146f280d1a53da9cdf85074ea9a37a30eb014c8291",
+      "unchangedFromPreviousCandidate": false
+    },
+    {
+      "path": "packages/database/prisma/migrations/20261018000136_beauty_positions/migration.sql",
+      "sha256": "e942079adbfcb56123c083c3e4d5517202ba1aec1a8501640e1cbce22450ad69",
+      "unchangedFromPreviousCandidate": true
+    },
+    {
+      "path": "packages/database/prisma/migrations/20261018000136_beauty_positions/down.sql",
+      "sha256": "a86adfa75e486c59ed2d2f5c2058630bd094269a76ca021e12010062645e29d2",
+      "unchangedFromPreviousCandidate": true
+    },
+    {
+      "path": "packages/database/prisma/migrations/20261018000137_beauty_location_hours/migration.sql",
+      "sha256": "5320973d700da020324b16456115df358e960dc0ba14a6aa74eea8ebb8fc987d",
+      "unchangedFromPreviousCandidate": true
+    },
+    {
+      "path": "packages/database/prisma/migrations/20261018000137_beauty_location_hours/down.sql",
+      "sha256": "fe46f634c71baaaffdc722d8286f4c9ac630684657c698a769a773d0525b67fc",
+      "unchangedFromPreviousCandidate": true
+    }
+  ],
+  "staticScan": {
+    "intentionalTestOnlyFindings": [
+      "process.env.SESSION_SECRET = 'synthetic-employee-portal-fixture-replay-key';"
+    ],
+    "unexpectedCredentialFindings": []
+  },
+  "limitations": [
+    "Selected local DB79 and direct UI8 are not the entire integration/UI matrix",
+    "Earlier portal26 and branches70 are retained as in-repair evidence; exact-SHA CI must re-certify mandatory jobs",
+    "Seven unit and four branch skips pre-existed; no skip or timeout relaxation added",
+    "No production backup/restore or cutover performed; exact permission remains required"
+  ]
+}

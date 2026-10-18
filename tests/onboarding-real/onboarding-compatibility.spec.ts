@@ -6,7 +6,7 @@ const api = 'http://127.0.0.1:55844';
 const evidence = '.onboarding-work/evidence/screenshots';
 async function employeeCommands(id:string) {
  const client=new pg.Client({connectionString:process.env.DATABASE_URL});
- try {await client.connect();const rows=await client.query<{action:string,count:number}>("select action,count(*)::int as count from pms_test.audit_logs where entity_id=$1 and action like $2 group by action",[id,'beauty.employee.%']);return Object.fromEntries(rows.rows.map(r=>[r.action,r.count]));}
+ try {await client.connect();const rows=await client.query<{action:string,count:number}>("select action,count(*)::int as count from pms_test.audit_logs where entity_id=$1 and (action like $2 or action in ($3,$4)) group by action",[id,'beauty.employee.%','employee_portal.services','employee_portal.profile']);return Object.fromEntries(rows.rows.map(r=>[r.action,r.count]));}
  finally {await client.end();}
 }
 async function registered(page: Page, vertical: string) {
@@ -119,54 +119,72 @@ test('O02/O03 confirmation in fresh browser and repeated link preserve original 
   await expect(page.getByRole('heading',{level:1})).toHaveText('Добро пожаловать в WETOP');
 });
 
-test('create then immediate services tab keeps its native dialog open',async ({page})=>{
- await registered(page,'BEAUTY');
- await page.getByRole('button',{name:'Настроить салон',exact:true}).click();
- await page.getByRole('button',{name:'Сохранить и продолжить',exact:true}).click();
- await expect(page.getByText('Выполнено 0 из 4 обязательных шагов',{exact:true})).toBeVisible();
- const cookies=await page.context().cookies('http://127.0.0.1:55843');
- const headers={'x-wetop-session':cookies.find(c=>c.name==='wetop_session')!.value,'x-wetop-scope':decodeURIComponent(cookies.find(c=>c.name==='wetop_scope')!.value)};
- const service=await page.request.post(`${api}/beauty/services`,{headers,data:{creationId:randomUUID(),name:'Услуга Диагностики',durationMinutes:'30',priceMinor:'0',currency:'KZT',active:true}});expect(service.ok()).toBe(true);
+test('create then immediate services tab uses one canonical profile without profile rewrites', async ({ page }) => {
+ await registered(page, 'BEAUTY');
+ await page.getByRole('button', { name: 'Настроить салон', exact: true }).click();
+ await page.getByRole('button', { name: 'Сохранить и продолжить', exact: true }).click();
+ await expect(page.getByText('Выполнено 0 из 4 обязательных шагов', { exact: true })).toBeVisible();
+ const cookies = await page.context().cookies('http://127.0.0.1:55843');
+ const headers = { 'x-wetop-session': cookies.find(c => c.name === 'wetop_session')!.value, 'x-wetop-scope': decodeURIComponent(cookies.find(c => c.name === 'wetop_scope')!.value) };
+ const service = await page.request.post(`${api}/beauty/services`, { headers, data: { creationId: randomUUID(), name: 'Услуга Диагностики', durationMinutes: '30', priceMinor: '0', currency: 'KZT', active: true } });
+ expect(service.ok()).toBe(true);
+ const serviceId = (await service.json()).id;
  await page.goto('/employees?onboarding=1');
- await page.getByRole('button',{name:'Добавить мастера',exact:true}).click();
- const dialog=page.getByRole('dialog');await dialog.getByLabel('Имя мастера',{exact:true}).fill('Мастер Диагностики');
- await dialog.getByRole('button',{name:'Создать мастера',exact:true}).click();
- await expect(dialog.getByRole('tab',{name:'Услуги',exact:true})).toBeVisible();
- await page.screenshot({path:`${evidence}/create-before-tab.png`,fullPage:true});
- await dialog.getByRole('tab',{name:'Услуги',exact:true}).click();
- await test.info().attach('native-dialog-state',{body:JSON.stringify({url:page.url(),dialogs:await page.locator('dialog').evaluateAll(elements=>elements.map(e=>({open:(e as HTMLDialogElement).open,modal:e.matches(':modal'),rect:e.getBoundingClientRect().toJSON(),title:e.querySelector('h2')?.textContent})))}),contentType:'application/json'});
- await page.screenshot({path:`${evidence}/create-after-tab.png`,fullPage:true});
- await expect(dialog.getByLabel('Услуга Диагностики',{exact:true})).toBeVisible();
- await dialog.getByLabel('Услуга Диагностики',{exact:true}).check();
- const rowsBefore=await (await page.request.get(`${api}/beauty/employees`,{headers})).json();
- const employee=rowsBefore.items[0];
- const commandsBefore=await employeeCommands(employee.id);
- const profileBefore={name:employee.name,phone:employee.phone,email:employee.email,active:employee.active,profileRevision:employee.profileRevision};
- await dialog.getByRole('button',{name:'Сохранить услуги',exact:true}).click();
- await expect(dialog.getByRole('status')).toContainText('Услуги назначены');
- const commandsAfter=await employeeCommands(employee.id);
- expect((commandsAfter['beauty.employee.services.set']??0)-(commandsBefore['beauty.employee.services.set']??0)).toBe(1);
+ await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+ const dialog = page.getByRole('dialog');
+ await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Диагностики');
+ await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+ await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+ const canonicalUrl = page.url();
+ await expect(page.getByRole('dialog')).toHaveCount(0);
+ const manager = page.getByTestId('employee-manager');
+ await expect(manager).toBeVisible();
+ await page.screenshot({ path: `${evidence}/create-before-tab.png`, fullPage: true });
+ await manager.getByRole('tab', { name: 'Услуги', exact: true }).click();
+ await manager.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+ let skills = page.getByTestId('portal-services-form');
+ await expect(skills.getByRole('checkbox', { name: /^Услуга Диагностики/ })).toBeVisible();
+ await page.screenshot({ path: `${evidence}/create-after-tab.png`, fullPage: true });
+ await skills.getByRole('checkbox', { name: /^Услуга Диагностики/ }).check();
+ const rowsBefore = await (await page.request.get(`${api}/beauty/employees`, { headers })).json();
+ expect(rowsBefore.items).toHaveLength(1);
+ const employee = rowsBefore.items[0];
+ const commandsBefore = await employeeCommands(employee.id);
+ const profileBefore = { name: employee.name, phone: employee.phone, email: employee.email, active: employee.active, profileRevision: employee.profileRevision };
+ await skills.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+ await expect(skills.getByRole('status')).toContainText('Сохранено на сервере');
+ const commandsAfter = await employeeCommands(employee.id);
+ expect((commandsAfter['employee_portal.services'] ?? 0) - (commandsBefore['employee_portal.services'] ?? 0)).toBe(1);
  expect(commandsAfter['beauty.employee.created']).toBe(commandsBefore['beauty.employee.created']);
- expect(commandsAfter['beauty.employee.updated']??0).toBe(commandsBefore['beauty.employee.updated']??0);
- const serviceId=(await service.json()).id;
- let saved=await (await page.request.get(`${api}/beauty/employees`,{headers})).json();
- expect(saved.items).toHaveLength(1);expect(saved.items[0].serviceIds).toEqual([serviceId]);
- expect({name:saved.items[0].name,phone:saved.items[0].phone,email:saved.items[0].email,active:saved.items[0].active,profileRevision:saved.items[0].profileRevision}).toEqual(profileBefore);
+ expect(commandsAfter['beauty.employee.services.set'] ?? 0).toBe(commandsBefore['beauty.employee.services.set'] ?? 0);
+ expect(commandsAfter['beauty.employee.updated'] ?? 0).toBe(commandsBefore['beauty.employee.updated'] ?? 0);
+ expect(commandsAfter['employee_portal.profile'] ?? 0).toBe(commandsBefore['employee_portal.profile'] ?? 0);
+ let saved = await (await page.request.get(`${api}/beauty/employees`, { headers })).json();
+ expect(saved.items).toHaveLength(1); expect(saved.items[0].id).toBe(employee.id); expect(saved.items[0].serviceIds).toEqual([serviceId]);
+ expect({ name: saved.items[0].name, phone: saved.items[0].phone, email: saved.items[0].email, active: saved.items[0].active, profileRevision: saved.items[0].profileRevision }).toEqual(profileBefore);
  await page.reload();
- await page.getByRole('dialog').getByRole('tab',{name:'Услуги',exact:true}).click();
- await expect(page.getByRole('dialog').getByLabel('Услуга Диагностики',{exact:true})).toBeChecked();
- await page.getByRole('dialog').getByLabel('Услуга Диагностики',{exact:true}).uncheck();
- const save=page.getByRole('dialog').getByRole('button',{name:'Сохранить услуги',exact:true});
- await save.focus();await page.keyboard.press('Enter');
- await expect(page.getByRole('dialog').getByRole('status')).toContainText('Услуги назначены');
+ await expect(page).toHaveURL(`${canonicalUrl}#services`);
+ await expect(page.getByTestId('employee-manager').getByRole('tab', { name: 'Услуги', exact: true })).toHaveAttribute('aria-selected', 'true');
+ await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+ skills = page.getByTestId('portal-services-form');
+ await expect(skills.getByRole('checkbox', { name: /^Услуга Диагностики/ })).toBeChecked();
+ await skills.getByRole('checkbox', { name: /^Услуга Диагностики/ }).uncheck();
+ const saveServices = skills.getByRole('button', { name: 'Сохранить услуги', exact: true });
+ await saveServices.focus();
+ await expect(saveServices).toBeFocused();
+ await page.keyboard.press('Enter');
+ await expect(skills.getByRole('status')).toContainText('Сохранено на сервере');
  await page.reload();
- saved=await (await page.request.get(`${api}/beauty/employees`,{headers})).json();
- expect(saved.items).toHaveLength(1);expect(saved.items[0].serviceIds).toEqual([]);
- expect(saved.items[0].profileRevision).toBe(profileBefore.profileRevision);
- const finalCommands=await employeeCommands(employee.id);
- expect((finalCommands['beauty.employee.services.set']??0)-(commandsBefore['beauty.employee.services.set']??0)).toBe(2);
+ await expect(page).toHaveURL(`${canonicalUrl}#services`);
+ saved = await (await page.request.get(`${api}/beauty/employees`, { headers })).json();
+ expect(saved.items).toHaveLength(1); expect(saved.items[0].id).toBe(employee.id); expect(saved.items[0].serviceIds).toEqual([]);
+ expect({ name: saved.items[0].name, phone: saved.items[0].phone, email: saved.items[0].email, active: saved.items[0].active, profileRevision: saved.items[0].profileRevision }).toEqual(profileBefore);
+ const finalCommands = await employeeCommands(employee.id);
+ expect((finalCommands['employee_portal.services'] ?? 0) - (commandsBefore['employee_portal.services'] ?? 0)).toBe(2);
  expect(finalCommands['beauty.employee.created']).toBe(1);
- expect(finalCommands['beauty.employee.updated']??0).toBe(0);
+ expect(finalCommands['beauty.employee.services.set'] ?? 0).toBe(commandsBefore['beauty.employee.services.set'] ?? 0);
+ expect(finalCommands['beauty.employee.updated'] ?? 0).toBe(0);
+ expect(finalCommands['employee_portal.profile'] ?? 0).toBe(0);
 });
 
 test('Employee mobile typography, confirmed scope and create cancellation',async ({page})=>{

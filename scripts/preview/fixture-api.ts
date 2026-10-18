@@ -1,4 +1,5 @@
 import { customerImportFixture, resetCustomerImportFixture } from './customer-import-fixture';
+import { previewBeautySingleSelection } from './beauty-appointment-selection';
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
@@ -7366,11 +7367,13 @@ createServer(async (req, res) => {
           ),
         );
       if (path === '/beauty/appointments' && req.method === 'POST') {
+        const selection = previewBeautySingleSelection(body);
+        if (!selection.ok) return send(400, { message: selection.error });
         const employee = fixtureBeautyEmployees.find(
-          (e) => e.id === String(body['employeeId'] ?? ''),
+          (e) => e.id === selection.employeeId,
         );
         if (!employee) return send(404, { message: 'Мастер не найден' });
-        const svc = fixtureBeautyServices.find((s) => s.id === String(body['serviceId'] ?? ''));
+        const svc = fixtureBeautyServices.find((s) => s.id === selection.serviceId);
         if (!svc) return send(404, { message: 'Услуга не найдена' });
         const eff = effectiveOf(svc);
         if (!eff.sellable) return send(409, { message: 'Филиал эту услугу не оказывает' });

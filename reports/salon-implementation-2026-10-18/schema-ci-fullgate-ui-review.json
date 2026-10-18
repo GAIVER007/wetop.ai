@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "security_concerns": [],
+  "logic_errors": [],
+  "suggestions": [],
+  "summary": "Independent READ-ONLY source review passed for the 11 explicitly allowed files against b194d49866c2fd8e40ae1db04859204e9f966528. Reviewed each tracked file's actual diff and both new files in full, including explicit new-file diffs against /dev/null. Owned appointmentLine cleanup uses the same organization-scoped parent relation as appointment cleanup, immediately before parent deletion inside the existing marker-guarded transaction. The synthetic replay key is assigned only after assertPortalDatabase() is evaluated. Onboarding assertions preserve partial-assignment error/input state and exact persisted employee identity; lost-response recovery still checks the persisted employee and stable row count, while the separate later-create regression verifies distinct IDs and the list action URL. Compatibility coverage checks canonical service audit increments and absence of legacy service/profile dual writes at both checkpoints, exact service readback and unchanged profile fields, both #services reload URLs, and focused keyboard activation of the services save button. Generic customer/journal tests use explicitly scoped API assignment only as setup for a backend without portal support, and verify both the acknowledged exact assignment and an independent exact GET readback; this does not replace the separately mandatory real portal UI suite. The bounded adapter preserves legacy lookup behavior, accepts only one unadjusted items row, rejects malformed/mixed/multiple/extra-field pricing or duration item payloads before existing appointment guards, and leaves downstream scheduling, pricing, overlap, customer checks and persistence unchanged. The schedule test derives the selected week once from the browser clock and reuses it for the seeded date. The chessboard regression selects exact TEST3, asserts its actual two-night interval, the exact caption span of two, and retains no-menu/short-name assertions without changing production calendar behavior. No skip or timeout loosening appears in the reviewed diffs. This is source approval only: no tests, browser flows, DB operations, or application processes were run. Reported main 8 passing, adapter 19 passing, branches 70 passing/4 pre-existing skips, 27 foreign lines stable, and separate real portal UI 26 remain caller-supplied runtime/context claims, not independently executed or recertified here. Prior identifier 5075bcb8 is not resolvable in this repository; approval was therefore based on the current source and requested full base comparison, not that prior approval. No repository files, Git state, database, tests, or running processes were modified; this JSON is the sole written artifact.",
+  "filesReviewed": [
+    "scripts/preview/beauty-appointment-selection.ts",
+    "scripts/preview/fixture-api.ts",
+    "tests/unit/preview-beauty-appointment-selection.test.ts",
+    "tests/branches-ui/fixture-api.ts",
+    "tests/employee-portal-ui/fixture-api.ts",
+    "tests/onboarding-real/beauty-onboarding.spec.ts",
+    "tests/onboarding-real/onboarding-compatibility.spec.ts",
+    "tests/ui/beauty-customers.spec.ts",
+    "tests/ui/beauty-journal.spec.ts",
+    "tests/ui/beauty-schedule.spec.ts",
+    "tests/ui/chessboard-card.spec.ts"
+  ]
+}

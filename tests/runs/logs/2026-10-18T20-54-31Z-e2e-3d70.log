@@ -1,0 +1,292 @@
+# Сквозные (e2e) · 19.10.2026 01:54 Алматы · srv1719674
+# коммит b194d49 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-customers.spec.ts' 'tests/ui/beauty-journal.spec.ts' 'tests/ui/beauty-schedule.spec.ts' 'tests/ui/chessboard-card.spec.ts' '--grep' 'клиенты|поиск и сегмент|сетка: выходной|30 дней: плашка|запись из пустой клетки' '--workers=1' '--output=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/ui/beauty-customers.spec.ts:141:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE (45.4s)
+  ✘  2 tests/ui/beauty-customers.spec.ts:159:1 › поиск и сегмент отбирают строки, итог говорит сколько показано (32.8s)
+  ✘  3 tests/ui/beauty-customers.spec.ts:182:1 › клиенты на телефоне: без прокрутки вбок (33.5s)
+  ✘  4 tests/ui/beauty-customers.spec.ts:191:3 › клиенты доступны в светлой теме (33.9s)
+  ✘  5 tests/ui/beauty-customers.spec.ts:191:3 › клиенты доступны в тёмной теме (32.7s)
+  ✘  6 tests/ui/beauty-journal.spec.ts:126:1 › запись из пустой клетки появляется в сетке и в списке дня (35.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '12529542'
+[WebServer] }
+  ✓  7 tests/ui/beauty-schedule.spec.ts:140:1 › сетка: выходной по графику ведёт в окно недели, переключатель меняет только дату (Q-SCHED-1) (15.1s)
+  ✘  8 tests/ui/chessboard-card.spec.ts:333:1 › 30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами (22.0s)
+
+
+  1) tests/ui/beauty-customers.spec.ts:141:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('dialog')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      115 |   else await panel.getByLabel('Имя клиента').fill(name);
+      116 |   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
+    > 117 |   await expect(page.getByRole('dialog')).toHaveCount(0);
+          |                                          ^
+      118 | }
+      119 |
+      120 | async function complete(page: Page, name: string, time: string) {
+        at book (/srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:117:42)
+        at seededCustomers (/srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:132:3)
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:145:3
+
+    Error Context: ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-customers.spec.ts:159:1 › поиск и сегмент отбирают строки, итог говорит сколько показано 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('dialog')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      115 |   else await panel.getByLabel('Имя клиента').fill(name);
+      116 |   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
+    > 117 |   await expect(page.getByRole('dialog')).toHaveCount(0);
+          |                                          ^
+      118 | }
+      119 |
+      120 | async function complete(page: Page, name: string, time: string) {
+        at book (/srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:117:42)
+        at seededCustomers (/srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:132:3)
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:163:3
+
+    Error Context: ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-customers.spec.ts:182:1 › клиенты на телефоне: без прокрутки вбок ─────────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('dialog')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      115 |   else await panel.getByLabel('Имя клиента').fill(name);
+      116 |   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
+    > 117 |   await expect(page.getByRole('dialog')).toHaveCount(0);
+          |                                          ^
+      118 | }
+      119 |
+      120 | async function complete(page: Page, name: string, time: string) {
+        at book (/srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:117:42)
+        at seededCustomers (/srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:132:3)
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:183:3
+
+    Error Context: ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-на-телефоне-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-на-телефоне-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-на-телефоне-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-customers.spec.ts:191:3 › клиенты доступны в светлой теме ─────────────────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('dialog')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      115 |   else await panel.getByLabel('Имя клиента').fill(name);
+      116 |   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
+    > 117 |   await expect(page.getByRole('dialog')).toHaveCount(0);
+          |                                          ^
+      118 | }
+      119 |
+      120 | async function complete(page: Page, name: string, time: string) {
+        at book (/srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:117:42)
+        at seededCustomers (/srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:132:3)
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:195:5
+
+    Error Context: ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-доступны-в-светлой-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-доступны-в-светлой-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-доступны-в-светлой-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/beauty-customers.spec.ts:191:3 › клиенты доступны в тёмной теме ──────────────────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('dialog')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      115 |   else await panel.getByLabel('Имя клиента').fill(name);
+      116 |   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
+    > 117 |   await expect(page.getByRole('dialog')).toHaveCount(0);
+          |                                          ^
+      118 | }
+      119 |
+      120 | async function complete(page: Page, name: string, time: string) {
+        at book (/srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:117:42)
+        at seededCustomers (/srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:132:3)
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-customers.spec.ts:195:5
+
+    Error Context: ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-доступны-в-тёмной-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-доступны-в-тёмной-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-customers-клиенты-доступны-в-тёмной-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/beauty-journal.spec.ts:126:1 › запись из пустой клетки появляется в сетке и в списке дня 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('beauty-day-summary')
+    Expected substring: "Записей: 1"
+    Received string:    "Записей на этот день нет"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('beauty-day-summary') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('beauty-day-summary')
+        34 × locator resolved to <p class="beauty-note" data-testid="beauty-day-summary">Записей на этот день нет</p>
+           - unexpected value "Записей на этот день нет"
+
+
+      132 |   await book(page, '10:00', 'Айгуль');
+      133 |   await openDay(page);
+    > 134 |   await expect(main.getByTestId('beauty-day-summary')).toContainText('Записей: 1');
+          |                                                        ^
+      135 |   const tile = main.getByRole('button').filter({ hasText: 'Айгуль' }).first();
+      136 |   await expect(tile).toContainText('10:00');
+      137 |   await expect(tile).toContainText('Маникюр');
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/ui/beauty-journal.spec.ts:134:56
+
+    Error Context: ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/chessboard-card.spec.ts:333:1 › 30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('[data-testid="stay-cell"][data-number="20260913-TEST3"]')
+    Expected: 1
+    Received: 2
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('[data-testid="stay-cell"][data-number="20260913-TEST3"]') with timeout 15000ms
+      - waiting for locator('[data-testid="stay-cell"][data-number="20260913-TEST3"]')
+        33 × locator resolved to 2 elements
+           - unexpected value "2"
+
+
+      348 |   await expect(page.locator('.board--month')).toHaveCount(0);
+      349 |   const stay = page.locator('[data-testid="stay-cell"][data-number="20260913-TEST3"]');
+    > 350 |   await expect(stay).toHaveCount(1);
+          |                      ^
+      351 |   const cell = stay.locator('xpath=ancestor::td[1]');
+      352 |   await expect(cell).toHaveAttribute('data-span', '2');
+      353 |   await expect(cell.locator('.board-stay-menu')).toHaveCount(0);
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/ui/chessboard-card.spec.ts:350:22
+
+    Error Context: ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/chessboard-card-30-дней-пл-9f1c8--«Имя-Ф-»-а-не-с-инициалами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/chessboard-card-30-дней-пл-9f1c8--«Имя-Ф-»-а-не-с-инициалами/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/main-ui-repair-verified-artifacts/chessboard-card-30-дней-пл-9f1c8--«Имя-Ф-»-а-не-с-инициалами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/ui/beauty-customers.spec.ts:141:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE 
+    tests/ui/beauty-customers.spec.ts:159:1 › поиск и сегмент отбирают строки, итог говорит сколько показано 
+    tests/ui/beauty-customers.spec.ts:182:1 › клиенты на телефоне: без прокрутки вбок ──────────────
+    tests/ui/beauty-customers.spec.ts:191:3 › клиенты доступны в светлой теме ──────────────────────
+    tests/ui/beauty-customers.spec.ts:191:3 › клиенты доступны в тёмной теме ───────────────────────
+    tests/ui/beauty-journal.spec.ts:126:1 › запись из пустой клетки появляется в сетке и в списке дня 
+    tests/ui/chessboard-card.spec.ts:333:1 › 30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами 
+  1 passed (4.4m)
+
+# код выхода 1 · 4 мин 26 с

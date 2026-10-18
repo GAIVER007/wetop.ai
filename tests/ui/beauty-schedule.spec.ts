@@ -120,7 +120,7 @@ test('«Сделать рабочим» и «Сохранить» сохраня
   await expect(cell(page, 'Дина', 0)).toContainText('09:00–18:00');
 });
 
-/** Понедельник текущей недели, как его считает страница по умолчанию */
+/** Понедельник браузера: тест передаёт его явно, не смешивая с часовым поясом салона. */
 async function thisMonday(page: Page) {
   return page.evaluate(() => {
     const now = new Date();
@@ -143,7 +143,8 @@ test('сетка: выходной по графику ведёт в окно н
 }) => {
   await openSalon(page, request);
   await addMaster(page, 'Дина');
-  await page.goto('/beauty/schedule');
+  const monday = await thisMonday(page);
+  await page.goto(`/beauty/schedule?week=${monday}`);
   const main = page.getByRole('main');
   await expect(main.getByRole('columnheader')).toHaveCount(8);
   // выходной по шаблону включить на одну дату нельзя: модели доп. рабочего дня нет
@@ -163,8 +164,7 @@ test('сетка: выходной по графику ведёт в окно н
   await expect(cell(page, 'Дина', 2)).toContainText('Работает');
   await expect(cell(page, 'Дина', 2)).toContainText('09:00–18:00');
 
-  // у мастера запись в эту среду: выключение дня её не отменяет и предупреждает
-  const monday = await thisMonday(page);
+  // Запись и сетка используют одну явно выбранную неделю, даже на стыке UTC/Алматы.
   const wednesday = new Date(Date.parse(`${monday}T12:00:00Z`) + 2 * 86_400_000)
     .toISOString()
     .slice(0, 10);

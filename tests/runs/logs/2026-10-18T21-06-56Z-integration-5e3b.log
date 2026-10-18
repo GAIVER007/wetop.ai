@@ -1,0 +1,39 @@
+# Интеграционные (integration) · 19.10.2026 02:06 Алматы · srv1719674
+# коммит b194d49 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T21-06-56Z-integration-5e3b.json' 'tests/integration/beauty-release-schema.test.ts' 'tests/integration/beauty-appointment-lines.test.ts' 'tests/integration/beauty-position-storage.test.ts' 'tests/integration/kitchen-stock.test.ts' 'tests/integration/beauty-customers.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/customers-create.test.ts' 'tests/integration/beauty-positions-api.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:3881382) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-lines.test.ts (27 tests) 5782ms
+   ✓ Beauty: строки услуг записи и совместимость старых writers (27)
+     ✓ переиспользует канонический телефон без перезаписи имени и не восстанавливает архивную карточку 417ms
+     ✓ хранит один отзыв мастеру за DONE-визит и показывает только отзывы выбранного мастера 557ms
+     ✓ выдаёт ссылку на 30 дней от первого DONE, не хранит raw token и ротирует только неотправленную ссылку 304ms
+     ✓ сохраняет техкарту по revision, считает FIFO и списывает материалы только при первом DONE 342ms
+     ✓ authorized salon hours writes work through the real restricted application role 311ms
+     ✓ authorized private review links work through the real restricted application role 564ms
+stdout | tests/integration/beauty-release-schema.test.ts > Beauty schema release on a separate owned canonical database
+Owned release proof salon_release_proof_aa4cef89ab0d410b894b5c00c45cb466: 141 canonical migrations, one populated legacy appointment
+
+ ✓ |integration| tests/integration/beauty-release-schema.test.ts (9 tests) 3922ms
+   ✓ Beauty schema release on a separate owned canonical database (9)
+     ✓ matches Prisma declarations exactly on the real ordinary-chain public schema 2286ms
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 1566ms
+ ✓ |integration| tests/integration/beauty-positions-api.test.ts (8 tests) 1818ms
+   ✓ Beauty positions API: persisted matrix, assignments and strict revocation (8)
+     ✓ rejects a narrowed current membership through the real restricted tenant role before a write 898ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 1124ms
+ ✓ |integration| tests/integration/beauty-customers.test.ts (4 tests) 1082ms
+ ✓ |integration| tests/integration/beauty-position-storage.test.ts (10 tests) 263ms
+ ✓ |integration| tests/integration/kitchen-stock.test.ts (5 tests) 142ms
+
+ Test Files  8 passed (8)
+      Tests  79 passed (79)
+   Start at  21:06:58
+   Duration  27.42s (tests 68%, import 23%, transform 9%)
+
+JSON report written to /tmp/pms-test-2026-10-18T21-06-56Z-integration-5e3b.json
+
+# код выхода 0 · 29 с

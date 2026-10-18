@@ -500,6 +500,7 @@ app.use(
                 await tx.diningTable.deleteMany({ where: { area: { location: { business: b } } } });
                 await tx.diningArea.deleteMany({ where: { location: { business: b } } });
                 await tx.servicePeriod.deleteMany({ where: { location: { business: b } } });
+                await tx.appointmentLine.deleteMany({ where: { appointment: { location: { business: b } } } });
                 await tx.appointment.deleteMany({ where: { location: { business: b } } });
                 await tx.timeOff.deleteMany({ where: { employee: { business: b } } });
                 await tx.workingHours.deleteMany({ where: { employee: { business: b } } });

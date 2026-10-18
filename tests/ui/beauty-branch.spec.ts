@@ -48,7 +48,7 @@ test('салон заводится той же формой и открывае
   await signIn(page, request);
   await createAndOpenSalon(page, 'Студия Айна');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Календарь');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал');
   await expect(main).toContainText('Студия Айна');
   await expect(main.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' })).toBeVisible();
   await expect(main.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
@@ -62,25 +62,25 @@ test('в салоне меню без гостиничных разделов: �
   await signIn(page, request);
   // все разделы направления в панели левого меню (ADR-161); она закрыта, поэтому проверяем разметку
   const menu = page.locator('.sidenav__sections');
-  // до переключения это обычная гостиница
-  await expect(menu.getByRole('link', { name: 'Календарь', exact: true, includeHidden: true })).toHaveCount(1);
+  // до переключения это обычная гостиница: шахматка своим словом (верхнее меню 17.10.2026)
+  await expect(menu.getByRole('link', { name: 'Шахматка', exact: true, includeHidden: true })).toHaveCount(1);
   await createAndOpenSalon(page, 'Студия Айна');
-  await expect(menu.getByRole('link', { name: 'Календарь', exact: true, includeHidden: true })).toHaveCount(1);
-  for (const label of ['Финансы', 'Брони', 'Номерной фонд', 'Гости', 'Гости и бронирования']) {
+  await expect(menu.getByRole('link', { name: 'Шахматка', exact: true, includeHidden: true })).toHaveCount(0);
+  for (const label of ['Финансы', 'Брони', 'Номерной фонд', 'Номера', 'Гости', 'Гости и брони']) {
     await expect(menu.getByRole('link', { name: label, exact: true, includeHidden: true })).toHaveCount(0);
   }
-  // MV8: «Сегодня» салона на общем адресе
-  await expect(menu.getByRole('link', { name: 'Сегодня', exact: true, includeHidden: true })).toHaveAttribute(
+  // MV8: «Главная» салона на общем адресе
+  await expect(menu.getByRole('link', { name: 'Главная', exact: true, includeHidden: true })).toHaveAttribute(
     'href',
     '/today',
   );
-  await expect(menu.getByRole('link', { name: 'Календарь', exact: true, includeHidden: true })).toHaveAttribute(
+  // календарь записей салона называется «Журнал» (решение владельца 17.10.2026)
+  await expect(menu.getByRole('link', { name: 'Журнал', exact: true, includeHidden: true })).toHaveAttribute(
     'href',
     '/calendar',
   );
-  // Раздел мастеров: подпись «Мастера». Прежняя «Сотрудники» стояла в меню рядом с «Сотрудники и
-  // доступ» (`/staff`, учётные записи) и читалась как тот же раздел, поэтому переименована 09.10.2026.
-  await expect(menu.getByRole('link', { name: 'Мастера', exact: true, includeHidden: true })).toHaveAttribute(
+  // мастера салона это «Специалисты» в «Персонале», учётные записи там же «Сотрудники»
+  await expect(menu.getByRole('link', { name: 'Специалисты', exact: true, includeHidden: true })).toHaveAttribute(
     'href',
     '/employees',
   );
@@ -106,7 +106,7 @@ test('салон на телефоне: нижняя панель своих р�
   await createAndOpenSalon(page, 'Студия Айна');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Календарь');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Журнал');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `${SNAPSHOTS}/salon-390.png`, fullPage: true });
 });

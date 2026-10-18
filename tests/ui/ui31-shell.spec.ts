@@ -22,7 +22,7 @@ test('UI3.1: одна кнопка, стабильная ширина и кла�
   const after = await page.locator('main').boundingBox();
   expect(after?.width).toBe(before?.width);
   expect(after?.x).toBe(before?.x);
-  const sales = panel.getByRole('button', { name: 'Продажи', exact: true });
+  const sales = panel.getByRole('button', { name: 'Настройки', exact: true });
   // список компактный (#501): фокус группу не раскрывает, раскрывает ArrowRight или щелчок
   await sales.focus();
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
@@ -30,7 +30,7 @@ test('UI3.1: одна кнопка, стабильная ширина и кла�
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await page.screenshot({ path: `${shots}/after-desktop-menu-subsections.png` });
   await page.keyboard.press('ArrowRight');
-  await expect(panel.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
+  await expect(panel.getByRole('link', { name: 'Объект', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(sales).toBeFocused();
   await page.mouse.move(1400, 880);
@@ -54,7 +54,7 @@ test('UI3.1: mobile освобождает низ и возвращает фок
   const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
   await expect(drawer).toBeVisible();
   await page.screenshot({ path: `${shots}/after-mobile-menu.png` });
-  await expect(drawer.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(drawer.getByRole('link', { name: 'Шахматка', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(drawer).toBeHidden();
   await expect(trigger).toBeFocused();
@@ -175,8 +175,9 @@ test('UI3.1: мобильный переход фокусирует готово
   await page.goto('/chessboard');
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
-  await drawer.getByRole('link', { name: 'Гости и бронирования', exact: true }).click();
-  await expect(page).toHaveURL(/\/guests$/);
+  // прямая ссылка раздела (верхнее меню 17.10.2026: «Номера» без раскрывашки)
+  await drawer.getByRole('link', { name: 'Номера', exact: true }).click();
+  await expect(page).toHaveURL(/\/inventory$/);
   await expect(drawer).toBeHidden();
   await expect(page.locator('#main-content')).toBeFocused();
 });

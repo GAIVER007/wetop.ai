@@ -5,72 +5,40 @@ import { deskShellOf } from './desk-person';
 const owner = { ...CLOSED_ACCESS, role: 'OWNER' as const };
 describe('Food workspace isolation', () => {
   it('exposes exactly accepted Food menu', () => {
-    expect(
-      menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.map((i) => i.href)),
-    ).toEqual([
-      // группы по выбору владельца 11.10.2026: Зал, Заказы, Команда (подразделы видны в левой колонке)
-      '/today',
-      '/floor-plan',
-      '/table-reservations',
-      '/dining-areas',
-      '/orders',
-      '/kitchen',
-      '/drinks',
-      '/menu',
-      '/stock',
-      '/customers',
-      '/restaurant-finance',
-      '/cashbox',
-      // «Оплаты и касса» и «Все отчёты» вели на «Финансы» ресторана: пунктов нет (аудит 17.10.2026, Д2)
-      // бар филиала (ADR-178): деньги бара ресторана в кассе ресторана (§45)
-      '/bar',
-      '/my-work',
-      '/employees',
-      '/payroll',
-      '/team',
-      '/sales',
-      '/ai-agents',
-      // «Продвижение» (ADR-184): тот же состав, что у гостиницы, без «Конкурентов» до PROMO-8
-      '/marketing',
-      '/marketing/ads',
-      '/marketing/content',
-      '/marketing/budget',
-      '/marketing/analytics',
-      '/management/analytics',
-      '/restaurant-settings',
-      // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
-      '/journal',
-      // «Помощь» и «Профиль» в меню профиля (аудит 17.10.2026, Д4)
-    ]);
+    // верхнее меню по решению владельца 17.10.2026: та же строка разделов, что у салона и гостиницы,
+    // со словами ресторана («Зал», «Гости», «Заказы»); «Моя работа» в меню под именем
     const sections = menuSectionsFor(owner, 'FOOD_SERVICE');
-    expect(sections.map((s) => s.label)).toEqual([
-      'Главная',
-      'Зал',
-      'Заказы',
-      'Гости',
-      'Финансы',
-      'Команда',
-      'Продажи',
-      'Продвижение',
-      'Отчёты',
-      'Настройки',
+    expect(sections.map((s) => [s.label, s.items.map((i) => i.href)])).toEqual([
+      ['Главная', ['/today']],
+      ['Зал', ['/floor-plan', '/table-reservations', '/dining-areas']],
+      ['Персонал', ['/employees', '/team', '/payroll']],
+      ['Гости', ['/customers']],
+      ['Заказы', ['/orders', '/kitchen', '/drinks', '/menu']],
+      // `/reports` ресторану перенаправляет на «Аналитику бизнеса» (аудит 17.10.2026, Д2)
+      ['Статистика', ['/management/analytics']],
+      ['Склад', ['/stock', '/bar/products', '/bar', '/bar/operations', '/bar/suppliers']],
+      // `/finance` ресторану не свой экран: «Финансы» ресторана (аудит 17.10.2026, Д2)
+      ['Финансы', ['/cashbox', '/restaurant-finance']],
+      // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
+      ['Настройки', ['/restaurant-settings', '/journal']],
+      ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/ai-agents', '/sales', '/marketing/budget', '/marketing/analytics']],
+      ['Помощь', ['/help']],
     ]);
-    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 3, 4, 2, 5, 1, 2]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],
-      ['/orders', 'Заказы'],
       ['/customers', 'Гости'],
+      ['/orders', 'Заказы'],
     ]);
     const labels = sections.flatMap((s) => s.items);
     expect(labels.find((i) => i.href === '/orders')?.label).toBe('Заказы');
     expect(labels.find((i) => i.href === '/kitchen')?.label).toBe('Кухня');
     expect(labels.find((i) => i.href === '/menu')?.label).toBe('Меню');
-    expect(labels.find((i) => i.href === '/stock')?.label).toBe('Склад');
-    expect(labels.find((i) => i.href === '/employees')?.label).toBe('Сотрудники');
+    expect(labels.find((i) => i.href === '/stock')?.label).toBe('Склад кухни');
+    expect(labels.find((i) => i.href === '/employees')?.label).toBe('Специалисты');
     expect(labels.find((i) => i.href === '/payroll')?.label).toBe('Зарплата');
-    expect(labels.find((i) => i.href === '/cashbox')?.label).toBe('Касса');
-    expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Бронирования');
+    expect(labels.find((i) => i.href === '/cashbox')?.label).toBe('Движение денег');
+    expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Брони столов');
   });
   it('does not expose Food to existing verticals', () => {
     for (const v of ['BEAUTY', 'HOSPITALITY'] as const) {

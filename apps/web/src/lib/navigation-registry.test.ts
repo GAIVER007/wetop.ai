@@ -70,16 +70,16 @@ describe('подсветка раздела у салона и ресторан�
   const at = (vertical: WebVertical, path: string) =>
     activeSectionOf(menuSectionsFor(owner, vertical), path)?.id;
 
-  it('«Сотрудники и доступ» горят и на /team, и на старой закладке /staff', () => {
-    for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const)
-      for (const path of ['/team', '/staff']) expect(at(vertical, path), `${vertical} ${path}`).toBe('team');
-    for (const path of ['/team', '/staff']) expect(at('HOSPITALITY', path), path).toBe('settings');
+  it('«Сотрудники» горят в «Персонале» и на /team, и на старой закладке /staff', () => {
+    // верхнее меню 17.10.2026: учётные записи у всех направлений в разделе «Персонал»
+    for (const vertical of ['BEAUTY', 'FOOD_SERVICE', 'HOSPITALITY'] as const)
+      for (const path of ['/team', '/staff']) expect(at(vertical, path), `${vertical} ${path}`).toBe('staff');
   });
 
   it('прежние адреса салона подсвечивают свой раздел', () => {
-    expect(at('BEAUTY', '/beauty')).toBe('calendar');
-    expect(at('BEAUTY', '/beauty/masters')).toBe('employees');
+    expect(at('BEAUTY', '/beauty')).toBe('journal');
+    expect(at('BEAUTY', '/beauty/masters')).toBe('staff');
     expect(at('BEAUTY', '/beauty/services')).toBe('services');
-    expect(at('BEAUTY', '/beauty/schedule')).toBe('schedule');
+    expect(at('BEAUTY', '/beauty/schedule')).toBe('staff');
   });
 });

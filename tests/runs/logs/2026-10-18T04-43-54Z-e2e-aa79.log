@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 18.10.2026 09:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 606ef79 (claude/salon-blocks-edit), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/ai-seller.spec.ts:224' 'tests/ui/ai-seller.spec.ts:254' 'tests/ui/marketing.spec.ts:252'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/ui/ai-seller.spec.ts:224:1 › продавец недоступен — метка, причина и обещание повтора (3.3s)
+  ✓  2 tests/ui/ai-seller.spec.ts:254:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (5.2s)
+  ✓  3 tests/ui/marketing.spec.ts:252:1 › администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (19.0s)
+
+  3 passed (35.7s)
+
+# код выхода 0 · 38 с

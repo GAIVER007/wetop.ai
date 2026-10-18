@@ -83,9 +83,10 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
   test(`Д3: ${vertical} поиск открывает быстрый поиск по своему меню`, async ({ page, request }) => {
     const f = await (await request.post(`${api}/__test/reset`)).json();
     const branch = {
-      hotel: { business: f.hotel, location: f.locations[4], own: 'Календарь', ownHref: '/chessboard' },
-      beauty: { business: f.beauty, location: f.locations[3], own: 'Календарь', ownHref: '/calendar' },
-      food: { business: f.business, location: f.locations[0], own: 'План зала', ownHref: '/floor-plan' },
+      // одно меню у всех направлений (17.10.2026): «Журнал» ведёт в свой экран направления
+      hotel: { business: f.hotel, location: f.locations[4], own: 'Журнал', ownHref: '/chessboard' },
+      beauty: { business: f.beauty, location: f.locations[3], own: 'Журнал', ownHref: '/calendar' },
+      food: { business: f.business, location: f.locations[0], own: 'Журнал', ownHref: '/floor-plan' },
     }[vertical];
     await page.context().addCookies([
       {
@@ -101,7 +102,7 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await expect(dialog).toBeVisible();
     await expect(page).toHaveURL(/\/marketing$/);
     await dialog.getByRole('textbox', { name: 'Запрос' }).fill(branch.own.slice(0, 4));
-    await expect(dialog.getByRole('link', { name: branch.own })).toHaveAttribute('href', branch.ownHref);
+    await expect(dialog.getByRole('link', { name: branch.own, exact: true })).toHaveAttribute('href', branch.ownHref);
     if (vertical !== 'hotel') await expect(dialog.locator('a[href="/chessboard"]')).toHaveCount(0);
     await page.keyboard.press('Escape');
     await page.keyboard.press('ControlOrMeta+k');
@@ -129,7 +130,8 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await expect(dropdown.getByRole('link', { name: 'Помощь' })).toHaveAttribute('href', '/help');
     await expect(dropdown.getByRole('link', { name: 'Филиалы' })).toHaveAttribute('href', '/branches');
     await page.keyboard.press('Escape');
+    // с верхним меню 17.10.2026 «Помощь» ещё и своим разделом у всех направлений
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
-    await expect(page.locator('.sidenav__panel a[href="/help"]')).toHaveCount(0);
+    await expect(page.locator('.sidenav__panel a[href="/help"]')).toHaveCount(1);
   });
 }

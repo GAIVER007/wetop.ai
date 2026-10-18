@@ -4263,6 +4263,8 @@ export interface SharedOnboardingState {
   completedAt: string | null;
   updatedAt: string | null;
   canEdit: boolean;
+  /** Страна организации из регистрации (ISO 3166-1), если указана */
+  organizationCountry?: string | null;
   profileApplied?: boolean;
   storedFlowVersion?: number | null;
   completedFlowVersion?: number | null;

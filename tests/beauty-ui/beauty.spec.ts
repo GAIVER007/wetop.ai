@@ -558,6 +558,20 @@ test('Beauty onboarding v2 completes a ready branch and resumes Today', async ({
   await main.getByRole('button', { name: 'Настроить салон', exact: true }).click();
   await main.getByLabel('Название салона').fill('Тестовый салон');
   await main.getByLabel('Название филиала').fill('Тестовый филиал');
+  // пояс идёт от страны и только для чтения, валюта подставляется и меняется (Q-SCHED-3)
+  await expect(main.getByLabel('Часовой пояс')).toHaveJSProperty('readOnly', true);
+  await main.getByLabel('Страна').selectOption({ label: 'ОАЭ' });
+  await expect(main.getByLabel('Часовой пояс')).toHaveValue('Дубай (ОАЭ)');
+  await expect(main.getByLabel('Валюта')).toHaveValue('AED');
+  expect(await main.getByLabel('Валюта').locator('option').allTextContents()).toEqual([
+    'Тенге (KZT)',
+    'Доллар США (USD)',
+    'Дирхам ОАЭ (AED)',
+    'Катарский риал (QAR)',
+  ]);
+  await main.getByLabel('Страна').selectOption({ label: 'Казахстан' });
+  await expect(main.getByLabel('Часовой пояс')).toHaveValue('Алматы (Казахстан)');
+  await expect(main.getByLabel('Валюта')).toHaveValue('KZT');
   await main.getByRole('button', { name: 'Сохранить и продолжить', exact: true }).click();
   await expect(main.getByRole('button', { name: 'Завершить настройку' })).toBeDisabled();
   await seed(page, request, f);

@@ -1,0 +1,34 @@
+# Модульные (unit) · 18.10.2026 09:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 62838a9 (claude/salon-schedule-grid-sync)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-10-09Z-unit-1040.json' 'apps/web/src/app/beauty' 'apps/web/src/app/branches' 'apps/web/src/app/register' 'packages/domain/src/regions.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ✓ |unit| apps/web/src/app/beauty/employee-workspace.test.ts (4 tests) 80ms
+ ✓ |unit| apps/web/src/app/register/setup/progress/route.test.ts (19 tests) 113ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (15 tests) 49ms
+ ✓ |unit| apps/web/src/app/beauty/actions.test.ts (6 tests) 74ms
+ ✓ |unit| apps/web/src/app/beauty/masters/address.test.ts (3 tests) 159ms
+ ✓ |unit| apps/web/src/app/branches/financial-widgets.test.ts (2 tests) 29ms
+ ✓ |unit| apps/web/src/app/branches/reference-board.test.ts (8 tests) 76ms
+ ✓ |unit| apps/web/src/app/branches/business-groups.test.ts (3 tests) 6ms
+ ✓ |unit| packages/domain/src/regions.test.ts (4 tests) 260ms
+ ✓ |unit| apps/web/src/app/register/setup/recovery.test.ts (6 tests) 18ms
+ ✓ |unit| apps/web/src/app/branches/form.test.ts (1 test) 38ms
+ ✓ |unit| apps/web/src/app/beauty/services/popularity.test.ts (2 tests) 87ms
+ ✓ |unit| apps/web/src/app/register/setup/command.test.ts (8 tests) 494ms
+   ✓ onboarding uncertain command (8)
+     ✓ preserves API status 503 for explicit recovery 304ms
+ ✓ |unit| apps/web/src/app/beauty/schedule/read-only.test.ts (2 tests) 65ms
+ ✓ |unit| apps/web/src/app/beauty/page.test.ts (2 tests) 56ms
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (5 tests) 52ms
+ ✓ |unit| apps/web/src/app/beauty/schedule/week.test.ts (1 test) 9ms
+
+ Test Files  17 passed (17)
+      Tests  91 passed (91)
+   Start at  21:10:20
+   Duration  9.57s (transform 75%, import 21%, tests 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-10-09Z-unit-1040.json
+
+# код выхода 0 · 21 с

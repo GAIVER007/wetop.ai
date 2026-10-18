@@ -4,26 +4,30 @@ import { useActionState, useEffect, useState, useTransition } from 'react';
 import { parseWorkingHoursWeek } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
 import { Switch } from '../../../components/switch';
-import { Alert, Button, Input, Table } from '../../../components/ui';
+import { Alert, Button, Field, Input, Select, Table } from '../../../components/ui';
 import type {
   BeautySchedule,
   BeautyTimeOff,
   BeautyWeekDay,
   BeautyWorkingInterval,
 } from '../../../lib/api';
-import { DEFAULT_SLOT, shiftWeek, toggleWeekday, weekDates } from './week';
+import { DEFAULT_SLOT, shiftWeek, weekDates } from './week';
 import {
+  addBeautyTimeOff,
+  removeBeautyTimeOff,
   saveBeautyEmployeeLocations,
   saveBeautyWorkingHours,
   loadBeautySchedule,
 } from '../actions';
 
 /**
- * График мастеров (поручение владельца 17.10.2026): сетка недели, строки мастера, колонки дни.
- * Переключатель в ячейке меняет обычную неделю мастера в этом филиале (DATA_MODEL §19: график хранится по
- * дням недели, отдельных рабочих дат в модели нет, Q-SCHED-1): «Работает» в среду значит каждую среду.
- * Часы дня правятся окном по имени мастера. Отсутствия на даты (отпуск) из модели показываются в ячейке
- * только для чтения: раздел «Нерабочие дни» из интерфейса убран, данные не тронуты.
+ * График мастеров (поручение владельца 17.10.2026): сетка недели, строки мастера, колонки даты.
+ *
+ * Переключатель меняет только эту дату (решение по поручению владельца, Q-SCHED-1): выключить рабочий по
+ * шаблону день значит однодневное отсутствие (модель отсутствий §19, без миграций), включить снова значит
+ * снять это отсутствие. Дня сверх недельного шаблона в модели нет, поэтому выходной по графику ведёт в окно
+ * часов мастера: шаблон правится только там. Отсутствие на несколько дней видно только для чтения.
+ * Уже созданные записи выключение дня не отменяет: число таких записей показывается предупреждением.
  *
  * Неделя уходит на сервер одним списком интервалов: он заменяет прежний график, поэтому убранная строка
  * убирается, а не копится. Проверка перед отправкой идёт тем же разбором домена, что и на сервере.
@@ -37,6 +41,16 @@ const DAYS: Record<number, string> = {
   5: 'Пятница',
   6: 'Суббота',
   0: 'Воскресенье',
+};
+/** «изменится каждый понедельник / каждую среду / каждое воскресенье» */
+const EVERY: Record<number, string> = {
+  1: 'каждый понедельник',
+  2: 'каждый вторник',
+  3: 'каждую среду',
+  4: 'каждый четверг',
+  5: 'каждую пятницу',
+  6: 'каждую субботу',
+  0: 'каждое воскресенье',
 };
 
 type Slot = { timeFrom: string; timeTo: string };
@@ -56,6 +70,9 @@ export interface WeekGridData {
   masters: GridMaster[];
   /** Мастера бизнеса, которые в этом филиале не работают: в сетке их нет */
   elsewhere: number;
+  /** Профессии для отбора: группы услуг, назначенных мастерам филиала (Q-SCHED-2) */
+  groups?: string[];
+  group?: string | null;
 }
 
 const dayMonth = new Intl.DateTimeFormat('ru-RU', {
@@ -67,26 +84,38 @@ const shortDay = new Intl.DateTimeFormat('ru-RU', { weekday: 'short', timeZone: 
 const label = (date: string) => dayMonth.format(new Date(`${date}T12:00:00Z`));
 
 export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: boolean }) {
-  const [editing, setEditing] = useState<GridMaster | null>(null);
+  const [editing, setEditing] = useState<{ master: GridMaster; weekday?: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [busy, start] = useTransition();
   // переключатель отзывается сразу; после ответа сервера правду показывает свежий график страницы
   const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
   const days = weekDates(data.monday);
-  const shift = (n: number) => shiftWeek(data.monday, n);
+  const shift = (n: number) =>
+    `?week=${shiftWeek(data.monday, n)}${data.group ? `&group=${encodeURIComponent(data.group)}` : ''}`;
 
-  const toggle = (master: GridMaster, weekday: number, on: boolean) => {
-    const key = `${master.id}:${weekday}`;
-    // Controlled checkboxes must update urgently; the server action may remain transitional.
+  const toggle = (master: GridMaster, date: string, on: boolean, dayOff?: BeautyTimeOff) => {
+    const key = `${master.id}:${date}`;
+    // вне перехода: обновление внутри async-перехода React показывает только после его конца
     setOptimistic((prev) => ({ ...prev, [key]: on }));
     start(async () => {
-      const form = new FormData();
-      form.set('id', master.id);
-      form.set('intervals', JSON.stringify(toggleWeekday(master.week, weekday, on)));
-      form.set('scopeKey', data.location?.id ?? '');
-      if (master.weekRevision) form.set('expectedRevision', master.weekRevision);
-      const result = await saveBeautyWorkingHours(null, form);
+      let result: { error?: string; message?: string };
+      if (on && dayOff) result = await removeBeautyTimeOff(master.id, dayOff.id);
+      else {
+        const form = new FormData();
+        form.set('id', master.id);
+        form.set('dateFrom', date);
+        form.set('dateTo', date);
+        result = await addBeautyTimeOff(null, form);
+      }
       setError(result.error ? `${master.name}: ${result.error}` : null);
+      setNotice(
+        result.error
+          ? null
+          : on
+            ? `${master.name}, ${label(date)}: снова рабочий день`
+            : `${master.name}, ${label(date)}: ${result.message ?? 'день выключен'}`,
+      );
       setOptimistic((prev) => {
         const next = { ...prev };
         delete next[key];
@@ -98,27 +127,46 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
   return (
     <>
       <nav className="beauty-week-nav" aria-label="Неделя">
-        <Link
-          className="btn btn--secondary btn--sm"
-          href={`?week=${shift(-7)}`}
-        >
+        <Link className="btn btn--secondary btn--sm" href={shift(-7)}>
           Прошлая неделя
         </Link>
         <span data-testid="beauty-week-range">
           {label(days[0]!.date)} – {label(days[6]!.date)}
         </span>
-        <Link
-          className="btn btn--secondary btn--sm"
-          href={`?week=${shift(7)}`}
-        >
+        <Link className="btn btn--secondary btn--sm" href={shift(7)}>
           Следующая неделя
         </Link>
       </nav>
+      {(data.groups?.length ?? 0) > 0 && (
+        <form className="beauty-pick" method="get" action="/beauty/schedule">
+          <input type="hidden" name="week" value={data.monday} />
+          <Field label="Профессия">
+            <Select name="group" defaultValue={data.group ?? ''}>
+              <option value="">Все мастера</option>
+              {data.groups!.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button type="submit" tone="secondary">
+            Показать
+          </Button>
+        </form>
+      )}
       <p className="beauty-note">
-        Переключатель меняет обычную неделю мастера: день станет рабочим или выходным каждую неделю.
-        {canEdit && ' Часы работы: нажмите на имя мастера.'}
+        Переключатель меняет только эту дату. Выходной по графику и часы работы меняются в окне
+        мастера: нажмите на его имя.
       </p>
       {error && <Alert>{error}</Alert>}
+      {/* записи в выключенный день не отменяются: тогда это предупреждение, а не просто отметка */}
+      {notice &&
+        (notice.includes('никто не отменил') ? (
+          <Alert tone="warning">{notice}</Alert>
+        ) : (
+          <p role="status">{notice}</p>
+        ))}
       <Table className="beauty-week-grid" aria-busy={busy}>
         <thead>
           <tr>
@@ -135,7 +183,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
             <tr key={m.id}>
               <th scope="row">
                 {canEdit ? (
-                  <Button type="button" tone="ghost" size="sm" onClick={() => setEditing(m)}>
+                  <Button type="button" tone="ghost" size="sm" onClick={() => setEditing({ master: m })}>
                     {m.name}
                   </Button>
                 ) : (
@@ -145,15 +193,24 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
               {days.map((d) => {
                 const hours = m.week.find((w) => w.weekday === d.weekday)?.intervals ?? [];
                 const absent = m.timeOffs.find((t) => t.dateFrom <= d.date && d.date <= t.dateTo);
-                const works = (optimistic[`${m.id}:${d.weekday}`] ?? hours.length > 0) && !absent;
-                const text = absent ? 'Отсутствует' : works ? 'Работает' : 'Не работает';
+                // однодневное отсутствие это выключенная дата: её переключатель включает обратно
+                const dayOff = absent && absent.dateFrom === absent.dateTo ? absent : undefined;
+                const templateOff = hours.length === 0;
+                const works = optimistic[`${m.id}:${d.date}`] ?? (!templateOff && !absent);
+                const text = templateOff
+                  ? 'Выходной по графику'
+                  : absent && !dayOff
+                    ? 'Отсутствует'
+                    : works
+                      ? 'Работает'
+                      : 'Не работает';
                 return (
                   <td
                     key={d.date}
                     className={works ? 'is-on' : 'is-off'}
                     data-label={label(d.date)}
                   >
-                    {canEdit && !absent ? (
+                    {canEdit && !templateOff && (!absent || dayOff) ? (
                       <Switch
                         name={`works-${m.id}-${d.date}`}
                         label={
@@ -166,7 +223,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
                         }
                         checked={works}
                         disabled={busy}
-                        onChange={(on) => toggle(m, d.weekday, on)}
+                        onChange={(on) => toggle(m, d.date, on, dayOff)}
                       />
                     ) : (
                       <span>{text}</span>
@@ -177,6 +234,16 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
                       </small>
                     )}
                     {absent?.reason && <small className="beauty-note">{absent.reason}</small>}
+                    {canEdit && templateOff && (
+                      <Button
+                        type="button"
+                        tone="ghost"
+                        size="sm"
+                        onClick={() => setEditing({ master: m, weekday: d.weekday })}
+                      >
+                        Изменить график<span className="sr-only">: {m.name}, {label(d.date)}</span>
+                      </Button>
+                    )}
                   </td>
                 );
               })}
@@ -185,7 +252,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
           {data.masters.length === 0 && (
             <tr>
               <td colSpan={8} data-testid="beauty-schedule-empty">
-                В этом филиале пока нет мастеров.{' '}
+                {data.group ? 'Мастеров этой профессии в филиале нет.' : 'В этом филиале пока нет мастеров.'}{' '}
                 {canEdit && <Link href="/employees">Добавить мастера</Link>}
               </td>
             </tr>
@@ -201,17 +268,25 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
       <Overlay
         open={canEdit && editing !== null}
         onClose={() => setEditing(null)}
-        title={editing ? `Часы работы: ${editing.name}` : ''}
+        title={editing ? `Часы работы: ${editing.master.name}` : ''}
         drawer
       >
         {canEdit && editing && (
-          <WeekForm
-            key={editing.id}
-            employeeId={editing.id}
-            week={editing.week}
-            expectedRevision={editing.weekRevision ?? undefined}
-            scopeKey={data.location?.id ?? ''}
-          />
+          <>
+            {editing.weekday !== undefined && (
+              <p className="beauty-note" data-testid="beauty-week-hint">
+                Это обычная неделя мастера: {DAYS[editing.weekday]?.toLowerCase()} изменится{' '}
+                {EVERY[editing.weekday]}, а не одна дата.
+              </p>
+            )}
+            <WeekForm
+              key={editing.master.id}
+              employeeId={editing.master.id}
+              week={editing.master.week}
+              expectedRevision={editing.master.weekRevision ?? undefined}
+              scopeKey={data.location?.id ?? ''}
+            />
+          </>
         )}
       </Overlay>
     </>

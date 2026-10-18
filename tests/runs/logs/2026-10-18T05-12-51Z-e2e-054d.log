@@ -1,0 +1,49 @@
+# Сквозные (e2e) · 18.10.2026 10:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2e9a53e (codex/calendar-quick-report), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json 'tests/beauty-ui/calendar-master-selection.spec.ts' 'tests/beauty-ui/tz12-ui.spec.ts' '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--grep' 'master|quick report|compact controls'
+[WebServer] (node:54858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:54903) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:54904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:54965) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55019) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1564ms. If /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:55135) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:54904) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✓  1 tests/beauty-ui/calendar-master-selection.spec.ts:31:1 › mobile master filter and visible calendar select the same master (36.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '430487214'
+[WebServer] }
+  ✓  2 tests/beauty-ui/calendar-master-selection.spec.ts:46:1 › new appointment defaults to the master selected in the desktop filter (24.4s)
+  ✓  3 tests/beauty-ui/calendar-master-selection.spec.ts:54:1 › quick report reads cash, card and refunds from actual stored operations (8.0s)
+  ✓  4 tests/beauty-ui/tz12-ui.spec.ts:52:1 › calendar compact controls preserve filtering and hidden occupancy (7.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '430487214'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '430487214'
+[WebServer] }
+
+  4 passed (2.5m)
+
+# код выхода 0 · 2 мин 41 с

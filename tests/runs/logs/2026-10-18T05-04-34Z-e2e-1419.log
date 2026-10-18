@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 18.10.2026 10:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2e9a53e (codex/calendar-quick-report), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json 'tests/beauty-ui/calendar-master-selection.spec.ts' 'tests/beauty-ui/tz12-ui.spec.ts' '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--grep' 'master|quick report|compact controls'
+[WebServer] (node:51149) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51190) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51270) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51313) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:51319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51190) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✓  1 tests/beauty-ui/calendar-master-selection.spec.ts:31:1 › mobile master filter and visible calendar select the same master (2.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '430487214'
+[WebServer] }
+  ✓  2 tests/beauty-ui/calendar-master-selection.spec.ts:47:1 › new appointment defaults to the master selected in the desktop filter (1.8s)
+  ✓  3 tests/beauty-ui/calendar-master-selection.spec.ts:55:1 › quick report reads cash, card and refunds from actual stored operations (1.4s)
+  ✘  4 tests/beauty-ui/tz12-ui.spec.ts:52:1 › calendar compact controls preserve filtering and hidden occupancy (941ms)
+
+
+  1) tests/beauty-ui/tz12-ui.spec.ts:52:1 › calendar compact controls preserve filtering and hidden occupancy 
+
+    Error: [{"tag":"HEADER","classes":"page__head","x":16,"y":78,"width":358,"height":84.1875},{"tag":"DIV","classes":"page__heading","x":16,"y":78,"width":358,"height":84.1875},{"tag":"NAV","classes":"beauty-calendar-views","x":16,"y":166.1875,"width":358,"height":44},{"tag":"A","classes":"btn btn--secondary","x":16,"y":166.1875,"width":72.875,"height":44},{"tag":"A","classes":"btn btn--secondary","x":96.875,"y":166.1875,"width":89.1875,"height":44},{"tag":"DIV","classes":"beauty-bar beauty-calendar-toolbar","x":16,"y":214.1875,"width":358,"height":203.5},{"tag":"DIV","classes":"beauty-calendar-actions","x":0,"y":0,"width":0,"height":0},{"tag":"DETAILS","classes":"context-help","x":25,"y":372.6875,"width":183.0625,"height":44},{"tag":"P","classes":"beauty-note","x":16,"y":421.6875,"width":358,"height":19.5},{"tag":"DIV","classes":"beauty-layout","x":16,"y":445.1875,"width":358,"height":1169.5},{"tag":"ASIDE","classes":"beauty-masters","x":0,"y":0,"width":0,"height":0},{"tag":"DIV","classes":"beauty-board","x":16,"y":445.1875,"width":358,"height":1169.5},{"tag":"DIALOG","classes":"ui-overlay ui-drawer  appointment-editor","x":0,"y":0,"width":0,"height":0},{"tag":"DIV","classes":"overlay-heading","x":0,"y":0,"width":0,"height":0},{"tag":"DIALOG","classes":"ui-overlay ui-drawer  ","x":0,"y":0,"width":0,"height":0},{"tag":"DIV","classes":"overlay-heading","x":0,"y":0,"width":0,"height":0}]
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 422
+    Received:    525.6875
+
+      66 |     }),
+      67 |   );
+    > 68 |   expect((await timeline.boundingBox())!.y, JSON.stringify(layout)).toBeLessThanOrEqual(422);
+         |                                                                     ^
+      69 |   await expect(page.getByLabel('Статус записи', { exact: true })).not.toBeVisible();
+      70 |   await page.getByText(/^Фильтры/).click();
+      71 |   await page.getByLabel('Статус записи', { exact: true }).selectOption('DONE');
+        at /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/beauty-ui/tz12-ui.spec.ts:68:69
+
+    Error Context: test-results/tz12-ui-calendar-compact-c-f8034-tering-and-hidden-occupancy/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/tz12-ui-calendar-compact-c-f8034-tering-and-hidden-occupancy/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/tz12-ui-calendar-compact-c-f8034-tering-and-hidden-occupancy/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/tz12-ui.spec.ts:52:1 › calendar compact controls preserve filtering and hidden occupancy 
+  3 passed (14.8s)
+
+# код выхода 1 · 16 с

@@ -1,0 +1,37 @@
+# Модульные (unit) · 17.10.2026 19:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (codex/calendar-quick-report), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T14-14-50Z-unit-d1c7.json' 'apps/web/src/components/quick-report.test.ts' 'apps/web/src/components/primitives-ds1c.test.ts' 'apps/web/src/app/beauty/empty-workspaces.test.ts' 'apps/web/src/app/beauty/page.test.ts' 'apps/web/src/app/food/orders-board.test.ts' 'apps/web/src/app/management/analytics/vertical/metrics.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/design-rules.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /private/tmp/wetop-calendar-quick-report
+
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 9682ms
+   ✓ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ стрелок в конце текста ссылок нет — ссылка названа словом (§14) 2182ms
+     ✓ « · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09) 2769ms
+     ✓ деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам 1686ms
+   ✓ DESIGN.md §15: системных окон подтверждения на экранах нет (1)
+     ✓ ни один экран не зовёт window.confirm — вопрос задаёт ConfirmDialog 1772ms
+   ✓ план дизайн-системы §10: попутные дефекты не возвращаются (3)
+     ✓ мёртвых классов .topbar и .record-nav в CSS стойки нет 424ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (36 tests) 1017ms
+   ✓ PeriodPicker (4)
+     ✓ поля «С» и «По» с именами формы и отрезок готовыми ссылками 793ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 1120ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 1061ms
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (5 tests) 148ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 303ms
+ ✓ |unit| apps/web/src/app/food/orders-board.test.ts (3 tests) 156ms
+ ✓ |unit| apps/web/src/app/beauty/page.test.ts (2 tests) 161ms
+ ✓ |unit| apps/web/src/components/quick-report.test.ts (7 tests) 344ms
+   ✓ calendar quick reports (7)
+     ✓ counts unique customers and every status, keeping exact completed amounts by currency 333ms
+
+ Test Files  8 passed (8)
+      Tests  90 passed (90)
+   Start at  07:15:10
+   Duration  46.45s (tests 39%, transform 36%, import 25%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T14-14-50Z-unit-d1c7.json
+
+# код выхода 0 · 1 мин 10 с

@@ -1,0 +1,18 @@
+# Модульные (unit) · 18.10.2026 10:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1321d10 (claude/hermes-cache-prune), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T05-04-10Z-unit-43be.json' 'tests/unit/hermes-workspace-prune.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ✓ |unit| tests/unit/hermes-workspace-prune.test.ts (2 tests) 933ms
+   ✓ scripts/ops/hermes-workspace-prune.sh (2)
+     ✓ убирает только кэши давно стоящей копии; свежая копия, исходники, .git и отчёты остаются 888ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  22:04:11
+   Duration  1.01s (tests 98%, transform 1%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T05-04-10Z-unit-43be.json
+
+# код выхода 0 · 1 с

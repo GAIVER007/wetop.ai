@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import { personnelKindEnabled, parsePersonnelKindCommand, readPersonnelKinds, writePersonnelKind } from './personnel-kind';
+import { canManageStaff, canWrite } from '@pms/domain';
 import { writeEmployeeCommon } from '../employee-portal/employee-common';
 import { randomUUID } from 'node:crypto';
 import {
@@ -6,6 +8,8 @@ import {
   Body,
   Controller,
   ConflictException,
+  ForbiddenException,
+  ServiceUnavailableException,
   Get,
   Inject,
   Injectable,
@@ -38,7 +42,7 @@ import {
   skillsRevision,
   canonicalRevision,
 } from './write-contract';
-import { currentUserId } from '../auth/request-context';
+import { currentUserId, currentRole, actorMay } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
@@ -396,15 +400,24 @@ export class BeautyCatalogService {
   async employees() {
     this.may('desk');
     const scope = await this.scope();
-    const profiles = await employeeProfiles(this.prisma.db, scope.businessId);
-    const children = await employeeChildren(
-      this.prisma.db,
-      profiles.map((row) => row.id),
-    );
+    const enabled = personnelKindEnabled();
+    const org = enabled ? await this.prisma.db.organization.findUnique({
+      where: { id: scope.organizationId }, select: { status: true, trialEndsAt: true },
+    }) : null;
+    const role = currentRole();
+    const canAssignPersonnelKind = !!(enabled && role && canManageStaff(role) && actorMay('property') &&
+      org && canWrite(org.status, org.trialEndsAt, new Date()));
+    return this.prisma.db.$transaction(async (tx) => {
+    const profiles = await employeeProfiles(tx, scope.businessId);
+    const children = await employeeChildren(tx, profiles.map((row) => row.id));
+    const kinds = await readPersonnelKinds(tx, scope, profiles.map((row) => row.id));
     return {
       locationId: scope.locationId,
+      personnelKindEnabled: enabled,
+      canAssignPersonnelKind,
       items: profiles.map((profile) => ({
         ...employeeView(profile, children.get(profile.id)),
+        ...(enabled ? { personnelKind: kinds.get(profile.id)! } : {}),
         profileRevision: profile.profileRevision,
         servicesRevision: canonicalRevision(
           (children.get(profile.id)?.services ?? []).map((row) => [
@@ -414,6 +427,26 @@ export class BeautyCatalogService {
         ),
       })),
     };
+    });
+  }
+
+  async assignPersonnelKind(id: string, raw: unknown) {
+    const input = parsePersonnelKindCommand(raw);
+    if (!personnelKindEnabled()) throw new ServiceUnavailableException('Personnel kind unavailable');
+    await mayBeautyWrite(this.prisma, 'property');
+    const role = currentRole();
+    if (!role || !canManageStaff(role)) throw new ForbiddenException('Manager only');
+    if (!UUID.test(id)) throw new NotFoundException('Employee not found');
+    const scope = await this.scope();
+    return beautyTransaction(this.prisma, scope, async (tx) => {
+      const { before, after } = await writePersonnelKind(tx, scope, id, input);
+      await tx.auditLog.create({ data: {
+        organizationId: scope.organizationId, userId: currentUserId(),
+        entityType: 'employee', entityId: id, action: 'beauty.employee.personnel_kind',
+        before: { personnelKind: before.personnelKind }, after: { personnelKind: after.personnelKind },
+      } });
+      return after;
+    });
   }
 
   async createEmployee(raw: unknown) {
@@ -785,6 +818,12 @@ export class BeautyCatalogController {
     return this.service.employees();
   }
   // Мастера это то, чем салон работает: право `property`, как номерной фонд в гостинице (Q-253)
+  @RequiresBusinessCapability('beauty.employees')
+  @Access('property')
+  @Patch('employees/:id/personnel-kind')
+  assignPersonnelKind(@Param('id') id: string, @Body() body: unknown) {
+    return this.service.assignPersonnelKind(id, body);
+  }
   @RequiresBusinessCapability('beauty.employees')
   @Access('property')
   @Post('employees')

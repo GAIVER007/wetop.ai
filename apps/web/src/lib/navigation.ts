@@ -742,6 +742,7 @@ export function openToEveryRole(requires: NavigationRequirement | undefined): bo
  */
 const OFF_MENU_ROUTES: Array<Pick<NavigationItem, 'href' | 'label' | 'requires'>> = [
   { href: '/ai-seller/knowledge', label: 'Знания ИИ-продавца', requires: 'seller' },
+  { href: '/whats-new', label: 'Что нового', requires: 'desk' },
   { href: '/ai-seller/connections', label: 'Подключения ИИ-продавца', requires: 'seller' },
   { href: '/ai-seller/agents', label: 'Агенты ИИ-продавца', requires: 'seller' },
 ];
@@ -833,6 +834,7 @@ export function activeSectionOf(sections: MenuSection[], path: string): MenuSect
 const PAGE_LABELS: Array<{ href: string; label: string; icon: IconName }> = [
   { href: '/profile', label: 'Профиль', icon: 'person' },
   { href: '/help', label: 'Помощь', icon: 'help' },
+  { href: '/whats-new', label: 'Что нового', icon: 'star' },
   { href: '/branches', label: 'Филиалы', icon: 'hotel' },
   { href: '/onboarding', label: 'Настройка объекта', icon: 'settings' },
   { href: '/platform/support', label: 'Техподдержка', icon: 'chat' },

@@ -1,0 +1,18 @@
+# Модульные (unit) · 18.10.2026 13:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 424e4b5 (claude/support-whatsnew), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-53-54Z-unit-3591.json' 'apps/web/src/app/team/session-navigation-a27.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/support-whatsnew
+
+ ✓ |unit| apps/web/src/app/team/session-navigation-a27.test.ts (2 tests) 4994ms
+   ✓ team navigation preserves the common session redirect 1602ms
+   ✓ a non-session API failure retains the existing safe team fallback 3387ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  01:54:03
+   Duration  5.30s (tests 99%, import 1%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-53-54Z-unit-3591.json
+
+# код выхода 0 · 15 с

@@ -46,7 +46,8 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     mkdirSync(shots, { recursive: true });
     for (const theme of ['light', 'dark'] as const) {
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
-      for (const width of [1440, 390]) {
+      // кнопка ☰ до 1280 px; шире разделы строкой (18.10.2026)
+      for (const width of [1024, 390]) {
         await page.setViewportSize({ width, height: 900 });
         const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
         await expect(trigger).toHaveCount(1);
@@ -134,12 +135,10 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await page.keyboard.press('Escape');
     await expect(dropdown).toBeHidden();
     await expect(page.locator('.profile-trigger')).toBeFocused();
-    await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
-    const navigation = page.locator('.sidenav__panel');
-    await expect(navigation).toBeVisible();
-    const help = navigation.getByRole('link', { name: 'Помощь', exact: true });
+    // с 18.10.2026 от 1280 px «Помощь» своим разделом в строке разделов шапки, кнопки ☰ там нет
+    const help = page.getByRole('navigation', { name: 'Главное меню' }).getByRole('link', { name: 'Помощь', exact: true });
     await expect(help).toBeVisible();
     await expect(help).toHaveAttribute('href', '/help');
-    await expect(navigation.locator('a[href="/help"]')).toHaveCount(1);
+    await expect(page.locator('.tabnav a[href="/help"]')).toHaveCount(1);
   });
 }

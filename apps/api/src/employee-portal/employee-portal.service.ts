@@ -211,6 +211,8 @@ export class EmployeePortalService {
     const date=query.date??localDate(new Date(),timezone), month=query.month??String(date).slice(0,7);
     if(typeof date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(Date.parse(`${date}T00:00:00Z`))||dateOnly(new Date(`${date}T00:00:00Z`))!==date) throw new BadRequestException('Invalid date');
     if(typeof month!=='string'||!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new BadRequestException('Invalid month');
+    const reviewLocations=portalAccess?.locationScopes.reviews;
+    const reviewLocationFilter=reviewLocations?{appointment:{locationId:reviewLocations.length===1?reviewLocations[0]!:{in:reviewLocations}}}:{};
     const [p,media,works,services,skills,hours,timeOffs,reviewSummary,reviewItems]=await Promise.all([
       this.profile(db,e.id),db.employeeMedia.findMany({where:{employeeId:e.id},orderBy:{createdAt:'desc'}}),
       db.employeePortfolioItem.findMany({where:{employeeId:e.id},include:{media:true},orderBy:{createdAt:'desc'}}),
@@ -218,8 +220,8 @@ export class EmployeePortalService {
       servicesAllowed?db.employeeService.findMany({where:{employeeId:e.id},orderBy:{serviceId:'asc'}}):[],
       scheduleAllowed?db.workingHours.findMany({where:{employeeId:e.id,...(l?{locationId:l.id}:{locationId:{in:[]}})},orderBy:[{weekday:'asc'},{timeFrom:'asc'}]}):[],
       scheduleAllowed?db.timeOff.findMany({where:{employeeId:e.id},orderBy:{dateFrom:'asc'}}):[],
-      b.vertical==='BEAUTY'&&reviewsAllowed?db.beautyAppointmentReview.aggregate({where:{employeeId:e.id,...(portalAccess?.locationScopes.reviews?{appointment:{locationId:portalAccess.locationScopes.reviews.length===1?portalAccess.locationScopes.reviews[0]:{in:portalAccess.locationScopes.reviews}}}:{})},_avg:{stars:true},_count:{_all:true}}):null,
-      b.vertical==='BEAUTY'&&reviewsAllowed?db.beautyAppointmentReview.findMany({where:{employeeId:e.id,...(portalAccess?.locationScopes.reviews?{appointment:{locationId:portalAccess.locationScopes.reviews.length===1?portalAccess.locationScopes.reviews[0]:{in:portalAccess.locationScopes.reviews}}}:{})},select:{appointmentId:true,stars:true,comment:true,submittedAt:true},orderBy:[{submittedAt:'desc'},{appointmentId:'desc'}],take:50}):[],
+      b.vertical==='BEAUTY'&&reviewsAllowed?db.beautyAppointmentReview.aggregate({where:{employeeId:e.id,...reviewLocationFilter},_avg:{stars:true},_count:{_all:true}}):null,
+      b.vertical==='BEAUTY'&&reviewsAllowed?db.beautyAppointmentReview.findMany({where:{employeeId:e.id,...reviewLocationFilter},select:{appointmentId:true,stars:true,comment:true,submittedAt:true},orderBy:[{submittedAt:'desc'},{appointmentId:'desc'}],take:50}):[],
     ]);
     const w=timeOffWindow({dateFrom:date,dateTo:date,timezone});
     const [appointments,orders]=await Promise.all([

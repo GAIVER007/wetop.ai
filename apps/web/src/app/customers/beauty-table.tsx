@@ -46,12 +46,16 @@ function segment(row: BeautyCustomerRow): { label: string; tone: 'info' | 'ok' |
 
 export function BeautyCustomersTable({
   items,
+  canCreate = false,
   canEdit = false,
+  canImportPreview = false,
   scopeKey = '',
   businessId = '',
 }: {
   items: BeautyCustomerRow[];
+  canCreate?: boolean;
   canEdit?: boolean;
+  canImportPreview?: boolean;
   scopeKey?: string;
   businessId?: string;
 }) {
@@ -106,10 +110,8 @@ export function BeautyCustomersTable({
             : `Показано ${rows.length} из ${items.length}`}
         </p>
         <div className="beauty-customers-controls">
-          {canEdit && <>
-            <Button type="button" onClick={() => setCreating(true)}>Добавить клиента</Button>
-            <Button type="button" onClick={() => setImporting(true)}>Проверить CSV</Button>
-          </>}
+          {canCreate && <Button type="button" onClick={() => setCreating(true)}>Добавить клиента</Button>}
+          {canImportPreview && <Button type="button" onClick={() => setImporting(true)}>Проверить CSV</Button>}
           <Input
             id={searchId}
             type="search"
@@ -213,10 +215,10 @@ export function BeautyCustomersTable({
           })}
         </tbody>
       </Table>
-      {canEdit && <Overlay open={importing} onClose={() => setImporting(false)} title="Проверка CSV клиентов" drawer trapFocus>
+      {canImportPreview && <Overlay open={importing} onClose={() => setImporting(false)} title="Проверка CSV клиентов" drawer trapFocus>
         {importing && <ImportCustomers />}
       </Overlay>}
-      {canEdit && <Overlay open={creating} onClose={() => setCreating(false)} title="Добавить клиента" drawer trapFocus>
+      {canCreate && <Overlay open={creating} onClose={() => setCreating(false)} title="Добавить клиента" drawer trapFocus>
         {creating && <CreateCustomer key={businessId} businessId={businessId} onSaved={onSaved} />}
       </Overlay>}
     </>

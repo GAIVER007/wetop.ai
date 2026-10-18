@@ -14,11 +14,19 @@ const employeeId = '10000000-0000-4000-8000-000000000005';
 const otherEmployeeId = '10000000-0000-4000-8000-000000000006';
 
 type Permission = { section: string; action: string; scope: string };
+type AppointmentReadArgs={where?:{endsAt?:unknown;appointment?:{locationId?:string|{in?:string[]}}}};
+type ConflictAppointmentRow={id:string;startsAt:Date;endsAt:Date;service:{name:string};appointment:{locationId:string}};
+type BeautyServiceRow={
+  id:string;name:string;durationMinutes:number;price:bigint;currency:string;active:boolean;
+  locations:Array<{enabled:boolean;priceOverride:bigint|null;durationOverride:number|null}>;
+  employeePrices:Array<{price:bigint}>;
+};
+type EmployeeServiceRow={serviceId:string};
 
 function fixture(permissions: Permission[], assignmentLocationId:string|null=null) {
   let resolvedEmployeeId = employeeId;
   const privateReads = {
-    appointments: vi.fn(async (_args?: unknown) => []),
+    appointments: vi.fn<(args?:AppointmentReadArgs)=>Promise<ConflictAppointmentRow[]>>(async () => []),
     reviewSummary: vi.fn(async (args?: {where?: {appointment?: {locationId?: string}}}) => args?.where?.appointment?.locationId===locationId
       ?({ _avg: { stars: 5 }, _count: { _all: 1 } })
       :({ _avg: { stars: 4 }, _count: { _all: 2 } })),
@@ -58,8 +66,8 @@ function fixture(permissions: Permission[], assignmentLocationId:string|null=nul
     employeePublicProfile: { findUnique: vi.fn(async () => ({ employeeId, headline: '', biography: '', practiceSinceYear: null, slug: 'synthetic-master', published: false, publicationConsent: false, revision: 1 })) },
     employeeMedia: { findMany: vi.fn(async () => []) },
     employeePortfolioItem: { findMany: vi.fn(async () => []) },
-    beautyService: { findMany: vi.fn(async () => []) },
-    employeeService: { findMany: vi.fn(async () => []) },
+    beautyService: { findMany: vi.fn<() => Promise<BeautyServiceRow[]>>(async () => []) },
+    employeeService: { findMany: vi.fn<() => Promise<EmployeeServiceRow[]>>(async () => []) },
     workingHours: { findMany: vi.fn(async () => []) },
     timeOff: { findMany: vi.fn(async () => []) },
     beautyAppointmentReview: { aggregate: privateReads.reviewSummary, findMany: privateReads.reviewItems },
@@ -204,9 +212,10 @@ describe('Beauty employee portal section projection', () => {
       { section: 'appointments', action: 'view', scope: 'OWN' },
       { section: 'reviews', action: 'view', scope: 'OWN' },
     ],locationId);
-    f.privateReads.appointments.mockImplementation(async (args: {where?: {endsAt?: unknown;appointment?: {locationId?: {in?:string[]}}}}) => {
-      if(!args.where?.endsAt)return [];
-      const allowed=args.where.appointment?.locationId?.in;
+    f.privateReads.appointments.mockImplementation(async (args?:AppointmentReadArgs) => {
+      if(!args?.where?.endsAt)return [];
+      const locationScope=args.where.appointment?.locationId;
+      const allowed=typeof locationScope==='string'?[locationScope]:locationScope?.in;
       return [
         {id:'line-a',startsAt:new Date('2026-10-19T09:00:00Z'),endsAt:new Date('2026-10-19T10:00:00Z'),service:{name:'Service A'},appointment:{locationId}},
         {id:'line-b',startsAt:new Date('2026-10-19T11:00:00Z'),endsAt:new Date('2026-10-19T12:00:00Z'),service:{name:'Service B'},appointment:{locationId:otherLocationId}},
@@ -227,9 +236,10 @@ describe('Beauty employee portal section projection', () => {
       { section: 'appointments', action: 'view', scope: 'OWN' },
       { section: 'reviews', action: 'view', scope: 'OWN' },
     ]);
-    f.privateReads.appointments.mockImplementation(async (args: {where?: {endsAt?: unknown;appointment?: {locationId?: {in?:string[]}}}}) => {
-      if(!args.where?.endsAt)return [];
-      const allowed=args.where.appointment?.locationId?.in;
+    f.privateReads.appointments.mockImplementation(async (args?:AppointmentReadArgs) => {
+      if(!args?.where?.endsAt)return [];
+      const locationScope=args.where.appointment?.locationId;
+      const allowed=typeof locationScope==='string'?[locationScope]:locationScope?.in;
       return [
         {id:'line-a',startsAt:new Date('2026-10-19T09:00:00Z'),endsAt:new Date('2026-10-19T10:00:00Z'),service:{name:'Service A'},appointment:{locationId}},
         {id:'line-b',startsAt:new Date('2026-10-19T11:00:00Z'),endsAt:new Date('2026-10-19T12:00:00Z'),service:{name:'Service B'},appointment:{locationId:otherLocationId}},

@@ -6,7 +6,7 @@ import { currentMe } from '../../lib/desk-shell';
 import { stockApi } from '../../lib/food-api';
 import type { StockLotView, StockProductInput, StockReceiptInput } from '../../lib/food-types';
 
-/** Склад кухни FS2 (DATA_MODEL §34): действия стойки; деньги уже приходят целыми тиынами */
+/** Склад FS2 (DATA_MODEL §34): действия стойки; деньги приходят целыми minor units выбранной валюты. */
 type StockCommand =
   | { kind: 'product'; id?: string; body: Partial<StockProductInput> }
   | { kind: 'receipt'; body: StockReceiptInput }
@@ -16,8 +16,10 @@ type StockCommand =
 
 async function scope(key: string) {
   const { context } = await currentMe();
+  const vertical = context?.vertical;
   if (
-    !['BEAUTY', 'FOOD_SERVICE'].includes(context?.vertical ?? '') ||
+    !context ||
+    (vertical !== 'BEAUTY' && vertical !== 'FOOD_SERVICE') ||
     !context.businessId ||
     !context.locationId ||
     key !== `${context.businessId}:${context.locationId}`
@@ -26,7 +28,7 @@ async function scope(key: string) {
       409,
       `Выбран другой ${context?.vertical === 'BEAUTY' ? 'салон' : 'ресторан'}. Откройте форму заново.`,
     );
-  return context.vertical;
+  return vertical;
 }
 
 export async function mutateStock(

@@ -8,7 +8,9 @@ vi.mock('server-only', () => ({}));
 
 describe('Дата последнего визита клиента салона', () => {
   it('позволяет добавить клиента без визита, если разрешена запись', () => {
-    const html = renderToStaticMarkup(createElement(BeautyCustomersTable, { items: [], canEdit: true }));
+    const html = renderToStaticMarkup(createElement(BeautyCustomersTable, {
+      items: [], canCreate: true, canImportPreview: true,
+    }));
     expect(html).toContain('Добавить клиента');
     expect(html).toContain('Проверить CSV');
     expect(html).not.toContain('Новый клиент добавляется при создании записи');

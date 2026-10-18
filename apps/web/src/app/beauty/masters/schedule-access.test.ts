@@ -36,7 +36,7 @@ describe('master schedule projection', () => {
       items: [employee],
       services: [],
       today: unavailableDay,
-      locations: [{ id: 'synthetic-location', name: 'Synthetic Salon' }],
+      locations: [{ id: 'synthetic-location', name: 'Synthetic Salon', assigned: true }],
       scheduleAvailable: false,
     }));
 

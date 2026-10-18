@@ -19,7 +19,15 @@ const importStatus: Record<BeautyCustomerImportStatus, string> = {
   DUPLICATE_IN_FILE: 'Повтор в файле',
 };
 
-export function BeautyCustomerTools({ canEdit, scopeKey }: { canEdit: boolean; scopeKey: string }) {
+export function BeautyCustomerTools({
+  canEdit,
+  scopeKey,
+  showCreate = true,
+}: {
+  canEdit: boolean;
+  scopeKey: string;
+  showCreate?: boolean;
+}) {
   const [mode, setMode] = useState<'create' | 'import' | null>(null);
   const [result, setResult] = useState<CustomerActionResult | null>(null);
   const [preview, setPreview] = useState<BeautyCustomerImportPreview | null>(null);
@@ -75,12 +83,12 @@ export function BeautyCustomerTools({ canEdit, scopeKey }: { canEdit: boolean; s
   return (
     <>
       <div className="beauty-customer-tools">
-        <Button type="button" onClick={() => open('create')}>Добавить клиента</Button>
+        {showCreate && <Button type="button" onClick={() => open('create')}>Добавить клиента</Button>}
         <Button type="button" tone="secondary" onClick={() => open('import')}>Импортировать клиентов</Button>
         <span className="muted">CSV или XLSX с колонками «Имя» и «Телефон», до 500 строк.</span>
       </div>
 
-      <Overlay open={mode === 'create'} onClose={close} title="Добавить клиента" trapFocus>
+      <Overlay open={showCreate && mode === 'create'} onClose={close} title="Добавить клиента" trapFocus>
         <form className="settings-form" onSubmit={submitCreate}>
           <Stack gap="sm">
             <input type="hidden" name="scopeKey" value={draftScope} />

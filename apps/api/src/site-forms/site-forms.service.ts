@@ -280,7 +280,6 @@ export class SiteFormsService {
             fs.organizationId,
             { firstName: req.name, lastName: null, phone: req.phone },
             'Запись по этому телефону недоступна, позвоните нам',
-            { canonicalIdentity: true },
           );
           await tx.customerBusiness.createMany({ data: [{ customerId, businessId: fs.businessId }], skipDuplicates: true });
           const created = await tx.appointment.create({

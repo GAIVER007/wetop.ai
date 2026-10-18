@@ -94,7 +94,7 @@ test('two full-profile forms reject a stale save and retain its draft', async ({
   const stale = second.getByTestId('portal-profile-form');
   await stale.getByLabel('Телефон для связи').fill('+0000000002');
   await stale.getByRole('button', { name: 'Сохранить профиль' }).click();
-  await expect(stale.getByRole('alert')).toContainText('Профиль изменён');
+  await expect(stale.getByRole('alert')).toContainText('Данные изменились');
   await expect(stale.getByLabel('Телефон для связи')).toHaveValue('+0000000002');
   expect((await employees(request, fixture.headers))[0]!.phone).toBe('+0000000001');
   await second.close();
@@ -119,12 +119,12 @@ test('manager assigns and removes salon services in the canonical profile', asyn
   await page.getByRole('tab', { name: 'Услуги', exact: true }).click();
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   const services = page.getByTestId('portal-services-form');
-  await services.getByLabel('Тестовая услуга', { exact: true }).check();
+  await services.getByRole('checkbox', { name: /^Тестовая услуга\b/ }).check();
   await services.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
   await expect(services.getByRole('status')).toContainText('Сохранено');
   expect((await employees(request, fixture.headers))[0]!.serviceIds).toEqual([service.id]);
 
-  await services.getByLabel('Тестовая услуга', { exact: true }).uncheck();
+  await services.getByRole('checkbox', { name: /^Тестовая услуга\b/ }).uncheck();
   await services.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
   await expect(services.getByRole('status')).toContainText('Сохранено');
   expect((await employees(request, fixture.headers))[0]!.serviceIds).toEqual([]);

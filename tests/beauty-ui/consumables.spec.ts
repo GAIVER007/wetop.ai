@@ -45,8 +45,12 @@ test('consumable receipt feeds a service techcard and DONE consumes the same sto
   {
     await page.goto('/bar/consumables');
     await page.getByRole('button', { name: '+ Расходник', exact: true }).click();
-    let drawer = page.getByRole('dialog', { name: 'Новый расходник', exact: true });
+    let drawer = page.getByRole('dialog').filter({
+      has: page.getByRole('heading', { name: 'Новый расходник', exact: true }),
+    });
+    await expect(drawer).toHaveAccessibleName('Новый расходник');
     await drawer.getByLabel('Название', { exact: true }).fill('Тестовый шампунь');
+    await expect(drawer).toHaveAccessibleName('Новый расходник');
     await drawer.getByLabel('Единица', { exact: true }).selectOption('мл');
     await drawer.getByLabel('Минимальный остаток', { exact: true }).fill('1');
     await drawer.getByRole('button', { name: 'Создать', exact: true }).click();

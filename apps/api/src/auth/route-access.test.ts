@@ -330,8 +330,6 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /beauty/finance/appointments': 'desk',
   'GET /beauty/appointments/period': 'desk',
   'POST /beauty/appointments': 'desk',
-  // M4-A: самостоятельное создание клиента, тот же существующий доступ смены.
-  'POST /beauty/customers': 'desk',
   'PATCH /beauty/appointments/:id': 'desk',
   'POST /beauty/appointments/:id/status': 'desk',
   'GET /beauty/appointments/:id/history': 'desk',

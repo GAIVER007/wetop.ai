@@ -179,14 +179,14 @@ app.use(
                     name: 'Тестовая управляющая Мария',
                     email: `beauty-manager-${managerUserId}@example.invalid`,
                     emailVerifiedAt: new Date(),
-                    status: 'ACTIVE',
+                    status: 'ACTIVE' as const,
                   },
                   {
                     id: staffUserId,
                     name: 'Тестовый сотрудник Олег',
                     email: `beauty-staff-${staffUserId}@example.invalid`,
                     emailVerifiedAt: new Date(),
-                    status: 'ACTIVE',
+                    status: 'ACTIVE' as const,
                   },
                 ])
                 await db.user.upsert({
@@ -260,6 +260,11 @@ app.use(
                 await tx.employeeServicePrice.deleteMany({ where: { employee: { business: b } } });
                 await tx.employeeService.deleteMany({ where: { employee: { business: b } } });
                 await tx.employeeLocation.deleteMany({ where: { employee: { business: b } } });
+                await tx.employeePortfolioItem.deleteMany({ where: { employee: { business: b } } });
+                await tx.employeeMedia.deleteMany({ where: { employee: { business: b } } });
+                await tx.employeePublicProfile.deleteMany({ where: { employee: { business: b } } });
+                await tx.employeePayAdjustment.deleteMany({ where: { employee: { business: b } } });
+                await tx.employeePaySetting.deleteMany({ where: { employee: { business: b } } });
                 await tx.locationService.deleteMany({ where: { service: { business: b } } });
                 await tx.beautyServiceMaterial.deleteMany({ where: { service: { business: b } } });
                 await tx.beautyServiceMaterialRevision.deleteMany({ where: { service: { business: b } } });
@@ -268,6 +273,7 @@ app.use(
                 await tx.employee.deleteMany({ where: { business: b } });
                 await tx.beautyService.deleteMany({ where: { business: b } });
                 await tx.kitchenProduct.deleteMany({ where: { business: b } });
+                await tx.beautyPayrollPolicy.deleteMany({ where: { business: b } });
                 // Held 134 intentionally preserves revoked assignment history. This local synthetic
                 // fixture bypasses that trigger only for rows under its checked organization marker.
                 await tx.$executeRaw`SET LOCAL session_replication_role = replica`;

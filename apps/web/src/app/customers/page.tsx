@@ -17,6 +17,10 @@ export default async function CustomersPage() {
   if (me.context?.vertical === 'FOOD_SERVICE') return <FoodCustomers />;
   try {
     const [{ items }, shell] = await Promise.all([beautyApi.customers(), deskShell()]);
+    const canCreate = !shell.readOnly
+      && mayBeautyAccess(shell.access, 'customers', 'create', { legacy: 'desk' });
+    const canUpdate = !shell.readOnly
+      && mayBeautyAccess(shell.access, 'customers', 'update', { legacy: 'desk' });
     return (
       <Page
         className="beauty-page"
@@ -24,20 +28,17 @@ export default async function CustomersPage() {
         subtitle="Клиенты этого бизнеса, их визиты и средний чек."
       >
         <BeautyCustomerTools
-          canEdit={
-            !shell.readOnly &&
-            mayBeautyAccess(shell.access, 'customers', 'create', { legacy: 'desk' })
-          }
+          canEdit={canCreate}
           scopeKey={shell.scopeKey ?? ''}
+          showCreate={false}
         />
         <BeautyCustomersTable
           key={me.context?.businessId}
           items={items}
           businessId={me.context?.businessId ?? ''}
-          canEdit={
-            !shell.readOnly &&
-            mayBeautyAccess(shell.access, 'customers', 'update', { legacy: 'desk' })
-          }
+          canCreate={canCreate}
+          canEdit={canUpdate}
+          canImportPreview={false}
           scopeKey={shell.scopeKey ?? ''}
         />
       </Page>

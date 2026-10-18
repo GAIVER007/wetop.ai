@@ -49,8 +49,8 @@ async function customerFileCsv(form: FormData): Promise<string> {
   }
 }
 
-export function createBeautyCustomer(form: FormData): Promise<CustomerActionResult>;
-export function createBeautyCustomer(
+export async function createBeautyCustomer(form: FormData): Promise<CustomerActionResult>;
+export async function createBeautyCustomer(
   previous: CreateCustomerState | null,
   form: FormData,
 ): Promise<CreateCustomerState>;

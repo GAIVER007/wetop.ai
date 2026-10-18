@@ -53,3 +53,15 @@ describe('бар: упаковки (Q-BAR-7)', () => {
     expect(() => unitsFromPackages(2n, 0n)).toThrow();
   });
 });
+
+describe('цена по наценке в валюте филиала (ADR-187)', () => {
+  it('тенге: вверх до 10 ₸, как раньше (Q-BAR-2)', () => {
+    expect(salePriceFromMarkup(55_000n, 8_800n, 'KZT')).toBe(104_000n); // 550 ₸ + 88 % = 1034 ₸ → 1040 ₸
+    expect(salePriceFromMarkup(55_000n, 8_800n)).toBe(104_000n);
+  });
+  it('доллар, дирхам, риал: вверх до целой единицы', () => {
+    expect(salePriceFromMarkup(300n, 4_000n, 'USD')).toBe(500n); // 3,00 + 40 % = 4,20 → 5,00
+    expect(salePriceFromMarkup(250n, 10_000n, 'AED')).toBe(500n); // 2,50 + 100 % = 5,00 ровно
+    expect(salePriceFromMarkup(301n, 0n, 'QAR')).toBe(400n); // 3,01 → 4,00
+  });
+});

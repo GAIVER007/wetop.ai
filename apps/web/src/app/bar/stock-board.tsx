@@ -571,11 +571,6 @@ function ProductCard({
   const [price, setPrice] = useState(minorToInput(product.salePrice));
   const [priceNote, setPriceNote] = useState<string | null>(null);
   const reprice = () => {
-    // D-CUR: цена по наценке (вверх до 10 тенге) утверждена только для тенге
-    if (context.currency !== 'KZT') {
-      setPriceNote('Автоматическая цена для этой валюты еще не утверждена: укажите цену продажи сами.');
-      return;
-    }
     const match = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(markup.trim());
     if (!product.lastUnitCostMinor) {
       setPriceNote('Закупочной цены ещё нет: сначала занесите приход.');
@@ -586,8 +581,10 @@ function ProductCard({
       return;
     }
     const basis = BigInt(match[1]!) * 100n + BigInt((match[2] ?? '').padEnd(2, '0') || '0');
-    setPrice(minorToInput(recommendedPriceMinor(product.lastUnitCostMinor, basis)));
-    setPriceNote('Цена пересчитана от закупки и наценки, вверх до 10 тенге. Нажмите «Сохранить».');
+    setPrice(minorToInput(recommendedPriceMinor(product.lastUnitCostMinor, basis, context.currency)));
+    setPriceNote(
+      `Цена пересчитана от закупки и наценки, вверх до ${context.currency === 'KZT' ? '10 тенге' : `целого ${context.currency}`}. Нажмите «Сохранить».`,
+    );
   };
   const id = (name: string) => `bar-card-${name}`;
   const info = (

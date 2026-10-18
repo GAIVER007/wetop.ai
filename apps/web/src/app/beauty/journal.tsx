@@ -279,7 +279,7 @@ export function JournalBoard({
           <EmployeeFilter options={columns} value={master} onChange={setMaster} allLabel="Все специалисты" />
           <DateBar date={day.date} path="/calendar" filters={filters} />
           <QuickReport key={`${day.date}:${master}`} date={day.date}
-            scope={`${day.location.name ?? 'Салон'} · ${master ? (columns.find((c) => c.id === master)?.name ?? 'Сотрудник недоступен') : 'Все специалисты'}${service || status ? ' · С учётом фильтров календаря' : ''}`}
+            scope={[day.location.name ?? 'Салон', master ? (columns.find((c) => c.id === master)?.name ?? 'Сотрудник недоступен') : 'Все специалисты', ...(service || status ? ['С учётом фильтров календаря'] : [])]}
             build={() => beautyQuickReport(reportRows)} />
           <Button
             disabled={filterPending || readOnly || !day.columns.some((c) => c.id === selected) || !day.services.length}

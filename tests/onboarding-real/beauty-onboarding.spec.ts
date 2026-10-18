@@ -13,6 +13,9 @@ async function register(page: Page, suffix: string, entry: 'hash' | 'cta' = 'has
   if (entry === 'cta') {
     // Настоящая кнопка страницы «Для салонов красоты», как её нажимает посетитель сайта
     await page.goto(`${site}/for/salons/`);
+    // окно открывается на месте только после загрузки скриптов страницы; клик раньше уводит ссылкой на главную,
+    // где направление выбирают сами (так под нагрузкой раннера упал гейт 354783d7)
+    await page.waitForLoadState('networkidle');
     await page.locator('.salon-hero').getByRole('link', { name: /Начать работу/ }).click();
   } else await page.goto(`${site}/?vertical=BEAUTY#register`);
   const dialog = page.getByRole('dialog');

@@ -143,7 +143,7 @@ test('экран доступа: карточки, axe в светлой и тё
       await page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
       const main = page.getByRole('main');
       await expect(main.getByRole('heading', { name: 'Управление доступом' })).toBeVisible();
-      await expect(main.getByText('Вы вошли')).toBeVisible();
+      await expect(main.getByText('Вы вошли', { exact: true })).toBeVisible();
       await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
       const violations = (
         await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()

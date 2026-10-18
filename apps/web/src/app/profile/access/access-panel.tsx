@@ -74,9 +74,9 @@ export function AccessPanel({
         {/* «Где я вошёл» и «выйти везде» (§13.5): отзыв гасит все ключи человека, включая этот */}
         <Panel title="Где вы вошли" aria-label="Где вы вошли">
           {sessions.length > 0 ? (
-            <Stack gap="sm" data-testid="session-list">
+            <ul className="login-invite-list" data-testid="session-list">
               {sessions.map((s) => (
-                <Row key={s.id} className="row--between">
+                <li key={s.id} className="row row--between">
                   <span>
                     <b>{s.device}</b>{' '}
                     <span className="muted">
@@ -84,9 +84,9 @@ export function AccessPanel({
                     </span>
                   </span>
                   {s.current && <Badge tone="ok">этот сеанс</Badge>}
-                </Row>
+                </li>
               ))}
-            </Stack>
+            </ul>
           ) : (
             <p className="muted">Список сеансов недоступен.</p>
           )}
@@ -128,9 +128,9 @@ function OrganizationSwitch({
   return (
     <Panel title="Ваши организации">
       {error && <Alert boxed>{error}</Alert>}
-      <Stack gap="sm" data-testid="organization-list">
+      <ul className="login-invite-list" data-testid="organization-list">
         {organizations.map((o) => (
-          <Row key={o.id} className="row--between">
+          <li key={o.id} className="row row--between">
             <span>
               <b>{o.name}</b> <span className="muted">{ROLE_WORD[o.role] ?? o.role}</span>
             </span>
@@ -144,9 +144,9 @@ function OrganizationSwitch({
                 </Button>
               </form>
             )}
-          </Row>
+          </li>
         ))}
-      </Stack>
+      </ul>
     </Panel>
   );
 }

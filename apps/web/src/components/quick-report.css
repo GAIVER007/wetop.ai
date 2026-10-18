@@ -13,6 +13,9 @@
     color: var(--text-2);
     overflow-wrap: anywhere;
   }
+  .quick-report-scope > span {
+    display: block;
+  }
   .quick-report-top {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 180px;
@@ -143,7 +146,8 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--surface);
-    box-shadow: var(--shadow);
+    /* выпадающее меню плавает над страницей: только --shadow-floating (DESIGN.md §5) */
+    box-shadow: var(--shadow-floating);
   }
   .employee-filter-menu > .inp {
     width: 100%;
@@ -251,4 +255,9 @@
       grid-row: 4;
     }
   }
+  .quick-report-dot--neutral { background: var(--text-2); }
+  .quick-report-dot--info { background: var(--info); }
+  .quick-report-dot--success { background: var(--success); }
+  .quick-report-dot--warning { background: var(--warning); }
+  .quick-report-dot--danger { background: var(--danger); }
 }

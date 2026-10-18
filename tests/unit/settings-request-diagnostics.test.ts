@@ -11,6 +11,23 @@ describe('CI-only settings request diagnostics', () => {
     expect(diagnosticsEnabled({ ...enabled, NODE_ENV: 'production' })).toBe(false);
     expect(diagnosticsEnabled({ ...enabled, CI: '1' })).toBe(false);
   });
+  it('production returns before consulting diagnostic flags', () => {
+    const reads: string[] = [];
+    const env = new Proxy({ NODE_ENV: 'production' }, {
+      get(target, key: string) {
+        reads.push(key);
+        if (key !== 'NODE_ENV') throw new Error(`diagnostic read: ${key}`);
+        return target.NODE_ENV;
+      },
+    });
+    expect(diagnosticsEnabled(env)).toBe(false);
+    expect(reads).toEqual(['NODE_ENV']);
+    expect(diagnosticsEnabled(enabled)).toBe(true);
+    for (const key of ['CI', 'APP_UI_TEST', 'WETOP_DIAG_HOTEL_SETTINGS']) {
+      for (const value of [undefined, '', 'false', '0', 'wrong'])
+        expect(diagnosticsEnabled({ ...enabled, [key]: value })).toBe(false);
+    }
+  });
   it('accepts only opaque UUIDs and exact settings GET', () => {
     expect(diagnosticId(id)).toBe(id);
     for (const raw of [null, 'guest@example.invalid', id + '?token=secret', 'raw-client-id']) expect(diagnosticId(raw)).toBe('unbound');

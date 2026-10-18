@@ -62,7 +62,7 @@ export function WeekCalendar({ days, selectedDate, employees }: { days: BeautyDa
         <QuickReport
           key={`${selected.date}:${employee}`}
           date={selected.date}
-          scope={`${employee ? (options.find((e) => e.id === employee)?.name ?? 'Сотрудник недоступен') : 'Все специалисты'} · Выбранный день${service || status ? ' · С учётом фильтров' : ''}`}
+          scope={[employee ? (options.find((e) => e.id === employee)?.name ?? 'Сотрудник недоступен') : 'Все специалисты', 'Выбранный день', ...(service || status ? ['С учётом фильтров'] : [])]}
           build={() => beautyQuickReport(visible(selected))}
         />
       </div>

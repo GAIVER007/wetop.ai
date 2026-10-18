@@ -1,8 +1,9 @@
 /** Pure, Edge-compatible diagnostic projections: never serialize request or error objects. */
 export const SETTINGS_DIAGNOSTIC_HEADER = 'x-wetop-settings-diag';
 export function diagnosticsEnabled(env: Record<string, string | undefined>): boolean {
+  if (env.NODE_ENV === 'production') return false;
   return env.CI === 'true' && env.APP_UI_TEST === '1' &&
-    env.WETOP_DIAG_HOTEL_SETTINGS === '1' && env.NODE_ENV !== 'production';
+    env.WETOP_DIAG_HOTEL_SETTINGS === '1';
 }
 export function diagnosticId(raw: string | null | undefined): string {
   return raw && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(raw) ? raw : 'unbound';

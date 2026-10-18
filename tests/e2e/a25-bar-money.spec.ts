@@ -440,21 +440,26 @@ test('UI-04 real mixed-history guard is explicit, not zero success', async ({ pa
   }
 });
 
-test('UI-05 non-KZT auto price refusal preserves editable input', async ({ page }) => {
+test('UI-05 invalid USD purchase price preserves editable input without partial writes', async ({ page }) => {
   await enter(page, 'USD');
-  const form = await fillReceipt(page, 'A25 USD goods', 'A25-USD-DRAFT', '1', '10');
+  // ADR-187 allows USD auto pricing. Invalid money still fails before any
+  // receipt/product mutation, for both existing and newly entered products.
+  const form = await fillReceipt(page, 'A25 USD goods', 'A25-USD-DRAFT', '1', '10.123');
   const before = await query('SELECT count(*)::int n FROM bar_receipts WHERE property_id=$1', [scope('USD').property]);
   const products = await query('SELECT count(*)::int n FROM bar_products WHERE property_id=$1', [scope('USD').property]);
   await form.getByRole('button', { name: 'Сохранить приход' }).click();
-  await expect(form.getByRole('alert')).toContainText('Автоматическая цена');
+  await expect(form.getByRole('alert')).toHaveText('Цена закупки: укажите сумму в валюте операции, не более двух знаков после запятой');
   await expect(form.locator('input[name=documentNumber]')).toHaveValue('A25-USD-DRAFT');
   await expect(form.getByRole('status')).toHaveCount(0);
   expect(await query('SELECT count(*)::int n FROM bar_receipts WHERE property_id=$1', [scope('USD').property])).toEqual(before);
-  // строка «новый товар» в объекте не в тенге: отказ до создания карточки, каталог не растёт (частичный эффект Бар-2)
+  // Start a fresh form so the first refusal cannot satisfy the second assertion.
+  await fillReceipt(page, 'A25 USD goods', 'A25-USD-DRAFT', '1', '10.123');
+  await expect(form.getByRole('alert')).toHaveCount(0);
+  // Invalid purchase precision must also reject a new product before creating its card.
   await form.getByRole('button', { name: 'Нет в списке' }).click();
   await form.locator('input[name="newName.0"]').fill('A25 USD new goods');
   await form.getByRole('button', { name: 'Сохранить приход' }).click();
-  await expect(form.getByRole('alert')).toContainText('Автоматическая цена');
+  await expect(form.getByRole('alert')).toHaveText('Цена закупки: укажите сумму в валюте операции, не более двух знаков после запятой');
   await expect(form.locator('input[name=documentNumber]')).toHaveValue('A25-USD-DRAFT');
   expect(await query('SELECT count(*)::int n FROM bar_products WHERE property_id=$1', [scope('USD').property])).toEqual(products);
   expect(await query('SELECT count(*)::int n FROM bar_receipts WHERE property_id=$1', [scope('USD').property])).toEqual(before);

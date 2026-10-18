@@ -20,7 +20,7 @@ test('empty one dense no result and real API error remain distinct', async ({ pa
   await f.book('10:00');
   await page.reload();
   await expect(page.getByTestId('beauty-day-summary')).toHaveText('Записей: 1');
-  await page.locator('.beauty-calendar-toolbar summary').click();
+  await page.locator('.beauty-calendar-toolbar').getByText('Фильтры', { exact: true }).click();
   await page.getByLabel('Статус записи', { exact: true }).selectOption('DONE');
   await expect(page.getByTestId('beauty-day-summary')).toContainText('По выбранным фильтрам');
   const db = new pg.Client({ connectionString: process.env.DATABASE_URL });

@@ -188,9 +188,11 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await tile.click();
   await page.getByRole('dialog').getByRole('button', { name: 'Подтвердить', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
-  // «В процессе» (§58): клиент пришёл, незаезда у начатой записи уже нет
+  // A future visit cannot be marked absent (M6a); the API boundary tests
+  // separately prove NO_SHOW becomes available at its actual start.
   await tile.click();
-  await expect(page.getByRole('dialog').getByRole('button', { name: 'Не пришёл', exact: true })).toBeVisible();
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Не пришёл', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toContainText('Можно после начала визита');
   await page.getByRole('dialog').getByRole('button', { name: 'Начать', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
   await page.reload();

@@ -72,9 +72,10 @@ test('quick report reads cash, card and refunds from actual stored operations', 
   await page.goto(`/calendar?date=2026-10-19&employee=${masters[1].id}`);
   await page.getByRole('button', { name: 'Быстрый отчёт', exact: true }).click();
   const report = page.getByRole('dialog', { name: /Статистика за/ });
-  const row = (label: string) => report.locator('.quick-report-finance dl > div').filter({ has: page.getByText(label, { exact: true }) });
+  const finance = report.getByRole('region', { name: 'Финансы', exact: true });
+  const row = (label: string) => finance.locator('dl > div').filter({ has: page.getByText(label, { exact: true }) });
   await expect(row('Оплата наличными')).toContainText('3 000 ₸');
   await expect(row('Оплата безналом')).toContainText('7 000 ₸');
-  await expect(row('Возвращено по записям')).toContainText('2 000 ₸');
+  await expect(row('Возвраты')).toContainText('2 000 ₸');
   await expect(report).not.toContainText('Стоимость всех записей');
 });

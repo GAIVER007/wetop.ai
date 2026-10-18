@@ -378,9 +378,15 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
   );
 }
 
-/** Пояс филиала вне списка стран, а страна организации известна: берём её пояс и валюту по умолчанию */
+/** Страна заполняет только отсутствующие значения; сохранённый ввод остаётся для действующей проверки. */
 function withCountry(draft: Record<string, unknown>, code: string | null | undefined) {
   const country = countryOf({ code });
-  if (!country || countryOf({ zone: String(draft.timezone ?? '') })) return draft;
-  return { ...draft, timezone: country.zone, currency: country.currency };
+  // An existing timezone does not establish the organization's country/currency.
+  // Preserve invalid input too: validation must reject it, not silently repair it.
+  if (!country || (draft.timezone != null && draft.timezone !== '')) return draft;
+  return {
+    ...draft,
+    timezone: country.zone,
+    currency: draft.currency == null || draft.currency === '' ? country.currency : draft.currency,
+  };
 }

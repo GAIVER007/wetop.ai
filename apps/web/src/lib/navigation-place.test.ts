@@ -12,10 +12,10 @@ describe('currentPlace', () => {
   it.each([
     ['/finance', 'Финансы'],
     ['/bar/receipts/new', 'Склад'],
-    ['/reservations/20260913-TESTAA', 'Гости'],
-    ['/units/R01', 'Номера'],
-    ['/rooms/categories', 'Номера'],
-    ['/tasks', 'Шахматка'],
+    ['/reservations/20260913-TESTAA', 'Клиенты'],
+    ['/units/R01', 'Услуги'],
+    ['/rooms/categories', 'Услуги'],
+    ['/tasks', 'Журнал'],
     ['/market', 'Продвижение'],
     ['/ai-seller/dialogs', 'Продвижение'],
     ['/website/settings', 'Продвижение'],
@@ -36,9 +36,9 @@ describe('currentPlace', () => {
   ])('салон %s → %s', (path, expected) => expect(label('BEAUTY', path)).toBe(expected));
 
   it.each([
-    ['/table-reservations', 'Зал'],
-    ['/dining-areas', 'Зал'],
-    ['/kitchen', 'Заказы'],
+    ['/table-reservations', 'Клиенты'],
+    ['/dining-areas', 'Услуги'],
+    ['/kitchen', 'Услуги'],
     ['/team', 'Персонал'],
   ])('ресторан %s → %s', (path, expected) => expect(label('FOOD_SERVICE', path)).toBe(expected));
 });

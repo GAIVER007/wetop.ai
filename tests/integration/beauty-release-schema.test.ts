@@ -28,6 +28,11 @@ async function signature() {
     UNION ALL SELECT 'constraint',c.relname||'.'||k.conname,pg_get_constraintdef(k.oid)
     FROM pg_constraint k JOIN pg_class c ON c.oid=k.conrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public'
     UNION ALL SELECT 'index',indexname,indexdef FROM pg_indexes WHERE schemaname='public'
+    UNION ALL SELECT 'trigger_function',
+      n.nspname||'.'||p.proname||'('||pg_get_function_identity_arguments(p.oid)||')',
+      json_build_object('definition',pg_get_functiondef(p.oid),'proconfig',p.proconfig)::text
+    FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+    WHERE n.nspname='public' AND p.prokind='f' AND p.prorettype='pg_catalog.trigger'::regtype
     ORDER BY kind,name,definition`)).rows;
 }
 

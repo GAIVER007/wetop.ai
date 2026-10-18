@@ -1,0 +1,73 @@
+# Интеграционные (integration) · 19.10.2026 01:31 Алматы · srv1719674
+# коммит b194d49 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T20-31-55Z-integration-290d.json' 'tests/integration/beauty-release-schema.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+stdout | tests/integration/beauty-release-schema.test.ts > Beauty schema release on a separate owned canonical database
+Owned release proof salon_release_proof_00b5269d4db24d03bbabeb7938ef9bad: 141 canonical migrations, one populated legacy appointment
+
+ ❯ |integration| tests/integration/beauty-release-schema.test.ts (9 tests | 1 failed) 3732ms
+   ❯ Beauty schema release on a separate owned canonical database (9)
+     ✓ backfills one position-zero line with the exact legacy money and interval snapshots 3ms
+     ✓ matches Prisma declarations exactly on the real ordinary-chain public schema 2181ms
+     ✓ keeps all ten new tables under FORCE RLS and hides a foreign tenant line 7ms
+     ✓ refuses location-hours down when saved configuration exists 5ms
+     ✓ refuses positions down when a position exists 4ms
+     ✓ refuses materials down when a retained card revision exists 4ms
+     ✓ refuses reviews down when a retained invitation exists 6ms
+     ✓ refuses lines down when a retained employee price exists 5ms
+     × reverses the unused new models in dependency order without losing the legacy appointment 268ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-release-schema.test.ts > Beauty schema release on a separate owned canonical database > reverses the unused new models in dependency order without losing the legacy appointment
+AssertionError: expected [ { kind: 'column', …(2) }, …(2599) ] to deeply equal [ { kind: 'column', …(2) }, …(2599) ]
+
+- Expected
++ Received
+
+@@ -12902,21 +12902,21 @@
+      "definition": "{\"definition\" : \"CREATE OR REPLACE FUNCTION public.generation_run_guard()\\n RETURNS trigger\\n LANGUAGE plpgsql\\n SET search_path TO 'public', 'pg_temp'\\nAS $function$\\nBEGIN\\n IF TG_OP = 'INSERT' THEN\\n  IF NEW.status <> 'QUEUED' THEN\\n   RAISE EXCEPTION 'generation_runs: новая задача только в QUEUED';\\n  END IF;\\n ELSE\\n  IF NEW.requested_by_id IS NULL AND OLD.requested_by_id IS NOT NULL\\n     AND to_jsonb(NEW) - 'requested_by_id' = to_jsonb(OLD) - 'requested_by_id' THEN\\n   RETURN NEW;\\n  END IF;\\n  IF OLD.status IN ('SUCCEEDED', 'FAILED', 'CANCELLED') THEN\\n   RAISE EXCEPTION 'generation_runs: задача в конечном состоянии % не меняется', OLD.status;\\n  END IF;\\n  IF NEW.site_id <> OLD.site_id OR NEW.type <> OLD.type OR NEW.request_key <> OLD.request_key\\n     OR NEW.brief_hash IS DISTINCT FROM OLD.brief_hash OR NEW.instruction IS DISTINCT FROM OLD.instruction\\n     OR NEW.base_version_id IS DISTINCT FROM OLD.base_version_id\\n     OR NEW.requested_by_id IS DISTINCT FROM OLD.requested_by_id\\n     OR NEW.created_at <> OLD.created_at\\n     OR (OLD.started_at IS NOT NULL AND NEW.started_at IS DISTINCT FROM OLD.started_at) THEN\\n   RAISE EXCEPTION 'generation_runs: сайт, вид, ключ, бриф, команда, база, автор и первое начало задачи не меняется';\\n  END IF;\\n  IF NEW.status <> OLD.status AND NOT (\\n       (OLD.status = 'QUEUED' AND NEW.status IN ('RUNNING', 'FAILED', 'CANCELLED'))\\n    OR (OLD.status = 'RUNNING' AND NEW.status IN ('QUEUED', 'SUCCEEDED', 'FAILED'))) THEN\\n   RAISE EXCEPTION 'generation_runs: переход % → % запрещён', OLD.status, NEW.status;\\n  END IF;\\n  IF (OLD.tokens_input IS NOT NULL AND (NEW.tokens_input IS NULL OR NEW.tokens_input < OLD.tokens_input))\\n     OR (OLD.tokens_output IS NOT NULL AND (NEW.tokens_output IS NULL OR NEW.tokens_output < OLD.tokens_output))\\n     OR (OLD.tokens_cached IS NOT NULL AND (NEW.tokens_cached IS NULL OR NEW.tokens_cached < OLD.tokens_cached)) THEN\\n   RAISE EXCEPTION 'generation_runs: расход токенов задачи только растёт';\\n  END IF;\\n  IF NEW.attempts < OLD.attempts THEN\\n   RAISE EXCEPTION 'generation_runs: число попыток только растёт';\\n  END IF;\\n END IF;\\n IF NEW.base_version_id IS NOT NULL AND NOT EXISTS (\\n   SELECT 1 FROM marketing_site_versions v WHERE v.id = NEW.base_version_id AND v.site_id = NEW.site_id) THEN\\n  RAISE EXCEPTION 'generation_runs: base_version_id указывает на версию другого сайта';\\n END IF;\\n IF NEW.output_version_id IS NOT NULL AND NOT EXISTS (\\n   SELECT 1 FROM marketing_site_versions v\\n    WHERE v.id = NEW.output_version_id AND v.site_id = NEW.site_id AND v.generation_run_id = NEW.id) THEN\\n  RAISE EXCEPTION 'generation_runs: output_version_id указывает на версию другого сайта или другой задачи';\\n END IF;\\n RETURN NEW;\\nEND $function$\\n\", \"proconfig\" : [\"search_path=public, pg_temp\"]}",
+      "kind": "trigger_function",
+      "name": "public.generation_run_guard()",
+    },
+    {
+-     "definition": "{\"definition\" : \"CREATE OR REPLACE FUNCTION public.kitchen_link_guard()\\n RETURNS trigger\\n LANGUAGE plpgsql\\n SET search_path TO 'public', 'pg_temp'\\nAS $function$\\nBEGIN\\n IF TG_TABLE_NAME = 'menu_item_ingredients' THEN\\n  IF NEW.product_id IS NOT NULL AND NOT EXISTS (\\n    SELECT 1 FROM kitchen_products p JOIN menu_items m ON m.business_id = p.business_id\\n    WHERE p.id = NEW.product_id AND m.id = NEW.menu_item_id AND p.unit = NEW.unit) THEN\\n   RAISE EXCEPTION 'Tech card product belongs to another business or unit';\\n  END IF;\\n ELSE\\n  IF NEW.order_id IS NOT NULL AND NOT EXISTS (\\n    SELECT 1 FROM restaurant_orders o WHERE o.id = NEW.order_id AND o.location_id = NEW.location_id) THEN\\n   RAISE EXCEPTION 'Stock movement order belongs to another location';\\n  END IF;\\n END IF;\\n RETURN NEW;\\nEND $function$\\n\", \"proconfig\" : [\"search_path=public, pg_temp\"]}",
++     "definition": "{\"definition\" : \"CREATE OR REPLACE FUNCTION public.kitchen_link_guard()\\n RETURNS trigger\\n LANGUAGE plpgsql\\nAS $function$\\nBEGIN\\n IF TG_TABLE_NAME = 'menu_item_ingredients' THEN\\n  IF NEW.product_id IS NOT NULL AND NOT EXISTS (\\n    SELECT 1 FROM kitchen_products p JOIN menu_items m ON m.business_id = p.business_id\\n    WHERE p.id = NEW.product_id AND m.id = NEW.menu_item_id AND p.unit = NEW.unit) THEN\\n   RAISE EXCEPTION 'Tech card product belongs to another business or unit';\\n  END IF;\\n ELSE\\n  IF NEW.order_id IS NOT NULL AND NOT EXISTS (\\n    SELECT 1 FROM restaurant_orders o WHERE o.id = NEW.order_id AND o.location_id = NEW.location_id) THEN\\n   RAISE EXCEPTION 'Stock movement order belongs to another location';\\n  END IF;\\n END IF;\\n RETURN NEW;\\nEND $function$\\n\", \"proconfig\" : null}",
+      "kind": "trigger_function",
+      "name": "public.kitchen_link_guard()",
+    },
+    {
+      "definition": "{\"definition\" : \"CREATE OR REPLACE FUNCTION public.kitchen_movements_immutable()\\n RETURNS trigger\\n LANGUAGE plpgsql\\n SET search_path TO 'public', 'pg_temp'\\nAS $function$\\nBEGIN\\n IF current_setting('wetop.audit_purge', true) = 'on' THEN RETURN COALESCE(NEW, OLD); END IF;\\n RAISE EXCEPTION 'kitchen_stock_movements: лента только дописывается, % запрещён', TG_OP USING ERRCODE = 'raise_exception';\\nEND $function$\\n\", \"proconfig\" : [\"search_path=public, pg_temp\"]}",
+      "kind": "trigger_function",
+      "name": "public.kitchen_movements_immutable()",
+    },
+    {
+-     "definition": "{\"definition\" : \"CREATE OR REPLACE FUNCTION public.kitchen_stock_guard()\\n RETURNS trigger\\n LANGUAGE plpgsql\\n SET search_path TO 'public', 'pg_temp'\\nAS $function$\\nDECLARE biz uuid;\\nBEGIN\\n CASE TG_TABLE_NAME\\n WHEN 'kitchen_products' THEN\\n  IF TG_OP = 'UPDATE' AND NEW.business_id <> OLD.business_id THEN RAISE EXCEPTION 'Kitchen parent is immutable'; END IF;\\n  IF NOT EXISTS (SELECT 1 FROM businesses WHERE id = NEW.business_id AND vertical = 'FOOD_SERVICE') THEN RAISE EXCEPTION 'Food business required'; END IF;\\n WHEN 'kitchen_stock_lots', 'kitchen_stock_movements' THEN\\n  IF TG_OP = 'UPDATE' AND (NEW.location_id <> OLD.location_id OR NEW.product_id <> OLD.product_id) THEN RAISE EXCEPTION 'Kitchen parent is immutable'; END IF;\\n  SELECT p.business_id INTO biz FROM kitchen_products p WHERE p.id = NEW.product_id;\\n  IF NOT EXISTS (SELECT 1 FROM locations WHERE id = NEW.location_id AND business_id = biz) THEN RAISE EXCEPTION 'Kitchen product belongs to another business'; END IF;\\n  -- вложенный IF: PL/pgSQL не обещает короткое замыкание AND, а у партий поля lot_id нет\\n  IF TG_TABLE_NAME = 'kitchen_stock_movements' THEN\\n   IF NEW.lot_id IS NOT NULL\\n      AND NOT EXISTS (SELECT 1 FROM kitchen_stock_lots WHERE id = NEW.lot_id AND location_id = NEW.location_id AND product_id = NEW.product_id) THEN\\n    RAISE EXCEPTION 'Kitchen lot belongs to another location or product';\\n   END IF;\\n  END IF;\\n END CASE;\\n RETURN NEW;\\nEND $function$\\n\", \"proconfig\" : [\"search_path=public, pg_temp\"]}",
++     "definition": "{\"definition\" : \"CREATE OR REPLACE FUNCTION public.kitchen_stock_guard()\\n RETURNS trigger\\n LANGUAGE plpgsql\\nAS $function$\\nDECLARE biz uuid;\\nBEGIN\\n CASE TG_TABLE_NAME\\n WHEN 'kitchen_products' THEN\\n  IF TG_OP = 'UPDATE' AND NEW.business_id <> OLD.business_id THEN RAISE EXCEPTION 'Kitchen parent is immutable'; END IF;\\n  IF NOT EXISTS (SELECT 1 FROM businesses WHERE id = NEW.business_id AND vertical = 'FOOD_SERVICE') THEN RAISE EXCEPTION 'Food business required'; END IF;\\n WHEN 'kitchen_stock_lots', 'kitchen_stock_movements' THEN\\n  IF TG_OP = 'UPDATE' AND (NEW.location_id <> OLD.location_id OR NEW.product_id <> OLD.product_id) THEN RAISE EXCEPTION 'Kitchen parent is immutable'; END IF;\\n  SELECT p.business_id INTO biz FROM kitchen_products p WHERE p.id = NEW.product_id;\\n  IF NOT EXISTS (SELECT 1 FROM locations WHERE id = NEW.location_id AND business_id = biz) THEN RAISE EXCEPTION 'Kitchen product belongs to another business'; END IF;\\n  IF TG_TABLE_NAME = 'kitchen_stock_movements' THEN\\n   IF NEW.lot_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM kitchen_stock_lots WHERE id = NEW.lot_id AND location_id = NEW.location_id AND product_id = NEW.product_id) THEN\\n    RAISE EXCEPTION 'Kitchen lot belongs to another location or product';\\n   END IF;\\n  END IF;\\n END CASE;\\n RETURN NEW;\\nEND $function$\\n\", \"proconfig\" : null}",
+      "kind": "trigger_function",
+      "name": "public.kitchen_stock_guard()",
+    },
+    {
+      "definition": "{\"definition\" : \"CREATE OR REPLACE FUNCTION public.location_booking_site_guard()\\n RETURNS trigger\\n LANGUAGE plpgsql\\n SET search_path TO 'public', 'pg_temp'\\nAS $function$\\nBEGIN\\n IF NEW.booking_tracked_site_id IS NOT NULL AND NOT EXISTS (\\n   SELECT 1 FROM tracked_sites t WHERE t.id = NEW.booking_tracked_site_id AND t.location_id = NEW.id) THEN\\n  RAISE EXCEPTION 'locations: сайт брони принадлежит объекту другого филиала';\\n END IF;\\n RETURN NEW;\\nEND $function$\\n\", \"proconfig\" : [\"search_path=public, pg_temp\"]}",
+
+ ❯ tests/integration/beauty-release-schema.test.ts:131:31
+    129|   it('reverses the unused new models in dependency order without losin…
+    130|     for(const name of [...names].reverse()) await db.query(readFileSyn…
+    131|     expect(await signature()).toEqual(baseline);
+       |                               ^
+    132|     expect((await db.query('SELECT id,price::text FROM appointments WH…
+    133|       .toEqual([{id:id.appointment,price:'123400'}]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  20:31:55
+   Duration  5.26s (tests 99%, import 1%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-10-18T20-31-55Z-integration-290d.json
+
+# код выхода 1 · 6 с

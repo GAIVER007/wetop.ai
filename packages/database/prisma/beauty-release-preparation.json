@@ -23,7 +23,7 @@
     {
       "name": "20261018000135_beauty_materials",
       "migrationSha256": "1ce9a2e0b281ec50dd050d529f8de79ab85bbdb4a2087f942cef1d2001048748",
-      "downSha256": "57ef11ff0477a9f067abd3ea9bc17508889c87e39aba72b5c4ab4806646fb844"
+      "downSha256": "86e6e1b6d2af3113f38ee6146f280d1a53da9cdf85074ea9a37a30eb014c8291"
     },
     {
       "name": "20261018000136_beauty_positions",

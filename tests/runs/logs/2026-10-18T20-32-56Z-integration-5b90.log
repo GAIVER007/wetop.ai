@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 19.10.2026 01:32 Алматы · srv1719674
+# коммит b194d49 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T20-32-56Z-integration-5b90.json' 'tests/integration/beauty-release-schema.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+stdout | tests/integration/beauty-release-schema.test.ts > Beauty schema release on a separate owned canonical database
+Owned release proof salon_release_proof_a30c7cbf0fa248a6bd5c8f4aebac0ea9: 141 canonical migrations, one populated legacy appointment
+
+ ✓ |integration| tests/integration/beauty-release-schema.test.ts (9 tests) 2956ms
+   ✓ Beauty schema release on a separate owned canonical database (9)
+     ✓ matches Prisma declarations exactly on the real ordinary-chain public schema 1519ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  20:32:57
+   Duration  4.51s (tests 98%, import 1%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-10-18T20-32-56Z-integration-5b90.json
+
+# код выхода 0 · 5 с

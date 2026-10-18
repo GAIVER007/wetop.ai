@@ -193,7 +193,10 @@ test('вне графика мастера клетки нерабочие', asy
   await expect(page.getByRole('button', { name: 'Дина, 09:00, свободно' })).toHaveCount(1);
 });
 
-test('M6-A: будущий визит объясняет запрет неявки на desktop, телефоне и планшете', async ({ page, request }) => {
+test('M6-A: будущий визит объясняет запрет неявки на desktop, телефоне и планшете', async ({
+  page,
+  request,
+}) => {
   test.setTimeout(180_000);
   await readySalon(page, request);
   const date = new Date();
@@ -203,17 +206,33 @@ test('M6-A: будущий визит объясняет запрет неявк
   await page.goto(`/beauty?date=${futureDay}`);
   await book(page, '12:00', 'Тестовый клиент M6');
   await page.goto(`/beauty?date=${futureDay}`);
-  await page.getByRole('main').getByRole('button').filter({ hasText: 'Тестовый клиент M6' }).first().click();
+  await page
+    .getByRole('main')
+    .getByRole('button')
+    .filter({ hasText: 'Тестовый клиент M6' })
+    .first()
+    .click();
   const card = page.getByRole('dialog');
   for (const width of [1440, 375, 768]) {
     await page.setViewportSize({ width, height: 1000 });
-    await page.evaluate((dark) => { document.documentElement.dataset.theme = dark ? 'dark' : 'light'; }, width === 375);
-    await expect(card.getByText('Не пришёл: Можно после начала визита', { exact: true })).toBeVisible();
+    await page.evaluate((dark) => {
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    }, width === 375);
+    await expect(
+      card.getByText('Не пришёл: Можно после начала визита', { exact: true }),
+    ).toBeVisible();
     await expect(card.getByRole('button', { name: 'Не пришёл', exact: true })).toHaveCount(0);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    const accessibility = await new AxeBuilder({ page }).include('dialog, [role="dialog"]').analyze();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+    const accessibility = await new AxeBuilder({ page })
+      .include('dialog, [role="dialog"]')
+      .analyze();
     expect(accessibility.violations).toEqual([]);
-    await page.screenshot({ path: `reports/salons-m6a-2026-10-18/card-${width}.png`, fullPage: true });
+    await page.screenshot({
+      path: `reports/salons-m6a-2026-10-18/card-${width}.png`,
+      fullPage: true,
+    });
   }
 });
 
@@ -334,25 +353,37 @@ test('быстрый отчёт календаря: пустой день, ка�
       const report = page.getByRole('dialog', { name: /Статистика за/ });
       await expect(report).toContainText('Все специалисты');
       await expect(report.getByRole('status')).toContainText('записей нет');
-      await expect(report).toContainText('Нет операций');
+      await expect(report).toContainText('Средний чек');
+      await expect(report).toContainText('Оплата наличными');
+      await expect(report).toContainText('Оплата безналом');
+      await expect(report.getByRole('region', { name: 'Лояльность' })).toContainText('Нет данных');
+      await expect(report.getByRole('region', { name: 'WETOP' })).toContainText('Нет данных');
+      await expect(report).not.toContainText('Zapis');
+      await expect(report).toContainText('Сертификат от WETOP');
+      await expect(report).toContainText('Подарочная карта от WETOP');
       await expect(report).not.toContainText('0 ₸');
+      const countsBox = await report.locator('.quick-report-counts').first().boundingBox();
+      const headingBox = await report.locator('.overlay-heading').boundingBox();
+      expect(countsBox!.y).toBeGreaterThanOrEqual(headingBox!.y + headingBox!.height);
       const box = await report.boundingBox();
       expect(box!.x).toBeGreaterThanOrEqual(0);
       expect(box!.x + box!.width).toBeLessThanOrEqual(width);
+      await page.screenshot({
+        path: `reports/calendar-quick-report-2026-10-17/beauty-${width}-${colorScheme}.png`,
+        fullPage: false,
+      });
       await expect(report.getByRole('button', { name: /Закрыть/ })).toBeFocused();
       await page.keyboard.press('Shift+Tab');
-      await expect(report.locator('.context-help summary')).toBeFocused();
+      await expect(report.locator('.reference-info summary').last()).toBeFocused();
       await page.keyboard.press('Enter');
-      await expect(report.locator('.context-help')).toContainText('Сумма завершённых услуг');
+      await expect(report.locator('.reference-info').last()).toContainText(
+        'Источник этого показателя',
+      );
       await page.keyboard.press('Enter');
       await page.keyboard.press('Tab');
       await expect(report.getByRole('button', { name: /Закрыть/ })).toBeFocused();
       const axe = await new AxeBuilder({ page }).include('.quick-report').analyze();
       expect(axe.violations).toEqual([]);
-      await page.screenshot({
-        path: `reports/calendar-quick-report-2026-10-17/beauty-${width}-${colorScheme}.png`,
-        fullPage: false,
-      });
       await page.keyboard.press('Escape');
       await expect(report).not.toBeVisible();
       await expect(trigger).toBeFocused();
@@ -442,7 +473,7 @@ test('быстрый отчёт календаря: выбранный маст�
   await expect(report).toContainText('Оплата наличными');
   await expect(report).toContainText('Оплата безналом');
   await expect(report).not.toContainText('Стоимость всех записей');
-  await expect(report).toContainText('Скидки и бонусы');
+  await expect(report).toContainText('Скидка (сумма)');
   await expect(report.locator('.quick-report-counts').first()).toContainText('Клиентов1');
   await page.screenshot({
     path: 'reports/calendar-quick-report-2026-10-17/beauty-master.png',

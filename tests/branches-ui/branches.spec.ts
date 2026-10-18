@@ -219,8 +219,8 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
   await page.goto('/calendar');
-  // журнал записей салона (одно меню у всех направлений, 17.10.2026)
-  await expect(page.getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
+  // журнал записей салона; заголовок страницы, не подпись навигации
+  await expect(page.getByRole('main').getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
   await choose(page, 'Тестовый отель');
   await expect(page).toHaveURL(/\/today$/);
   // The accepted branch action preserves a safe Hospitality collection or falls back to the landing.

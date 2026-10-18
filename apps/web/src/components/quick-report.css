@@ -123,14 +123,16 @@
   .employee-filter summary {
     list-style: none;
     min-height: 44px;
-    /* кнопка не шире своей колонки: при крупном шрифте на 320 px не вылезает за край (WCAG 1.4.10) */
+    min-width: 0;
     max-width: 100%;
+    width: 100%;
   }
   .employee-filter summary::-webkit-details-marker {
     display: none;
   }
   .employee-filter summary span {
     min-width: 0;
+    flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -229,7 +231,10 @@
 
 @layer sections {
   @media (max-width: 600px) {
-    .beauty-page:has(.quick-report-trigger) .beauty-mobile-calendar .beauty-current-master + .beauty-note {
+    .beauty-page:has(.quick-report-trigger)
+      .beauty-mobile-calendar
+      .beauty-current-master
+      + .beauty-note {
       margin: 0;
     }
     .beauty-calendar-actions > .employee-filter {
@@ -248,6 +253,10 @@
     .beauty-calendar-actions > .btn--primary {
       grid-column: 1;
       grid-row: 3;
+      min-width: 0;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
     .beauty-calendar-toolbar > .context-help {
       grid-column: 2;
@@ -258,9 +267,188 @@
       grid-row: 4;
     }
   }
-  .quick-report-dot--neutral { background: var(--text-2); }
-  .quick-report-dot--info { background: var(--info); }
-  .quick-report-dot--success { background: var(--success); }
-  .quick-report-dot--warning { background: var(--warning); }
-  .quick-report-dot--danger { background: var(--danger); }
+  .quick-report-dot--neutral {
+    background: var(--text-2);
+  }
+  .quick-report-dot--info {
+    background: var(--info);
+  }
+  .quick-report-dot--success {
+    background: var(--success);
+  }
+  .quick-report-dot--warning {
+    background: var(--warning);
+  }
+  .quick-report-dot--danger {
+    background: var(--danger);
+  }
+}
+
+@layer sections {
+  .quick-report-reference .overlay-content {
+    gap: 0;
+  }
+  .quick-report-reference .overlay-heading {
+    border-bottom: 0;
+  }
+  .quick-report-reference .reference-scope {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--text-2);
+  }
+  .quick-report-reference .quick-report-top {
+    grid-template-columns: minmax(0, 1fr) 190px;
+    gap: var(--space-8);
+    padding-bottom: var(--space-6);
+  }
+  .quick-report-reference .quick-report-chart {
+    width: 190px;
+  }
+  .quick-report-reference .quick-report-chart span {
+    font-size: var(--text-md);
+    color: var(--text);
+  }
+  .quick-report-reference h3 {
+    font-size: var(--text-lg);
+    margin: 0 0 var(--space-4);
+  }
+  .quick-report-reference .quick-report-counts,
+  .quick-report-reference .quick-report-statuses {
+    gap: var(--space-2);
+  }
+  .quick-report-reference .reference-total {
+    border-block: 1px solid var(--border);
+    padding-block: var(--space-4);
+  }
+  .quick-report-reference .reference-total dt {
+    color: var(--text);
+    font-weight: var(--weight-semibold);
+  }
+  .reference-section {
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+  .reference-section:last-of-type {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  .reference-row dt {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-width: 0;
+  }
+  .reference-row dd {
+    flex-shrink: 0;
+  }
+  .reference-info {
+    position: relative;
+    flex: 0 0 24px;
+  }
+  .reference-info summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 28px;
+    cursor: pointer;
+    border-radius: var(--radius-control);
+  }
+  .reference-info summary::-webkit-details-marker {
+    display: none;
+  }
+  .reference-info summary:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .reference-info svg {
+    width: 18px;
+    height: 18px;
+  }
+  .reference-info p {
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+    z-index: var(--layer-overlay);
+    width: min(300px, 65vw);
+    margin: 0;
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-floating);
+    color: var(--text);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    font-weight: var(--weight-regular);
+  }
+  .reference-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+  }
+  .reference-status svg {
+    width: 16px;
+    height: 16px;
+  }
+  .reference-status--success {
+    color: var(--success);
+  }
+  .reference-status--warning {
+    color: var(--warning);
+  }
+  .reference-status--danger {
+    color: var(--danger);
+  }
+  .reference-status--neutral {
+    color: var(--text-2);
+  }
+  @media (max-width: 600px) {
+    .quick-report-reference .quick-report-top {
+      grid-template-columns: minmax(0, 1fr) 120px;
+      gap: var(--space-4);
+    }
+    .quick-report-reference .quick-report-chart {
+      width: 120px;
+    }
+    .quick-report-reference h3 {
+      font-size: var(--text-md);
+    }
+    .quick-report-reference .quick-report-statuses {
+      font-size: var(--text-sm);
+    }
+    .quick-report-reference .reference-row {
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+    }
+    .reference-info summary {
+      height: 44px;
+      width: 32px;
+    }
+    .reference-info {
+      flex-basis: 32px;
+    }
+    .quick-report-reference .reference-total {
+      font-size: var(--text-sm);
+    }
+  }
+}
+
+@layer sections {
+  .quick-report-reference .reference-scope span {
+    display: block;
+  }
+  .quick-report-reference .reference-section .quick-report-counts {
+    gap: 0;
+  }
+  .quick-report-reference .reference-section {
+    padding-block: var(--space-4);
+  }
+  .quick-report-reference .overlay-heading h2 {
+    font-size: var(--text-lg);
+  }
 }

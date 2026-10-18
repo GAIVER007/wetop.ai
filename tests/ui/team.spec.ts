@@ -5,7 +5,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
  * «Сотрудники» (TEAM1, план `plans/settings-hub-2026-10-02.md`): команда организации — видимый раздел
- * в группе «Настройки», а не секция в профиле. Таблица людей с ролями, датой входа в организацию и
+ * в группе «Персонал» (ADR-TOPNAV-20261017), а не секция в профиле. Таблица людей с ролями, датой входа в организацию и
  * «Был в системе» (`lastLoginAt`); приглашение — панелью из шапки; «Отключить» — только через
  * подтверждение. Права прежние (ADR-107): видят владелец и управляющий, администратору — гейт.
  */
@@ -41,9 +41,11 @@ test('владелец: таблица людей с ролями и датам�
   // «Был в системе» — дата последнего входа (формат displayDate); не входил — слова, а не прочерк
   await expect(rows.nth(1)).toContainText('28 сент.');
   await expect(rows.nth(2)).toContainText('ещё не входил');
-  // в меню раздел «Персонал» ведёт сюда (одно меню у всех направлений, 17.10.2026)
-  const staff = await openSection(page, 'Персонал');
-  await expect(staff.locator('a[href="/team"]')).toBeVisible();
+  // раздел «Персонал» ведёт сюда (ADR-TOPNAV-20261017)
+  const personnel = await openSection(page, 'Персонал');
+  const team = personnel.getByRole('link', { name: 'Сотрудники', exact: true });
+  await expect(team).toBeVisible();
+  await expect(team).toHaveAttribute('href', '/team');
 });
 
 test('приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа»', async ({ page }) => {

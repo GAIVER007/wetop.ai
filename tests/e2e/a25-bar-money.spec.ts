@@ -222,7 +222,12 @@ async function openSaleForm(page: Page) {
 }
 async function readySaleForm(page: Page) {
   const form = await openSaleForm(page);
-  await expect(form.getByRole('button', { name: 'Продать' })).toBeEnabled();
+  const fresh = form.getByRole('button', { name: 'Новая продажа', exact: true });
+  const sell = form.getByRole('button', { name: 'Продать', exact: true });
+  await expect.poll(async () => await fresh.isVisible() || await sell.isEnabled()).toBe(true);
+  // A fresh key requires the explicit UI action, only after confirmed recovery.
+  if (await fresh.isVisible()) await fresh.click();
+  await expect(sell).toBeEnabled();
   return form;
 }
 async function sell(page: Page, name: string, qty: string) {
@@ -233,7 +238,7 @@ async function sell(page: Page, name: string, qty: string) {
     .selectOption({ label: await form.locator('option').filter({ hasText: name }).innerText() });
   await form.locator('input[name=quantityUnits]').fill(qty);
   await form.getByRole('button', { name: 'Продать' }).click();
-  await expect(form.getByRole('status')).toContainText('Продажа записана');
+  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
 }
 async function legacyStock(currency: string, name: string, units = '3', cost = '1000', price = '2000', receiptCurrency = currency) {
   const product = await call(currency, '/bar/products', 'POST', {
@@ -484,15 +489,26 @@ test('UI-05 non-KZT receipt: new product price rounds up to a whole unit and the
   expect(await query('SELECT sale_price::text p FROM bar_products WHERE property_id=$1 AND name=$2', [property, 'A25 USD new goods'])).toEqual([{ p: '1100' }]);
 });
 
-test('UI-07 unavailable stock and cross-property draft have no partial effect', async ({ page }) => {
+test('UI-07 unavailable stock retains the original intent without partial effect', async ({ page }) => {
   await overview(page, 'KZT');
   const sale = await readySaleForm(page);
+  const before = await call('KZT', '/bar/report');
   await sale.locator('select[name=productId]').selectOption({ label: 'A25 KZT goods, остаток 1 шт.' });
   await sale.locator('input[name=quantityUnits]').fill('2');
   await sale.getByRole('button', { name: 'Продать' }).click();
   await expect(sale.getByRole('alert')).toBeVisible();
   await expect(sale.locator('input[name=quantityUnits]')).toHaveValue('2');
+  await expect(sale.locator('input[name=quantityUnits]')).toBeDisabled();
+  await expect(sale.getByRole('button', { name: 'Повторить с тем же ключом', exact: true })).toBeEnabled();
+  expect(await call('KZT', '/bar/report')).toEqual(before);
+});
+
+test('UI-07 cross-property draft has no partial effect', async ({ page }) => {
+  // A separate browser context must not erase an unresolved sale's retained payload.
+  await overview(page, 'KZT');
+  const sale = await readySaleForm(page);
   const before = await call('KZT', '/bar/report');
+  await sale.locator('select[name=productId]').selectOption({ label: 'A25 KZT goods, остаток 1 шт.' });
   await sale.locator('input[name=quantityUnits]').fill('1');
   await sale.locator('input[name=barPropertyId]').evaluate((node: HTMLInputElement) => {
     node.value = '00000000-0000-4000-8000-000000000000';
@@ -563,7 +579,7 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   await form.getByRole('button', { name: 'Продать' }).dblclick();
   const command = await posted;
   const replay = () => page.request.post(command.url(), { headers: command.headers(), data: command.postDataBuffer()! });
-  await expect(form.getByRole('status')).toContainText('Продажа записана');
+  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
   expect((await call('KZT', '/bar/sales')).length).toBe(1);
   expect((await replay()).status()).toBe(200);
   expect((await call('KZT', '/bar/sales')).length).toBe(1);
@@ -584,7 +600,7 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   const completed = page.waitForResponse((r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/bar');
   await form.getByRole('button', { name: 'Продать' }).click();
   await completed;
-  await expect(form.getByRole('status')).toContainText('Продажа записана');
+  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
   await expect.poll(async () => (await call('KZT', '/bar/sales')).length).toBe(2);
   writeFileSync(evidence + '/replay-ui.json', JSON.stringify({ sameKeyCount: 1, newKeyCount: 2, reversedReplayUnchanged: true }));
   privateData.scopes.KZT = previous;

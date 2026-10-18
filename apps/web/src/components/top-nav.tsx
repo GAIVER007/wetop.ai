@@ -14,7 +14,7 @@ import styles from './top-nav.module.css';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
-import { DataFreshnessProvider } from './data-freshness';
+import { DataFreshness, DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
 
@@ -333,6 +333,16 @@ export function TopNav({
                           Обучение работе в WETOP
                         </button>
                       )}
+                      {/* пробный период и свежесть данных: на широком экране панели ☰ нет (18.10.2026), строки здесь */}
+                      {shell?.trial && (
+                        <span className="profile-dropdown__note" data-testid="profile-trial">
+                          <Icon name="clock" />
+                          {shell.trial}
+                        </span>
+                      )}
+                      <span className="profile-dropdown__note profile-dropdown__note--status">
+                        <DataFreshness />
+                      </span>
                       {account ?? (
                         <Link href="/login">
                           <Icon name="departure" />

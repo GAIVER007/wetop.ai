@@ -2,6 +2,8 @@ import { FIXTURE_API, expect, test } from './fixtures';
 
 test('UI3.1: переход в настройки показывает загрузку до ответа API', async ({ page, request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
+  // панель кнопки ☰ живёт до 1280 px (решение владельца 18.10.2026)
+  await page.setViewportSize({ width: 1024, height: 900 });
   await page.goto('/hotel-settings');
   await expect(page.locator('#main-content')).toBeVisible();
   await page.goto('/chessboard');

@@ -46,7 +46,8 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     mkdirSync(shots, { recursive: true });
     for (const theme of ['light', 'dark'] as const) {
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
-      for (const width of [1440, 390]) {
+      // кнопка ☰ до 1280 px; шире разделы строкой (18.10.2026)
+      for (const width of [1024, 390]) {
         await page.setViewportSize({ width, height: 900 });
         const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
         await expect(trigger).toHaveCount(1);
@@ -130,8 +131,7 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await expect(dropdown.getByRole('link', { name: 'Помощь' })).toHaveAttribute('href', '/help');
     await expect(dropdown.getByRole('link', { name: 'Филиалы' })).toHaveAttribute('href', '/branches');
     await page.keyboard.press('Escape');
-    // с верхним меню 17.10.2026 «Помощь» ещё и своим разделом у всех направлений
-    await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
-    await expect(page.locator('.sidenav__panel a[href="/help"]')).toHaveCount(1);
+    // с верхним меню 17.10.2026 «Помощь» ещё и своим разделом у всех направлений: в строке разделов шапки
+    await expect(page.locator('.tabnav a[href="/help"]')).toBeVisible();
   });
 }

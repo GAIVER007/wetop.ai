@@ -217,8 +217,8 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
       String(m.withoutTable),
     );
     // Скрытое меню UI3.1 держит разделы в панели: брони столов это «Записи» раздела «Клиенты» (17.10.2026).
-    const nav = page.getByRole('navigation', { name: 'Разделы' });
-    await nav.locator('.sidenav__current').click();
+    // от 1280 px разделы строкой в шапке (18.10.2026): «Клиенты» раскрывает свой список
+    const nav = page.getByRole('navigation', { name: 'Главное меню' });
     await nav.getByRole('button', { name: 'Клиенты', exact: true }).click();
     await expect(nav.getByRole('link', { name: 'Записи', exact: true }).first()).toBeVisible();
     const calls = await callsSince(request, from);
@@ -348,8 +348,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     // выбора филиала уходит POST на текущий адрес «Главной» `/today`
     await page.goto('/today');
     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
-    await page.locator('.sidenav__current').click();
-    await expect(page.getByTestId('data-freshness')).toBeVisible();
+    // свежесть данных на широком экране в меню под именем (18.10.2026)
+    await page.locator('.profile-trigger').click();
+    await expect(page.locator('#profile-dropdown').getByTestId('data-freshness')).toBeVisible();
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
     await expect(page.getByRole('region', { name: 'Выбор филиала' })).toBeVisible();

@@ -53,6 +53,8 @@ const SECTIONS = [
 
 const fixture = FIXTURE_API;
 const SHOTS = 'reports/ui3-1-2026-10-11/regression';
+// кнопка ☰ и её панель живут до 1280 px; шире разделы строкой в шапке (решение владельца 18.10.2026, tab-nav.spec)
+test.use({ viewport: { width: 1024, height: 900 } });
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -98,9 +100,9 @@ test('UI3.1: кнопка открывает разделы, наведение 
   await expect(trigger).toHaveText('Настройки');
   // UI3.1: уход курсора сохраняет панель, внешний щелчок закрывает
   await openSection(page, 'Настройки');
-  await page.mouse.move(1200, 800);
+  await page.mouse.move(1000, 800);
   await expect(panel).toBeVisible();
-  await page.mouse.click(1200, 800);
+  await page.mouse.click(1000, 800);
   await expect(panel).toBeHidden();
   // раздел из одного пункта: справа его описание без второй ссылки (ширина панели не прыгает,
   // мастер-проход UI 11.10.2026), щелчок по самому разделу ведёт на страницу
@@ -207,7 +209,7 @@ for (const theme of ['light', 'dark'] as const) {
     });
     await page.goto('/sales');
     const nav = sideNav(page);
-    for (const width of [1024, 1280, 1440]) {
+    for (const width of [1024, 1279]) {
       await page.setViewportSize({ width, height: 900 });
       await expect(nav).toBeVisible();
       expect(
@@ -221,17 +223,17 @@ for (const theme of ['light', 'dark'] as const) {
       // панель целиком в окне
       const panel = (await nav.locator('.sidenav__panel').boundingBox())!;
       expect(panel.x + panel.width).toBeLessThanOrEqual(width);
-      if (width === 1024 || width === 1440) {
+      if (width === 1024) {
         const audit = await new AxeBuilder({ page })
           .include('.sidenav')
           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
           .analyze();
         expect(audit.violations).toEqual([]);
       }
-      if (width === 1440) await page.screenshot({ path: `${SHOTS}/panel-${theme}-${width}.png` });
+      if (width === 1279) await page.screenshot({ path: `${SHOTS}/panel-${theme}-${width}.png` });
       await page.mouse.click(width - 10, 880);
       await expect(nav.locator('.sidenav__panel')).toBeHidden();
-      if (width === 1440) await page.screenshot({ path: `${SHOTS}/sales-${theme}-${width}.png` });
+      if (width === 1279) await page.screenshot({ path: `${SHOTS}/sales-${theme}-${width}.png` });
     }
     // телефон: колонки нет, работает скрытое выдвижное меню
     await page.setViewportSize({ width: 390, height: 844 });

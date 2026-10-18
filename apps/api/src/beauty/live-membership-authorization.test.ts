@@ -51,7 +51,7 @@ const assertCurrentBeautyMembership = (
 
 function fixture(liveMembership: LiveMembership, liveScopes: ScopeAssignment[]) {
   const membershipRows = liveScopes.map((row) => ({ ...row }));
-  const tx: any = {
+  const tx = {
     $queryRaw: vi.fn(async (parts: TemplateStringsArray) =>
       parts.join(' ').includes('memberships') ? [liveMembership] : [{ id: businessB }],
     ),
@@ -153,7 +153,7 @@ describe('live Beauty membership authorization', () => {
     );
     const write = vi.fn(async () => 'written');
 
-    await expect(inBeautyRequest(() => beautyAccess.runWithBeautyWriteAuthorization(f.tx, write)))
+    await expect(inBeautyRequest(() => beautyAccess.runWithBeautyWriteAuthorization(f.tx as unknown as Parameters<typeof beautyAccess.runWithBeautyWriteAuthorization>[0], write)))
       .rejects.toBeInstanceOf(ForbiddenException);
     expect(write).not.toHaveBeenCalled();
   });

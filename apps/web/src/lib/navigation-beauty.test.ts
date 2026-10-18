@@ -41,8 +41,8 @@ describe('меню салона', () => {
       ['Персонал', ['/employees', '/team', '/beauty/schedule', '/payroll']],
       ['Клиенты', ['/customers', '/appointments']],
       ['Услуги', ['/services']],
-      // «Все отчёты» салону перенаправляли на «Аналитику бизнеса»: пункта нет (аудит 17.10.2026, Д2)
-      ['Статистика', ['/management/analytics']],
+      // Отдельные отчёты салона больше не перенаправляют в аналитику.
+      ['Статистика', ['/management/analytics', '/reports']],
       ['Склад', ['/bar/consumables', '/bar/products', '/bar', '/bar/operations', '/bar/suppliers']],
       // касса филиала, общая с рестораном (§48, ADR-178 этап 0)
       ['Финансы', ['/cashbox', '/finance']],

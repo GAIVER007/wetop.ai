@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { BeautyAppointmentsService } from './appointments';
 import { withSignedInUser, withVerifiedBeautyOperation } from '../auth/request-context';
 

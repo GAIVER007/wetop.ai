@@ -3,6 +3,7 @@ import { ApiError } from '../../lib/api-error';
 const { me, createCustomer, revalidatePath } = vi.hoisted(() => ({
   me: vi.fn(), createCustomer: vi.fn(), revalidatePath: vi.fn(),
 }));
+vi.mock('server-only', () => ({}));
 vi.mock('next/cache', () => ({ revalidatePath }));
 vi.mock('../../lib/api', async () => ({
   ApiError: (await import('../../lib/api-error')).ApiError,

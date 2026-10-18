@@ -255,7 +255,28 @@ describe('свой раннер CI', () => {
     expect(text, '.github/workflows/ui-snapshots.yml').not.toBe('');
     const run = withoutComments(text);
     const triggers = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
-    expect(triggers.trim()).toBe('workflow_dispatch:');
+    expect([...triggers.matchAll(/^ {2}([\w-]+):/gm)].map((m) => m[1])).toEqual(['workflow_dispatch']);
+    expect([...triggers.matchAll(/^ {6}([\w-]+):/gm)].map((m) => m[1])).toEqual(['mode']);
+    expect(triggers).toMatch(/^ {8}type: choice$/m);
+    expect(triggers).toMatch(/^ {8}default: snapshots$/m);
+    expect(triggers).not.toMatch(/required:\s*true/);
+    expect([...triggers.matchAll(/^ {10}- (.+)$/gm)].map((m) => m[1])).toEqual(['snapshots', 'settings-diagnostic']);
+    const kit = /^ {2}kit:\n([\s\S]*?)(?=^ {2}[\w-]+:|$(?![\s\S]))/m.exec(run)?.[1] ?? '';
+    const diagnostic = /^ {2}settings-diagnostic:\n([\s\S]*)/m.exec(run)?.[1] ?? '';
+    const permissions = (block: string, indent: number) =>
+      new RegExp(`^ {${indent}}permissions:\\n((?: {${indent + 2}}[^\\n]*\\n)+)`, 'm').exec(block)?.[1]?.trim();
+    expect(permissions(run, 0)).toBe('contents: read');
+    expect(permissions(kit, 4)).toBe('contents: write');
+    expect(permissions(diagnostic, 4)).toBe('contents: read');
+    const kitCondition = "${{ (inputs.mode || 'snapshots') == 'snapshots' }}";
+    const diagnosticCondition = "${{ inputs.mode == 'settings-diagnostic' }}";
+    expect(/^ {4}if: (.+)$/m.exec(kit)?.[1]).toBe(kitCondition);
+    expect(/^ {4}if: (.+)$/m.exec(diagnostic)?.[1]).toBe(diagnosticCondition);
+    for (const [mode, expected] of [[undefined, [true, false]], ['', [true, false]], ['snapshots', [true, false]], ['settings-diagnostic', [false, true]], ['unknown', [false, false]]] as const) {
+      expect([(mode || 'snapshots') === 'snapshots', mode === 'settings-diagnostic']).toEqual(expected);
+    }
+    expect(diagnostic).toContain('persist-credentials: false');
+    expect(diagnostic).not.toMatch(/contents: write|git\s+(push|commit)|--update-snapshots/);
     // запись в репозиторий только у задачи со снимками, по умолчанию чтение
     expect(/\npermissions:\n\s+contents: read/.test(run)).toBe(true);
     expect(run).toContain('--update-snapshots=changed');

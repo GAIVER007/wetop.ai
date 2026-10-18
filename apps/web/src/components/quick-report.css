@@ -123,14 +123,16 @@
   .employee-filter summary {
     list-style: none;
     min-height: 44px;
-    /* кнопка не шире своей колонки: при крупном шрифте на 320 px не вылезает за край (WCAG 1.4.10) */
+    min-width: 0;
     max-width: 100%;
+    width: 100%;
   }
   .employee-filter summary::-webkit-details-marker {
     display: none;
   }
   .employee-filter summary span {
     min-width: 0;
+    flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -251,6 +253,10 @@
     .beauty-calendar-actions > .btn--primary {
       grid-column: 1;
       grid-row: 3;
+      min-width: 0;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
     .beauty-calendar-toolbar > .context-help {
       grid-column: 2;

@@ -51,7 +51,7 @@ test('consumable receipt feeds a service techcard and DONE consumes the same sto
     await expect(drawer).toHaveAccessibleName('Новый расходник');
     await drawer.getByLabel('Название', { exact: true }).fill('Тестовый шампунь');
     await expect(drawer).toHaveAccessibleName('Новый расходник');
-    await drawer.getByLabel('Единица', { exact: true }).selectOption('мл');
+    await drawer.getByRole('combobox', { name: 'Единица', exact: true }).selectOption('мл');
     await drawer.getByLabel('Минимальный остаток', { exact: true }).fill('1');
     await drawer.getByRole('button', { name: 'Создать', exact: true }).click();
     await expect(drawer).toBeHidden();
@@ -67,12 +67,12 @@ test('consumable receipt feeds a service techcard and DONE consumes the same sto
     drawer = page.getByRole('dialog', { name: 'Приход на склад', exact: true });
     await drawer.getByLabel('Поставщик', { exact: true }).fill('Тестовый поставщик');
     await drawer.getByLabel('Номер накладной', { exact: true }).fill('TEST-RECEIPT-1');
-    await drawer.getByLabel('Расходник', { exact: true }).selectOption(product.id);
+    await drawer.getByRole('combobox', { name: 'Расходник', exact: true }).selectOption(product.id);
     await drawer.getByLabel('Количество, мл', { exact: true }).fill('5');
     await drawer.getByLabel('Цена за л, ₸', { exact: true }).fill('100');
     await drawer.getByRole('button', { name: 'Провести приход', exact: true }).click();
     await expect(drawer).toBeHidden();
-    await expect(page.getByText('5 мл', { exact: true })).toBeVisible();
+    await expect(page.getByRole('table', { name: 'Остатки склада' }).getByRole('cell', { name: '5 мл', exact: true })).toBeVisible();
 
     const service = await jsonCall(request, headers, 'post', '/beauty/services', {
       name: 'Тестовый уход с расходником',

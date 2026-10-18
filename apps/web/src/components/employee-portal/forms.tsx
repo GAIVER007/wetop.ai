@@ -4,6 +4,7 @@ import type { EmployeePortalDto, PortalWeekDay } from '@pms/domain';
 import { loadPortalWeek, savePortal } from '../../app/my-work/actions';
 import { Alert, Button, Input } from '../ui';
 import { useConfirm } from '../use-confirm';
+import { employeeFormSignature } from '../employee-workspace/workspace';
 export type PortalContext = {
   target: { employeeId: string | null }; scope: string; onSaved: (data: EmployeePortalDto) => void;
 };
@@ -20,7 +21,7 @@ export function PortalForm({ context, command, children, label = 'Сохрани
   const [dirty, setDirty] = useState(false);
   // Week inputs have their own controlled draft. Never rebase its version onto unseen remote hours.
   const formRevision = dirty || command === 'week' ? expectedRevision : (revision ?? expectedRevision);
-  return <><form data-testid={testId ?? `portal-${command}-form`} className="portal-form"
+  return <><form data-testid={testId ?? `portal-${command}-form`} className="portal-form" data-employee-transition-form
     onReset={event => event.preventDefault()}
     onChange={() => {
       if (!dirty && command !== 'week') setRevision(revision ?? expectedRevision);
@@ -28,16 +29,35 @@ export function PortalForm({ context, command, children, label = 'Сохрани
     }}
     onSubmit={event => {
       event.preventDefault();
-      const form = new FormData(event.currentTarget);
+      const element = event.currentTarget;
+      const snapshot = employeeFormSignature(element);
+      const form = new FormData(element);
       setSaved(false); setError('');
       start(async () => {
-        const result = await savePortal(context.target, context.scope, command, form);
-        if (result.error) setError(result.error);
-        else if (result.data) {
+        try {
+          const result = await savePortal(context.target, context.scope, command, form);
+          if (result.error || !result.data) {
+            setError(result.error || 'Не удалось подтвердить сохранение. Повторите попытку.');
+            element.dispatchEvent(new CustomEvent('employee-save-result', {
+              bubbles: true,
+              detail: { success: false },
+            }));
+            return;
+          }
+          element.dispatchEvent(new CustomEvent('employee-save-result', {
+            bubbles: true,
+            detail: { success: true, snapshot },
+          }));
           context.onSaved(result.data); setSaved(true); setDirty(false);
           if (command === 'profile') setProfileRevision(result.data.employee.profileRevision);
           const next = command === 'services' ? result.data.servicesRevision : command === 'week' ? result.data.weekRevision : command === 'pay-policy' ? result.data.pay.policyRevision : result.data.profile.revision;
           setRevision(next ?? '');
+        } catch {
+          setError('Не удалось подтвердить сохранение. Ваш ввод сохранён в форме. Повторите попытку.');
+          element.dispatchEvent(new CustomEvent('employee-save-result', {
+            bubbles: true,
+            detail: { success: false },
+          }));
         }
       });
     }}>

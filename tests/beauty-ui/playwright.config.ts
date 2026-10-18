@@ -9,6 +9,7 @@ export default defineConfig({
   workers: 1,
   timeout: 90000,
   use: {
+    actionTimeout: 15000,
     baseURL: web,
     viewport: { width: 1440, height: 1000 },
     trace: 'retain-on-failure',

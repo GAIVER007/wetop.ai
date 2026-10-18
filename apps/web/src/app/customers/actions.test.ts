@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../../lib/api-error';
+vi.mock('server-only', () => ({}));
 const { me, createCustomer, revalidatePath } = vi.hoisted(() => ({
   me: vi.fn(), createCustomer: vi.fn(), revalidatePath: vi.fn(),
 }));

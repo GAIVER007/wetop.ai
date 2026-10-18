@@ -90,7 +90,7 @@ export function BeautyCustomerTools({
         <span className="muted">CSV или XLSX с колонками «Имя» и «Телефон», до 500 строк.</span>
       </div>
 
-      <Overlay open={showCreate && mode === 'create'} onClose={close} title="Добавить клиента" trapFocus>
+      {showCreate && <Overlay open={mode === 'create'} onClose={close} title="Добавить клиента" trapFocus>
         <form className="settings-form" onSubmit={submitCreate}>
           <Stack gap="sm">
             <input type="hidden" name="scopeKey" value={draftScope} />
@@ -111,7 +111,7 @@ export function BeautyCustomerTools({
             </div>
           </Stack>
         </form>
-      </Overlay>
+      </Overlay>}
 
       <Overlay open={mode === 'import'} onClose={close} title="Импортировать клиентов" trapFocus size="lg">
         <Stack gap="sm">

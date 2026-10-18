@@ -72,6 +72,8 @@ function parsedInput(value: Prisma.JsonValue | null): CustomerImportRowInput | n
 function snapshot(row: Record<string, unknown>): Prisma.InputJsonObject {
   return JSON.parse(JSON.stringify(row)) as Prisma.InputJsonObject;
 }
+const fullName = (row: { firstName: string; lastName: string | null }) =>
+  [row.firstName, row.lastName].filter(Boolean).join(' ');
 
 @Injectable()
 export class CustomerImportWorker implements OnModuleInit, OnModuleDestroy {
@@ -291,17 +293,12 @@ export class CustomerImportWorker implements OnModuleInit, OnModuleDestroy {
   }
 
   private async authorized(tx: DbTx, run: Job, now: Date) {
-    const [user, membership, organization, business] = await Promise.all([
+    const [membership] = await tx.$queryRaw<Array<{ role: string; status: string }>>`
+      SELECT role,status FROM memberships
+      WHERE user_id=${run.createdBy}::uuid AND organization_id=${run.organizationId}::uuid
+      FOR SHARE`;
+    const [user, organization, business] = await Promise.all([
       tx.user.findFirst({ where: { id: run.createdBy, status: 'ACTIVE' }, select: { id: true } }),
-      tx.membership.findFirst({
-        where: {
-          userId: run.createdBy,
-          organizationId: run.organizationId,
-          role: 'OWNER',
-          status: 'ACTIVE',
-        },
-        select: { userId: true },
-      }),
       tx.organization.findUnique({
         where: { id: run.organizationId },
         select: { status: true, trialEndsAt: true },
@@ -318,7 +315,8 @@ export class CustomerImportWorker implements OnModuleInit, OnModuleDestroy {
     ]);
     return (
       !!user &&
-      !!membership &&
+      membership?.role === 'OWNER' &&
+      membership.status === 'ACTIVE' &&
       !!organization &&
       canWrite(organization.status, organization.trialEndsAt, now) &&
       !!business
@@ -397,15 +395,27 @@ export class CustomerImportWorker implements OnModuleInit, OnModuleDestroy {
         })
       : [];
     const lockedById = new Map(lockedCustomers.map((customer) => [customer.id, customer]));
-    const activeTargetIds = targetIds.filter((id) => lockedById.get(id)?.status === 'ACTIVE');
-    const links = activeTargetIds.length
+    const linkableTargetIds = [
+      ...new Set(prepared.flatMap(({ row, input }) => {
+        if (!input) return [];
+        const key = input.phone ? customerPhoneKey(input.phone) : null;
+        const beforeLock = key
+          ? byPhone.get(key)
+          : customersById.get(candidateFor.get(`row:${row.id}`) ?? '');
+        const customer = beforeLock ? lockedById.get(beforeLock.id) : null;
+        return customer?.status === 'ACTIVE' && fullName(customer) === fullName(input)
+          ? [customer.id]
+          : [];
+      })),
+    ];
+    const links = linkableTargetIds.length
       ? await tx.customerBusiness.findMany({
-          where: { businessId: run.businessId, customerId: { in: activeTargetIds } },
+          where: { businessId: run.businessId, customerId: { in: linkableTargetIds } },
           select: { customerId: true, createdAt: true },
         })
       : [];
     const linkByCustomer = new Map(links.map((x) => [x.customerId, x]));
-    const missingLinks = activeTargetIds.filter((id) => !linkByCustomer.has(id));
+    const missingLinks = linkableTargetIds.filter((id) => !linkByCustomer.has(id));
     if (missingLinks.length)
       await tx.customerBusiness.createMany({
         data: missingLinks.map((customerId) => ({ customerId, businessId: run.businessId })),
@@ -444,6 +454,14 @@ export class CustomerImportWorker implements OnModuleInit, OnModuleDestroy {
             outcome: 'SKIPPED',
             errorCode: customer ? 'CUSTOMER_ARCHIVED' : 'CUSTOMER_CONFLICT',
           },
+        });
+        skipped++;
+        continue;
+      }
+      if (fullName(customer) !== fullName(input)) {
+        await tx.customerImportRow.update({
+          where: { id: row.id },
+          data: { outcome: 'SKIPPED', errorCode: 'CUSTOMER_CONFLICT' },
         });
         skipped++;
         continue;

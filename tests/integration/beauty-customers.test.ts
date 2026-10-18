@@ -5,6 +5,7 @@ import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
+import { BeautyCatalogService } from '../../apps/api/src/beauty/beauty.module';
 import { BeautyCustomerImportService } from '../../apps/api/src/beauty/customer-import';
 import { BeautyCustomerDetailService } from '../../apps/api/src/beauty/customer-detail';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
@@ -15,6 +16,7 @@ const url = process.env.DATABASE_URL;
 describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
   let db: Db;
   let service: BeautyCustomerImportService;
+  let catalog: BeautyCatalogService;
   let detail: BeautyCustomerDetailService;
   const org = randomUUID();
   const user = randomUUID();
@@ -43,6 +45,7 @@ describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
     }
     db = createPrismaClient(url);
     service = new BeautyCustomerImportService({ db } as unknown as PrismaService);
+    catalog = new BeautyCatalogService({ db } as unknown as PrismaService);
     detail = new BeautyCustomerDetailService({ db } as unknown as PrismaService);
     await cleanup();
     await db.$executeRawUnsafe(
@@ -120,10 +123,18 @@ describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
   it('serializes two businesses and reuses one exact name plus normalized phone', async () => {
     const [first, second] = await Promise.all([
       asBusiness(businessA, () =>
-        service.create({ firstName: 'Тестовый', lastName: 'Клиент', phone: '8 701 234 56 78' }),
+        catalog.createCustomer({
+          firstName: 'Тестовый',
+          lastName: 'Клиент',
+          phone: '8 701 234 56 78',
+        }),
       ),
       asBusiness(businessB, () =>
-        service.create({ firstName: 'Тестовый', lastName: 'Клиент', phone: '+7 (701) 234-56-78' }),
+        catalog.createCustomer({
+          firstName: 'Тестовый',
+          lastName: 'Клиент',
+          phone: '+7 (701) 234-56-78',
+        }),
       ),
     ]);
 
@@ -147,14 +158,14 @@ describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
 
   it('opens a shared customer but returns history only from the selected business', async () => {
     const customer = await asBusiness(businessA, () =>
-      service.create({
+      catalog.createCustomer({
         firstName: 'История',
         lastName: 'Клиента',
         phone: '+77020000001',
       }),
     );
     await asBusiness(businessB, () =>
-      service.create({
+      catalog.createCustomer({
         firstName: 'История',
         lastName: 'Клиента',
         phone: '+77020000001',
@@ -227,7 +238,7 @@ describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
 
   it('returns not found for a customer outside the selected business or organization', async () => {
     const onlyBusinessB = await asBusiness(businessB, () =>
-      service.create({
+      catalog.createCustomer({
         firstName: 'Только',
         lastName: 'Другой салон',
         phone: '+77020000002',

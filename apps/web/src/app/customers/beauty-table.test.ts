@@ -3,22 +3,32 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh() {} }) }));
 import { BeautyCustomersTable } from './beauty-table';
+import { BeautyCustomerTools } from './customer-tools';
 
 vi.mock('server-only', () => ({}));
 
 describe('Дата последнего визита клиента салона', () => {
-  it('позволяет добавить клиента без визита, если разрешена запись', () => {
-    const html = renderToStaticMarkup(createElement(BeautyCustomersTable, {
-      items: [], canCreate: true, canImportPreview: true,
+  it('разделяет создание клиента и единый вход в импорт CSV или XLSX', () => {
+    const table = renderToStaticMarkup(createElement(BeautyCustomersTable, {
+      items: [], canCreate: true,
     }));
-    expect(html).toContain('Добавить клиента');
-    expect(html).toContain('Проверить CSV');
-    expect(html).not.toContain('Новый клиент добавляется при создании записи');
+    const tools = renderToStaticMarkup(createElement(BeautyCustomerTools, {
+      canEdit: true, scopeKey: 'business:location', showCreate: false,
+    }));
+    expect(table).toContain('Добавить клиента');
+    expect(table).not.toContain('Импортировать клиентов');
+    expect(table).not.toContain('Новый клиент добавляется при создании записи');
+    expect(tools).toContain('Импортировать клиентов');
+    expect(tools).toContain('CSV или XLSX');
+    expect(tools).not.toContain('Добавить клиента');
   });
   it('не предлагает создание в режиме чтения', () => {
-    const html = renderToStaticMarkup(createElement(BeautyCustomersTable, { items: [] }));
-    expect(html).not.toContain('Добавить клиента');
-    expect(html).not.toContain('Проверить CSV');
+    const table = renderToStaticMarkup(createElement(BeautyCustomersTable, { items: [] }));
+    const tools = renderToStaticMarkup(createElement(BeautyCustomerTools, {
+      canEdit: false, scopeKey: 'business:location', showCreate: false,
+    }));
+    expect(table).not.toContain('Добавить клиента');
+    expect(tools).not.toContain('Импортировать клиентов');
   });
   it('показывает локальный день визита вместо предыдущего дня UTC', () => {
     const html = renderToStaticMarkup(createElement(BeautyCustomersTable, {

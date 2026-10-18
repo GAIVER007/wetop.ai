@@ -52,12 +52,12 @@ function fixture() {
 }
 
 function allowProcessLocks(db: ReturnType<typeof fixture>) {
-  db.$queryRaw
-    .mockResolvedValueOnce([{ locked: true }])
-    .mockResolvedValueOnce([])
-    .mockResolvedValueOnce([])
-    .mockResolvedValueOnce([])
-    .mockResolvedValueOnce([]);
+  db.$queryRaw.mockImplementation(async (query: TemplateStringsArray) => {
+    const sql = query.join(' ');
+    if (sql.includes('pg_try_advisory_xact_lock')) return [{ locked: true }];
+    if (sql.includes('FROM memberships')) return [{ role: 'OWNER', status: 'ACTIVE' }];
+    return [];
+  });
 }
 
 describe('CustomerImportWorker', () => {
@@ -94,13 +94,32 @@ describe('CustomerImportWorker', () => {
     });
     await worker.process(claim);
     expect(db.user.findFirst).toHaveBeenCalled();
-    expect(db.membership.findFirst).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ organizationId: claim.organizationId, role: 'OWNER' }),
-      }),
-    );
+    const membershipLock = db.$queryRaw.mock.calls.find(([query]) =>
+      (query as readonly string[]).join(' ').includes('FROM memberships'));
+    expect((membershipLock?.[0] as readonly string[] | undefined)?.join(' ')).toContain('FOR SHARE');
     expect(db.organization.findUnique).toHaveBeenCalled();
     expect(db.business.findFirst).toHaveBeenCalled();
+  });
+
+  it('locks the creator owner membership before processing a batch', async () => {
+    allowProcessLocks(db);
+    db.user.findFirst.mockResolvedValue({ id: 'actor' });
+    db.membership.findFirst.mockResolvedValue({ role: 'OWNER' });
+    db.organization.findUnique.mockResolvedValue({ status: 'ACTIVE', trialEndsAt: null });
+    db.business.findFirst.mockResolvedValue({ id: claim.businessId });
+    db.customerImport.findUnique.mockResolvedValue({
+      ...claim,
+      createdBy: 'actor',
+      state: 'PROCESSING',
+      leaseExpiresAt: new Date(Date.now() + 60_000),
+    });
+
+    await worker.process(claim);
+
+    const membershipLock = db.$queryRaw.mock.calls.find(([query]) =>
+      (query as readonly string[]).join(' ').includes('FROM memberships'));
+    expect((membershipLock?.[0] as readonly string[] | undefined)?.join(' ')).toContain('FOR SHARE');
+    expect(membershipLock?.[0]).toBeDefined();
   });
 
   it('fences every checkpoint update by the lease token', async () => {
@@ -192,11 +211,13 @@ describe('CustomerImportWorker', () => {
   it('rechecks customer status after the ordered customer lock', async () => {
     let status = 'ACTIVE';
     let rawCalls = 0;
-    db.$queryRaw.mockImplementation(async () => {
+    db.$queryRaw.mockImplementation(async (query: TemplateStringsArray) => {
       rawCalls += 1;
+      const sql = query.join(' ');
       if (rawCalls === 1) return [{ locked: true }];
-      if (rawCalls === 5) return [{ id: 'row-1' }];
-      if (rawCalls === 6) status = 'ARCHIVED';
+      if (sql.includes('FROM memberships')) return [{ role: 'OWNER', status: 'ACTIVE' }];
+      if (sql.includes("outcome='PENDING'")) return [{ id: 'row-1' }];
+      if (sql.includes('FROM customers')) status = 'ARCHIVED';
       return [];
     });
     db.customerImport.findUnique.mockResolvedValue({
@@ -247,5 +268,143 @@ describe('CustomerImportWorker', () => {
         data: expect.objectContaining({ outcome: 'SKIPPED', errorCode: 'CUSTOMER_ARCHIVED' }),
       }),
     );
+  });
+
+  it('does not link an existing phone when the imported full name differs', async () => {
+    db.$queryRaw.mockImplementation(async (query: TemplateStringsArray) => {
+      const sql = query.join(' ');
+      if (sql.includes('pg_try_advisory_xact_lock')) return [{ locked: true }];
+      if (sql.includes("outcome='PENDING'")) return [{ id: 'row-1' }];
+      if (sql.includes('FROM memberships')) return [{ role: 'OWNER', status: 'ACTIVE' }];
+      return [];
+    });
+    db.customerImport.findUnique.mockResolvedValue({
+      ...claim,
+      createdBy: 'actor',
+      state: 'PROCESSING',
+      leaseExpiresAt: new Date(Date.now() + 60_000),
+      processedRows: 0,
+      totalRows: 1,
+      createdCount: 0,
+      linkedCount: 0,
+      unchangedCount: 0,
+      skippedCount: 0,
+      attempts: 1,
+    });
+    db.user.findFirst.mockResolvedValue({ id: 'actor' });
+    db.membership.findFirst.mockResolvedValue({ role: 'OWNER' });
+    db.organization.findUnique.mockResolvedValue({ status: 'ACTIVE', trialEndsAt: null });
+    db.business.findFirst.mockResolvedValue({ id: claim.businessId });
+    db.customerImportRow.findMany.mockResolvedValue([
+      {
+        id: 'row-1',
+        ordinal: 0,
+        input: { firstName: 'Новое', lastName: 'Имя', phone: '+77010000001' },
+      },
+    ]);
+    const existing = {
+      id: 'customer-1',
+      organizationId: claim.organizationId,
+      firstName: 'Старое',
+      lastName: 'Имя',
+      phone: '+77010000001',
+      phoneNormalized: '+77010000001',
+      email: null,
+      notes: null,
+      status: 'ACTIVE',
+      isVip: false,
+      birthDate: null,
+      createdAt: new Date('2026-10-18T10:00:00.000Z'),
+      updatedAt: new Date('2026-10-18T10:00:00.000Z'),
+    };
+    db.customer.findMany.mockResolvedValue([existing]);
+
+    await worker.process(claim);
+
+    expect(db.customerBusiness.createMany).not.toHaveBeenCalled();
+    expect(db.customerImportRow.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ outcome: 'SKIPPED', errorCode: 'CUSTOMER_CONFLICT' }),
+      }),
+    );
+  });
+
+  it('creates one customer and rejects a later row with the same phone and a different name', async () => {
+    db.$queryRaw.mockImplementation(async (query: TemplateStringsArray) => {
+      const sql = query.join(' ');
+      if (sql.includes('pg_try_advisory_xact_lock')) return [{ locked: true }];
+      if (sql.includes('FROM memberships')) return [{ role: 'OWNER', status: 'ACTIVE' }];
+      if (sql.includes("outcome='PENDING'")) return [{ id: 'row-1' }, { id: 'row-2' }];
+      return [];
+    });
+    db.customerImport.findUnique.mockResolvedValue({
+      ...claim,
+      createdBy: 'actor',
+      state: 'PROCESSING',
+      leaseExpiresAt: new Date(Date.now() + 60_000),
+      processedRows: 0,
+      totalRows: 2,
+      createdCount: 0,
+      linkedCount: 0,
+      unchangedCount: 0,
+      skippedCount: 0,
+      attempts: 1,
+    });
+    db.user.findFirst.mockResolvedValue({ id: 'actor' });
+    db.organization.findUnique.mockResolvedValue({ status: 'ACTIVE', trialEndsAt: null });
+    db.business.findFirst.mockResolvedValue({ id: claim.businessId });
+    db.customerImportRow.findMany.mockResolvedValue([
+      {
+        id: 'row-1',
+        ordinal: 0,
+        input: { firstName: 'Первое', lastName: 'Имя', phone: '+77010000002' },
+      },
+      {
+        id: 'row-2',
+        ordinal: 1,
+        input: { firstName: 'Другое', lastName: 'Имя', phone: '8 701 000 00 02' },
+      },
+    ]);
+    const created = {
+      id: 'customer-created',
+      organizationId: claim.organizationId,
+      firstName: 'Первое',
+      lastName: 'Имя',
+      phone: '+77010000002',
+      phoneNormalized: '+77010000002',
+      email: null,
+      notes: null,
+      status: 'ACTIVE',
+      isVip: false,
+      birthDate: null,
+      createdAt: new Date('2026-10-18T10:00:00.000Z'),
+      updatedAt: new Date('2026-10-18T10:00:00.000Z'),
+    };
+    db.customer.findMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([created])
+      .mockResolvedValueOnce([created])
+      .mockResolvedValueOnce([created]);
+    db.customerBusiness.findMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ customerId: created.id, createdAt: created.createdAt }]);
+
+    await worker.process(claim);
+
+    expect(db.customer.createMany).toHaveBeenCalledTimes(1);
+    expect(db.customerBusiness.createMany).toHaveBeenCalledWith({
+      data: [{ customerId: created.id, businessId: claim.businessId }],
+      skipDuplicates: true,
+    });
+    expect(db.customerImportRow.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'row-1' },
+        data: expect.objectContaining({ outcome: 'CREATED', customerId: created.id }),
+      }),
+    );
+    expect(db.customerImportRow.update).toHaveBeenCalledWith({
+      where: { id: 'row-2' },
+      data: { outcome: 'SKIPPED', errorCode: 'CUSTOMER_CONFLICT' },
+    });
   });
 });

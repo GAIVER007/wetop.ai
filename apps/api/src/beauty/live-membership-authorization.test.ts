@@ -51,7 +51,7 @@ const assertCurrentBeautyMembership = (
 
 function fixture(liveMembership: LiveMembership, liveScopes: ScopeAssignment[]) {
   const membershipRows = liveScopes.map((row) => ({ ...row }));
-  const tx: any = {
+  const tx = {
     $queryRaw: vi.fn(async (parts: TemplateStringsArray) =>
       parts.join(' ').includes('memberships') ? [liveMembership] : [{ id: businessB }],
     ),

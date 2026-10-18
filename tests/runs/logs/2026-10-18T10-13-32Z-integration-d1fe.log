@@ -1,0 +1,54 @@
+# Интеграционные (integration) · 18.10.2026 15:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-13-32Z-integration-d1fe.json' 'tests/integration/customer-import-storage.test.ts' 'tests/integration/customer-import-runtime.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/customer-import-runtime.test.ts (13 tests | 1 skipped) 2594ms
+   ✓ M4-B2: durable customer import, real RLS and transactions (13)
+     ✓ exposes an owner-only real HTTP endpoint with dependency injection 698ms
+ ❯ |integration| tests/integration/customer-import-storage.test.ts (6 tests | 1 failed) 596ms
+   ❯ M4-B2: durable tenant storage (5)
+     ✓ has both tables with forced tenant RLS 49ms
+     × retains audit journal by denying tenant DELETE 19ms
+     ✓ keeps row source identity and run immutable even to a service writer 11ms
+     ✓ cannot forge tenant or use a foreign parent through wetop_app 12ms
+     ✓ has no FK on a deletable customer and no cascade to business data 3ms
+   ✓ M4-B2 migration rollback in an isolated synthetic schema (1)
+     ✓ preserves old customers, refuses nonempty rollback, removes only empty journal 237ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/customer-import-storage.test.ts > M4-B2: durable tenant storage > retains audit journal by denying tenant DELETE
+AssertionError: expected { parent: true, child: true } to deeply equal { parent: false, child: false }
+
+- Expected
++ Received
+
+  {
+-   "child": false,
+-   "parent": false,
++   "child": true,
++   "parent": true,
+  }
+
+ ❯ tests/integration/customer-import-storage.test.ts:35:20
+     33|   it('retains audit journal by denying tenant DELETE', async () => {
+     34|     const result = (await db.query("SELECT has_table_privilege('wetop_…
+     35|     expect(result).toEqual({parent:false,child:false});
+       |                    ^
+     36|   });
+     37|   it('keeps row source identity and run immutable even to a service wr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 17 passed | 1 skipped (19)
+   Start at  03:13:58
+   Duration  29.98s (transform 52%, import 26%, tests 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-13-32Z-integration-d1fe.json
+
+# код выхода 1 · 58 с

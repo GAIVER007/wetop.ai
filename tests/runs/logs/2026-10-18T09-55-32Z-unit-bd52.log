@@ -1,0 +1,194 @@
+# Модульные (unit) · 18.10.2026 14:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T09-55-32Z-unit-bd52.json' 'apps/web/src/app/customers/customer-import-actions.test.ts' 'packages/domain/src/customer-import-job.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| apps/web/src/app/customers/customer-import-actions.test.ts (6 tests | 5 failed) 81ms
+   ❯ Durable customer import server boundary (6)
+     × lists and reloads only through a checked business scope 10ms
+     × forwards one stable client request id when an import starts 2ms
+     × forwards the exact offset and rows so the same package can be retried 2ms
+     ✓ checks the current business before every mutation 63ms
+     × submits and undoes through their dedicated commands 2ms
+     × keeps expected client errors but never exposes an internal server message 1ms
+ ✓ |unit| packages/domain/src/customer-import-job.test.ts (9 tests) 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/customers/customer-import-actions.test.ts > Durable customer import server boundary > lists and reloads only through a checked business scope
+AssertionError: expected { Object (error) } to deeply equal { Object (items) }
+
+- Expected
++ Received
+
+  {
+-   "items": [
+-     {
+-       "completedAt": null,
+-       "contentsExpired": false,
+-       "createdAt": "2026-10-18T12:00:00.000Z",
+-       "createdCount": 0,
+-       "errorCode": null,
+-       "id": "import-1",
+-       "linkedCount": 0,
+-       "processedRows": 0,
+-       "skippedCount": 0,
+-       "state": "UPLOADING",
+-       "totalRows": 2,
+-       "unchangedCount": 0,
+-       "undoDeadline": null,
+-       "uploadedRows": 0,
+-     },
+-   ],
++   "error": "Импорт клиентов пока недоступен.",
+  }
+
+ ❯ apps/web/src/app/customers/customer-import-actions.test.ts:67:50
+     65| describe('Durable customer import server boundary', () => {
+     66|   it('lists and reloads only through a checked business scope', async …
+     67|     await expect(listCustomerImports('business')).resolves.toEqual({ i…
+       |                                                  ^
+     68|     await expect(getCustomerImport('business', 'import-1')).resolves.t…
+     69|     expect(api.listCustomerImports).toHaveBeenCalledWith();
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  5 failed | 10 passed (15)
+   Start at  02:56:26
+   Duration  7.87s (transform 87%, import 11%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T09-55-32Z-unit-bd52.json
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/web/src/app/customers/customer-import-actions.test.ts > Durable customer import server boundary > forwards one stable client request id when an import starts
+AssertionError: expected { Object (error) } to deeply equal { item: { id: 'import-1', …(13) } }
+
+- Expected
++ Received
+
+  {
+-   "item": {
+-     "completedAt": null,
+-     "contentsExpired": false,
+-     "createdAt": "2026-10-18T12:00:00.000Z",
+-     "createdCount": 0,
+-     "errorCode": null,
+-     "id": "import-1",
+-     "linkedCount": 0,
+-     "processedRows": 0,
+-     "skippedCount": 0,
+-     "state": "UPLOADING",
+-     "totalRows": 2,
+-     "unchangedCount": 0,
+-     "undoDeadline": null,
+-     "uploadedRows": 0,
+-   },
++   "error": "Импорт клиентов пока недоступен.",
+  }
+
+ ❯ apps/web/src/app/customers/customer-import-actions.test.ts:76:57
+     74|   it('forwards one stable client request id when an import starts', as…
+     75|     const input = { clientRequestId: '9ae35152-2aed-48d1-9fb6-b24b733e…
+     76|     await expect(startCustomerImport('business', input)).resolves.toEq…
+       |                                                         ^
+     77|     expect(api.startCustomerImport).toHaveBeenCalledWith(input);
+     78|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/web/src/app/customers/customer-import-actions.test.ts > Durable customer import server boundary > forwards the exact offset and rows so the same package can be retried
+AssertionError: expected { Object (error) } to deeply equal { item: { id: 'import-1', …(13) } }
+
+- Expected
++ Received
+
+  {
+-   "item": {
+-     "completedAt": null,
+-     "contentsExpired": false,
+-     "createdAt": "2026-10-18T12:00:00.000Z",
+-     "createdCount": 0,
+-     "errorCode": null,
+-     "id": "import-1",
+-     "linkedCount": 0,
+-     "processedRows": 0,
+-     "skippedCount": 0,
+-     "state": "UPLOADING",
+-     "totalRows": 2,
+-     "unchangedCount": 0,
+-     "undoDeadline": null,
+-     "uploadedRows": 2,
+-   },
++   "error": "Импорт клиентов пока недоступен.",
+  }
+
+ ❯ apps/web/src/app/customers/customer-import-actions.test.ts:88:74
+     86|       ],
+     87|     };
+     88|     await expect(uploadCustomerImportRows('business', 'import-1', chun…
+       |                                                                          ^
+     89|       item: { ...item, uploadedRows: 2 },
+     90|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/web/src/app/customers/customer-import-actions.test.ts > Durable customer import server boundary > submits and undoes through their dedicated commands
+AssertionError: expected { Object (error) } to deeply equal { item: { id: 'import-1', …(13) } }
+
+- Expected
++ Received
+
+  {
+-   "item": {
+-     "completedAt": null,
+-     "contentsExpired": false,
+-     "createdAt": "2026-10-18T12:00:00.000Z",
+-     "createdCount": 0,
+-     "errorCode": null,
+-     "id": "import-1",
+-     "linkedCount": 0,
+-     "processedRows": 0,
+-     "skippedCount": 0,
+-     "state": "QUEUED",
+-     "totalRows": 2,
+-     "unchangedCount": 0,
+-     "undoDeadline": null,
+-     "uploadedRows": 2,
+-   },
++   "error": "Импорт клиентов пока недоступен.",
+  }
+
+ ❯ apps/web/src/app/customers/customer-import-actions.test.ts:111:63
+    109|
+    110|   it('submits and undoes through their dedicated commands', async () =…
+    111|     await expect(submitCustomerImport('business', 'import-1')).resolve…
+       |                                                               ^
+    112|       item: { ...item, state: 'QUEUED', uploadedRows: 2 },
+    113|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/web/src/app/customers/customer-import-actions.test.ts > Durable customer import server boundary > keeps expected client errors but never exposes an internal server message
+AssertionError: expected { Object (error) } to deeply equal { Object (error) }
+
+- Expected
++ Received
+
+  {
+-   "error": "Сначала загрузите все строки",
++   "error": "Импорт клиентов пока недоступен.",
+  }
+
+ ❯ apps/web/src/app/customers/customer-import-actions.test.ts:123:63
+    121|   it('keeps expected client errors but never exposes an internal serve…
+    122|     api.submitCustomerImport.mockRejectedValueOnce(new ApiError(409, '…
+    123|     await expect(submitCustomerImport('business', 'import-1')).resolve…
+       |                                                               ^
+    124|       error: 'Сначала загрузите все строки',
+    125|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+# код выхода 1 · 1 мин 2 с

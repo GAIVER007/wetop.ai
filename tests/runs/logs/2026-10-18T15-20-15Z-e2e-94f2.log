@@ -1,0 +1,203 @@
+# Сквозные (e2e) · 18.10.2026 20:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 23
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/customer-import.spec.ts' 'tests/ui/beauty-catalog.spec.ts' '--workers=1'
+[WebServer] (node:2019) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2053) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+(node:2196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2358) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/ui/beauty-catalog.spec.ts:12:1 › M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются (1.2m)
+(node:2841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2926) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/beauty-catalog.spec.ts:59:1 › M4-A: клиент без записи, повтор номера и сохранение ввода при ошибке (34.2s)
+[WebServer] (node:3112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/beauty-catalog.spec.ts:146:1 › услуга каталога добавляется и видна в списке (29.8s)
+[WebServer] (node:3202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/ui/beauty-catalog.spec.ts:159:1 › филиал включает услугу и ставит свою цену (1.5m)
+(node:3677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/ui/beauty-catalog.spec.ts:182:1 › ошибки услуги словами, введённое не стирается (45.9s)
+(node:4529) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4770) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/ui/beauty-catalog.spec.ts:197:1 › мастер добавляется, умения ставятся и снимаются (26.4s)
+
+
+  1) tests/ui/beauty-catalog.spec.ts:12:1 › M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "http://127.0.0.1:43108/customers",
+    + ]
+
+      49 |   await expect(panel.getByRole('alert')).toContainText('Выберите CSV');
+      50 |   await expect(panel.getByRole('button', { name: 'Проверить строки', exact: true })).not.toBeVisible();
+    > 51 |   expect(writes).toEqual([]);
+         |                  ^
+      52 |   await page.keyboard.press('Escape');
+      53 |   await expect(panel).not.toBeVisible();
+      54 |   await expect(main.getByRole('row')).toHaveCount(before);
+        at /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/ui/beauty-catalog.spec.ts:51:18
+
+    Error Context: test-results/beauty-catalog-M4-B1-CSV-п-02eed-няются-клиенты-не-создаются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-catalog-M4-B1-CSV-п-02eed-няются-клиенты-не-создаются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-catalog-M4-B1-CSV-п-02eed-няются-клиенты-не-создаются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-catalog.spec.ts:159:1 › филиал включает услугу и ставит свою цену ─────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('status')
+    Expected: "Услуга создана. Включите её в выбранном филиале ниже."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog').getByRole('status') with timeout 15000ms
+      - waiting for getByRole('dialog').getByRole('status')
+
+
+      141 |   await panel.getByLabel(/Цена каталога/).fill(price);
+      142 |   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
+    > 143 |   await expect(panel.getByRole('status')).toHaveText('Услуга создана. Включите её в выбранном филиале ниже.');
+          |                                           ^
+      144 | }
+      145 |
+      146 | test('услуга каталога добавляется и видна в списке', async ({ page, request }) => {
+        at addService (/Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/ui/beauty-catalog.spec.ts:143:43)
+        at /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/ui/beauty-catalog.spec.ts:161:3
+
+    Tearing down "context" exceeded the test timeout of 45000ms.
+
+    Error Context: test-results/beauty-catalog-филиал-включает-услугу-и-ставит-свою-цену/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-catalog-филиал-включает-услугу-и-ставит-свою-цену/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-catalog-филиал-включает-услугу-и-ставит-свою-цену/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-catalog.spec.ts:182:1 › ошибки услуги словами, введённое не стирается ─────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Добавить бизнес или филиал' }).getByRole('status')
+    Expected substring: "Салон создан"
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Добавить бизнес или филиал' }).getByRole('status') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Добавить бизнес или филиал' }).getByRole('status')
+      - Test timeout of 45000ms exceeded.
+
+
+      124 |   await creation.getByLabel('Название бизнеса', { exact: true }).fill('Студия Айна');
+      125 |   await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+    > 126 |   await expect(creation.getByRole('status')).toContainText('Салон создан');
+          |                                              ^
+      127 |   await page.reload();
+      128 |   await main.getByRole('button', { name: 'Открыть объект: Студия Айна', exact: true }).click();
+      129 |   // MV8: открытый салон начинает с общего рабочего экрана дня
+        at openSalon (/Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/ui/beauty-catalog.spec.ts:126:46)
+        at /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/ui/beauty-catalog.spec.ts:183:3
+
+    Error Context: test-results/beauty-catalog-ошибки-услуги-словами-введённое-не-стирается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-catalog-ошибки-услуги-словами-введённое-не-стирается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-catalog-ошибки-услуги-словами-введённое-не-стирается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-catalog.spec.ts:197:1 › мастер добавляется, умения ставятся и снимаются ───────
+
+    Test was interrupted.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('status')
+    Expected: "Услуга создана. Включите её в выбранном филиале ниже."
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog').getByRole('status') with timeout 15000ms
+      - waiting for getByRole('dialog').getByRole('status')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      141 |   await panel.getByLabel(/Цена каталога/).fill(price);
+      142 |   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
+    > 143 |   await expect(panel.getByRole('status')).toHaveText('Услуга создана. Включите её в выбранном филиале ниже.');
+          |                                           ^
+      144 | }
+      145 |
+      146 | test('услуга каталога добавляется и видна в списке', async ({ page, request }) => {
+        at addService (/Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/ui/beauty-catalog.spec.ts:143:43)
+        at /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/tests/ui/beauty-catalog.spec.ts:199:3
+
+    Error Context: test-results/beauty-catalog-мастер-доба-28beb-умения-ставятся-и-снимаются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-catalog-мастер-доба-28beb-умения-ставятся-и-снимаются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-catalog-мастер-доба-28beb-умения-ставятся-и-снимаются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/beauty-catalog.spec.ts:12:1 › M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются 
+    tests/ui/beauty-catalog.spec.ts:159:1 › филиал включает услугу и ставит свою цену ──────────────
+    tests/ui/beauty-catalog.spec.ts:182:1 › ошибки услуги словами, введённое не стирается ──────────
+  1 interrupted
+    tests/ui/beauty-catalog.spec.ts:197:1 › мастер добавляется, умения ставятся и снимаются ────────
+  6 did not run
+  2 passed (9.0m)
+
+# код выхода 130 · 9 мин 2 с

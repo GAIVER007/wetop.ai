@@ -1,9 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createBarCategoryAction, createBarReceiptAction, inventoryBarAction, payBarSupplierAction, scanBarReceiptAction, sellBarRetailAction, sellBarToFolioAction, setBarProductPriceAction } from './actions';
 import { barApi } from '../../lib/api';
+import { currentMe } from '../../lib/desk-shell';
 import { hotelApi } from '../../lib/hotel-api';
+import { selectedWorkspaceBranch } from '../../lib/workspace-context';
 
 vi.mock('../../lib/hotel-api', () => ({ hotelApi: { settings: vi.fn() } }));
+vi.mock('../../lib/desk-shell', () => ({ currentMe: vi.fn() }));
+vi.mock('../../lib/workspace-context', () => ({ selectedWorkspaceBranch: vi.fn() }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('../../lib/api', () => ({
   ApiError: class ApiError extends Error {},
@@ -13,6 +17,10 @@ vi.mock('../../lib/api', () => ({
 describe('форма прихода бара', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(currentMe).mockResolvedValue({
+      context: { vertical: 'HOSPITALITY', locationId: 'property-1' },
+    } as Awaited<ReturnType<typeof currentMe>>);
+    vi.mocked(selectedWorkspaceBranch).mockResolvedValue(null);
     vi.mocked(hotelApi.settings).mockResolvedValue({
       property: { id: 'property-1', currency: 'KZT' },
     } as Awaited<ReturnType<typeof hotelApi.settings>>);
@@ -329,6 +337,10 @@ describe('форма прихода бара', () => {
 describe('Bar scope/currency/replay regressions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(currentMe).mockResolvedValue({
+      context: { vertical: 'HOSPITALITY', locationId: 'property-1' },
+    } as Awaited<ReturnType<typeof currentMe>>);
+    vi.mocked(selectedWorkspaceBranch).mockResolvedValue(null);
     vi.mocked(hotelApi.settings).mockResolvedValue({
       property: { id: 'property-1', currency: 'USD' },
     } as Awaited<ReturnType<typeof hotelApi.settings>>);

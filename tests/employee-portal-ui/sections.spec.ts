@@ -56,13 +56,14 @@ async function capture(page: Page, section: string) {
 }
 test('services: real saved catalog and clear searchable prices', async ({ page, request }) => {
   const f = await seed(page, request); await page.goto('/services');
-  await page.getByRole('row').filter({ hasText: 'Маникюр' }).getByRole('button', { name: 'Изменить', exact: true }).click();
+  const catalog = page.locator('[data-service-list="catalog"]');
+  await catalog.locator('.beauty-service-item').filter({ has: catalog.getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить', exact: true }).click();
   const card = page.getByRole('dialog'); await card.getByLabel('Название', { exact: true }).fill('Маникюр классический');
   await card.getByRole('button', { name: 'Сохранить услугу', exact: true }).click(); await expect(card.getByRole('status')).toContainText('Услуга');
-  await page.reload(); await expect(page.getByRole('table')).toContainText('Маникюр классический');
+  await page.reload(); await expect(catalog).toContainText('Маникюр классический');
   await capture(page, 'services');
   const search = page.getByLabel('Поиск услуг', { exact: true }); await expect(search).toBeVisible();
-  await search.fill('Маникюр'); await expect(page.getByRole('table')).toContainText('Маникюр классический'); await expect(page.getByRole('table').getByText('Окрашивание', { exact: true })).toHaveCount(0);
+  await search.fill('Маникюр'); await expect(catalog).toContainText('Маникюр классический'); await expect(catalog.getByText('Окрашивание', { exact: true })).toHaveCount(0);
   expect(f.services).toHaveLength(3);
 });
 test('schedule: persist weekly hours with clear routine and intervals', async ({ page, request }) => {

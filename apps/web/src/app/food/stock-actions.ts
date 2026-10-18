@@ -17,12 +17,16 @@ type StockCommand =
 async function scope(key: string) {
   const { context } = await currentMe();
   if (
-    context?.vertical !== 'FOOD_SERVICE' ||
+    !['BEAUTY', 'FOOD_SERVICE'].includes(context?.vertical ?? '') ||
     !context.businessId ||
     !context.locationId ||
     key !== `${context.businessId}:${context.locationId}`
   )
-    throw new ApiError(409, 'Выбран другой ресторан. Откройте форму заново.');
+    throw new ApiError(
+      409,
+      `Выбран другой ${context?.vertical === 'BEAUTY' ? 'салон' : 'ресторан'}. Откройте форму заново.`,
+    );
+  return context.vertical;
 }
 
 export async function mutateStock(
@@ -30,7 +34,7 @@ export async function mutateStock(
   command: StockCommand,
 ): Promise<{ error: string | null }> {
   try {
-    await scope(scopeKey);
+    const vertical = await scope(scopeKey);
     switch (command.kind) {
       case 'product':
         if (command.id) await stockApi.updateProduct(command.id, command.body);
@@ -49,7 +53,7 @@ export async function mutateStock(
         await stockApi.inventory(command.body);
         break;
     }
-    revalidatePath('/stock');
+    revalidatePath(vertical === 'BEAUTY' ? '/bar/consumables' : '/stock');
     return { error: null };
   } catch (error) {
     unstable_rethrow(error);

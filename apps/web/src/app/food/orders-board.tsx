@@ -85,7 +85,7 @@ export function OrdersBoard({
         <QuickReport
           key={`${date}:${employee}`}
           date={date}
-          scope={`Открыты за выбранный день · ${employee ? (options.find((e) => e.id === employee)?.name ?? 'Сотрудник недоступен') : 'Все сотрудники'} · ${selected.label}${search ? ' · С учётом поиска' : ''}`}
+          scope={`Открыты за выбранный день, ${employee ? (options.find((e) => e.id === employee)?.name ?? 'Сотрудник недоступен') : 'Все сотрудники'}, ${selected.label}${search ? ', С учётом поиска' : ''}`}
           build={() =>
             orderQuickReport(
               filtered.filter((o) => localInput(o.openedAt, ctx.timezone).slice(0, 10) === date),

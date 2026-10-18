@@ -99,8 +99,13 @@ export function beautySales(days: BeautyDay[]) {
   const services = new Map<string, { count: number; revenue: bigint }>();
   const masters = new Map<string, { count: number; revenue: bigint }>();
   for (const r of done) {
-    add(services, r.serviceName, r.priceMinor);
-    add(masters, names.get(r.employeeId) ?? 'Мастер', r.priceMinor);
+    const visitMasters = new Map<string, bigint>();
+    for (const item of r.items?.length ? r.items : [r]) {
+      add(services, item.serviceName, item.priceMinor);
+      visitMasters.set(item.employeeId, (visitMasters.get(item.employeeId) ?? 0n) + BigInt(item.priceMinor));
+    }
+    for (const [employeeId, price] of visitMasters)
+      add(masters, names.get(employeeId) ?? 'Мастер', price.toString());
   }
   return {
     currency: days.at(-1)?.location.currency ?? done[0]?.currency ?? 'KZT',

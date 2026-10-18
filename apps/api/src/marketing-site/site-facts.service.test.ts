@@ -83,6 +83,7 @@ function fakeDb(vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE') {
       ],
     },
     restaurantOrderRating: { aggregate: async () => ({ _avg: { stars: 4.25 }, _count: { _all: 8 } }) },
+    beautyPositionAssignment: { findMany: async () => [] },
     menuItemPhoto: {},
     $transaction: async <T>(fn: (tx: unknown) => Promise<T>) => fn(db),
   };

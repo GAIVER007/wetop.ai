@@ -10,7 +10,7 @@ import { Icon } from '../../../../components/icon';
 import { NewReceipt } from './new-receipt';
 import { BarTabs } from '../../tabs';
 import { deskShell } from '../../../../lib/desk-shell';
-import { mayAccess } from '../../../../lib/navigation';
+import { barActionAccess } from '../../action-access';
 import '../../bar.css';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
@@ -25,7 +25,7 @@ export default async function BarNewReceiptPage() {
     settle(barApi.products()), settle(barApi.suppliers()), hotelToday(), deskShell(),
   ]);
   // UI-FIX-01: форма прихода пишет склад, нужны право desk и не режим чтения.
-  const canMutate = shell.access.unknown !== true && mayAccess(shell.access, 'desk') && !shell.readOnly;
+  const canMutate = shell.access.unknown !== true && barActionAccess(shell, shell.vertical).receiveStock;
   const failed = [products, suppliers].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!products.ok || !suppliers.ok) return null;

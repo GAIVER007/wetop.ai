@@ -31,6 +31,7 @@ import type { DbTx } from '@pms/database';
 import { currentAssignments, currentRole, currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
+import { BeautyAccess } from './access.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import {
   beautyScope,
@@ -299,11 +300,13 @@ export class BeautyScheduleService {
 
     const removed = current.filter((row) => inArea(row.locationId) && !wantedInArea.includes(row.locationId));
     for (const row of removed) {
-      const booked = await this.prisma.db.appointment.count({
+      const booked = await this.prisma.db.appointmentLine.count({
         where: {
           employeeId: id,
-          locationId: row.locationId,
-          status: { in: [...BUSY_STATUSES] },
+          appointment: {
+            locationId: row.locationId,
+            status: { in: [...BUSY_STATUSES] },
+          },
           startsAt: { gte: new Date() },
         },
       });
@@ -413,13 +416,19 @@ export class BeautyScheduleService {
   private async countAbsenceAppointments(employeeId: string, dateFrom: string, dateTo: string) {
     // Appointment's own branch is authoritative, including historical branch assignments.
     const branches = await this.prisma.db.appointment.findMany({
-      where: { employeeId, status: { in: [...BUSY_STATUSES] } },
+      where: { status: { in: [...BUSY_STATUSES] }, lines: { some: { employeeId } } },
       distinct: ['locationId'],
       select: { locationId: true, location: { select: { timezone: true } } },
     });
-    const counts = await Promise.all(branches.map(branch => {
+    const counts = await Promise.all(branches.map((branch) => {
       const window = timeOffWindow({ dateFrom, dateTo, timezone: branch.location.timezone });
-      return this.prisma.db.appointment.count({ where: { employeeId, locationId: branch.locationId, status: { in: [...BUSY_STATUSES] }, startsAt: { gte: window.fromUtc, lt: window.toUtcExclusive } } });
+      return this.prisma.db.appointmentLine.count({
+        where: {
+          employeeId,
+          appointment: { locationId: branch.locationId, status: { in: [...BUSY_STATUSES] } },
+          startsAt: { gte: window.fromUtc, lt: window.toUtcExclusive },
+        },
+      });
     }));
     return counts.reduce((sum, count) => sum + count, 0);
   }
@@ -461,27 +470,32 @@ function todayIn(timezone: string): string {
 export class BeautyScheduleController {
   constructor(@Inject(BeautyScheduleService) private readonly service: BeautyScheduleService) {}
 
+  @BeautyAccess('journal', 'view')
   @Get('schedule') schedule(@Query('employee') employee?: string) {
     return this.service.overview(employee);
   }
+  @BeautyAccess('journal', 'update')
   @Access('property') @Put('employees/:id/working-hours') setWorkingHours(
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
     return this.service.setWorkingHours(id, body);
   }
+  @BeautyAccess('journal', 'update')
   @Access('property') @Post('employees/:id/time-offs') addTimeOff(
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
     return this.service.addTimeOff(id, body);
   }
+  @BeautyAccess('journal', 'update')
   @Access('property') @Delete('employees/:id/time-offs/:timeOffId') removeTimeOff(
     @Param('id') id: string,
     @Param('timeOffId') timeOffId: string,
   ) {
     return this.service.removeTimeOff(id, timeOffId);
   }
+  @BeautyAccess('employees', 'update')
   @Access('property') @Put('employees/:id/locations') setLocations(
     @Param('id') id: string,
     @Body() body: unknown,

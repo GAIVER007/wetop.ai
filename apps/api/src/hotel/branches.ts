@@ -20,6 +20,7 @@ import {
   NEW_PROPERTY_DEFAULTS,
 } from '@pms/database';
 import { canAt, visibleLocations } from '@pms/domain';
+import { filterBeautyLocations } from '../beauty/access';
 import {
   currentAssignments,
   currentOrganizationId,
@@ -141,7 +142,8 @@ export class BranchesService {
         all.map((item) => ({ id: item.locationId, businessId: item.location.businessId })),
       ).map((l) => l.id),
     );
-    const items = all.filter((item) => visible.has(item.locationId));
+    const permitted = new Set((await filterBeautyLocations(this.prisma.db, all.map(item => ({ id:item.locationId,businessId:item.location.businessId,vertical:item.vertical })))).map(row=>row.id));
+    const items = all.filter((item) => visible.has(item.locationId) && permitted.has(item.locationId));
     return { organization, items, canCreate: currentRole() === 'OWNER' };
   }
   async create(raw: unknown) {

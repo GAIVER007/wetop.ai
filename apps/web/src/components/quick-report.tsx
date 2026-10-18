@@ -86,7 +86,7 @@ export function QuickReport({
                   {data.statuses.map((s) => (
                     <div key={s.key}>
                       <dt>
-                        <i style={{ background: colors[s.tone] }} aria-hidden="true" />
+                        <i className={`quick-status-dot--${s.tone}`} aria-hidden="true" />
                         {s.label}
                       </dt>
                       <dd>{s.count}</dd>

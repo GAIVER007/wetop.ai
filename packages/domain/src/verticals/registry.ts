@@ -17,6 +17,7 @@ export type VerticalCapability =
   | 'food.orders'
   | 'food.staff'
   | 'food.stock'
+  | 'branch.stock'
   /** касса филиала (§35.2, §48): ресторан и салон */
   | 'branch.cash'
   /** зарплата сотрудников (§33.4, §19.2): ресторан и салон */
@@ -48,6 +49,7 @@ const DEFINITIONS: Readonly<Record<BusinessVertical, VerticalDefinition>> = Obje
       'beauty.customers',
       'beauty.employees',
       'beauty.services',
+      'branch.stock',
       'branch.cash',
       'branch.payroll',
     ] as const),
@@ -64,6 +66,7 @@ const DEFINITIONS: Readonly<Record<BusinessVertical, VerticalDefinition>> = Obje
       'food.orders',
       'food.staff',
       'food.stock',
+      'branch.stock',
       'branch.cash',
       'branch.payroll',
     ] as const),

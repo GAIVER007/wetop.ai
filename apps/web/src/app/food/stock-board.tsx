@@ -17,6 +17,8 @@ import {
   Table,
 } from '../../components/ui';
 import { wholeTenge } from '../../lib/dashboard-format';
+import { formatMoney } from '../../lib/money';
+import type { WebVertical } from '../../lib/vertical-landing';
 import type {
   StockLotView,
   StockMovementView,
@@ -29,10 +31,34 @@ import { useConfirm } from '../../components/use-confirm';
 /** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS) */
 export interface StockCtx {
   scopeKey: string;
-  canDesk: boolean;
-  canProperty: boolean;
+  canDesk?: boolean;
+  canProperty?: boolean;
+  canCreate?: boolean;
+  canUpdate?: boolean;
+  canDelete?: boolean;
   currency: string;
+  vertical?: WebVertical;
 }
+
+const stockNouns = (ctx: StockCtx) =>
+  ctx.vertical === 'BEAUTY'
+    ? {
+        one: 'расходник',
+        oneTitle: 'Расходник',
+        many: 'расходникам',
+        count: 'Расходников',
+      }
+    : {
+        one: 'ингредиент',
+        oneTitle: 'Ингредиент',
+        many: 'ингредиентам',
+        count: 'Ингредиентов',
+      };
+
+const stockMoney = (minor: string | bigint, ctx: StockCtx) =>
+  ctx.vertical === 'BEAUTY'
+    ? formatMoney(minor, ctx.currency)
+    : wholeTenge(minor.toString(), ctx.currency);
 
 const UNITS: StockUnit[] = ['г', 'мл', 'шт'];
 const PRICE_UNIT: Record<StockUnit, string> = { г: 'кг', мл: 'л', шт: 'шт' };
@@ -47,11 +73,13 @@ const KIND_LABEL: Record<StockMovementView['kind'], string> = {
   CONSUMPTION_RETURN: 'Возврат по отмене',
 };
 
-/** Сумма в тенге с тиынами → целые тиыны без float (как в баре) */
-function tenge(raw: string, field: string): number {
+/** Сумма в выбранной валюте с двумя десятичными знаками, в целых младших единицах. */
+export function stockMoneyInputToMinor(raw: string, field: string, currency: string): number {
   const m = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(raw.trim());
-  if (!m) throw new Error(`${field}: укажите сумму в тенге`);
-  return Number(BigInt(m[1]!) * 100n + BigInt((m[2] ?? '').padEnd(2, '0') || '0'));
+  if (!m) throw new Error(`${field}: укажите сумму в ${currency}`);
+  const minor = BigInt(m[1]!) * 100n + BigInt((m[2] ?? '').padEnd(2, '0') || '0');
+  if (minor > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error(`${field}: сумма слишком большая`);
+  return Number(minor);
 }
 const qtyText = (qty: string, unit: string) => `${qty.replace('.', ',')} ${unit}`;
 const dateText = (iso: string) => iso.split('-').reverse().join('.');
@@ -84,8 +112,9 @@ function useSave(close: () => void) {
 
 function ProductDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProductView | null; close: () => void }) {
   const save = useSave(close);
+  const nouns = stockNouns(ctx);
   return (
-    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={product ? 'Изменить ингредиент' : 'Новый ингредиент'}>
+    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={product ? `Изменить ${nouns.one}` : `Новый ${nouns.one}`}>
       <form
         className="food-form"
         onSubmit={(e) => {
@@ -133,6 +162,7 @@ function ProductDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockP
 type Line = { productId: string; qty: string; price: string; expiresOn: string };
 function ReceiptDrawer({ ctx, products, close }: { ctx: StockCtx; products: StockProductView[]; close: () => void }) {
   const save = useSave(close);
+  const nouns = stockNouns(ctx);
   const active = products.filter((p) => p.active);
   const blank = (): Line => ({ productId: active[0]?.id ?? '', qty: '', price: '', expiresOn: '' });
   const [lines, setLines] = useState<Line[]>([blank()]);
@@ -154,7 +184,7 @@ function ReceiptDrawer({ ctx, products, close }: { ctx: StockCtx; products: Stoc
               lines: lines.map((l, i) => ({
                 productId: l.productId,
                 qty: l.qty.replace(',', '.'),
-                unitCost: tenge(l.price, `Строка ${i + 1}, цена`),
+                unitCost: stockMoneyInputToMinor(l.price, `Строка ${i + 1}, цена`, ctx.currency),
                 expiresOn: l.expiresOn || null,
               })),
             };
@@ -175,7 +205,7 @@ function ReceiptDrawer({ ctx, products, close }: { ctx: StockCtx; products: Stoc
         </Field>
         {lines.map((l, i) => (
           <fieldset key={i} className="food-form" aria-label={`Строка ${i + 1}`}>
-            <Field label="Ингредиент">
+            <Field label={nouns.oneTitle}>
               <Select value={l.productId} onChange={(e) => patch(i, { productId: e.target.value })}>
                 {active.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -188,7 +218,7 @@ function ReceiptDrawer({ ctx, products, close }: { ctx: StockCtx; products: Stoc
               <Field label={`Количество, ${unitOf(l.productId)}`}>
                 <Input required inputMode="decimal" value={l.qty} onChange={(e) => patch(i, { qty: e.target.value })} />
               </Field>
-              <Field label={`Цена за ${PRICE_UNIT[unitOf(l.productId)]}, ₸`}>
+              <Field label={`Цена за ${PRICE_UNIT[unitOf(l.productId)]}, ${ctx.currency === 'KZT' ? '₸' : ctx.currency}`}>
                 <Input required inputMode="decimal" value={l.price} onChange={(e) => patch(i, { price: e.target.value })} />
               </Field>
             </div>
@@ -245,7 +275,9 @@ function QtyDrawer({
           const reason = String(f.get('reason')).trim();
           save.run(() => {
             // пустой склад: излишек принимается по цене, которую называет человек (Q-KITCHEN-9)
-            const price = empty ? { unitCost: tenge(String(f.get('price')), 'Цена излишка') } : {};
+            const price = empty
+              ? { unitCost: stockMoneyInputToMinor(String(f.get('price')), 'Цена излишка', ctx.currency) }
+              : {};
             return mutateStock(
               ctx.scopeKey,
               mode === 'write-off'
@@ -261,7 +293,7 @@ function QtyDrawer({
         </Field>
         {empty && (
           <Field
-            label={`Цена излишка за ${PRICE_UNIT[product.unit as keyof typeof PRICE_UNIT]}, ₸`}
+            label={`Цена излишка за ${PRICE_UNIT[product.unit as keyof typeof PRICE_UNIT]}, ${ctx.currency === 'KZT' ? '₸' : ctx.currency}`}
             hint="На складе пусто: найденное примем по этой цене"
             controlId="stock-surplus-price"
           >
@@ -284,6 +316,7 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
   const [lots, setLots] = useState<StockLotView[] | null>(null);
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
+  const nouns = stockNouns(ctx);
   const reload = () =>
     loadLots(ctx.scopeKey, product.id).then((r) => {
       setError(r.error ?? '');
@@ -300,7 +333,7 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
         {lots === null ? (
           <p role="status">Загружаем партии…</p>
         ) : lots.length === 0 ? (
-          <EmptyState title="Приходов по ингредиенту ещё не было" />
+          <EmptyState title={`Приходов по ${nouns.one}у ещё не было`} />
         ) : (
           <ul className="food-catalog-list">
             {lots.map((l) => (
@@ -309,13 +342,13 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
                   <strong>{dateText(l.receivedOn)}</strong>
                   <span>
                     Остаток {qtyText(l.remainingQty, product.unit)} из {qtyText(l.receivedQty, product.unit)}, цена за{' '}
-                    {PRICE_UNIT[product.unit]} {wholeTenge(l.unitCostMinor, ctx.currency)}
+                    {PRICE_UNIT[product.unit]} {stockMoney(l.unitCostMinor, ctx)}
                   </span>
                   {l.supplier && <span>{l.supplier}</span>}
                 </div>
                 {l.reversed ? (
                   <Badge tone="neutral">Сторнирован</Badge>
-                ) : l.reversible && ctx.canProperty ? (
+                ) : l.reversible && (ctx.canDelete ?? ctx.canProperty ?? false) ? (
                   <Button
                     tone="secondary"
                     size="sm"
@@ -371,6 +404,11 @@ export function StockBoard({
   const [draft, setDraft] = useState<Draft | null>(null);
   const [query, setQuery] = useState('');
   const close = () => setDraft(null);
+  const canCreateProduct = ctx.canCreate ?? ctx.canProperty ?? false;
+  const canReceive = ctx.canCreate ?? ctx.canDesk ?? false;
+  const canUpdateProduct = ctx.canUpdate ?? ctx.canProperty ?? false;
+  const canUpdateStock = ctx.canUpdate ?? ctx.canDesk ?? false;
+  const nouns = stockNouns(ctx);
   const total = products.reduce((sum, p) => sum + BigInt(p.valueMinor), 0n);
   const low = products.filter((p) => p.active && p.low).length;
   const q = query.trim().toLocaleLowerCase('ru');
@@ -378,12 +416,12 @@ export function StockBoard({
 
   const stockTable =
     products.length === 0 ? (
-      <EmptyState title="Добавьте первый ингредиент" />
+      <EmptyState title={`Добавьте первый ${nouns.one}`} />
     ) : (
       <div className="rest-card">
         <div className="rest-card__tools">
           <IconField icon="search">
-            <Input aria-label="Поиск по ингредиентам" placeholder="Поиск по ингредиентам" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <Input aria-label={`Поиск по ${nouns.many}`} placeholder={`Поиск по ${nouns.many}`} value={query} onChange={(e) => setQuery(e.target.value)} />
           </IconField>
         </div>
         {shown.length === 0 ? (
@@ -392,7 +430,7 @@ export function StockBoard({
           <Table density="normal" aria-label="Остатки склада">
             <thead>
               <tr>
-                {['Ингредиент', 'Остаток', 'Минимум', 'Стоимость', 'Годен до', 'Статус'].map((h) => (
+                {[nouns.oneTitle, 'Остаток', 'Минимум', 'Стоимость', 'Годен до', 'Статус'].map((h) => (
                   <th key={h}>{h}</th>
                 ))}
                 <th>
@@ -406,7 +444,7 @@ export function StockBoard({
                   <td>{p.name}</td>
                   <td className="rest-stock-qty">{qtyText(p.onHand, p.unit)}</td>
                   <td className="rest-stock-qty">{qtyText(p.minQty, p.unit)}</td>
-                  <td>{wholeTenge(p.valueMinor, ctx.currency)}</td>
+                  <td>{stockMoney(p.valueMinor, ctx)}</td>
                   <td>{p.nearestExpiry ? <time dateTime={p.nearestExpiry}>{dateText(p.nearestExpiry)}</time> : 'Нет'}</td>
                   <td>
                     {!p.active ? (
@@ -424,17 +462,17 @@ export function StockBoard({
                       <Button tone="ghost" size="sm" aria-label={`Партии: ${p.name}`} onClick={() => setDraft({ kind: 'lots', product: p })}>
                         Партии
                       </Button>
-                      {ctx.canDesk && p.onHand !== '0' && (
+                      {canUpdateStock && p.onHand !== '0' && (
                         <Button tone="ghost" size="sm" aria-label={`Списать: ${p.name}`} onClick={() => setDraft({ kind: 'write-off', product: p })}>
                           Списать
                         </Button>
                       )}
-                      {ctx.canDesk && (
+                      {canUpdateStock && (
                         <Button tone="ghost" size="sm" aria-label={`Инвентаризация: ${p.name}`} onClick={() => setDraft({ kind: 'inventory', product: p })}>
                           Инвентаризация
                         </Button>
                       )}
-                      {ctx.canProperty && (
+                      {canUpdateProduct && (
                         <Button tone="ghost" size="sm" aria-label={`Изменить: ${p.name}`} onClick={() => setDraft({ kind: 'product', product: p })}>
                           Изменить
                         </Button>
@@ -456,7 +494,7 @@ export function StockBoard({
       <Table density="compact" caption="Последние 200 движений склада" captionHidden>
         <thead>
           <tr>
-            {['Когда', 'Ингредиент', 'Операция', 'Количество', 'Сумма', 'Основание'].map((h) => (
+            {['Когда', nouns.oneTitle, 'Операция', 'Количество', 'Сумма', 'Основание'].map((h) => (
               <th key={h}>{h}</th>
             ))}
           </tr>
@@ -470,7 +508,7 @@ export function StockBoard({
               <td>{m.productName}</td>
               <td>{KIND_LABEL[m.kind]}</td>
               <td>{qtyText(m.qty, m.unit)}</td>
-              <td>{wholeTenge(m.costMinor, ctx.currency)}</td>
+              <td>{stockMoney(m.costMinor, ctx)}</td>
               <td>{m.reason ?? ''}</td>
             </tr>
           ))}
@@ -481,18 +519,18 @@ export function StockBoard({
   return (
     <div className="food-workspace">
       <Stats min={170} className="rest-kpis">
-        <Stat label="Ингредиентов" value={String(products.filter((p) => p.active).length)} />
-        <Stat label="Стоимость остатка" value={wholeTenge(total.toString(), ctx.currency)} tone="info" testId="stock-value" />
+        <Stat label={nouns.count} value={String(products.filter((p) => p.active).length)} />
+        <Stat label="Стоимость остатка" value={stockMoney(total, ctx)} tone="info" testId="stock-value" />
         <Stat label="Мало на складе" value={String(low)} tone={low > 0 ? 'warn' : undefined} testId="stock-low" />
       </Stats>
       <div className="food-section-heading rest-actions-end">
         <div className="food-inline-actions">
-          {ctx.canProperty && (
+          {canCreateProduct && (
             <Button tone="secondary" onClick={() => setDraft({ kind: 'product', product: null })}>
-              + Ингредиент
+              + {nouns.oneTitle}
             </Button>
           )}
-          {ctx.canDesk && products.some((p) => p.active) && (
+          {canReceive && products.some((p) => p.active) && (
             <Button onClick={() => setDraft({ kind: 'receipt' })}>+ Приход товара</Button>
           )}
         </div>

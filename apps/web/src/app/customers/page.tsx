@@ -7,7 +7,8 @@ import { loadErrorProps } from '../../lib/load-error';
 import { beautyApi } from '../../lib/api';
 import { BeautyCustomersTable } from './beauty-table';
 import { deskShell } from '../../lib/desk-shell';
-import { mayAccess } from '../../lib/navigation';
+import { mayBeautyAccess } from '../../lib/navigation';
+import { BeautyCustomerTools } from './customer-tools';
 import '../beauty/beauty.css';
 
 /** Клиенты салона по макету ТЗ (09.10.2026): сегменты, визиты и средний чек считает API по DONE */
@@ -20,9 +21,23 @@ export default async function CustomersPage() {
       <Page
         className="beauty-page"
         title="Клиенты"
-        subtitle="Клиенты этого бизнеса. Новый клиент добавляется при создании записи."
+        subtitle="Клиенты этого бизнеса, их визиты и средний чек."
       >
-        <BeautyCustomersTable items={items} canEdit={!shell.readOnly && mayAccess(shell.access, 'desk')} />
+        <BeautyCustomerTools
+          canEdit={
+            !shell.readOnly &&
+            mayBeautyAccess(shell.access, 'customers', 'create', { legacy: 'desk' })
+          }
+          scopeKey={shell.scopeKey ?? ''}
+        />
+        <BeautyCustomersTable
+          items={items}
+          canEdit={
+            !shell.readOnly &&
+            mayBeautyAccess(shell.access, 'customers', 'update', { legacy: 'desk' })
+          }
+          scopeKey={shell.scopeKey ?? ''}
+        />
       </Page>
     );
   } catch (error) {

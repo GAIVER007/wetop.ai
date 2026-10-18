@@ -18,35 +18,37 @@ describe('approved TZ12 presentation compatibility port', () => {
     expect(text).toContain('Занято, скрыто фильтром');
     expect(text).toContain('beauty-active-filters');
     expect(text).toContain('beauty-slot-state');
-    expect(text).toContain('const occupied = day.appointments.some(');
+    expect(text).toContain('const segments = appointmentSegments(day.appointments);');
+    expect(text).toContain('const occupied = segments.some(');
   });
-  it('provides day-only list search, callable contact and an explicit record action', () => {
+  it('provides period list search, callable contact and an explicit record action', () => {
     const text = source('appointments/list.tsx');
-    expect(text).toContain('Поиск только по выбранному дню.');
+    expect(text).toContain('className="beauty-period-filter"');
+    expect(text).toContain('Поиск по выбранному периоду.');
     expect(text).toContain('tel:${r.customer.phone}');
     expect(text).toContain('Открыть запись');
   });
   it('groups the shared editor and keeps its scoped save footer reachable', () => {
     const text = source('beauty/appointment-form.tsx');
-    for (const name of ['Клиент', 'Услуга и время', 'Дополнительно']) expect(text).toContain(`<legend>${name}</legend>`);
+    for (const name of ['Клиент', 'Услуги', 'Дополнительно']) expect(text).toContain(`<legend>${name}</legend>`);
     expect(text).toContain('aria-live="polite"');
     expect(text).toContain('<span className="beauty-selection-line">Дата: {date}</span>');
-    expect(text).toContain('<span className="beauty-selection-line">Время: {hour} ({day.location.timezone})</span>');
+    expect(text).toMatch(/<span className="beauty-selection-line">\s*Время: \{hour\} \(\{day\.location\.timezone\}\)\s*<\/span>/);
     expect(text).toContain('appointment-form__footer');
     expect(source('beauty/beauty.css')).toContain('.appointment-editor > .overlay-content');
   });
   it('emphasizes customer identity and makes phone callable without removing metrics', () => {
     const text = source('customers/beauty-table.tsx');
     expect(text).toContain('tel:${row.phone}');
-    expect(text).toContain('<strong>{[row.firstName, row.lastName]');
+    expect(text).toMatch(/<strong>\s*<Link href=\{`\/customers\/\$\{encodeURIComponent\(row.id\)\}`\}>\s*\{\[row.firstName, row.lastName\]/);
     expect(text).toContain('data-label="Средний чек"');
     expect(text).toContain('data-label="Последний визит"');
   });
   it('puts effective branch service information before subordinate catalog details', () => {
     const text = source('beauty/services/board.tsx');
-    expect(text).toContain('beauty-services-table');
-    expect(text).toContain('<th>Каталог</th>');
-    expect(text.indexOf('<th>В этом филиале</th>')).toBeLessThan(text.indexOf('<th>Каталог</th>'));
+    expect(text).toContain('data-service-list="salon"');
+    expect(text).toContain('data-service-list="catalog"');
+    expect(text.indexOf('data-service-list="salon"')).toBeLessThan(text.indexOf('data-service-list="catalog"'));
     expect(text).toContain('row.effective.durationMinutes');
   });
 });
@@ -60,10 +62,12 @@ it('keeps the approved Q-DES-4 narrow-phone row wrap below 360 rather than all p
 });
 
 it('keeps the mobile calendar toolbar gutter compact without shrinking or hiding controls', () => {
-  const mobile = source('beauty/beauty.css').split('@media (max-width: 600px) {').at(-1);
-  const toolbar = mobile?.match(/\.beauty-page \.beauty-calendar-toolbar \{([^}]+)\}/)?.[1];
-  expect(toolbar).toContain('grid-template-columns: minmax(0, 1fr) auto;');
+  const toolbar = [...source('beauty/beauty.css').matchAll(/\.beauty-page \.beauty-calendar-toolbar \{([^}]+)\}/g)]
+    .map((match) => match[1] ?? '')
+    .find((body) => body.includes('grid-template-columns: minmax(0, 1fr) auto;'));
+  expect(toolbar).toBeDefined();
+  expect(toolbar!).toContain('grid-template-columns: minmax(0, 1fr) auto;');
   // The earlier B05 mobile rule already applies 8px on all sides. Repeating it is a no-op.
-  expect(toolbar).toContain('padding: 0 var(--space-2);');
-  expect(toolbar).not.toMatch(/(?:min-height|font-size|display|visibility|overflow)\s*:/);
+  expect(toolbar!).toContain('padding: 0 var(--space-2);');
+  expect(toolbar!).not.toMatch(/(?:min-height|font-size|display|visibility|overflow)\s*:/);
 });

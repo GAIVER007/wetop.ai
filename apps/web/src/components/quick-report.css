@@ -143,7 +143,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--surface);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-floating);
   }
   .employee-filter-menu > .inp {
     width: 100%;
@@ -252,3 +252,9 @@
     }
   }
 }
+
+.quick-report-statuses .quick-status-dot--neutral { background: var(--text-2); }
+.quick-report-statuses .quick-status-dot--info { background: var(--info); }
+.quick-report-statuses .quick-status-dot--success { background: var(--success); }
+.quick-report-statuses .quick-status-dot--warning { background: var(--warning); }
+.quick-report-statuses .quick-status-dot--danger { background: var(--danger); }

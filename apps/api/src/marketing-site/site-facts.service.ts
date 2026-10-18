@@ -1,3 +1,4 @@
+import { filterBeautyLocations } from '../beauty/access';
 import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   accessDeniedMessage,
@@ -257,6 +258,7 @@ export class SiteFactsService {
       select: { id: true, businessId: true, business: { select: { vertical: true } } },
     });
     if (!row) throw new NotFoundException(FACTS_LOCATION_NOT_FOUND);
+    if (!(await filterBeautyLocations(this.prisma.db,[{id:row.id,businessId:row.businessId,vertical:row.business.vertical}],{section:'settings',action:'view'})).length) throw new NotFoundException(FACTS_LOCATION_NOT_FOUND);
     const role = currentRole() ?? 'STAFF';
     if (!canAt(role, currentAssignments(), FACTS_PERMISSION, { businessId: row.businessId, locationId: row.id }))
       throw new ForbiddenException(accessDeniedMessage(FACTS_PERMISSION));
@@ -281,8 +283,9 @@ export class SiteFactsService {
     const role = currentRole() ?? 'STAFF';
     const assignments = currentAssignments();
     const visible = new Set(visibleLocations(role, assignments, rows).map((r) => r.id));
+    const permitted = new Set((await filterBeautyLocations(this.prisma.db, rows.map(row=>({id:row.id,businessId:row.businessId,vertical:row.business.vertical})),{section:'settings',action:'view'})).map(row=>row.id));
     const items = rows
-      .filter((r) => visible.has(r.id) && canAt(role, assignments, FACTS_PERMISSION, { businessId: r.businessId, locationId: r.id }))
+      .filter((r) => permitted.has(r.id) && visible.has(r.id) && canAt(role, assignments, FACTS_PERMISSION, { businessId: r.businessId, locationId: r.id }))
       .map((r) => ({
         id: r.id,
         name: r.name,

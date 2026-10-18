@@ -24,8 +24,17 @@ describe('calendar quick reports', () => {
     expect(report.money[0]?.values).toEqual({ KZT: '9007199254741000', USD: '120' });
   });
   it('splits appointment receipts by method without a redundant all-booking price', () => {
-    const report = beautyQuickReport([{ id: 'a', status: 'DONE', priceMinor: '100', currency: 'KZT',
-      customer: { id: 'c' }, paidCashMinor: '40', paidNonCashMinor: '60' }]);
+    const report = beautyQuickReport([
+      {
+        id: 'a',
+        status: 'DONE',
+        priceMinor: '100',
+        currency: 'KZT',
+        customer: { id: 'c' },
+        paidCashMinor: '40',
+        paidNonCashMinor: '60',
+      },
+    ]);
     expect(report.money.find((m) => m.label === 'Оплата наличными')?.values).toEqual({ KZT: '40' });
     expect(report.money.find((m) => m.label === 'Оплата безналом')?.values).toEqual({ KZT: '60' });
     expect(report.money.some((m) => m.label === 'Стоимость всех записей')).toBe(false);
@@ -133,5 +142,43 @@ describe('calendar quick reports', () => {
     expect(report.money.find((m) => m.label === 'Возвращено по заказам')?.values).toEqual({
       KZT: '200',
     });
+  });
+});
+
+describe('Beauty report service-line discounts', () => {
+  it('sums stored discounts per currency once per visit and excludes cancelled visits', () => {
+    const report = beautyQuickReport([
+      {
+        id: 'usd',
+        status: 'BOOKED',
+        customer: { id: 'c' },
+        priceMinor: '700',
+        currency: 'USD',
+        items: [{ discountMinor: '100' }, { discountMinor: '200' }],
+      },
+      {
+        id: 'jpy',
+        status: 'DONE',
+        customer: { id: 'c' },
+        priceMinor: '500',
+        currency: 'JPY',
+        items: [{ discountMinor: '50' }],
+      },
+      {
+        id: 'cancelled',
+        status: 'CANCELLED',
+        customer: { id: 'd' },
+        priceMinor: '0',
+        currency: 'USD',
+        items: [{ discountMinor: '999' }],
+      },
+    ]);
+    expect(report.total).toBe(3);
+    expect(report.money.find((m) => m.label === 'Скидки на услуги')?.values).toEqual({
+      USD: '300',
+      JPY: '50',
+    });
+    expect(report.note).not.toContain('Скидки и бонусы: отдельный учёт');
+    expect(report.money.flatMap((m) => m.hint).join(' ')).not.toContain('тиына');
   });
 });

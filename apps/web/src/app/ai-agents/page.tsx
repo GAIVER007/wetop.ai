@@ -13,6 +13,8 @@ import {
 import { sellerApi, type AgentCardView, type AgentCatalogView } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
 import { loadErrorProps } from '../../lib/load-error';
+import { sellerVerticalUiCopy } from '../../lib/ai-seller';
+import type { WebVertical } from '../../lib/vertical-landing';
 
 /**
  * Каталог «ИИ-агентов» (S0: `plans/ai-agents-wetop-support-2026-09-29.md`, Q-A2; SA1: `plans/business-ai-seller-v2-2026-09-29.md`
@@ -23,7 +25,7 @@ import { loadErrorProps } from '../../lib/load-error';
  * через «Техподдержка → Написать в поддержку».
  */
 export default async function AiAgentsPage() {
-  const { readOnly } = await deskShell();
+  const { readOnly, vertical } = await deskShell();
   let catalog: AgentCatalogView | null = null;
   let failure: unknown = null;
   try {
@@ -44,7 +46,7 @@ export default async function AiAgentsPage() {
       )}
       <Stack>
         <Grid min={280}>
-          {catalog && catalog.extension?.access === 'off' && <OffCard />}
+          {catalog && catalog.extension?.access === 'off' && <OffCard vertical={vertical} />}
           {catalog?.agents.map((agent) => (
             <AgentCard key={agent.id} agent={agent} />
           ))}
@@ -89,11 +91,12 @@ export default async function AiAgentsPage() {
 }
 
 /** Расширение не подключено: вместо списка — что даёт продавец и как его подключить (Q-SA-1: счёт, цены здесь нет) */
-function OffCard() {
+function OffCard({ vertical }: { vertical: WebVertical }) {
+  const copy = sellerVerticalUiCopy(vertical);
   return (
     <Panel title="ИИ-продавец" className="agent-card" data-testid="agent-seller">
       <Stack gap="sm">
-        <div>Автоматизируйте ответы гостям, подбор размещения и продажи.</div>
+        <div>{copy.agentCard}</div>
         <div data-testid="agent-seller-off" className="muted">
           Расширение «ИИ-продавец» не подключено. Подключает администратор WETOP после оплаты по
           счёту.

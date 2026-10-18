@@ -22,6 +22,10 @@ describe('employee portal real persistence and authorization',()=>{
   it('resolves self from verified account, rejects other staff and manager route',async()=>{
     const dto=await as('staffA',()=>service.get(null,{}));
     expect(dto.access).toBe('SELF'); expect(dto.employee.id).toBe(f.employeeA);
+    expect((dto as typeof dto & {canUpload?:boolean}).canUpload).toBe(true);
+    const off=new EmployeePortalService({db} as PrismaService,null);
+    const unavailable=await as('staffA',()=>off.get(null,{}));
+    expect((unavailable as typeof unavailable & {canUpload?:boolean}).canUpload).toBe(false);
     expect(dto.pay.earnedMinor).toBeNull(); expect(dto.pay.status).toBe('NOT_CONFIGURED');
     await expect(as('staffA',()=>service.get(f.employeeB,{}))).rejects.toThrow();
     await expect(as('ownerB',()=>service.get(f.employeeA,{}))).rejects.toThrow();

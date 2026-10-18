@@ -29,6 +29,7 @@ export default defineConfig({
       env: {
         APP_API_URL: api,
         APP_ALLOW_TEST_DATA: '1',
+        APP_UI_TEST: '1',
         APP_URL: web,
       },
     },

@@ -1,15 +1,17 @@
 import Link from 'next/link';
 import { Badge, Panel, SectionTitle, Table } from '../../../components/ui';
-import { sellerBanner } from '../../../lib/ai-seller';
+import { sellerBanner, sellerVerticalUiCopy } from '../../../lib/ai-seller';
 import type { SellerStatus } from '../../../lib/api';
+import type { WebVertical } from '../../../lib/vertical-landing';
 
 /**
  * «Сценарии» ИИ-продавца (макет владельца 09.10.2026). Работает один сценарий, «Продажи»: его инструкция и знания
  * правятся на соседних вкладках. Остальные показаны как готовящиеся и не включаются; конструктор поведения (свои
  * сценарии, шаги, условия) ждёт отдельного решения владельца (SA3), поэтому здесь его нет.
  */
-export function ScenariosView({ status }: { status: SellerStatus }) {
+export function ScenariosView({ status, vertical = 'HOSPITALITY' }: { status: SellerStatus; vertical?: WebVertical }) {
   const banner = sellerBanner(status);
+  const copy = sellerVerticalUiCopy(vertical);
   const salesTone = banner.tone === 'calm' ? 'ok' : banner.tone === 'alarm' ? 'danger' : 'warn';
   return (
     <Panel aria-labelledby="seller-scenarios-title" data-testid="seller-scenarios">
@@ -32,8 +34,7 @@ export function ScenariosView({ status }: { status: SellerStatus }) {
               <Badge tone={salesTone}>{banner.value}</Badge>
             </td>
             <td>
-              Отвечает гостям на сайте и в мессенджерах, подбирает номер на даты, называет цену из WETOP,
-              собирает контакт и после явного «да» гостя создаёт бронь.
+              {copy.scenarioSales}
             </td>
             <td>
               <Link href="/ai-seller">Инструкция</Link>, <Link href="/ai-seller/knowledge">знания</Link>
@@ -44,7 +45,7 @@ export function ScenariosView({ status }: { status: SellerStatus }) {
             <td>
               <Badge tone="neutral">скоро</Badge>
             </td>
-            <td>Отвечает на вопросы о проживании и правилах без продажи.</td>
+            <td>{copy.scenarioSupport}</td>
             <td>Пока недоступно</td>
           </tr>
         </tbody>

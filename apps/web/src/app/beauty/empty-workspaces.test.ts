@@ -9,6 +9,7 @@ vi.mock('./appointment-form', () => ({ AppointmentForm: () => null }));
 vi.mock('./appointment-card', () => ({ AppointmentCard: () => null }));
 vi.mock('./date-bar', () => ({ DateBar: () => null }));
 vi.mock('./actions', () => ({}));
+vi.mock('../customers/actions', () => ({ markBeautyCustomer: vi.fn(), applyBeautyCustomerImport: vi.fn(), createBeautyCustomer: vi.fn(), previewBeautyCustomerImport: vi.fn() }));
 vi.mock('../../components/use-confirm', () => ({ useConfirm: () => ({}) }));
 
 import { JournalBoard } from './journal';

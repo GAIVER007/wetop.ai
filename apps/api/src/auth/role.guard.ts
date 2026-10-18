@@ -13,6 +13,7 @@ import { ROUTE_ACCESS, type RouteAccess } from './access.decorator';
 import type { SignedInUser } from './auth.service';
 import { ORGANIZATION_LEVEL_ROUTE } from './organization-level.decorator';
 import { PUBLIC_ROUTE } from './public.decorator';
+import { BEAUTY_ACCESS, type BeautyRequirement } from '../beauty/access.decorator';
 
 export const SERVICE_KEY_ONLY = 'Этот адрес — только для служебного ключа, не для входа человека';
 export const ROUTE_WITHOUT_ACCESS = 'У этого адреса не записано, кому он открыт: доступ закрыт';
@@ -43,6 +44,9 @@ export class RoleGuard implements CanActivate {
       throw new ForbiddenException(PLATFORM_ADMIN_ONLY);
     }
     if (access === 'service') throw new ForbiddenException(SERVICE_KEY_ONLY);
+    const beauty = this.reflector.getAllAndOverride<BeautyRequirement | undefined>(BEAUTY_ACCESS, targets);
+    // Exact action is checked after the business pointer has been verified by AuthorInterceptor.
+    if (beauty && !beauty.managerOnly && access !== 'owner') return true;
     // человеку с областью доступа организационные разделы закрыты, какая бы роль у него ни была в филиале (§31.1)
     if (isRestricted(user.role, user.scopes ?? [])) {
       if (ORGANIZATION_LEVEL_PERMISSIONS.includes(access))

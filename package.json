@@ -59,6 +59,7 @@
     "@nestjs/platform-express": "12.1.1",
     "@playwright/test": "^1.63.0",
     "@types/node": "^26.5.0",
+    "@types/yauzl": "2.10.3",
     "eslint": "^10.10.0",
     "prettier": "^3.9.6",
     "tsx": "^4.23.13",
@@ -71,5 +72,9 @@
     "@prisma/engines@7.10.0": true,
     "fsevents@2.3.3": true,
     "esbuild@0.28.2": true
+  },
+  "dependencies": {
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "yauzl": "3.4.0"
   }
 }

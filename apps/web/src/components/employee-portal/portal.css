@@ -98,6 +98,24 @@
 .employee-portal [data-testid='portal-week'] { width: fit-content; max-width: 100%; }
 .portal-service-picker { margin-top: var(--space-4); }
 .employee-portal .portal-service-picker > summary { display: inline-flex; align-items: center; padding: var(--space-2) var(--space-4); }
+.portal-service-prices { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+.portal-service-price-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-2); align-items: end; padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-muted); }
+.portal-service-price-form > header { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: var(--space-4); align-items: start; }
+.portal-service-price-form > header div { display: grid; gap: var(--space-1); }
+.portal-service-price-form > header small, .portal-service-price-form > header span { color: var(--text-2); }
+.portal-service-price-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.portal-service-price-note, .portal-service-price-form > :is([role='alert'],[role='status']) { grid-column: 1 / -1; margin: 0; }
+.portal-reviews-summary { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--space-2) var(--space-4); }
+.employee-portal .portal-reviews-summary h2 { margin: 0; }
+.portal-reviews-summary p { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1); }
+.portal-reviews-summary p span:last-child { margin-left: var(--space-2); color: var(--text-2); }
+.portal-reviews-summary strong { font-size: var(--text-2xl); }
+.portal-review-list { display: grid; gap: var(--space-2); margin: var(--space-4) 0 0; padding: 0; list-style: none; }
+.portal-review-list li { padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-muted); }
+.portal-review-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); }
+.portal-review-meta time { color: var(--text-2); }
+.employee-portal .portal-review-list p { margin-bottom: 0; color: var(--text); }
+.employee-portal .portal-review-limit { color: var(--text-2); font-size: var(--text-sm); }
 .portal-finance-top { display: flex; justify-content: space-between; align-items: end; gap: var(--space-4); margin-bottom: var(--space-4); flex-wrap: wrap; }
 .portal-finance-period { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
 .portal-finance-period .field { margin: 0; }
@@ -142,6 +160,8 @@
   .portal-time-field { flex: 1; }
   .portal-time-field > span { display: none; }
   .portal-time-field .inp { width: 100%; padding-inline: var(--space-1); font-size: var(--text-sm); }
+  .portal-service-price-form { grid-template-columns: 1fr; padding: var(--space-2); }
+  .portal-service-price-form > header { display: grid; gap: var(--space-1); }
 }
 @media (min-width: 1280px) {
   .portal-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }

@@ -1,7 +1,9 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { BeautyCustomersTable } from './beauty-table';
+
+vi.mock('server-only', () => ({}));
 
 describe('Дата последнего визита клиента салона', () => {
   it('показывает локальный день визита вместо предыдущего дня UTC', () => {
@@ -13,6 +15,7 @@ describe('Дата последнего визита клиента салона
         lastVisitLocalDate: '2026-10-12',
         avgCheckMinor: '800000', avgCheckCurrency: 'KZT', isVip: false, birthDate: null, birthdayInDays: null,
       }],
+      scopeKey: 'business-test:location-test',
     }));
     expect(html).toContain('dateTime="2026-10-12"');
     expect(html).not.toContain('dateTime="2026-10-11"');

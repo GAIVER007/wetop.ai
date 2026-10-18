@@ -42,6 +42,7 @@ type BeautyRow = {
   paidNonCashMinor?: string;
   currency: string;
   customer: { id: string };
+  items?: Array<{ discountMinor: string }>;
 };
 export function beautyQuickReport(rows: BeautyRow[]): QuickReportData {
   const { counts, revenue } = beautyPeriod(rows);
@@ -61,7 +62,7 @@ export function beautyQuickReport(rows: BeautyRow[]): QuickReportData {
     {
       label: 'Средняя стоимость завершённой записи',
       values: average,
-      hint: 'Сумма завершённых услуг / число завершённых записей в каждой валюте. Остаток тиына отбрасывается, как в статистике клиентов.',
+      hint: 'Сумма завершённых услуг / число завершённых записей в каждой валюте. Результат округляется вниз до минимальной единицы соответствующей валюты.',
     },
   ];
   if (
@@ -81,11 +82,36 @@ export function beautyQuickReport(rows: BeautyRow[]): QuickReportData {
       },
     );
   }
-  if (rows.length && rows.every((r) => r.paidCashMinor !== undefined && r.paidNonCashMinor !== undefined)) {
-    for (const [label, field] of [['Оплата наличными', 'paidCashMinor'], ['Оплата безналом', 'paidNonCashMinor']] as const) {
-      money.push({ label, values: sums(rows.map((r) => ({ amount: r[field]!, currency: r.currency }))),
-        hint: 'Действующие приходы по выбранным записям за всё время. Возвраты показаны отдельно. Безнал включает карту и переводы.' });
+  if (
+    rows.length &&
+    rows.every((r) => r.paidCashMinor !== undefined && r.paidNonCashMinor !== undefined)
+  ) {
+    for (const [label, field] of [
+      ['Оплата наличными', 'paidCashMinor'],
+      ['Оплата безналом', 'paidNonCashMinor'],
+    ] as const) {
+      money.push({
+        label,
+        values: sums(rows.map((r) => ({ amount: r[field]!, currency: r.currency }))),
+        hint: 'Действующие приходы по выбранным записям за всё время. Возвраты показаны отдельно. Безнал включает карту и переводы.',
+      });
     }
+  }
+  if (rows.some((row) => row.items !== undefined)) {
+    money.push({
+      label: 'Скидки на услуги',
+      values: sums(
+        rows
+          .filter((row) => row.status !== 'CANCELLED')
+          .flatMap((row) =>
+            (row.items ?? []).map((line) => ({
+              amount: line.discountMinor,
+              currency: row.currency,
+            })),
+          ),
+      ),
+      hint: 'Сохранённые скидки строк услуг выбранных записей, кроме отменённых. Каждая строка учитывается один раз; это не выплата из кассы.',
+    });
   }
   return {
     total: rows.length,
@@ -93,7 +119,7 @@ export function beautyQuickReport(rows: BeautyRow[]): QuickReportData {
     itemLabel: 'Записей',
     statuses: statuses(beautyStatus, counts),
     money,
-    note: 'Скидки и бонусы: отдельный учёт для записей пока не ведётся.',
+    note: 'Бонусы, абонементы и сертификаты: отдельный учёт для записей пока не ведётся.',
   };
 }
 

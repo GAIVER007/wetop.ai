@@ -11,6 +11,7 @@ import {
   Inject,
   Ip,
   Post,
+  Optional,
   Query,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -26,6 +27,8 @@ import { Public } from './public.decorator';
 import { visitorKey } from './attempt-limits';
 import { Access } from './access.decorator';
 import { scopeView } from './request-context';
+import { PrismaService } from '../database/prisma.provider';
+import { currentBeautyPositionAccess } from '../beauty/access';
 
 /** Подпись устройства для списка «Где вы вошли»: браузер и система словами, строку агента целиком не храним */
 function sessionDevice(userAgent: string | undefined): string | null {
@@ -71,6 +74,7 @@ export class AuthController {
     @Inject(PasswordResetService) private readonly reset: PasswordResetService,
     @Inject(EmailVerificationService) private readonly verification: EmailVerificationService,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
+    @Optional() @Inject(PrismaService) private readonly prisma?: PrismaService,
   ) {}
 
   /** Окна лимитов по адресу; адрес нигде не сохраняется — только ключ окна в памяти */
@@ -204,9 +208,12 @@ export class AuthController {
         : null;
     // указатель на место без назначения не подтверждаем: любой маршрут ответил бы ему 403, а стойка по пустому
     // context.businessId видит устаревший выбор и ведёт на выбор филиала (CORE-SECURITY-FIX-01, восстановление указателя)
-    const unassigned = restricted && ctx.businessId !== null && place === null;
+    const beautyAccess = this.prisma && signedIn.user.role !== 'OWNER' && ctx.vertical === 'BEAUTY' && ctx.businessId
+      ? await currentBeautyPositionAccess(this.prisma.db) : undefined;
+    const unassigned = (restricted && ctx.businessId !== null && place === null) || (beautyAccess?.mode === 'ASSIGNED' && !beautyAccess.assigned);
     return {
       ...signedIn,
+      ...(beautyAccess ? { beautyAccess } : {}),
       user: restricted
         ? { ...signedIn.user, role: place ?? signedIn.user.role, restricted: true }
         : signedIn.user,

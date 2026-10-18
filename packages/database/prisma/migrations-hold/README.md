@@ -50,3 +50,5 @@ Populated/partial schema требует сохранения hooks/history и с
 Локальная synthetic-репетиция НЕ доказывает production baseline, backup/restore, runtime RLS,
 валидность business fixtures или конкурентную нагрузку. Она клонирует metadata без source FK/triggers;
 malformed retained fixtures изолированы savepoint. Реальная проверка backup/restore остаётся блокером.
+
+- `20261018000135_beauty_location_hours`: утверждённые часы салона и граница новой записи. Требует held131 и совместимого API, backup/validation/rollback в README миграции; production применяет владелец.

@@ -17,6 +17,7 @@ const HELD_TENANT_TABLES = [
   'workload_tracking_coverage', 'resource_capacity_revisions', 'resource_capacity_intervals', 'workload_coverage_segments',
   'restaurant_opening_schedules', 'restaurant_opening_intervals', 'restaurant_opening_closures',
   'beauty_schedule_versions', 'beauty_capacity_intervals', 'appointment_workload_revisions',
+  'appointment_lines', 'employee_service_prices',
   'hospitality_workload_versions', 'hospitality_workload_sources',
 ] as const;
 let TENANT_TABLES: readonly string[] = RLS_TENANT_TABLES;

@@ -11,7 +11,9 @@ import {
 import { from, lastValueFrom, type Observable } from 'rxjs';
 import { PrismaService } from '../database/prisma.provider';
 import type { SignedInUser } from './auth.service';
-import { withSignedInUser, currentVertical } from './request-context';
+import { withSignedInUser, currentVertical, withVerifiedBeautyOperation } from './request-context';
+import { BEAUTY_ACCESS, type BeautyRequirement } from '../beauty/access.decorator';
+import { authorizeBeautyRequirement, currentBeautyPositionAccess } from '../beauty/access';
 import { BUSINESS_CAPABILITY } from './capability.decorator';
 import { PUBLIC_ROUTE } from './public.decorator';
 import { assertBusinessCapability, resolveBusinessVertical } from './business-vertical';
@@ -98,6 +100,27 @@ export class AuthorInterceptor implements NestInterceptor {
           throw new ForbiddenException('Выберите доступный бизнес');
         await this.capability(capability);
       }
+      const requirement: BeautyRequirement | undefined = handler &&
+        (Reflect.getMetadata(BEAUTY_ACCESS, handler) ?? (controller && Reflect.getMetadata(BEAUTY_ACCESS, controller)));
+      const routeAccess: RouteAccess | undefined = handler &&
+        (Reflect.getMetadata(ROUTE_ACCESS, handler) ?? (controller && Reflect.getMetadata(ROUTE_ACCESS, controller)));
+      if (!publicRoute && actor.userId && requirement && routeAccess && !['owner', 'platform', 'service'].includes(routeAccess)) {
+        if (currentVertical() === 'BEAUTY') {
+          if (!this.prisma) throw new ForbiddenException('Не удалось проверить права должности');
+          if (requirement.managerOnly && !can(role, 'staff')) throw new ForbiddenException('Назначать должности может руководитель');
+          const operation = await authorizeBeautyRequirement(this.prisma.db, requirement, routeAccess as import('@pms/domain').Permission);
+          const positionAccess = await currentBeautyPositionAccess(this.prisma.db);
+          return withVerifiedBeautyOperation(operation, () => lastValueFrom(next.handle(), { defaultValue: undefined }), positionAccess);
+        }
+        // A shared annotated endpoint must retain its old role gate outside Beauty.
+        if (!can(role, routeAccess as import('@pms/domain').Permission)) throw new ForbiddenException(accessDeniedMessage(routeAccess as import('@pms/domain').Permission));
+      } else if (!publicRoute && actor.userId && role !== 'OWNER' && currentVertical() === 'BEAUTY' && this.prisma) {
+        const scopeAware = handler && (Reflect.getMetadata(SCOPE_AWARE, handler) ?? (controller && Reflect.getMetadata(SCOPE_AWARE, controller)));
+        if (!scopeAware && routeAccess !== 'self' && routeAccess !== 'platform') {
+          const custom = await currentBeautyPositionAccess(this.prisma.db);
+          if (custom.mode === 'ASSIGNED') throw new ForbiddenException('У должности нет разрешения на этот раздел салона');
+        }
+      }
       return lastValueFrom(next.handle(), { defaultValue: undefined });
     });
     return from([value]);
@@ -150,7 +173,8 @@ export class AuthorInterceptor implements NestInterceptor {
     if (!target) throw new ForbiddenException(SCOPE_CHOOSE_MESSAGE);
     const placeRole = roleAt(role as SignedInUser['role'], assignments, target);
     if (!placeRole) throw new ForbiddenException(SCOPE_FORBIDDEN_MESSAGE);
-    if (!can(placeRole, access)) throw new ForbiddenException(accessDeniedMessage(access));
+    const beauty: BeautyRequirement | undefined = reflectOn(BEAUTY_ACCESS);
+    if ((!beauty || beauty.managerOnly) && !can(placeRole, access)) throw new ForbiddenException(accessDeniedMessage(access));
     return placeRole;
   }
 

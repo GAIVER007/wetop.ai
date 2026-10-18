@@ -40,11 +40,13 @@ import {
   sellerChecklist,
   sellerConnected,
   sellerPromptDraft,
+  sellerVerticalUiCopy,
   sellerReadOnlyReason,
   type SellerChecklistItem,
   type SellerView,
   sellerDataLinks,
 } from '../../../lib/ai-seller';
+import type { WebVertical } from '../../../lib/vertical-landing';
 import { hotelClock } from '../../../lib/hotel-api';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
@@ -118,7 +120,7 @@ export default async function AiSellerPage({
   if (!SELLER_TABS.some((item) => item.view === view)) notFound();
   // администратору раздел — это диалоги с гостями (ADR-107): настройку, знания и подключения ведут владелец и
   // управляющий; напоминание о продлении платного расширения — только владельцу
-  const { access } = await deskShell();
+  const { access, vertical } = await deskShell();
   const configure = mayAccess(access, 'seller');
   if (!configure && view === '') redirect('/ai-seller/dialogs');
   const tabs = SELLER_TABS.filter((item) => configure || item.view === 'dialogs');
@@ -163,6 +165,7 @@ export default async function AiSellerPage({
           q={one(query.q)}
           channel={one(query.channel)}
           owner={mayAccess(access, 'owner')}
+          vertical={vertical}
         />
       </Suspense>
     </Page>
@@ -192,6 +195,7 @@ async function SellerScreen({
   q,
   channel,
   owner,
+  vertical,
 }: {
   view: SellerView;
   mode: string;
@@ -201,12 +205,13 @@ async function SellerScreen({
   channel: string;
   /** Платные расширения — владельческое (ADR-107): напоминание о продлении только ему */
   owner: boolean;
+  vertical: WebVertical;
 }) {
   const status = await settle(sellerApi.status());
   if (!status.ok) return <LoadError testId="seller-error" {...loadErrorProps(status.error)} />;
   if (status.value.state === 'extension-off') {
     const { access } = await deskShell();
-    return <ExtensionOff status={status.value} platform={access.platform} />;
+    return <ExtensionOff status={status.value} platform={access.platform} vertical={vertical} />;
   }
   // напоминание — тому, кто продлевает: владельцу организации (Q-183, ADR-107)
   const reminder =
@@ -221,12 +226,12 @@ async function SellerScreen({
       {view === 'overview' && <OverviewView status={status.value} />}
       {view === '' && <Stack>
         <OverviewView status={status.value} />
-        <details className="seller-setup-disclosure"><summary>Настройка продавца</summary><SetupView status={status.value} /></details>
+        <details className="seller-setup-disclosure"><summary>Настройка продавца</summary><SetupView status={status.value} vertical={vertical} /></details>
       </Stack>}
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} q={q} channel={channel} />}
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
-      {view === 'connections' && <ConnectionsView status={status.value} summary />}
-      {view === 'scenarios' && <ScenariosView status={status.value} />}
+      {view === 'connections' && <ConnectionsView status={status.value} summary vertical={vertical} />}
+      {view === 'scenarios' && <ScenariosView status={status.value} vertical={vertical} />}
       {view === 'analytics' && <AnalyticsView days={days} status={status.value} />}
     </Stack>
   );
@@ -236,7 +241,7 @@ async function SellerScreen({
  * «Настройка» (макет владельца 26.09.2026): сверху — только то, что осталось до запуска; ниже — одно окно инструкции
  * и рядом разговор с продавцом до публикации. Пустое окно заполнено черновиком из прежних полей — ничего не теряется.
  */
-async function SetupView({ status }: { status: SellerStatus }) {
+async function SetupView({ status, vertical }: { status: SellerStatus; vertical: WebVertical }) {
   const readOnly = sellerReadOnlyReason(status);
   const connected = sellerConnected(status);
   const [prompt, profile, key, clock] = await Promise.all([
@@ -254,7 +259,8 @@ async function SetupView({ status }: { status: SellerStatus }) {
     : sellerChecklist(status, key?.ok ? key.value.set : null, prompt.value);
   const initial =
     prompt.value.text ||
-    sellerPromptDraft(profile.ok && profile.value.saved ? profile.value.profile : null);
+    sellerPromptDraft(profile.ok && profile.value.saved ? profile.value.profile : null, vertical);
+  const copy = sellerVerticalUiCopy(vertical);
   const note =
     prompt.value.applied && prompt.value.updatedAt
       ? `Применено ${clock.when(prompt.value.updatedAt)}`
@@ -278,7 +284,7 @@ async function SetupView({ status }: { status: SellerStatus }) {
           />
           <p className="settings-note seller-setup__note">
             <Icon name="board" width={16} height={16} aria-hidden="true" />
-            Цены, номера, заезд и выезд продавец берёт из WETOP сам — их писать не нужно.
+            {copy.setupData}
           </p>
           <p className="settings-note seller-setup__note">
             <Icon name="shield" width={16} height={16} aria-hidden="true" />
@@ -288,7 +294,7 @@ async function SetupView({ status }: { status: SellerStatus }) {
         </Panel>
         <PromptVersions canRestore={!readOnly} />
         </Stack>
-        <ConnectionsView status={status} />
+        <ConnectionsView status={status} vertical={vertical} />
         <Panel data-testid="seller-check" aria-labelledby="seller-check-title">
           <SectionTitle first id="seller-check-title">
             Проверка
@@ -417,7 +423,7 @@ function SetupChecklist({ items }: { items: SellerChecklistItem[] }) {
 }
 
 /** «Подключения»: модель, код для сайта и WhatsApp — всё, что связывает продавца с внешним миром, на одном экране */
-async function ConnectionsView({ status, summary = false }: { status: SellerStatus; summary?: boolean }) {
+async function ConnectionsView({ status, summary = false, vertical }: { status: SellerStatus; summary?: boolean; vertical: WebVertical }) {
   return (
     <div className="seller-connection-steps">
       {summary && <ChannelsTable status={status} />}
@@ -443,7 +449,7 @@ async function ConnectionsView({ status, summary = false }: { status: SellerStat
         <summary>
           4. Чат на сайте <span>Код для установки на ваш сайт</span>
         </summary>
-        <EmbedView status={status} />
+        <EmbedView status={status} vertical={vertical} />
       </details>
     </div>
   );
@@ -494,8 +500,9 @@ async function WhatsAppView({ status }: { status: SellerStatus }) {
 }
 
 /** Расширение не подключено: вместо экранов — что это и кто подключает; прочитать сохранённое API тоже не даст */
-function ExtensionOff({ status, platform }: { status: SellerStatus; platform: boolean }) {
+function ExtensionOff({ status, platform, vertical }: { status: SellerStatus; platform: boolean; vertical: WebVertical }) {
   const banner = sellerBanner(status);
+  const copy = sellerVerticalUiCopy(vertical);
   return (
     <EmptyState
       icon={<Icon name="chat" width={32} height={32} />}
@@ -512,8 +519,7 @@ function ExtensionOff({ status, platform }: { status: SellerStatus; platform: bo
         </Row>
       }
     >
-      Продавец отвечает гостям в чате на сайте объекта: называет цены по тарифу сайта, рассказывает
-      о правилах, берёт контакт и зовёт человека, когда нужно. {banner.text}
+      {copy.extensionOff} {banner.text}
     </EmptyState>
   );
 }
@@ -970,7 +976,7 @@ function ActionClosed({ title }: { title: string }) {
   );
 }
 
-async function EmbedView({ status }: { status: SellerStatus }) {
+async function EmbedView({ status, vertical }: { status: SellerStatus; vertical: WebVertical }) {
   if (status.state === 'extension-expired')
     return <ActionClosed title="Код для сайта — при действующем расширении" />;
   const loaded = await settle(sellerApi.embed());
@@ -978,6 +984,7 @@ async function EmbedView({ status }: { status: SellerStatus }) {
     return <LoadError testId="seller-embed-error" {...loadErrorProps(loaded.error)} />;
   const snippet = loaded.value.snippet;
   const hosts = loaded.value.hosts ?? [];
+  const copy = sellerVerticalUiCopy(vertical);
   if (!snippet)
     return (
       <EmptyState
@@ -993,8 +1000,7 @@ async function EmbedView({ status }: { status: SellerStatus }) {
       <SectionTitle first>Чат продавца на сайте объекта</SectionTitle>
       <p className="settings-note">
         Вставьте код перед закрывающим &lt;/body&gt; каждой страницы сайта (в Tilda и WordPress —
-        поле «HTML-код»). Гость пишет анонимно. В коде — публичный ключ вашей гостиницы: по нему
-        продавец узнаёт её и отвечает только с доменов её сайта.
+        поле «HTML-код»). {copy.embedIdentity}
       </p>
       <pre className="code" data-testid="seller-embed-snippet">
         {snippet}
@@ -1008,8 +1014,7 @@ async function EmbedView({ status }: { status: SellerStatus }) {
         </p>
       ) : (
         <p className="settings-note" data-testid="seller-embed-no-site">
-          У гостиницы нет сайта в «Настройках сайта» — виджету не с чего открываться. Заведите сайт
-          с доменом, и продавец начнёт пускать с него.
+          {copy.embedNoSite}
         </p>
       )}
     </Panel>

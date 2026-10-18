@@ -43,11 +43,11 @@ describe('меню салона', () => {
       ['Услуги', ['/services']],
       // «Все отчёты» салону перенаправляли на «Аналитику бизнеса»: пункта нет (аудит 17.10.2026, Д2)
       ['Статистика', ['/management/analytics']],
-      ['Склад', ['/bar/products', '/bar', '/bar/operations', '/bar/suppliers']],
+      ['Склад', ['/bar/consumables', '/bar/products', '/bar', '/bar/operations', '/bar/suppliers']],
       // касса филиала, общая с рестораном (§48, ADR-178 этап 0)
       ['Финансы', ['/cashbox', '/finance']],
       // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
-      ['Настройки', ['/journal']],
+      ['Настройки', ['/beauty-settings', '/journal']],
       // без «Конкурентов»: мониторинг соседей пока только у гостиницы
       ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/ai-agents', '/sales', '/marketing/budget', '/marketing/analytics']],
       ['Помощь', ['/help']],

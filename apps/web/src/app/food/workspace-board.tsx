@@ -194,7 +194,7 @@ export function WorkspaceBoard({
           <QuickReport
             key={`${data.scopeKey}:${data.date}`}
             date={data.date}
-            scope={`Бронирования столов · ${period ? data.periods.find((p) => p.id === period)?.name ?? 'Период' : 'Все периоды'}${area || status || search ? ' · С учётом фильтров' : ''}`}
+            scope={`Бронирования столов, ${period ? data.periods.find((p) => p.id === period)?.name ?? 'Период' : 'Все периоды'}${area || status || search ? ', С учётом фильтров' : ''}`}
             build={() => foodQuickReport(filtered.filter(onDay))}
           />
           {!floor && (

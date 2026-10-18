@@ -1,3 +1,5 @@
+import { currentBeautyAssignments, filterBeautyLocations } from '../beauty/access';
+import { currentOrganizationId, currentUserId } from './request-context';
 import { parseBusinessVertical } from '@pms/domain';
 import { registrationBusiness } from './registration-contract';
 import 'reflect-metadata';
@@ -223,6 +225,14 @@ export class AuthService {
     options?: { unambiguous?: boolean },
   ) {
     const assignments = access?.scopes ?? [];
+    if (access && access.role !== 'OWNER' && currentUserId() && currentOrganizationId() === organizationId && (await currentBeautyAssignments(this.prisma.db)).length) {
+      const businesses = await this.prisma.db.business.findMany({where:{organizationId,status:'ACTIVE'},orderBy:{createdAt:'asc'},select:{id:true,name:true,vertical:true,locations:{where:{status:'ACTIVE'},orderBy:{createdAt:'asc'},select:{id:true,name:true}}}});
+      const candidates = businesses.flatMap(business => visibleLocations(access.role, assignments, business.locations.map(location=>({...location,businessId:business.id,vertical:business.vertical,businessName:business.name}))));
+      const visible = await filterBeautyLocations(this.prisma.db, candidates);
+      if (options?.unambiguous && visible.length !== 1) return null;
+      const first=visible[0];
+      return first ? {businessId:first.businessId,locationId:first.id,vertical:parseBusinessVertical(first.vertical)!,businessName:first.businessName,locationName:first.name} : null;
+    }
     if (access && isRestricted(access.role, assignments))
       return this.restrictedRegistrationContext(organizationId, access.role, assignments);
     const business = await this.prisma.db.business.findFirst({

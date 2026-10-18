@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { membershipRoleFor, type MembershipRole, type ScopeAssignment } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import type {
@@ -566,6 +566,8 @@ export class PrismaAccountsRepository implements AccountsRepository {
       const role = await lockedRole(tx, input.organizationId, input.userId);
       if (!role) return { outcome: 'missing', role: null };
       if (!input.roles.includes(role)) return { outcome: 'role', role };
+      if (await tx.beautyPositionAssignment.count({where:{organizationId:input.organizationId,userId:input.userId}}))
+        throw new ConflictException('У сотрудника сохранена история должностей салона. Приостановите доступ вместо удаления.');
       await tx.membership.delete({
         where: {
           userId_organizationId: { userId: input.userId, organizationId: input.organizationId },

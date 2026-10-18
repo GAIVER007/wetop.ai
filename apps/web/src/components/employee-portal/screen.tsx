@@ -6,12 +6,15 @@ import { requestScopeHeader } from '../../lib/scope-pointer';
 import { loadErrorProps } from '../../lib/load-error';
 import { ApiError } from '../../lib/api-error';
 import { EmployeeCabinet } from './cabinet';
+import type { PortalAccountOption } from './management';
+import type { BeautyEmployeeServicePriceRow, BeautySchedule } from '../../lib/api';
+import type { BeautyMasterDayStatus } from '../../lib/beauty-master-day-status';
 import './portal.css';
-export async function EmployeePortalScreen({ target, query = {} }: { target: PortalTarget; query?: { date?: string; month?: string } }) {
+export async function EmployeePortalScreen({ target, query = {}, locationAssignments, servicePrices, accountOptions, dayStatus }: { target: PortalTarget; query?: { date?: string; month?: string }; locationAssignments?: BeautySchedule['locations'] | null; servicePrices?: BeautyEmployeeServicePriceRow[] | null; accountOptions?: PortalAccountOption[] | null; dayStatus?: BeautyMasterDayStatus }) {
   try {
     const [data, headers] = await Promise.all([employeePortalApi.load(target, query), requestScopeHeader()]);
     return <Page title={data.access === 'MANAGER' ? 'Карточка сотрудника' : 'Моя работа'}>
-      <EmployeeCabinet key={`${headers['x-wetop-scope'] ?? ''}:${data.employee.id}`} initial={data} target={target} scope={headers['x-wetop-scope'] ?? ''} />
+      <EmployeeCabinet key={`${headers['x-wetop-scope'] ?? ''}:${data.employee.id}`} initial={data} target={target} scope={headers['x-wetop-scope'] ?? ''} {...(data.access === 'MANAGER' && locationAssignments !== undefined ? { locationAssignments } : {})} {...(data.access === 'MANAGER' && servicePrices !== undefined ? { servicePrices } : {})} {...(data.access === 'MANAGER' && accountOptions !== undefined ? { accountOptions } : {})} {...(dayStatus !== undefined ? { dayStatus } : {})} />
     </Page>;
   } catch (error) {
     unstable_rethrow(error);

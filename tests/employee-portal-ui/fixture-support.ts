@@ -12,7 +12,7 @@ export function assertPortalDatabase(purpose: 'portal' | 'public-booking' = 'por
   if (!raw || process.env.NODE_ENV === 'production') throw new Error('An explicit isolated portal fixture database is required');
   let u: URL;
   try { u = new URL(raw); } catch { throw new Error('Invalid portal fixture database target'); }
-  const ownLocal = ((['55603', '55613'].includes(u.port)
+  const ownLocal = ((['55603', '55613', '56479'].includes(u.port)
     || (purpose === 'public-booking' && u.port === '55623')) && u.pathname === '/pmslocal')
     || (u.port === '55743' && u.pathname === '/wetop_tz21');
   const githubCi = process.env.CI === 'true' && process.env.GITHUB_ACTIONS === 'true';
@@ -62,7 +62,39 @@ export async function seedPortalFixture(db: Db, vertical: PortalVertical = 'BEAU
       serviceId = service.id;
       for (const [index, location] of locations.slice(0, 2).entries())
         await tx.locationService.create({ data: { locationId: location.id, serviceId, priceOverride: index === 0 ? 6500n : 7000n } });
-      await tx.employeeService.create({ data: { employeeId: ea.id, serviceId } });
+      await tx.employeeService.createMany({ data: [
+        { employeeId: ea.id, serviceId },
+        { employeeId: eb.id, serviceId },
+      ] });
+      const material = await tx.kitchenProduct.create({
+        data: { businessId: ba.id, name: 'Synthetic salon shampoo', unit: 'мл' },
+      });
+      await tx.kitchenStockLot.create({ data: {
+        locationId: locations[0]!.id,
+        productId: material.id,
+        receivedOn: new Date('2026-10-01T00:00:00.000Z'),
+        receivedQty: '1000.000',
+        remainingQty: '1000.000',
+        unitCost: 120000n,
+        createdById: actors.ownerA.id,
+      } });
+      const customer = await tx.customer.create({ data: { organizationId: a.id, firstName: 'Synthetic reviewer' } });
+      await tx.customerBusiness.create({ data: { customerId: customer.id, businessId: ba.id } });
+      const completedAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
+      const appointmentA = await tx.appointment.create({ data: {
+        locationId: locations[0]!.id, customerId: customer.id, employeeId: ea.id, serviceId,
+        startsAt: completedAt, endsAt: new Date(completedAt.getTime() + 45 * 60 * 1000),
+        status: 'DONE', price: 6500n, currency: 'KZT', createdById: actors.ownerA.id,
+      } });
+      const appointmentB = await tx.appointment.create({ data: {
+        locationId: locations[0]!.id, customerId: customer.id, employeeId: eb.id, serviceId,
+        startsAt: completedAt, endsAt: new Date(completedAt.getTime() + 45 * 60 * 1000),
+        status: 'DONE', price: 6500n, currency: 'KZT', createdById: actors.ownerA.id,
+      } });
+      await tx.beautyAppointmentReview.createMany({ data: [
+        { appointmentId: appointmentA.id, employeeId: ea.id, stars: 5, comment: 'Synthetic own review' },
+        { appointmentId: appointmentB.id, employeeId: eb.id, stars: 4, comment: 'Synthetic selected master review' },
+      ] });
     }
     const now = new Date();
     const period = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));

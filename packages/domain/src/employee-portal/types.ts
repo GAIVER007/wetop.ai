@@ -12,7 +12,10 @@ export interface PortalWork {
   image: PortalImage; published: boolean; publicationConsent: boolean;
 }
 export interface PortalService {
-  id: string; name: string; durationMinutes: number; priceMinor: string; currency: string;
+  id: string; name: string; durationMinutes: number; priceMinor: string | null; currency: string;
+  priceType?: 'FIXED' | 'RANGE' | 'FREE' | 'UNFIXED';
+  priceMinMinor?: string | null; priceMaxMinor?: string | null;
+  priceSource?: 'MASTER' | 'LOCATION' | 'CATALOG'; priceRevision?: number | null;
   assigned: boolean; available: boolean;
 }
 export interface PortalWeekDay { weekday: number; intervals: Array<{ timeFrom: string; timeTo: string }> }
@@ -35,14 +38,31 @@ export interface PortalScheduleConflict {
   locationId: string; locationName: string; timezone: string; serviceName: string;
   reason: 'OUTSIDE_WORKING_HOURS' | 'TIME_OFF';
 }
+export interface PortalReview {
+  appointmentId: string; stars: number; comment: string | null; submittedAt: string;
+}
+export interface PortalReviews {
+  averageStars: number | null; count: number; hasMore: boolean; items: PortalReview[];
+}
+export interface EmployeePortalSectionAccess {
+  journalView: boolean; journalUpdate: boolean;
+  appointmentsView: boolean; reviewsView: boolean;
+  payrollView: boolean; payrollUpdate: boolean;
+  employeesView: boolean; employeesUpdate: boolean;
+  servicesView: boolean; servicesUpdate: boolean;
+}
 export interface EmployeePortalDto {
   access: 'MANAGER' | 'SELF';
+  /** Present for salons using custom positions. Omitted for legacy access and other verticals. */
+  sectionAccess?: EmployeePortalSectionAccess;
+  canUpload: boolean;
   employee: { id: string; name: string; phone: string | null; email: string | null; active: boolean; accountLinked: boolean; profileRevision: string };
   business: { id: string; name: string; vertical: PortalVertical };
   location: { id: string; name: string; timezone: string; currency: string } | null;
   profile: PortalProfile; avatar: PortalImage | null; portfolio: PortalWork[];
   services: PortalService[]; servicesRevision: string | null; week: PortalWeekDay[]; weekRevision: string | null;
   scheduleConflicts: { items: PortalScheduleConflict[]; checkedFrom: string; checkedCount: number; truncated: boolean };
+  reviews: PortalReviews;
   timeOffs: PortalTimeOff[]; appointments: PortalAppointment[]; orders: PortalOrder[];
   pay: PortalPay;
 }

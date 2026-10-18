@@ -6,7 +6,7 @@ import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { beautyApi } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
-import { mayAccess } from '../../../lib/navigation';
+import { mayBeautyAccess } from '../../../lib/navigation';
 import { ServicesBoard } from './board';
 import '../beauty.css';
 
@@ -31,7 +31,9 @@ export default async function BeautyServicesPage() {
         <LoadError testId="beauty-services-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
-  const canEdit = mayAccess(shell.access, 'rates') && !shell.readOnly;
+  const may = (action: 'create' | 'update' | 'delete') =>
+    !shell.readOnly &&
+    mayBeautyAccess(shell.access, 'services', action, { legacy: 'rates' });
   return (
     <Page
       className="beauty-page"
@@ -46,7 +48,9 @@ export default async function BeautyServicesPage() {
         scopeKey={loaded.value.locationId ?? ''}
         items={loaded.value.items}
         locationCurrency={loaded.value.locationCurrency}
-        canEdit={canEdit}
+        canCreate={may('create')}
+        canUpdate={may('update')}
+        canDelete={may('delete')}
       />
     </Page>
   );

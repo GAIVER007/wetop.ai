@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { FinanceService } from './finance.service';
 import { Access } from '../auth/access.decorator';
+import { BeautyAccess } from '../beauty/access.decorator';
 
 /** Счета гостя: начисления, платежи, возвраты (DATA_MODEL §6). Суммы в теле — десятичные строки, наружу — minor units. */
 @Access('desk')
@@ -47,6 +48,7 @@ export class FinanceController {
 
   /** Общая лента денег за период: брони + касса, отборы по типу, способу и источнику (ADR-113 F2; §21) */
   @Access('reports')
+  @BeautyAccess('finance', 'view')
   @Get('operations')
   operations(
     @Query('from') from?: string,
@@ -66,6 +68,7 @@ export class FinanceController {
 
   /** Деньги за период по дням: поступления, возвраты, расходы и поток раздельно (RPT2.4a, ADR-155) */
   @Access('reports')
+  @BeautyAccess('finance', 'view')
   @Get('cashflow')
   cashflow(@Query('from') from?: string, @Query('to') to?: string) {
     return this.service.periodCashFlow(from, to);
@@ -73,6 +76,7 @@ export class FinanceController {
 
   // ── Касса (DATA_MODEL §21): остатки, операции мимо броней, переводы, статьи ────────────────────
   /** Остатки по способам за всё время и статьи одним ответом; кассу ведёт смена — право стойки (Q-238) */
+  @BeautyAccess('finance', 'view')
   @Get('cash')
   cash() {
     return this.service.cash();
@@ -80,18 +84,21 @@ export class FinanceController {
 
   /** Справочник статей для «Настроек объекта → Справочники» (ADR-185): владелец и управляющий */
   @Access('settings')
+  @BeautyAccess('finance', 'view')
   @Get('cash/categories')
   cashCategories() {
     return this.service.cashCategoriesList();
   }
 
   @Access('settings')
+  @BeautyAccess('finance', 'create')
   @Post('cash/categories')
   createCashCategory(@Body() dto: Parameters<FinanceService['createCashCategory']>[0]) {
     return this.service.createCashCategory(dto ?? {});
   }
 
   @Access('settings')
+  @BeautyAccess('finance', 'update')
   @Patch('cash/categories/:id')
   updateCashCategory(
     @Param('id', ParseUUIDPipe) id: string,
@@ -100,23 +107,27 @@ export class FinanceController {
     return this.service.updateCashCategory(id, dto ?? {});
   }
 
+  @BeautyAccess('finance', 'create')
   @Post('cash/operations')
   createCashOperation(@Body() dto: Parameters<FinanceService['createCashOperation']>[0]) {
     return this.service.createCashOperation(dto ?? {});
   }
 
+  @BeautyAccess('finance', 'create')
   @Post('cash/transfers')
   createCashTransfer(@Body() dto: Parameters<FinanceService['createCashTransfer']>[0]) {
     return this.service.createCashTransfer(dto ?? {});
   }
 
   /** Сверка кассы (§21.4): сверяет смена, как в старой системе */
+  @BeautyAccess('finance', 'create')
   @Post('cash/reconciliations')
   createCashReconciliation(@Body() dto: Parameters<FinanceService['createCashReconciliation']>[0]) {
     return this.service.createCashReconciliation(dto ?? {});
   }
 
   @Access('refunds')
+  @BeautyAccess('finance', 'refund')
   @Post('cash/operations/:id/void')
   @HttpCode(200)
   voidCashOperation(@Param('id', ParseUUIDPipe) id: string) {

@@ -219,3 +219,36 @@
     z-index: var(--layer-overlay);
   }
 }
+
+@layer sections {
+  @media (max-width: 600px) {
+    .beauty-page:has(.quick-report-trigger) .beauty-mobile-calendar .beauty-current-master + .beauty-note {
+      margin: 0;
+    }
+    .beauty-calendar-actions > .employee-filter {
+      grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
+    }
+    .beauty-calendar-actions > .quick-report-trigger {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
+    .beauty-calendar-actions > .date-bar {
+      grid-row: 2;
+    }
+    .beauty-calendar-actions > .btn--primary {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .beauty-calendar-toolbar > .context-help {
+      grid-column: 2;
+      grid-row: 3;
+    }
+    .beauty-calendar-toolbar > .context-help[open] {
+      grid-column: 1 / -1;
+      grid-row: 4;
+    }
+  }
+}

@@ -1,0 +1,88 @@
+# Сквозные (e2e) · 18.10.2026 10:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2e9a53e (codex/calendar-quick-report), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json 'tests/beauty-ui/calendar-master-selection.spec.ts' 'tests/beauty-ui/tz12-ui.spec.ts' 'tests/beauty-ui/tz11-f01.spec.ts' '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--grep' 'master|quick report|compact controls|F01'
+[WebServer] (node:51984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52029) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52053) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52099) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+(node:52126) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52029) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✓  1 tests/beauty-ui/calendar-master-selection.spec.ts:31:1 › mobile master filter and visible calendar select the same master (11.5s)
+  ✓  2 tests/beauty-ui/calendar-master-selection.spec.ts:46:1 › new appointment defaults to the master selected in the desktop filter (12.9s)
+  ✓  3 tests/beauty-ui/calendar-master-selection.spec.ts:54:1 › quick report reads cash, card and refunds from actual stored operations (5.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '430487214'
+[WebServer] }
+  ✓  4 tests/beauty-ui/tz11-f01.spec.ts:8:3 › F01 occupied intervals survive filters 1440 light (1.4m)
+  ✓  5 tests/beauty-ui/tz11-f01.spec.ts:8:3 › F01 occupied intervals survive filters 1440 dark (31.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '430487214'
+[WebServer] }
+  ✓  6 tests/beauty-ui/tz11-f01.spec.ts:8:3 › F01 occupied intervals survive filters 390 light (1.0m)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '430487214'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '430487214'
+[WebServer] }
+  ✓  7 tests/beauty-ui/tz11-f01.spec.ts:8:3 › F01 occupied intervals survive filters 390 dark (2.4m)
+  ✘  8 tests/beauty-ui/tz12-ui.spec.ts:52:1 › calendar compact controls preserve filtering and hidden occupancy (17.3s)
+
+
+  1) tests/beauty-ui/tz12-ui.spec.ts:52:1 › calendar compact controls preserve filtering and hidden occupancy 
+
+    Error: [{"tag":"HEADER","classes":"page__head","x":16,"y":78,"width":358,"height":84.1875},{"tag":"DIV","classes":"page__heading","x":16,"y":78,"width":358,"height":84.1875},{"tag":"NAV","classes":"beauty-calendar-views","x":16,"y":166.1875,"width":358,"height":44},{"tag":"A","classes":"btn btn--secondary","x":16,"y":166.1875,"width":72.875,"height":44},{"tag":"A","classes":"btn btn--secondary","x":96.875,"y":166.1875,"width":89.1875,"height":44},{"tag":"DIV","classes":"beauty-bar beauty-calendar-toolbar","x":16,"y":214.1875,"width":358,"height":151.5},{"tag":"DIV","classes":"beauty-calendar-actions","x":0,"y":0,"width":0,"height":0},{"tag":"DETAILS","classes":"context-help","x":270.375,"y":320.6875,"width":94.625,"height":44},{"tag":"P","classes":"beauty-note","x":16,"y":369.6875,"width":358,"height":19.5},{"tag":"DIV","classes":"beauty-layout","x":16,"y":393.1875,"width":358,"height":1125.5},{"tag":"ASIDE","classes":"beauty-masters","x":0,"y":0,"width":0,"height":0},{"tag":"DIV","classes":"beauty-board","x":16,"y":393.1875,"width":358,"height":1125.5},{"tag":"DIALOG","classes":"ui-overlay ui-drawer  appointment-editor","x":0,"y":0,"width":0,"height":0},{"tag":"DIV","classes":"overlay-heading","x":0,"y":0,"width":0,"height":0},{"tag":"DIALOG","classes":"ui-overlay ui-drawer  ","x":0,"y":0,"width":0,"height":0},{"tag":"DIV","classes":"overlay-heading","x":0,"y":0,"width":0,"height":0}]
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 422
+    Received:    429.6875
+
+      66 |     }),
+      67 |   );
+    > 68 |   expect((await timeline.boundingBox())!.y, JSON.stringify(layout)).toBeLessThanOrEqual(422);
+         |                                                                     ^
+      69 |   await expect(page.getByLabel('Статус записи', { exact: true })).not.toBeVisible();
+      70 |   await page.getByText(/^Фильтры/).click();
+      71 |   await page.getByLabel('Статус записи', { exact: true }).selectOption('DONE');
+        at /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/beauty-ui/tz12-ui.spec.ts:68:69
+
+    Error Context: test-results/tz12-ui-calendar-compact-c-f8034-tering-and-hidden-occupancy/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/tz12-ui-calendar-compact-c-f8034-tering-and-hidden-occupancy/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/tz12-ui-calendar-compact-c-f8034-tering-and-hidden-occupancy/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/beauty-ui/tz11-f01.spec.ts (5.4m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    tests/beauty-ui/tz12-ui.spec.ts:52:1 › calendar compact controls preserve filtering and hidden occupancy 
+  7 passed (6.4m)
+
+# код выхода 1 · 6 мин 29 с

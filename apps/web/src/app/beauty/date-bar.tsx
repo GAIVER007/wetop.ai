@@ -6,11 +6,15 @@ import { DateBar as SharedDateBar } from '../../components/date-bar';
  * День журнала салона: общий `DateBar` (MV8.5 DS1c). Адрес дня и «Сегодня» держит экран: `?date=` у
  * пути, «Сегодня» без даты, как было; кнопки ведут туда же, куда раньше вели ссылки.
  */
-export function DateBar({ date, path }: { date: string; path: string }) {
+export function DateBar({ date, path, filters }: { date: string; path: string; filters?: Record<string, string> }) {
   const router = useRouter();
   const params = useSearchParams();
   const href = (next?: string) => {
     const query = new URLSearchParams(params.toString());
+    for (const [key, value] of Object.entries(filters ?? {})) {
+      if (value) query.set(key, value);
+      else query.delete(key);
+    }
     if (next) query.set('date', next);
     else query.delete('date');
     return `${path}?${query}`;

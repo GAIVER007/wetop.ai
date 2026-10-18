@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useState, useTransition } from 'react';
+import { useOptimistic, useState, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EmployeeFilter } from '../../components/employee-filter';
 import { QuickReport } from '../../components/quick-report';
@@ -56,17 +56,27 @@ export function JournalBoard({
   });
   const params = useSearchParams();
   const pathname = usePathname();
-  const master = params.get('employee') ?? '';
-  const service = params.get('service') ?? '';
-  const status = params.get('status') ?? '';
+  const [filters, updateFilters] = useOptimistic({
+    employee: params.get('employee') ?? '',
+    service: params.get('service') ?? '',
+    status: params.get('status') ?? '',
+  }, (current, change: Partial<{ employee: string; service: string; status: string }>) => ({ ...current, ...change }));
+  const { employee: master, service, status } = filters;
   const selected = master || columns[0]?.id || '';
   const router = useRouter();
-  const setFilter = (key: string, value: string) => {
-    const query = new URLSearchParams(params.toString());
-    if (value) query.set(key, value);
-    else query.delete(key);
-    router.replace(`${pathname}?${query}`, { scroll: false });
+  const [filterPending, startFilterTransition] = useTransition();
+  const applyFilters = (next: typeof filters) => {
+    startFilterTransition(() => {
+      updateFilters(next);
+      const query = new URLSearchParams(params.toString());
+      for (const [key, value] of Object.entries(next)) {
+        if (value) query.set(key, value);
+        else query.delete(key);
+      }
+      router.replace(`${pathname}?${query}`, { scroll: false });
+    });
   };
+  const setFilter = (key: keyof typeof filters, value: string) => applyFilters({ ...filters, [key]: value });
   const setMaster = (value: string) => setFilter('employee', value);
   const setService = (value: string) => setFilter('service', value);
   const setStatus = (value: string) => setFilter('status', value);
@@ -267,12 +277,12 @@ export function JournalBoard({
       <div className="beauty-bar beauty-calendar-toolbar">
         <div className="beauty-calendar-actions">
           <EmployeeFilter options={columns} value={master} onChange={setMaster} allLabel="Все специалисты" />
-          <DateBar date={day.date} path="/calendar" />
+          <DateBar date={day.date} path="/calendar" filters={filters} />
           <QuickReport key={`${day.date}:${master}`} date={day.date}
             scope={`${day.location.name ?? 'Салон'} · ${master ? (columns.find((c) => c.id === master)?.name ?? 'Сотрудник недоступен') : 'Все специалисты'}${service || status ? ' · С учётом фильтров календаря' : ''}`}
             build={() => beautyQuickReport(reportRows)} />
           <Button
-            disabled={readOnly || !day.columns.some((c) => c.id === selected) || !day.services.length}
+            disabled={filterPending || readOnly || !day.columns.some((c) => c.id === selected) || !day.services.length}
             onClick={() =>
               setPanel({ kind: 'new', employeeId: selected, time: clock(day.bounds.fromMinutes) })
             }
@@ -336,9 +346,7 @@ export function JournalBoard({
           <Button
             tone="secondary"
             onClick={() => {
-              const query = new URLSearchParams(params.toString());
-              for (const key of ['employee', 'service', 'status']) query.delete(key);
-              router.replace(`${pathname}?${query}`, { scroll: false });
+              applyFilters({ employee: '', service: '', status: '' });
             }}
           >
             Сбросить фильтры
@@ -441,22 +449,9 @@ export function JournalBoard({
                 {emptyTimeline}
               </div>
             )}
-            {!!columns.length && (
-              <Field label="Мастер календаря">
-                <Select value={master} onChange={(e) => setMaster(e.target.value)}>
-                  <option value="">Все специалисты</option>
-                  {columns.map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.name}
-                      {e.timeOff ? ' (отсутствие)' : ''}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-            )}
-            {shown.map((e) => (
+            {columns.filter((e) => e.id === selected).map((e) => (
               <div key={e.id}>
-                <h2>{e.name}</h2>
+                <p className="beauty-current-master">{e.name}</p>
                 <p className="beauty-note">
                   {e.timeOff
                     ? e.timeOffReason || 'Отсутствие'

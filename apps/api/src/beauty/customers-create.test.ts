@@ -60,7 +60,12 @@ describe('POST /beauty/customers: клиент без записи', () => {
       create: { customerId: result.body.id, businessId: 'business' },
     }));
     expect(db.auditLog.create).toHaveBeenCalledTimes(1);
-    expect(JSON.stringify(db.auditLog.create.mock.calls)).not.toContain('700');
+    // entityId is a random UUID and may contain any digits by chance: check it separately, then look for the
+    // phone in everything else (flaky before: a UUID with «700» failed this test on main 39276461202).
+    const [[auditCall]] = db.auditLog.create.mock.calls as unknown as [[{ data: Record<string, unknown> }]];
+    expect(auditCall.data.entityId).toBe(result.body.id);
+    const auditRest = Object.fromEntries(Object.entries(auditCall.data).filter(([key]) => key !== 'entityId'));
+    expect(JSON.stringify(auditRest)).not.toMatch(/700|000-10-01|0001001|1001/);
   });
 
   for (const phone of ['+77000001001', '87000001001', '7000001001', '+7 (700) 000-10-01']) {

@@ -65,7 +65,10 @@ test('calendar compact controls preserve filtering and hidden occupancy', async 
       return { tag: node.tagName, classes: String(node.className), x: rect.x, y: rect.y, width: rect.width, height: rect.height };
     }),
   );
-  expect((await timeline.boundingBox())!.y, JSON.stringify(layout)).toBeLessThanOrEqual(422);
+  // Controls end by 422 px; below them only the chosen specialist and their hours (a48f54bb6), then the grid.
+  const calendarTop = (await page.getByTestId('beauty-mobile-calendar').boundingBox())!.y;
+  expect(calendarTop, JSON.stringify(layout)).toBeLessThanOrEqual(422);
+  expect((await timeline.boundingBox())!.y - calendarTop, JSON.stringify(layout)).toBeLessThanOrEqual(64);
   await expect(page.getByLabel('Статус записи', { exact: true })).not.toBeVisible();
   await page.getByText(/^Фильтры/).click();
   await page.getByLabel('Статус записи', { exact: true }).selectOption('DONE');

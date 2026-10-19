@@ -6,7 +6,7 @@ import { hotelApi } from '../../lib/hotel-api';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
 
 vi.mock('../../lib/hotel-api', () => ({ hotelApi: { settings: vi.fn() } }));
-vi.mock('../../lib/desk-shell', () => ({ currentMe: vi.fn(async () => ({ user: { id: 'user-1', organizationId: 'org-1' }, context: { businessId: 'business-1', locationId: 'location-1' }, expiresAt: '2099-01-01T00:00:00Z' })) }));
+vi.mock('../../lib/desk-shell', () => ({ currentMe: vi.fn(async () => ({ user: { id: 'user-1', organizationId: 'org-1' }, context: { businessId: 'business-1', locationId: 'location-1' }, expiresAt: '2099-01-01T00:00:00Z', sessionIssuedAt: '2026-10-19T08:00:00.000Z' })) }));
 vi.mock('../../lib/workspace-context', () => ({ selectedWorkspaceBranch: vi.fn() }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('../../lib/api', () => ({
@@ -18,18 +18,33 @@ describe('retail recovery server authorization boundary', () => {
   it.each(['organization', 'business', 'location', 'user', 'property', 'currency', 'session', 'missing', 'expired'])('refuses %s scope before the real action sends any sale', async changed => {
     vi.clearAllMocks();
     vi.mocked(hotelApi.settings).mockResolvedValue({ property: { id: 'property-1', currency: 'KZT' } } as Awaited<ReturnType<typeof hotelApi.settings>>);
-    const scope = ['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z'];
+    const scope = ['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z'];
     const index = ['organization', 'business', 'location', 'user', 'property', 'currency', 'session'].indexOf(changed);
     if (index >= 0) scope[index] = 'different';
     if (changed === 'expired') {
-      scope[6] = '2000-01-01T00:00:00Z';
-      vi.mocked(currentMe).mockResolvedValueOnce({ user: { id: 'user-1', organizationId: 'org-1' }, context: { businessId: 'business-1', locationId: 'location-1' }, expiresAt: scope[6] } as Awaited<ReturnType<typeof currentMe>>);
+      // currentMe зовут и выбор объекта, и проверка продажи: истёкший срок отдаётся обоим вызовам
+      const expired = { user: { id: 'user-1', organizationId: 'org-1' }, context: { businessId: 'business-1', locationId: 'location-1' }, expiresAt: '2000-01-01T00:00:00Z', sessionIssuedAt: scope[6] } as Awaited<ReturnType<typeof currentMe>>;
+      vi.mocked(currentMe).mockResolvedValueOnce(expired).mockResolvedValueOnce(expired);
     }
     const fd = new FormData();
     Object.entries({ barPropertyId: 'property-1', barCurrency: 'KZT', productId: 'product-1', quantityUnits: '2', method: 'CASH', idempotencyKey: '00000000-0000-4000-8000-000000000025' }).forEach(([name, value]) => fd.set(name, value));
     if (changed !== 'missing') fd.set('retailRecoveryScope', JSON.stringify(scope));
     expect((await sellBarRetailAction({ error: null, ok: 0 }, fd)).error).toContain('Объект формы');
     expect(barApi.sellRetail).not.toHaveBeenCalled();
+  });
+
+  it('sells after the session was renewed by activity: the scope names the session, not its sliding expiry (Q-153 b)', async () => {
+    vi.clearAllMocks();
+    vi.mocked(hotelApi.settings).mockResolvedValue({ property: { id: 'property-1', currency: 'KZT' } } as Awaited<ReturnType<typeof hotelApi.settings>>);
+    // страница отрисована при одном сроке, продажа пришла после продления: срок другой, сессия та же
+    const renewed = { user: { id: 'user-1', organizationId: 'org-1' }, context: { businessId: 'business-1', locationId: 'location-1' }, expiresAt: '2099-01-02T00:00:00Z', sessionIssuedAt: '2026-10-19T08:00:00.000Z' } as Awaited<ReturnType<typeof currentMe>>;
+    vi.mocked(currentMe).mockResolvedValueOnce(renewed).mockResolvedValueOnce(renewed);
+    vi.mocked(barApi.sellRetail).mockResolvedValue({ status: 'POSTED' } as Awaited<ReturnType<typeof barApi.sellRetail>>);
+    const fd = new FormData();
+    Object.entries({ barPropertyId: 'property-1', barCurrency: 'KZT', productId: 'product-1', quantityUnits: '2', method: 'CASH', idempotencyKey: '00000000-0000-4000-8000-000000000026' }).forEach(([name, value]) => fd.set(name, value));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
+    expect((await sellBarRetailAction({ error: null, ok: 0 }, fd)).error).toBeNull();
+    expect(barApi.sellRetail).toHaveBeenCalledOnce();
   });
 });
 
@@ -40,6 +55,7 @@ describe('форма прихода бара', () => {
       user: { id: 'user-1', organizationId: 'org-1' },
       context: { vertical: 'HOSPITALITY', businessId: 'business-1', locationId: 'location-1' },
       expiresAt: '2099-01-01T00:00:00Z',
+      sessionIssuedAt: '2026-10-19T08:00:00.000Z',
     } as Awaited<ReturnType<typeof currentMe>>);
     vi.mocked(selectedWorkspaceBranch).mockResolvedValue(null);
     vi.mocked(hotelApi.settings).mockResolvedValue({
@@ -51,7 +67,7 @@ describe('форма прихода бара', () => {
     const fd = new FormData();
     fd.set('barPropertyId', 'property-1');
     fd.set('barCurrency', 'KZT');
-    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z']));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
     fd.set('idempotencyKey', '00000000-0000-4000-8000-000000000025');
     Object.entries({
       lineCount: '1',
@@ -145,7 +161,7 @@ describe('форма прихода бара', () => {
     const fd = new FormData();
     fd.set('barPropertyId', 'property-1');
     fd.set('barCurrency', 'KZT');
-    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z']));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
     fd.set('idempotencyKey', '00000000-0000-4000-8000-000000000025');
     Object.entries({ lineCount: '1', 'unitCost.0': '12.345', 'markup.0': '20' }).forEach(
       ([key, value]) => fd.set(key, value),
@@ -165,7 +181,7 @@ describe('форма прихода бара', () => {
     const fd = new FormData();
     fd.set('barPropertyId', 'property-1');
     fd.set('barCurrency', 'KZT');
-    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z']));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
     fd.set('idempotencyKey', '00000000-0000-4000-8000-000000000025');
     Object.entries({ productId: 'product-1', quantityUnits: '2', method: 'CASH' }).forEach(
       ([key, value]) => fd.set(key, value),
@@ -192,7 +208,7 @@ describe('форма прихода бара', () => {
     const fd = new FormData();
     fd.set('barPropertyId', 'property-1');
     fd.set('barCurrency', 'KZT');
-    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z']));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
     fd.set('idempotencyKey', '00000000-0000-4000-8000-000000000025');
     Object.entries({
       receiptId: 'receipt-1',
@@ -218,7 +234,7 @@ describe('форма прихода бара', () => {
     const fd = new FormData();
     fd.set('barPropertyId', 'property-1');
     fd.set('barCurrency', 'KZT');
-    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z']));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
     fd.set('idempotencyKey', '00000000-0000-4000-8000-000000000025');
     Object.entries({ folioId: 'folio-1', productId: 'product-1', quantityUnits: '1' }).forEach(
       ([key, value]) => fd.set(key, value),
@@ -246,7 +262,7 @@ describe('форма прихода бара', () => {
     const fd = new FormData();
     fd.set('barPropertyId', 'property-1');
     fd.set('barCurrency', 'KZT');
-    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z']));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
     fd.set('idempotencyKey', '00000000-0000-4000-8000-000000000025');
     Object.entries({ productId: 'product-1', actualUnits: '10', reason: 'Пересчет' }).forEach(
       ([key, value]) => fd.set(key, value),
@@ -272,7 +288,7 @@ describe('форма прихода бара', () => {
     const fd = new FormData();
     fd.set('barPropertyId', 'property-1');
     fd.set('barCurrency', 'KZT');
-    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z']));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
     Object.entries({ productId: 'product-1', actualUnits: '3', reason: 'Нашли ящик', surplusCost: '250' }).forEach(
       ([key, value]) => fd.set(key, value),
     );
@@ -296,7 +312,7 @@ describe('форма прихода бара', () => {
     const fd = new FormData();
     fd.set('barPropertyId', 'property-1');
     fd.set('barCurrency', 'KZT');
-    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z']));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
     fd.set('idempotencyKey', '00000000-0000-4000-8000-000000000025');
     fd.set('name', 'Напитки');
     fd.set('markup', '35.25');
@@ -335,7 +351,7 @@ describe('форма прихода бара', () => {
     const fd = new FormData();
     fd.set('barPropertyId', 'property-1');
     fd.set('barCurrency', 'KZT');
-    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z']));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
     Object.entries({
       id: 'product-1', name: 'Cola 0,5 ж/б', categoryId: '', barcode: '4870001234567',
       unitsPerPackage: '12', markup: '35.00', minimumStockUnits: '8', salePrice: '750',
@@ -355,7 +371,7 @@ describe('форма прихода бара', () => {
     const fd = new FormData();
     fd.set('barPropertyId', 'property-1');
     fd.set('barCurrency', 'KZT');
-    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2099-01-01T00:00:00Z']));
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
     fd.set('idempotencyKey', '00000000-0000-4000-8000-000000000025');
     fd.set('id', 'product-1');
     fd.set('salePrice', '850');
@@ -372,6 +388,7 @@ describe('Bar scope/currency/replay regressions', () => {
       user: { id: 'user-1', organizationId: 'org-1' },
       context: { vertical: 'HOSPITALITY', businessId: 'business-1', locationId: 'location-1' },
       expiresAt: '2099-01-01T00:00:00Z',
+      sessionIssuedAt: '2026-10-19T08:00:00.000Z',
     } as Awaited<ReturnType<typeof currentMe>>);
     vi.mocked(selectedWorkspaceBranch).mockResolvedValue(null);
     vi.mocked(hotelApi.settings).mockResolvedValue({
@@ -383,7 +400,7 @@ describe('Bar scope/currency/replay regressions', () => {
     Object.entries({
       barPropertyId: 'property-1',
       barCurrency: 'USD',
-      retailRecoveryScope: JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'USD', '2099-01-01T00:00:00Z']),
+      retailRecoveryScope: JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'USD', '2026-10-19T08:00:00.000Z']),
       idempotencyKey: '00000000-0000-4000-8000-000000000025',
       productId: 'product-1',
       quantityUnits: '1',

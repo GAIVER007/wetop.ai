@@ -222,6 +222,14 @@ async function openSaleForm(page: Page) {
 }
 async function readySaleForm(page: Page) {
   const form = await openSaleForm(page);
+  // Recovery survives navigation. Only an explicitly confirmed intent can start a new draft.
+  await expect(form.getByRole('status')).toHaveText(/^(Новая продажа|Результат подтверждён\.)$/);
+  const next = form.getByRole('button', { name: 'Новая продажа', exact: true });
+  if (await next.count()) {
+    await expect(form.locator('input[name=quantityUnits]')).toBeDisabled();
+    await next.click();
+    await expect(form.getByRole('region', { name: 'Исходная продажа' })).toHaveCount(0);
+  }
   await expect(form.getByRole('button', { name: 'Продать' })).toBeEnabled();
   return form;
 }
@@ -459,15 +467,33 @@ test('UI-05 non-KZT receipt: new product price rounds up to a whole unit and the
   expect(await query('SELECT sale_price::text p FROM bar_products WHERE property_id=$1 AND name=$2', [property, 'A25 USD new goods'])).toEqual([{ p: '1100' }]);
 });
 
-test('UI-07 unavailable stock and cross-property draft have no partial effect', async ({ page }) => {
+test('UI-07 unavailable stock preserves the immutable intent without partial effect, including reload', async ({ page }) => {
   await overview(page, 'KZT');
   const sale = await readySaleForm(page);
+  const before = await call('KZT', '/bar/report');
   await sale.locator('select[name=productId]').selectOption({ label: 'A25 KZT goods, остаток 1 шт.' });
   await sale.locator('input[name=quantityUnits]').fill('2');
   await sale.getByRole('button', { name: 'Продать' }).click();
   await expect(sale.getByRole('alert')).toBeVisible();
   await expect(sale.locator('input[name=quantityUnits]')).toHaveValue('2');
+  await expect(sale.locator('input[name=quantityUnits]')).toBeDisabled();
+  await expect(sale.getByRole('button', { name: 'Новая продажа', exact: true })).toHaveCount(0);
+  const original = await sale.getByRole('region', { name: 'Исходная продажа' }).textContent();
+  expect(await call('KZT', '/bar/report')).toEqual(before);
+  await page.reload();
+  await openSaleForm(page);
+  await expect(sale.getByRole('region', { name: 'Исходная продажа' })).toHaveText(original!);
+  await expect(sale.locator('input[name=quantityUnits]')).toBeDisabled();
+  await expect(sale.getByRole('button', { name: 'Новая продажа', exact: true })).toHaveCount(0);
+  expect(await call('KZT', '/bar/report')).toEqual(before);
+});
+
+test('UI-07 cross-property fresh draft has no partial effect', async ({ page }) => {
+  // Independent page/session: never clear or edit the unknown intent from the previous test.
+  await overview(page, 'KZT');
+  const sale = await readySaleForm(page);
   const before = await call('KZT', '/bar/report');
+  await sale.locator('select[name=productId]').selectOption({ label: 'A25 KZT goods, остаток 1 шт.' });
   await sale.locator('input[name=quantityUnits]').fill('1');
   await sale.locator('input[name=barPropertyId]').evaluate((node: HTMLInputElement) => {
     node.value = '00000000-0000-4000-8000-000000000000';
@@ -525,6 +551,7 @@ for (const width of [390, 1440])
 
 test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page }) => {
   const previous = scope('KZT');
+  try {
   await newScope('KZT', 'A25 replay ' + Date.now());
   const goods = await legacyStock('KZT', 'A25 replay goods', '5', '1000', '2000');
   await overview(page, 'KZT');
@@ -562,8 +589,10 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   await expect(form.getByRole('status')).toContainText('Продажа записана');
   await expect.poll(async () => (await call('KZT', '/bar/sales')).length).toBe(2);
   writeFileSync(evidence + '/replay-ui.json', JSON.stringify({ sameKeyCount: 1, newKeyCount: 2, reversedReplayUnchanged: true }));
-  privateData.scopes.KZT = previous;
-  savePrivate();
+  } finally {
+    privateData.scopes.KZT = previous;
+    savePrivate();
+  }
 });
 
 test('UI-06 supplier void restores cash and debt', async ({ page }) => {

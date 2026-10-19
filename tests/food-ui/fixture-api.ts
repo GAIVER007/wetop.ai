@@ -48,11 +48,14 @@ class FixtureController {
     return {
       user: {
         id: user,
+        organizationId: org,
         name: 'Тестовый владелец',
         email: 'owner@example.invalid',
         role,
         organization: await db.organization.findUniqueOrThrow({ where: { id: org } }),
       },
+      // Synthetic live authorization, matching the real auth/me contract used by BAR recovery.
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
       context: {
         businessId: currentBusinessId(),
         locationId: currentLocationId(),

@@ -1,8 +1,10 @@
 import type { BeautyDay } from '../../lib/api';
 import { beautyStatus } from '../../lib/status/beauty';
+import { localInput } from '../beauty/time';
 import { csvField, csvTenge } from './csv';
 
-const clock = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+const clock = (minutes: number) =>
+  `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
 const ruDate = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
 
 /**
@@ -10,12 +12,30 @@ const ruDate = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.sl
  * Имени и телефона клиента нет по правилу выгрузок: файл уходит из системы.
  */
 export function appointmentsCsv(days: BeautyDay[]): string {
-  const head = ['Дата', 'Время', 'Мастер', 'Услуга', 'Статус', 'Цена, ₸', 'Оплачено, ₸', 'Возвращено, ₸'];
+  const head = [
+    'Дата',
+    'Время',
+    'Мастер',
+    'Услуга',
+    'Статус',
+    'Валюта',
+    'Цена',
+    'Оплачено',
+    'Возвращено',
+  ];
+  const seen = new Set<string>();
   const lines = [...days]
     .sort((a, b) => a.date.localeCompare(b.date))
     .flatMap((d) => {
       const names = new Map(d.columns.map((c) => [c.id, c.name]));
       return [...d.appointments]
+        .filter((a) => {
+          // Calendar responses include prior-day tails; reports attribute each visit to its local start.
+          if (localInput(a.startsAt, d.location.timezone).slice(0, 10) !== d.date || seen.has(a.id))
+            return false;
+          seen.add(a.id);
+          return true;
+        })
         .sort((a, b) => a.startMinutes - b.startMinutes)
         .map((a) =>
           [
@@ -24,6 +44,7 @@ export function appointmentsCsv(days: BeautyDay[]): string {
             names.get(a.employeeId) ?? 'Мастер',
             a.serviceName,
             beautyStatus[a.status].label,
+            a.currency,
             csvTenge(a.priceMinor),
             csvTenge(a.paidMinor),
             csvTenge(a.refundedMinor),

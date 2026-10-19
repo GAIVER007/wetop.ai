@@ -144,21 +144,48 @@ export async function moveAppointment(
   }
 }
 
-/** Оплата записи в кассу филиала (§49): сумма в минимальных единицах валюты, новый ключ на каждое нажатие */
+// Stale-form guard only. API remains the authority for organization/permissions.
+async function moneyScopeMatches(scope: string): Promise<boolean> {
+  try {
+    const expected = JSON.parse(scope) as Record<string, unknown>;
+    const me = await authApi.me();
+    return Boolean(expected.organizationId && expected.businessId && expected.locationId &&
+      me.user?.organizationId === expected.organizationId &&
+      me.context?.businessId === expected.businessId && me.context?.locationId === expected.locationId);
+  } catch { return false; }
+}
+const unknownMoneyResult = (): JournalResult => ({
+  outcome: 'unknown',
+  error: 'Результат операции не подтверждён. Не создавайте новую оплату или возврат. Повторите ту же операцию либо сверьте историю и кассу.',
+});
+function moneyRevalidate() {
+  try {
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/cashbox');
+  } catch {
+    // API already confirmed the mutation. A cache failure is not a failed payment.
+  }
+}
+
+/** One key per intentional operation, including its identical retries. Amount in minor units. */
 export async function payAppointment(
   id: string,
   method: string,
   amountMinor: number,
   idempotencyKey: string,
+  scope: string,
 ): Promise<JournalResult> {
+  if (!(await moneyScopeMatches(scope)))
+    return { outcome: 'rejected', error: 'Не удалось подтвердить исходный филиал. Команда не отправлена.' };
   try {
-    await beautyApi.payAppointment(id, { method, amount: amountMinor, idempotencyKey });
-    revalidatePath('/calendar');
-    revalidatePath('/appointments');
-    revalidatePath('/cashbox');
+    const saved = await beautyApi.payAppointment(id, { method, amount: amountMinor, idempotencyKey });
+    if (!Array.isArray(saved?.appointments) || !saved.appointments.some((row) => row.id === id))
+      return unknownMoneyResult();
+    moneyRevalidate();
     return { message: 'Оплата принята' };
-  } catch (e) {
-    return failed(e, 'Не удалось принять оплату.');
+  } catch {
+    return unknownMoneyResult();
   }
 }
 
@@ -169,15 +196,18 @@ export async function refundAppointment(
   amountMinor: number,
   reason: string,
   idempotencyKey: string,
+  scope: string,
 ): Promise<JournalResult> {
+  if (!(await moneyScopeMatches(scope)))
+    return { outcome: 'rejected', error: 'Не удалось подтвердить исходный филиал. Команда не отправлена.' };
   try {
-    await beautyApi.refundAppointment(id, { method, amount: amountMinor, reason, idempotencyKey });
-    revalidatePath('/calendar');
-    revalidatePath('/appointments');
-    revalidatePath('/cashbox');
+    const saved = await beautyApi.refundAppointment(id, { method, amount: amountMinor, reason, idempotencyKey });
+    if (!Array.isArray(saved?.appointments) || !saved.appointments.some((row) => row.id === id))
+      return unknownMoneyResult();
+    moneyRevalidate();
     return { message: 'Возврат оформлен' };
-  } catch (e) {
-    return failed(e, 'Не удалось оформить возврат.');
+  } catch {
+    return unknownMoneyResult();
   }
 }
 

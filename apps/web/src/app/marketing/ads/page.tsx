@@ -28,6 +28,9 @@ import { MetaCabinet, MetaChoose } from './meta';
 import { CampaignStatusButton } from './launch/status-button';
 import Link from 'next/link';
 import { META_ACCOUNTS_COOKIE } from './meta-cookies';
+import { AdLaunches, loadLaunches } from './launches';
+import { propertyClock } from '../../../lib/property-time';
+import { workspaceTimezone } from '../../../lib/workspace-context';
 
 /**
  * Модуль «Реклама» (макет Marketing 2.0 владельца 09.10.2026, экран 2; MKT10.4–10.6). Вкладка «Кампании» живая с
@@ -197,11 +200,14 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
   const copy: VerticalCopy = verticalCopy(me.context?.vertical);
   const q = normalizeSearchParams(await searchParams);
   const month = /^\d{4}-\d{2}$/.test(q['month'] ?? '') ? q['month'] : undefined;
-  const [loaded, shell, cabinet] = await Promise.all([
+  const [loaded, shell, cabinet, launches, timezone] = await Promise.all([
     loadCampaigns(month),
     deskShell(),
     // не загрузилось: плашки кабинета нет, кампании от этого не зависят
     metaConnectionApi.view().catch((): MetaConnectionView | null => null),
+    // запуски читаются независимо от кабинета и кампаний: отказ этого источника не ломает остальной экран
+    loadLaunches(),
+    workspaceTimezone(),
   ]);
   const metaResult = q['meta'];
   // выбор из нескольких кабинетов: список из закрытой cookie адреса возврата (заготовка входа живёт 10 минут)
@@ -266,6 +272,7 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
           </p>
         )}
         {cabinet && !(metaResult === 'choose' && choices.length > 0) && <MetaCabinet view={cabinet} editable={editable} />}
+        <AdLaunches loaded={launches} clock={propertyClock(timezone)} />
         <Tabs
           label="Разделы рекламы"
           panels={[

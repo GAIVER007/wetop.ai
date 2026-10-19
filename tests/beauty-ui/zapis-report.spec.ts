@@ -148,7 +148,7 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await page.goto('/services');
   const catalog = page.locator('[data-service-list="catalog"]');
   await catalog
-    .getByRole('button', { name: 'Настроить и добавить в салон: Стрижка мужская', exact: true })
+    .getByRole('button', { name: 'Настроить и добавить в филиал: Стрижка мужская', exact: true })
     .click();
   const serviceForm = page.getByRole('dialog').filter({ visible: true });
   await expect(serviceForm.getByLabel('Название', { exact: true })).toHaveValue('Стрижка мужская');

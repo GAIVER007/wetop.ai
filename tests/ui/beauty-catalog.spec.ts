@@ -155,7 +155,7 @@ test('услуга каталога добавляется и видна в сп
   await expect(item).toContainText('60 мин');
   await expect(item).toContainText('8 000');
   // Услуга уже есть в общем каталоге, но филиал добавляет её отдельно.
-  await expect(item.getByRole('button', { name: 'Добавить в салон: Маникюр' })).toBeVisible();
+  await expect(item.getByRole('button', { name: 'Добавить в филиал: Маникюр' })).toBeVisible();
   await page.screenshot({ path: `${SNAPSHOTS}/services-1440.png`, fullPage: true });
 });
 
@@ -182,7 +182,7 @@ test('филиал включает услугу и ставит свою цен
   await expect(salonItem).toContainText('9 500');
   await expect(salonItem).toContainText('90 мин');
   await expect(
-    main.locator('[data-service-list="catalog"]').getByRole('button', { name: 'В салоне: Маникюр' }),
+    main.locator('[data-service-list="catalog"]').getByRole('button', { name: 'В филиале: Маникюр' }),
   ).toBeDisabled();
 });
 
@@ -205,11 +205,11 @@ test('каталог переносит услуги кнопками и drag-an
   expect(desktopCatalogBox).not.toBeNull();
   expect(desktopSalonBox!.x).toBeLessThan(desktopCatalogBox!.x);
 
-  await catalog.getByRole('button', { name: 'Добавить в салон: Услуга стрелкой' }).click();
+  await catalog.getByRole('button', { name: 'Добавить в филиал: Услуга стрелкой' }).click();
   await expect(
     salon.locator('.beauty-service-item').filter({ hasText: 'Услуга стрелкой' }),
   ).toBeVisible();
-  await expect(catalog.getByRole('button', { name: 'В салоне: Услуга стрелкой' })).toBeDisabled();
+  await expect(catalog.getByRole('button', { name: 'В филиале: Услуга стрелкой' })).toBeDisabled();
 
   await catalog
     .locator('.beauty-service-item')
@@ -218,7 +218,7 @@ test('каталог переносит услуги кнопками и drag-an
   await expect(
     salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
   ).toBeVisible();
-  await expect(catalog.getByRole('button', { name: 'В салоне: Услуга перетаскиванием' })).toBeDisabled();
+  await expect(catalog.getByRole('button', { name: 'В филиале: Услуга перетаскиванием' })).toBeDisabled();
 
   await salon
     .locator('.beauty-service-item')
@@ -227,7 +227,7 @@ test('каталог переносит услуги кнопками и drag-an
   await expect(
     salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
   ).toHaveCount(0);
-  await expect(catalog.getByRole('button', { name: 'Добавить в салон: Услуга перетаскиванием' })).toBeVisible();
+  await expect(catalog.getByRole('button', { name: 'Добавить в филиал: Услуга перетаскиванием' })).toBeVisible();
   await page.screenshot({ path: `${SNAPSHOTS}/services-transfer-1440.png`, fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -237,7 +237,7 @@ test('каталог переносит услуги кнопками и drag-an
   expect(mobileCatalogBox).not.toBeNull();
   expect(mobileSalonBox!.y).toBeLessThan(mobileCatalogBox!.y);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await expect(catalog.getByRole('button', { name: 'Добавить в салон: Услуга перетаскиванием' })).toBeVisible();
+  await expect(catalog.getByRole('button', { name: 'Добавить в филиал: Услуга перетаскиванием' })).toBeVisible();
   await page.screenshot({ path: `${SNAPSHOTS}/services-transfer-390.png`, fullPage: true });
 });
 
@@ -373,7 +373,7 @@ test('стартовая услуга справа требует цену и п
   const catalog = main.locator('[data-service-list="catalog"]');
   await expect(catalog.getByText('Стрижка мужская', { exact: true })).toBeVisible();
   await expect(catalog).toContainText('Цена задаётся при добавлении');
-  await catalog.getByRole('button', { name: 'Настроить и добавить в салон: Стрижка мужская' }).click();
+  await catalog.getByRole('button', { name: 'Настроить и добавить в филиал: Стрижка мужская' }).click();
   const panel = page.getByRole('dialog');
   await expect(panel.getByLabel('Название')).toHaveValue('Стрижка мужская');
   await expect(panel.getByLabel(/Группа/)).toHaveValue('Волосы');

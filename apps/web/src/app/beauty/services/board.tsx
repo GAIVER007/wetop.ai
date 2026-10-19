@@ -110,7 +110,7 @@ export function ServicesBoard({
         <p role="status">
           {items.length === 0
             ? 'Добавьте первую услугу'
-            : `В салоне: ${salon.length}. В каталоге: ${active.length}`}
+            : `В филиале: ${salon.length}. В каталоге: ${active.length}`}
         </p>
         <label className="beauty-check beauty-service-archive-filter">
           <input type="checkbox" checked={showArchived} onChange={(event) => setShowArchived(event.target.checked)} />
@@ -134,7 +134,7 @@ export function ServicesBoard({
         >
           <header>
             <div>
-              <h2>Услуги салона</h2>
+              <h2>Услуги филиала</h2>
               <p>Доступны для записи в выбранном филиале</p>
             </div>
             <Badge>{salon.length}</Badge>
@@ -195,11 +195,11 @@ export function ServicesBoard({
                 >
                   <ServiceIdentity row={row} popularity locationCurrency={locationCurrency} />
                   <div className="beauty-service-item-actions">
-                    {selected && <Badge>В салоне</Badge>}
+                    {selected && <Badge>В филиале</Badge>}
                     {!row.active && <Badge>В архиве</Badge>}
                     {canUpdate && (selected ? (
-                      <Button type="button" size="sm" tone="secondary" disabled aria-label={`В салоне: ${row.name}`}>
-                        В салоне
+                      <Button type="button" size="sm" tone="secondary" disabled aria-label={`В филиале: ${row.name}`}>
+                        В филиале
                       </Button>
                     ) : row.active ? (
                       <TransferForm
@@ -249,7 +249,7 @@ export function ServicesBoard({
                     type="button"
                     size="sm"
                     tone="secondary"
-                    aria-label={`Настроить и добавить в салон: ${preset.name}`}
+                    aria-label={`Настроить и добавить в филиал: ${preset.name}`}
                     onClick={() => setEditing({ mode: 'new', preset, enableForLocation: true })}
                   >
                     ← Настроить
@@ -334,7 +334,7 @@ function TransferForm({
         size="sm"
         tone="secondary"
         disabled={disabled}
-        aria-label={`${enabled ? 'Добавить в салон' : 'Убрать из салона'}: ${row.name}`}
+        aria-label={`${enabled ? 'Добавить в филиал' : 'Убрать из филиала'}: ${row.name}`}
       >
         {enabled && <span aria-hidden="true">←</span>}{enabled ? 'Добавить' : 'Убрать'}{!enabled && <span aria-hidden="true">→</span>}
       </Button>
@@ -516,7 +516,7 @@ function ServiceForm({
         <Field
           label={
             <span>
-              Группа <small className="beauty-note">необязательно: «Ногти», «Волосы»</small>
+              Категория <small className="beauty-note">необязательно: «Ногти», «Волосы»</small>
             </span>
           }
         >

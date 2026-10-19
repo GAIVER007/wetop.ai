@@ -1,0 +1,24 @@
+# Модульные (unit) · 19.10.2026 17:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит e072a4e (claude/salon-cash-rights), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T12-33-47Z-unit-23a8.json' 'apps/web/src/app/finance'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ✓ |unit| apps/web/src/app/finance/cash-actions.test.ts (3 tests) 13ms
+ ✓ |unit| apps/web/src/app/finance/cash-draft-intent.test.ts (2 tests) 22ms
+ ✓ |unit| apps/web/src/app/finance/debts-csv.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/app/finance/appointments-csv.test.ts (6 tests) 18ms
+ ✓ |unit| apps/web/src/app/finance/services-csv.test.ts (2 tests) 1ms
+ ✓ |unit| apps/web/src/app/finance/operations-csv.test.ts (5 tests) 2ms
+ ✓ |unit| apps/web/src/app/finance/csv.test.ts (10 tests) 3ms
+ ✓ |unit| apps/web/src/app/finance/export-appointments/route.test.ts (2 tests) 24ms
+ ✓ |unit| apps/web/src/app/finance/period-continuity.test.ts (16 tests) 7ms
+
+ Test Files  9 passed (9)
+      Tests  49 passed (49)
+   Start at  05:33:48
+   Duration  830ms (transform 75%, import 20%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T12-33-47Z-unit-23a8.json
+
+# код выхода 0 · 2 с

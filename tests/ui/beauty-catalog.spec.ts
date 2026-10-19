@@ -17,8 +17,8 @@ test('M4-B1: CSV проверяется локально, колонки мен�
   await page.goto('/customers');
   const main = page.getByRole('main');
   const before = await main.getByRole('row').count();
-  await main.getByRole('button', { name: 'Проверить CSV', exact: true }).click();
-  const panel = page.getByRole('dialog', { name: 'Проверка CSV клиентов' });
+  await main.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: 'Импортировать клиентов' });
   const writes: string[] = [];
   page.on('request', (req) => { if (req.method() === 'POST') writes.push(req.url()); });
   const csv = 'Имя;Телефон\r\nПервый тест;87000001001\r\nПовтор тест;+7 (700) 000-10-01\r\nБез номера;\r\nОшибка тест;abc';
@@ -151,7 +151,7 @@ test('услуга каталога добавляется и видна в сп
   await page.goto('/beauty/services');
   const main = page.getByRole('main');
   const catalog = main.locator('[data-service-list="catalog"]');
-  const item = catalog.locator('.beauty-service-item').filter({ has: catalog.getByText('Маникюр', { exact: true }) });
+  const item = catalog.locator('.beauty-service-item').filter({ has: page.getByText('Маникюр', { exact: true }) });
   await expect(item).toContainText('60 мин');
   await expect(item).toContainText('8 000');
   // Услуга уже есть в общем каталоге, но филиал добавляет её отдельно.
@@ -166,7 +166,7 @@ test('филиал включает услугу и ставит свою цен
   const main = page.getByRole('main');
   await main
     .locator('[data-service-list="catalog"] .beauty-service-item')
-    .filter({ has: main.getByText('Маникюр', { exact: true }) })
+    .filter({ has: page.getByText('Маникюр', { exact: true }) })
     .getByRole('button', { name: 'Изменить' })
     .click();
   const panel = page.getByRole('dialog');
@@ -174,7 +174,7 @@ test('филиал включает услугу и ставит свою цен
   await panel.getByLabel(/Своя цена филиала/).fill('9500');
   await panel.getByLabel(/Своя длительность/).fill('90');
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+  await expect(panel.getByRole('status').filter({ hasText: /^Настройки филиала сохранены$/ })).toHaveText('Настройки филиала сохранены');
   await page.goto('/beauty/services');
   const salonItem = main
     .locator('[data-service-list="salon"] .beauty-service-item')
@@ -214,7 +214,7 @@ test('каталог переносит услуги кнопками и drag-an
   await catalog
     .locator('.beauty-service-item')
     .filter({ hasText: 'Услуга перетаскиванием' })
-    .dragTo(salon);
+    .dragTo(salon, { targetPosition: { x: 24, y: 24 } });
   await expect(
     salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
   ).toBeVisible();
@@ -223,7 +223,7 @@ test('каталог переносит услуги кнопками и drag-an
   await salon
     .locator('.beauty-service-item')
     .filter({ hasText: 'Услуга перетаскиванием' })
-    .dragTo(catalog);
+    .dragTo(catalog, { targetPosition: { x: 24, y: 24 } });
   await expect(
     salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
   ).toHaveCount(0);
@@ -268,12 +268,23 @@ test('мастер добавляется, а карточка показыва�
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   const employeeId = page.url().split('/').at(-2)!;
-  const servicesResponse = await request.get(`${FIXTURE_API}/beauty/services`);
+  const cookies = await page.context().cookies();
+  const scopeCookie = cookies.find((cookie) => cookie.name === 'wetop_scope')?.value;
+  const session = cookies.find((cookie) => cookie.name === 'wetop_session')?.value;
+  expect(scopeCookie).toBeTruthy();
+  expect(session).toBeTruthy();
+  const headers = {
+    'x-wetop-test-client': '1',
+    'x-wetop-scope': decodeURIComponent(scopeCookie!),
+    'x-wetop-session': session!,
+  };
+  const servicesResponse = await request.get(`${FIXTURE_API}/beauty/services`, { headers });
   expect(servicesResponse.ok()).toBe(true);
   const services = (await servicesResponse.json()).items as Array<{ id: string; name: string }>;
   const manicure = services.find((item) => item.name === 'Маникюр')!;
   const haircut = services.find((item) => item.name === 'Стрижка')!;
   const assigned = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    headers,
     data: { serviceIds: [manicure.id, haircut.id] },
   });
   expect(assigned.ok()).toBe(true);
@@ -294,6 +305,7 @@ test('мастер добавляется, а карточка показыва�
   );
   // UI назначения и снятия проверяет real-portal набор; здесь фиксируем отображение ответа каталога.
   const reduced = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    headers,
     data: { serviceIds: [manicure.id] },
   });
   expect(reduced.ok()).toBe(true);
@@ -362,7 +374,7 @@ test('типовая услуга подставляет поля, цена вв
   await expect(panel.getByRole('status')).toContainText('Услуга создана');
   await page.goto('/beauty/services');
   await expect(
-    page.getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: page.getByRole('main').getByText('Маникюр', { exact: true }) }),
+    page.getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: page.getByText('Маникюр', { exact: true }) }),
   ).toContainText('5 000');
 });
 
@@ -384,9 +396,9 @@ test('стартовая услуга справа требует цену и п
   await expect(panel.getByRole('status')).toContainText('Услуга создана');
   await expect(panel.getByLabel('Филиал оказывает эту услугу')).toBeChecked();
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+  await expect(panel.getByRole('status').filter({ hasText: /^Настройки филиала сохранены$/ })).toHaveText('Настройки филиала сохранены');
   await page.goto('/beauty/services');
   await expect(
-    main.locator('[data-service-list="salon"] .beauty-service-item').filter({ has: main.getByText('Стрижка мужская', { exact: true }) }),
+    main.locator('[data-service-list="salon"] .beauty-service-item').filter({ has: page.getByText('Стрижка мужская', { exact: true }) }),
   ).toContainText('35,50');
 });

@@ -1,0 +1,40 @@
+# Сквозные (e2e) · 19.10.2026 10:27 Алматы · srv1719674
+# коммит 445a8fc (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/customer-import.spec.ts' 'tests/ui/beauty-journal.spec.ts' '--workers=1' '--output=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/current-flow-ui-original-artifacts'
+
+Running 28 tests using 1 worker
+
+  ✓   1 tests/ui/beauty-catalog.spec.ts:12:1 › M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются (31.5s)
+  ✓   2 tests/ui/beauty-catalog.spec.ts:61:1 › M4-A: клиент без записи, повтор номера и сохранение ввода при ошибке (17.0s)
+  ✓   3 tests/ui/beauty-catalog.spec.ts:148:1 › услуга каталога добавляется и видна в списке (12.4s)
+  ✓   4 tests/ui/beauty-catalog.spec.ts:162:1 › филиал включает услугу и ставит свою цену (14.0s)
+  ✓   5 tests/ui/beauty-catalog.spec.ts:189:1 › каталог переносит услуги кнопками и drag-and-drop на 1440 и складывается на 390 (15.0s)
+  ✓   6 tests/ui/beauty-catalog.spec.ts:244:1 › ошибки услуги словами, введённое не стирается (8.4s)
+  ✓   7 tests/ui/beauty-catalog.spec.ts:259:1 › мастер добавляется, а карточка показывает назначенные услуги и статус дня (19.5s)
+  ✓   8 tests/ui/beauty-catalog.spec.ts:319:1 › каталог салона на телефоне: без прокрутки вбок (11.7s)
+  ✓   9 tests/ui/beauty-catalog.spec.ts:338:3 › каталог салона доступен в светлой теме (13.8s)
+  ✓  10 tests/ui/beauty-catalog.spec.ts:338:3 › каталог салона доступен в тёмной теме (15.1s)
+  ✓  11 tests/ui/beauty-catalog.spec.ts:357:1 › типовая услуга подставляет поля, цена вводится в тенге, валют четыре (приёмка 17.10) (13.8s)
+  ✓  12 tests/ui/beauty-catalog.spec.ts:381:1 › стартовая услуга справа требует цену и после настройки появляется слева (12.7s)
+  ✓  13 tests/ui/beauty-journal.spec.ts:126:1 › запись из пустой клетки появляется в сетке и в списке дня (22.8s)
+  ✓  14 tests/ui/beauty-journal.spec.ts:142:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок (29.5s)
+  ✓  15 tests/ui/beauty-journal.spec.ts:183:1 › перенос мышью меняет время записи через существующий API (21.6s)
+  ✓  16 tests/ui/beauty-journal.spec.ts:201:1 › занятое время мастера не предлагается и отказ приходит словами (20.4s)
+  ✓  17 tests/ui/beauty-journal.spec.ts:214:1 › вне графика мастера клетки нерабочие (18.2s)
+  ✓  18 tests/ui/beauty-journal.spec.ts:221:1 › M6-A: будущий визит объясняет запрет неявки на desktop, телефоне и планшете (25.3s)
+  ✓  19 tests/ui/beauty-journal.spec.ts:264:1 › состояния записи идут по жизни, из выполненной дороги нет (24.8s)
+  ✓  20 tests/ui/beauty-journal.spec.ts:288:1 › отмена спрашивает и освобождает время мастера (22.1s)
+  ✓  21 tests/ui/beauty-journal.spec.ts:310:1 › перенос меняет время записи (20.8s)
+  ✓  22 tests/ui/beauty-journal.spec.ts:326:1 › журнал на телефоне: день списком, без прокрутки вбок (19.1s)
+  ✓  23 tests/ui/beauty-journal.spec.ts:341:3 › журнал доступен в светлой теме (21.0s)
+  ✓  24 tests/ui/beauty-journal.spec.ts:341:3 › журнал доступен в тёмной теме (22.6s)
+  ✓  25 tests/ui/beauty-journal.spec.ts:358:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (17.9s)
+  ✓  26 tests/ui/beauty-journal.spec.ts:419:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня (17.5s)
+  ✓  27 tests/ui/customer-import.spec.ts:7:1 › M4-B2: владелец импортирует CSV, восстанавливает результат и безопасно отменяет (17.2s)
+  ✓  28 tests/ui/customer-import.spec.ts:63:1 › M4-B2: незавершённая загрузка после reload продолжает тот же job и сверяет пакеты с offset 0 (12.5s)
+
+  Slow test file: tests/ui/beauty-journal.spec.ts (5.1m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  28 passed (8.7m)
+
+# код выхода 0 · 8 мин 41 с

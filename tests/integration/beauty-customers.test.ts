@@ -120,8 +120,8 @@ describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
     });
   }
 
-  it('serializes two businesses and reuses one exact name plus normalized phone', async () => {
-    const [first, second] = await Promise.all([
+  it('keeps one canonical identity when concurrent businesses race and retry', async () => {
+    const attempts = await Promise.allSettled([
       asBusiness(businessA, () =>
         catalog.createCustomer({
           firstName: 'Тестовый',
@@ -138,6 +138,28 @@ describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
       ),
     ]);
 
+    const failures = attempts.filter((attempt) => attempt.status === 'rejected');
+    expect(failures.length).toBeLessThanOrEqual(1);
+    for (const failure of failures) expect(failure.reason).toBeInstanceOf(ConflictException);
+    expect(attempts.some((attempt) => attempt.status === 'fulfilled')).toBe(true);
+    expect(await db.customer.count({ where: { organizationId: org } })).toBe(1);
+
+    const [first, second] = await Promise.all([
+      asBusiness(businessA, () =>
+        catalog.createCustomer({
+          firstName: 'Тестовый',
+          lastName: 'Клиент',
+          phone: '8 701 234 56 78',
+        }),
+      ),
+      asBusiness(businessB, () =>
+        catalog.createCustomer({
+          firstName: 'Тестовый',
+          lastName: 'Клиент',
+          phone: '+7 (701) 234-56-78',
+        }),
+      ),
+    ]);
     expect(first.id).toBe(second.id);
     expect(await db.customer.count({ where: { organizationId: org } })).toBe(1);
     expect(await db.customerBusiness.count({ where: { customerId: String(first.id) } })).toBe(2);

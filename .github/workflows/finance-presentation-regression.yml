@@ -1,0 +1,37 @@
+name: finance-presentation-regression
+
+on:
+  push:
+    branches: [fix/finance-outflow-label-20261019]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: finance-presentation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - name: FIN-01 source-component regression, no database or server
+        run: npm run test:record -- unit tests/unit/finance-outflow-label.test.ts --maxWorkers=1 --note "FIN-01 refund/outflow display; synthetic data only"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: finance-presentation-test-record
+          path: tests/runs/
+          if-no-files-found: warn
+          retention-days: 7

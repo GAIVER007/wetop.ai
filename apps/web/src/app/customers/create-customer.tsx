@@ -1,13 +1,13 @@
 'use client';
 import { useActionState, useEffect, useState } from 'react';
 import { Alert, Button, Field, Input } from '../../components/ui';
-import { createBeautyCustomer } from './actions';
+import { createBeautyCustomerState } from './actions';
 
 export function CreateCustomer({ businessId, onSaved }: {
   businessId: string;
   onSaved: (id: string, created: boolean) => void;
 }) {
-  const [state, action, pending] = useActionState(createBeautyCustomer, null);
+  const [state, action, pending] = useActionState(createBeautyCustomerState, null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');

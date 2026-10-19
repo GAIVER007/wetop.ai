@@ -31,6 +31,10 @@ ADR-137, замечание ментора 02.10.2026.
 Бот (`apps/ai-seller`, Alembic) держит такую границу иначе: запуск образа доходит только до 0009, а 0010 и 0011
 применяются отдельно (DECISIONS.md, «граница миграций при запуске seller runtime»).
 
+## Подготовка и применение различаются
+
+18.10.2026 владелец отдельно разрешил подготовить Beauty-блок133-137, без production-применения. Его точный PREPARED_NOT_APPLIED manifest хранится в `../beauty-release-preparation.json`: все десять SQL проверяются по SHA-256, обязательны отдельный полный гейт, pinned production approval, backup/restore и trusted cutover runner; automatic apply запрещён. Сторож признаёт только этот полный конкретный одобренный пакет, а RELEASED_SEPARATELY остаётся списком реально применённых. Отказ auto-deploy при новых миграциях не меняется.
+
 ## Сейчас ждут
 
 114 expense links, 115 table occupancy, 116 restaurant capacity + opening.sql,
@@ -40,7 +44,7 @@ ADR-137, замечание ментора 02.10.2026.
 Offline-проверка: `node tests/tools/held-release-manifest.mjs --dry-run` печатает SHA-256
 runner, шести apply и пяти down в обратном порядке. Снимок: reports/held-release-manifest.json.
 
-Beauty zapis release также ждёт отдельно:
+Beauty zapis release подготовлен в ordinary133-137, но НЕ применён в production. Ниже его исторические held-имена:
 
 1. `20261018000131_beauty_appointment_lines`
 2. `20261018000132_beauty_reviews`
@@ -61,4 +65,4 @@ Populated/partial schema требует сохранения hooks/history и с
 валидность business fixtures или конкурентную нагрузку. Она клонирует metadata без source FK/triggers;
 malformed retained fixtures изолированы savepoint. Реальная проверка backup/restore остаётся блокером.
 
-- `20261018000135_beauty_location_hours`: утверждённые часы салона и граница новой записи. Требует appointment lines и совместимого API; production применяет владелец только по отдельному разрешению и общему release manifest.
+- Подготовленная `20261018000137_beauty_location_hours` (исходная held135): утверждённые часы салона и граница новой записи. Требует appointment lines и совместимого API; production применяет владелец только по отдельному разрешению и общему release manifest.

@@ -1,0 +1,46 @@
+# Интеграционные (integration) · 19.10.2026 14:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 91f21c4 (fix/salon-migrations-133-137), незакоммиченных файлов набора: 23
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-42-43Z-integration-58a5.json' 'tests/integration/beauty-release-schema.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+[pms_test] миграций применено 141; данные на месте
+stdout | tests/integration/beauty-release-schema.test.ts > Beauty schema release on a separate owned canonical database
+Owned release proof salon_release_proof_67add0c86d2a44dc816fc387ac8594da: 141 canonical migrations, one populated legacy appointment
+
+ ❯ |integration| tests/integration/beauty-release-schema.test.ts (9 tests | 1 failed) 8381ms
+   ❯ Beauty schema release on a separate owned canonical database (9)
+     ✓ backfills one position-zero line with the exact legacy money and interval snapshots 28ms
+     × matches Prisma declarations exactly on the real ordinary-chain public schema 5495ms
+     ✓ keeps all ten new tables under FORCE RLS and hides a foreign tenant line 39ms
+     ✓ refuses location-hours down when saved configuration exists 20ms
+     ✓ refuses positions down when a position exists 19ms
+     ✓ refuses materials down when a retained card revision exists 7ms
+     ✓ refuses reviews down when a retained invitation exists 14ms
+     ✓ refuses lines down when a retained employee price exists 12ms
+     ✓ reverses the unused new models in dependency order without losing the legacy appointment 70ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  02:42:46
+   Duration  16.73s (tests 94%, import 3%, transform 3%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-release-schema.test.ts > Beauty schema release on a separate owned canonical database > matches Prisma declarations exactly on the real ordinary-chain public schema
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/beauty-release-schema.test.ts:92:3
+     90|   });
+     91|
+     92|   it('matches Prisma declarations exactly on the real ordinary-chain p…
+       |   ^
+     93|     const evidence = resolve(process.env.SALON_RELEASE_EVIDENCE_DIR ||…
+     94|     mkdirSync(evidence,{recursive:true});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-42-43Z-integration-58a5.json
+
+# код выхода 1 · 21 с

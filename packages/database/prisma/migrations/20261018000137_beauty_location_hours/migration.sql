@@ -86,6 +86,8 @@ BEGIN
   path := CASE WHEN s='public' THEN 'public, pg_temp' ELSE format('%I, public, pg_temp',s) END;
   EXECUTE format('ALTER FUNCTION %I.beauty_location_hours_guard() SET search_path = %s',s,path);
   EXECUTE format('ALTER FUNCTION %I.beauty_appointment_location_hours_guard() SET search_path = %s',s,path);
+  EXECUTE format('ALTER FUNCTION %I.beauty_location_hours_valid(jsonb) SET search_path = %s',s,path);
+  EXECUTE format('ALTER FUNCTION %I.beauty_time_in_hours(timestamptz,timestamptz,text,jsonb) SET search_path = %s',s,path);
 END $$;
 
 COMMIT;

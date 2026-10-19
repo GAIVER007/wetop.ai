@@ -1,0 +1,104 @@
+# Интеграционные (integration) · 19.10.2026 14:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит 91f21c4 (fix/salon-migrations-133-137), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-31-08Z-integration-de7a.json' 'tests/integration/beauty-appointment-lines.test.ts' 'tests/integration/beauty-domain.test.ts' 'tests/integration/mv4-beauty.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+(node:68259) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/beauty-appointment-lines.test.ts (28 tests | 1 failed) 1161ms
+   ❯ Beauty: строки услуг записи и совместимость старых writers (28)
+     × equal-total edits preserve complete immutable previous and next service-line snapshots 116ms
+     ✓ создаёт две последовательные строки, сумму визита и сегменты календаря по каждому мастеру 20ms
+     ✓ читает период одним срезом филиала, включая пересечение границы в его часовом поясе 7ms
+     ✓ RLS скрывает строки услуг и цены мастера другой организации 9ms
+     ✓ кабинет второго мастера показывает только его строку, цену и интервал 20ms
+     ✓ проверяет занятость каждого сегмента, но разрешает ту же услугу другому мастеру 17ms
+     ✓ не принимает мастера или услугу другого бизнеса внутри строки 4ms
+     ✓ гонка двух созданий одного слота оставляет ровно одну строку 16ms
+     ✓ старый INSERT и UPDATE поддерживают одну строку, а поля строк многострочного визита меняются только через API 22ms
+     ✓ legacy перенос первой строки сохраняет остальные строки и все снимки цены 36ms
+     ✓ не даёт администратору сбросить скидку и ручную длительность заменой items без права rates 22ms
+     ✓ перечитывает цену услуги после получения транзакционных замков 13ms
+     ✓ не создаёт новую строку после архивации мастера между планом и транзакцией 5ms
+     ✓ legacy writer не создаёт новую строку для архивного мастера или услуги 5ms
+     ✓ явно отклоняет перенос старой записи в валюте, отличной от текущей валюты филиала 18ms
+     ✓ отмена освобождает интервалы, но реактивация не создаёт пересечение 39ms
+     ✓ гонка двух правок принимает одну и отклоняет zero-row optimistic update 31ms
+     ✓ переиспользует канонический телефон без перезаписи имени и не восстанавливает архивную карточку 60ms
+     ✓ задаёт цену мастера в валюте филиала и отдаёт effective price форме записи 27ms
+     ✓ хранит один отзыв мастеру за DONE-визит и показывает только отзывы выбранного мастера 140ms
+     ✓ выдаёт ссылку на 30 дней от первого DONE, не хранит raw token и ротирует только неотправленную ссылку 63ms
+     ✓ отклоняет истёкший DONE и атомарно принимает выбранных мастеров только один раз 61ms
+     ✓ сохраняет техкарту по revision, считает FIFO и списывает материалы только при первом DONE 92ms
+     ✓ new bookings respect salon breaks while existing visits remain unchanged 20ms
+     ✓ salon hours configuration rejects lost updates, checks rights and reports existing conflicts 15ms
+     ✓ salon hours RLS hides another organization and the rollback refuses saved configuration 9ms
+     ✓ authorized salon hours writes work through the real restricted application role 50ms
+     ✓ authorized private review links work through the real restricted application role 56ms
+(node:68286) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv4-beauty.test.ts (23 tests) 790ms
+ ✓ |integration| tests/integration/beauty-domain.test.ts (11 tests) 181ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 342ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-appointment-lines.test.ts > Beauty: строки услуг записи и совместимость старых writers > equal-total edits preserve complete immutable previous and next service-line snapshots
+AssertionError: expected { …(4) } to match object { priceMinor: '1100000', …(1) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "items": [
+-     {
+-       "basePriceMinor": "800000",
+-       "currency": "KZT",
+-       "discountMinor": "100000",
+-       "discountPercent": null,
+-       "employeeId": "6f90a5f8-c887-44d6-a588-a5817e39a202",
+-       "endsAt": "2037-01-12T05:00:00.000Z",
+-       "position": 0,
+-       "priceMinor": "700000",
+-       "serviceId": "b4d9e944-42a1-483e-a5f6-5a8bebdf71a8",
+-       "startsAt": "2037-01-12T04:00:00.000Z",
+-       "surchargeMinor": "0",
+-     },
+-     {
+-       "basePriceMinor": "400000",
+-       "currency": "KZT",
+-       "discountMinor": "0",
+-       "discountPercent": null,
+-       "employeeId": "0d520435-a211-4c51-902d-38d5a78aad99",
+-       "endsAt": "2037-01-12T05:30:00.000Z",
+-       "position": 1,
+-       "priceMinor": "400000",
+-       "serviceId": "441c3521-64b7-4728-bdee-1219df130582",
+-       "startsAt": "2037-01-12T05:00:00.000Z",
+-       "surchargeMinor": "0",
+-     },
+-   ],
+    "priceMinor": "1100000",
+  }
+
+ ❯ tests/integration/beauty-appointment-lines.test.ts:262:26
+    260|     const where = { organizationId: own.org, entityType: 'appointment'…
+    261|     const audit = await db.auditLog.findFirstOrThrow({ where: { ...whe…
+    262|     expect(audit.before).toMatchObject({ priceMinor: beforeVisit.price…
+       |                          ^
+    263|     expect(audit.after).toMatchObject({ priceMinor: afterVisit.priceMi…
+    264|     const creation = await db.auditLog.findFirstOrThrow({ where: { ...…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 67 passed (68)
+   Start at  02:31:09
+   Duration  4.53s (tests 65%, import 19%, transform 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-31-08Z-integration-de7a.json
+
+# код выхода 1 · 5 с

@@ -84,6 +84,17 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'beauty_services',
   'location_services',
   'employee_services',
+  // Ordinary Beauty release133-137: mandatory tenant tables, never optional RLS exceptions.
+  'appointment_lines',
+  'employee_service_prices',
+  'beauty_appointment_reviews',
+  'beauty_review_invitations',
+  'beauty_service_materials',
+  'beauty_service_material_revisions',
+  'beauty_positions',
+  'beauty_position_permissions',
+  'beauty_position_assignments',
+  'beauty_location_hours',
   // Approved portal tables: tenant policies already installed by migration128.
   'employee_public_profiles',
   'employee_media',

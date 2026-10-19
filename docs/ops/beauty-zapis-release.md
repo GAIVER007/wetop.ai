@@ -1,4 +1,29 @@
-# Beauty zapis release: held migrations 131-135
+# Beauty zapis release: prepared ordinary133-137, production NOT applied
+
+## Подтверждённая подготовка, 18.10.2026
+
+Владелец явно разрешил: «Подготовить отдельный релиз пяти Beauty-миграций и согласовать схему с SQL. Production-БД не менять до зелёного гейта, проверенного бэкапа и точного допуска.» Первичное перемещение блока в ordinary133-137 сохранило SHA-256 всех десяти up/down SQL. Это историческое происхождение первоначального кандидата; последующие исправления точного отката135 и закрепления search_path137 описаны ниже. Имёна held131-135 ниже сохраняются как происхождение. `schema.prisma` приведена к существующим SQL defaults, именам FK/индексов и referential actions, без новых бизнес-правил.
+
+### Дополнение19.10.2026: search_path137 и безопасный restore
+
+CI39167344145 и локальный RED `2026-10-19T04-59-32Z-integration-00e4` показали две функции без закреплённого search_path: `beauty_location_hours_valid(jsonb)` и `beauty_time_in_hours(timestamptz,timestamptz,text,jsonb)`. В существующий завершающий DO-блок137 добавлены только два ALTER FUNCTION SET search_path, тела/сигнатуры и бизнес-правила не менялись. Актуальный up-SHA: `86c2403418211147a0dff5e00b1bb6d679fa7587e2eac9d56381cfcdde7f3967`; manifest обновлён по фактическим байтам, все десять хешей продолжают проверяться. Сейчас исключений из первоначального byte-preserving переноса два: down135 и up137; остальные восемь файлов идентичны исходному кандидату4eae89543.
+
+Свежая отдельная owned БД: `2026-10-19T05-05-49Z-integration-cb96`, 9/9: ordinary141, populated backfill, реальный Prisma7.10 diff0, FORCE RLS, retained-data отказы и точный reverse. Локально использован существующий CLI cache override; default package-bin resolution отдельно требует обычного установленного CI-окружения. Это не production-применение.
+
+Restore-only companion `scripts/ops/restore-mixed-domain-grants.sql` повторяет только исходные ACL смешанных132/134-137 после чистых миграций прав, внутри прежней единственной restore-транзакции. Это не шестая ordinary migration и не повтор DDL. Отсутствующий companion или частичная группа таблиц отказывают. Реальный тест `2026-10-19T05-11-56Z-integration-56fc`: 2/2, восстановленные данные, RLS и измеряемые table/column ACL совпадают с исходными; выполняемая missing-table ошибка откатывает данные и снимок прав целиком. Это sandbox-проверка механизма, не проверенный backup текущего production.
+
+### Исправление точного отката135 после прежнего CI
+
+Полный CI `39159530856` обнаружил, что исходный `135/down.sql` не возвращает `search_path` двух kitchen trigger-функций и точный текст `kitchen_stock_guard()` к состоянию ordinary089/093. Исправлен только этот down-файл: восстановлены исходный текст и schema-aware `search_path`. Все пять `migration.sql` и четыре остальных `down.sql` сохранили исходные байты. Новых правил денег, доступа, склада или автоматического применения нет; retained-data отказы, блокировки и транзакция сохранены.
+
+SHA-256 `135/down.sql`: `57ef11ff0477a9f067abd3ea9bc17508889c87e39aba72b5c4ab4806646fb844` → `86e6e1b6d2af3113f38ee6146f280d1a53da9cdf85074ea9a37a30eb014c8291`. Manifest обновляет ровно один down-хеш, строгая проверка всех десяти файлов не ослаблена.
+
+Реальный RED `2026-10-18T20-31-55Z-integration-290d` воспроизвёл потерю точных function definitions/proconfig. После исправления GREEN `2026-10-18T20-32-56Z-integration-5b90`: 9/9, включая fresh141, Prisma diff0, FORCE RLS, пять retained-data отказов и полный reverse с сохранением legacy appointment. Guard GREEN `2026-10-18T20-33-02Z-unit-2afa`: 52/52. Это подготовка исправленного кандидата, не полный новый CI и не production-применение.
+
+`packages/database/prisma/beauty-release-preparation.json` имеет отдельное состояние PREPARED_NOT_APPLIED. Это не разрешение production migration. Сторож допускает только полный конкретный одобренный пятифайловый блок с проверкой всех десяти SHA и обязательностью полного гейта, точного production-допуска, backup/restore и доверенного cutover runner. Повреждённый manifest, неполный/дублированный/чужой блок или иной SQL отказывает. Исторический RELEASED_SEPARATELY не дополнен: применения в production не было. Условие отказа auto-deploy при новых миграциях не менялось. Остальные held114-118 не перенесены.
+
+Локальные доказательства: `tests/integration/beauty-release-schema.test.ts` на отдельно созданной owned БД проверяет fresh141, populated legacy backfill, Prisma diff0, FORCE RLS десяти таблиц, соседнего tenant, пять retained-data отказов down и dependency-safe reverse без потери старой записи. Это не заменяет полный release-checks, live mig status, настоящий backup/restore или production-допуск.
+
 
 Дата подготовки: 18.10.2026. Этот документ описывает будущий отдельный выпуск схемы для Beauty. Он не разрешает применять SQL в production. Для production migration каждый раз требуется отдельное явное разрешение владельца по AGENTS.md §14-15, свежая резервная копия и проверка восстановления.
 
@@ -15,7 +40,7 @@
 
 Предварительный manifest для текущей вершины:
 
-| Порядок | Текущая held-папка | Будущее release-имя | Зависимости |
+| Порядок | Исходная held-папка | Подготовленное ordinary-имя | Зависимости |
 |---|---|---|---|
 | 1 | `20261018000131_beauty_appointment_lines` | `20261018000133_beauty_appointment_lines` | ordinary 044, 109, 130 |
 | 2 | `20261018000132_beauty_reviews` | `20261018000134_beauty_reviews` | Beauty appointment lines |
@@ -27,9 +52,9 @@ Ordinary employee portal migrations 128/129 уже находятся в общ�
 
 ## Подготовка release commit
 
-1. Убедиться, что merge conflicts отсутствуют, `schema.prisma` содержит одновременно Beauty-модели и актуальные модели `main`, а последняя ordinary migration всё ещё 132. Если нет, пересчитать свободные номера.
+1. Убедиться, что merge conflicts отсутствуют, `schema.prisma` содержит одновременно Beauty-модели и актуальные модели `main`, а последняя ordinary migration до этого блока всё ещё 132. Подготовленный блок заканчивается137. Если появились другие новые миграции, пересчитать свободные номера.
 2. Переместить все пять папок через `git mv` из `migrations-hold/` в `migrations/` под итоговыми именами одного последовательного блока. Не переносить часть блока.
-3. В том же commit оставить согласованные `schema.prisma`, API и writers. Добавить выпущенные имена в `RELEASED_SEPARATELY` в `tests/unit/migrations-hold.test.ts` после фактического отдельного применения.
+3. В том же commit оставить согласованные `schema.prisma`, API и writers и точный PREPARED_NOT_APPLIED manifest. В `RELEASED_SEPARATELY` добавлять имена только после фактического отдельного production-применения; подготовка не считается применением.
 4. Пройти полный release gate на базе, собранной из обычной цепочки migrations. Отдельно проверить fresh apply, populated backfill, RLS service/app roles и отказ каждого empty-only down при retained data.
 5. Зафиксировать SHA-256 точных SQL из release commit:
 

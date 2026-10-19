@@ -218,7 +218,7 @@ export default async function JournalPage({
             >
               <option value="">Все разделы</option>
               <option value="finance">Касса и финансы</option>
-              <option value="staff">Сотрудники и доступ</option>
+              <option value="staff">Сотрудники</option>
             </Select>
           </Field>
           <Field label="Действие">

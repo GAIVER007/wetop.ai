@@ -128,6 +128,6 @@ describe('Пустые рабочие экраны салона', () => {
     expect(html).toContain('<table');
     expect(html).toContain('12 октября, пн');
     expect(html).toContain('18 октября, вс');
-    expect(html).toContain('В этом филиале пока нет мастеров');
+    expect(html).toContain('В этом филиале пока нет специалистов');
   });
 });

@@ -131,7 +131,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/staff',
-        label: 'Сотрудники и доступ',
+        // заголовок как пункт меню «Персонал → Сотрудники» (решение владельца 19.10.2026)
+        label: 'Сотрудники',
         icon: 'guests',
         requires: 'staff',
         description: 'Люди организации: роли, приглашения и доступ.',
@@ -481,7 +482,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         // при слиянии 02.10 заменил параллельный /staff (список на login/team-section): /staff — переадресация
         href: '/team',
         requires: 'staff',
-        label: 'Сотрудники и доступ',
+        label: 'Сотрудники',
         icon: 'guests',
         description: 'Люди организации: роли, приглашения и доступ.',
       },

@@ -87,7 +87,7 @@ export default async function TeamRolesPage() {
       !!routeAccess && mayBeautyAccess(routeAccess, 'employees', 'delete', { legacy: 'staff' });
   }
   return (
-    <Page title="Сотрудники и доступ" subtitle="Роли и права: что разрешено каждой должности">
+    <Page title="Сотрудники" subtitle="Роли и права: что разрешено каждой должности">
       {allowed ? (
         <>
           <TeamNavigation current="roles" owner={role === 'OWNER'} />

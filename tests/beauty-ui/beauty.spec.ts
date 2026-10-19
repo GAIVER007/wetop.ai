@@ -45,7 +45,7 @@ async function expectEmptyCalendar(page: Page) {
     'href',
     '/services',
   );
-  await expect(setup.getByRole('link', { name: 'Добавить мастера', exact: true })).toHaveAttribute(
+  await expect(setup.getByRole('link', { name: 'Добавить специалиста', exact: true })).toHaveAttribute(
     'href',
     '/employees',
   );
@@ -143,7 +143,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await panel.getByRole('button', { name: 'Сохранить для филиала' }).click();
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
   await page.goto('/employees');
-  await page.getByRole('button', { name: 'Добавить мастера' }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста' }).click();
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Тестовый мастер Анна');
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
@@ -305,7 +305,7 @@ test('overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY', 
   await expect(page.getByRole('main')).toContainText('Тестовая стрижка');
   await expect(page.getByRole('button', { name: 'Добавить услугу', exact: true })).toHaveCount(0);
   await page.goto('/employees');
-  await expect(page.getByRole('button', { name: 'Добавить мастера', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Добавить специалиста', exact: true })).toHaveCount(0);
   await request.post(`${api}/__test/control`, { data: { readOnly: true } });
   await page.goto(`/calendar?date=${day}`);
   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();

@@ -828,7 +828,7 @@ test('зарплата салона (§19.2): та же доска, процен
   await page.goto('/payroll');
   await expect(page.getByRole('main').getByRole('cell', { name: 'Мастер Дина' })).toBeVisible();
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { name: 'Зарплата и финансы', level: 1 })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Зарплата', level: 1 })).toBeVisible();
   await expect(main).toContainText('процент от выполненных записей');
   await expect(main.getByRole('columnheader', { name: 'Услуги' })).toBeVisible();
   await expect(main.getByRole('columnheader', { name: 'Продажи' })).toHaveCount(0);

@@ -262,7 +262,7 @@ test('мастер добавляется, а карточка показыва�
   await addService(page, 'Стрижка', '45', '5000');
   await page.goto('/beauty/masters');
   const main = page.getByRole('main');
-  await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await main.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();

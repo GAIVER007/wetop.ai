@@ -1,0 +1,40 @@
+# Интеграционные (integration) · 19.10.2026 10:00 Алматы · srv1719674
+# коммит 445a8fc (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T05-00-40Z-integration-5ec6.json' 'tests/integration/customer-import-race.test.ts' 'tests/integration/customer-import-runtime.test.ts' 'tests/integration/mv4-beauty.test.ts' 'tests/integration/core-security/beauty-appointment-concurrency.test.ts' 'tests/integration/core-security/beauty-employee-locations.test.ts' 'tests/integration/core-security/customer-explicit-id.test.ts' 'tests/integration/beauty-positions-api.test.ts' 'tests/integration/function-search-path.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:351422) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv4-beauty.test.ts (23 tests) 2425ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 425ms
+(node:351556) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/core-security/beauty-appointment-concurrency.test.ts (8 tests) 3431ms
+   ✓ U3-b: гонка нового телефона и двойная отправка записи Beauty (8)
+     ✓ ALLOW: запись с новым клиентом и телефоном создаётся (201), клиент один и виден бизнесу 341ms
+     ✓ ALLOW: тот же телефон последовательно находит того же клиента (find-or-create), не создаёт второго 355ms
+     ✓ U3-b: два одновременных запроса с одним новым телефоном (разные мастера, то же время): без 500, клиент один 860ms
+     ✓ U5: двойная отправка формы (два одинаковых запроса одновременно, новый клиент с телефоном): 201 и 409, не 500 525ms
+ ✓ |integration| tests/integration/customer-import-runtime.test.ts (13 tests | 1 skipped) 2049ms
+   ✓ M4-B2: durable customer import, real RLS and transactions (13)
+     ✓ rechecks the owner between batches and allows safe undo of partial failure 309ms
+ ✓ |integration| tests/integration/core-security/beauty-employee-locations.test.ts (14 tests) 1715ms
+(node:351718) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/core-security/customer-explicit-id.test.ts (12 tests) 2580ms
+   ✓ F5: явный customerId в записи Beauty и брони Food (12)
+     ✓ Beauty ALLOW: клиент своего бизнеса принимается (администратор и владелец) 449ms
+ ✓ |integration| tests/integration/customer-import-race.test.ts (6 tests) 1311ms
+ ✓ |integration| tests/integration/beauty-positions-api.test.ts (8 tests) 798ms
+   ✓ Beauty positions API: persisted matrix, assignments and strict revocation (8)
+     ✓ rejects a narrowed current membership through the real restricted tenant role before a write 374ms
+
+ Test Files  8 passed (8)
+      Tests  85 passed | 1 skipped (86)
+   Start at  05:00:41
+   Duration  24.50s (tests 69%, import 21%, transform 10%)
+
+JSON report written to /tmp/pms-test-2026-10-19T05-00-40Z-integration-5ec6.json
+
+# код выхода 0 · 26 с

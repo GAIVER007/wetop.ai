@@ -1,0 +1,30 @@
+# Интеграционные (integration) · 19.10.2026 09:55 Алматы · srv1719674
+# коммит 445a8fc (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T04-55-24Z-integration-2e88.json' 'tests/integration/core-security/beauty-appointment-concurrency.test.ts' 'tests/integration/core-security/beauty-employee-locations.test.ts' 'tests/integration/core-security/customer-explicit-id.test.ts' 'tests/integration/beauty-positions-api.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:341093) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/core-security/beauty-appointment-concurrency.test.ts (8 tests) 2807ms
+   ✓ U3-b: гонка нового телефона и двойная отправка записи Beauty (8)
+     ✓ U3-b: два одновременных запроса с одним новым телефоном (разные мастера, то же время): без 500, клиент один 724ms
+     ✓ U5: двойная отправка формы (два одинаковых запроса одновременно, новый клиент с телефоном): 201 и 409, не 500 512ms
+ ✓ |integration| tests/integration/core-security/beauty-employee-locations.test.ts (14 tests) 1701ms
+(node:341262) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/core-security/customer-explicit-id.test.ts (12 tests) 1854ms
+   ✓ F5: явный customerId в записи Beauty и брони Food (12)
+     ✓ Beauty ALLOW: клиент своего бизнеса принимается (администратор и владелец) 428ms
+ ✓ |integration| tests/integration/beauty-positions-api.test.ts (8 tests) 813ms
+   ✓ Beauty positions API: persisted matrix, assignments and strict revocation (8)
+     ✓ rejects a narrowed current membership through the real restricted tenant role before a write 381ms
+
+ Test Files  4 passed (4)
+      Tests  42 passed (42)
+   Start at  04:55:26
+   Duration  13.39s (tests 63%, import 20%, transform 16%)
+
+JSON report written to /tmp/pms-test-2026-10-19T04-55-24Z-integration-2e88.json
+
+# код выхода 0 · 16 с

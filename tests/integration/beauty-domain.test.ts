@@ -95,6 +95,7 @@ describe.skipIf(!url)('Beauty: ограничения и триггеры баз
   async function cleanup() {
     const orgs = [own.org, neighbour.org].map((v) => `'${v}'`).join(', ');
     for (const stmt of [
+      `DELETE FROM "appointment_lines" WHERE "appointment_id" IN (SELECT "id" FROM "appointments" WHERE "location_id" IN (SELECT "id" FROM "locations" WHERE "business_id" IN (SELECT "id" FROM "businesses" WHERE "organization_id" IN (${orgs}))))`,
       `DELETE FROM "appointments" WHERE "location_id" IN (SELECT "id" FROM "locations" WHERE "business_id" IN (SELECT "id" FROM "businesses" WHERE "organization_id" IN (${orgs})))`,
       `DELETE FROM "working_hours" WHERE "employee_id" IN (SELECT "id" FROM "employees" WHERE "business_id" IN (SELECT "id" FROM "businesses" WHERE "organization_id" IN (${orgs})))`,
       `DELETE FROM "time_offs" WHERE "employee_id" IN (SELECT "id" FROM "employees" WHERE "business_id" IN (SELECT "id" FROM "businesses" WHERE "organization_id" IN (${orgs})))`,
@@ -109,7 +110,7 @@ describe.skipIf(!url)('Beauty: ограничения и триггеры баз
       `DELETE FROM "businesses" WHERE "organization_id" IN (${orgs})`,
       `DELETE FROM "organizations" WHERE "id" IN (${orgs})`,
     ]) {
-      await db.$executeRawUnsafe(stmt).catch(() => undefined);
+      await db.$executeRawUnsafe(stmt);
     }
   }
 
@@ -205,14 +206,16 @@ describe.skipIf(!url)('Beauty: ограничения и триггеры баз
     // пересечение
     await rejects(
       appointment({ from: '2026-10-05T05:30:00Z', to: '2026-10-05T06:30:00Z' }),
-      /appointments_no_overlap|conflict/i,
+      /Appointment line overlaps another service for this master/,
     );
     // встык разрешено: граница правая открытая
     await sql(appointment({ from: '2026-10-05T06:00:00Z', to: '2026-10-05T07:00:00Z' }));
     // другой мастер в то же время можно
+    await sql(`INSERT INTO "employee_services" ("employee_id", "service_id") VALUES ('${ids.otherEmployee}', '${ids.service}')`);
     await sql(
       appointment({ employee: ids.otherEmployee, from: '2026-10-05T05:00:00Z', to: '2026-10-05T06:00:00Z' }),
     );
+    await sql(`DELETE FROM "employee_services" WHERE "employee_id" = '${ids.otherEmployee}' AND "service_id" = '${ids.service}'`);
   });
 
   it('отменённая и незаезд место не держат', async () => {

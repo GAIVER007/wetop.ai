@@ -1,0 +1,16 @@
+# Модульные (unit) · 19.10.2026 10:14 Алматы · runnervm8k3b6
+# коммит a738901 (fix/finance-outflow-label-20261019)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T05-14-26Z-unit-97f1.json' 'tests/unit/finance-outflow-label.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /home/runner/work/wetop.ai/wetop.ai
+
+ ✓  unit  tests/unit/finance-outflow-label.test.ts (4 tests) 21ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  05:14:27
+   Duration  434ms (import 51%, transform 42%, tests 6%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-19T05-14-26Z-unit-97f1.json
+
+# код выхода 0 · 2 с

@@ -27,7 +27,9 @@ The fixtures are synthetic and contain no guest PII. A positive guard additional
 
 ## Verification status
 
-Focused GREEN, independent review, full exact-head release-checks and browser verification of the changed build are pending at initial implementation. Do not infer any of them from the RED run or from an earlier production browser walkthrough.
+Focused GREEN: **4/4 passed**, GitHub-hosted run https://github.com/GAIVER007/wetop.ai/actions/runs/39203429120 on implementation commit `a7389018edd46cb2b50f23e339175a2914e6439a`. Real journal: `tests/runs/entries/2026-10-19T05-14-26Z-unit-97f1.json` and its log.
+
+Independent review, full exact-head release-checks and browser verification of the changed build remain pending. Do not infer any of them from the focused GREEN run or from an earlier production browser walkthrough. The base main `2a8f7aab9c8405e03999c005d99b61ffbe8efacf` itself has a failed full gate: https://github.com/GAIVER007/wetop.ai/actions/runs/39156107469. Inherited failures must be investigated without lowering guards.
 
 All build/test workloads run on GitHub-hosted runners; no test database or browser server is started on the production host by this slice. The dedicated workflow is a bounded no-DB regression runner with read-only permissions, pinned actions and no deployment steps. It does not replace the required release-checks gate.
 

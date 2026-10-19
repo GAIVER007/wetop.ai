@@ -1,0 +1,25 @@
+# Интеграционные (integration) · 19.10.2026 09:37 Алматы · srv1719674
+# коммит 61bb689 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T04-37-19Z-integration-25ab.json' 'tests/integration/employee-portal-public-booking-persistence.test.ts' 'tests/integration/employee-portal-booking-link.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:319064) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/employee-portal-public-booking-persistence.test.ts (7 tests) 3074ms
+   ✓ public specialist → ordinary Beauty booking → same persisted Employee/calendar (7)
+     ✓ persists the exact linked employee and shows the same appointment in the ordinary branch calendar; replay creates no duplicate 1196ms
+     ✓ keeps selected-master FIXED price and duration identical from profile through slots to persisted booking 322ms
+     ✓ rejects another origin and unavailable service without persisting an appointment 427ms
+ ✓ |integration| tests/integration/employee-portal-booking-link.test.ts (5 tests) 1127ms
+   ✓ published specialist hooks only into its existing public Beauty site (5)
+     ✓ returns the actual primary-domain form URL, preserving the exact master 536ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  04:37:20
+   Duration  9.83s (tests 58%, transform 22%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-19T04-37-19Z-integration-25ab.json
+
+# код выхода 0 · 11 с

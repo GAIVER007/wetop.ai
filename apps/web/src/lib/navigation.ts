@@ -294,6 +294,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Приходы, продажи и списания товаров.',
       },
       {
+        href: '/bar/receipts',
+        requires: 'reports',
+        label: 'Приходы',
+        icon: 'receipt',
+        description: 'Приходы от поставщиков: документы, суммы и долги.',
+      },
+      {
         href: '/bar/suppliers',
         requires: 'reports',
         label: 'Поставщики',
@@ -627,12 +634,14 @@ const ROW: Array<{
     label: 'Склад',
     icon: 'stock',
     items: [
+      // пункты в порядке вкладок экрана склада (решение владельца 19.10.2026): одно название в меню и на вкладке
       { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
+      { label: 'Обзор склада', at: ALL('/bar') },
       { label: 'Расходники', at: { BEAUTY: '/bar/consumables' } },
+      { label: 'Приходы', at: ALL('/bar/receipts') },
       { label: 'Номенклатура', at: ALL('/bar/products') },
-      { label: 'Продажи', at: ALL('/bar') },
+      { label: 'Поставщики', at: ALL('/bar/suppliers') },
       { label: 'Движение товаров', at: ALL('/bar/operations') },
-      { label: 'Настройки', at: ALL('/bar/suppliers') },
     ],
   },
   {
@@ -916,8 +925,8 @@ function normalizeBeautyAccess(raw: unknown): BeautyPositionAccess | undefined {
 export function activeMenuRoute(path: string): string | undefined {
   const route = activeNavigation(path)?.href;
   if (!route) return undefined;
-  // приходы бара это движение товаров раздела «Склад» (верхнее меню 17.10.2026)
-  if (path === '/bar/receipts' || path.startsWith('/bar/receipts/')) return '/bar/operations';
+  // новый приход подсвечивает пункт «Приходы» (у пункта свой адрес с 19.10.2026)
+  if (path.startsWith('/bar/receipts/')) return '/bar/receipts';
   if (route.startsWith('/hotel-settings')) return '/hotel-settings';
   if (route.startsWith('/rooms')) return '/inventory';
   if (route.startsWith('/channels')) return '/channels';

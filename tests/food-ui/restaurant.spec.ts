@@ -775,7 +775,7 @@ test('бар филиала (ADR-178): ресторан и салон прода
   await stockUp(headers, 'R1');
   await page.goto('/bar#bar-quick-sale');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { name: 'Бар', level: 1 })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Склад', level: 1 })).toBeVisible();
   // «в счёт гостя» только у гостиницы
   await expect(main.getByText('Продажа напрямую', { exact: true }).first()).toBeVisible();
   await expect(main.getByRole('tab', { name: 'В счёт гостя' })).toHaveCount(0);

@@ -42,7 +42,7 @@ test('mobile quick actions open the existing forms',async({page})=>{
  await actions.getByRole('link',{name:'Продажа',exact:true}).click();
  await expect(page.getByRole('button',{name:'Продать',exact:true})).toBeVisible();
  await page.getByRole('navigation',{name:'Разделы бара'}).getByRole('link',{name:'Поставщики',exact:true}).click();
- await expect(page.getByRole('heading',{level:1})).toHaveText('Бар: поставщики');
+ await expect(page.getByRole('heading',{level:1})).toHaveText('Склад: поставщики');
 });
 
 for(const width of [1333,960,390]) for(const theme of ['light','dark'] as const) test(`clear KPI ${width} ${theme}`,async({page,request})=>{

@@ -320,8 +320,8 @@
     },
     "/bar/receipts": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/receipts",
+        "label": "Приходы",
         "requires": "reports"
       },
       "gate": {
@@ -336,8 +336,8 @@
     },
     "/bar/receipts/new": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/receipts",
+        "label": "Приходы",
         "requires": "reports"
       },
       "gate": {

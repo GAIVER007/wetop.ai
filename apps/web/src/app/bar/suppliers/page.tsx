@@ -40,7 +40,8 @@ export default async function BarSuppliersPage() {
   }
   const rows = [...suppliers.value].sort((a, b) =>
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
-  const sectionName = shell.vertical === 'BEAUTY' ? 'Склад' : 'Бар';
+  // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
+  const sectionName = 'Склад';
   return <Page width="wide" className="bar-subpage" title={`${sectionName}: поставщики`} subtitle="Контакты и расчёты: закуплено, оплачено и долг по каждому поставщику.">
     <BarTabs current="suppliers" />
     {rights.createCatalog && <details className="panel bar-supplier-panel bar-details">

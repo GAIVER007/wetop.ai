@@ -175,7 +175,7 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
     rollback(async () => {
       const down = readFileSync(resolve(process.cwd(), 'packages/database/prisma/migrations/20261012000089_kitchen_stock/down.sql'), 'utf8');
       const downBeautyMaterials = readFileSync(
-        resolve(process.cwd(), 'packages/database/prisma/migrations-hold/20261018000133_beauty_materials/down.sql'),
+        resolve(process.cwd(), 'packages/database/prisma/migrations/20261018000135_beauty_materials/down.sql'),
         'utf8',
       ).replace(/^BEGIN;\s*/, '').replace(/\s*COMMIT;\s*$/, '');
       await seed();

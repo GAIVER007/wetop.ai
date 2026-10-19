@@ -1,4 +1,6 @@
-# HELD 132, Beauty reviews
+# PREPARED ordinary134, former HELD 132, Beauty reviews
+
+Подготовка одобрена18.10.2026; в production НЕ применено. Точные десять SQL SHA и отдельные обязательные cutover-допуски: `packages/database/prisma/beauty-release-preparation.json`, `docs/ops/beauty-zapis-release.md`.
 
 Отдельный релиз для утверждённой модели BEAUTY-REVIEWS-20261018. Production application остаётся за владельцем.
 

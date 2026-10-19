@@ -452,7 +452,7 @@ describe.skipIf(!url)('Beauty positions: storage boundaries and revoked assignme
         expect(row.proconfig?.some((value) => value.startsWith('search_path='))).toBe(true);
 
       const down = readFileSync(
-        resolve(process.cwd(), 'packages/database/prisma/migrations-hold/20261018000134_beauty_positions/down.sql'),
+        resolve(process.cwd(), 'packages/database/prisma/migrations/20261018000136_beauty_positions/down.sql'),
         'utf8',
       )
         .replace(/^BEGIN;\s*/, '')

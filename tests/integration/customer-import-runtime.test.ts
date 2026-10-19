@@ -74,6 +74,7 @@ describe.skipIf(!url)('M4-B2: durable customer import, real RLS and transactions
     if (!admin) return;
     await admin.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT set_config('wetop.audit_purge','on',true)`;
+      await tx.appointmentLine.deleteMany({ where: { appointment: { locationId: own.location } } });
       await tx.appointment.deleteMany({ where: { locationId: own.location } });
       await tx.restaurantReservation.deleteMany({ where: { locationId: own.foodLocation } });
       await tx.customerImportRow.deleteMany({ where: { organizationId: { in: [own.org, own.otherOrg] } } });

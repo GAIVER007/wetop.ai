@@ -693,7 +693,7 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
     );
   });
 
-  it('сопоставляет клиента по нормализованному телефону и точному имени', async () => {
+  it('переиспользует канонический телефон без перезаписи имени и не восстанавливает архивную карточку', async () => {
     const first = await asOwner(() => appointments.create({
       startsAt: at('17:00'),
       firstName: 'Synthetic',
@@ -710,13 +710,34 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
     }));
     expect(second.appointments.find((row) => row.startMinutes === 1050)?.customer.id)
       .toBe(first.appointments.find((row) => row.startMinutes === 1020)?.customer.id);
-    await expect(asOwner(() => appointments.create({
+    // DATA_MODEL SL4-M4A: the organization phone identity is reused without rewriting names/contacts.
+    const canonicalId = first.appointments.find((row) => row.startMinutes === 1020)!.customer.id;
+    const canonical = await db.customer.findUniqueOrThrow({ where: { id: canonicalId },
+      select: { firstName: true, lastName: true, phone: true, phoneNormalized: true } });
+    const differentlyNamed = await asOwner(() => appointments.create({
       startsAt: at('17:00'),
       firstName: 'Other',
       lastName: 'Client',
       phone: '+7 (700) 123-45-67',
       items: [{ employeeId: own.employeeB, serviceId: own.serviceB }],
-    }))).rejects.toThrow(/телефон.*имен|друг.*имен/i);
+    }));
+    expect(differentlyNamed.appointments.find((row) => row.startMinutes === 1020 && row.employeeId === own.employeeB)?.customer.id)
+      .toBe(canonicalId);
+    expect(await db.customer.findUniqueOrThrow({ where: { id: canonicalId },
+      select: { firstName: true, lastName: true, phone: true, phoneNormalized: true } })).toEqual(canonical);
+    expect(await db.customer.count({ where: { organizationId: own.org, phoneNormalized: canonical.phoneNormalized } })).toBe(1);
+    // Existing archive protection remains a negative acceptance case, not an assertion removed for green.
+    await db.customer.update({ where: { id: canonicalId }, data: { status: 'ARCHIVED' } });
+    try {
+      await expect(asOwner(() => appointments.create({
+        startsAt: at('17:30'), firstName: 'Other', lastName: 'Client', phone: '+7 (700) 123-45-67',
+        items: [{ employeeId: own.employeeB, serviceId: own.serviceB }],
+      }))).rejects.toThrow(/архив/i);
+      expect(await db.customer.findUniqueOrThrow({ where: { id: canonicalId }, select: { status: true } }))
+        .toEqual({ status: 'ARCHIVED' });
+    } finally {
+      await db.customer.update({ where: { id: canonicalId }, data: { status: 'ACTIVE' } });
+    }
   });
 
   it('задаёт цену мастера в валюте филиала и отдаёт effective price форме записи', async () => {
@@ -1267,7 +1288,7 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
       await client.query('BEGIN');
       await client.query('SAVEPOINT hours_rollback');
       const { readFileSync } = await import('node:fs');
-      const down = readFileSync(resolve(import.meta.dirname, '../../packages/database/prisma/migrations-hold/20261018000135_beauty_location_hours/down.sql'),'utf8').replace(/^BEGIN;\s*/,'').replace(/COMMIT;\s*$/,'');
+      const down = readFileSync(resolve(import.meta.dirname, '../../packages/database/prisma/migrations/20261018000137_beauty_location_hours/down.sql'),'utf8').replace(/^BEGIN;\s*/,'').replace(/COMMIT;\s*$/,'');
       await expect(client.query(down)).rejects.toThrow(/Export salon opening hours/);
       await client.query('ROLLBACK TO SAVEPOINT hours_rollback');
       await client.query('DELETE FROM beauty_location_hours');

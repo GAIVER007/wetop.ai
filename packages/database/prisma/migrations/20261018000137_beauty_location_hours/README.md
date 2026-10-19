@@ -1,4 +1,6 @@
-# HELD 135, Beauty location hours
+# PREPARED ordinary137, former HELD 135, Beauty location hours
+
+Подготовка одобрена18.10.2026; в production НЕ применено. Точные десять SQL SHA и отдельные обязательные cutover-допуски: `packages/database/prisma/beauty-release-preparation.json`, `docs/ops/beauty-zapis-release.md`.
 
 Модель BEAUTY-LOCATION-HOURS-20261018 утверждена владельцем 18.10.2026.
 

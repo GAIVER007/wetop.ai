@@ -1,0 +1,18 @@
+# Модульные (unit) · 19.10.2026 14:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 91f21c4 (fix/salon-migrations-133-137), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-38-09Z-unit-3854.json' 'tests/unit/migrations-hold.test.ts' 'tests/unit/beauty-release-preparation.test.ts' 'tests/unit/beauty-release-fixture.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ✓ |unit| tests/unit/beauty-release-fixture.test.ts (16 tests) 8ms
+ ✓ |unit| tests/unit/beauty-release-preparation.test.ts (32 tests) 7ms
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 22ms
+
+ Test Files  3 passed (3)
+      Tests  52 passed (52)
+   Start at  02:38:10
+   Duration  143ms (transform 45%, import 27%, tests 23%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-38-09Z-unit-3854.json
+
+# код выхода 0 · 2 с

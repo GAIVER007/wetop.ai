@@ -17,7 +17,6 @@ const HELD_TENANT_TABLES = [
   'workload_tracking_coverage', 'resource_capacity_revisions', 'resource_capacity_intervals', 'workload_coverage_segments',
   'restaurant_opening_schedules', 'restaurant_opening_intervals', 'restaurant_opening_closures',
   'beauty_schedule_versions', 'beauty_capacity_intervals', 'appointment_workload_revisions',
-  'appointment_lines', 'employee_service_prices',
   'hospitality_workload_versions', 'hospitality_workload_sources',
 ] as const;
 let TENANT_TABLES: readonly string[] = RLS_TENANT_TABLES;
@@ -142,6 +141,17 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
     );
     expect(rls.rows.map((r) => r.relname).sort()).toEqual([...TENANT_TABLES].sort());
     expect(rls.rows.filter((r) => (HELD_TENANT_TABLES as readonly string[]).includes(r.relname) && !r.relforcerowsecurity).map((r) => r.relname), 'held tenant tables require FORCE RLS').toEqual([]);
+    const beautyTables = [
+      'appointment_lines', 'employee_service_prices',
+      'beauty_appointment_reviews', 'beauty_review_invitations',
+      'beauty_service_materials', 'beauty_service_material_revisions',
+      'beauty_positions', 'beauty_position_permissions', 'beauty_position_assignments',
+      'beauty_location_hours',
+    ];
+    expect(
+      rls.rows.filter((row) => beautyTables.includes(row.relname) && !row.relforcerowsecurity).map((row) => row.relname).sort(),
+      'ordinary Beauty tenant tables require FORCE RLS',
+    ).toEqual([]);
     const barTables = RLS_TENANT_TABLES.filter((table) => table.startsWith('bar_'));
     expect(
       rls.rows.filter((row) => barTables.includes(row.relname) && !row.relforcerowsecurity).map((row) => row.relname).sort(),

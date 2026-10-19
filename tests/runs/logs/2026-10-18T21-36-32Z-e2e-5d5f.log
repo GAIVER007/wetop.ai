@@ -1,0 +1,103 @@
+# Сквозные (e2e) · 19.10.2026 02:36 Алматы · srv1719674
+# коммит cd954b5 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/food-ui/playwright.config.ts' 'restaurant.spec.ts' '--grep' 'бар филиала|зарплата салона' '--workers=1' '--output=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/food-two-red-current'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:3954284) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+[WebServer]     at <unknown> (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:14984:29)
+[WebServer]     at runWithFiberInDEV (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:761:74)
+[WebServer]     at warnForMissingKey (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:14983:17)
+[WebServer]     at warnOnInvalidKey (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:3896:21)
+[WebServer]     at warnOnInvalidKey (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:3913:49)
+[WebServer]     at warnOnInvalidKey (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:3913:49)
+[WebServer]     at reconcileChildrenArray (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:3925:29)
+[WebServer]     at reconcileChildFibersImpl (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:4041:51)
+[WebServer]     at <unknown> (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:4066:39)
+[WebServer]     at reconcileChildren (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:5705:119)
+[WebServer]     at beginWork (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:6585:1573)
+[WebServer]     at runWithFiberInDEV (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:761:74)
+[WebServer]     at performUnitOfWork (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:9385:97)
+[WebServer]     at workLoopConcurrentByScheduler (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:9381:58)
+[WebServer]     at renderRootConcurrent (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:9364:71)
+[WebServer]     at performWorkOnRoot (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:8891:150)
+[WebServer]     at performWorkOnRootViaSchedulerTask (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:10085:9)
+[WebServer]     at MessagePort.performWorkUntilDeadline (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_0pd9ldc._.js:2647:64) (file:///srv/hermes/workspace/wetop-all-release-20261017/apps/web/.next/dev/static/chunks/00kf_next_dist_compiled_react-dom_0i1dsvd._.js:14984:29)
+  ✘  1 tests/food-ui/restaurant.spec.ts:759:1 › бар филиала (ADR-178): ресторан и салон продают в кассу своего филиала (7.6s)
+  ✘  2 tests/food-ui/restaurant.spec.ts:822:1 › зарплата салона (§19.2): та же доска, процент от выполненных записей, без вкладок ресторана (624ms)
+
+
+  1) tests/food-ui/restaurant.spec.ts:759:1 › бар филиала (ADR-178): ресторан и салон продают в кассу своего филиала 
+
+    Error: /bar/suppliers: 403
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      39 | ) {
+      40 |   const res = await request.post(`${api}${path}`, { headers, data });
+    > 41 |   expect(res.ok(), `${path}: ${res.status()}`).toBe(true);
+         |                                                ^
+      42 |   return res.json();
+      43 | }
+      44 | /** Зал, стол, меню из двух блюд и официант — основание всех сценариев */
+        at post (/srv/hermes/workspace/wetop-all-release-20261017/tests/food-ui/restaurant.spec.ts:41:48)
+        at stockUp (/srv/hermes/workspace/wetop-all-release-20261017/tests/food-ui/restaurant.spec.ts:763:22)
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/food-ui/restaurant.spec.ts:797:3
+
+    Error Context: ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/food-two-red-current/restaurant-бар-филиала-ADR-f8cfe-дают-в-кассу-своего-филиала/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/food-two-red-current/restaurant-бар-филиала-ADR-f8cfe-дают-в-кассу-своего-филиала/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/food-two-red-current/restaurant-бар-филиала-ADR-f8cfe-дают-в-кассу-своего-филиала/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/restaurant.spec.ts:822:1 › зарплата салона (§19.2): та же доска, процент от выполненных записей, без вкладок ресторана 
+
+    Error: /beauty/employees: 403
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      39 | ) {
+      40 |   const res = await request.post(`${api}${path}`, { headers, data });
+    > 41 |   expect(res.ok(), `${path}: ${res.status()}`).toBe(true);
+         |                                                ^
+      42 |   return res.json();
+      43 | }
+      44 | /** Зал, стол, меню из двух блюд и официант — основание всех сценариев */
+        at post (/srv/hermes/workspace/wetop-all-release-20261017/tests/food-ui/restaurant.spec.ts:41:48)
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/food-ui/restaurant.spec.ts:825:3
+
+    Error Context: ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/food-two-red-current/restaurant-зарплата-салона-6bdfd-писей-без-вкладок-ресторана/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/food-two-red-current/restaurant-зарплата-салона-6bdfd-писей-без-вкладок-ресторана/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../opt/data/workspace/wetop-browser-readonly-check/salon-implementation/food-two-red-current/restaurant-зарплата-салона-6bdfd-писей-без-вкладок-ресторана/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/food-ui/restaurant.spec.ts:759:1 › бар филиала (ADR-178): ресторан и салон продают в кассу своего филиала 
+    tests/food-ui/restaurant.spec.ts:822:1 › зарплата салона (§19.2): та же доска, процент от выполненных записей, без вкладок ресторана 
+
+# код выхода 1 · 23 с

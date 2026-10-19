@@ -731,6 +731,28 @@ export function phoneNavigationFor(vertical: WebVertical = 'HOSPITALITY'): Navig
   return phoneNavigation;
 }
 
+/**
+ * Первые шаги «Помощи» из того же меню (решение владельца 19.10.2026: «всё едино под все направления»): шаги одни у
+ * всех направлений, путь и ссылка берутся из меню направления. Нет экрана или права, нет шага; новое направление
+ * получает справку вместе с меню.
+ */
+const HELP_STEPS: Array<{ section: string; item: string; text: string }> = [
+  { section: 'services', item: 'Каталог', text: 'заполните то, что продаёте: названия, длительность или вместимость и цены.' },
+  { section: 'staff', item: 'Специалисты', text: 'добавьте тех, кто оказывает услуги, назначьте им услуги и рабочие часы.' },
+  { section: 'journal', item: 'Журнал', text: 'создайте первую запись или бронь.' },
+  { section: 'settings', item: 'Объект', text: 'проверьте данные объекта, часы работы и подключения.' },
+];
+
+export function helpSteps(sections: MenuSection[]): Array<{ path: string; href: string; text: string }> {
+  return HELP_STEPS.flatMap((step) => {
+    const section = sections.find((s) => s.id === step.section);
+    if (!section) return [];
+    if (section.direct) return [{ path: section.label, href: section.items[0]!.href, text: step.text }];
+    const item = section.items.find((i) => i.label === step.item);
+    return item ? [{ path: `${section.label} → ${item.label}`, href: item.href, text: step.text }] : [];
+  });
+}
+
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
 export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
   if (access.restricted && ORGANIZATION_LEVEL_PERMISSIONS.includes(permission)) return false;

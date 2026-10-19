@@ -165,7 +165,12 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
         <dl className="quick-report-counts">
           {['Бонусная карта', 'Скидка (сумма)', 'Сертификаты (сумма)', 'Абонементы'].map(
             (label) => (
-              <ReportRow key={label} label={label} values={undefined} hint={unsupported} />
+              <ReportRow
+                key={label}
+                label={label}
+                values={label === 'Скидка (сумма)' ? metric('Скидки на услуги')?.values : undefined}
+                hint={label === 'Скидка (сумма)' ? metric('Скидки на услуги')?.hint ?? unsupported : unsupported}
+              />
             ),
           )}
         </dl>

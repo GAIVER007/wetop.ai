@@ -77,7 +77,10 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await page.getByRole('button', { name: 'Быстрый отчёт', exact: true }).click();
   const stats = page.getByRole('dialog', { name: /^Статистика за/ });
   await expect(stats).toBeVisible();
-  await expect(stats).toContainText('Скидки на услуги');
+  const discountRow = stats.locator('.reference-row').filter({
+    has: page.getByText('Скидка (сумма)', { exact: true }),
+  });
+  await expect(discountRow).toContainText('1 200');
   const statsBox = await stats.boundingBox();
   expect(Math.abs(statsBox!.x + statsBox!.width / 2 - 720)).toBeLessThan(3);
   await page.screenshot({

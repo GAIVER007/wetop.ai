@@ -132,7 +132,7 @@ describe.skipIf(!url)('M4-B2: durable customer import, real RLS and transactions
     const item = await drain(id);
     expect(item).toMatchObject({ state: 'COMPLETED', processedRows: 6, createdCount: 3, linkedCount: 0, unchangedCount: 0, skippedCount: 3 });
     expect(await admin.customerImportRow.findFirst({
-      where: { importId: id, sourceLine: 3 },
+      where: { importId: id, ordinal: 1 },
       select: { outcome: true, errorCode: true },
     })).toEqual({ outcome: 'SKIPPED', errorCode: 'CUSTOMER_CONFLICT' });
     const ids = await createdIds(id);

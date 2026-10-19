@@ -1,0 +1,71 @@
+# Сквозные (e2e) · 19.10.2026 14:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1a5add6 (codex/beauty-zapis-report), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/zapis-report.spec.ts' '--workers=1' '--max-failures=1'
+[WebServer] (node:29514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29546) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29547) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29557) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:29600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29547) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✘  1 tests/beauty-ui/zapis-report.spec.ts:6:1 › report: centered multi-service appointment, per-master occupancy and exact payment (8.2s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/beauty-ui/zapis-report.spec.ts:6:1 › report: centered multi-service appointment, per-master occupancy and exact payment 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: /^Статистика за/ }).locator('.reference-row').filter({ has: getByText('Скидка (сумма)', { exact: true }) })
+    Expected substring: "1 200"
+    Received string:    "Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Скидка (сумма)Нет данных"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: /^Статистика за/ }).locator('.reference-row').filter({ has: getByText('Скидка (сумма)', { exact: true }) }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: /^Статистика за/ }).locator('.reference-row').filter({ has: getByText('Скидка (сумма)', { exact: true }) })
+        14 × locator resolved to <div class="reference-row">…</div>
+           - unexpected value "Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.Скидка (сумма)Нет данных"
+
+
+      81 |     has: page.getByText('Скидка (сумма)', { exact: true }),
+      82 |   });
+    > 83 |   await expect(discountRow).toContainText('1 200');
+         |                             ^
+      84 |   const statsBox = await stats.boundingBox();
+      85 |   expect(Math.abs(statsBox!.x + statsBox!.width / 2 - 720)).toBeLessThan(3);
+      86 |   await page.screenshot({
+        at /Users/vyacheslav/.codex/worktrees/beauty-zapis-report/WETOP/tests/beauty-ui/zapis-report.spec.ts:83:29
+
+    Error Context: test-results/zapis-report-report-center-543e4-occupancy-and-exact-payment/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zapis-report-report-center-543e4-occupancy-and-exact-payment/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zapis-report-report-center-543e4-occupancy-and-exact-payment/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/zapis-report.spec.ts:6:1 › report: centered multi-service appointment, per-master occupancy and exact payment 
+  1 error was not a part of any test, see above for details
+
+# код выхода 1 · 15 с

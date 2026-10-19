@@ -311,7 +311,7 @@ test('late schedule A cannot populate employee B or a new employee', async ({ pa
     release = resolve;
   });
   let intercepted = false;
-  await page.route('**/employees*', async (route) => {
+  await page.route('**/employees/**/profile', async (route) => {
     if (route.request().method() !== 'POST' || intercepted) return route.continue();
     intercepted = true;
     const result = await route.fetch();
@@ -347,7 +347,7 @@ test('a scope-switch event invalidates an in-flight profile response', async ({
     release = resolve;
   });
   let intercepted = false;
-  await page.route('**/employees*', async (route) => {
+  await page.route('**/employees/**/profile', async (route) => {
     if (route.request().method() !== 'POST' || intercepted) return route.continue();
     intercepted = true;
     const result = await route.fetch();
@@ -446,6 +446,7 @@ test('dirty internal navigation asks before leaving and stays on failure', async
   await profile(page).getByLabel('Телефон для связи').fill('+0000000009');
   await manager(page).getByRole('tab', { name: 'Услуги', exact: true }).click();
   await confirm(page).getByRole('button', { name: 'Остаться', exact: true }).click();
+  await page.getByRole('navigation', { name: 'Главное меню' }).getByRole('button', { name: 'Услуги', exact: true }).click();
   await page.locator('a[href="/services"]:visible').first().click();
   await confirm(page).getByRole('button', { name: 'Сохранить и перейти', exact: true }).click();
   await expect(page).toHaveURL(/\/services$/);
@@ -491,7 +492,7 @@ test('pending services save cannot mark a later checkbox edit as saved', async (
     release = resolve;
   });
   let intercepted = false;
-  await page.route('**/employees*', async (route) => {
+  await page.route('**/employees/**/profile', async (route) => {
     if (route.request().method() !== 'POST' || intercepted) return route.continue();
     intercepted = true;
     const result = await route.fetch();
@@ -553,7 +554,7 @@ test('a later week edit stays dirty after the submitted week is saved', async ({
     release = resolve;
   });
   let intercepted = false;
-  await page.route('**/employees*', async (route) => {
+  await page.route('**/employees/**/profile', async (route) => {
     if (route.request().method() !== 'POST' || intercepted) return route.continue();
     intercepted = true;
     const result = await route.fetch();

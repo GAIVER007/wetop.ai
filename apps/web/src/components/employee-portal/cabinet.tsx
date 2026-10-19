@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { AppointmentStatus, EmployeePortalDto, OrderStatus } from '@pms/domain';
 import { Badge, Field, Input } from '../ui';
 import { formatMoney } from '../../lib/money';
@@ -50,6 +50,7 @@ export function EmployeeCabinet({
 }) {
   const [data, setData] = useState(initial);
   const [draftEpoch, setDraftEpoch] = useState(0);
+  const [invalidScope, setInvalidScope] = useState<string | null>(null);
   const registerGuard = useCallback(() => {}, []);
   const context: PortalContext = { target, scope, onSaved: setData };
   const beauty = data.business.vertical === 'BEAUTY';
@@ -63,6 +64,12 @@ export function EmployeeCabinet({
   const showPay = !beauty || !access || access.payrollView;
   const showMedia = !access || canEditProfile;
   const showManagement = manager && (!access || access.employeesUpdate);
+  useEffect(() => {
+    const invalidate = () => setInvalidScope(scope);
+    window.addEventListener('wetop-scope-switch', invalidate);
+    return () => window.removeEventListener('wetop-scope-switch', invalidate);
+  }, [scope]);
+  if (invalidScope === scope) return null;
   return <EmployeeTransitionGuard
     register={registerGuard}
     discard={() => setDraftEpoch((value) => value + 1)}

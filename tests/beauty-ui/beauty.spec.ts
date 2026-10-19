@@ -252,7 +252,8 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   const exported = await page.request.get(`/finance/export-appointments?from=${day}&to=${day}`);
   expect(exported.headers()['content-type']).toContain('text/csv');
   const csv = await exported.text();
-  expect(csv).toContain('Завершена;12000,00;5000,00;2000,00');
+  expect(csv).toContain('Статус;Валюта;Цена;Оплачено;Возвращено');
+  expect(csv).toContain('Завершена;KZT;12000,00;5000,00;2000,00');
   expect(csv).not.toContain('Тестовая клиентка');
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');

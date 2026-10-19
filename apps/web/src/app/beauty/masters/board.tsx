@@ -582,13 +582,12 @@ function MasterForm({
                 name="serviceIds"
                 value={service.id}
                 checked={chosen.has(service.id)}
-                onChange={(event) =>
+                onChange={(event) => {
+                  const checked = event.currentTarget.checked;
                   setSelected((prev) =>
-                    event.target.checked
-                      ? [...prev, service.id]
-                      : prev.filter((id) => id !== service.id),
-                  )
-                }
+                    checked ? [...prev, service.id] : prev.filter((id) => id !== service.id),
+                  );
+                }}
               />
               {service.name}
             </label>

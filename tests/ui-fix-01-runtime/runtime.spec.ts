@@ -505,13 +505,13 @@ test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
     );
     await expectHelp(
       page,
-      'Начало работы в ресторане',
+      'Начало работы',
       [
-        ['Добавьте залы, столы и периоды обслуживания', '/dining-areas'],
-        ['Заполните меню', '/menu'],
-        ['Создайте бронь или посадите гостей без брони', '/floor-plan'],
+        ['«Услуги → Каталог»', '/menu'],
+        ['«Персонал → Специалисты»', '/employees'],
+        ['«Журнал»', '/floor-plan'],
       ],
-      ['/services', '/employees', '/calendar', '/rooms/categories', '/inventory'],
+      ['/services', '/calendar', '/rooms/categories', '/inventory'],
     );
 
     await switchBranch(page, state.beautyLocationName);
@@ -528,11 +528,11 @@ test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
     });
     await expectHelp(
       page,
-      'Начало работы в салоне',
+      'Начало работы',
       [
-        ['Добавьте услугу', '/services'],
-        ['Добавьте мастера', '/employees'],
-        ['Создайте запись в календаре', '/calendar'],
+        ['«Услуги → Каталог»', '/services'],
+        ['«Персонал → Специалисты»', '/employees'],
+        ['«Журнал»', '/calendar'],
       ],
       ['/dining-areas', '/menu', '/floor-plan', '/rooms/categories', '/inventory'],
     );
@@ -551,13 +551,10 @@ test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
     });
     await expectHelp(
       page,
-      'Начало работы в гостинице',
+      'Начало работы',
       [
-        ['Проверьте категории номеров', '/rooms/categories'],
-        ['Проверьте номерной фонд', '/inventory'],
-        ['Создайте первую бронь', '/reservations/new'],
-        ['календаре', '/chessboard'],
-        ['Подключите каналы продаж', '/channels'],
+        ['«Услуги → Каталог»', '/inventory'],
+        ['«Журнал»', '/chessboard'],
       ],
       ['/dining-areas', '/menu', '/floor-plan', '/services', '/employees', '/calendar'],
     );

@@ -275,7 +275,7 @@ export function JournalBoard({
       style={/* slop-allow: inline-style высота пустой шкалы из границ рабочего дня */ { height }}
       data-testid="beauty-empty-timeline"
       role="group"
-      aria-label="Расписание без назначенных мастеров"
+      aria-label="Расписание без назначенных специалистов"
     >
       {slots.map((m) => (
         <div
@@ -300,6 +300,7 @@ export function JournalBoard({
             value={master}
             onChange={setMaster}
             allLabel="Все специалисты"
+            kind="specialists"
           />
           <DateBar date={day.date} path="/calendar" filters={filters} />
           <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
@@ -311,9 +312,9 @@ export function JournalBoard({
             scope={[
               day.location.name ?? 'Салон',
               master
-                ? (columns.find((c) => c.id === master)?.name ?? 'Сотрудник недоступен')
+                ? (columns.find((c) => c.id === master)?.name ?? 'Специалист недоступен')
                 : 'Все специалисты',
-              ...(service || status ? ['С учётом фильтров календаря'] : []),
+              ...(service || status ? ['С учётом фильтров журнала'] : []),
             ]}
             build={() => beautyQuickReport(reportRows)}
           />
@@ -410,15 +411,15 @@ export function JournalBoard({
       {moveError && <Alert>{moveError}</Alert>}
       {(!columns.length || !day.services.length) && (
         <p className="beauty-note" role="status">
-          Для новой записи нужны услуги и мастера с рабочим графиком.{' '}
+          Для новой записи нужны услуги и специалисты с рабочим графиком.{' '}
           {!day.services.length && <Link href="/services">Добавить услугу</Link>}{' '}
-          {!columns.length && <Link href="/employees">Добавить мастера</Link>}
+          {!columns.length && <Link href="/employees">Добавить специалиста</Link>}
         </p>
       )}
       <div className="beauty-layout">
         {!!columns.length && (
-          <aside className="beauty-masters" aria-label="Мастера">
-            <h2 className="beauty-masters__title">Мастера</h2>
+          <aside className="beauty-masters" aria-label="Специалисты">
+            <h2 className="beauty-masters__title">Специалисты</h2>
             <ul>
               <li>
                 <button type="button" aria-pressed={!master} onClick={() => setMaster('')}>
@@ -426,7 +427,7 @@ export function JournalBoard({
                     {columns.length}
                   </span>
                   <span>
-                    Все мастера <small>({columns.length})</small>
+                    Все специалисты <small>({columns.length})</small>
                   </span>
                 </button>
               </li>

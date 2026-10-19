@@ -110,7 +110,7 @@ export function AppointmentCard({
     if (status === 'CANCELLED') {
       const ok = await ask({
         title: `Отменить запись: ${row.customer.name}, ${clock(row.startMinutes)}?`,
-        body: 'Время мастера освободится.',
+        body: 'Время специалиста освободится.',
         confirmLabel: 'Отменить запись',
         tone: 'danger',
       });
@@ -160,7 +160,7 @@ export function AppointmentCard({
               <dd>{row.serviceName}</dd>
             </div>
             <div>
-              <dt>Мастер</dt>
+              <dt>Специалист</dt>
               <dd>{master?.name ?? 'не найден'}</dd>
             </div>
           </>
@@ -326,7 +326,7 @@ export function AppointmentCard({
         <form action={action} className="beauty-form">
           <input type="hidden" name="id" value={row.id} />
           <h3>Перенести</h3>
-          <Field label={row.items && row.items.length > 1 ? 'Мастер первой услуги' : 'Мастер'}>
+          <Field label={row.items && row.items.length > 1 ? 'Специалист первой услуги' : 'Специалист'}>
             <Select name="employeeId" defaultValue={row.employeeId}>
               {day.columns.map((c) => (
                 <option key={c.id} value={c.id}>

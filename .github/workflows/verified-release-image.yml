@@ -1,12 +1,12 @@
 name: verified-release-image
 
-# Manual image build for an exact fully tested release reachable from main.
-# Mirrors auto-release's existing ancestor rule, not a main-tip or schema activation bypass.
+# Prepare only the approved, fully tested FIN stage BEFORE release promotion.
+# Artifact creation is not production activation; promotion/activation retain their own gates.
 on:
   workflow_dispatch:
     inputs:
       source_sha:
-        description: Exact tested SHA at release, reachable from main
+        description: Approved FIN-only stage SHA (image preparation, not deployment)
         required: true
         type: string
       gate_run:
@@ -30,7 +30,7 @@ jobs:
       SOURCE_SHA: ${{ inputs.source_sha }}
       SOURCE_GATE_RUN: ${{ inputs.gate_run }}
     steps:
-      - name: Verify exact full gate, release pointer and main ancestry
+      - name: Verify full stage gate, approved base and bounded source delta
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -45,18 +45,37 @@ jobs:
           gate = os.environ['SOURCE_GATE_RUN']
           if not re.fullmatch(r'[0-9a-f]{40}', sha) or not re.fullmatch(r'[0-9]+', gate):
               raise SystemExit('Refused: invalid source SHA or gate ID')
-          main = api('git/ref/heads/main')['object']['sha']
+          approved = 'dcd29aa27c2265b12f05509e7be336ef18b13d67'
+          base = '29fd2fda0889d06aafceca055a7b0d1742869799'
+          if sha != approved:
+              raise SystemExit('Refused: source is not the approved FIN-only stage')
           release = api('git/ref/heads/release')['object']['sha']
-          ancestry = api('compare/' + sha + '...' + main)
+          ancestry = api('compare/' + base + '...' + sha)
           run = api('actions/runs/' + gate)
-          jobs = api('actions/runs/' + gate + '/jobs?per_page=100')['jobs']
-          if not (release == sha and ancestry['status'] in ['ahead', 'identical']
-                  and ancestry['merge_base_commit']['sha'] == sha
+          inventory = api('actions/runs/' + gate + '/jobs?per_page=100')
+          jobs = inventory['jobs']
+          allowed = {
+              '.github/workflows/finance-presentation-regression.yml',
+              '.github/workflows/verified-release-image.yml', 'DECISIONS.md',
+              'apps/web/src/app/finance/finance-board.tsx',
+              'reports/finance-outflow-label-2026-10-19.md',
+              'tests/runs/entries/2026-10-19T05-10-02Z-unit-f1aa.json',
+              'tests/runs/logs/2026-10-19T05-10-02Z-unit-f1aa.log',
+              'tests/ui/finance-home-merge.spec.ts', 'tests/unit/finance-outflow-label.test.ts',
+          }
+          files = ancestry['files']
+          if not (release == base and ancestry['status'] == 'ahead'
+                  and ancestry['merge_base_commit']['sha'] == base
+                  and 0 < len(files) < 300
+                  and all(f['filename'] in allowed and f['status'] in ['added', 'modified'] for f in files)
+                  and any(f['filename'] == 'apps/web/src/app/finance/finance-board.tsx' for f in files)
                   and run['head_sha'] == sha and run['path'] == '.github/workflows/release-checks.yml'
+                  and run['head_repository']['full_name'] == repo
                   and run['status'] == 'completed' and run['conclusion'] == 'success'
-                  and len(jobs) == 16 and all(j['conclusion'] == 'success' for j in jobs)):
-              raise SystemExit('Refused: exact tested release, main ancestry or full gate mismatch')
-          print('Verified exact release reachable from main: 16/16 successful jobs')
+                  and inventory['total_count'] == 16 and len(jobs) == 16
+                  and all(j['conclusion'] == 'success' for j in jobs)):
+              raise SystemExit('Refused: stage/base/source inventory or full gate mismatch')
+          print('Verified FIN-only preparation: 16/16 successful jobs; production release has not moved')
           PY
       - name: Checkout only the verified application source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -90,6 +109,8 @@ jobs:
           with image.open('rb') as stream:
               digest = hashlib.file_digest(stream, 'sha256').hexdigest()
           manifest = {'source_sha': os.environ['SOURCE_SHA'], 'image_id': os.environ['IMAGE_ID'],
+                      'baseline_release_sha': '29fd2fda0889d06aafceca055a7b0d1742869799',
+                      'production_activation': False, 'stage': 'FIN_ONLY_PREPARED_NOT_DEPLOYED',
                       'revision': os.environ['SOURCE_SHA'], 'archive': image.name,
                       'archive_sha256': digest, 'archive_bytes': image.stat().st_size,
                       'source_gate_run': int(os.environ['SOURCE_GATE_RUN']), 'build_run_id': os.environ['GITHUB_RUN_ID']}

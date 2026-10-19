@@ -1,0 +1,19 @@
+# Модульные (unit) · 19.10.2026 11:55 Алматы · srv1719674
+# коммит 1b235b7 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T06-55-03Z-unit-6213.json' 'apps/web/src/app/beauty/appointment-money-operation.test.ts' 'apps/web/src/app/beauty/journal-payment-actions.test.ts' 'apps/web/src/app/beauty/appointment-card-payment-retry.test.ts' 'apps/web/src/app/beauty/appointment-card.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |unit| apps/web/src/app/beauty/appointment-card-payment-retry.test.ts (4 tests) 28ms
+ ✓ |unit| apps/web/src/app/beauty/appointment-card.test.ts (5 tests) 64ms
+ ✓ |unit| apps/web/src/app/beauty/appointment-money-operation.test.ts (10 tests) 14ms
+ ✓ |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts (20 tests) 11ms
+
+ Test Files  4 passed (4)
+      Tests  39 passed (39)
+   Start at  06:55:04
+   Duration  2.71s (transform 63%, import 31%, tests 5%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-19T06-55-03Z-unit-6213.json
+
+# код выхода 0 · 4 с

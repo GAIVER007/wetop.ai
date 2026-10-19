@@ -49,7 +49,7 @@ afterEach(() => { h.cleanups.forEach((cleanup) => cleanup()); vi.unstubAllGlobal
 describe('real AppointmentCard handlers with deterministic hook harness (not browser)', () => {
   it('retains partial-payment identity after thrown response and explicitly retries exact payload', async () => {
     h.pay.mockRejectedValueOnce(new Error('Lost response')).mockResolvedValueOnce({ message: 'Оплата принята' });
-    let tree = render(); tree = render();
+    render(); let tree = render();
     (input(tree, 'Сумма, ₸').onChange as (e: unknown) => void)({ target: { value: '3000' } }); tree = render();
     const click = button(tree, 'Принять оплату').onClick as () => void;
     click(); click(); await settle(); expect(h.pay).toHaveBeenCalledTimes(1); expect(done).not.toHaveBeenCalled();
@@ -60,7 +60,7 @@ describe('real AppointmentCard handlers with deterministic hook harness (not bro
   });
   it('freezes trimmed refund reason on returned legacy error and retries without new identity', async () => {
     h.refund.mockResolvedValueOnce({ error: 'Unknown response' }).mockResolvedValueOnce({ message: 'Возврат оформлен' });
-    let tree = render(); tree = render();
+    render(); let tree = render();
     (input(tree, 'Причина').onChange as (e: unknown) => void)({ target: { value: '  Тестовая причина  ' } }); tree = render();
     (button(tree, 'Оформить возврат').onClick as () => void)(); await settle(); tree = render();
     expect(input(tree, 'Причина').disabled).toBe(true);
@@ -68,15 +68,15 @@ describe('real AppointmentCard handlers with deterministic hook harness (not bro
     expect(h.refund.mock.calls[1]).toEqual(h.refund.mock.calls[0]); expect(h.refund.mock.calls[0]?.[3]).toBe('Тестовая причина');
   });
   it('reopened unresolved form cannot send a replacement operation', async () => {
-    h.pay.mockResolvedValue({ error: 'Unknown' }); let tree = render(); tree = render();
+    h.pay.mockResolvedValue({ error: 'Unknown' }); render(); let tree = render();
     (button(tree, 'Принять оплату').onClick as () => void)(); await settle();
     h.cleanups.forEach((cleanup) => cleanup()); h.cleanups = []; h.slots = [];
-    tree = render(); tree = render(); expect(button(tree, 'Принять оплату').disabled).toBe(true);
+    render(); tree = render(); expect(button(tree, 'Принять оплату').disabled).toBe(true);
     expect(text(tree)).toContain('Сверьте историю и кассу'); expect(h.pay).toHaveBeenCalledTimes(1);
   });
   it('unmounted card ignores late confirmed completion callback', async () => {
     let resolve!: (value: unknown) => void; h.pay.mockReturnValue(new Promise((r) => { resolve = r; }));
-    let tree = render(); tree = render(); (button(tree, 'Принять оплату').onClick as () => void)();
+    render(); const tree = render(); (button(tree, 'Принять оплату').onClick as () => void)();
     h.cleanups.forEach((cleanup) => cleanup()); resolve({ message: 'Оплата принята' }); await settle();
     expect(done).not.toHaveBeenCalled();
   });

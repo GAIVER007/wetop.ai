@@ -1,0 +1,9 @@
+# Exact CI lint parity follow-up
+
+Candidate1b235b7ef / run39212369265 failed in `npm run lint`, job117928419195, before main types/unit or downstream browser/DB jobs. Five `no-useless-assignment` errors were in the newly added deterministic hook test, not in production money logic. The aggregate UI failure follows skipped prerequisites and is not a new browser result.
+
+The five repairs change only `let tree = render(); tree = render()` into an unused-result render followed by the bound render, and the equivalent remount sequence. Both render calls remain, preserving mount/effect timing. The final binding is const where never reassigned. No assertions, mocks, test cases, timeout, rule or product behavior removed/changed. Verify exact normalized diff and identical render/expect call counts in the scoped commit guard.
+
+Local normal lint had passed, but the fresh CI dependency/config resolution enabled this additional rule. Do not call the earlier local lint fabricated or certify parity from it. Follow-up explicitly enables `no-useless-assignment:error` across the entire local tree: b411 GREEN. Targeted actual helper/actions/card regressions6213=39/39 after binding-only change. Prior full unit f4e3=6320/0/7existing skips predates this test-only binding edit; production implementation unchanged. Actual Next/API/DB6838=4/4 and portal repair78cb=43/43 remain separate unchanged-source proofs, not a new full CI result.
+
+CI excerpt: appointment-card-payment-retry.test.ts52:9,63:9,71:56,74:5,79:9. Full original log retained outside source: salon-implementation/current-1b235b7ef-fast117928419195.log. No new dependencies installed, lint rules disabled, or test guards weakened. New exact candidate still requires the full gate, including112 real Beauty UI cases; no production changes or completion claim.

@@ -3942,6 +3942,11 @@ export interface BeautyAppointmentHistorySnapshot {
     startsAt: string;
     endsAt?: string;
     priceMinor: string;
+    basePriceMinor?: string;
+    discountMinor?: string;
+    surchargeMinor?: string;
+    discountPercent?: number | null;
+    currency?: string;
     employee: { id: string; name: string };
     service: { id: string; name: string };
   }>;

@@ -1,0 +1,16 @@
+# Модульные (unit) · 19.10.2026 14:12 Алматы · srv1719674
+# коммит afc9a1f (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T09-12-58Z-unit-a3d4.json' 'apps/api/src/beauty/appointment-history.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |unit| apps/api/src/beauty/appointment-history.test.ts (5 tests) 13ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  09:12:59
+   Duration  3.80s (transform 84%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-19T09-12-58Z-unit-a3d4.json
+
+# код выхода 0 · 5 с

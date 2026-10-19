@@ -75,7 +75,7 @@ test('minimal create, saved ID, reload and actual desktop/mobile themes', async 
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const panel = page.getByRole('dialog').filter({ visible: true });
   await expect(panel.getByRole('group', { name: 'Что умеет' })).toHaveCount(0);
-  await expect(panel.getByLabel('Мастер работает')).toHaveCount(0);
+  await expect(panel.getByLabel('Специалист работает')).toHaveCount(0);
   await panel
     .getByLabel('Имя мастера', { exact: true })
     .fill('Тестовый мастер с длинным именем для проверки переноса');

@@ -53,7 +53,7 @@ function snapshotValue(
 const FIELDS = [
   ['startsAt', 'Начало'],
   ['endsAt', 'Окончание'],
-  ['employee', 'Мастер'],
+  ['employee', 'Специалист'],
   ['service', 'Услуга'],
   ['priceMinor', 'Стоимость'],
   ['status', 'Статус'],

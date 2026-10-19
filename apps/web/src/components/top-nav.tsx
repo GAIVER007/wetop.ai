@@ -14,9 +14,10 @@ import styles from './top-nav.module.css';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
-import { DataFreshnessProvider } from './data-freshness';
+import { DataFreshness, DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
+import { WhatsNewLink } from './shell/whats-new-link';
 
 /** UI3.1: одна строка шапки, скрытое меню и отдельная мобильная поверхность. */
 export function TopNav({
@@ -25,6 +26,7 @@ export function TopNav({
   property = null,
   account = null,
   desk,
+  support = false,
 }: {
   children: ReactNode;
   demo?: boolean;
@@ -33,6 +35,8 @@ export function TopNav({
   account?: ReactNode;
   /** Кто вошёл и что ему открыто (ADR-083) — из `lib/desk-shell.ts`; макет его не ждёт */
   desk?: Promise<DeskShell>;
+  /** Заданы ли контакты поддержки (SUP1): без них пункта «Связаться с поддержкой» нет */
+  support?: boolean;
 }) {
   const path = usePathname() ?? '';
   const menuDestination = useRef<string | null>(null);
@@ -308,6 +312,13 @@ export function TopNav({
                         <Icon name="help" />
                         Помощь
                       </Link>
+                      {support && (
+                        <Link href="/help#support" onClick={() => setProfile(false)}>
+                          <Icon name="chat" />
+                          Связаться с поддержкой
+                        </Link>
+                      )}
+                      <WhatsNewLink vertical={shell?.vertical ?? 'HOSPITALITY'} onClick={() => setProfile(false)} />
                       {/* «Моя работа» (личный экран сотрудника) здесь, не в разделах (17.10.2026) */}
                       {(beauty || food) && (
                         <Link href="/my-work" onClick={() => setProfile(false)}>
@@ -333,6 +344,16 @@ export function TopNav({
                           Обучение работе в WETOP
                         </button>
                       )}
+                      {/* пробный период и свежесть данных: на широком экране панели ☰ нет (18.10.2026), строки здесь */}
+                      {shell?.trial && (
+                        <span className="profile-dropdown__note" data-testid="profile-trial">
+                          <Icon name="clock" />
+                          {shell.trial}
+                        </span>
+                      )}
+                      <span className="profile-dropdown__note profile-dropdown__note--status">
+                        <DataFreshness />
+                      </span>
                       {account ?? (
                         <Link href="/login">
                           <Icon name="departure" />

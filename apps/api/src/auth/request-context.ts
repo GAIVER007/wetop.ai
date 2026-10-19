@@ -1,10 +1,14 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import {
   can,
+  beautyPermissionScope,
   isRestricted,
   type MembershipRole,
   type Permission,
   type ScopeAssignment,
+  type BeautyAction,
+  type BeautyPositionAccess,
+  type BeautySection,
 } from '@pms/domain';
 
 /** Рабочая область запроса (Platform P2, К1; план P2 §3–§4, ADR-120): вычисляется API, снаружи не приходит */
@@ -19,7 +23,12 @@ import type { BusinessVertical } from '@pms/domain';
  * Служебные процессы — сторож и скрипты сверки — автора не имеют: их записи остаются без
  * пользователя, и это правда, а не пропуск.
  */
+export interface VerifiedBeautyOperation { section: BeautySection; action: BeautyAction; own?: boolean; legacy: Permission; also?: Array<{section:BeautySection;action:BeautyAction;own?:boolean}> }
+
 interface RequestActor {
+  /** Set only after server authorization of the exact route action. */
+  beautyOperation?: VerifiedBeautyOperation;
+  beautyPositionAccess?: BeautyPositionAccess;
   userId: string | null;
   /**
    * Организация вошедшего (ADR-061). `null` — за запросом нет человека: служебный ключ, сторож,
@@ -193,7 +202,34 @@ export function actorIsOwner(): boolean {
  * по таблице прав его роли; неизвестная роль — нет.
  */
 export function actorMay(permission: Permission): boolean {
+  const actor = storage.getStore();
+  if (hasSignedInActor() && currentVertical() === 'BEAUTY' && actor?.beautyOperation) {
+    if (actor.beautyOperation.legacy === permission) return true;
+    if (actor.beautyPositionAccess?.mode === 'ASSIGNED' && currentRole() !== 'OWNER') {
+      if (!actor.beautyPositionAccess.assigned) return false;
+      if (permission === 'self') return true;
+      const grants = actor.beautyPositionAccess.permissions;
+      if (permission === 'desk') return beautyPermissionScope(grants, actor.beautyOperation.section, 'view') === 'BUSINESS';
+      const extra: Partial<Record<Permission, {section: BeautySection; action: BeautyAction}>> = {
+        rates: {section:'services',action:'update'}, refunds: {section:'finance',action:'refund'},
+        property: {section:'employees',action:'update'}, reports: {section:'finance',action:'view'},
+        settings: {section:'settings',action:'update'},
+      };
+      const required = extra[permission];
+      return !!required && beautyPermissionScope(grants, required.section, required.action) === 'BUSINESS';
+    }
+  }
   return !hasSignedInActor() || can(currentRole(), permission);
+}
+
+export function currentBeautyOperation(): VerifiedBeautyOperation | null {
+  return storage.getStore()?.beautyOperation ?? null;
+}
+
+export function withVerifiedBeautyOperation<T>(operation: VerifiedBeautyOperation, fn: () => Promise<T>, access?: BeautyPositionAccess): Promise<T> {
+  const actor = storage.getStore();
+  if (!actor?.userId || actor.vertical !== 'BEAUTY') throw new Error('Beauty authorization requires a signed-in salon context');
+  return runAwaited({ ...actor, beautyOperation: operation, ...(access ? {beautyPositionAccess:access} : {}) }, fn);
 }
 
 /**

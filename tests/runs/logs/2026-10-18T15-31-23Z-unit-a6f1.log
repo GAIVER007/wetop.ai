@@ -1,0 +1,101 @@
+# Модульные (unit) · 18.10.2026 20:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 22
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T15-31-23Z-unit-a6f1.json' 'apps/api/src/beauty/customer-import.test.ts' 'apps/api/src/beauty/customer-import.worker.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| apps/api/src/beauty/customer-import.worker.test.ts (7 tests | 2 failed) 152ms
+   ❯ CustomerImportWorker (7)
+     ✓ claims one queued job with a fresh lease token and no parent locks 72ms
+     ✓ revalidates active owner, organization and salon for every processing batch 17ms
+     ✓ fences every checkpoint update by the lease token 6ms
+     ✓ clears retained input and baselines only for expired terminal jobs 3ms
+     × runs bounded retention even while import jobs remain queued 20ms
+     × records a safe terminal audit when an abandoned upload expires 19ms
+     ✓ rechecks customer status after the ordered customer lock 4ms
+ ❯ |unit| apps/api/src/beauty/customer-import.test.ts (8 tests | 1 failed) 48ms
+   ❯ CustomerImportService (8)
+     ✓ starts an owner import in the server-derived organization and business 22ms
+     ✓ returns the same job for the same start request and rejects a changed request 1ms
+     × rechecks idempotency inside the locked transaction before create 15ms
+     ✓ stores one ordered chunk and repeats the same digest as a no-op 1ms
+     ✓ rejects a changed repeat chunk without changing rows 0ms
+     ✓ submits only a complete upload and keeps aggregate DTO free of row PII 0ms
+     ✓ keeps every management and report endpoint owner-only 0ms
+     ✓ checks the undo deadline with fresh time after database locks 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.test.ts > CustomerImportService > rechecks idempotency inside the locked transaction before create
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "data": Object {
+          "businessId": "00000000-0000-4000-8000-000000000013",
+          "clientRequestId": "00000000-0000-4000-8000-000000000014",
+          "contentsExpireAt": 2026-11-17T15:31:52.799Z,
+          "createdBy": "00000000-0000-4000-8000-000000000011",
+          "id": "139fadc5-7c68-4b1d-8c11-6b3c7e66c69f",
+          "nextAttemptAt": 2026-10-18T15:31:52.799Z,
+          "organizationId": "00000000-0000-4000-8000-000000000012",
+          "requestDigest": "d62cd5c502b5628a6d8dc979c9b4c43f3bd21b417fdad15b1dd735d2184f1ab5",
+          "state": "UPLOADING",
+          "totalRows": 2,
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ apps/api/src/beauty/customer-import.test.ts:129:42
+    127|     const result = await asActor(() => service.start({ clientRequestId…
+    128|     expect(result).toMatchObject({ id: row().id, state: 'UPLOADING' });
+    129|     expect(db.customerImport.create).not.toHaveBeenCalled();
+       |                                          ^
+    130|   });
+    131|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.worker.test.ts > CustomerImportWorker > runs bounded retention even while import jobs remain queued
+AssertionError: expected "purgeExpiredContents" to be called 1 times, but got 0 times
+ ❯ apps/api/src/beauty/customer-import.worker.test.ts:140:19
+    138|     const purge = vi.spyOn(worker, 'purgeExpiredContents').mockResolve…
+    139|     await expect(worker.tick()).resolves.toBe(claim.id);
+    140|     expect(purge).toHaveBeenCalledTimes(1);
+       |                   ^
+    141|   });
+    142|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.worker.test.ts > CustomerImportWorker > records a safe terminal audit when an abandoned upload expires
+AssertionError: expected "vi.fn()" to be called with arguments: [ { data: ObjectContaining{…} } ]
+
+Number of calls: 0
+
+ ❯ apps/api/src/beauty/customer-import.worker.test.ts:160:32
+    158|     ]);
+    159|     await expect(worker.purgeExpiredContents()).resolves.toBe(1);
+    160|     expect(db.auditLog.create).toHaveBeenCalledWith({
+       |                                ^
+    161|       data: expect.objectContaining({
+    162|         organizationId: claim.organizationId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 12 passed (15)
+   Start at  08:31:40
+   Duration  12.13s (transform 55%, import 43%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T15-31-23Z-unit-a6f1.json
+
+# код выхода 1 · 30 с

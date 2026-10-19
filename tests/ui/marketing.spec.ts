@@ -24,6 +24,8 @@ test.beforeEach(async ({ request }) => {
 test('меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп', async ({
   page,
 }) => {
+  // клавиатура панели кнопки ☰: она живёт до 1280 px (решение владельца 18.10.2026)
+  await page.setViewportSize({ width: 1024, height: 900 });
   await page.goto('/finance');
   const menu = menuOf(page);
   const trigger = menu.locator('.sidenav__current');

@@ -1,0 +1,28 @@
+# Интеграционные (integration) · 18.10.2026 20:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 19
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T15-34-59Z-integration-ed8e.json' 'tests/integration/customer-import-storage.test.ts' 'tests/integration/customer-import-runtime.test.ts' 'tests/integration/customer-import-race.test.ts' 'tests/integration/function-search-path.test.ts' 'tests/integration/customers-create.test.ts' 'tests/integration/customer-phone.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ✓ |integration| tests/integration/customer-import-race.test.ts (6 tests) 1734ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 300ms
+stdout | tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > 50 000 synthetic rows: durable upload, process and atomic undo budget
+{"benchmark":"customer-import-50000","rows":50000,"uploadMs":18589,"processMs":78122,"maxProcessMs":7341,"undoMs":6543,"journalTotalBytes":"49250304"}
+
+ ✓ |integration| tests/integration/customer-import-runtime.test.ts (13 tests) 122647ms
+   ✓ M4-B2: durable customer import, real RLS and transactions (13)
+     ✓ exposes an owner-only real HTTP endpoint with dependency injection 1995ms
+     ✓ rechecks the owner between batches and allows safe undo of partial failure 445ms
+     ✓ 50 000 synthetic rows: durable upload, process and atomic undo budget 104378ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 1187ms
+ ✓ |integration| tests/integration/customer-import-storage.test.ts (6 tests) 289ms
+ ✓ |integration| tests/integration/customer-phone.test.ts (9 tests) 348ms
+
+ Test Files  6 passed (6)
+      Tests  40 passed (40)
+   Start at  08:35:14
+   Duration  144.20s (tests 90%, import 7%, transform 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T15-34-59Z-integration-ed8e.json
+
+# код выхода 0 · 2 мин 42 с

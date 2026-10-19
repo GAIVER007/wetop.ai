@@ -7,7 +7,7 @@ import { loadErrorProps } from '../../lib/load-error';
 import { beautyApi } from '../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { currentMe, deskShell } from '../../lib/desk-shell';
-import { mayAccess } from '../../lib/navigation';
+import { mayBeautyAccess } from '../../lib/navigation';
 import { JournalBoard } from './journal';
 import { WeekCalendar } from './week-calendar';
 import './beauty.css';
@@ -24,18 +24,33 @@ export default async function BeautyPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/beauty');
-  const { date, view, appointment, employee, service, status } = normalizeSearchParams(await searchParams);
+  const { date, view, appointment, employee, service, status } = normalizeSearchParams(
+    await searchParams,
+  );
   const filters = new URLSearchParams();
   if (employee) filters.set('employee', employee);
   if (service) filters.set('service', service);
   if (status) filters.set('status', status);
   const shell = await deskShell();
   const me = await currentMe();
-  const scopeKey = JSON.stringify({ organizationId: me.user?.organizationId, businessId: me.context?.businessId, locationId: me.context?.locationId });
+  const may = (
+    section: Parameters<typeof mayBeautyAccess>[1],
+    action: Parameters<typeof mayBeautyAccess>[2],
+    legacy: Parameters<typeof mayBeautyAccess>[3]['legacy'],
+  ) => !shell.readOnly && mayBeautyAccess(shell.access, section, action, { legacy });
+  const canReadCustomers = mayBeautyAccess(shell.access, 'customers', 'view', { legacy: 'desk' });
+  const canReadEmployees = mayBeautyAccess(shell.access, 'employees', 'view', { legacy: 'desk' });
+  const requestedCreate = may('appointments', 'create', 'desk');
+  const canCreate = requestedCreate && canReadCustomers;
+  const scopeKey = JSON.stringify({
+    organizationId: me.user?.organizationId,
+    businessId: me.context?.businessId,
+    locationId: me.context?.locationId,
+  });
   const loaded = await Promise.all([
     beautyApi.day(date),
-    beautyApi.customers(),
-    beautyApi.employees(),
+    canCreate ? beautyApi.customers() : Promise.resolve({ items: [] }),
+    canReadEmployees ? beautyApi.employees() : Promise.resolve({ items: [] }),
   ])
     .then(async (value) => {
       const week =
@@ -92,14 +107,28 @@ export default async function BeautyPage({
           Неделя
         </Link>
       </nav>
-      {loaded.week ? <WeekCalendar days={loaded.week} employees={loaded.employees} selectedDate={loaded.value.date} /> : (
+      {loaded.week ? (
+        <WeekCalendar
+          days={loaded.week}
+          employees={loaded.employees}
+          selectedDate={loaded.value.date}
+        />
+      ) : (
         <JournalBoard
           key={`${scopeKey}:${loaded.value.date}:${appointment ?? ''}`}
           day={loaded.value}
           customers={loaded.customers}
           employees={loaded.employees}
           readOnly={shell.readOnly}
-          canRefund={!shell.readOnly && mayAccess(shell.access, 'refunds')}
+          canCreate={canCreate}
+          canUpdate={may('appointments', 'update', 'desk')}
+          canPay={may('finance', 'create', 'desk')}
+          canRefund={may('finance', 'refund', 'refunds')}
+          canIssueReview={may('reviews', 'create', 'staff')}
+          canAdjustPrice={may('services', 'update', 'rates')}
+          {...(requestedCreate && !canReadCustomers
+            ? { creationUnavailableReason: 'Для создания записи нужен доступ к списку клиентов.' }
+            : {})}
           appointmentId={appointment}
           scopeKey={scopeKey}
         />

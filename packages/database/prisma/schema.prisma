@@ -43,6 +43,7 @@ enum LocationStatus {
 /// Направление/бренд партнёра (Platform P1, ADR-104, DATA_MODEL §18.1): «Luxx Hotels», «Alma Beauty».
 /// У организации N бизнесов; вертикаль — здесь. Тёзки внутри организации допустимы (§18.1).
 model Business {
+  customerImports CustomerImport[]
   id             String           @id @default(uuid()) @db.Uuid
   organizationId String           @map("organization_id") @db.Uuid
   name           String           @db.VarChar(200)
@@ -63,6 +64,8 @@ model Business {
   menuItems        MenuItem[]
   kitchenProducts  KitchenProduct[]
   beautyPayrollPolicy BeautyPayrollPolicy?
+  beautyPositions BeautyPosition[]
+  beautyPositionAssignments BeautyPositionAssignment[]
 
   @@index([organizationId])
   @@map("businesses")
@@ -117,6 +120,9 @@ model Location {
   services               LocationService[]
   workingHours           WorkingHours[]
   appointments           Appointment[]
+  employeeServicePrices  EmployeeServicePrice[]
+  beautyOpeningHours     BeautyLocationHours?
+  beautyPositionAssignments BeautyPositionAssignment[]
   /// MKT9.2: один филиал, один сайт навсегда (полный UNIQUE location_id, архив не освобождает филиал)
   marketingSite          MarketingSite?
   marketingExpenses      MarketingExpense[]
@@ -2503,6 +2509,7 @@ enum UserStatus {
 /// Арендатор: одна организация — один клиент платформы (DATA_MODEL §13, ADR-046).
 /// Разделения данных объекта по организациям в срезе 13 нет: пробный период пускает в демо-объект.
 model Organization {
+  customerImports CustomerImport[]
   id                String             @id @default(uuid()) @db.Uuid
   name              String             @db.VarChar(200)
   status            OrganizationStatus @default(TRIAL)
@@ -2540,6 +2547,7 @@ model Organization {
 /// Человек. Почта в нижнем регистре — за этим следит CHECK в миграции, Prisma такого не описывает.
 /// Паролей нет намеренно (ADR-046): вход по одноразовому коду на почту.
 model User {
+  customerImports CustomerImport[]
   id              String     @id @default(uuid()) @db.Uuid
   email           String     @unique @db.VarChar(320)
   name            String?    @db.VarChar(200)
@@ -2674,6 +2682,7 @@ model Membership {
 
   user         User         @relation(fields: [userId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])
+  beautyPositionAssignments BeautyPositionAssignment[]
 
   @@id([userId, organizationId])
   @@index([organizationId])
@@ -3102,6 +3111,13 @@ enum AppointmentSource {
   WEBSITE
 }
 
+enum EmployeeServicePriceType {
+  FIXED
+  RANGE
+  FREE
+  UNFIXED
+}
+
 /// Клиент сети: канонический на организацию (freeze-решение №2, закрыло Q-198). Гость §3 не меняется.
 /// Телефон уникален внутри организации, частичным индексом в миграции (без телефона клиентов много).
 model Customer {
@@ -3162,9 +3178,12 @@ model Employee {
   user             User?                     @relation(fields: [userId], references: [id])
   locations        EmployeeLocation[]
   services         EmployeeService[]
+  servicePrices    EmployeeServicePrice[]
   workingHours     WorkingHours[]
   timeOffs         TimeOff[]
   appointments     Appointment[]
+  appointmentLines AppointmentLine[]
+  beautyReviews    BeautyAppointmentReview[]
   restaurantOrders RestaurantOrder[]
   paySetting       EmployeePaySetting?
   payAdjustments   EmployeePayAdjustment[]
@@ -3234,6 +3253,62 @@ model BeautyPayrollPolicy {
   @@map("beauty_payroll_policies")
 }
 
+/// BEAUTY-ACCESS-20261018: редактируемая должность салонного бизнеса. Название само по себе прав не даёт.
+model BeautyPosition {
+  id         String    @id @default(uuid()) @db.Uuid
+  businessId String    @map("business_id") @db.Uuid
+  name       String    @db.VarChar(100)
+  revision   Int       @default(1)
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  business    Business                     @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  permissions BeautyPositionPermission[]
+  assignments BeautyPositionAssignment[]
+
+  @@unique([businessId, name])
+  @@index([businessId, archivedAt])
+  @@map("beauty_positions")
+}
+
+/// Явное право должности. Допустимые сочетания раздела, действия и области дополнительно ограничены SQL CHECK.
+model BeautyPositionPermission {
+  positionId String @map("position_id") @db.Uuid
+  section    String @db.VarChar(20)
+  action     String @db.VarChar(10)
+  scope      String @db.VarChar(8)
+
+  position BeautyPosition @relation(fields: [positionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([positionId, section, action])
+  @@map("beauty_position_permissions")
+}
+
+/// Назначение должности членству. Отзыв сохраняет строку, чтобы старая роль не вернула широкий доступ.
+model BeautyPositionAssignment {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  businessId     String    @map("business_id") @db.Uuid
+  positionId     String    @map("position_id") @db.Uuid
+  locationId     String?   @map("location_id") @db.Uuid
+  revision       Int       @default(1)
+  revokedAt      DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  membership Membership     @relation(fields: [userId, organizationId], references: [userId, organizationId], onDelete: Restrict, onUpdate: NoAction)
+  business   Business       @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  position   BeautyPosition @relation(fields: [positionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  location   Location?      @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([organizationId, userId])
+  @@index([businessId, locationId])
+  @@index([positionId])
+  @@map("beauty_position_assignments")
+}
+
 /// Один мастер работает в нескольких салонах. Филиал своего бизнеса, проверяет триггер
 model EmployeeLocation {
   employeeId String   @map("employee_id") @db.Uuid
@@ -3265,7 +3340,11 @@ model BeautyService {
   business     Business          @relation(fields: [businessId], references: [id])
   locations    LocationService[]
   employees    EmployeeService[]
+  employeePrices EmployeeServicePrice[]
   appointments Appointment[]
+  appointmentLines AppointmentLine[]
+  materials        BeautyServiceMaterial[]
+  materialRevision BeautyServiceMaterialRevision?
   portfolioItems EmployeePortfolioItem[]
 
   @@index([businessId])
@@ -3302,6 +3381,55 @@ model EmployeeService {
   @@id([employeeId, serviceId])
   @@index([serviceId])
   @@map("employee_services")
+}
+
+/// BEAUTY-ZAPIS-20261017 E2: цена и длительность конкретного мастера для услуги в филиале.
+model EmployeeServicePrice {
+  employeeId      String                   @map("employee_id") @db.Uuid
+  serviceId       String                   @map("service_id") @db.Uuid
+  locationId      String                   @map("location_id") @db.Uuid
+  priceType       EmployeeServicePriceType @map("price_type")
+  priceMinMinor   BigInt?                  @map("price_min_minor")
+  priceMaxMinor   BigInt?                  @map("price_max_minor")
+  durationMinutes Int?                     @map("duration_minutes")
+  currency        String                   @db.VarChar(3)
+  revision        Int                      @default(1)
+  createdAt       DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  employee Employee      @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  service  BeautyService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  location Location      @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@id([employeeId, serviceId, locationId])
+  @@index([locationId, serviceId])
+  @@map("employee_service_prices")
+}
+
+/// BEAUTY-MATERIALS-20261018: норма складского материала на одну услугу.
+model BeautyServiceMaterial {
+  serviceId String  @map("service_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  normQty   Decimal @map("norm_qty") @db.Decimal(14, 3)
+  unit      String  @db.VarChar(8)
+
+  service BeautyService  @relation(fields: [serviceId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  product KitchenProduct @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([serviceId, productId])
+  @@index([productId])
+  @@map("beauty_service_materials")
+}
+
+/// Optimistic revision состава техкарты, включая пустой состав.
+model BeautyServiceMaterialRevision {
+  serviceId String   @id @map("service_id") @db.Uuid
+  revision  Int      @default(1)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  service BeautyService @relation(fields: [serviceId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@map("beauty_service_material_revisions")
 }
 
 /// График мастера всегда в контексте филиала (в каком салоне он стоит в этот день).
@@ -3369,12 +3497,72 @@ model Appointment {
   service   BeautyService @relation(fields: [serviceId], references: [id])
   createdBy User?         @relation(fields: [createdById], references: [id])
   payments  RestaurantCashOperation[]
+  lines     AppointmentLine[]
+  reviews   BeautyAppointmentReview[]
+  reviewInvitation BeautyReviewInvitation?
 
   @@unique([locationId, creationKey])
   @@index([locationId, startsAt])
   @@index([employeeId, startsAt])
   @@index([customerId])
   @@map("appointments")
+}
+
+/// BEAUTY-ZAPIS-20261017 A1/A2/A3: последовательная услуга внутри визита.
+model AppointmentLine {
+  id              String   @id @default(uuid()) @db.Uuid
+  appointmentId   String   @map("appointment_id") @db.Uuid
+  position        Int
+  serviceId       String   @map("service_id") @db.Uuid
+  employeeId      String   @map("employee_id") @db.Uuid
+  startsAt        DateTime @map("starts_at") @db.Timestamptz(6)
+  endsAt          DateTime @map("ends_at") @db.Timestamptz(6)
+  basePriceMinor  BigInt   @map("base_price_minor")
+  discountMinor   BigInt   @default(0) @map("discount_minor")
+  surchargeMinor  BigInt   @default(0) @map("surcharge_minor")
+  priceMinor      BigInt   @map("price_minor")
+  currency        String   @db.VarChar(3)
+  discountPercent Int?     @map("discount_percent")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  appointment Appointment  @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+  service     BeautyService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  employee    Employee      @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  stockMovements KitchenStockMovement[]
+
+  @@unique([appointmentId, position])
+  @@index([employeeId, startsAt])
+  @@index([serviceId])
+  @@map("appointment_lines")
+}
+
+/// BEAUTY-REVIEWS-20261018: один неизменяемый отзыв мастеру за выполненный визит.
+model BeautyAppointmentReview {
+  appointmentId String   @map("appointment_id") @db.Uuid
+  employeeId    String   @map("employee_id") @db.Uuid
+  stars         Int      @db.SmallInt
+  comment       String?
+  submittedAt   DateTime @default(now()) @map("submitted_at") @db.Timestamptz(6)
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  employee    Employee    @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([appointmentId, employeeId])
+  @@index([employeeId, submittedAt])
+  @@map("beauty_appointment_reviews")
+}
+
+/// Одно приглашение на отзыв для визита. Срок задаёт будущий узкий writer, без неявного default.
+model BeautyReviewInvitation {
+  appointmentId String    @id @map("appointment_id") @db.Uuid
+  tokenHash     String    @unique @map("token_hash") @db.Char(64)
+  expiresAt     DateTime  @map("expires_at") @db.Timestamptz(6)
+  submittedAt   DateTime? @map("submitted_at") @db.Timestamptz(6)
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@map("beauty_review_invitations")
 }
 
 /// MV3 server resume, approved 04.10.2026. Vertical is derived from Location.Business.
@@ -3739,6 +3927,7 @@ model KitchenProduct {
   lots         KitchenStockLot[]
   movements    KitchenStockMovement[]
   techCardRows MenuItemIngredient[]
+  beautyMaterials BeautyServiceMaterial[]
 
   @@unique([businessId, name])
   @@map("kitchen_products")
@@ -3782,6 +3971,7 @@ model KitchenStockMovement {
   reason      String?             @db.VarChar(500)
   /// §38: заказ, по которому списано или возвращено
   orderId     String?             @map("order_id") @db.Uuid
+  appointmentLineId String?       @map("appointment_line_id") @db.Uuid
   createdById String?             @map("created_by_id") @db.Uuid
   createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -3789,10 +3979,12 @@ model KitchenStockMovement {
   product   KitchenProduct   @relation(fields: [productId], references: [id])
   lot       KitchenStockLot? @relation(fields: [lotId], references: [id])
   order     RestaurantOrder? @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  appointmentLine AppointmentLine? @relation(fields: [appointmentLineId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   createdBy User?            @relation(fields: [createdById], references: [id])
 
   @@index([locationId, createdAt])
   @@index([orderId])
+  @@index([appointmentLineId])
   @@index([productId])
   @@index([lotId])
   @@map("kitchen_stock_movements")
@@ -3969,4 +4161,76 @@ enum SiteLeadStatus {
   IN_PROGRESS
   DONE
   SPAM
+}
+
+/// BEAUTY-LOCATION-HOURS-20261018, owner-approved salon hours, held135.
+model BeautyLocationHours {
+  locationId String @id @map("location_id") @db.Uuid
+  intervals Json
+  revision Int @default(1)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@map("beauty_location_hours")
+}
+
+/// SL4-M4B2: durable import journal, owner-only API, 30 day contents TTL.
+model CustomerImport {
+  id                String   @id @default(uuid()) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
+  businessId        String   @map("business_id") @db.Uuid
+  createdBy         String   @map("created_by") @db.Uuid
+  clientRequestId   String   @map("client_request_id") @db.Uuid
+  requestDigest     String   @map("request_digest") @db.VarChar(64)
+  state             String   @default("UPLOADING") @db.VarChar(16)
+  totalRows         Int      @map("total_rows")
+  uploadedRows      Int      @default(0) @map("uploaded_rows")
+  processedRows     Int      @default(0) @map("processed_rows")
+  createdCount      Int      @default(0) @map("created_count")
+  linkedCount       Int      @default(0) @map("linked_count")
+  unchangedCount    Int      @default(0) @map("unchanged_count")
+  skippedCount      Int      @default(0) @map("skipped_count")
+  uploadReceipts    Json     @default("{}") @map("upload_receipts")
+  leaseToken        String?  @map("lease_token") @db.Uuid
+  leaseExpiresAt    DateTime? @map("lease_expires_at") @db.Timestamptz(6)
+  attempts          Int      @default(0)
+  nextAttemptAt     DateTime @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  errorCode         String?  @map("error_code") @db.VarChar(64)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  completedAt       DateTime? @map("completed_at") @db.Timestamptz(6)
+  undoDeadline      DateTime? @map("undo_deadline") @db.Timestamptz(6)
+  contentsExpireAt  DateTime @map("contents_expire_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  actor User @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  rows CustomerImportRow[]
+
+  @@unique([organizationId, clientRequestId])
+  @@unique([id, organizationId])
+  @@index([state, nextAttemptAt, leaseExpiresAt])
+  @@index([organizationId, businessId, createdAt])
+  @@map("customer_imports")
+}
+
+model CustomerImportRow {
+  id               String   @id @default(uuid()) @db.Uuid
+  organizationId   String   @map("organization_id") @db.Uuid
+  importId         String   @map("import_id") @db.Uuid
+  ordinal          Int
+  sourceLine       Int      @map("source_line")
+  input            Json?
+  outcome          String   @default("PENDING") @db.VarChar(16)
+  errorCode        String?  @map("error_code") @db.VarChar(64)
+  customerId       String?  @map("customer_id") @db.Uuid
+  customerBaseline Json?    @map("customer_baseline")
+  linkBaseline     DateTime? @map("link_baseline") @db.Timestamptz(6)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  run CustomerImport @relation(fields: [importId, organizationId], references: [id, organizationId], onDelete: Restrict)
+
+  @@unique([importId, ordinal])
+  @@index([organizationId])
+  @@index([customerId])
+  @@map("customer_import_rows")
 }

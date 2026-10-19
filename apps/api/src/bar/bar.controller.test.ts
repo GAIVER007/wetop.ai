@@ -209,6 +209,8 @@ describe('бар: права на сторно (FOOD-FIX-01)', () => {
     const { RoleGuard } = await import('../auth/role.guard');
     const { Reflector } = await import('@nestjs/core');
     app.useGlobalGuards(new RoleGuard(new Reflector()));
+    const { AuthorInterceptor } = await import('../auth/author.interceptor');
+    app.useGlobalInterceptors(new AuthorInterceptor());
     await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => app.close());

@@ -1,0 +1,27 @@
+# Интеграционные (integration) · 18.10.2026 21:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3f9ab19 (codex/salons-tz4-m4b2)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T16-14-57Z-integration-01c8.json' 'tests/integration/customer-import-storage.test.ts' 'tests/integration/customer-import-runtime.test.ts' 'tests/integration/customer-import-race.test.ts' 'tests/integration/function-search-path.test.ts' 'tests/integration/customers-create.test.ts' 'tests/integration/customer-phone.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+stdout | tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions > 50 000 synthetic rows: durable upload, process and atomic undo budget
+{"benchmark":"customer-import-50000","rows":50000,"uploadMs":5564,"processMs":45758,"maxProcessMs":939,"undoMs":1780,"retentionMs":492,"journalTotalBytes":"55336960"}
+
+ ✓ |integration| tests/integration/customer-import-runtime.test.ts (13 tests) 54802ms
+   ✓ M4-B2: durable customer import, real RLS and transactions (13)
+     ✓ exposes an owner-only real HTTP endpoint with dependency injection 311ms
+     ✓ 50 000 synthetic rows: durable upload, process and atomic undo budget 53680ms
+ ✓ |integration| tests/integration/customer-import-race.test.ts (6 tests) 504ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 208ms
+ ✓ |integration| tests/integration/customer-phone.test.ts (9 tests) 43ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 114ms
+ ✓ |integration| tests/integration/customer-import-storage.test.ts (6 tests) 52ms
+
+ Test Files  6 passed (6)
+      Tests  40 passed (40)
+   Start at  09:14:58
+   Duration  58.37s (tests 97%, import 2%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T16-14-57Z-integration-01c8.json
+
+# код выхода 0 · 1 мин

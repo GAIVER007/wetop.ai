@@ -46,7 +46,7 @@ describe('salon terminology regression', () => {
   it('does not represent service snapshots as cash receipts or loss', () => {
     const finance = source('app/finance/beauty-finance.tsx');
     expect(finance).toContain('Стоимость оказанных услуг');
-    expect(finance).toContain('Средняя стоимость услуги');
+    expect(finance).toContain('Средняя стоимость записи');
     expect(finance).toContain('href="/cashbox"');
     expect(finance).not.toContain('label="Потери"');
     expect(finance).not.toContain('label="Выручка за 7 дней"');
@@ -66,7 +66,7 @@ describe('salon terminology regression', () => {
   it('exposes useful service search and category', () => {
     const services = source('app/beauty/services/board.tsx');
     expect(services).toContain('Поиск услуг');
-    expect(services).toContain('Категория');
+    expect(services).toContain('Группа');
     expect(services).toContain('row.effective.priceMinor');
   });
 });

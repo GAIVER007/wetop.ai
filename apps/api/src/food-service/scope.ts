@@ -1,3 +1,4 @@
+import { runWithBeautyWriteAuthorization } from '../beauty/access';
 import { ForbiddenException, NotFoundException, ConflictException } from '@nestjs/common';
 import { accessDeniedMessage, canWrite, type Permission } from '@pms/domain';
 import type { DbTx } from '@pms/database';
@@ -78,7 +79,7 @@ export async function foodTransaction<T>(
   verticals?: readonly FoodVertical[],
 ): Promise<T> {
   try {
-    return await prisma.db.$transaction(async (tx) => {
+    return await prisma.db.$transaction(async (tx) => runWithBeautyWriteAuthorization(tx, async () => {
       await tx.$queryRaw`SELECT id FROM organizations WHERE id=${scope.organizationId}::uuid FOR SHARE`;
       await tx.$queryRaw`SELECT id FROM businesses WHERE id=${scope.businessId}::uuid FOR SHARE`;
       await tx.$queryRaw`SELECT id FROM locations WHERE id=${scope.locationId}::uuid FOR UPDATE`;
@@ -88,7 +89,7 @@ export async function foodTransaction<T>(
         if (!tracking.length && (await foodScope(tx, verticals))) await tx.$queryRaw`SELECT capture_restaurant_capacity(${scope.locationId}::uuid)::text`;
       }
       return fn(tx, await foodScope(tx, verticals));
-    });
+    }));
   } catch (error) {
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002')
       throw new ConflictException('Такая запись уже существует');

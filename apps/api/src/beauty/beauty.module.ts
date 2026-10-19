@@ -6,6 +6,7 @@ import {
   Body,
   Controller,
   ConflictException,
+  Delete,
   Get,
   Inject,
   Injectable,
@@ -18,14 +19,18 @@ import {
 } from '@nestjs/common';
 import {
   birthdayInDays,
+  allocateStock,
   effectiveService,
   localDate,
+  milliOf,
+  milliText,
   parseCustomerMarks,
   parseCustomerInput,
   zonedStartOfDay,
   parseBeautyServiceInput,
   parseEmployeeInput,
   parseLocationServiceInput,
+  stockQty,
   type Permission,
 } from '@pms/domain';
 import type { DbTx } from '@pms/database';
@@ -42,10 +47,26 @@ import {
 import { currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
+import { BeautyAccess } from './access.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { BeautyAppointmentsController, BeautyAppointmentsService } from './appointments';
+import { BeautyCustomerImportController, BeautyCustomerImportService } from './customer-import';
+import { BeautyLocationHoursController, BeautyLocationHoursService } from './location-hours';
+import { BeautyPositionsController, BeautyPositionsService } from './positions';
+import { BeautyCustomerDetailController, BeautyCustomerDetailService } from './customer-detail';
+import {
+  BeautyAppointmentHistoryController,
+  BeautyAppointmentHistoryService,
+} from './appointment-history';
+import {
+  BeautyPublicReviewsController,
+  BeautyReviewInvitationController,
+  BeautyReviewsService,
+} from './reviews';
 import { BeautyScheduleController, BeautyScheduleService } from './schedule';
 import { findOrCreateCustomer } from '../customers/identity';
+import { CustomerImportsController, CustomerImportService } from './customer-import';
+import { CustomerImportWorker } from './customer-import.worker';
 import {
   beautyScope,
   beautyTransaction,
@@ -75,6 +96,111 @@ export class BeautyCatalogService {
 
   private scope(): Promise<BeautyScope> {
     return beautyScope(this.prisma);
+  }
+
+  async serviceMaterials(serviceId: string) {
+    mayBeauty('rates');
+    if (!UUID.test(serviceId)) throw new BadRequestException('Некорректная услуга');
+    const scope = await beautyScope(this.prisma, true);
+    const service = await this.prisma.db.beautyService.findFirst({
+      where: { id: serviceId, businessId: scope.businessId },
+      select: { id: true, materialRevision: { select: { revision: true } }, materials: {
+        include: { product: true }, orderBy: { productId: 'asc' },
+      } },
+    });
+    if (!service) throw new NotFoundException('Услуга не найдена');
+    const [products, lots] = await Promise.all([
+      this.prisma.db.kitchenProduct.findMany({ where: { businessId: scope.businessId }, orderBy: [{ name: 'asc' }, { id: 'asc' }], take: 2000 }),
+      this.prisma.db.kitchenStockLot.findMany({
+        where: { locationId: scope.locationId!, reversedAt: null, remainingQty: { gt: 0 } },
+        orderBy: [{ receivedOn: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+      }),
+    ]);
+    const onHand = (productId: string) => lots.filter((lot) => lot.productId === productId)
+      .reduce((sum, lot) => sum + milliOf(lot.remainingQty), 0n);
+    let total = 0n;
+    let missingCost = false;
+    const items = service.materials.map((material) => {
+      const norm = milliOf(material.normQty);
+      let cost: bigint | null = null;
+      try {
+        cost = allocateStock(
+          lots.filter((lot) => lot.productId === material.productId).map((lot) => ({
+            id: lot.id, receivedOn: lot.receivedOn.toISOString().slice(0, 10), createdAt: lot.createdAt,
+            remaining: milliOf(lot.remainingQty), unitCost: lot.unitCost,
+          })),
+          norm,
+          material.unit,
+        ).cost;
+        total += cost;
+      } catch {
+        missingCost = true;
+      }
+      return {
+        productId: material.productId, productName: material.product.name, unit: material.unit,
+        normQty: milliText(norm), onHand: milliText(onHand(material.productId)),
+        costMinor: cost?.toString() ?? null, active: material.product.active,
+      };
+    });
+    return {
+      serviceId: service.id, revision: service.materialRevision?.revision ?? 0,
+      locationId: scope.locationId!, currency: scope.locationCurrency!,
+      totalCostMinor: missingCost ? null : total.toString(), missingCost, items,
+      products: products.map((product) => ({
+        id: product.id, name: product.name, unit: product.unit,
+        onHand: milliText(onHand(product.id)), active: product.active,
+      })),
+    };
+  }
+
+  async setServiceMaterials(serviceId: string, raw: unknown) {
+    await mayBeautyWrite(this.prisma, 'rates');
+    if (!UUID.test(serviceId)) throw new BadRequestException('Некорректная услуга');
+    const body = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw as Record<string, unknown> : {};
+    const expectedRevision = body['expectedRevision'];
+    if (!Number.isInteger(expectedRevision) || Number(expectedRevision) < 0)
+      throw new BadRequestException('Укажите версию техкарты');
+    if (!Array.isArray(body['items'])) throw new BadRequestException('Укажите материалы');
+    const parsed = body['items'].map((value) => {
+      const item = value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+      const productId = String(item['productId'] ?? '');
+      const unit = String(item['unit'] ?? '');
+      if (!UUID.test(productId)) throw new BadRequestException('Некорректный материал');
+      let normQty: bigint;
+      try { normQty = stockQty(item['normQty']); }
+      catch (error) { throw new BadRequestException((error as Error).message); }
+      return { productId, unit, normQty };
+    });
+    if (new Set(parsed.map((item) => item.productId)).size !== parsed.length)
+      throw new BadRequestException('Материал указан дважды');
+    const scope = await beautyScope(this.prisma, true);
+    await beautyTransaction(this.prisma, scope, async (tx) => {
+      await tx.$queryRaw`SELECT id FROM beauty_services WHERE id = ${serviceId}::uuid AND business_id = ${scope.businessId}::uuid FOR UPDATE`;
+      const service = await tx.beautyService.findFirst({ where: { id: serviceId, businessId: scope.businessId }, select: { id: true } });
+      if (!service) throw new NotFoundException('Услуга не найдена');
+      const revision = await tx.beautyServiceMaterialRevision.findUnique({ where: { serviceId } });
+      if ((revision?.revision ?? 0) !== expectedRevision) throw new ConflictException('Техкарта уже изменена, обновите данные');
+      const products = parsed.length ? await tx.kitchenProduct.findMany({
+        where: { id: { in: parsed.map((item) => item.productId) }, businessId: scope.businessId },
+      }) : [];
+      if (products.length !== parsed.length) throw new ConflictException('Материал недоступен этому салону');
+      for (const item of parsed) {
+        const product = products.find((candidate) => candidate.id === item.productId)!;
+        if (product.unit !== item.unit) throw new ConflictException('Единица материала не совпадает с товаром');
+      }
+      await tx.beautyServiceMaterial.deleteMany({ where: { serviceId } });
+      if (parsed.length) await tx.beautyServiceMaterial.createMany({
+        data: parsed.map((item) => ({ serviceId, productId: item.productId, normQty: milliText(item.normQty), unit: item.unit })),
+      });
+      const nextRevision = Number(expectedRevision) + 1;
+      if (revision) await tx.beautyServiceMaterialRevision.update({ where: { serviceId }, data: { revision: nextRevision } });
+      else await tx.beautyServiceMaterialRevision.create({ data: { serviceId, revision: nextRevision } });
+      await tx.auditLog.create({ data: {
+        organizationId: scope.organizationId, userId: currentUserId(), entityType: 'beauty_service', entityId: serviceId,
+        action: 'beauty.service.materials', after: { revision: nextRevision, items: parsed.map((item) => ({ productId: item.productId, normQty: milliText(item.normQty), unit: item.unit })) },
+      } });
+    });
+    return this.serviceMaterials(serviceId);
   }
 
   /**
@@ -247,20 +373,27 @@ export class BeautyCatalogService {
       start.setUTCDate(start.getUTCDate() - 29);
       const end = new Date(`${today}T12:00:00Z`);
       end.setUTCDate(end.getUTCDate() + 1);
-      const counts = await this.prisma.db.appointment.groupBy({
-        by: ['serviceId'],
+      const counts = await this.prisma.db.appointmentLine.groupBy({
+        by: ['serviceId', 'appointmentId'],
         where: {
-          locationId: scope.locationId,
-          status: 'DONE',
-          startsAt: {
-            gte: zonedStartOfDay(start.toISOString().slice(0, 10), scope.locationTimezone),
-            lt: zonedStartOfDay(end.toISOString().slice(0, 10), scope.locationTimezone),
+          appointment: {
+            locationId: scope.locationId,
+            location: { businessId: scope.businessId },
+            status: 'DONE',
+            startsAt: {
+              gte: zonedStartOfDay(start.toISOString().slice(0, 10), scope.locationTimezone),
+              lt: zonedStartOfDay(end.toISOString().slice(0, 10), scope.locationTimezone),
+            },
           },
         },
-        _count: { _all: true },
       });
-      popularity = new Map(counts.map((row) => [row.serviceId, row._count._all]));
-      totalCompletedVisits = counts.reduce((sum, row) => sum + row._count._all, 0);
+      popularity = new Map<string, number>();
+      const completedVisitIds = new Set<string>();
+      for (const row of counts) {
+        popularity.set(row.serviceId, (popularity.get(row.serviceId) ?? 0) + 1);
+        completedVisitIds.add(row.appointmentId);
+      }
+      totalCompletedVisits = completedVisitIds.size;
     }
     return {
       locationId: scope.locationId,
@@ -574,6 +707,114 @@ export class BeautyCatalogService {
     return this.employee(employee.id, scope.businessId);
   }
 
+  async employeeServicePrices(employeeId: string) {
+    mayBeauty('desk');
+    if (!UUID.test(employeeId)) throw new NotFoundException('Мастер не найден');
+    const scope = await beautyScope(this.prisma, true);
+    const employee = await this.prisma.db.employee.findFirst({
+      where: { id: employeeId, businessId: scope.businessId, locations: { some: { locationId: scope.locationId! } } },
+      select: {
+        services: {
+          orderBy: { serviceId: 'asc' },
+          select: {
+            service: {
+              select: {
+                id: true, name: true, price: true, currency: true, durationMinutes: true,
+                locations: { where: { locationId: scope.locationId! }, select: { enabled: true, priceOverride: true, durationOverride: true } },
+                employeePrices: { where: { employeeId, locationId: scope.locationId! } },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!employee) throw new NotFoundException('Мастер не найден');
+    return employee.services.map(({ service }) => {
+      const location = service.locations[0] ?? null;
+      const own = service.employeePrices[0] ?? null;
+      const inherited = location?.priceOverride ?? (service.currency === scope.locationCurrency ? service.price : null);
+      return {
+        employeeId,
+        serviceId: service.id,
+        serviceName: service.name,
+        priceType: own?.priceType ?? 'FIXED',
+        priceMinMinor: (own?.priceMinMinor ?? inherited)?.toString() ?? null,
+        priceMaxMinor: (own?.priceMaxMinor ?? inherited)?.toString() ?? null,
+        durationMinutes: own?.durationMinutes ?? location?.durationOverride ?? service.durationMinutes,
+        currency: own?.currency ?? scope.locationCurrency,
+        source: own ? 'MASTER' : location?.priceOverride !== null && location?.priceOverride !== undefined ? 'LOCATION' : 'CATALOG',
+        revision: own?.revision ?? null,
+        sellable: Boolean(location?.enabled && (own !== null || inherited !== null)),
+      };
+    });
+  }
+
+  async setEmployeeServicePrice(employeeId: string, serviceId: string, raw: unknown) {
+    await mayBeautyWrite(this.prisma, 'rates');
+    if (!UUID.test(employeeId)) throw new NotFoundException('Мастер не найден');
+    if (!UUID.test(serviceId)) throw new NotFoundException('Услуга не найдена');
+    const scope = await beautyScope(this.prisma, true);
+    const input = parseEmployeeServicePrice(raw, scope.locationCurrency!);
+    await beautyTransaction(this.prisma, scope, async (tx) => {
+      const assigned = await tx.employeeService.findFirst({
+        where: { employeeId, serviceId, employee: { businessId: scope.businessId, locations: { some: { locationId: scope.locationId! } } }, service: { businessId: scope.businessId } },
+        select: { employeeId: true },
+      });
+      if (!assigned) throw new NotFoundException('Услуга мастера не найдена');
+      const current = await tx.employeeServicePrice.findUnique({
+        where: { employeeId_serviceId_locationId: { employeeId, serviceId, locationId: scope.locationId! } },
+      });
+      if (input.expectedRevision !== (current?.revision ?? 0))
+        throw new ConflictException('Цена мастера уже изменена, обновите данные');
+      const data = {
+        priceType: input.priceType,
+        priceMinMinor: input.priceMinMinor,
+        priceMaxMinor: input.priceMaxMinor,
+        durationMinutes: input.durationMinutes,
+        currency: input.currency,
+      };
+      await tx.employeeServicePrice.upsert({
+        where: { employeeId_serviceId_locationId: { employeeId, serviceId, locationId: scope.locationId! } },
+        create: { employeeId, serviceId, locationId: scope.locationId!, ...data },
+        update: { ...data, revision: { increment: 1 } },
+      });
+      await tx.auditLog.create({
+        data: {
+          organizationId: scope.organizationId, userId: currentUserId(), entityType: 'employee', entityId: employeeId,
+          action: 'beauty.employee.service_price.set',
+          ...(current ? { before: { serviceId, revision: current.revision } } : {}),
+          after: { serviceId, locationId: scope.locationId, priceType: input.priceType, revision: (current?.revision ?? 0) + 1 },
+        },
+      });
+    });
+    return this.employeeServicePrices(employeeId);
+  }
+
+  async removeEmployeeServicePrice(employeeId: string, serviceId: string, raw: unknown) {
+    await mayBeautyWrite(this.prisma, 'rates');
+    if (!UUID.test(employeeId) || !UUID.test(serviceId)) throw new NotFoundException('Цена мастера не найдена');
+    const scope = await beautyScope(this.prisma, true);
+    const expectedRevision = parseExpectedPriceRevision(raw);
+    await beautyTransaction(this.prisma, scope, async (tx) => {
+      const current = await tx.employeeServicePrice.findUnique({
+        where: { employeeId_serviceId_locationId: { employeeId, serviceId, locationId: scope.locationId! } },
+      });
+      if (!current) throw new NotFoundException('Цена мастера не найдена');
+      if (expectedRevision !== current.revision)
+        throw new ConflictException('Цена мастера уже изменена, обновите данные');
+      await tx.employeeServicePrice.delete({
+        where: { employeeId_serviceId_locationId: { employeeId, serviceId, locationId: scope.locationId! } },
+      });
+      await tx.auditLog.create({
+        data: {
+          organizationId: scope.organizationId, userId: currentUserId(), entityType: 'employee', entityId: employeeId,
+          action: 'beauty.employee.service_price.removed', after: { serviceId, locationId: scope.locationId },
+        },
+      });
+    });
+    return this.employeeServicePrices(employeeId);
+  }
+
   private async employee(id: string, businessId: string, db: EmployeeDb = this.prisma.db) {
     const profile = await employeeProfile(db, id, businessId);
     if (!profile) throw new NotFoundException('Мастер не найден');
@@ -774,73 +1015,174 @@ export class BeautyCatalogController {
   constructor(@Inject(BeautyCatalogService) private readonly service: BeautyCatalogService) {}
 
   @RequiresBusinessCapability('beauty.customers')
+  @BeautyAccess('customers', 'view')
   @Get('customers')
   customers() {
     return this.service.customers();
   }
   @RequiresBusinessCapability('beauty.customers')
+  @BeautyAccess('customers', 'create')
   @Post('customers')
   createCustomer(@Body() body: unknown) {
     return this.service.createCustomer(body);
   }
   // VIP и день рождения (§36): ставит смена, как у ресторана
   @RequiresBusinessCapability('beauty.customers')
+  @BeautyAccess('customers', 'update')
   @Patch('customers/:id')
   updateCustomer(@Param('id') id: string, @Body() body: unknown) {
     return this.service.updateCustomer(id, body);
   }
 
+  @BeautyAccess('services', 'view')
   @Get('services') services() {
     return this.service.services();
   }
   // Каталог услуг это прайс салона: цены по решению Q-253 меняет право `rates`
+  @BeautyAccess('services', 'create')
   @Access('rates') @Post('services') createService(@Body() body: unknown) {
     return this.service.createService(body);
   }
+  @BeautyAccess('services', 'update')
   @Access('rates') @Patch('services/:id') updateService(
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
     return this.service.updateService(id, body);
   }
+  @BeautyAccess('services', 'update')
   @Access('rates') @Put('services/:id/location') setLocationService(
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
     return this.service.setLocationService(id, body);
   }
+  @BeautyAccess('services', 'view')
+  @Access('rates') @Get('services/:id/materials') serviceMaterials(@Param('id') id: string) {
+    return this.service.serviceMaterials(id);
+  }
+  @BeautyAccess('services', 'update')
+  @Access('rates') @Put('services/:id/materials') setServiceMaterials(@Param('id') id: string, @Body() body: unknown) {
+    return this.service.setServiceMaterials(id, body);
+  }
 
   @RequiresBusinessCapability('beauty.employees')
+  @BeautyAccess('employees', 'view')
   @Get('employees')
   employees() {
     return this.service.employees();
   }
   // Мастера это то, чем салон работает: право `property`, как номерной фонд в гостинице (Q-253)
   @RequiresBusinessCapability('beauty.employees')
+  @BeautyAccess('employees', 'create')
   @Access('property')
   @Post('employees')
   createEmployee(@Body() body: unknown) {
     return this.service.createEmployee(body);
   }
   @RequiresBusinessCapability('beauty.employees')
+  @BeautyAccess('employees', 'update')
   @Access('property')
   @Patch('employees/:id')
   updateEmployee(@Param('id') id: string, @Body() body: unknown) {
     return this.service.updateEmployee(id, body);
   }
   @RequiresBusinessCapability('beauty.employees')
+  @BeautyAccess('employees', 'update')
   @Access('property')
   @Put('employees/:id/services')
   setEmployeeServices(@Param('id') id: string, @Body() body: unknown) {
     return this.service.setEmployeeServices(id, body);
   }
+  @RequiresBusinessCapability('beauty.employees')
+  @BeautyAccess('services', 'view')
+  @Get('employees/:id/service-prices')
+  employeeServicePrices(@Param('id') id: string) {
+    return this.service.employeeServicePrices(id);
+  }
+  @RequiresBusinessCapability('beauty.employees')
+  @BeautyAccess('services', 'update')
+  @Access('rates')
+  @Put('employees/:id/service-prices/:serviceId')
+  setEmployeeServicePrice(@Param('id') id: string, @Param('serviceId') serviceId: string, @Body() body: unknown) {
+    return this.service.setEmployeeServicePrice(id, serviceId, body);
+  }
+  @RequiresBusinessCapability('beauty.employees')
+  @BeautyAccess('services', 'update')
+  @Access('rates')
+  @Delete('employees/:id/service-prices/:serviceId')
+  removeEmployeeServicePrice(@Param('id') id: string, @Param('serviceId') serviceId: string, @Body() body: unknown) {
+    return this.service.removeEmployeeServicePrice(id, serviceId, body);
+  }
+}
+
+function parseEmployeeServicePrice(raw: unknown, locationCurrency: string) {
+  const body = (raw ?? {}) as Record<string, unknown>;
+  const priceType = String(body['priceType'] ?? '');
+  if (!['FIXED', 'RANGE', 'FREE', 'UNFIXED'].includes(priceType))
+    throw new BadRequestException('Выберите тип цены мастера');
+  const money = (key: string): bigint | null => {
+    const value = body[key];
+    if (value === null || value === undefined || value === '') return null;
+    if (!/^\d+$/.test(String(value))) throw new BadRequestException('Цена должна быть целым числом в минимальных единицах');
+    return BigInt(String(value));
+  };
+  let priceMinMinor = money('priceMinMinor');
+  let priceMaxMinor = money('priceMaxMinor');
+  if (priceType === 'FREE') priceMinMinor = priceMaxMinor = 0n;
+  if (priceType === 'FIXED') {
+    if (priceMinMinor === null) throw new BadRequestException('Укажите цену мастера');
+    priceMaxMinor = priceMinMinor;
+  }
+  if (priceType === 'RANGE' && (priceMinMinor === null || priceMaxMinor === null || priceMaxMinor < priceMinMinor))
+    throw new BadRequestException('Укажите корректный диапазон цены мастера');
+  if (priceType === 'UNFIXED') priceMinMinor = priceMaxMinor = null;
+  const duration = body['durationMinutes'];
+  const durationMinutes = duration === null || duration === undefined || duration === '' ? null : Number(duration);
+  if (durationMinutes !== null && (!Number.isInteger(durationMinutes) || durationMinutes <= 0))
+    throw new BadRequestException('Длительность должна быть целым числом минут');
+  const currency = String(body['currency'] ?? locationCurrency).toUpperCase();
+  if (currency !== locationCurrency) throw new BadRequestException('Валюта цены мастера должна совпадать с филиалом');
+  const expectedRevision = parseExpectedPriceRevision(body);
+  return { priceType: priceType as 'FIXED' | 'RANGE' | 'FREE' | 'UNFIXED', priceMinMinor, priceMaxMinor, durationMinutes, currency, expectedRevision };
+}
+
+function parseExpectedPriceRevision(raw: unknown): number {
+  const body = (raw ?? {}) as Record<string, unknown>;
+  const revision = body['expectedRevision'];
+  if (revision === null || revision === undefined || revision === '')
+    throw new BadRequestException('Укажите версию цены мастера');
+  const expectedRevision = Number(revision);
+  if (!Number.isInteger(expectedRevision) || expectedRevision < 0)
+    throw new BadRequestException('Некорректная версия цены мастера');
+  return expectedRevision;
 }
 
 @Module({
-  controllers: [BeautyCatalogController, BeautyScheduleController, BeautyAppointmentsController],
+  controllers: [
+    BeautyCatalogController,
+    CustomerImportsController,
+    BeautyCustomerImportController,
+    BeautyCustomerDetailController,
+    BeautyAppointmentHistoryController,
+    BeautyReviewInvitationController,
+    BeautyPublicReviewsController,
+    BeautyScheduleController,
+    BeautyLocationHoursController,
+    BeautyPositionsController,
+    BeautyAppointmentsController,
+  ],
   providers: [
     BeautyCatalogService,
+    CustomerImportService,
+    CustomerImportWorker,
+    BeautyCustomerImportService,
+    BeautyCustomerDetailService,
+    BeautyAppointmentHistoryService,
+    BeautyReviewsService,
     BeautyScheduleService,
+    BeautyLocationHoursService,
+    BeautyPositionsService,
     BeautyAppointmentsService,
     PrismaService,
   ],

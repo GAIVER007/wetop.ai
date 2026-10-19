@@ -9,7 +9,7 @@ vi.mock('next/navigation', () => ({
 vi.mock('../../lib/vertical-guard', () => ({ requireFeature: vi.fn() }));
 vi.mock('../../lib/api', async (original) => {
   const actual = await original<typeof import('../../lib/api')>();
-  return { ...actual, beautyApi: { ...actual.beautyApi, day: vi.fn() } };
+  return { ...actual, beautyApi: { ...actual.beautyApi, financeDay: vi.fn() } };
 });
 import { beautyApi } from '../../lib/api';
 import { requireFeature } from '../../lib/vertical-guard';
@@ -22,7 +22,7 @@ const day = (date = '2026-10-18'): BeautyDay => ({
   columns: [], appointments: [], services: [], bounds: { fromMinutes: 0, toMinutes: 1440 },
 });
 const asProps = (element: ReactElement): Record<string, unknown> => element.props as Record<string, unknown>;
-const mockDay = vi.mocked(beautyApi.day);
+const mockDay = vi.mocked(beautyApi.financeDay);
 
 beforeEach(() => {
   vi.clearAllMocks();

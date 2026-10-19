@@ -217,6 +217,49 @@ describe.skipIf(!url)('формы сайта салона и ресторана,
       expect(times).toContain('11:00');
     });
 
+    it('свободные окна учитывают мастера второй строки многострочного визита', async () => {
+      const day = nextMonday(week++);
+      const booked = await post(
+        '/w/beauty/book',
+        beautyBody({ employeeId: w.ids.eBl1b, startsAt: almatyAt(day, '10:00') }),
+        host('salon'),
+      );
+      expect(booked.status, booked.text).toBe(201);
+      const appointmentId = booked.json['appointmentId'] as string;
+      await admin.$transaction(async (tx) => {
+        await tx.$queryRawUnsafe(`SELECT set_config('wetop.appointment_lines_write','on',true)`);
+        await tx.appointment.update({
+          where: { id: appointmentId },
+          data: { endsAt: new Date(almatyAt(day, '12:00')), price: 1_600_000n },
+        });
+        await tx.appointmentLine.create({
+          data: {
+            appointmentId,
+            position: 1,
+            employeeId: w.ids.eBl1!,
+            serviceId: w.ids.svc!,
+            startsAt: new Date(almatyAt(day, '11:00')),
+            endsAt: new Date(almatyAt(day, '12:00')),
+            basePriceMinor: 800_000n,
+            discountMinor: 0n,
+            surchargeMinor: 0n,
+            priceMinor: 800_000n,
+            currency: 'KZT',
+          },
+        });
+      });
+
+      const result = await get(
+        `/w/beauty/slots?k=${site.salon}&service=${w.ids.svc}&employee=${w.ids.eBl1}&date=${day}`,
+        host('salon'),
+      );
+      expect(result.status, JSON.stringify(result.json)).toBe(200);
+      const times = (result.json['slots'] as Array<{ time: string }>).map((slot) => slot.time);
+      expect(times).not.toContain('11:00');
+      expect(times).not.toContain('10:15');
+      expect(times).toContain('12:00');
+    });
+
     it('запись встаёт в календарь мастера: Записан, источник WEBSITE, клиент по телефону, без автора', async () => {
       const p = phone();
       const body = beautyBody({ phone: p, employeeId: w.ids.eBl1, comment: 'Короткий маникюр' });
@@ -229,6 +272,18 @@ describe.skipIf(!url)('формы сайта салона и ресторана,
       expect(row.customer).toMatchObject({ organizationId: w.org, phone: p, firstName: 'Айгерим' });
       expect(row.notes).toContain('Короткий маникюр');
       expect(await admin.customerBusiness.count({ where: { customerId: row.customerId, businessId: w.ids.bz! } })).toBe(1);
+      expect(await admin.appointmentLine.findMany({
+        where: { appointmentId: row.id },
+        select: { position: true, employeeId: true, serviceId: true, startsAt: true, endsAt: true, priceMinor: true, currency: true },
+      })).toEqual([{
+        position: 0,
+        employeeId: w.ids.eBl1,
+        serviceId: w.ids.svc,
+        startsAt: row.startsAt,
+        endsAt: row.endsAt,
+        priceMinor: row.price,
+        currency: row.currency,
+      }]);
       // тот же телефон второй раз: тот же клиент
       const again = await post('/w/beauty/book', beautyBody({ phone: p, employeeId: w.ids.eBl1 }), host('salon'));
       expect(again.status, again.text).toBe(201);

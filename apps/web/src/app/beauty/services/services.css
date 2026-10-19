@@ -1,0 +1,256 @@
+@layer sections {
+  .beauty-service-dual-toolbar {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) auto auto;
+    gap: var(--space-4);
+    align-items: end;
+    margin-bottom: var(--space-4);
+  }
+
+  .beauty-service-dual-toolbar > p {
+    grid-column: 1;
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .beauty-service-dual-toolbar > .btn {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .beauty-service-archive-filter {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 44px;
+  }
+
+  .beauty-service-transfer-board {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: stretch;
+    margin-top: var(--space-4);
+  }
+
+  .beauty-service-list {
+    min-width: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  .beauty-service-list > header {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    align-items: flex-start;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .beauty-service-list h2,
+  .beauty-service-list header p {
+    margin: 0;
+  }
+
+  .beauty-service-list header p {
+    margin-top: var(--space-1);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  .beauty-service-items {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .beauty-service-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: 72px;
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+
+  .beauty-service-item[draggable='true'] {
+    cursor: grab;
+  }
+
+  .beauty-service-item[draggable='true']:active {
+    cursor: grabbing;
+  }
+
+  .beauty-service-item-body,
+  .beauty-service-item-actions {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .beauty-service-item-body > b,
+  .beauty-service-item-body > span,
+  .beauty-service-item-body > small {
+    overflow-wrap: anywhere;
+  }
+
+  .beauty-service-item-body > span,
+  .beauty-service-item-body > small {
+    color: var(--muted);
+  }
+
+  .beauty-service-item-actions {
+    justify-items: stretch;
+  }
+
+  .beauty-service-transfer-form .btn,
+  .beauty-service-item-actions > .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .beauty-service-transfer-hint {
+    display: grid;
+    place-content: center;
+    gap: var(--space-2);
+    color: var(--primary);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+  }
+
+  .beauty-service-empty {
+    margin: 0;
+    padding: var(--space-4);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-control);
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .beauty-material-form,
+  .beauty-material-rows {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .beauty-material-heading,
+  .beauty-material-total {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .beauty-material-heading :is(h3, p),
+  .beauty-material-total :is(span, strong) {
+    margin: 0;
+  }
+
+  .beauty-material-heading p,
+  .beauty-material-stock span,
+  .beauty-material-cost span,
+  .beauty-material-total span {
+    color: var(--muted);
+  }
+
+  .beauty-material-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(120px, 1fr);
+    gap: var(--space-2);
+    align-items: end;
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+
+  .beauty-material-stock,
+  .beauty-material-cost {
+    display: grid;
+    gap: var(--space-1);
+    align-self: center;
+  }
+
+  .beauty-material-row > .btn {
+    grid-column: 1 / -1;
+  }
+
+  .beauty-material-empty,
+  .beauty-material-total {
+    padding: var(--space-4);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+
+  .beauty-material-empty {
+    margin: 0;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  @media (max-width: 960px) {
+    .beauty-service-dual-toolbar,
+    .beauty-service-transfer-board {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .beauty-service-dual-toolbar > p,
+    .beauty-service-dual-toolbar > .btn,
+    .beauty-service-archive-filter {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
+    .beauty-service-dual-toolbar > .btn {
+      width: 100%;
+    }
+
+    .beauty-service-list--salon {
+      grid-row: 1;
+    }
+
+    .beauty-service-transfer-hint {
+      display: none;
+    }
+
+    .beauty-service-list--catalog {
+      grid-row: 2;
+    }
+
+    .beauty-material-stock,
+    .beauty-material-cost {
+      align-self: start;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .beauty-service-list {
+      padding: var(--space-2);
+    }
+
+    .beauty-service-item {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .beauty-service-item-actions,
+    .beauty-service-transfer-form {
+      width: 100%;
+    }
+
+    .beauty-material-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .beauty-material-heading > .btn,
+    .beauty-material-row > .btn,
+    .beauty-material-form > .btn {
+      width: 100%;
+    }
+  }
+}

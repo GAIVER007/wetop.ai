@@ -89,7 +89,7 @@ export function previewCustomerCsv(file: CustomerCsvFile, mapping: CustomerCsvMa
     else if (row.phoneNormalized && seen.has(row.phoneNormalized)) { row.status = 'duplicate'; row.duplicateOf = seen.get(row.phoneNormalized)!; row.reason = `Повтор номера из строки ${row.duplicateOf}`; }
     else {
       if (row.phoneNormalized) seen.set(row.phoneNormalized, line);
-      if (!row.firstName || !row.phone) { row.status = 'warning'; row.reason = !row.firstName ? 'Нет имени: потребуется решение перед переносом' : 'Нет телефона: онлайн-запись недоступна'; }
+      if (!row.firstName || !row.phone) { row.status = 'warning'; row.reason = !row.firstName ? 'Имя не указано: при импорте будет «Клиент»' : 'Нет телефона: онлайн-запись недоступна'; }
     }
     counts[row.status] += 1;
     return row;

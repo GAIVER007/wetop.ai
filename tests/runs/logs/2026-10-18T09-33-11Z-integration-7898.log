@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 18.10.2026 14:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T09-33-11Z-integration-7898.json' 'tests/integration/customer-import-storage.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+No test files found, exiting with code 0
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T09-33-11Z-integration-7898.json
+filter: tests/integration/customer-import-storage.test.ts
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: connect ECONNREFUSED 127.0.0.1:55483
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:56:18
+     54|   const log = opts.log ?? (() => undefined);
+     55|   const pool = new pg.Pool({ connectionString: connectionString(), max…
+     56|   const client = await pool.connect();
+       |                  ^
+     57|   try {
+     58|     const existed =
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 55483 }
+
+
+
+
+# код выхода 1 · 20 с

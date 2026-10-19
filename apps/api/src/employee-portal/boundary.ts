@@ -14,7 +14,7 @@ export function text(value: unknown, max: number, optional = false): string {
 }
 export function revision(expected: unknown, actual: string): void {
   if (typeof expected !== 'string' || !expected.length) throw new BadRequestException('expectedRevision required');
-  if (expected !== actual) throw new ConflictException('Data changed; reload before saving');
+  if (expected !== actual) throw new ConflictException('Данные изменились. Обновите их перед сохранением; ваш ввод сохранён.');
 }
 export function profileInput(raw: unknown): PortalProfileInput {
   const b = objectInput(raw, ['name','phone','email','headline','biography','practiceSinceYear','expectedRevision','expectedProfileRevision']);

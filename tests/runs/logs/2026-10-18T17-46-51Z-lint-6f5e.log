@@ -1,0 +1,14 @@
+# Линтер (lint) · 18.10.2026 22:46 Алматы · srv1719674
+# коммит 8a5ab94 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 11
+# npx eslint .
+
+/srv/hermes/workspace/wetop-all-release-20261017/apps/api/src/beauty/live-membership-authorization.test.ts
+  54:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/srv/hermes/workspace/wetop-all-release-20261017/apps/api/src/beauty/mutation-response-access.test.ts
+  1:10  error  'describe' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 51 с

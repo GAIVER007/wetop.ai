@@ -4,6 +4,11 @@
  * (`beauty.appointment.created`, `agent.created`). Сторож `labels.test.ts` сверяет словарь с кодами, которые пишет API.
  */
 export const ACTION_RU: Record<string, string> = {
+  'beauty.position.created': 'Должность создана',
+  'beauty.position.updated': 'Права должности изменены',
+  'beauty.position.archived': 'Должность в архиве',
+  'beauty.position.assigned': 'Должность назначена',
+  'beauty.position.revoked': 'Назначение должности отозвано',
   'finance.cash.operation': 'Кассовая операция',
   'finance.cash.transfer': 'Перевод между счетами',
   'finance.cash.operation.void': 'Кассовая операция аннулирована',
@@ -94,6 +99,17 @@ export const ACTION_RU: Record<string, string> = {
   'beauty.appointment.paid': 'Запись оплачена',
   'beauty.appointment.refunded': 'Возврат по записи',
   'beauty.appointment.status': 'Статус записи изменён',
+  'beauty.customers.imported': 'Клиенты импортированы',
+  'beauty.customer_import.queued': 'Импорт клиентов поставлен в очередь',
+  'beauty.customer_import.failed': 'Импорт клиентов завершился ошибкой',
+  'beauty.customer_import.undone': 'Импорт клиентов отменён',
+  'beauty.employee.service_price.removed': 'Своя цена мастера снята',
+  'beauty.employee.service_price.set': 'Цена мастера изменена',
+  'beauty.location_hours.updated': 'Режим работы салона изменён',
+  'beauty.reviews.submitted': 'Отзывы о мастерах получены',
+  'beauty.review_invitation.issued': 'Ссылка на отзыв создана',
+  'beauty.review_invitation.rotated': 'Ссылка на отзыв заменена',
+  'beauty.service.materials': 'Техкарта услуги изменена',
   'beauty.customer.marks': 'Отметки клиента изменены',
   'beauty.employee.created': 'Мастер добавлен',
   'beauty.employee.locations.set': 'Филиалы мастера изменены',
@@ -178,6 +194,8 @@ export const ACTION_RU: Record<string, string> = {
 };
 
 export const ENTITY_RU: Record<string, string> = {
+  beauty_position: 'Должность',
+  beauty_position_assignment: 'Назначение должности',
   Reservation: 'Бронь',
   InventoryUnit: 'Номер / койка',
   Guest: 'Гость',
@@ -218,6 +236,7 @@ export const ENTITY_RU: Record<string, string> = {
   beauty_service: 'Услуга',
   business: 'Бизнес',
   customer: 'Клиент',
+  customer_import: 'Импорт клиентов',
   desk_task: 'Задача',
   employee: 'Сотрудник',
   kitchen_stock: 'Склад кухни',

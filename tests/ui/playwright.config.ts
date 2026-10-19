@@ -45,6 +45,10 @@ const webServers = selectedWorkers.flatMap((worker): WebServer[] => [
       APP_DEMO_MODE: '',
       APP_API_URL: worker.fixtureOrigin,
       APP_ALLOW_TEST_DATA: '1',
+      // вымышленные контакты поддержки (SUP1): блок «Связаться с поддержкой» виден стенду
+      SUPPORT_WHATSAPP: '77000000000',
+      SUPPORT_TELEGRAM: 'wetop_support_test',
+      SUPPORT_HOURS: 'Ежедневно 9:00–21:00 по Алматы',
       APP_URL: worker.webOrigin,
       WETOP_SITE_URL: worker.siteOrigin,
       SITE_ORIGINS: worker.siteOrigin,

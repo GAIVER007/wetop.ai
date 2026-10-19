@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -170,18 +170,15 @@ describe.skipIf(!url || pgMajor === null)(
       psql("INSERT INTO public.restore_probe VALUES (4, 'после копии, до сбоя')");
       const broken = mkdtempSync(join(tmpdir(), 'wetop-restore-broken-'));
       try {
-        // папка миграций, где последняя миграция прав ссылается на несуществующую таблицу
-        const name = readdirSync(MIGRATIONS)
-          .sort()
-          .filter((n) =>
-            /\b(GRANT|REVOKE)\b/.test(readFileSync(join(MIGRATIONS, n, 'migration.sql'), 'utf8')),
-          )
-          .pop()!;
-        spawnSync('cp', ['-R', MIGRATIONS, join(broken, 'migrations')]);
-        spawnSync('sh', [
-          '-c',
-          `printf '\\nGRANT SELECT ON TABLE public.no_such_table TO wetop_app;\\n' >> "${join(broken, 'migrations', name, 'migration.sql')}"`,
-        ]);
+        // Dedicated last pure ACL file: failure must execute, independent of mixed DDL filenames.
+        cpSync(MIGRATIONS, join(broken, 'migrations'), { recursive: true });
+        const injected = join(broken, 'migrations', 'zzzz_restore_rollback_fault');
+        mkdirSync(injected);
+        writeFileSync(join(injected, 'migration.sql'),
+          'GRANT SELECT ON TABLE public.restore_probe TO wetop_app;\nGRANT SELECT ON TABLE public.no_such_table TO wetop_app;\n');
+        expect(psql("SELECT to_regclass('public.no_such_table') IS NULL")).toBe('t');
+        const rowsBefore = psql('SELECT id,note FROM public.restore_probe ORDER BY id');
+        const privilegesBefore = psql(PRIVILEGES_SQL);
         const r = spawnSync(
           'bash',
           [resolve('scripts/ops/db-restore-prod.sh'), join(dir, dump!), '--yes-replace-production'],
@@ -197,7 +194,10 @@ describe.skipIf(!url || pgMajor === null)(
         );
         expect(r.status).toBe(1);
         expect(r.stderr).toContain('откатилось целиком');
+        expect(r.stderr).toContain('no_such_table');
         expect(psql('SELECT count(*) FROM public.restore_probe WHERE id = 4')).toBe('1');
+        expect(psql('SELECT id,note FROM public.restore_probe ORDER BY id')).toBe(rowsBefore);
+        expect(psql(PRIVILEGES_SQL)).toBe(privilegesBefore);
       } finally {
         rmSync(broken, { recursive: true, force: true });
       }

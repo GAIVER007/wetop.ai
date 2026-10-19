@@ -4967,6 +4967,10 @@ const fixtureCampaigns: FixtureCampaign[] = [];
 let fixtureMeta: { adAccountId: string; status: 'ACTIVE' | 'FAILED'; lastSyncedAt: string } | null = null;
 /** Запуск ИИ-таргетолога (§57): один на прогон, готов со второго просмотра экрана шагов */
 let fixtureLaunch: { id: string; headline: string; dailyBudgetMinor: string; views: number } | null = null;
+/** Засеянные прошлые запуски (`__test/marketing-budget` → `launches`) и отказ источника списка (`launchesFail`) */
+type FixtureLaunchRow = { id: string; status: 'RUNNING' | 'SUCCEEDED' | 'FAILED'; step: string; headline: string; dailyBudgetMinor: string; currency: string; error: string | null; createdAt: string };
+let fixtureLaunches: FixtureLaunchRow[] = [];
+let fixtureLaunchesFail: number | null = null;
 /** Разбивка плана по каналам (§52): первое число месяца → строки */
 const budgetLines = new Map<string, Array<{ platform: string; amount: string }>>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
@@ -4982,6 +4986,8 @@ const resetMarketingBudget = () => {
   fixtureCampaigns.length = 0;
   fixtureMeta = null;
   fixtureLaunch = null;
+  fixtureLaunches = [];
+  fixtureLaunchesFail = null;
   budgetLines.clear();
   budgetResults.clear();
 };
@@ -5895,7 +5901,16 @@ createServer(async (req, res) => {
         fixtureLaunch = { id, headline: String(body['headline']), dailyBudgetMinor: String(body['dailyBudgetMinor']), views: 0 };
         return send(202, { id });
       }
+      // список последних запусков филиала (ad-launch.ts list): новые сверху, не больше 20
+      if (req.method === 'GET' && path === '/marketing/ads/launches') {
+        if (fixtureLaunchesFail) return send(fixtureLaunchesFail, { message: 'Источник запусков недоступен' });
+        const rows = fixtureLaunches.map((l) => ({ ...l, destination: 'WHATSAPP', campaignId: null, externalCampaignId: null, finishedAt: l.status === 'RUNNING' ? null : l.createdAt }));
+        return send(200, rows.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 20));
+      }
       const launchMatch = /^\/marketing\/ads\/launches\/([^/]+)$/.exec(path);
+      const seeded = launchMatch ? fixtureLaunches.find((l) => l.id === launchMatch[1]) : undefined;
+      if (req.method === 'GET' && seeded)
+        return send(200, { ...seeded, destination: 'WHATSAPP', campaignId: null, externalCampaignId: null, finishedAt: seeded.status === 'RUNNING' ? null : seeded.createdAt });
       if (req.method === 'GET' && launchMatch) {
         if (!fixtureLaunch || fixtureLaunch.id !== launchMatch[1]) return send(404, { message: 'Запуск не найден' });
         // первый просмотр: идёт запуск, второй: готово и кампания в кабинете
@@ -6026,6 +6041,8 @@ createServer(async (req, res) => {
           countedInBudget: input.countedInBudget,
         });
       }
+      fixtureLaunches = ((body['launches'] as FixtureLaunchRow[] | undefined) ?? []).map((l) => ({ ...l }));
+      fixtureLaunchesFail = typeof body['launchesFail'] === 'number' ? body['launchesFail'] : null;
       const plan = body['plan'] as { month?: unknown; amount?: unknown } | undefined;
       if (plan) {
         const input = parseMarketingBudgetInput(plan as Record<string, unknown>);

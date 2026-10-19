@@ -46,7 +46,11 @@ test('финансы: четыре плитки эталона из тех же 
   await expect(kpis.getByTestId('fin-profit')).toHaveText(formatMoney(profit.toString(), 'KZT'));
 
   // блоки эталона на месте, числа из данных
-  await expect(board.getByRole('heading', { name: 'Динамика доходов и расходов' })).toBeVisible();
+  await expect(board.getByRole('heading', { name: 'Динамика поступлений, возвратов и расходов' })).toBeVisible();
+  await expect(board.getByTestId('fin-dynamics').locator('.line__legend')).toContainText('Возвраты и расходы');
+  await expect(board.getByTestId('fin-dynamics').locator('.line__legend')).toContainText(
+    formatMoney((BigInt(ops.refundedMinor) + BigInt(ops.expenseMinor)).toString(), 'KZT'),
+  );
   await expect(board.getByTestId('fin-dynamics')).toContainText(
     formatMoney(income.toString(), 'KZT'),
   );

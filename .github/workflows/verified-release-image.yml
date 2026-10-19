@@ -1,0 +1,130 @@
+name: verified-release-image
+
+# Prepare only the approved, fully tested FIN stage BEFORE release promotion.
+# Artifact creation is not production activation; promotion/activation retain their own gates.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Approved FIN-only stage SHA (image preparation, not deployment)
+        required: true
+        type: string
+      gate_run:
+        description: Successful exact-source full release-checks run ID
+        required: true
+        type: string
+
+permissions: {}
+concurrency:
+  group: verified-release-image-${{ inputs.source_sha }}
+  cancel-in-progress: false
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      actions: read
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SOURCE_GATE_RUN: ${{ inputs.gate_run }}
+    steps:
+      - name: Verify full stage gate, approved base and bounded source delta
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess, re
+          repo = 'GAIVER007/wetop.ai'
+          def api(path):
+              return json.loads(subprocess.check_output(['gh', 'api', 'repos/' + repo + '/' + path], text=True))
+          sha = os.environ['SOURCE_SHA']
+          gate = os.environ['SOURCE_GATE_RUN']
+          if not re.fullmatch(r'[0-9a-f]{40}', sha) or not re.fullmatch(r'[0-9]+', gate):
+              raise SystemExit('Refused: invalid source SHA or gate ID')
+          approved = '4a7c86b20114d8bc497baaca37f9ae200340bd3e'
+          base = '29fd2fda0889d06aafceca055a7b0d1742869799'
+          if sha != approved:
+              raise SystemExit('Refused: source is not the approved FIN-only stage')
+          release = api('git/ref/heads/release')['object']['sha']
+          ancestry = api('compare/' + base + '...' + sha)
+          run = api('actions/runs/' + gate)
+          inventory = api('actions/runs/' + gate + '/jobs?per_page=100')
+          jobs = inventory['jobs']
+          allowed = {
+              '.github/workflows/finance-presentation-regression.yml',
+              '.github/workflows/verified-release-image.yml', 'DECISIONS.md',
+              'apps/web/src/app/finance/finance-board.tsx',
+              'reports/finance-outflow-label-2026-10-19.md',
+              'tests/runs/entries/2026-10-19T05-10-02Z-unit-f1aa.json',
+              'tests/runs/logs/2026-10-19T05-10-02Z-unit-f1aa.log',
+              'tests/ui/finance-home-merge.spec.ts',
+              'tests/ui/chessboard-card.spec.ts', 'tests/unit/finance-outflow-label.test.ts',
+              'tests/ui/site-builder-licensed.spec.ts',
+          }
+          files = ancestry['files']
+          if not (release == base and ancestry['status'] == 'ahead'
+                  and ancestry['merge_base_commit']['sha'] == base
+                  and 0 < len(files) < 300
+                  and all(f['filename'] in allowed and f['status'] in ['added', 'modified'] for f in files)
+                  and any(f['filename'] == 'apps/web/src/app/finance/finance-board.tsx' for f in files)
+                  and run['head_sha'] == sha and run['path'] == '.github/workflows/release-checks.yml'
+                  and run['head_repository']['full_name'] == repo
+                  and run['status'] == 'completed' and run['conclusion'] == 'success'
+                  and inventory['total_count'] == 16 and len(jobs) == 16
+                  and all(j['conclusion'] == 'success' for j in jobs)):
+              raise SystemExit('Refused: stage/base/source inventory or full gate mismatch')
+          print('Verified FIN-only preparation: 16/16 successful jobs; production release has not moved')
+          PY
+      - name: Checkout only the verified application source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Build labelled immutable image on the GitHub runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          docker build --file deploy/Dockerfile \
+            --label "org.opencontainers.image.revision=$SOURCE_SHA" \
+            --tag "wetop-verified:$SOURCE_SHA" .
+      - name: Export image artifact and integrity manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="$RUNNER_TEMP/verified-release-image"
+          mkdir -m 700 "$DEST"
+          IMAGE_ID="$(docker image inspect --format '{{.Id}}' "wetop-verified:$SOURCE_SHA")"
+          REVISION="$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$IMAGE_ID")"
+          test "$REVISION" = "$SOURCE_SHA"
+          export IMAGE_ID DEST
+          docker save "$IMAGE_ID" | gzip -1 > "$DEST/release-image.tar.gz"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib
+          root = pathlib.Path(os.environ['DEST'])
+          image = root / 'release-image.tar.gz'
+          with image.open('rb') as stream:
+              digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+          manifest = {'source_sha': os.environ['SOURCE_SHA'], 'image_id': os.environ['IMAGE_ID'],
+                      'baseline_release_sha': '29fd2fda0889d06aafceca055a7b0d1742869799',
+                      'production_activation': False, 'stage': 'FIN_ONLY_PREPARED_NOT_DEPLOYED',
+                      'revision': os.environ['SOURCE_SHA'], 'archive': image.name,
+                      'archive_sha256': digest, 'archive_bytes': image.stat().st_size,
+                      'source_gate_run': int(os.environ['SOURCE_GATE_RUN']), 'build_run_id': os.environ['GITHUB_RUN_ID']}
+          (root / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          print(json.dumps(manifest))
+          PY
+      - name: Upload to repository artifact storage (not a privacy guarantee)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: verified-release-image
+          path: ${{ runner.temp }}/verified-release-image/
+          compression-level: 0
+          retention-days: 3
+          if-no-files-found: error
+          overwrite: false

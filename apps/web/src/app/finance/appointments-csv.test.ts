@@ -22,8 +22,13 @@ const row = (over: Partial<BeautyDay['appointments'][number]>) =>
     notes: null,
     ...over,
   }) as BeautyDay['appointments'][number];
-const day = (date: string, appointments: BeautyDay['appointments']) =>
-  ({ date, columns: [{ id: 'e1', name: '=Мастер Дина' }], appointments }) as unknown as BeautyDay;
+const day = (date: string, appointments: BeautyDay['appointments'], timezone = 'Asia/Almaty') =>
+  ({
+    location: { id: 'salon-location', name: 'Тестовый салон', timezone, currency: 'KZT' },
+    date,
+    columns: [{ id: 'e1', name: '=Мастер Дина' }],
+    appointments,
+  }) as unknown as BeautyDay;
 
 describe('выгрузка записей салона (Q-BS-6)', () => {
   it('строки по записям, суммы для Excel, без имени и телефона клиента, формулы обезврежены', () => {
@@ -66,4 +71,61 @@ it('exports each visit currency and all service/master names without relabelling
   );
   expect(csv).toContain(';KZT;8000,00;8000,00;300,00');
   expect(csv).not.toContain('₸');
+});
+
+it('attributes a cross-midnight visit once to its local start day, not each overlapping day', () => {
+  const visit = row({
+    startsAt: '2026-10-14T18:30:00.000Z', // 23:30 in the salon, not UTC midnight.
+    endsAt: '2026-10-14T19:30:00.000Z',
+    startMinutes: 1410,
+    endMinutes: 1470,
+    priceMinor: '12345',
+    paidMinor: '10000',
+    refundedMinor: '2000',
+  });
+  const first = day('2026-10-14', [visit]);
+  const tail = day('2026-10-15', [{ ...visit, startMinutes: -30, endMinutes: 30 }]);
+  const csv = appointmentsCsv([tail, first]);
+  expect(csv.split('\r\n')).toEqual([
+    '\uFEFFДата;Время;Мастер;Услуга;Статус;Валюта;Цена;Оплачено;Возвращено',
+    "14.10.2026;23:30;'=Мастер Дина;Стрижка;Завершена;KZT;123,45;100,00;20,00",
+  ]);
+  expect(first.appointments).toHaveLength(1);
+  expect(tail.appointments).toHaveLength(1);
+});
+
+it('does not export prior-period tails even when the start day was not requested', () => {
+  const csv = appointmentsCsv([
+    day('2026-10-15', [row({
+      startsAt: '2026-10-14T18:30:00.000Z',
+      endsAt: '2026-10-14T19:30:00.000Z',
+      startMinutes: -30,
+      endMinutes: 30,
+    })]),
+  ]);
+  expect(csv.split('\r\n')).toHaveLength(1);
+});
+
+it('uses the branch timezone, not UTC or the server calendar date, for start attribution', () => {
+  const visit = row({
+    startsAt: '2026-10-15T06:30:00.000Z', // 23:30 on October14 in Los Angeles.
+    endsAt: '2026-10-15T07:30:00.000Z',
+    startMinutes: 1410,
+    endMinutes: 1470,
+    currency: 'USD',
+  });
+  const csv = appointmentsCsv([
+    day('2026-10-14', [visit], 'America/Los_Angeles'),
+    day('2026-10-15', [{ ...visit, startMinutes: -30 }], 'America/Los_Angeles'),
+  ]);
+  expect(csv.split('\r\n')).toHaveLength(2);
+  expect(csv).toContain('14.10.2026;23:30;');
+  expect(csv).not.toContain('15.10.2026;');
+  expect(csv).toContain(';USD;8000,00;8000,00;300,00');
+});
+
+it('exports one visit once even if the same day response or appointment is repeated', () => {
+  const a = row({});
+  const sameDay = day('2026-10-14', [a, { ...a }]);
+  expect(appointmentsCsv([sameDay, sameDay]).split('\r\n')).toHaveLength(2);
 });

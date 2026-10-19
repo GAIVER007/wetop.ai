@@ -90,6 +90,9 @@ describe.skipIf(!url)('Beauty: ограничения и триггеры баз
       `INSERT INTO "location_services" ("location_id", "service_id", "updated_at")
        VALUES ('${own.location}', '${ids.service}', now())`,
     );
+    // The second master must actually be qualified for the service to prove overlap isolation.
+    // The first master's assignment is exercised independently by the relation-guard test.
+    await sql(`INSERT INTO "employee_services" ("employee_id", "service_id") VALUES ('${ids.otherEmployee}', '${ids.service}')`);
   });
 
   async function cleanup() {

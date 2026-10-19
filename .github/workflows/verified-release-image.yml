@@ -1,0 +1,107 @@
+name: verified-release-image
+
+# Manual, guarded build of an already fully tested resulting-main release. No main/release writes,
+# registry publication, production credentials, deployment, or migrations.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact tested resulting-main SHA at release pointer
+        required: true
+        type: string
+      gate_run:
+        description: Successful exact-main full release-checks run ID
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: verified-release-image-${{ inputs.source_sha }}
+  cancel-in-progress: false
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      actions: read
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SOURCE_GATE_RUN: ${{ inputs.gate_run }}
+    steps:
+      - name: Verify exact source release gate and release pointer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess, re
+          repo = 'GAIVER007/wetop.ai'
+          def api(path):
+              return json.loads(subprocess.check_output(['gh', 'api', 'repos/' + repo + '/' + path], text=True))
+          sha = os.environ['SOURCE_SHA']
+          gate = os.environ['SOURCE_GATE_RUN']
+          if not re.fullmatch(r'[0-9a-f]{40}', sha) or not re.fullmatch(r'[0-9]+', gate):
+              raise SystemExit('Refused: invalid source SHA or gate ID')
+          main = api('git/ref/heads/main')
+          release = api('git/ref/heads/release')
+          run = api('actions/runs/' + gate)
+          jobs = api('actions/runs/' + gate + '/jobs?per_page=100')['jobs']
+          if not (main['object']['sha'] == sha and release['object']['sha'] == sha and run['head_sha'] == sha
+                  and run['head_branch'] == 'main' and run['path'] == '.github/workflows/release-checks.yml'
+                  and run['status'] == 'completed' and run['conclusion'] == 'success'
+                  and len(jobs) == 16 and all(j['conclusion'] == 'success' for j in jobs)):
+              raise SystemExit('Refused: exact tested release gate or pointer mismatch')
+          print('Verified exact resulting-main source: 16/16 successful jobs, release pointer matches')
+          PY
+      - name: Checkout only the verified application source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Build labelled immutable image on the GitHub runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          docker build --file deploy/Dockerfile \
+            --label "org.opencontainers.image.revision=$SOURCE_SHA" \
+            --tag "wetop-verified:$SOURCE_SHA" .
+      - name: Export image artifact and integrity manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="$RUNNER_TEMP/verified-release-image"
+          mkdir -m 700 "$DEST"
+          IMAGE_ID="$(docker image inspect --format '{{.Id}}' "wetop-verified:$SOURCE_SHA")"
+          REVISION="$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$IMAGE_ID")"
+          test "$REVISION" = "$SOURCE_SHA"
+          export IMAGE_ID DEST
+          docker save "$IMAGE_ID" | gzip -1 > "$DEST/release-image.tar.gz"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib
+          root = pathlib.Path(os.environ['DEST'])
+          image = root / 'release-image.tar.gz'
+          with image.open('rb') as stream:
+              digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+          manifest = {'source_sha': os.environ['SOURCE_SHA'], 'image_id': os.environ['IMAGE_ID'],
+                      'revision': os.environ['SOURCE_SHA'], 'archive': image.name,
+                      'archive_sha256': digest, 'archive_bytes': image.stat().st_size,
+                      'source_gate_run': int(os.environ['SOURCE_GATE_RUN']), 'build_run_id': os.environ['GITHUB_RUN_ID']}
+          (root / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          print(json.dumps(manifest))
+          PY
+      - name: Upload to repository artifact storage (not a privacy guarantee)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: verified-release-image
+          path: ${{ runner.temp }}/verified-release-image/
+          compression-level: 0
+          retention-days: 3
+          if-no-files-found: error
+          overwrite: false
+

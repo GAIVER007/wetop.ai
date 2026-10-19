@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "security_concerns": [],
+  "logic_errors": [],
+  "suggestions": [
+    {
+      "severity": "deployment prerequisite",
+      "file": "scripts/ops/restore-mixed-domain-grants.sql",
+      "message": "The companion exists and is readable (0644), but is currently untracked. Include it in the parent's final commit and deployment alongside db-restore-prod.sh (0755). The new readability preflight correctly refuses restoration if it is absent. This is an in-progress packaging prerequisite, not a source-code blocker or evidence that production packaging was verified."
+    },
+    {
+      "severity": "verification limitation",
+      "file": "tests/integration/beauty-release-schema.test.ts:97-109",
+      "message": "The default resolver correctly anchors require to the database workspace, resolves prisma/package.json, selects either its string bin or bin.prisma, and resolves that path relative to the installed package. BEAUTY_PRISMA_CLI still takes precedence. Per the parent's supplied context, the successful local Prisma 7.10 run used the cache override because this checkout lacks the CLI package; it does not exercise the default installed-package branch. Verify that branch in the normal installed CI environment before claiming CI execution proof. No source-level defect found."
+    },
+    {
+      "severity": "optional coverage precision",
+      "file": "tests/integration/db-restore-prod.test.ts:27-47",
+      "message": "The snapshot checks exact equality for the enumerated wetop_app/wetop_service table and column privileges, sequence USAGE, policy role/command metadata, and RLS enabled flags. Despite the comment mentioning functions, it does not query function ACLs, PUBLIC/anon/authenticated ACLs, FORCE flags, or all PostgreSQL table privilege kinds. The repair's relevant function revokes/grants were checked against migration132 by source review; do not describe this snapshot as exhaustive database-ACL proof. Optional future coverage can add those dimensions without changing approved privileges."
+    }
+  ],
+  "summary": {
+    "verdict": "PASS for the requested narrow source/security review; no blocking defect identified. This is not production-apply approval or a new test-execution result.",
+    "baseline": "445a8fcf6bc0edeffeff935802db216bb1b6e1f5",
+    "review_method": "Read-only git diff and source inspection of the requested files, with migration132 and134-137 ACL reference comparison. Read-only Python checks verified normalized ACL parity, migration137 SHA-256, the final-five migration directory inventory, mandatory RLS inventory additions, held fixture count, and local script/companion readability. No tests, DB access, production operations, source/index edits, or service/process-state modifications were performed. Only this report was written.",
+    "restore_acl": "All 12 Beauty ACL statements in the companion exactly match migrations134-137 after whitespace/identifier-quote normalization, including the original grantees and revokes. Migration132 customer-import table/PUBLIC/conditional anon/authenticated revokes and the two function PUBLIC revokes plus wetop_app EXECUTE grants are semantically preserved. No invented PUBLIC permissions or additional revokes were found; the materials revision DELETE behavior was not tightened beyond its source migration. Migration133 contributes no explicit GRANT/REVOKE. Companion SQL contains no schema/data/model creation or transaction-ending statements.",
+    "restore_control_flow": "Both customer-import tables may be absent or present together; a one-table installation raises. The explicit ten Beauty tables may be wholly absent or present; partial installation raises. Missing required functions fail when their ACL statements execute. The companion is appended after selected pure-ACL migrations inside the existing psql -X ON_ERROR_STOP=1 --single-transaction invocation, following restoration of public search_path. Explicit --yes-replace-production confirmation and existing role assumptions are unchanged; no new roles or elevated grants are introduced. The rollback regression now injects an executable last pure-ACL file, asserts the actual no_such_table diagnostic, and checks unchanged rows and privilege snapshot.",
+    "migration_package": "The approved133-137 package remains the last five ordinary migration directories; the restore companion is beside the ops script, not a sixth migration. The migration137 diff adds only search_path pins for beauty_location_hours_valid(jsonb) and beauty_time_in_hours(timestamptz,timestamptz,text,jsonb), inside its existing transaction. Actual migration137 SHA-256 is 86c2403418211147a0dff5e00b1bb6d679fa7587e2eac9d56381cfcdde7f3967 and matches the single updated metadata hash. PREPARED_NOT_APPLIED, productionApplied=false, and production approval/gate requirements remain intact.",
+    "rls": "Exactly the ten explicit ordinary Beauty tables were added to RLS_TENANT_TABLES, with no removals or duplicate inventory entries. Only appointment_lines and employee_service_prices were removed from the optional held list, which retains18 entries and its wholly absent/wholly installed assertion. Ordinary Beauty tables are mandatory in the exact RLS-table equality assertion, tenant/no-org loops, and explicit literal-ten FORCE assertion; no prefix exemption was introduced.",
+    "execution_evidence_attribution": "The parent supplied restore RED308c then GREEN56fc2 (2/2), rollback error/row/ACL preservation, restore unit4b2710/10, fresh ordinary-chain migration/backfill/RLS/down/schema GREENcb969/9 using Prisma7.10 cache override, mandatory canonical-ten FORCE/tenant/no-org GREEN1642 (6/6), and targeted unit41fd (59). These are parent-reported completed executions, not tests rerun or independently log-verified by this read-only reviewer. Source inspection supports the described mechanisms while retaining the snapshot and default-CLI-branch limitations above."
+  }
+}

@@ -1,0 +1,11 @@
+# Сквозные (e2e) · 19.10.2026 10:55 Алматы · srv1719674
+# коммит 445a8fc (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/playwright.four-shots.config.mjs' '--workers=1' '--output=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/four-shots-stable-artifacts'
+
+Running 1 test using 1 worker
+
+  ✓  1 ../wetop-browser-readonly-check/salon-implementation/four-shots.spec.mjs:8:1 › STAFF local CSV preview: actual light/dark desktop/mobile screenshots, zero writes (20.1s)
+
+  1 passed (21.3s)
+
+# код выхода 0 · 23 с

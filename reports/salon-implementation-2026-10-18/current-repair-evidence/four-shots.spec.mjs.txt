@@ -1,0 +1,58 @@
+import { createRequire } from 'node:module';
+import { mkdirSync, writeFileSync } from 'node:fs';
+const repo = '/opt/data/workspace/wetop-all-release-20261017';
+const { test, expect } = createRequire(`${repo}/package.json`)('@playwright/test');
+const api = 'http://127.0.0.1:26895';
+const out = `${repo}/reports/salon-implementation-2026-10-18/current-ui-stable`;
+
+test('STAFF local CSV preview: actual light/dark desktop/mobile screenshots, zero writes', async ({ page, request }) => {
+  await request.post(`${api}/__test/reset`);
+  await page.goto('/auth/fallback');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
+  await page.goto('/branches');
+  const main = page.getByRole('main');
+  await main.getByRole('button', { name: 'Добавить', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
+  await creation.getByLabel('Новый бизнес или бренд').check();
+  await creation.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+  await creation.getByLabel('Название бизнеса', { exact: true }).fill('Тестовый салон CSV');
+  await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+  await expect(creation.getByRole('status')).toContainText('Салон создан');
+  await page.reload();
+  await main.getByRole('button', { name: 'Открыть объект: Тестовый салон CSV', exact: true }).click();
+  await page.waitForURL('**/today');
+  await request.post(`${api}/__test/control`, { data: { role: 'STAFF' } });
+  await page.goto('/customers');
+  await main.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: 'Импортировать клиентов' });
+  const writes = [];
+  page.on('request', (req) => { if (['POST','PUT','PATCH','DELETE'].includes(req.method())) writes.push(req.url()); });
+  const csv = 'Имя;Телефон\r\nПервый тест;87000001001\r\nПовтор тест;+7 (700) 000-10-01\r\nБез номера;\r\nОшибка тест;abc';
+  await panel.getByLabel('CSV с клиентами').setInputFiles({ name: 'synthetic.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  await panel.getByRole('button', { name: 'Проверить строки', exact: true }).click();
+  await expect(panel.getByRole('heading', { name: 'Готовы: 1', exact: true })).toBeVisible();
+  await expect(panel.getByRole('button', { name: /^Импортировать \d/ })).toHaveCount(0);
+  mkdirSync(out, { recursive: true });
+  const captures = [];
+  for (const theme of ['light','dark']) for (const width of [1440,390]) {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+    await page.emulateMedia({ colorScheme: theme });
+    await page.evaluate((value) => { document.documentElement.dataset.theme = value; }, theme);
+    await expect(page.locator('html')).toHaveCSS('color-scheme', theme);
+    const ready = panel.getByRole('heading', { name: 'Готовы: 1', exact: true });
+    await ready.scrollIntoViewIfNeeded();
+    await expect(ready).toBeInViewport({ ratio: 1 });
+    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    const path = `${out}/csv-preview-${theme}-${width}.png`;
+    await page.screenshot({ path, fullPage: true, animations: 'disabled' });
+    captures.push({ theme, width, path, synthetic: true, browserToMockApi: true, production: false });
+    writeFileSync(`${out}/captures.json`, JSON.stringify(captures, null, 2));
+  }
+  expect(captures).toHaveLength(4);
+  expect(writes).toEqual([]);
+});

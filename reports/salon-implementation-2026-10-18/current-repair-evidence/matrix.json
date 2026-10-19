@@ -1,0 +1,218 @@
+{
+  "base": "445a8fcf6bc0edeffeff935802db216bb1b6e1f5",
+  "productionChanged": false,
+  "records": [
+    {
+      "id": "2026-10-19T04-55-24Z-integration-2e88",
+      "kind": "integration",
+      "exitCode": 0,
+      "counts": {
+        "total": 42,
+        "passed": 42,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "note": "GREEN legitimate synthetic scopes persisted once; concurrency tenant/partial-branch negatives retained, live stale/revoked membership control unchanged",
+      "entry": "tests/runs/entries/2026-10-19T04-55-24Z-integration-2e88.json",
+      "log": "tests/runs/logs/2026-10-19T04-55-24Z-integration-2e88.log"
+    },
+    {
+      "id": "2026-10-19T05-00-40Z-integration-5ec6",
+      "kind": "integration",
+      "exitCode": 0,
+      "counts": {
+        "total": 86,
+        "passed": 85,
+        "failed": 0,
+        "skipped": 1,
+        "flaky": 0
+      },
+      "note": "GREEN scope FK-cleanup and approved line constraints; source137 search_path metadata only on owned synthetic schema, ledger untouched, assertions unchanged or strengthened",
+      "entry": "tests/runs/entries/2026-10-19T05-00-40Z-integration-5ec6.json",
+      "log": "tests/runs/logs/2026-10-19T05-00-40Z-integration-5ec6.log"
+    },
+    {
+      "id": "2026-10-19T05-05-21Z-integration-1642",
+      "kind": "integration",
+      "exitCode": 0,
+      "counts": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "note": "GREEN explicit10 canonical tenant tables FORCE and exhaustive cross-org/no-org policies; held package remains all-or-none; own extracted PG JIT off for missing optional LLVM",
+      "entry": "tests/runs/entries/2026-10-19T05-05-21Z-integration-1642.json",
+      "log": "tests/runs/logs/2026-10-19T05-05-21Z-integration-1642.log"
+    },
+    {
+      "id": "2026-10-19T05-05-49Z-integration-cb96",
+      "kind": "integration",
+      "exitCode": 0,
+      "counts": {
+        "total": 9,
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "note": "Fresh owned ordinary-chain release proof after137 search_path hardening; actual pinned Prisma7.10 CLI diff and populated backfill/FORCE RLS/exact down witness, no prod or ledger fabrication",
+      "entry": "tests/runs/entries/2026-10-19T05-05-49Z-integration-cb96.json",
+      "log": "tests/runs/logs/2026-10-19T05-05-49Z-integration-cb96.log"
+    },
+    {
+      "id": "2026-10-19T05-11-56Z-integration-56fc",
+      "kind": "integration",
+      "exitCode": 0,
+      "counts": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "note": "GREEN real backup-corrupt-restore exact complete table/column ACL equality, RLS and data; executing pure-ACL fault proves single-transaction rollback preserves full pre-error data/ACL snapshots on own disposable DB only",
+      "entry": "tests/runs/entries/2026-10-19T05-11-56Z-integration-56fc.json",
+      "log": "tests/runs/logs/2026-10-19T05-11-56Z-integration-56fc.log"
+    },
+    {
+      "id": "2026-10-19T05-50-24Z-integration-95d3",
+      "kind": "integration",
+      "exitCode": 0,
+      "counts": {
+        "total": 11,
+        "passed": 11,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "note": "GREEN fail-closed child-first fixture cleanup; no swallowing SQL or FK/history failures; exact canonical overlap and assigned second-master positive remain intact",
+      "entry": "tests/runs/entries/2026-10-19T05-50-24Z-integration-95d3.json",
+      "log": "tests/runs/logs/2026-10-19T05-50-24Z-integration-95d3.log"
+    },
+    {
+      "id": "2026-10-19T05-49-58Z-integration-fcd5",
+      "kind": "integration",
+      "exitCode": 1,
+      "counts": {
+        "total": 11,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 11,
+        "flaky": 0
+      },
+      "note": "RED fixture cleanup now fails closed rather than swallowing malformed SQL; independently reproduced42601 in line-child deletion",
+      "entry": "tests/runs/entries/2026-10-19T05-49-58Z-integration-fcd5.json",
+      "log": "tests/runs/logs/2026-10-19T05-49-58Z-integration-fcd5.log"
+    },
+    {
+      "id": "2026-10-19T05-39-44Z-unit-935b",
+      "kind": "unit",
+      "exitCode": 0,
+      "counts": {
+        "total": 6293,
+        "passed": 6286,
+        "failed": 0,
+        "skipped": 7,
+        "flaky": 0
+      },
+      "note": "Full unit after current scoped source changes: selected-master prices, fixture scopes/FK cleanup, canonical RLS137, exact restore ACLs, staff preview and modern no-show permissions; source frozen",
+      "entry": "tests/runs/entries/2026-10-19T05-39-44Z-unit-935b.json",
+      "log": "tests/runs/logs/2026-10-19T05-39-44Z-unit-935b.log"
+    },
+    {
+      "id": "2026-10-19T05-51-18Z-typecheck-c6d5",
+      "kind": "typecheck",
+      "exitCode": 0,
+      "counts": null,
+      "note": "Final root/API/web after ONLY integration cleanup2-line strictness/syntax correction95d3; production and unit-selected code unchanged since6286 GREEN",
+      "entry": "tests/runs/entries/2026-10-19T05-51-18Z-typecheck-c6d5.json",
+      "log": "tests/runs/logs/2026-10-19T05-51-18Z-typecheck-c6d5.log"
+    },
+    {
+      "id": "2026-10-19T05-52-29Z-lint-cf9e",
+      "kind": "lint",
+      "exitCode": 0,
+      "counts": null,
+      "note": "Final lint after fail-closed fixture cleanup; source frozen",
+      "entry": "tests/runs/entries/2026-10-19T05-52-29Z-lint-cf9e.json",
+      "log": "tests/runs/logs/2026-10-19T05-52-29Z-lint-cf9e.log"
+    },
+    {
+      "id": "2026-10-19T05-27-34Z-e2e-4efc",
+      "kind": "e2e",
+      "exitCode": 0,
+      "counts": {
+        "total": 28,
+        "passed": 28,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "note": "Actual28 browser regression original proven Turbopack root=/ required by private linked dependencies; warmed own pair, no source or guard changes; catalog both native drags STAFF no-write preview OWNER recovery/replay/undo modern no-show across widths/axe",
+      "entry": "tests/runs/entries/2026-10-19T05-27-34Z-e2e-4efc.json",
+      "log": "tests/runs/logs/2026-10-19T05-27-34Z-e2e-4efc.log"
+    },
+    {
+      "id": "2026-10-19T05-55-00Z-e2e-6645",
+      "kind": "e2e",
+      "exitCode": 0,
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "note": "Final four actual STAFF previews after fonts/native scheme settled; screenshots finish transitions, ready summary in viewport; zero writes; prior frames preserved, no application styling or safety changes",
+      "entry": "tests/runs/entries/2026-10-19T05-55-00Z-e2e-6645.json",
+      "log": "tests/runs/logs/2026-10-19T05-55-00Z-e2e-6645.log"
+    }
+  ],
+  "captures": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "path": "reports/salon-implementation-2026-10-18/current-ui-stable/csv-preview-light-1440.png",
+      "synthetic": true,
+      "browserToMockApi": true,
+      "production": false,
+      "sha256": "a43acd3ce7939af798b91cbbfd2a81a4a0f9f41b397eb471cb1c6482c1a4be3a"
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "path": "reports/salon-implementation-2026-10-18/current-ui-stable/csv-preview-light-390.png",
+      "synthetic": true,
+      "browserToMockApi": true,
+      "production": false,
+      "sha256": "dcbfc95c532ba9405d46689f22fa00f0a357ad46057dc6bf0851e825ba9bb6cc"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "path": "reports/salon-implementation-2026-10-18/current-ui-stable/csv-preview-dark-1440.png",
+      "synthetic": true,
+      "browserToMockApi": true,
+      "production": false,
+      "sha256": "4ba51980d42595d5673d02eb002a486b5265d613714de0d1fa7d09c918faae1e"
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "path": "reports/salon-implementation-2026-10-18/current-ui-stable/csv-preview-dark-390.png",
+      "synthetic": true,
+      "browserToMockApi": true,
+      "production": false,
+      "sha256": "723a4a37266ed836ccf1a3f3f9f6835dccc37cc633c4a17d8caf480dfbc944bb"
+    }
+  ],
+  "limits": [
+    "Unit6286 GREEN before ONLY integration fixture cleanup2-line correction; domain11 and full types/lint GREEN afterward; no production/unit-selected source changed.",
+    "No claim of full Food65 local GREEN or exact-SHA release CI yet.",
+    "UI28 uses synthetic fixture API; real DB semantics proved separately, not falsely one all-real browser chain.",
+    "New canImport flag controls durable jobs, not a newly invented legacy-import authorization rule."
+  ]
+}

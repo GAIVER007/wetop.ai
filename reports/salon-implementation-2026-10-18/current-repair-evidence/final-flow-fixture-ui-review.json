@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "security_concerns": [],
+  "logic_errors": [],
+  "suggestions": [
+    "Verification gate: parent must complete the browser run before claiming UI runtime success, especially both native drag directions at targetPosition {x:24,y:24}. This review approves scoped source changes only, not browser execution."
+  ],
+  "summary": {
+    "verdict": "No blocking security or correctness issue found in the requested scoped static review against 445a8fcf6.",
+    "scope": "core-security/world.ts; customer-import race/runtime fixture cleanup; mv4-beauty guard/inventory assertions; beauty-domain overlap fixture; customer page and new regression tests; appointment-card and regression tests; beauty-catalog/customer-import UI test diffs.",
+    "fixture_security": "Declared actor membership scopes are persisted only during initial world seeding. Request/auth harness remains unchanged and does not synchronize scopes or repair stale claims. Added appointment_lines deletions precede parent deletion and use exactly the corresponding existing parent fixture selector: owned location(s), race customer ID, or the two randomly generated fixture organizations. No tenant-wide unscoped deletion was introduced.",
+    "database_assertions": "MV4 now requires the exact appointment_lines_guard trigger, ordinary enabled state O, per-master advisory transaction lock, cross-branch employee match, half-open line overlap, and cancelled/no-show exclusion; complete current Beauty function names and pinned search_path remain asserted. It no longer requires the obsolete scalar envelope constraint. The canonical domain error matches migration133. The positive other-master control receives the legitimate exact employee/service assignment and removes that mapping afterward.",
+    "product_permissions": "Customer local CSV preview is restored for writable STAFF creators through ImportCustomers(canImport=false); durable import remains gated by writable OWNER plus customer-create permission. Existing BeautyCustomerTools canEdit early return preserves read-only and no-create suppression. Appointment-card uses resolved canUpdate for the future no-show explanation; explicit false overrides legacy canEdit=true, and existing terminal/read-only negative tests remain.",
+    "ui_quality": "Descendant has locators use exact service names without incorrectly repeating ancestor scopes. Success-status matching is exact and unique. Direct fixture setup now supplies fixture-client, selected scope and actual synthetic session headers, consistent with fixture transport; this is setup rather than a production authorization bypass. CSV tests target the actual outer import dialog. Native dragTo and post-transfer assertions remain in both directions. The scoped diffs introduce no skips, timeout increases, or assertion removals.",
+    "existing_evidence_reviewed": "Read existing recorded run metadata, without executing tests: 4364 RED 16 failures of 34 -> 2e88 GREEN 42/42; 5ec6 GREEN 85/86 with one existing opt-in skip; 9a6d canonical-error RED -> eeea GREEN 11/11; cc13 RED three expected unit failures -> 41fd GREEN 59/59. These records report codeChangedDuringRun=false. They are parent-produced evidence, not execution performed by this reviewer.",
+    "limitations": "No tests, browser interactions, DB queries, source edits, index edits, or process changes were performed. Browser runtime remains unverified by this reviewer. Only this external JSON review artifact was written."
+  }
+}

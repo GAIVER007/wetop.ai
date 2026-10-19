@@ -35,33 +35,33 @@ test('owner saves initially empty master week through onboarding schedule and re
   expect(status.readiness.steps.find((s:{id:string})=>s.id==='schedule').done).toBe(true);
   expect((await request.put(`${api}/beauty/employees/${employee.id}/working-hours`,{headers,data:{intervals:[],expectedRevision:before.weekRevision}})).status()).toBe(409);
   // Updating this employee's profile must not strand a pristine weekly editor on its previous source token.
-  // правка специалиста живёт на странице профиля (старый адрес ведёт туда же); формы кабинета
   await page.goto(`/employees?employee=${employee.id}#profile`);
+  // The legacy deep link now redirects to the canonical full-page employee profile.
   await expect(page).toHaveURL(new RegExp(`/employees/${employee.id}/profile$`));
   const card=page.getByTestId('employee-manager');
-  const profile=card.getByTestId('portal-profile-form');
-  await profile.getByLabel('Имя в карточке',{exact:true}).fill('Synthetic updated master');
-  await profile.getByRole('button',{name:'Сохранить профиль',exact:true}).click();
-  await expect(profile.getByRole('status')).toContainText('Сохранено на сервере');
+  const profileForm=card.getByTestId('portal-profile-form');
+  await profileForm.getByLabel('Имя в карточке',{exact:true}).fill('Synthetic updated master');
+  await profileForm.getByRole('button',{name:'Сохранить профиль',exact:true}).click();
+  await expect(profileForm.getByRole('status')).toHaveText('Сохранено на сервере');
   await card.getByRole('tab',{name:'График',exact:true}).click();
-  const week=card.getByTestId('portal-week-form');
-  await week.getByLabel('Понедельник: до, интервал 1',{exact:true}).fill('19:00');
-  await week.getByRole('button',{name:'Сохранить график',exact:true}).click();
-  await expect(week.getByRole('status')).toContainText('Сохранено на сервере');
+  const weekForm=card.getByTestId('portal-week-form');
+  await weekForm.getByLabel('Понедельник: до, интервал 1').fill('19:00');
+  await weekForm.getByRole('button',{name:'Сохранить график',exact:true}).click();
+  await expect(weekForm.getByText('Сохранено на сервере',{exact:true})).toBeVisible();
   const afterProfile=await read();
   expect(afterProfile.week[0].intervals).toEqual([{timeFrom:'09:00',timeTo:'19:00'}]);
   await page.screenshot({path:test.info().outputPath(`schedule-fix-${mobile ? 'mobile' : 'desktop'}.png`),fullPage:true});
-  await week.getByLabel('Понедельник: до, интервал 1',{exact:true}).fill('20:00');
+  await card.getByLabel('Понедельник: до, интервал 1').fill('20:00');
   await card.getByRole('tab',{name:'Профиль',exact:true}).click();
   const unsaved=page.getByRole('dialog',{name:'Несохранённые изменения',exact:true});
   await expect(unsaved).toBeVisible();
   await unsaved.getByRole('button',{name:'Остаться',exact:true}).click();
-  await expect(week.getByLabel('Понедельник: до, интервал 1',{exact:true})).toHaveValue('20:00');
+  await expect(card.getByLabel('Понедельник: до, интервал 1')).toHaveValue('20:00');
   const concurrent=await request.put(`${api}/beauty/employees/${employee.id}/working-hours`,{headers,data:{intervals:[{weekday:1,timeFrom:'09:00',timeTo:'21:00'}],expectedRevision:afterProfile.weekRevision}});
   expect(concurrent.ok()).toBe(true);
-  await week.getByRole('button',{name:'Сохранить график',exact:true}).click();
-  await expect(week.getByRole('alert')).toBeVisible();
-  await expect(week.getByLabel('Понедельник: до, интервал 1',{exact:true})).toHaveValue('20:00');
+  await card.getByRole('button',{name:'Сохранить график',exact:true}).click();
+  await expect(card.getByTestId('portal-week-form').getByRole('alert')).toContainText('Данные изменились');
+  await expect(card.getByLabel('Понедельник: до, интервал 1')).toHaveValue('20:00');
   expect((await read()).week[0].intervals).toEqual([{timeFrom:'09:00',timeTo:'21:00'}]);
 });
   });

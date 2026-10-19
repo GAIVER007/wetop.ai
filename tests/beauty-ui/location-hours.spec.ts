@@ -2,14 +2,6 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 import { api, seed } from './tz11-helpers';
-
-// Конфликтом API считает только будущие записи (ends_at > now()): фиксированная дата «сегодня» краснела к вечеру.
-// Берём следующий понедельник: режим в тесте задаётся на понедельник.
-const date = (() => {
-  const day = new Date();
-  day.setUTCDate(day.getUTCDate() + ((8 - day.getUTCDay()) % 7 || 7));
-  return day.toISOString().slice(0, 10);
-})();
 const evidence = process.env.ZAPIS_EVIDENCE || 'test-results/zapis-report';
 test.use({ actionTimeout: 15000, reducedMotion: 'reduce' });
 
@@ -18,10 +10,15 @@ test('salon hours: break restricts new bookings and reports existing conflicts',
   request,
 }) => {
   const f = await seed(page, request);
+  // Conflicts list only visits that have not ended yet, so the conflicting visit must be in the future:
+  // the next Monday at least a week ahead (the break is configured for Monday).
+  const monday = new Date(Date.now() + 7 * 86_400_000);
+  while (monday.getUTCDay() !== 1) monday.setUTCDate(monday.getUTCDate() + 1);
+  const day = monday.toISOString().slice(0, 10);
   await f.call('/beauty/appointments', {
     employeeId: f.employees[0]!.id,
     serviceId: f.services[0]!.id,
-    startsAt: `${date}T12:00:00+05:00`,
+    startsAt: `${day}T12:00:00+05:00`,
     firstName: 'Тестовый конфликт часов',
   });
   try {
@@ -43,7 +40,7 @@ test('salon hours: break restricts new bookings and reports existing conflicts',
     const blocked = await request.post(`${api}/beauty/appointments`, {
       headers: f.headers,
       data: {
-        startsAt: `${date}T12:30:00+05:00`,
+        startsAt: `${day}T12:30:00+05:00`,
         firstName: 'Тестовый новый клиент',
         items: [{ employeeId: f.employees[1]!.id, serviceId: f.services[0]!.id }],
       },
@@ -64,11 +61,11 @@ test('salon hours: break restricts new bookings and reports existing conflicts',
         });
       }
     }
-    await page.goto(`/calendar?date=${date}`);
+    await page.goto(`/calendar?date=${day}`);
     await expect(
       page.getByRole('button', { name: /Тестовый конфликт часов/ }),
     ).toBeVisible();
-    const response = await request.get(`${api}/beauty/appointments?date=${date}`, {
+    const response = await request.get(`${api}/beauty/appointments?date=${day}`, {
       headers: f.headers,
     });
     const data = await response.json();

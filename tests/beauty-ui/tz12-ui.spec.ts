@@ -87,8 +87,7 @@ test('list mobile cards retain contact semantics and honest record action', asyn
   await populated(page, request);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/appointments?date=${date}`);
-  // подсказку про поиск по дню убрали вместе с периодом в списке (list-modal.test.ts)
-  await expect(page.getByText('Поиск только по выбранному дню.')).toHaveCount(0);
+  await expect(page.getByText('Поиск по выбранному периоду.')).toBeVisible();
   await expect(page.locator('.beauty-appointments-table')).not.toContainText('—');
   const row = page.locator('.beauty-appointments-table tr').filter({ hasText: longName });
   await expect(row.getByRole('button', { name: /Открыть запись/ })).toBeVisible();
@@ -102,7 +101,6 @@ test('shared form groups and save stay accessible in short viewport', async ({ p
   await page.goto(`/appointments?date=${date}`);
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Новая запись', exact: true });
-  // группы формы записи после работы «Запись»: услуги списком строк
   for (const name of ['Клиент', 'Услуги', 'Дополнительно'])
     await expect(dialog.getByRole('group', { name, exact: true })).toBeVisible();
   await dialog.getByLabel('Заметка', { exact: true }).focus();

@@ -14,7 +14,7 @@ test('catalog customers mobile contact cards retain secondary existing metrics',
   await expect(table.locator('thead')).not.toBeVisible();
   await expect(table.locator('[data-label="Последний визит"]')).toBeVisible();
   await expect(table.locator('[data-label="Средний чек"]')).toBeVisible();
-  // единственная ссылка строки ведёт в карточку клиента (работа «Запись», f8a912681); контактных ссылок нет
+  // единственная ссылка строки ведёт в карточку клиента (её проверяет customer-detail.spec)
   await expect(table.getByRole('link')).toHaveCount(1);
   await expect(table.getByRole('link')).toHaveAttribute('href', /^\/customers\/[0-9a-f-]+$/);
 });

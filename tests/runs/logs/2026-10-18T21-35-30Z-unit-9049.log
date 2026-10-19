@@ -1,0 +1,105 @@
+# Модульные (unit) · 19.10.2026 02:35 Алматы · srv1719674
+# коммит cd954b5 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T21-35-30Z-unit-9049.json' 'apps/web/src/app/finance/appointments-csv.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |unit| apps/web/src/app/finance/appointments-csv.test.ts (6 tests | 4 failed) 22ms
+   ✓ выгрузка записей салона (Q-BS-6) (1)
+     ✓ строки по записям, суммы для Excel, без имени и телефона клиента, формулы обезврежены 2ms
+   ✓ exports each visit currency and all service/master names without relabelling USD as tenge 0ms
+   × attributes a cross-midnight visit once to its local start day, not each overlapping day 13ms
+   × does not export prior-period tails even when the start day was not requested 2ms
+   × uses the branch timezone, not UTC or the server calendar date, for start attribution 1ms
+   × exports one visit once even if the same day response or appointment is repeated 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/finance/appointments-csv.test.ts > attributes a cross-midnight visit once to its local start day, not each overlapping day
+AssertionError: expected [ …(3) ] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+  [
+    "﻿Дата;Время;Мастер;Услуга;Статус;Валюта;Цена;Оплачено;Возвращено",
+    "14.10.2026;23:30;'=Мастер Дина;Стрижка;Завершена;KZT;123,45;100,00;20,00",
++   "15.10.2026;'-1:-30;'=Мастер Дина;Стрижка;Завершена;KZT;123,45;100,00;20,00",
+  ]
+
+ ❯ apps/web/src/app/finance/appointments-csv.test.ts:89:29
+     87|   const tail = day('2026-10-15', [{ ...visit, startMinutes: -30, endMi…
+     88|   const csv = appointmentsCsv([tail, first]);
+     89|   expect(csv.split('\r\n')).toEqual([
+       |                             ^
+     90|     '\uFEFFДата;Время;Мастер;Услуга;Статус;Валюта;Цена;Оплачено;Возвра…
+     91|     "14.10.2026;23:30;'=Мастер Дина;Стрижка;Завершена;KZT;123,45;100,0…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/appointments-csv.test.ts > does not export prior-period tails even when the start day was not requested
+AssertionError: expected [ …(2) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ apps/web/src/app/finance/appointments-csv.test.ts:106:29
+    104|     })]),
+    105|   ]);
+    106|   expect(csv.split('\r\n')).toHaveLength(1);
+       |                             ^
+    107| });
+    108|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/appointments-csv.test.ts > uses the branch timezone, not UTC or the server calendar date, for start attribution
+AssertionError: expected [ …(3) ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ apps/web/src/app/finance/appointments-csv.test.ts:121:29
+    119|     day('2026-10-15', [{ ...visit, startMinutes: -30 }], 'America/Los_…
+    120|   ]);
+    121|   expect(csv.split('\r\n')).toHaveLength(2);
+       |                             ^
+    122|   expect(csv).toContain('14.10.2026;23:30;');
+    123|   expect(csv).not.toContain('15.10.2026;');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/appointments-csv.test.ts > exports one visit once even if the same day response or appointment is repeated
+AssertionError: expected [ …(5) ] to have a length of 2 but got 5
+
+- Expected
++ Received
+
+- 2
++ 5
+
+ ❯ apps/web/src/app/finance/appointments-csv.test.ts:130:61
+    128|   const a = row({});
+    129|   const sameDay = day('2026-10-14', [a, { ...a }]);
+    130|   expect(appointmentsCsv([sameDay, sameDay]).split('\r\n')).toHaveLeng…
+       |                                                             ^
+    131| });
+    132|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 2 passed (6)
+   Start at  21:35:31
+   Duration  274ms (transform 65%, tests 19%, import 14%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-18T21-35-30Z-unit-9049.json
+
+# код выхода 1 · 1 с

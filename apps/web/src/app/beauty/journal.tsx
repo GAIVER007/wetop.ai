@@ -484,6 +484,7 @@ export function JournalBoard({
       >
         {panel?.kind === 'card' && (
           <AppointmentCard
+            scopeKey={scopeKey}
             day={{ ...day, columns }}
             row={panel.row}
             canEdit={!readOnly}

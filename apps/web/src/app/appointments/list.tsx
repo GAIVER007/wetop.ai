@@ -266,6 +266,7 @@ export function AppointmentsList({
       >
         {selected && (
           <AppointmentCard
+            scopeKey={scopeKey}
             day={day}
             row={selected}
             canEdit={!readOnly}

@@ -1234,12 +1234,37 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
         AND kind = 'CONSUMPTION'`;
     expect(movementSummary[0]).toEqual({ count: 3, qty: '-4.000', cost: '-700', order_links: 0 });
     expect((await db.kitchenStockLot.findUniqueOrThrow({ where: { id: lotB } })).remainingQty.toString()).toBe('1');
+    // Provenance: DONE audit names the exact recipe revision and the stored consumption per line
+    const doneAudit = await db.auditLog.findFirstOrThrow({
+      where: { organizationId: own.org, entityId: consumed.id, action: 'beauty.appointment.status' },
+      orderBy: { createdAt: 'desc' },
+    });
+    const orderedLines = [...consumedLines].sort((a, b) => a.position - b.position);
+    expect(doneAudit.after).toEqual({
+      status: 'DONE',
+      materials: orderedLines.map((line) => ({
+        appointmentLineId: line.id,
+        serviceId: own.serviceB,
+        recipeRevision: 1,
+        items: [{ productId: own.productA, normQty: '2', unit: 'г' }],
+      })),
+    });
+    expect(JSON.stringify(doneAudit.after)).not.toMatch(/Synthetic color cream|unitCost|lot/i);
 
     const cleared = await asOwner(() => materialApi.setServiceMaterials(own.serviceB, {
       expectedRevision: 1,
       items: [],
     }));
     expect(cleared.revision).toBe(2);
+    // Provenance: every recipe save stores the exact previous revision and items
+    const recipeAudits = await db.auditLog.findMany({
+      where: { organizationId: own.org, entityId: own.serviceB, action: 'beauty.service.materials' },
+      orderBy: { createdAt: 'asc' },
+    });
+    expect(recipeAudits.map((row) => [row.before, row.after])).toEqual([
+      [{ revision: 0, items: [] }, { revision: 1, items: [{ productId: own.productA, normQty: '2', unit: 'г' }] }],
+      [{ revision: 1, items: [{ productId: own.productA, normQty: '2', unit: 'г' }] }, { revision: 2, items: [] }],
+    ]);
     const emptyAt = '2036-11-03T15:30:00+05:00';
     const emptyVisit = await asOwner(() => appointments.create({
       startsAt: emptyAt,

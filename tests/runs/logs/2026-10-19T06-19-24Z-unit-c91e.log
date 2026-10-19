@@ -1,0 +1,246 @@
+# Модульные (unit) · 19.10.2026 11:19 Алматы · srv1719674
+# коммит ad8e85d (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T06-19-24Z-unit-c91e.json' 'apps/web/src/app/beauty/journal-payment-actions.test.ts' 'apps/web/src/app/beauty/appointment-money-operation.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |unit| apps/web/src/app/beauty/appointment-money-operation.test.ts (10 tests) 12ms
+ ❯ |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts (20 tests | 18 failed) 32ms
+   ❯ payment action confirmation boundary (10)
+     × rejects changed scope before zero mutation calls 11ms
+     × rejects failed preflight without dispatch 2ms
+     × keeps post-dispatch status 400 unknown, not safe to resend with fresh key 1ms
+     × keeps post-dispatch status 403 unknown, not safe to resend with fresh key 1ms
+     × keeps post-dispatch status 503 unknown, not safe to resend with fresh key 1ms
+     × does not fabricate confirmation from undefined 1ms
+     × does not fabricate confirmation from {} 1ms
+     × does not fabricate confirmation from {"appointments":[]} 1ms
+     × does not call confirmed mutation failed if cache revalidation fails 1ms
+     ✓ returns success only on actual matching appointment confirmation 3ms
+   ❯ refund action confirmation boundary (10)
+     × rejects changed scope before zero mutation calls 1ms
+     × rejects failed preflight without dispatch 1ms
+     × keeps post-dispatch status 400 unknown, not safe to resend with fresh key 1ms
+     × keeps post-dispatch status 403 unknown, not safe to resend with fresh key 1ms
+     × keeps post-dispatch status 503 unknown, not safe to resend with fresh key 1ms
+     × does not fabricate confirmation from undefined 1ms
+     × does not fabricate confirmation from {} 1ms
+     × does not fabricate confirmation from {"appointments":[]} 1ms
+     × does not call confirmed mutation failed if cache revalidation fails 1ms
+     ✓ returns success only on actual matching appointment confirmation 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > payment action confirmation boundary > rejects changed scope before zero mutation calls
+AssertionError: expected { message: 'Оплата принята' } to match object { outcome: 'rejected' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "outcome": "rejected",
++   "message": "Оплата принята",
+  }
+
+ ❯ apps/web/src/app/beauty/journal-payment-actions.test.ts:23:27
+     21|   it('rejects changed scope before zero mutation calls', async () => {
+     22|     mocks.me.mockResolvedValue({ user: { organizationId: 'another' }, …
+     23|     expect(await c.run()).toMatchObject({ outcome: 'rejected' }); expe…
+       |                           ^
+     24|   });
+     25|   it('rejects failed preflight without dispatch', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > payment action confirmation boundary > rejects failed preflight without dispatch
+AssertionError: expected { message: 'Оплата принята' } to match object { outcome: 'rejected' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "outcome": "rejected",
++   "message": "Оплата принята",
+  }
+
+ ❯ apps/web/src/app/beauty/journal-payment-actions.test.ts:27:27
+     25|   it('rejects failed preflight without dispatch', async () => {
+     26|     mocks.me.mockRejectedValue(new Error('Expired session'));
+     27|     expect(await c.run()).toMatchObject({ outcome: 'rejected' }); expe…
+       |                           ^
+     28|   });
+     29|   it.each([400, 403, 503])('keeps post-dispatch status %s unknown, not…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > payment action confirmation boundary > keeps post-dispatch status 400 unknown, not safe to resend with fresh key
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > payment action confirmation boundary > keeps post-dispatch status 403 unknown, not safe to resend with fresh key
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > payment action confirmation boundary > keeps post-dispatch status 503 unknown, not safe to resend with fresh key
+AssertionError: expected { error: 'Не удалось принять оплату.' } to match object { outcome: 'unknown' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "outcome": "unknown",
++   "error": "Не удалось принять оплату.",
+  }
+
+ ❯ apps/web/src/app/beauty/journal-payment-actions.test.ts:31:27
+     29|   it.each([400, 403, 503])('keeps post-dispatch status %s unknown, not…
+     30|     c.mock.mockRejectedValue(Object.assign(new Error('Response failed …
+     31|     expect(await c.run()).toMatchObject({ outcome: 'unknown' }); expec…
+       |                           ^
+     32|   });
+     33|   it.each([undefined, {}, { appointments: [] }])('does not fabricate c…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > payment action confirmation boundary > does not fabricate confirmation from undefined
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > payment action confirmation boundary > does not fabricate confirmation from {}
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > payment action confirmation boundary > does not fabricate confirmation from {"appointments":[]}
+AssertionError: expected { message: 'Оплата принята' } to match object { outcome: 'unknown' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "outcome": "unknown",
++   "message": "Оплата принята",
+  }
+
+ ❯ apps/web/src/app/beauty/journal-payment-actions.test.ts:34:63
+     32|   });
+     33|   it.each([undefined, {}, { appointments: [] }])('does not fabricate c…
+     34|     c.mock.mockResolvedValue(response); expect(await c.run()).toMatchO…
+       |                                                               ^
+     35|   });
+     36|   it('does not call confirmed mutation failed if cache revalidation fa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > payment action confirmation boundary > does not call confirmed mutation failed if cache revalidation fails
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > refund action confirmation boundary > does not call confirmed mutation failed if cache revalidation fails
+AssertionError: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ apps/web/src/app/beauty/journal-payment-actions.test.ts:38:58
+     36|   it('does not call confirmed mutation failed if cache revalidation fa…
+     37|     c.mock.mockResolvedValue(confirmation); mocks.revalidate.mockImple…
+     38|     const result = await c.run(); expect(result.message).toBeTruthy();…
+       |                                                          ^
+     39|     expect(result.outcome).toBeUndefined(); expect(c.mock).toHaveBeenC…
+     40|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > refund action confirmation boundary > rejects changed scope before zero mutation calls
+AssertionError: expected { message: 'Возврат оформлен' } to match object { outcome: 'rejected' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "outcome": "rejected",
++   "message": "Возврат оформлен",
+  }
+
+ ❯ apps/web/src/app/beauty/journal-payment-actions.test.ts:23:27
+     21|   it('rejects changed scope before zero mutation calls', async () => {
+     22|     mocks.me.mockResolvedValue({ user: { organizationId: 'another' }, …
+     23|     expect(await c.run()).toMatchObject({ outcome: 'rejected' }); expe…
+       |                           ^
+     24|   });
+     25|   it('rejects failed preflight without dispatch', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > refund action confirmation boundary > rejects failed preflight without dispatch
+AssertionError: expected { message: 'Возврат оформлен' } to match object { outcome: 'rejected' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "outcome": "rejected",
++   "message": "Возврат оформлен",
+  }
+
+ ❯ apps/web/src/app/beauty/journal-payment-actions.test.ts:27:27
+     25|   it('rejects failed preflight without dispatch', async () => {
+     26|     mocks.me.mockRejectedValue(new Error('Expired session'));
+     27|     expect(await c.run()).toMatchObject({ outcome: 'rejected' }); expe…
+       |                           ^
+     28|   });
+     29|   it.each([400, 403, 503])('keeps post-dispatch status %s unknown, not…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > refund action confirmation boundary > keeps post-dispatch status 400 unknown, not safe to resend with fresh key
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > refund action confirmation boundary > keeps post-dispatch status 403 unknown, not safe to resend with fresh key
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > refund action confirmation boundary > keeps post-dispatch status 503 unknown, not safe to resend with fresh key
+AssertionError: expected { Object (error) } to match object { outcome: 'unknown' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "outcome": "unknown",
++   "error": "Не удалось оформить возврат.",
+  }
+
+ ❯ apps/web/src/app/beauty/journal-payment-actions.test.ts:31:27
+     29|   it.each([400, 403, 503])('keeps post-dispatch status %s unknown, not…
+     30|     c.mock.mockRejectedValue(Object.assign(new Error('Response failed …
+     31|     expect(await c.run()).toMatchObject({ outcome: 'unknown' }); expec…
+       |                           ^
+     32|   });
+     33|   it.each([undefined, {}, { appointments: [] }])('does not fabricate c…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > refund action confirmation boundary > does not fabricate confirmation from undefined
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > refund action confirmation boundary > does not fabricate confirmation from {}
+ FAIL  |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts > refund action confirmation boundary > does not fabricate confirmation from {"appointments":[]}
+AssertionError: expected { message: 'Возврат оформлен' } to match object { outcome: 'unknown' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "outcome": "unknown",
++   "message": "Возврат оформлен",
+  }
+
+ ❯ apps/web/src/app/beauty/journal-payment-actions.test.ts:34:63
+     32|   });
+     33|   it.each([undefined, {}, { appointments: [] }])('does not fabricate c…
+     34|     c.mock.mockResolvedValue(response); expect(await c.run()).toMatchO…
+       |                                                               ^
+     35|   });
+     36|   it('does not call confirmed mutation failed if cache revalidation fa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  18 failed | 12 passed (30)
+   Start at  06:19:25
+   Duration  449ms (transform 50%, tests 26%, import 20%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-19T06-19-24Z-unit-c91e.json
+
+# код выхода 1 · 1 с

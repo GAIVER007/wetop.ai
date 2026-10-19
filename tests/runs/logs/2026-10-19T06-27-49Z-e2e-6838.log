@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 19.10.2026 11:27 Алматы · srv1719674
+# коммит ad8e85d (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.money.config.ts' '--workers=1' '--output=/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/money-real-artifacts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+[WebServer] (node:540998) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/beauty-ui/money-recovery-real.spec.ts:12:3 › money pay: actual Next action/API/DB committed then response lost, exact retry 390 (11.8s)
+  ✓  2 tests/beauty-ui/money-recovery-real.spec.ts:12:3 › money refund: actual Next action/API/DB committed then response lost, exact retry 390 (6.3s)
+  ✓  3 tests/beauty-ui/money-recovery-real.spec.ts:12:3 › money pay: actual Next action/API/DB committed then response lost, exact retry 1440 (6.7s)
+  ✓  4 tests/beauty-ui/money-recovery-real.spec.ts:12:3 › money refund: actual Next action/API/DB committed then response lost, exact retry 1440 (6.8s)
+
+  4 passed (46.3s)
+
+# код выхода 0 · 48 с

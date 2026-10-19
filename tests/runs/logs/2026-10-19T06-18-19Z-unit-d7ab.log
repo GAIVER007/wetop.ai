@@ -1,0 +1,30 @@
+# Модульные (unit) · 19.10.2026 11:18 Алматы · srv1719674
+# коммит ad8e85d (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T06-18-19Z-unit-d7ab.json' 'apps/web/src/app/beauty/appointment-money-operation.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |unit| apps/web/src/app/beauty/appointment-money-operation.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/appointment-money-operation.test.ts [ apps/web/src/app/beauty/appointment-money-operation.test.ts ]
+Error: Cannot find module './appointment-money-operation' imported from /srv/hermes/workspace/wetop-all-release-20261017/apps/web/src/app/beauty/appointment-money-operation.test.ts
+ ❯ apps/web/src/app/beauty/appointment-money-operation.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { AppointmentMoneyOperation } from './appointment-money-operati…
+       | ^
+      3|
+      4| const scope = JSON.stringify({ organizationId: 'org', businessId: 'bus…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  06:18:20
+   Duration  191ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-10-19T06-18-19Z-unit-d7ab.json
+
+# код выхода 1 · 1 с

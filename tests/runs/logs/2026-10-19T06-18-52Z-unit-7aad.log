@@ -1,0 +1,46 @@
+# Модульные (unit) · 19.10.2026 11:18 Алматы · srv1719674
+# коммит ad8e85d (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T06-18-52Z-unit-7aad.json' 'apps/web/src/app/beauty/appointment-money-operation.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |unit| apps/web/src/app/beauty/appointment-money-operation.test.ts (10 tests | 1 failed) 29ms
+   ❯ Appointment money unknown-outcome lifecycle (10)
+     ✓ retries a partial payment using the identical frozen payload/key 4ms
+     ✓ retains the exact trimmed refund reason and never persists form fields 1ms
+     ✓ blocks synchronous duplicate clicks and cross-kind submissions 0ms
+     ✓ does not erase a prior unknown after a rejected retry 0ms
+     ✓ treats malformed/no-confirmation and legacy errors as unknown 1ms
+     ✓ clears matching marker only on confirmed success, then permits a new installment 0ms
+     ✓ reopening an unresolved operation blocks replacement input and replay 0ms
+     × isolates scope and appointment without deleting the old unresolved marker 9ms
+     ✓ fails closed on missing scope, invalid scope and inaccessible storage 11ms
+     ✓ a fresh local rejection is safe to clear, but a foreign marker must never be removed 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/appointment-money-operation.test.ts > Appointment money unknown-outcome lifecycle > isolates scope and appointment without deleting the old unresolved marker
+AssertionError: expected 'blocked' to be 'idle' // Object.is equality
+
+Expected: "idle"
+Received: "blocked"
+
+ ❯ apps/web/src/app/beauty/appointment-money-operation.test.ts:63:74
+     61|     const f = fixture(); f.open().begin(pay);
+     62|     expect(f.open(scope, 'another').status).toBe('idle');
+     63|     expect(f.open(scope.replace('location', 'another-location')).statu…
+       |                                                                          ^
+     64|     expect(f.open().status).toBe('blocked'); expect(f.data.size).toBe(…
+     65|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  06:18:53
+   Duration  233ms (transform 51%, tests 31%, import 14%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-19T06-18-52Z-unit-7aad.json
+
+# код выхода 1 · 1 с

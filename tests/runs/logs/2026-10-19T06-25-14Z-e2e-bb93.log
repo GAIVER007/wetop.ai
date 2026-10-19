@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 19.10.2026 11:25 Алматы · srv1719674
+# коммит ad8e85d (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-money-component/playwright.config.ts' '--workers=1'
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/beauty-money-component/money-recovery.spec.ts:96:3 › real Chromium 390, explicit adapters › lost partial-payment response retries identical command; same-tick clicks dispatch once (740ms)
+  ✓   2 tests/beauty-money-component/money-recovery.spec.ts:110:3 › real Chromium 390, explicit adapters › lost refund response retains reason in memory only and exact retry key (649ms)
+  ✓   3 tests/beauty-money-component/money-recovery.spec.ts:125:3 › real Chromium 390, explicit adapters › unresolved remount/reload blocks replacement operation without storing payload (654ms)
+  ✓   4 tests/beauty-money-component/money-recovery.spec.ts:138:3 › real Chromium 390, explicit adapters › unavailable storage prevents every command (420ms)
+  ✓   5 tests/beauty-money-component/money-recovery.spec.ts:144:3 › real Chromium 390, explicit adapters › scope switch ignores late completion and does not erase another scope marker (560ms)
+  ✓   6 tests/beauty-money-component/money-recovery.spec.ts:96:3 › real Chromium 1440, explicit adapters › lost partial-payment response retries identical command; same-tick clicks dispatch once (551ms)
+  ✓   7 tests/beauty-money-component/money-recovery.spec.ts:110:3 › real Chromium 1440, explicit adapters › lost refund response retains reason in memory only and exact retry key (645ms)
+  ✓   8 tests/beauty-money-component/money-recovery.spec.ts:125:3 › real Chromium 1440, explicit adapters › unresolved remount/reload blocks replacement operation without storing payload (714ms)
+  ✓   9 tests/beauty-money-component/money-recovery.spec.ts:138:3 › real Chromium 1440, explicit adapters › unavailable storage prevents every command (420ms)
+  ✓  10 tests/beauty-money-component/money-recovery.spec.ts:144:3 › real Chromium 1440, explicit adapters › scope switch ignores late completion and does not erase another scope marker (657ms)
+
+  10 passed (7.3s)
+
+# код выхода 0 · 9 с

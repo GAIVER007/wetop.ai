@@ -1,0 +1,97 @@
+# Модульные (unit) · 19.10.2026 11:20 Алматы · srv1719674
+# коммит ad8e85d (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T06-20-49Z-unit-a387.json' 'apps/web/src/app/beauty/appointment-card-payment-retry.test.ts' 'apps/web/src/app/beauty/journal-payment-actions.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |unit| apps/web/src/app/beauty/appointment-card-payment-retry.test.ts (4 tests | 4 failed) 36ms
+   ❯ real AppointmentCard handlers with deterministic hook harness (not browser) (4)
+     × retains partial-payment identity after thrown response and explicitly retries exact payload 16ms
+     × freezes trimmed refund reason on returned legacy error and retries without new identity 7ms
+     × reopened unresolved form cannot send a replacement operation 6ms
+     × unmounted card ignores late completion callback but retains unknown marker 4ms
+ ✓ |unit| apps/web/src/app/beauty/journal-payment-actions.test.ts (20 tests) 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/appointment-card-payment-retry.test.ts > real AppointmentCard handlers with deterministic hook harness (not browser) > retains partial-payment identity after thrown response and explicitly retries exact payload
+Error: Lost response
+ ❯ apps/web/src/app/beauty/appointment-card-payment-retry.test.ts:51:33
+     49| describe('real AppointmentCard handlers with deterministic hook harnes…
+     50|   it('retains partial-payment identity after thrown response and expli…
+     51|     h.pay.mockRejectedValueOnce(new Error('Lost response')).mockResolv…
+       |                                 ^
+     52|     let tree = render(); tree = render();
+     53|     (input(tree, 'Сумма, ₸').onChange as (e: unknown) => void)({ targe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/appointment-card-payment-retry.test.ts > real AppointmentCard handlers with deterministic hook harness (not browser) > freezes trimmed refund reason on returned legacy error and retries without new identity
+AssertionError: expected undefined to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ apps/web/src/app/beauty/appointment-card-payment-retry.test.ts:66:45
+     64|     (input(tree, 'Причина').onChange as (e: unknown) => void)({ target…
+     65|     (button(tree, 'Оформить возврат').onClick as () => void)(); await …
+     66|     expect(input(tree, 'Причина').disabled).toBe(true);
+       |                                             ^
+     67|     (button(tree, 'Повторить ту же операцию').onClick as () => void)()…
+     68|     expect(h.refund.mock.calls[1]).toEqual(h.refund.mock.calls[0]); ex…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/appointment-card-payment-retry.test.ts > real AppointmentCard handlers with deterministic hook harness (not browser) > reopened unresolved form cannot send a replacement operation
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/web/src/app/beauty/appointment-card-payment-retry.test.ts:74:87
+     72|     (button(tree, 'Принять оплату').onClick as () => void)(); await se…
+     73|     h.cleanups.forEach((cleanup) => cleanup()); h.cleanups = []; h.slo…
+     74|     tree = render(); tree = render(); expect(button(tree, 'Принять опл…
+       |                                                                                       ^
+     75|     expect(text(tree)).toContain('Сверьте историю и кассу'); expect(h.…
+     76|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/appointment-card-payment-retry.test.ts > real AppointmentCard handlers with deterministic hook harness (not browser) > unmounted card ignores late completion callback but retains unknown marker
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array []
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/app/beauty/appointment-card-payment-retry.test.ts:81:22
+     79|     let tree = render(); tree = render(); (button(tree, 'Принять оплат…
+     80|     h.cleanups.forEach((cleanup) => cleanup()); resolve({ message: 'Оп…
+     81|     expect(done).not.toHaveBeenCalled();
+       |                      ^
+     82|   });
+     83| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 20 passed (24)
+   Start at  06:20:50
+   Duration  1.91s (transform 75%, import 22%, tests 3%)
+
+JSON report written to /tmp/pms-test-2026-10-19T06-20-49Z-unit-a387.json
+
+# код выхода 1 · 3 с

@@ -1,0 +1,10 @@
+**No source-level safety/logic blockers found in the six reviewed files versus `ad8e85da6`.** Read-only review only; no edits, index changes, DB access, process management, or tests executed.
+
+- **Request identity is retained safely:** synchronous `begin`/`retry` state changes prevent duplicate dispatch; payload is frozen, including trimmed refund reason, and retries reuse the same request/key (`appointment-money-operation.ts:40–68`). Unknown, legacy-error, and malformed results retain the request; a rejected retry cannot erase a previous unknown (`:71–86`).
+- **Storage is privacy-limited and fail-closed:** only scope/appointment IDs in the storage key and an opaque operation ID as its value; no amount, method, or reason persisted (`appointment-money-operation.ts:29–34,45–54`). Unresolved remounts block replacement payments/refunds rather than reconstructing unsafe replay input.
+- **Action boundary is conservative:** only failed local scope preflight returns `rejected`, before mutation calls. Post-dispatch exceptions—including 4xx—and missing matching appointment confirmation return `unknown`; cache revalidation failure does not downgrade confirmed success (`journal-actions.ts:148–211`). Backend mutation payload/API schema remains unchanged; no new financial rules introduced.
+- **React isolation looks sound by inspection:** scope/appointment-keyed inner body creates separate refs/state; old completion settles its original operation but cannot update the unmounted card or invoke its completion callback (`appointment-card.tsx:25–26,61–95`).
+
+**Verification gap—not a source blocker:** `appointment-card-payment-retry.test.ts:77–81` asserts suppression of `onDone`, but despite its title resolves a **confirmed** response and does not assert marker retention. The mocked-hook harness also does not establish actual keyed React lifecycle/context-switch behavior (`:24–30`). Parent still needs **browser lifecycle/context-switch proof and real DB commit/replay proof**. Reported RED/GREEN results were supplied context, not independently rerun.
+
+**Files created/modified:** none.

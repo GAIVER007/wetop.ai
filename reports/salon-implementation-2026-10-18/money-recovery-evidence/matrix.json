@@ -1,0 +1,231 @@
+{
+  "baseline": "ad8e85da6528c51215a0628690031598868dc246",
+  "sourceSha256": {
+    "apps/web/src/app/beauty/appointment-money-operation.ts": "4eaf8f022bdc7e87ac4e0511ab5f849f6bebbd31f7642319ea5a2d5326f63a50",
+    "apps/web/src/app/beauty/appointment-money-operation.test.ts": "fa6f755fe05bcba6ac09e12a9375ffe9b4e0726cc25337049af3a66b7f46de26",
+    "apps/web/src/app/beauty/appointment-card.tsx": "7e789c3c97ba0d2015e82c6cc59489df76730a8e0dc2e36d9a39ebd731c05e50",
+    "apps/web/src/app/beauty/appointment-card-payment-retry.test.ts": "1613fabf0a9a1d99de053d40ad6ea9b10fec05a340dda39751c7b78cf72c7d0a",
+    "apps/web/src/app/beauty/journal-actions.ts": "cc377b1a1f26be1c13a470ada3f818863e17d1dcee3313f69945768ece4ff105",
+    "apps/web/src/app/beauty/journal-payment-actions.test.ts": "57fb67bf50e48c16e542ac4ebeea80d8bde634e4cb106cddc2583995dddf975c",
+    "tests/beauty-money-component/playwright.config.ts": "b2b43c828bc2c6904c4b0d348d25279b2737000f8cb498ca8e70ff6974e0c243",
+    "tests/beauty-money-component/money-recovery.spec.ts": "efa1cf18a3f243b30f2e3d3bb8a83a50c6f829207a236cc0bc48908ed9a1bc99",
+    "tests/beauty-ui/playwright.money.config.ts": "9a3191619f4014c6dc4991db3a5c457e69d9b6a65a1c73599cc7d84e1d7ce57a",
+    "tests/beauty-ui/money-recovery-real.spec.ts": "93b4799b7b7104eb42e57ade13f3c14684e9fc57c1b2656104f8a39aecb85985"
+  },
+  "runs": [
+    {
+      "id": "2026-10-19T06-18-19Z-unit-d7ab",
+      "suite": "unit",
+      "startedAt": "2026-10-19T06:18:19.110Z",
+      "status": "failed",
+      "exitCode": 1,
+      "counts": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-18-19Z-unit-d7ab.log",
+      "note": "RED: money retry lifecycle regression before implementation; preserve opaque operation identity after unknown outcome"
+    },
+    {
+      "id": "2026-10-19T06-18-52Z-unit-7aad",
+      "suite": "unit",
+      "startedAt": "2026-10-19T06:18:52.397Z",
+      "status": "failed",
+      "exitCode": 1,
+      "counts": {
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-18-52Z-unit-7aad.log",
+      "note": "Money lifecycle: exact immutable retry, same-tick lock, unknown errors, remount/scope isolation, opaque persistence and fail-closed storage"
+    },
+    {
+      "id": "2026-10-19T06-19-24Z-unit-c91e",
+      "suite": "unit",
+      "startedAt": "2026-10-19T06:19:24.684Z",
+      "status": "failed",
+      "exitCode": 1,
+      "counts": {
+        "total": 30,
+        "passed": 12,
+        "failed": 18,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-19-24Z-unit-c91e.log",
+      "note": "RED actual existing actions: no-scope preflight, unknown post-commit failures and missing confirmation; cache failure must not change confirmed mutation into failed"
+    },
+    {
+      "id": "2026-10-19T06-20-49Z-unit-a387",
+      "suite": "unit",
+      "startedAt": "2026-10-19T06:20:49.849Z",
+      "status": "failed",
+      "exitCode": 1,
+      "counts": {
+        "total": 24,
+        "passed": 20,
+        "failed": 4,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-20-49Z-unit-a387.log",
+      "note": "RED real card handler regression before wiring: same-tick duplicate, dropped action response, identical retry, unresolved remount and late callback; not a browser proof"
+    },
+    {
+      "id": "2026-10-19T06-21-26Z-unit-1fef",
+      "suite": "unit",
+      "startedAt": "2026-10-19T06:21:26.570Z",
+      "status": "passed",
+      "exitCode": 0,
+      "counts": {
+        "total": 39,
+        "passed": 39,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-21-26Z-unit-1fef.log",
+      "note": "GREEN candidate: real action outcome boundary and card handlers; opaque unresolved marker; immutable same-key payment/refund retry; not browser/DB/deploy proof"
+    },
+    {
+      "id": "2026-10-19T06-21-43Z-typecheck-08e7",
+      "suite": "typecheck",
+      "startedAt": "2026-10-19T06:21:43.756Z",
+      "status": "passed",
+      "exitCode": 0,
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-21-43Z-typecheck-08e7.log",
+      "note": "Money-recovery candidate: full root/API/web types after39 targeted GREEN; no production schema change"
+    },
+    {
+      "id": "2026-10-19T06-23-07Z-lint-3b3b",
+      "suite": "lint",
+      "startedAt": "2026-10-19T06:23:07.998Z",
+      "status": "passed",
+      "exitCode": 0,
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-23-07Z-lint-3b3b.log",
+      "note": "Full lint after payment retry lifecycle, real action boundary and39 targeted GREEN"
+    },
+    {
+      "id": "2026-10-19T06-25-14Z-e2e-bb93",
+      "suite": "e2e",
+      "startedAt": "2026-10-19T06:25:14.323Z",
+      "status": "passed",
+      "exitCode": 0,
+      "counts": {
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-25-14Z-e2e-bb93.log",
+      "note": "Actual Chromium390/1440 renders production card/helper with explicit HTTP/action/UI adapters. Forward command then abort reply; assert identical retry and one simulated ledger entry. Not real API/DB/Next or visual proof."
+    },
+    {
+      "id": "2026-10-19T06-26-07Z-integration-44a5",
+      "suite": "integration",
+      "startedAt": "2026-10-19T06:26:07.406Z",
+      "status": "passed",
+      "exitCode": 0,
+      "counts": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-26-07Z-integration-44a5.log",
+      "note": "Own verified loopback55983 PGDATA only: existing real payment/refund replay and cash-entry count/amount guards unchanged; independent of browser HTTP adapters"
+    },
+    {
+      "id": "2026-10-19T06-27-49Z-e2e-6838",
+      "suite": "e2e",
+      "startedAt": "2026-10-19T06:27:49.429Z",
+      "status": "passed",
+      "exitCode": 0,
+      "counts": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-27-49Z-e2e-6838.log",
+      "note": "REAL Next action→actual Beauty guards/service→owned loopback55983 DB. Forward committed payment/refund then abort browser response; retry and assert same immutable cash-operation IDs/amounts/reason after reload.390dark/1440light, no production."
+    },
+    {
+      "id": "2026-10-19T06-29-37Z-unit-f4e3",
+      "suite": "unit",
+      "startedAt": "2026-10-19T06:29:37.603Z",
+      "status": "passed",
+      "exitCode": 0,
+      "counts": {
+        "total": 6327,
+        "passed": 6320,
+        "failed": 0,
+        "skipped": 7,
+        "flaky": 0
+      },
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-29-37Z-unit-f4e3.log",
+      "note": "Full unit after actual money-recovery UI/action fix; RED18 actions +4 handlers→target39; real Chromium10 and actual Next/API/DB4 plus DB6 GREEN; source frozen"
+    },
+    {
+      "id": "2026-10-19T06-36-06Z-typecheck-8331",
+      "suite": "typecheck",
+      "startedAt": "2026-10-19T06:36:06.230Z",
+      "status": "interrupted",
+      "exitCode": null,
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-36-06Z-typecheck-8331.log",
+      "note": "Final root/API/web types including real-money browser specs"
+    },
+    {
+      "id": "2026-10-19T06-36-52Z-typecheck-9f30",
+      "suite": "typecheck",
+      "startedAt": "2026-10-19T06:36:52.215Z",
+      "status": "passed",
+      "exitCode": 0,
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-36-52Z-typecheck-9f30.log",
+      "note": "Final types rerun ONLY interrupted stage after tool420s ceiling. Full unit f4e3 already6320passed0failed7existing skips, no source changes. Includes real-money browser specs."
+    },
+    {
+      "id": "2026-10-19T06-38-01Z-lint-1984",
+      "suite": "lint",
+      "startedAt": "2026-10-19T06:38:01.763Z",
+      "status": "passed",
+      "exitCode": 0,
+      "counts": null,
+      "codeChangedDuringRun": false,
+      "log": "tests/runs/logs/2026-10-19T06-38-01Z-lint-1984.log",
+      "note": "Final full lint money-recovery after full unit6320/0 and actual Next/API/DB4, no production"
+    }
+  ],
+  "limitations": [
+    "Component browser uses HTTP/action/UI adapters; actual Next/API/DB is separate6838, not conflated",
+    "Original candidate CI39207742150 has2 actual portal schedule conflict failures; not GREEN",
+    "No production writes/deploy/backup claim",
+    "Session-tab recovery only; unresolved remount requires reconciliation, no unverified marker-clear escape hatch"
+  ]
+}

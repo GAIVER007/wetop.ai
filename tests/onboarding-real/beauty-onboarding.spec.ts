@@ -110,14 +110,18 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
   dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Тестовый Мастер');
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await dialog.getByRole('tab', { name: 'Услуги', exact: true }).click();
-  await dialog.getByLabel('Тестовая стрижка', { exact: true }).check();
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const manager = page.getByTestId('employee-manager');
+  await manager.getByRole('tab', { name: 'Услуги', exact: true }).click();
+  await manager.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  const skills = page.getByTestId('portal-services-form');
+  await skills.getByRole('checkbox', { name: /^Тестовая стрижка/ }).check();
   await page.screenshot({path:`${evidence}/employee-before-services-save.png`,fullPage:true});
-  await test.info().attach('dialog geometry',{body:JSON.stringify(await page.locator('dialog').evaluateAll(elements=>elements.map(e=>({open:(e as HTMLDialogElement).open,modal:e.matches(':modal'),rect:e.getBoundingClientRect().toJSON(),title:e.querySelector('h2')?.textContent})))),contentType:'application/json'});
-  await dialog.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
-  await expect(dialog.getByRole('status')).toContainText('Услуги назначены');
-  await expect(page.getByRole('listitem').filter({hasText:'Тестовый Мастер'})).toBeVisible();
-  await page.keyboard.press('Escape');
+  await skills.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await expect(skills.getByRole('status')).toContainText('Сохранено на сервере');
+  await goToEmployeesList(page);
+  await expect(page.getByRole('listitem').filter({hasText:'Тестовый Мастер'})).toContainText('Тестовая стрижка');
   await page.getByRole('link', { name: 'Вернуться к настройке салона', exact: true }).click();
   await expect(
     page.getByText('Выполнено 3 из 4 обязательных шагов', { exact: true }),
@@ -213,6 +217,14 @@ async function apiHeaders(page: Page) {
   if (!session || !scope) throw new Error('Synthetic authenticated context missing');
   return { 'x-wetop-session': session, 'x-wetop-scope': decodeURIComponent(scope) };
 }
+async function goToEmployeesList(page: Page) {
+  const personnel = page.getByRole('button', { name: 'Персонал', exact: true });
+  if (!(await personnel.isVisible())) await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+  await personnel.click();
+  await page.getByRole('link', { name: 'Специалисты', exact: true }).click();
+  await expect(page).toHaveURL(/\/employees$/);
+  await expect(page.getByTestId('employee-manager')).toHaveCount(0);
+}
 async function profileUI(page: Page) {
   await page.getByRole('button', { name: 'Настроить салон', exact: true }).click();
   await page.getByRole('button', { name: 'Сохранить и продолжить', exact: true }).click();
@@ -292,22 +304,32 @@ test('O07c: a closed employee card leaves the router on the list, so later actio
   let dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Закрытый');
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await expect(page).toHaveURL(/employee=/);
-  await expect(dialog.getByRole('tab', { name: 'Услуги', exact: true })).toBeVisible();
-  await page.keyboard.press('Escape');
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const firstId = new URL(page.url()).pathname.split('/')[2]!;
+  await expect(page.getByTestId('employee-manager')).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await expect(page).not.toHaveURL(/employee=/);
+  await goToEmployeesList(page);
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Следующий');
   const action = page.waitForRequest((r) => r.method() === 'POST' && Boolean(r.headers()['next-action']));
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
   // действие уходит на тот адрес, который маршрутизатор считает текущим: это список, а не закрытая карточка
-  expect(new URL((await action).url()).searchParams.get('employee')).toBeNull();
+  const actionUrl = new URL((await action).url());
+  expect(actionUrl.pathname).toBe('/employees');
+  expect(actionUrl.searchParams.get('employee')).toBeNull();
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const secondId = new URL(page.url()).pathname.split('/')[2]!;
+  expect(secondId).not.toBe(firstId);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   const headers = await apiHeaders(page);
   await expect
     .poll(async () => (await (await page.request.get(`${api}/beauty/employees`, { headers })).json()).items.length)
     .toBe(2);
+  const rows = (await (await page.request.get(`${api}/beauty/employees`, { headers })).json()).items;
+  expect(rows.map((row: { id: string }) => row.id).sort()).toEqual([firstId, secondId].sort());
+  await page.reload();
+  await expect(page).toHaveURL(new RegExp(`/employees/${secondId}/profile$`));
 });
 
 test('O07/O08: partial assignment and a lost create response recover one Employee ID', async ({
@@ -342,21 +364,28 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   let dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Частичный');
   await dialog.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await dialog.getByRole('tab',{name:'Услуги',exact:true}).click();
-  const choice = dialog.getByLabel('Услуга повтора', { exact: true });
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const manager = page.getByTestId('employee-manager');
+  await manager.getByRole('tab', { name: 'Услуги', exact: true }).click();
+  await manager.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  const skills = page.getByTestId('portal-services-form');
+  const choice = skills.getByRole('checkbox', { name: /^Услуга повтора/ });
   await choice.check();
   await choice.evaluate((node, value) => {
     (node as HTMLInputElement).value = value;
   }, randomUUID());
-  await dialog.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
-  await expect(dialog.getByRole('alert')).toContainText('чужая');
-  await expect(dialog.getByText('Мастер Частичный',{exact:true})).toBeVisible();
+  await skills.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await expect(skills.getByRole('alert')).toContainText('Service outside business catalog');
+  await expect(manager.getByRole('heading', { name: 'Мастер Частичный', exact: true })).toBeVisible();
   await expect(choice).toBeChecked();
   let saved = await (await page.request.get(`${api}/beauty/employees`, { headers })).json();
   expect(saved.items).toHaveLength(1);
   const firstId = saved.items[0].id;
+  expect(saved.items[0].serviceIds).toEqual([]);
   await page.screenshot({ path: `${evidence}/partial-create-preserved.png`, fullPage: true });
-  await dialog.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await choice.evaluate((node, value) => { (node as HTMLInputElement).value = value; }, service.id);
+  await skills.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
   await expect
     .poll(
       async () =>
@@ -368,8 +397,8 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   expect(saved.items).toHaveLength(1);
   expect(saved.items[0].id).toBe(firstId);
   // Закрывать после подтверждения на экране: до него форма честно считает изменения несохранёнными
-  await expect(dialog.getByRole('status')).toContainText('Услуги назначены');
-  await page.keyboard.press('Escape');
+  await expect(skills.getByRole('status')).toContainText('Сохранено на сервере');
+  await goToEmployeesList(page);
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Потерянный Ответ');
@@ -398,11 +427,15 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   const lostId = saved.items.find(
     (row: { name: string }) => row.name === 'Мастер Потерянный Ответ',
   ).id;
+  page.once('dialog', async (prompt) => prompt.accept());
   await page.reload();
-  await expect(page).toHaveURL(new RegExp('employee='+lostId));
-  await expect(page.getByRole('dialog').getByLabel('Имя мастера',{exact:true})).toHaveValue('Мастер Потерянный Ответ');
-  await page.getByRole('dialog').getByRole('tab',{name:'Услуги',exact:true}).click();
-  await page.getByRole('dialog').getByRole('button', {name:'Сохранить услуги',exact:true}).click();
+  await expect(page).toHaveURL(new RegExp(`/employees/${lostId}/profile$`));
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByTestId('portal-profile-form').getByLabel('Имя в карточке', { exact: true })).toHaveValue('Мастер Потерянный Ответ');
+  await page.getByTestId('employee-manager').getByRole('tab', { name: 'Услуги', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  await page.getByTestId('portal-services-form').getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await expect(page.getByTestId('portal-services-form').getByRole('status')).toContainText('Сохранено на сервере');
   await page.reload();
   expect(
     (await (await page.request.get(`${api}/beauty/employees`, { headers })).json()).items,

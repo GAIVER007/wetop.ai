@@ -1,0 +1,68 @@
+# Интеграционные (integration) · 19.10.2026 11:42 Алматы · srv1719674
+# коммит b9d61d8 (feat/salon-draft-implementation-20261018)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T06-42-06Z-integration-1485.json' 'tests/integration/employee-portal-schedule-conflicts.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |integration| tests/integration/employee-portal-schedule-conflicts.test.ts (4 tests | 2 failed) 1799ms
+   ❯ portal schedule warnings and anonymous cache revocation (4)
+     × shows a booked own appointment outside a replacement week, not only the selected date 192ms
+     × checks own absence across assigned branches in each appointment timezone and clears on delete 139ms
+     ✓ bounds the upcoming read and marks incomplete checks rather than claiming all-clear 691ms
+     ✓ serves public JSON and unpublish 404 with explicit no-store 139ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/employee-portal-schedule-conflicts.test.ts > portal schedule warnings and anonymous cache revocation > shows a booked own appointment outside a replacement week, not only the selected date
+AssertionError: expected [ Array(1) ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+-   "9eca1e1a-5fd3-4d74-967b-62d8a135886c",
++   "9dab0c01-0ca7-46cd-a3f4-2ad7ad481472",
+  ]
+
+ ❯ tests/integration/employee-portal-schedule-conflicts.test.ts:48:56
+     46|     expect(dto.scheduleConflicts.items).toEqual([]);
+     47|     dto = await owner(() => service.mutate(f.employeeA, 'week', { inte…
+     48|     expect(dto.scheduleConflicts.items.map(a => a.id)).toEqual([own]);
+       |                                                        ^
+     49|     expect(dto.scheduleConflicts.items[0]).toMatchObject({ reason: 'OU…
+     50|     expect(dto.scheduleConflicts.items.map(a => a.id)).not.toContain(o…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/employee-portal-schedule-conflicts.test.ts > portal schedule warnings and anonymous cache revocation > checks own absence across assigned branches in each appointment timezone and clears on delete
+AssertionError: expected [ …(2) ] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "9eca1e1a-5fd3-4d74-967b-62d8a135886c",
+-   "e65b7e5f-3244-4355-9517-edc08cb02d73",
++   "9dab0c01-0ca7-46cd-a3f4-2ad7ad481472",
++   "f981b605-1d03-4575-9149-566e4b2ef085",
+  ]
+
+ ❯ tests/integration/employee-portal-schedule-conflicts.test.ts:61:56
+     59|     expect(dto.scheduleConflicts.items).toEqual([]);
+     60|     dto = await owner(() => service.mutate(f.employeeA, 'time-off', { …
+     61|     expect(dto.scheduleConflicts.items.map(a => a.id)).toEqual([own, b…
+       |                                                        ^
+     62|     expect(dto.scheduleConflicts.items.every(a => a.reason === 'TIME_O…
+     63|     expect(dto.scheduleConflicts.items[1]).toMatchObject({ date: '2035…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  06:42:06
+   Duration  5.50s (tests 46%, transform 33%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-19T06-42-06Z-integration-1485.json
+
+# код выхода 1 · 6 с

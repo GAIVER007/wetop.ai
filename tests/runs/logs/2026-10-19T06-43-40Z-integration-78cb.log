@@ -1,0 +1,32 @@
+# Интеграционные (integration) · 19.10.2026 11:43 Алматы · srv1719674
+# коммит b9d61d8 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T06-43-40Z-integration-78cb.json' 'tests/integration/employee-portal-public-booking-persistence.test.ts' 'tests/integration/employee-portal.test.ts' 'tests/integration/employee-portal-payroll-scope.test.ts' 'tests/integration/employee-portal-schedule-conflicts.test.ts' 'tests/integration/employee-portal-booking-link.test.ts' 'tests/integration/employee-portal-rls.test.ts' 'tests/integration/employee-portal-media-retry.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:585243) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/employee-portal-public-booking-persistence.test.ts (7 tests) 2246ms
+   ✓ public specialist → ordinary Beauty booking → same persisted Employee/calendar (7)
+     ✓ persists the exact linked employee and shows the same appointment in the ordinary branch calendar; replay creates no duplicate 941ms
+ ✓ |integration| tests/integration/employee-portal.test.ts (6 tests) 1296ms
+ ✓ |integration| tests/integration/employee-portal-schedule-conflicts.test.ts (4 tests) 1399ms
+   ✓ portal schedule warnings and anonymous cache revocation (4)
+     ✓ bounds the upcoming read and marks incomplete checks rather than claiming all-clear 501ms
+ ✓ |integration| tests/integration/employee-portal-payroll-scope.test.ts (6 tests) 953ms
+ ✓ |integration| tests/integration/employee-portal-booking-link.test.ts (5 tests) 1138ms
+   ✓ published specialist hooks only into its existing public Beauty site (5)
+     ✓ returns the actual primary-domain form URL, preserving the exact master 534ms
+ ✓ |integration| tests/integration/employee-portal-rls.test.ts (10 tests) 558ms
+ ✓ |integration| tests/integration/employee-portal-media-retry.test.ts (5 tests) 1343ms
+   ✓ processed employee image retries are employee-scoped and durable (5)
+     ✓ repeating a portfolio upload returns one work, one media and the existing bytes 593ms
+
+ Test Files  7 passed (7)
+      Tests  43 passed (43)
+   Start at  06:43:41
+   Duration  17.37s (tests 60%, import 28%, transform 12%)
+
+JSON report written to /tmp/pms-test-2026-10-19T06-43-40Z-integration-78cb.json
+
+# код выхода 0 · 18 с

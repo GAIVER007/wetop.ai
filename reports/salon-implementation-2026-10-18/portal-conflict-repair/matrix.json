@@ -1,0 +1,70 @@
+{
+  "sourceSha256": {
+    "tests/integration/employee-portal-schedule-conflicts.test.ts": "b540354dde86c8bc58a8aef3496ecd448f12efae6ce905d5763c11df1eb3ada3"
+  },
+  "runs": [
+    {
+      "id": "2026-10-19T06-42-06Z-integration-1485",
+      "status": "failed",
+      "exitCode": 1,
+      "codeChangedDuringRun": false,
+      "counts": {
+        "total": 4,
+        "passed": 2,
+        "failed": 2,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "log": "tests/runs/logs/2026-10-19T06-42-06Z-integration-1485.log",
+      "note": "RED exact current CI portal conflict ID mismatch on same owned cluster approved55603; no fixture/production guard changes"
+    },
+    {
+      "id": "2026-10-19T06-43-59Z-typecheck-cf9f",
+      "status": "passed",
+      "exitCode": 0,
+      "codeChangedDuringRun": false,
+      "counts": null,
+      "log": "tests/runs/logs/2026-10-19T06-43-59Z-typecheck-cf9f.log",
+      "note": "Final types after integration-only portal canonical-line fixture correction; production/unit source unchanged since6320GREEN"
+    },
+    {
+      "id": "2026-10-19T06-43-40Z-integration-78cb",
+      "status": "passed",
+      "exitCode": 0,
+      "codeChangedDuringRun": false,
+      "counts": {
+        "total": 43,
+        "passed": 43,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "log": "tests/runs/logs/2026-10-19T06-43-40Z-integration-78cb.log",
+      "note": "Exact7-file portal CI stage after2 entity-ID fixture failures repaired; same verified owned cluster on original approved55603; no test/authorization/schema guard changes"
+    },
+    {
+      "id": "2026-10-19T06-43-04Z-integration-19e1",
+      "status": "passed",
+      "exitCode": 0,
+      "codeChangedDuringRun": false,
+      "counts": {
+        "total": 31,
+        "passed": 31,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "log": "tests/runs/logs/2026-10-19T06-43-04Z-integration-19e1.log",
+      "note": "After reproduced RED1485: preserve canonical per-service line identity, derive fixture IDs by validated FK/position/master/service/times; strengthen no-mutation snapshot with lines. Real second-master/multi-line suite retained, no production code change."
+    },
+    {
+      "id": "2026-10-19T06-45-05Z-lint-0a3b",
+      "status": "passed",
+      "exitCode": 0,
+      "codeChangedDuringRun": false,
+      "counts": null,
+      "log": "tests/runs/logs/2026-10-19T06-45-05Z-lint-0a3b.log",
+      "note": "Final lint after integration-only portal fixture repair"
+    }
+  ]
+}

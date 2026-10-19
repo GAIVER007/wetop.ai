@@ -1,0 +1,24 @@
+# Интеграционные (integration) · 19.10.2026 11:43 Алматы · srv1719674
+# коммит b9d61d8 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T06-43-04Z-integration-19e1.json' 'tests/integration/employee-portal-schedule-conflicts.test.ts' 'tests/integration/beauty-appointment-lines.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |integration| tests/integration/employee-portal-schedule-conflicts.test.ts (4 tests) 1491ms
+   ✓ portal schedule warnings and anonymous cache revocation (4)
+     ✓ bounds the upcoming read and marks incomplete checks rather than claiming all-clear 579ms
+(node:584218) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-lines.test.ts (27 tests) 3645ms
+   ✓ Beauty: строки услуг записи и совместимость старых writers (27)
+     ✓ хранит один отзыв мастеру за DONE-визит и показывает только отзывы выбранного мастера 445ms
+     ✓ сохраняет техкарту по revision, считает FIFO и списывает материалы только при первом DONE 353ms
+
+ Test Files  2 passed (2)
+      Tests  31 passed (31)
+   Start at  06:43:05
+   Duration  9.54s (tests 65%, transform 18%, import 16%)
+
+JSON report written to /tmp/pms-test-2026-10-19T06-43-04Z-integration-19e1.json
+
+# код выхода 0 · 11 с

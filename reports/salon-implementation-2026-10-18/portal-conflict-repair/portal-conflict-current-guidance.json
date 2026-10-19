@@ -1,0 +1,69 @@
+{
+  "scope": {
+    "repository": "/opt/data/workspace/wetop-all-release-20261017",
+    "candidate_as_supplied": "ad8e85da6",
+    "ci_run": "39207742150",
+    "db_job": "117916436581",
+    "log": "/opt/data/workspace/wetop-browser-readonly-check/salon-implementation/current-ad8e85da6-db-job117916436581.log:1631-1695",
+    "method": "Read-only source/log inspection. No database access, credentials access, process inspection, test execution, git/index operations, or repository writes.",
+    "excluded": "Parent's new reviewed/tested UI-money diff; this finding concerns the old candidate's portal schedule conflict identity assertions only."
+  },
+  "root_cause": {
+    "classification": "Appointment-envelope IDs retained in integration-test expectations after conflict reads moved to canonical appointment-line rows.",
+    "confidence": "High from the exact source data flow; no live DB verification performed.",
+    "explanation": "The test's appointment helper returns db.appointment.create(), and own/branch/other capture that envelope's id. Migration 133's AFTER INSERT legacy sync creates a canonical appointment_lines row with a separate gen_random_uuid(). EmployeePortalService.get queries appointmentLine, selects its id, and projects that line id directly to scheduleConflicts.items[].id. Thus the unequal UUIDs are the expected distinction between two entities, not stale random values across resets or evidence of selecting a different customer's appointment. The same received own-line UUID repeats in both logged failures, consistent with this mapping. Exact UUID-to-parent correspondence is inferred from source, not queried from the CI database.",
+    "observed_failures": [
+      {"test_line": 48, "expected_envelope_id": "8bda9602-96de-442a-b8be-33f19f5fbfa9", "received_line_id": "eddd2003-28c3-461a-82f3-720a6bc85577"},
+      {"test_line": 61, "expected_envelope_ids": ["8bda9602-96de-442a-b8be-33f19f5fbfa9", "f23f79ab-debb-4ea2-8754-1e073659d12a"], "received_line_ids": ["eddd2003-28c3-461a-82f3-720a6bc85577", "522cb76d-9aa2-4de1-aa09-351605bcfb2f"]}
+    ],
+    "contract_caveat": "PortalScheduleConflict.id is only typed as string; it has no explicit envelope-versus-line documentation. The present production query, line-specific service/time fields, per-line iteration, and React key all support line identity. The old test alone does not justify changing production id back to appointment-envelope identity."
+  },
+  "source_refs": [
+    {"path": "tests/integration/employee-portal-schedule-conflicts.test.ts:29-36", "evidence": "Creates ordinary appointment envelopes; own/branch/other are appointment IDs. own is also correctly used as a cash-operation appointmentId and must not be overwritten with a line ID."},
+    {"path": "tests/integration/employee-portal-schedule-conflicts.test.ts:43-67", "evidence": "Identity assertions at 48/61 compare line-projected DTO IDs with envelope IDs. Negative other check at 50 is also entity-mismatched and could pass vacuously; privacy, reason, timezone, revision, deletion, and nonmutation assertions must remain."},
+    {"path": "tests/integration/employee-portal-schedule-conflicts.test.ts:70-77", "evidence": "Existing 501-row case asserts bounded checkedCount 500 and truncated; retain line-based bounds."},
+    {"path": "tests/employee-portal-ui/fixture-support.ts:34-68,81-96", "evidence": "Fresh UUID-scoped synthetic tenant pair; both employees assigned to both branches and the synthetic service. Historical DONE fixture appointments end in the past, so they are not the upcoming warnings at issue."},
+    {"path": "packages/database/prisma/migrations/20261018000133_beauty_appointment_lines/migration.sql:35-65,89-95,140-172", "evidence": "Distinct line primary key and appointment_id FK; migration backfill and ordinary legacy inserts generate different line UUIDs. Legacy sync is bypassed only by the transaction-local canonical write flag."},
+    {"path": "apps/api/src/beauty/appointments.ts:350-356,375-400", "evidence": "Canonical creation stores first master/service on the envelope, an aggregate time span/price, and independent UUID line rows with their own master, service, times, and appointmentId. Envelope employeeId is not a safe ownership filter for all services."},
+    {"path": "apps/api/src/employee-portal/employee-portal.service.ts:231-245,257", "evidence": "Upcoming query filters line employeeId, parent tenant/location/status, and line endsAt; takes 501; evaluates each line's span in its parent branch timezone; DTO id is a.id (line ID)."},
+    {"path": "packages/domain/src/employee-portal/types.ts:36-40,64", "evidence": "Conflict DTO contains generic id, serviceName and span, without an explicit appointmentId or lineId field."},
+    {"path": "apps/web/src/components/employee-portal/cabinet.tsx:124-127", "evidence": "Warnings render one service/span per conflict and use a.id as the React list key. Replacing it with a shared envelope ID creates duplicate keys when two own services conflict."}
+  ],
+  "recommended_minimal_fix": {
+    "approach": "Correct the fixture's entity bookkeeping, not the observed UUID literals or canonical conflict query.",
+    "steps": [
+      "Keep own/branch/other as appointment envelope IDs, especially for the cash-operation FK and envelope snapshot assertions.",
+      "After creating each legacy single-service appointment, fetch its canonical line by appointmentId and position 0 (or use an included lines relation if the generated client exposes it). Assert exactly one line and verify its appointmentId, employeeId, serviceId, startsAt and endsAt match the created synthetic appointment. Capture separately named ownLineId/branchLineId/otherLineId, derived from these verified relations rather than order or arbitrary findFirst.",
+      "Retain exact ordered equality assertions at 48 and 61, now against [ownLineId] and [ownLineId, branchLineId]. Retain the other-master exclusion against otherLineId; the current envelope-ID exclusion does not actually prove line ownership isolation.",
+      "Retain every existing behavioral assertion: selected-date independence, outside-hours/TIME_OFF reasons, assigned branches and Honolulu local date, cancellation exclusion, privacy, revision conflict, delete-time-off clearing, cross-tenant denial, bounded/incomplete read, and no appointment/payment mutation.",
+      "Optionally document PortalScheduleConflict.id as the canonical appointment-line identity. No migration, query rewrite, payroll/money changes, or production DTO shape change is required for this minimal correction."
+    ],
+    "do_not": [
+      "Do not substitute CI UUID literals or merely weaken equality to item counts.",
+      "Do not rename own to a line ID while leaving it in restaurantCashOperation.appointmentId.",
+      "Do not return to db.appointment.findMany, parent employeeId, envelope span, first service, or positional first-line-only logic; these miss secondary masters/services or overreport another master's time.",
+      "Do not set DTO id to appointmentId without addressing duplicate conflicts/React keys and explicitly deciding the contract. Do not deduplicate by appointmentId and silently drop distinct conflicting service spans."
+    ]
+  },
+  "recommended_RED_regression": {
+    "existing_red": "The supplied exact CI already proves two old entity-identity expectations are red. Do not claim a newly added multi-line test was run or fails under the current query; it may already pass because the production query is line-based.",
+    "fixture": "On the parent's owned migrated test DB, use the real canonical appointment API/service path to create a synthetic multi-service visit with sequential nonoverlapping lines: first service assigned to employeeB, a later service assigned to employeeA, and a second employeeA service where useful. Create and assign a second distinct synthetic service to the required employees and branch. Capture envelope and persisted line IDs by parent relation and position; prove line IDs differ from the envelope. Avoid mutating only the legacy envelope or relying on a trigger-generated single line as evidence of multi-line support.",
+    "assertions": [
+      "For employeeA, a schedule boundary fitting its earlier service but excluding its later service returns exactly the conflicting own line, with that line's persisted ID, distinct service name, exact start/end and reason; no employeeB line is returned even when the envelope's first employee is B.",
+      "When both employeeA lines conflict, both distinct line IDs appear once in chronological order even though their appointmentId is shared. Parent-derived proof ties both to the intended visit; an unrelated master's line and a cancelled visit remain absent.",
+      "Keep the cross-branch absence case with Pacific/Honolulu: the UTC-next-day service must report local 2035-01-08 and clear after time-off deletion. Preserve exact expected line membership/order and immutable appointment/payment snapshots; include line snapshots as well if extending nonmutation coverage.",
+      "Retain the existing 501-candidate truncation test; bounds and checkedCount are canonical-line counts, not unique appointment-envelope counts."
+    ],
+    "RED_GREEN_evidence": "Parent should first retain the supplied failing CI as the current identity-mismatch baseline, then run the narrowly corrected integration test on its owned DB. For the added canonical multi-line guard, prove RED against a temporary parent-owned mutant that reads/filter/spans at envelope level (or changes projected ID to parent ID), then restore the actual line-based implementation and prove GREEN. Never call an unexecuted or already-green regression RED. No such run was performed by this read-only investigation."
+  },
+  "if_parent_requires_envelope_ID_backcompat": {
+    "status": "Alternative requiring an explicit DTO identity decision, not the minimal diagnosis-driven fix.",
+    "safe_shape": "Keep per-line evaluation and unique line identity. Prefer additive appointmentId with existing id remaining lineId, then assert envelope relationship via appointmentId alongside exact line membership. If id is explicitly required to stay the envelope ID for backward compatibility, add lineId and use lineId for rendering keys and line-level assertions; preserve repeated entries for multiple conflicting services rather than collapsing them. This touches DTO/projection/UI/mock fixtures and is broader than the test bookkeeping fix.",
+    "reason": "The existing generic string DTO does not establish that the old envelope-ID interpretation remains authoritative after the canonical multi-line change. Do not choose a broader contract change just to satisfy two stale expectations."
+  },
+  "verification_limits": [
+    "No test/DB/process commands were run under the explicit read-only delegation.",
+    "Only the provided CI excerpt and directly relevant fixture, migration, conflict query/DTO/UI consumer, and canonical appointment creation were inspected.",
+    "Only this external JSON artifact was written; no repository source or git index was modified."
+  ]
+}

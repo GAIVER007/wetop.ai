@@ -88,7 +88,7 @@ export default async function SalesHubPage({ searchParams }: { searchParams: Pro
 
   return (
     <Page
-      title="Продажи"
+      title="Обзор продаж"
       subtitle="Инструменты роста, анализа рынка и ИИ-продаж в одном разделе."
       actions={
         <nav className="chips sales-chips" aria-label="Период броней и конверсии" data-testid="sales-period">

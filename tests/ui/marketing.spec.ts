@@ -54,13 +54,13 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
     'Анализ конкурентов',
     'Обзор продаж',
     'Бюджет',
-    'Аналитика рекламы',
+    'Аналитика маркетинга',
   ]);
   await expect(items.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
     'href',
     '/marketing/budget',
   );
-  await expect(items.getByRole('link', { name: 'Аналитика рекламы', exact: true })).toHaveAttribute(
+  await expect(items.getByRole('link', { name: 'Аналитика маркетинга', exact: true })).toHaveAttribute(
     'href',
     '/marketing/analytics',
   );
@@ -205,7 +205,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   await main(page).getByRole('link', { name: 'Открыть: Реклама', exact: true }).click();
   await expect(page).toHaveURL(/\/marketing\/ads$/);
   const ads = main(page);
-  await expect(ads.getByRole('heading', { level: 1 })).toHaveText('Реклама');
+  await expect(ads.getByRole('heading', { level: 1 })).toHaveText('ИИ-таргетолог');
   await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Продвижение');
   await expect(ads.getByTestId('marketing-ads-soon')).toContainText('Скоро');
   await expect(ads.getByRole('tab')).toHaveText(['Кампании', 'Аудитории', 'Креативы', 'Аналитика', 'Настройки']);

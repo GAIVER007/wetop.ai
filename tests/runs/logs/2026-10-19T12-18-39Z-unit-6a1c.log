@@ -1,0 +1,22 @@
+# Модульные (unit) · 19.10.2026 17:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1867383 (claude/salon-public-prices)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T12-18-39Z-unit-6a1c.json' 'apps/api/src/employee-portal' 'apps/api/src/site-forms' 'apps/web/src/app/specialists' 'packages/domain/src/employee-portal'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ✓ |unit| apps/api/src/employee-portal/boundary.test.ts (4 tests) 12ms
+ ✓ |unit| apps/web/src/app/specialists/[slug]/page.test.ts (4 tests) 19ms
+ ✓ |unit| apps/api/src/employee-portal/public-service-pricing.test.ts (8 tests) 5ms
+ ✓ |unit| apps/api/src/employee-portal/write-safety.test.ts (6 tests) 13ms
+ ✓ |unit| apps/api/src/employee-portal/live-membership-write.test.ts (2 tests) 28ms
+ ✓ |unit| apps/api/src/employee-portal/account-options.test.ts (3 tests) 18ms
+ ✓ |unit| apps/api/src/employee-portal/access-projection.test.ts (8 tests) 34ms
+
+ Test Files  7 passed (7)
+      Tests  35 passed (35)
+   Start at  05:18:41
+   Duration  2.26s (transform 52%, import 47%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T12-18-39Z-unit-6a1c.json
+
+# код выхода 0 · 4 с

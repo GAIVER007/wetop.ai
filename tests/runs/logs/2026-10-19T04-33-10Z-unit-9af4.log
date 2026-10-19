@@ -1,0 +1,182 @@
+# Модульные (unit) · 19.10.2026 09:33 Алматы · srv1719674
+# коммит 61bb689 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T04-33-10Z-unit-9af4.json' 'apps/api/src/employee-portal/public-service-pricing.test.ts' 'apps/web/src/app/specialists/[slug]/page.test.tsx'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |unit| apps/api/src/employee-portal/public-service-pricing.test.ts (8 tests | 6 failed) 23ms
+   ❯ public specialist advertises the approved selected-master terms (8)
+     × uses the master fixed price and duration rather than the branch or catalog 13ms
+     × represents FREE as zero while preserving inherited branch duration 3ms
+     × represents an existing RANGE honestly instead of a fixed catalog amount 2ms
+     × does not invent a final amount for UNFIXED pricing 1ms
+     × uses a master price in branch currency even when catalog currency differs and there is no branch price 1ms
+     × does not replace a wrong-currency master price with a misleading branch amount 1ms
+     ✓ does not borrow another branch master price 1ms
+     ✓ preserves the existing branch fallback without a master override 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/employee-portal/public-service-pricing.test.ts > public specialist advertises the approved selected-master terms > uses the master fixed price and duration rather than the branch or catalog
+AssertionError: expected [ { …(5) } ] to deeply equal [ ObjectContaining{…} ]
+
+- Expected
++ Received
+
+  [
+    {
+      "currency": "KZT",
+-     "durationMinutes": 75,
++     "durationMinutes": 60,
+      "id": "10000000-0000-4000-8000-000000000004",
+-     "priceMinor": "12345",
+-     "priceType": "FIXED",
++     "name": "Synthetic service",
++     "priceMinor": "6500",
+    },
+  ]
+
+ ❯ apps/api/src/employee-portal/public-service-pricing.test.ts:48:26
+     46|     const { portal, db } = fixture([price()]);
+     47|     const dto = await portal.publicProfile('synthetic-specialist', loc…
+     48|     expect(dto.services).toEqual([expect.objectContaining({ id: servic…
+       |                          ^
+     49|     expect(db.employeePublicProfile.findFirst).toHaveBeenCalledWith(ex…
+     50|       select: expect.objectContaining({ employee: expect.objectContain…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| apps/api/src/employee-portal/public-service-pricing.test.ts > public specialist advertises the approved selected-master terms > represents FREE as zero while preserving inherited branch duration
+AssertionError: expected { …(5) } to match object { priceMinor: '0', …(2) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "durationMinutes": 60,
+-   "priceMinor": "0",
+-   "priceType": "FREE",
++   "priceMinor": "6500",
+  }
+
+ ❯ apps/api/src/employee-portal/public-service-pricing.test.ts:56:90
+     54|   it('represents FREE as zero while preserving inherited branch durati…
+     55|     const { portal } = fixture([price({ priceType: 'FREE', priceMinMin…
+     56|     expect((await portal.publicProfile('synthetic-specialist', locatio…
+       |                                                                                          ^
+     57|   });
+     58|   it('represents an existing RANGE honestly instead of a fixed catalog…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| apps/api/src/employee-portal/public-service-pricing.test.ts > public specialist advertises the approved selected-master terms > represents an existing RANGE honestly instead of a fixed catalog amount
+AssertionError: expected { …(5) } to match object { priceType: 'RANGE', …(3) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "durationMinutes": 75,
+-   "priceMaxMinor": "20000",
+-   "priceMinor": "10000",
+-   "priceType": "RANGE",
++   "durationMinutes": 60,
++   "priceMinor": "6500",
+  }
+
+ ❯ apps/api/src/employee-portal/public-service-pricing.test.ts:60:90
+     58|   it('represents an existing RANGE honestly instead of a fixed catalog…
+     59|     const { portal } = fixture([price({ priceType: 'RANGE', priceMinMi…
+     60|     expect((await portal.publicProfile('synthetic-specialist', locatio…
+       |                                                                                          ^
+     61|   });
+     62|   it('does not invent a final amount for UNFIXED pricing', async () =>…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| apps/api/src/employee-portal/public-service-pricing.test.ts > public specialist advertises the approved selected-master terms > does not invent a final amount for UNFIXED pricing
+AssertionError: expected { …(5) } to match object { priceType: 'UNFIXED', …(2) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "durationMinutes": 75,
+-   "priceMinor": null,
+-   "priceType": "UNFIXED",
++   "durationMinutes": 60,
++   "priceMinor": "6500",
+  }
+
+ ❯ apps/api/src/employee-portal/public-service-pricing.test.ts:64:90
+     62|   it('does not invent a final amount for UNFIXED pricing', async () =>…
+     63|     const { portal } = fixture([price({ priceType: 'UNFIXED', priceMin…
+     64|     expect((await portal.publicProfile('synthetic-specialist', locatio…
+       |                                                                                          ^
+     65|   });
+     66|   it('uses a master price in branch currency even when catalog currenc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| apps/api/src/employee-portal/public-service-pricing.test.ts > public specialist advertises the approved selected-master terms > uses a master price in branch currency even when catalog currency differs and there is no branch price
+AssertionError: expected undefined to match object { priceMinor: '12345', …(2) }
+
+- Expected:
+{
+  "currency": "USD",
+  "durationMinutes": 75,
+  "priceMinor": "12345",
+}
+
++ Received:
+undefined
+
+ ❯ apps/api/src/employee-portal/public-service-pricing.test.ts:68:90
+     66|   it('uses a master price in branch currency even when catalog currenc…
+     67|     const { portal } = fixture([price({ currency: 'USD' })], 'USD', nu…
+     68|     expect((await portal.publicProfile('synthetic-specialist', locatio…
+       |                                                                                          ^
+     69|   });
+     70|   it('does not replace a wrong-currency master price with a misleading…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| apps/api/src/employee-portal/public-service-pricing.test.ts > public specialist advertises the approved selected-master terms > does not replace a wrong-currency master price with a misleading branch amount
+AssertionError: expected [ { …(5) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "currency": "KZT",
++     "durationMinutes": 60,
++     "id": "10000000-0000-4000-8000-000000000004",
++     "name": "Synthetic service",
++     "priceMinor": "6500",
++   },
++ ]
+
+ ❯ apps/api/src/employee-portal/public-service-pricing.test.ts:72:87
+     70|   it('does not replace a wrong-currency master price with a misleading…
+     71|     const { portal } = fixture([price({ currency: 'USD' })]);
+     72|     expect((await portal.publicProfile('synthetic-specialist', locatio…
+       |                                                                                       ^
+     73|   });
+     74|   it('does not borrow another branch master price', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 2 passed (8)
+   Start at  04:33:11
+   Duration  2.99s (transform 69%, import 30%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-19T04-33-10Z-unit-9af4.json
+
+# код выхода 1 · 4 с

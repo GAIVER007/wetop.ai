@@ -170,9 +170,18 @@ export class SiteFormsService {
       });
       const own = service?.locations[0] ?? null;
       if (!service || !own?.enabled) throw new NotFoundException('Услуга в этом филиале не оказывается');
-      if (own.priceOverride === null && service.currency !== fs.currency)
-        throw new NotFoundException('Услуга в этом филиале не оказывается');
-      const durationMinutes = own.durationOverride ?? service.durationMinutes;
+      const masterPrice = q.employeeId ? await db.employeeServicePrice.findUnique({
+        where: { employeeId_serviceId_locationId: { employeeId: q.employeeId, serviceId: service.id, locationId: fs.locationId } },
+      }) : null;
+      if (masterPrice && masterPrice.currency !== fs.currency)
+        throw new ConflictException('Валюта цены мастера не совпадает с валютой филиала');
+      if (masterPrice?.priceType === 'RANGE' || masterPrice?.priceType === 'UNFIXED')
+        throw new ConflictException('Укажите конечную цену услуги мастера');
+      const priceMinor = masterPrice
+        ? masterPrice.priceType === 'FREE' ? 0n : masterPrice.priceMinMinor
+        : own.priceOverride ?? (service.currency === fs.currency ? service.price : null);
+      if (priceMinor === null) throw new NotFoundException('Услуга в этом филиале не оказывается');
+      const durationMinutes = masterPrice?.durationMinutes ?? own.durationOverride ?? service.durationMinutes;
       const window = timeOffWindow({ dateFrom: q.date, dateTo: q.date, timezone: fs.timezone });
       const masters = await db.employee.findMany({
         where: {
@@ -219,8 +228,8 @@ export class SiteFormsService {
           id: service.id,
           name: service.name,
           durationMinutes,
-          priceMinor: (own.priceOverride ?? service.price).toString(),
-          currency: own.priceOverride === null ? service.currency : fs.currency,
+          priceMinor: priceMinor.toString(),
+          currency: fs.currency,
         },
         employees: masters.map((m) => ({ id: m.id, name: m.name })),
         slots: slots.map((s) => ({ startsAt: s.startsAt.toISOString(), endsAt: s.endsAt.toISOString(), time: s.time, employeeIds: s.employeeIds })),

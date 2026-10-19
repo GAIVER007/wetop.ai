@@ -269,7 +269,7 @@ describe('public specialist → ordinary Beauty booking → same persisted Emplo
     await admin?.$disconnect();
   });
 
-  async function publicJourney() {
+  async function publicJourney(expected = { priceMinor: '6500', durationMinutes: 60 }) {
     // No auth cookie/header: the published public controller supplies the link.
     const response = await fetch(
       `${base}/employee-portal/public/${f.slug}?locationId=${f.location.id}`,
@@ -283,6 +283,7 @@ describe('public specialist → ordinary Beauty booking → same persisted Emplo
     const employeeId = link.searchParams.get('employeeId');
     expect(employeeId).toBe(f.selected.id);
     const serviceId = profile.services[0]!.id;
+    expect(profile.services[0]).toMatchObject(expected);
     const query = new URLSearchParams({
       k: f.tracked.publicKey,
       service: serviceId,
@@ -297,8 +298,8 @@ describe('public specialist → ordinary Beauty booking → same persisted Emplo
     expect(availability.employees.map((e) => e.id)).toEqual([f.selected.id]);
     expect(availability.service).toMatchObject({
       id: serviceId,
-      priceMinor: '6500',
-      durationMinutes: 60,
+      priceMinor: expected.priceMinor,
+      durationMinutes: expected.durationMinutes,
     });
     expect(availability.slots.length).toBeGreaterThan(0);
     expect(
@@ -390,6 +391,47 @@ describe('public specialist → ordinary Beauty booking → same persisted Emplo
     // This alphabetically earlier master really was available. A dropped employee
     // selector would pick it and fail both the persisted row and calendar checks.
     expect(await admin.appointment.count({ where: { employeeId: f.alternate.id } })).toBe(0);
+  });
+
+  it.each([
+    { priceType: 'FIXED' as const, amount: 12345n },
+    { priceType: 'FREE' as const, amount: 0n },
+  ])('keeps selected-master $priceType price and duration identical from profile through slots to persisted booking', async ({ priceType, amount }) => {
+    await admin.employeeServicePrice.create({ data: {
+      employeeId: f.selected.id, serviceId: f.service.id, locationId: f.location.id,
+      priceType, priceMinMinor: priceType === 'FREE' ? null : amount,
+      durationMinutes: 75, currency: 'KZT',
+    } });
+    const journey = await publicJourney({ priceMinor: amount.toString(), durationMinutes: 75 });
+    expect(journey.availability.slots.every(slot =>
+      Date.parse(slot.endsAt) - Date.parse(slot.startsAt) === 75 * 60_000,
+    )).toBe(true);
+    const request = body(journey);
+    const created = await book(request, journey.link.origin);
+    expect(created.status, JSON.stringify(created.json)).toBe(201);
+    expect(created.json).toMatchObject({ employee: { id: f.selected.id }, priceMinor: amount.toString() });
+    const persisted = await admin.appointment.findUniqueOrThrow({ where: { id: created.json.appointmentId } });
+    expect(persisted.price).toBe(amount);
+    expect(persisted.endsAt.getTime() - persisted.startsAt.getTime()).toBe(75 * 60_000);
+    const replay = await book(request, journey.link.origin);
+    expect(replay.status).toBe(201);
+    expect(replay.json.appointmentId).toBe(persisted.id);
+    expect(await admin.appointment.count({ where: { locationId: f.location.id } })).toBe(1);
+  });
+
+  it.each(['RANGE', 'UNFIXED'] as const)('does not advertise fixed public slots when the selected master requires a final $priceType price', async priceType => {
+    await admin.employeeServicePrice.create({ data: {
+      employeeId: f.selected.id, serviceId: f.service.id, locationId: f.location.id,
+      priceType, priceMinMinor: priceType === 'RANGE' ? 10000n : null,
+      priceMaxMinor: priceType === 'RANGE' ? 20000n : null,
+      durationMinutes: 75, currency: 'KZT',
+    } });
+    const query = new URLSearchParams({ k: f.tracked.publicKey, service: f.service.id, employee: f.selected.id, date: f.date });
+    const response = await fetch(`${base}/w/beauty/slots?${query}`, { headers: { origin: `https://${f.host}` } });
+    expect(response.status, await response.clone().text()).toBe(409);
+    expect(await admin.appointment.count({ where: { locationId: f.location.id } })).toBe(0);
+    const profile = await portal.publicProfile(f.slug, f.location.id);
+    expect(profile.bookingUrl).toBeNull();
   });
 
   it('rejects a now-busy selected specialist instead of silently booking the available alternate', async () => {

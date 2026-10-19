@@ -73,7 +73,12 @@ export interface PublicEmployeeDto {
   portfolio: Array<{ id: string; title: string; description: string; image: PortalImage }>;
   locations: Array<{ id: string; name: string; currency: string }>;
   locationId: string | null;
-  services: Array<{ id: string; name: string; durationMinutes: number; priceMinor: string; currency: string }>;
+  services: Array<{
+    id: string; name: string; durationMinutes: number; priceMinor: string | null; currency: string;
+    /** Existing master terms; absent for legacy fixed catalog/branch projections. */
+    priceType?: 'FIXED' | 'FREE' | 'RANGE' | 'UNFIXED';
+    priceMaxMinor?: string | null;
+  }>;
   bookingUrl: string | null;
 }
 export interface PortalProfileInput {

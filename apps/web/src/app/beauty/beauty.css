@@ -235,6 +235,23 @@
     align-items: center;
     margin-bottom: var(--space-2);
   }
+  @media (max-width: 600px) {
+    .beauty-week-nav {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .beauty-week-nav > span {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .beauty-week-nav > a {
+      min-width: 0;
+      white-space: normal;
+      text-align: center;
+    }
+  }
   .beauty-week-grid td.is-on {
     background: var(--success-soft);
   }
@@ -1241,9 +1258,6 @@
     .beauty-page:has(.beauty-calendar-toolbar) > [data-testid='beauty-day-summary'] {
       margin: var(--space-1) 0;
       font-size: var(--text-xs);
-    }
-    .beauty-mobile-calendar .beauty-current-master {
-      display: none;
     }
     .beauty-mobile-calendar .beauty-current-master + .beauty-note {
       margin: var(--space-1) 0;

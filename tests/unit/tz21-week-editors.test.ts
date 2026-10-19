@@ -5,7 +5,10 @@ describe('TZ2.1 weekly editor wire contract', () => {
   it('Portal preserves original revision and only explicitly accepts the reread', () => {
     const form = source('apps/web/src/components/employee-portal/forms.tsx');
     expect(form).toContain('useState(revision)');
-    expect(form).toContain('revision={originalRevision}');
+    // #721: the form remounts only on an explicit reread (key), and submits `base`: the server version is adopted
+    // only while the hours on screen equal the server hours, so edited hours still hit the conflict.
+    expect(form).toContain('<PortalForm key={originalRevision} context={context} command="week" revision={base}');
+    expect(form).toContain('if (JSON.stringify(weekDays(week)) === JSON.stringify(hours.current)) setBase(revision);');
     expect(form).toContain('loadPortalWeek(context.target, context.scope)');
     expect(form).toContain('setOriginalRevision(comparison.weekRevision)');
     expect(form).toContain('Принять сохранённый график');

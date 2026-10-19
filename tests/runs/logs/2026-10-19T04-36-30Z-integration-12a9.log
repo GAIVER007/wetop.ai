@@ -1,0 +1,119 @@
+# Интеграционные (integration) · 19.10.2026 09:36 Алматы · srv1719674
+# коммит 61bb689 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T04-36-30Z-integration-12a9.json' 'tests/integration/employee-portal-public-booking-persistence.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:317698) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/employee-portal-public-booking-persistence.test.ts (7 tests | 4 failed) 2696ms
+   ❯ public specialist → ordinary Beauty booking → same persisted Employee/calendar (7)
+     ✓ persists the exact linked employee and shows the same appointment in the ordinary branch calendar; replay creates no duplicate 1216ms
+     × keeps selected-master FIXED price and duration identical from profile through slots to persisted booking 193ms
+     × keeps selected-master FREE price and duration identical from profile through slots to persisted booking 173ms
+     × does not advertise fixed public slots when the selected master requires a final $priceType price 144ms
+     × does not advertise fixed public slots when the selected master requires a final $priceType price 176ms
+     ✓ rejects a now-busy selected specialist instead of silently booking the available alternate 241ms
+     ✓ rejects another origin and unavailable service without persisting an appointment 187ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/employee-portal-public-booking-persistence.test.ts > public specialist → ordinary Beauty booking → same persisted Employee/calendar > keeps selected-master FIXED price and duration identical from profile through slots to persisted booking
+AssertionError: expected { …(5) } to match object { …(3) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "durationMinutes": 75,
++   "durationMinutes": 60,
+    "id": "a18aba2f-5525-492d-8654-e833d4c6a5ed",
+-   "priceMinor": "12345",
++   "priceMinor": "6500",
+  }
+
+ ❯ publicJourney tests/integration/employee-portal-public-booking-persistence.test.ts:299:34
+    297|     const availability = (await slotsResponse.json()) as BeautySlotsRe…
+    298|     expect(availability.employees.map((e) => e.id)).toEqual([f.selecte…
+    299|     expect(availability.service).toMatchObject({
+       |                                  ^
+    300|       id: serviceId,
+    301|       priceMinor: expected.priceMinor,
+ ❯ tests/integration/employee-portal-public-booking-persistence.test.ts:405:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| tests/integration/employee-portal-public-booking-persistence.test.ts > public specialist → ordinary Beauty booking → same persisted Employee/calendar > keeps selected-master FREE price and duration identical from profile through slots to persisted booking
+AssertionError: expected { …(5) } to match object { …(3) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "durationMinutes": 75,
++   "durationMinutes": 60,
+    "id": "fb2db7b2-7efd-4fd6-a167-4d3f4a74ead9",
+-   "priceMinor": "0",
++   "priceMinor": "6500",
+  }
+
+ ❯ publicJourney tests/integration/employee-portal-public-booking-persistence.test.ts:299:34
+    297|     const availability = (await slotsResponse.json()) as BeautySlotsRe…
+    298|     expect(availability.employees.map((e) => e.id)).toEqual([f.selecte…
+    299|     expect(availability.service).toMatchObject({
+       |                                  ^
+    300|       id: serviceId,
+    301|       priceMinor: expected.priceMinor,
+ ❯ tests/integration/employee-portal-public-booking-persistence.test.ts:405:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| tests/integration/employee-portal-public-booking-persistence.test.ts > public specialist → ordinary Beauty booking → same persisted Employee/calendar > does not advertise fixed public slots when the selected master requires a final $priceType price
+AssertionError: {"date":"2026-11-23","timezone":"Asia/Almaty","service":{"id":"f05b2be3-e1c9-43a9-86fe-d0d069dada13","name":"Synthetic haircut","durationMinutes":60,"priceMinor":"6500","currency":"KZT"},"employees":[{"id":"b40c363e-a152-48d5-9de5-57890dd0f629","name":"Z selected specialist"}],"slots":[{"startsAt":"2026-11-23T04:00:00.000Z","endsAt":"2026-11-23T05:00:00.000Z","time":"09:00","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T04:15:00.000Z","endsAt":"2026-11-23T05:15:00.000Z","time":"09:15","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T04:30:00.000Z","endsAt":"2026-11-23T05:30:00.000Z","time":"09:30","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T04:45:00.000Z","endsAt":"2026-11-23T05:45:00.000Z","time":"09:45","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T05:00:00.000Z","endsAt":"2026-11-23T06:00:00.000Z","time":"10:00","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T05:15:00.000Z","endsAt":"2026-11-23T06:15:00.000Z","time":"10:15","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T05:30:00.000Z","endsAt":"2026-11-23T06:30:00.000Z","time":"10:30","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T05:45:00.000Z","endsAt":"2026-11-23T06:45:00.000Z","time":"10:45","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T06:00:00.000Z","endsAt":"2026-11-23T07:00:00.000Z","time":"11:00","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T06:15:00.000Z","endsAt":"2026-11-23T07:15:00.000Z","time":"11:15","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T06:30:00.000Z","endsAt":"2026-11-23T07:30:00.000Z","time":"11:30","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T06:45:00.000Z","endsAt":"2026-11-23T07:45:00.000Z","time":"11:45","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T07:00:00.000Z","endsAt":"2026-11-23T08:00:00.000Z","time":"12:00","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T07:15:00.000Z","endsAt":"2026-11-23T08:15:00.000Z","time":"12:15","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T07:30:00.000Z","endsAt":"2026-11-23T08:30:00.000Z","time":"12:30","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T07:45:00.000Z","endsAt":"2026-11-23T08:45:00.000Z","time":"12:45","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T08:00:00.000Z","endsAt":"2026-11-23T09:00:00.000Z","time":"13:00","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T08:15:00.000Z","endsAt":"2026-11-23T09:15:00.000Z","time":"13:15","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T08:30:00.000Z","endsAt":"2026-11-23T09:30:00.000Z","time":"13:30","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T08:45:00.000Z","endsAt":"2026-11-23T09:45:00.000Z","time":"13:45","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T09:00:00.000Z","endsAt":"2026-11-23T10:00:00.000Z","time":"14:00","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T09:15:00.000Z","endsAt":"2026-11-23T10:15:00.000Z","time":"14:15","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T09:30:00.000Z","endsAt":"2026-11-23T10:30:00.000Z","time":"14:30","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T09:45:00.000Z","endsAt":"2026-11-23T10:45:00.000Z","time":"14:45","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T10:00:00.000Z","endsAt":"2026-11-23T11:00:00.000Z","time":"15:00","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T10:15:00.000Z","endsAt":"2026-11-23T11:15:00.000Z","time":"15:15","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T10:30:00.000Z","endsAt":"2026-11-23T11:30:00.000Z","time":"15:30","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T10:45:00.000Z","endsAt":"2026-11-23T11:45:00.000Z","time":"15:45","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T11:00:00.000Z","endsAt":"2026-11-23T12:00:00.000Z","time":"16:00","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T11:15:00.000Z","endsAt":"2026-11-23T12:15:00.000Z","time":"16:15","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T11:30:00.000Z","endsAt":"2026-11-23T12:30:00.000Z","time":"16:30","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T11:45:00.000Z","endsAt":"2026-11-23T12:45:00.000Z","time":"16:45","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]},{"startsAt":"2026-11-23T12:00:00.000Z","endsAt":"2026-11-23T13:00:00.000Z","time":"17:00","employeeIds":["b40c363e-a152-48d5-9de5-57890dd0f629"]}]}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ tests/integration/employee-portal-public-booking-persistence.test.ts:431:60
+    429|     const query = new URLSearchParams({ k: f.tracked.publicKey, servic…
+    430|     const response = await fetch(`${base}/w/beauty/slots?${query}`, { …
+    431|     expect(response.status, await response.clone().text()).toBe(409);
+       |                                                            ^
+    432|     expect(await admin.appointment.count({ where: { locationId: f.loca…
+    433|     const profile = await portal.publicProfile(f.slug, f.location.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| tests/integration/employee-portal-public-booking-persistence.test.ts > public specialist → ordinary Beauty booking → same persisted Employee/calendar > does not advertise fixed public slots when the selected master requires a final $priceType price
+AssertionError: {"date":"2026-11-23","timezone":"Asia/Almaty","service":{"id":"44ad3c12-ea39-420e-b5fb-edfac50d39de","name":"Synthetic haircut","durationMinutes":60,"priceMinor":"6500","currency":"KZT"},"employees":[{"id":"ffa4a7ab-0e44-44f3-9827-61ca73a7016b","name":"Z selected specialist"}],"slots":[{"startsAt":"2026-11-23T04:00:00.000Z","endsAt":"2026-11-23T05:00:00.000Z","time":"09:00","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T04:15:00.000Z","endsAt":"2026-11-23T05:15:00.000Z","time":"09:15","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T04:30:00.000Z","endsAt":"2026-11-23T05:30:00.000Z","time":"09:30","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T04:45:00.000Z","endsAt":"2026-11-23T05:45:00.000Z","time":"09:45","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T05:00:00.000Z","endsAt":"2026-11-23T06:00:00.000Z","time":"10:00","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T05:15:00.000Z","endsAt":"2026-11-23T06:15:00.000Z","time":"10:15","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T05:30:00.000Z","endsAt":"2026-11-23T06:30:00.000Z","time":"10:30","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T05:45:00.000Z","endsAt":"2026-11-23T06:45:00.000Z","time":"10:45","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T06:00:00.000Z","endsAt":"2026-11-23T07:00:00.000Z","time":"11:00","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T06:15:00.000Z","endsAt":"2026-11-23T07:15:00.000Z","time":"11:15","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T06:30:00.000Z","endsAt":"2026-11-23T07:30:00.000Z","time":"11:30","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T06:45:00.000Z","endsAt":"2026-11-23T07:45:00.000Z","time":"11:45","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T07:00:00.000Z","endsAt":"2026-11-23T08:00:00.000Z","time":"12:00","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T07:15:00.000Z","endsAt":"2026-11-23T08:15:00.000Z","time":"12:15","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T07:30:00.000Z","endsAt":"2026-11-23T08:30:00.000Z","time":"12:30","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T07:45:00.000Z","endsAt":"2026-11-23T08:45:00.000Z","time":"12:45","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T08:00:00.000Z","endsAt":"2026-11-23T09:00:00.000Z","time":"13:00","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T08:15:00.000Z","endsAt":"2026-11-23T09:15:00.000Z","time":"13:15","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T08:30:00.000Z","endsAt":"2026-11-23T09:30:00.000Z","time":"13:30","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T08:45:00.000Z","endsAt":"2026-11-23T09:45:00.000Z","time":"13:45","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T09:00:00.000Z","endsAt":"2026-11-23T10:00:00.000Z","time":"14:00","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T09:15:00.000Z","endsAt":"2026-11-23T10:15:00.000Z","time":"14:15","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T09:30:00.000Z","endsAt":"2026-11-23T10:30:00.000Z","time":"14:30","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T09:45:00.000Z","endsAt":"2026-11-23T10:45:00.000Z","time":"14:45","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T10:00:00.000Z","endsAt":"2026-11-23T11:00:00.000Z","time":"15:00","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T10:15:00.000Z","endsAt":"2026-11-23T11:15:00.000Z","time":"15:15","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T10:30:00.000Z","endsAt":"2026-11-23T11:30:00.000Z","time":"15:30","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T10:45:00.000Z","endsAt":"2026-11-23T11:45:00.000Z","time":"15:45","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T11:00:00.000Z","endsAt":"2026-11-23T12:00:00.000Z","time":"16:00","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T11:15:00.000Z","endsAt":"2026-11-23T12:15:00.000Z","time":"16:15","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T11:30:00.000Z","endsAt":"2026-11-23T12:30:00.000Z","time":"16:30","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T11:45:00.000Z","endsAt":"2026-11-23T12:45:00.000Z","time":"16:45","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]},{"startsAt":"2026-11-23T12:00:00.000Z","endsAt":"2026-11-23T13:00:00.000Z","time":"17:00","employeeIds":["ffa4a7ab-0e44-44f3-9827-61ca73a7016b"]}]}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ tests/integration/employee-portal-public-booking-persistence.test.ts:431:60
+    429|     const query = new URLSearchParams({ k: f.tracked.publicKey, servic…
+    430|     const response = await fetch(`${base}/w/beauty/slots?${query}`, { …
+    431|     expect(response.status, await response.clone().text()).toBe(409);
+       |                                                            ^
+    432|     expect(await admin.appointment.count({ where: { locationId: f.loca…
+    433|     const profile = await portal.publicProfile(f.slug, f.location.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 3 passed (7)
+   Start at  04:36:31
+   Duration  9.07s (tests 42%, transform 31%, import 27%)
+
+JSON report written to /tmp/pms-test-2026-10-19T04-36-30Z-integration-12a9.json
+
+# код выхода 1 · 10 с

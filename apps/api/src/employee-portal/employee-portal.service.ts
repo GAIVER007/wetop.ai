@@ -391,12 +391,27 @@ export class EmployeePortalService {
     const resolved=rows[0]!;
     return withOrganizationScope(resolved.organization_id,async()=>{
       const db=this.prisma.db;
-      const p=await db.employeePublicProfile.findFirst({where:{employeeId:resolved.employee_id,published:true,publicationConsent:true,employee:{status:'ACTIVE',business:{status:'ACTIVE',organization:{status:{in:['ACTIVE','TRIAL']}}}}},select:{slug:true,headline:true,biography:true,practiceSinceYear:true,employee:{select:{id:true,name:true,business:{select:{name:true,vertical:true,organization:{select:{status:true,trialEndsAt:true}}}},locations:{where:{location:{status:'ACTIVE'}},select:{location:{select:{id:true,name:true,currency:true}}}},portalMedia:{where:{kind:'AVATAR'},orderBy:{createdAt:'desc'},take:1},portfolio:{where:{published:true,publicationConsent:true},select:{id:true,title:true,description:true,media:true}},services:{where:{service:{active:true}},select:{service:{select:{id:true,name:true,price:true,currency:true,durationMinutes:true,locations:{where:{enabled:true},select:{locationId:true,priceOverride:true,durationOverride:true}}}}}}}}}});
+      const p=await db.employeePublicProfile.findFirst({where:{employeeId:resolved.employee_id,published:true,publicationConsent:true,employee:{status:'ACTIVE',business:{status:'ACTIVE',organization:{status:{in:['ACTIVE','TRIAL']}}}}},select:{slug:true,headline:true,biography:true,practiceSinceYear:true,employee:{select:{id:true,name:true,business:{select:{name:true,vertical:true,organization:{select:{status:true,trialEndsAt:true}}}},locations:{where:{location:{status:'ACTIVE'}},select:{location:{select:{id:true,name:true,currency:true}}}},portalMedia:{where:{kind:'AVATAR'},orderBy:{createdAt:'desc'},take:1},portfolio:{where:{published:true,publicationConsent:true},select:{id:true,title:true,description:true,media:true}},servicePrices:{select:{serviceId:true,locationId:true,priceType:true,priceMinMinor:true,priceMaxMinor:true,durationMinutes:true,currency:true}},services:{where:{service:{active:true}},select:{service:{select:{id:true,name:true,price:true,currency:true,durationMinutes:true,locations:{where:{enabled:true},select:{locationId:true,priceOverride:true,durationOverride:true}}}}}}}}}});
       if(!p)throw new NotFoundException('Profile not found');const e=p.employee,locations=e.locations.map(x=>x.location);
       const selected=locationId?locations.find(l=>l.id===locationId):locations.length===1?locations[0]:undefined;
       if(locationId&&!selected)throw new NotFoundException('Profile not found');
-      const services=selected?e.services.flatMap(({service:s})=>{const l=s.locations.find(l=>l.locationId===selected.id);return l&&(l.priceOverride!==null||s.currency===selected.currency)?[{id:s.id,name:s.name,durationMinutes:l.durationOverride??s.durationMinutes,priceMinor:(l.priceOverride??s.price).toString(),currency:selected.currency}]:[];}):[];
-      const bookingSite=selected&&services.length>0&&e.business.vertical==='BEAUTY'&&canWrite(e.business.organization.status,e.business.organization.trialEndsAt,new Date())
+      const services: PublicEmployeeDto['services'] = selected ? e.services.flatMap(({service:s}): PublicEmployeeDto['services'] => {
+        const l = s.locations.find(l => l.locationId === selected.id);
+        if (!l) return [];
+        const master = e.servicePrices.find(p => p.serviceId === s.id && p.locationId === selected.id);
+        if (master && master.currency !== selected.currency) return [];
+        if (!master && l.priceOverride === null && s.currency !== selected.currency) return [];
+        const priceMinor = master
+          ? master.priceType === 'FREE' ? '0' : master.priceMinMinor?.toString() ?? null
+          : (l.priceOverride ?? s.price).toString();
+        return [{
+          id: s.id, name: s.name,
+          durationMinutes: master?.durationMinutes ?? l.durationOverride ?? s.durationMinutes,
+          priceMinor, currency: selected.currency,
+          ...(master ? {priceType: master.priceType, priceMaxMinor: master.priceMaxMinor?.toString() ?? null} : {}),
+        }];
+      }) : [];
+      const bookingSite=selected&&services.some(s => s.priceMinor !== null && s.priceType !== 'RANGE' && s.priceType !== 'UNFIXED')&&e.business.vertical==='BEAUTY'&&canWrite(e.business.organization.status,e.business.organization.trialEndsAt,new Date())
         ?await db.marketingSite.findUnique({where:{locationId:selected.id},select:{id:true,locationId:true,state:true,publishedVersion:{select:{siteId:true,spec:true,specHash:true}},trackedSite:{select:{locationId:true,status:true,publicKey:true,hosts:true}},domains:{where:{status:'ACTIVE',isPrimary:true},take:2,select:{host:true}}}}):null;
       const bookingUrl=selected?employeeBookingTarget(bookingSite,selected.id,e.id):null;
       return {name:e.name,headline:p.headline,biography:p.biography,practiceSinceYear:p.practiceSinceYear,slug:p.slug,businessName:e.business.name,avatar:e.portalMedia[0]?await this.image(e.portalMedia[0]):null,portfolio:await Promise.all(e.portfolio.map(async w=>({id:w.id,title:w.title,description:w.description,image:await this.image(w.media)}))),locations,locationId:selected?.id??null,services,bookingUrl};

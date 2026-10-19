@@ -6,6 +6,9 @@ const web = `http://127.0.0.1:${webPort}`;
 export default defineConfig({
   testDir: '.',
   testMatch: '*.spec.ts',
+  // Emit each active test before completion: a cancelled CI job must identify
+  // its last running case, not leave only an opaque 'Running N tests' line.
+  reporter: 'line',
   workers: 1,
   timeout: 90000,
   use: {

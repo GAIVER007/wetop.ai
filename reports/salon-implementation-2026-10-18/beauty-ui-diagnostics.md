@@ -1,0 +1,9 @@
+# Beauty UI cancellation diagnostics, not a passing gate
+
+CI39207742150 completed FAILURE at old ad8e85da6. The main integration stage passed1634 with82skips; the dedicated portal stage had2 stale canonical-line identity assertions, now separately repaired and proven43/43 on owned DB. Generic UI5/5 shards, Food, employee portal, branches, authentication and real first-salon onboarding jobs passed. Beauty UI was cancelled at its existing30-minute job bound after108 cases started, without per-case completion output. Its final aggregate UI job therefore failed; no complete Beauty UI result exists from that run.
+
+The only configuration change here adds Playwright's built-in **line reporter** to print each active test name before completion in the next CI. It changes no matching, assertion, worker, timeout, retry, server, database, authentication or fixture rule. No broad DEBUG/request/env logging is enabled. The normal test recorder explicitly overrides reporters to preserve its own JSON/list journal; the actual GitHub line output still must be observed before claiming remote diagnostic correlation.
+
+Enumeration c8f9 lists **112 cases in27 files**, including4 newly added actual Next/API/DB money-recovery cases. This is **listing only:0 executed,112 enumerated/skipped**, NOT112 passing tests. Existing108 plus new4 preserved, none removed. Final full types13e2 and lint9189 pass. Full unit6320/0/7existing skips remains unchanged for unit-selected source. Money actual chain6838=4/4 and real canonical-lines/portal19e1=31/31 plus exact portal78cb=43/43 are separate runtime evidence, not full Beauty acceptance.
+
+Next candidate must complete the full exact-SHA gate and all112 Beauty cases. Do not increase timeout, add retries/skips or certify cancellation as GREEN. PR678 remains DRAFT; no production authorization/application or full94-requirement completion is implied.

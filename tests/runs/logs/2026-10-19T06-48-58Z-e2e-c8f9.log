@@ -1,0 +1,119 @@
+# Сквозные (e2e) · 19.10.2026 11:48 Алматы · srv1719674
+# коммит 7e4508a (feat/salon-draft-implementation-20261018)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--list' '--workers=1'
+Listing tests:
+  beauty.spec.ts:118:1 › empty setup through real UI, persisted appointment, move, confirm, complete
+  beauty.spec.ts:282:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY
+  beauty.spec.ts:319:1 › existing customer can be selected for another appointment without duplication
+  beauty.spec.ts:351:5 › calendar and drawer 1440 light, keyboard, axe, no overflow
+  beauty.spec.ts:351:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow
+  beauty.spec.ts:351:5 › calendar and drawer 390 light, keyboard, axe, no overflow
+  beauty.spec.ts:351:5 › calendar and drawer 390 dark, keyboard, axe, no overflow
+  beauty.spec.ts:432:1 › archived service and employee preserve historical calendar appointments
+  beauty.spec.ts:480:1 › TimeOff via manager API with compact employee drawer, server denial and timezone persisted
+  beauty.spec.ts:545:1 › DS1c: day navigation keeps the previous addresses
+  beauty.spec.ts:560:1 › Beauty onboarding v2 completes a ready branch and resumes Today
+  calendar-master-selection.spec.ts:31:1 › mobile master filter and visible calendar select the same master
+  calendar-master-selection.spec.ts:46:1 › new appointment defaults to the master selected in the desktop filter
+  calendar-master-selection.spec.ts:54:1 › quick report reads cash, card and refunds from actual stored operations
+  consumables.spec.ts:27:1 › consumable receipt feeds a service techcard and DONE consumes the same stock
+  customer-detail.spec.ts:7:1 › customer card: linked history, mobile layout and tenant isolation
+  customer-xlsx.spec.ts:16:1 › customers: real XLSX preview, import, duplicate detection and filtered export
+  ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+  employee-canonical.spec.ts:55:1 › create, canonical links and legacy addresses use one full employee profile
+  employee-canonical.spec.ts:84:1 › two full-profile forms reject a stale save and retain its draft
+  employee-canonical.spec.ts:103:1 › manager assigns and removes salon services in the canonical profile
+  employee-canonical.spec.ts:133:1 › lost create response is recovered once and redirects to the saved full profile
+  employee-canonical.spec.ts:159:1 › dirty creation still uses the save-before-leaving guard
+  employee-canonical.spec.ts:173:1 › dirty canonical profile guards tabs, keeps failed saves and protects reload
+  employee-canonical.spec.ts:206:1 › canonical profile keeps keyboard tabs and accessibility in both themes
+  employee-workspace.spec.ts:69:1 › minimal create, saved ID, reload and actual desktop/mobile themes
+  employee-workspace.spec.ts:106:1 › two stale forms keep the second draft and show the current profile
+  employee-workspace.spec.ts:134:1 › dirty stay, discard and save before tabs/close; failed save keeps draft
+  employee-workspace.spec.ts:178:1 › Back/Forward and keyboard tabs retain a consistent employee URL
+  employee-workspace.spec.ts:209:1 › inaccessible deep link is neutral and old Beauty entry remains compatible
+  employee-workspace.spec.ts:221:1 › lost create response is recovered on reload using one persistent operation
+  employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee
+  employee-workspace.spec.ts:333:1 › a scope-switch event invalidates an in-flight profile response
+  employee-workspace.spec.ts:380:1 › services cannot restore a stale name and profile cannot restore stale services
+  employee-workspace.spec.ts:424:1 › native beforeunload protects reload and preserves draft when dismissed
+  employee-workspace.spec.ts:449:1 › dirty internal navigation asks before leaving and stays on failure
+  employee-workspace.spec.ts:469:1 › profile fields, keyboard focus and contrast pass an axe audit
+  employee-workspace.spec.ts:486:1 › pending services save cannot mark a later checkbox edit as saved
+  employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card
+  employee-workspace.spec.ts:553:1 › a later week edit stays dirty after the submitted week is saved
+  location-hours.spec.ts:8:1 › salon hours: break restricts new bookings and reports existing conflicts
+  money-recovery-real.spec.ts:12:3 › money pay: actual Next action/API/DB committed then response lost, exact retry 390
+  money-recovery-real.spec.ts:12:3 › money refund: actual Next action/API/DB committed then response lost, exact retry 390
+  money-recovery-real.spec.ts:12:3 › money pay: actual Next action/API/DB committed then response lost, exact retry 1440
+  money-recovery-real.spec.ts:12:3 › money refund: actual Next action/API/DB committed then response lost, exact retry 1440
+  positions.spec.ts:21:1 › positions: CRUD matrix, assignment, revoke history, stale revision and responsive themes
+  pr638-grid.spec.ts:7:1 › PR638 grid switch changes only that date, the weekly template and the other master stay
+  pr638-grid.spec.ts:60:1 › PR638 stale weekly window rejects repeated saves without replacing the competing week
+  ref-capture.spec.ts:14:1 › салон: календарь на ширинах и темах
+  reviews.spec.ts:10:1 › reviews: manager copies link, anonymous client rates selected master once
+  schedule-persistence.spec.ts:6:1 › desktop › owner saves initially empty master week through onboarding schedule and reloads persisted hours
+  schedule-persistence.spec.ts:6:1 › mobile touch › owner saves initially empty master week through onboarding schedule and reloads persisted hours
+  tz11-accepted-departure.spec.ts:4:2 › F02 accepted Back discards appointment draft same-date
+  tz11-accepted-departure.spec.ts:4:2 › F02 accepted Back discards appointment draft different-date
+  tz11-f01.spec.ts:8:3 › F01 occupied intervals survive filters 1440 light
+  tz11-f01.spec.ts:8:3 › F01 occupied intervals survive filters 1440 dark
+  tz11-f01.spec.ts:8:3 › F01 occupied intervals survive filters 390 light
+  tz11-f01.spec.ts:8:3 › F01 occupied intervals survive filters 390 dark
+  tz11-f02-navigation.spec.ts:4:3 › F02 calendar unknown response stays open and cannot repeat command
+  tz11-f02-navigation.spec.ts:32:3 › F02 calendar navigation routes are individually exercised
+  tz11-f02-navigation.spec.ts:4:3 › F02 appointments unknown response stays open and cannot repeat command
+  tz11-f02-navigation.spec.ts:32:3 › F02 appointments navigation routes are individually exercised
+  tz11-f02.spec.ts:5:3 › F02 calendar dirty close preserves draft and explicit discard
+  tz11-f02.spec.ts:44:3 › F02 calendar validation conflict success and double click
+  tz11-f02.spec.ts:63:3 › F02 calendar cross tab scope switch rejects stale form without POST
+  tz11-f02.spec.ts:5:3 › F02 appointments dirty close preserves draft and explicit discard
+  tz11-f02.spec.ts:44:3 › F02 appointments validation conflict success and double click
+  tz11-f02.spec.ts:63:3 › F02 appointments cross tab scope switch rejects stale form without POST
+  tz11-f03.spec.ts:4:2 › F03 list context reload history card and privacy 1440 light
+  tz11-f03.spec.ts:4:2 › F03 list context reload history card and privacy 1440 dark
+  tz11-f03.spec.ts:4:2 › F03 list context reload history card and privacy 390 light
+  tz11-f03.spec.ts:4:2 › F03 list context reload history card and privacy 390 dark
+  tz12-catalog.spec.ts:5:1 › catalog customers mobile contact cards retain secondary existing metrics
+  tz12-catalog.spec.ts:20:1 › catalog services branch price duration precede secondary full catalog data
+  tz12-catalog.spec.ts:48:5 › catalog accessible reflow 390 light
+  tz12-catalog.spec.ts:48:5 › catalog accessible reflow 390 dark
+  tz12-catalog.spec.ts:48:5 › catalog accessible reflow 768 light
+  tz12-catalog.spec.ts:48:5 › catalog accessible reflow 768 dark
+  tz12-catalog.spec.ts:48:5 › catalog accessible reflow 1440 light
+  tz12-catalog.spec.ts:48:5 › catalog accessible reflow 1440 dark
+  tz12-loading.spec.ts:5:1 › real PG delay shows inherited loading state rather than free empty grid
+  tz12-states.spec.ts:7:1 › calendar outside schedule has a visible non-color state
+  tz12-states.spec.ts:16:1 › empty one dense no result and real API error remain distinct
+  tz12-states.spec.ts:46:3 › keyboard focus labels contrast and mobile targets light
+  tz12-states.spec.ts:46:3 › keyboard focus labels contrast and mobile targets dark
+  tz12-ui.spec.ts:20:1 › capture paired operational screens
+  tz12-ui.spec.ts:52:1 › calendar compact controls preserve filtering and hidden occupancy
+  tz12-ui.spec.ts:83:1 › list mobile cards retain contact semantics and honest record action
+  tz12-ui.spec.ts:98:1 › shared form groups and save stay accessible in short viewport
+  tz12-ui.spec.ts:116:5 › operational reflow 320 light
+  tz12-ui.spec.ts:116:5 › operational reflow 320 dark
+  tz12-ui.spec.ts:116:5 › operational reflow 768 light
+  tz12-ui.spec.ts:116:5 › operational reflow 768 dark
+  tz12-ui.spec.ts:116:5 › operational reflow 1440 light
+  tz12-ui.spec.ts:116:5 › operational reflow 1440 dark
+  ui5-audit.spec.ts:28:5 › аудит beauty /today
+  ui5-audit.spec.ts:28:5 › аудит beauty /beauty/schedule
+  ui5-audit.spec.ts:28:5 › аудит beauty /appointments
+  ui5-audit.spec.ts:28:5 › аудит beauty /services
+  ui5-audit.spec.ts:28:5 › аудит beauty /employees
+  ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts
+  ui5-audit.spec.ts:28:5 › аудит beauty /customers
+  ui5-audit.spec.ts:28:5 › аудит beauty /finance
+  ui5-audit.spec.ts:28:5 › аудит beauty /team
+  ui5-audit.spec.ts:28:5 › аудит beauty /help
+  ui5-audit.spec.ts:28:5 › аудит beauty /branches
+  ui5-audit.spec.ts:28:5 › аудит beauty /reports
+  unified-growth.spec.ts:130:1 › салон: продажи, финансы и маркетинг на данных филиала
+  zapis-report.spec.ts:6:1 › report: centered multi-service appointment, per-master occupancy and exact payment
+Total: 112 tests in 27 files
+
+# код выхода 0 · 3 с

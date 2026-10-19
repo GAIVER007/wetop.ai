@@ -11,7 +11,12 @@ const ruDate = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.sl
  * Записи салона за период (Q-BS-6): тот же формат, что у выгрузок финансов (`;`, UTF-8 с BOM, CRLF, «12500,50»).
  * Имени и телефона клиента нет по правилу выгрузок: файл уходит из системы.
  */
-export function appointmentsCsv(days: BeautyDay[]): string {
+/** Что выгрузке действительно нужно от дня: период финансов отдаёт строки без колонок журнала и сетки */
+export type CsvDay = Pick<BeautyDay, 'date' | 'columns' | 'appointments'> & {
+  location: Pick<BeautyDay['location'], 'timezone'>;
+};
+
+export function appointmentsCsv(days: CsvDay[]): string {
   const head = [
     'Дата',
     'Время',

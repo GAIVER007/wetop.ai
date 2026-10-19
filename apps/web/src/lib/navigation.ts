@@ -686,7 +686,7 @@ const ROW: Array<{
       { label: 'Анализ конкурентов', at: { HOSPITALITY: '/market' } },
       { label: 'Обзор продаж', at: ALL('/sales') },
       { label: 'Бюджет', at: ALL('/marketing/budget') },
-      { label: 'Аналитика рекламы', at: ALL('/marketing/analytics') },
+      { label: 'Аналитика маркетинга', at: ALL('/marketing/analytics') },
     ],
     match: ['/website', '/ai-seller'],
   },

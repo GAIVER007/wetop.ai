@@ -36,7 +36,7 @@ export default async function AiAgentsPage() {
   const button = catalog ? createButton(catalog, readOnly) : null;
   const disabledReasonId = 'agent-add-reason';
   return (
-    <Page title="ИИ-продавцы" subtitle="Настройка продавцов, инструкции и каналы общения.">
+    <Page title="ИИ-продавец" subtitle="Настройка продавцов, инструкции и каналы общения.">
       {failure !== null && (
         <LoadError
           testId="agents-error"

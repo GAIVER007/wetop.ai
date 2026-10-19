@@ -330,21 +330,27 @@ for (const preset of ['14 дней', '30 дней', 'Текущий месяц']
   });
 }
 
-test('30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами', async ({ page }) => {
-  // владелец 16.10.2026: «⋯» с запасом съедал 40 px, и «Посетитель Д.» превращался в «ПД»;
-  // действия остаются в предпросмотре по щелчку, как у однодневной плашки (ТЗ §58)
+test('30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами', async ({ page, request }) => {
+  // Владелец: меню не должно вытеснять короткое имя. Выбираем именно двухночную TEST3,
+  // а не первого «Посетителя» текущей недели: у TEST6 может быть другой видимый интервал.
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/chessboard');
-  const first = page.locator('[data-testid="stay-cell"]').filter({ hasText: 'Посетитель' }).first();
-  const arrival = (await first.locator('xpath=ancestor::td[1]').getAttribute('data-date'))!;
-  const end = new Date(`${arrival}T00:00:00Z`);
-  end.setUTCDate(end.getUTCDate() + 29);
-  await page.goto(`/chessboard?from=${arrival}&to=${end.toISOString().slice(0, 10)}`);
+  const response = await request.get(`${fixture}/reservations/20260913-TEST3`, { headers: { 'x-wetop-test-client': '1' } });
+  expect(response.ok()).toBe(true);
+  const reservation = await response.json() as { confirmationNumber: string; arrivalDate: string; departureDate: string };
+  expect(reservation.confirmationNumber).toBe('20260913-TEST3');
+  expect(Date.parse(reservation.departureDate) - Date.parse(reservation.arrivalDate)).toBe(2 * 86_400_000);
+  const start = new Date(`${reservation.arrivalDate}T00:00:00Z`);
+  // Не попадаем случайно в режим целого 30-дневного месяца: здесь проверяются фиксированные колонки.
+  if (start.getUTCDate() === 1) start.setUTCDate(start.getUTCDate() - 1);
+  const end = new Date(start); end.setUTCDate(end.getUTCDate() + 29);
+  await page.goto(`/chessboard?from=${start.toISOString().slice(0, 10)}&to=${end.toISOString().slice(0, 10)}`);
   await expect(page.getByTestId('date-col')).toHaveCount(30);
-  const cell = page
-    .locator('td')
-    .filter({ has: page.locator('[data-testid="stay-cell"]', { hasText: 'Посетитель' }) })
-    .first();
+  await expect(page.locator('.board--month')).toHaveCount(0);
+  const stay = page.locator('[data-testid="stay-cell"][data-number="20260913-TEST3"]')
+    .filter({ has: page.locator('.board-stay-caption') });
+  await expect(stay).toHaveCount(1);
+  await expect(stay.locator('.board-stay-caption')).toHaveAttribute('data-span', '2');
+  const cell = stay.locator('xpath=ancestor::td[1]');
   await expect(cell.locator('.board-stay-menu')).toHaveCount(0);
   await expect(cell.locator('.board-stay-name-short')).toBeVisible();
   await expect(cell.locator('.board-stay-name-short')).toHaveText('Посетитель Д.');

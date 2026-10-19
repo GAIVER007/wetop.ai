@@ -48,9 +48,6 @@ jobs:
           EVENT: ${{ github.event_name }}
           RUN_SHA: ${{ github.event.workflow_run.head_sha }}
           INPUT_SHA: ${{ github.event.inputs.sha }}
-          # Owner-requested sequential release window: only the independently tested FIN stage.
-          # Other automatic main results are held, not silently published as the whole bundle.
-          STAGED_RELEASE_SOURCE_SHA: 4a7c86b20114d8bc497baaca37f9ae200340bd3e
         run: |
           set -euo pipefail
           git fetch --quiet origin main release
@@ -67,15 +64,6 @@ jobs:
           else
             target="$RUN_SHA"
           fi
-          # STAGED-WINDOW-BEGIN
-          if [ "$target" != "$STAGED_RELEASE_SOURCE_SHA" ]; then
-            echo "Staged release window: this main result is held; no release pointer changed" >&2
-            if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
-              printf '%s\n' '### HELD: sequential FIN stage only; no promotion performed' >> "$GITHUB_STEP_SUMMARY"
-            fi
-            exit 0
-          fi
-          # STAGED-WINDOW-END
           release="$(git rev-parse origin/release)"
           if [ "$release" = "$target" ]; then
             echo "release уже на ${target}: перематывать нечего"

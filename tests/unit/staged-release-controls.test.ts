@@ -107,23 +107,32 @@ describe('stage1 image preparation before production promotion', () => {
   });
 });
 
-describe('controlled staged release window', () => {
-  it('holds broad main promotion, preserving the tested source and all existing guards', () => {
-    const pin = promotion.match(/STAGED_RELEASE_SOURCE_SHA: ([0-9a-f]{40})/);
-    expect(pin?.[1]).toBe(SOURCE);
-    const window = promotion.match(/# STAGED-WINDOW-BEGIN\n([\s\S]*?)\n\s*# STAGED-WINDOW-END/);
-    expect(window, 'actual promotion hold must be executable and independently testable').not.toBeNull();
-    for (const [target, expected] of [[SOURCE, 'ADVANCE'], [MAIN, ''], ['a'.repeat(40), '']] as const) {
-      const result = spawnSync('bash', ['-c', `set -eu\n${window![1]}\nprintf '%s' ADVANCE`], {
-        encoding: 'utf8', timeout: 5_000,
-        env: { PATH: process.env.PATH ?? '/usr/bin:/bin', target, STAGED_RELEASE_SOURCE_SHA: SOURCE },
-      });
-      expect(result.status, result.stderr).toBe(0);
-      expect(result.stdout).toBe(expected);
+describe('ordinary release promotion (staged window retired 19.10.2026)', () => {
+  // The FIN-only window pinned 4a7c86b2, which is not a descendant of the published release d54ae3b1,
+  // so the fast-forward guard rejected it and every other green main was held: nothing could deploy.
+  // Owner instruction 19.10.2026 «давай продолжай» chose to retire the stale hold. The ordinary
+  // green-gate, main-ancestry, fast-forward and migration-refusal guards stay mandatory.
+  it('does not pin a single source or hold other green main results', () => {
+    expect(promotion).not.toContain('STAGED_RELEASE_SOURCE_SHA');
+    expect(promotion).not.toContain('STAGED-WINDOW');
+    expect(promotion).not.toContain(SOURCE);
+  });
+  it('keeps every ordinary promotion guard, ahead of the release push', () => {
+    const push = promotion.indexOf('git push origin "${target}:refs/heads/release"');
+    expect(push).toBeGreaterThan(0);
+    for (const guard of [
+      'select(.conclusion == "success")',
+      'git merge-base --is-ancestor "$target" origin/main',
+      'git merge-base --is-ancestor "$release" "$target"',
+      'packages/database/prisma/migrations',
+    ]) {
+      const at = promotion.indexOf(guard);
+      expect(at, guard).toBeGreaterThan(0);
+      expect(at, guard).toBeLessThan(push);
     }
-    expect(promotion.indexOf('# STAGED-WINDOW-BEGIN')).toBeLessThan(promotion.indexOf('git push origin "${target}:refs/heads/release"'));
-    expect(promotion).toContain('git merge-base --is-ancestor "$target" origin/main');
-    expect(promotion).toContain('git merge-base --is-ancestor "$release" "$target"');
-    expect(promotion).toContain('select(.conclusion == "success")');
+    expect(promotion).toContain("github.event.workflow_run.conclusion == 'success'");
+    expect(promotion).toContain("github.event.workflow_run.head_branch == 'main'");
+    const pushes = promotion.split('\n').filter(line => /^\s*git push\b/.test(line));
+    expect(pushes).toEqual(['          git push origin "${target}:refs/heads/release"']);
   });
 });

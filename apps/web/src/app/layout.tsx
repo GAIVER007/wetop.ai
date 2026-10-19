@@ -40,10 +40,13 @@ import {
 } from '../components/workspace-session-boundary';
 import { DevAgentation } from '../components/dev-agentation';
 import { inter } from './fonts';
+import { PWA_THEME } from '../lib/pwa';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',
   description: 'Рабочее пространство вашего бизнеса.',
+  // запуск с экрана iPhone без адресной строки (PWA1); манифест и значки Next подключает сам по app/manifest.ts
+  appleWebApp: { capable: true, title: 'WETOP', statusBarStyle: 'default' as const },
 };
 
 // Без viewport-fit=cover env(safe-area-inset-*) на iPhone равны нулю, и нижняя навигация (ADR-050)
@@ -52,6 +55,11 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover' as const,
+  // цвет строки состояния телефона: главный цвет стойки своей темы (PWA1)
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: PWA_THEME.light },
+    { media: '(prefers-color-scheme: dark)', color: PWA_THEME.dark },
+  ],
 };
 
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {

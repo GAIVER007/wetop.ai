@@ -604,15 +604,14 @@ export class AuthService {
   private async readWhoAmI(token: string, now: Date): Promise<WhoAmI | null> {
     const found = await this.session(token, now);
     if (!found) return null;
-    // Продление сессии при работе (§13.5, PR #29) касалось только входа по коду: смена по паролю
-    // кончается через 12 часов намеренно (ADR-049). Вход по коду снят 20.09.2026 — продлевать стало
-    // нечего, и ветка убрана, чтобы не выглядеть работающей. Продлевать ли смену по паролю — вопрос
-    // к владельцу (Q-152), а не решение правки-сноса: `shouldRenewSession` в домене остался на месте.
+    // Q-153 (б), владелец 19.10.2026: смена по паролю продлевается работой. Каждое действие сдвигает срок на
+    // 12 часов от себя, 12 часов простоя смену обрывают (ADR-049 про забытый ноутбук остаётся в силе: оборвёт простой).
+    // Запись та же, что отмечает активность, лишнего обращения к базе нет.
+    const expiresAt = sessionExpiry(now);
     await this.prisma.db.session.update({
       where: { id: found.session.id },
-      data: { lastSeenAt: now },
+      data: { lastSeenAt: now, expiresAt },
     });
-    const expiresAt = found.session.expiresAt;
     const org = found.session.organization;
     return {
       user: visible(

@@ -44,6 +44,13 @@ await db.user.create({
   data: { id: user, name: 'Тестовый владелец', email: `mv7-${user}@example.invalid` },
 });
 
+const syncMembership = () =>
+  db.membership.upsert({
+    where: { userId_organizationId: { userId: user, organizationId: org } },
+    create: { userId: user, organizationId: org, role },
+    update: { role, status: 'ACTIVE' },
+  });
+
 class FixtureController {
   async me() {
     return {
@@ -159,6 +166,8 @@ app.use(
                 create: { id: user, name: 'Тестовый владелец', email: `mv7-${user}@example.invalid` },
                 update: {},
               });
+              // запись салона сверяет членство в базе с ролью сессии (beauty/access.ts)
+              await syncMembership();
               const b1 = await db.business.create({
                 data: {
                   organizationId: org,
@@ -207,6 +216,7 @@ app.use(
             }
             if (req.path === '/__test/control') {
               role = body.role === 'STAFF' ? 'STAFF' : 'OWNER';
+              await syncMembership();
               unavailable = body.unavailable === true;
               failCreate = body.failCreate === true;
               await db.organization.update({
@@ -269,6 +279,7 @@ app.use(
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
                 await tx.location.deleteMany({ where: { business: b } });
                 await tx.business.deleteMany({ where: b });
+                await tx.membership.deleteMany({ where: { organizationId: org } });
                 await tx.organization.delete({ where: { id: org } });
                 await tx.user.delete({ where: { id: user } });
               });

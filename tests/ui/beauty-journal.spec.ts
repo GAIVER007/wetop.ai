@@ -50,15 +50,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
     'Услуга создана. Включите её в выбранном филиале ниже.',
   );
   await page.goto('/beauty/services');
-  await main
-    .getByRole('row')
-    .filter({ hasText: 'Маникюр' })
-    .getByRole('button', { name: 'Изменить' })
-    .click();
-  panel = page.getByRole('dialog');
-  await panel.getByLabel('Филиал оказывает эту услугу').check();
-  await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+  // услуга включается в филиал кнопкой карточки каталога
+  await main.getByRole('button', { name: 'Добавить в филиал: Маникюр', exact: true }).click();
+  await expect(main.getByRole('button', { name: 'В филиале: Маникюр', exact: true })).toBeDisabled();
 
   await page.goto('/beauty/masters');
   await main.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();

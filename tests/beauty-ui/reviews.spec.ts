@@ -64,8 +64,9 @@ test('reviews: manager copies link, anonymous client rates selected master once'
   await guest.getByRole('button', { name: 'Отправить отзыв', exact: true }).click();
   await expect(guest.getByText('Спасибо, отзыв отправлен.', { exact: true })).toBeVisible();
   await guest.reload();
+  // видимый main: пока поток Next.js не подменил разметку, её копия лежит в скрытом <div hidden id="S:0">
   await expect(
-    guest.getByText('Отзыв по этой ссылке уже отправлен.', { exact: true }),
+    guest.getByRole('main').getByText('Отзыв по этой ссылке уже отправлен.', { exact: true }),
   ).toBeVisible();
   await expect(guest.getByRole('button', { name: 'Отправить отзыв', exact: true })).toHaveCount(0);
   const repeated = await request.post(

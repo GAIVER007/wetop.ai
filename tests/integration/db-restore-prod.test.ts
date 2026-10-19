@@ -47,18 +47,18 @@ union all select 'R|' || c.relname || '|' || c.relrowsecurity || '|' || c.relfor
 union all select 'A|relation|' || c.relname || '|' || pg_get_userbyid(a.grantor) || '|' ||
     case when a.grantee=0 then 'PUBLIC' else pg_get_userbyid(a.grantee) end || '|' || a.privilege_type || '|' || a.is_grantable
   from pg_class c join pg_namespace n on n.oid=c.relnamespace
-  cross join lateral aclexplode(coalesce(c.relacl,acldefault(case when c.relkind='S' then 'S'::"char" else 'r'::"char" end,c.relowner))) a
+  cross join lateral aclexplode(case when c.relacl is null then acldefault(case when c.relkind='S' then 'S'::"char" else 'r'::"char" end,c.relowner) when cardinality(c.relacl)>0 then c.relacl end) a
   where n.nspname='public' and c.relkind in ('r','p','v','m','S')
 union all select 'A|column|' || c.relname || '.' || col.attname || '|' || pg_get_userbyid(a.grantor) || '|' ||
     case when a.grantee=0 then 'PUBLIC' else pg_get_userbyid(a.grantee) end || '|' || a.privilege_type || '|' || a.is_grantable
   from pg_attribute col join pg_class c on c.oid=col.attrelid join pg_namespace n on n.oid=c.relnamespace
-  cross join lateral aclexplode(coalesce(col.attacl,'{}'::aclitem[])) a
+  cross join lateral aclexplode(case when cardinality(col.attacl)>0 then col.attacl end) a
   where n.nspname='public' and c.relkind in ('r','p') and col.attnum>0 and not col.attisdropped
 union all select 'A|function|' || p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')|' ||
     pg_get_userbyid(a.grantor) || '|' || case when a.grantee=0 then 'PUBLIC' else pg_get_userbyid(a.grantee) end ||
     '|' || a.privilege_type || '|' || a.is_grantable
   from pg_proc p join pg_namespace n on n.oid=p.pronamespace
-  cross join lateral aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a
+  cross join lateral aclexplode(case when p.proacl is null then acldefault('f',p.proowner) when cardinality(p.proacl)>0 then p.proacl end) a
   where n.nspname='public'
 order by 1`;
 

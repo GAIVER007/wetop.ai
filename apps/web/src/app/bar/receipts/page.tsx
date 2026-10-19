@@ -28,7 +28,8 @@ export default async function BarReceiptsPage() {
   if (!methods.ok) throw methods.error;
   // контекст денежных форм: сервер сверяет объект и валюту (D-CUR); у салона вместо объекта филиал
   const context = await loadBarContext();
-  const sectionName = shell.vertical === 'BEAUTY' ? 'Склад' : 'Бар';
+  // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
+  const sectionName = 'Склад';
   return <Page width="wide" className="bar-subpage" title={`${sectionName}: приходы`} subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={rights.receiveStock ?
     <Link className="btn" href="/bar/receipts/new" prefetch={false}>Новый приход</Link>
   : undefined}>

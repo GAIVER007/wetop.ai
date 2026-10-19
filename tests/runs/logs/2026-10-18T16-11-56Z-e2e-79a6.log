@@ -1,0 +1,84 @@
+# Сквозные (e2e) · 18.10.2026 21:11 Алматы · srv1719674
+# коммит 9ef34a2 (fix/salon-mobile-followup-20261018)
+# npx playwright test --workers=2 --reporter=list,json '--config' '/opt/data/workspace/wetop-browser-readonly-check/schedule-test.config.ts' 'mobile-calendar-week.spec.ts' '--grep' '360 light' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:3301626) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/mobile-calendar-week.spec.ts:28:7 › 360 light › selected master name is visible above mobile calendar (9.7s)
+  ✘  2 tests/beauty-ui/mobile-calendar-week.spec.ts:37:7 › 360 light › week range has its own readable row and navigation still works (3.8s)
+
+
+  1) tests/beauty-ui/mobile-calendar-week.spec.ts:28:7 › 360 light › selected master name is visible above mobile calendar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('.beauty-current-master')
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeVisible" locator('.beauty-current-master') with timeout 5000ms
+      - waiting for locator('.beauty-current-master')
+        13 × locator resolved to <p class="beauty-current-master">Александра Синтетическая</p>
+           - unexpected value "hidden"
+
+
+      32 |         await expect(name).toHaveText(master.name);
+      33 |         await page.screenshot({ path: info.outputPath('calendar-before-assert.png') });
+    > 34 |         await expect(name).toBeVisible();
+         |                            ^
+      35 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      36 |       });
+      37 |       test('week range has its own readable row and navigation still works', async ({ page, request }, info) => {
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/beauty-ui/mobile-calendar-week.spec.ts:34:28
+
+    Error Context: test-results/mobile-calendar-week-360-l-6f4a9-sible-above-mobile-calendar/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-calendar-week-360-l-6f4a9-sible-above-mobile-calendar/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-calendar-week-360-l-6f4a9-sible-above-mobile-calendar/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/mobile-calendar-week.spec.ts:37:7 › 360 light › week range has its own readable row and navigation still works 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 239.6875
+    Received:    305.6875
+
+      47 |         const n = await next.boundingBox();
+      48 |         expect(r).not.toBeNull(); expect(p).not.toBeNull(); expect(n).not.toBeNull();
+    > 49 |         expect(r!.y + r!.height).toBeLessThanOrEqual(p!.y + 1);
+         |                                  ^
+      50 |         expect(r!.y + r!.height).toBeLessThanOrEqual(n!.y + 1);
+      51 |         expect(r!.height).toBeLessThanOrEqual(32);
+      52 |         const initial = await range.innerText();
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/beauty-ui/mobile-calendar-week.spec.ts:49:34
+
+    Error Context: test-results/mobile-calendar-week-360-l-27d99--and-navigation-still-works/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-calendar-week-360-l-27d99--and-navigation-still-works/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-calendar-week-360-l-27d99--and-navigation-still-works/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/beauty-ui/mobile-calendar-week.spec.ts:28:7 › 360 light › selected master name is visible above mobile calendar 
+    tests/beauty-ui/mobile-calendar-week.spec.ts:37:7 › 360 light › week range has its own readable row and navigation still works 
+
+# код выхода 1 · 32 с

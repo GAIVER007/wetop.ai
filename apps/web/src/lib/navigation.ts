@@ -131,7 +131,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/staff',
-        label: 'Сотрудники и доступ',
+        // заголовок как пункт меню «Персонал → Сотрудники» (решение владельца 19.10.2026)
+        label: 'Сотрудники',
         icon: 'guests',
         requires: 'staff',
         description: 'Люди организации: роли, приглашения и доступ.',
@@ -291,6 +292,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Движение товаров',
         icon: 'move',
         description: 'Приходы, продажи и списания товаров.',
+      },
+      {
+        href: '/bar/receipts',
+        requires: 'reports',
+        label: 'Приходы',
+        icon: 'receipt',
+        description: 'Приходы от поставщиков: документы, суммы и долги.',
       },
       {
         href: '/bar/suppliers',
@@ -481,7 +489,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         // при слиянии 02.10 заменил параллельный /staff (список на login/team-section): /staff — переадресация
         href: '/team',
         requires: 'staff',
-        label: 'Сотрудники и доступ',
+        label: 'Сотрудники',
         icon: 'guests',
         description: 'Люди организации: роли, приглашения и доступ.',
       },
@@ -626,12 +634,14 @@ const ROW: Array<{
     label: 'Склад',
     icon: 'stock',
     items: [
+      // пункты в порядке вкладок экрана склада (решение владельца 19.10.2026): одно название в меню и на вкладке
       { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
+      { label: 'Обзор склада', at: ALL('/bar') },
       { label: 'Расходники', at: { BEAUTY: '/bar/consumables' } },
+      { label: 'Приходы', at: ALL('/bar/receipts') },
       { label: 'Номенклатура', at: ALL('/bar/products') },
-      { label: 'Продажи', at: ALL('/bar') },
+      { label: 'Поставщики', at: ALL('/bar/suppliers') },
       { label: 'Движение товаров', at: ALL('/bar/operations') },
-      { label: 'Настройки', at: ALL('/bar/suppliers') },
     ],
   },
   {
@@ -639,9 +649,10 @@ const ROW: Array<{
     label: 'Финансы',
     icon: 'money',
     items: [
-      // касса филиала (§35.2, §48) у салона и ресторана; у гостиницы оплаты и касса
-      { label: 'Движение денег', at: { HOSPITALITY: '/finance', BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
-      { label: 'Приход', at: { BEAUTY: '/finance', FOOD_SERVICE: '/restaurant-finance' } },
+      // пункты называются по экранам (решение владельца 19.10.2026): касса филиала (§35.2, §48) у салона и
+      // ресторана; «Финансы» каждого направления; у гостиницы касса внутри её «Финансов»
+      { label: 'Касса', at: { BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
+      { label: 'Обзор финансов', at: { HOSPITALITY: '/finance', BEAUTY: '/finance', FOOD_SERVICE: '/restaurant-finance' } },
       { label: 'Отчеты', at: { HOSPITALITY: '/reports/finance' } },
     ],
   },
@@ -675,7 +686,7 @@ const ROW: Array<{
       { label: 'Анализ конкурентов', at: { HOSPITALITY: '/market' } },
       { label: 'Обзор продаж', at: ALL('/sales') },
       { label: 'Бюджет', at: ALL('/marketing/budget') },
-      { label: 'Аналитика рекламы', at: ALL('/marketing/analytics') },
+      { label: 'Аналитика маркетинга', at: ALL('/marketing/analytics') },
     ],
     match: ['/website', '/ai-seller'],
   },
@@ -718,6 +729,28 @@ export function phoneNavigationFor(vertical: WebVertical = 'HOSPITALITY'): Navig
   if (vertical === 'FOOD_SERVICE') return phoneTabs(foodMenuSections);
   if (vertical === 'BEAUTY') return phoneTabs(beautyMenuSections);
   return phoneNavigation;
+}
+
+/**
+ * Первые шаги «Помощи» из того же меню (решение владельца 19.10.2026: «всё едино под все направления»): шаги одни у
+ * всех направлений, путь и ссылка берутся из меню направления. Нет экрана или права, нет шага; новое направление
+ * получает справку вместе с меню.
+ */
+const HELP_STEPS: Array<{ section: string; item: string; text: string }> = [
+  { section: 'services', item: 'Каталог', text: 'заполните то, что продаёте: названия, длительность или вместимость и цены.' },
+  { section: 'staff', item: 'Специалисты', text: 'добавьте тех, кто оказывает услуги, назначьте им услуги и рабочие часы.' },
+  { section: 'journal', item: 'Журнал', text: 'создайте первую запись или бронь.' },
+  { section: 'settings', item: 'Объект', text: 'проверьте данные объекта, часы работы и подключения.' },
+];
+
+export function helpSteps(sections: MenuSection[]): Array<{ path: string; href: string; text: string }> {
+  return HELP_STEPS.flatMap((step) => {
+    const section = sections.find((s) => s.id === step.section);
+    if (!section) return [];
+    if (section.direct) return [{ path: section.label, href: section.items[0]!.href, text: step.text }];
+    const item = section.items.find((i) => i.label === step.item);
+    return item ? [{ path: `${section.label} → ${item.label}`, href: item.href, text: step.text }] : [];
+  });
 }
 
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
@@ -915,8 +948,8 @@ function normalizeBeautyAccess(raw: unknown): BeautyPositionAccess | undefined {
 export function activeMenuRoute(path: string): string | undefined {
   const route = activeNavigation(path)?.href;
   if (!route) return undefined;
-  // приходы бара это движение товаров раздела «Склад» (верхнее меню 17.10.2026)
-  if (path === '/bar/receipts' || path.startsWith('/bar/receipts/')) return '/bar/operations';
+  // новый приход подсвечивает пункт «Приходы» (у пункта свой адрес с 19.10.2026)
+  if (path.startsWith('/bar/receipts/')) return '/bar/receipts';
   if (route.startsWith('/hotel-settings')) return '/hotel-settings';
   if (route.startsWith('/rooms')) return '/inventory';
   if (route.startsWith('/channels')) return '/channels';

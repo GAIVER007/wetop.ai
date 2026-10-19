@@ -95,7 +95,7 @@ export function MastersBoard({
   }, [router, scopeKey]);
   const savedProfile = (row: BeautyEmployeeRow) => {
     setEditing(null);
-    setNotice('Мастер создан');
+    setNotice('Специалист создан');
     clearPendingCreation(scopeKey, 'employee', row.id);
     router.replace(employeeProfileHref(row.id), { scroll: false });
   };
@@ -105,13 +105,13 @@ export function MastersBoard({
   const names = new Map(services.map((s) => [s.id, s.name]));
   return (
     <>
-      {unavailable && <Alert>Мастер недоступен в текущем контексте.</Alert>}
+      {unavailable && <Alert>Специалист недоступен в текущем контексте.</Alert>}
       {notice && <p role="status">{notice}</p>}
       <div className="beauty-bar">
         <p role="status">
           {items.length === 0
-            ? 'Добавьте первого мастера'
-            : `Мастеров: ${items.length}, из них в архиве ${items.filter((i) => !i.active).length}`}
+            ? 'Добавьте первого специалиста'
+            : `Специалистов: ${items.length}, из них в архиве ${items.filter((i) => !i.active).length}`}
         </p>
         {canCreate && (
           <Button
@@ -123,7 +123,7 @@ export function MastersBoard({
               })
             }
           >
-            Добавить мастера
+            Добавить специалиста
           </Button>
         )}
       </div>
@@ -202,7 +202,7 @@ export function MastersBoard({
       <Overlay
         open={editing !== null}
         onClose={() => guard.current(close)}
-        title="Новый мастер"
+        title="Новый специалист"
         drawer
         size="md"
         trapFocus

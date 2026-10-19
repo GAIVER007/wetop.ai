@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "blocking_findings": [],
+  "summary": {
+    "scope": "Read-only source review of the three history-reader/test/optional-web-DTO changes against HEAD afc9a1fbadbce2bb090d509fc6388d30906b1da1. No repository, index, database, network, or process modifications; no tests executed.",
+    "logic": "Moved events allow both before.items and after.items; created events allow only after.items. Extra basePriceMinor, discountMinor, and surchargeMinor require nonnegative integer strings. discountPercent requires explicit null or an integer number in 0..100; currency requires exactly three uppercase ASCII letters. Optional malformed values are omitted without reconstructing historical prices or changing financial rules.",
+    "privacy_and_scope": "Output remains an explicit allowlist, without raw audit-object spread. Lines require business-scoped resolved employee and service names; unresolved lines are dropped. Appointment location ownership is checked before audit access. Organization/entity/action filters, 100-row limit plus truncation probe, selected author fields, existing routes and authorization decorators remain unchanged.",
+    "backward_compatibility_and_dto": "Missing legacy components remain absent, not zero or reconstructed. Aggregate-only moved snapshots remain valid. API and web BeautyAppointmentHistorySnapshot interface declarations are identical, including optional new fields. Original two tests remain an unchanged prefix; three new cases cover equal-total two-line changes, private-field removal and scoped queries, legacy omissions, and malformed/unresolved stripping.",
+    "recorded_evidence": "Read actual b204 and a3d4 run entries: RED 2 failed/3 passed, then GREEN 5/5; both record codeChangedDuringRun=false at the stated HEAD. These are existing recorded results, not reviewer reruns.",
+    "limitations": "Approval is limited to this reader diff, not writer persistence, production readiness, integration behavior, or pending parent typecheck/lint. Parent retains sole ownership of later writer before/after implementation. Existing permissive validation of legacy core fields is unchanged. Optional future test coverage could explicitly exercise numeric percent boundaries and malformed fractional/string percentages."
+  }
+}

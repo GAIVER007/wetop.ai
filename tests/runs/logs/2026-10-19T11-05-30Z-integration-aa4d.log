@@ -1,0 +1,22 @@
+# Интеграционные (integration) · 19.10.2026 16:05 Алматы · srv1719674
+# коммит d3a65f6 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T11-05-30Z-integration-aa4d.json' 'tests/integration/beauty-appointment-lines.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:1016709) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-lines.test.ts (28 tests) 4588ms
+   ✓ Beauty: строки услуг записи и совместимость старых writers (28)
+     ✓ equal-total edits preserve complete immutable previous and next service-line snapshots 419ms
+     ✓ хранит один отзыв мастеру за DONE-визит и показывает только отзывы выбранного мастера 467ms
+     ✓ сохраняет техкарту по revision, считает FIFO и списывает материалы только при первом DONE 439ms
+
+ Test Files  1 passed (1)
+      Tests  28 passed (28)
+   Start at  11:05:33
+   Duration  9.41s (tests 64%, transform 23%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-19T11-05-30Z-integration-aa4d.json
+
+# код выхода 0 · 12 с

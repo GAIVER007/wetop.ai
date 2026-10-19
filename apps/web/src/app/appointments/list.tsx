@@ -203,12 +203,12 @@ export function AppointmentsList({
             ))}
           </Select>
         </Field>
-        <Field label="Мастер">
+        <Field label="Специалист">
           <Select
             value={employee}
             onChange={(e) => address({ master: e.target.value, appointment: '' })}
           >
-            <option value="">Все мастера</option>
+            <option value="">Все специалисты</option>
             {day.columns.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.name}
@@ -271,7 +271,7 @@ export function AppointmentsList({
               <th>Клиент</th>
               <th>Телефон</th>
               <th>Услуга</th>
-              <th>Мастер</th>
+              <th>Специалист</th>
               <th>Статус</th>
               <th className="beauty-amount">Стоимость</th>
               <th>Действия</th>
@@ -308,10 +308,10 @@ export function AppointmentsList({
                     ? r.items.map((item) => item.serviceName).join(', ')
                     : r.serviceName}
                 </td>
-                <td data-label="Мастер">
+                <td data-label="Специалист">
                   {r.items?.length
                     ? [...new Set(r.items.map((item) => item.employeeName))].join(', ')
-                    : (day.columns.find((e) => e.id === r.employeeId)?.name ?? 'Мастер в архиве')}
+                    : (day.columns.find((e) => e.id === r.employeeId)?.name ?? 'Специалист в архиве')}
                 </td>
                 <td data-label="Статус">
                   <StatusBadge kind="beauty" value={r.status} />

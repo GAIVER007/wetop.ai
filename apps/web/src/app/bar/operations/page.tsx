@@ -55,14 +55,15 @@ export default async function BarOperationsPage() {
   if (!stock.ok || !sales.ok || !movements.ok) return null;
   // контекст денежных форм: сервер сверяет объект и валюту (D-CUR); у салона вместо объекта филиал
   const context = await loadBarContext();
-  const sectionName = shell.vertical === 'BEAUTY' ? 'Склад' : 'Бар';
+  // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
+  const sectionName = 'Склад';
   const sectionGenitive = shell.vertical === 'BEAUTY' ? 'склада' : 'бара';
   const clock = propertyClock(await workspaceTimezone());
   return (
     <Page
       width="wide"
       className="bar-subpage"
-      title={`${sectionName}: операции`}
+      title={`${sectionName}: движение товаров`}
       subtitle="Списание и инвентаризация, журнал продаж с возвратами, лента движений остатка."
     >
       <BarTabs current="operations" />

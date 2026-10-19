@@ -106,7 +106,7 @@ export function EmployeeBasicForm({
             disabled={pending || disabled}
             onChange={(event) => onChange({ ...draft, active: event.target.checked })}
           />
-          Мастер работает
+          Специалист работает
         </label>
       )}
       {creating && (

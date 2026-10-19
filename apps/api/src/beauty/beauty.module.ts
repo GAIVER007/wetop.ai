@@ -180,6 +180,10 @@ export class BeautyCatalogService {
       if (!service) throw new NotFoundException('Услуга не найдена');
       const revision = await tx.beautyServiceMaterialRevision.findUnique({ where: { serviceId } });
       if ((revision?.revision ?? 0) !== expectedRevision) throw new ConflictException('Техкарта уже изменена, обновите данные');
+      // Журнал хранит прежний состав той же формы, что и новый: изменение техкарты восстанавливается из истории
+      const previous = await tx.beautyServiceMaterial.findMany({
+        where: { serviceId }, orderBy: { productId: 'asc' }, select: { productId: true, normQty: true, unit: true },
+      });
       const products = parsed.length ? await tx.kitchenProduct.findMany({
         where: { id: { in: parsed.map((item) => item.productId) }, businessId: scope.businessId },
       }) : [];
@@ -197,7 +201,9 @@ export class BeautyCatalogService {
       else await tx.beautyServiceMaterialRevision.create({ data: { serviceId, revision: nextRevision } });
       await tx.auditLog.create({ data: {
         organizationId: scope.organizationId, userId: currentUserId(), entityType: 'beauty_service', entityId: serviceId,
-        action: 'beauty.service.materials', after: { revision: nextRevision, items: parsed.map((item) => ({ productId: item.productId, normQty: milliText(item.normQty), unit: item.unit })) },
+        action: 'beauty.service.materials',
+        before: { revision: Number(expectedRevision), items: previous.map((item) => ({ productId: item.productId, normQty: milliText(milliOf(item.normQty)), unit: item.unit })) },
+        after: { revision: nextRevision, items: [...parsed].sort((a, b) => a.productId.localeCompare(b.productId)).map((item) => ({ productId: item.productId, normQty: milliText(item.normQty), unit: item.unit })) },
       } });
     });
     return this.serviceMaterials(serviceId);

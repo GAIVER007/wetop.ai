@@ -1,0 +1,49 @@
+# Интеграционные (integration) · 19.10.2026 14:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит 91f21c4 (fix/salon-migrations-133-137), незакоммиченных файлов набора: 23
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-44-21Z-integration-9b34.json' 'tests/integration/beauty-appointment-lines.test.ts' 'tests/integration/customer-import-storage.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+(node:87966) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-lines.test.ts (27 tests) 1315ms
+ ❯ |integration| tests/integration/customer-import-storage.test.ts (6 tests | 1 failed) 64ms
+   ✓ M4-B2: durable tenant storage (5)
+     ✓ has both tables with forced tenant RLS 2ms
+     ✓ retains audit journal by denying tenant DELETE 0ms
+     ✓ keeps row source identity and run immutable even to a service writer 1ms
+     ✓ cannot forge tenant or use a foreign parent through wetop_app 1ms
+     ✓ has no FK on a deletable customer and no cascade to business data 1ms
+   ❯ M4-B2 migration rollback in an isolated synthetic schema (1)
+     × preserves old customers, refuses nonempty rollback, removes only empty journal 37ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/customer-import-storage.test.ts > M4-B2 migration rollback in an isolated synthetic schema > preserves old customers, refuses nonempty rollback, removes only empty journal
+AssertionError: expected 'customer_imports' to be null
+
+- Expected:
+null
+
++ Received:
+"customer_imports"
+
+ ❯ tests/integration/customer-import-storage.test.ts:90:95
+     88|       await client.query(readFileSync(resolve(folder,'down.sql'),'utf8…
+     89|       expect((await client.query('SELECT * FROM customers')).rows).toE…
+     90|       expect((await client.query("SELECT to_regclass('customer_imports…
+       |                                                                                               ^
+     91|     } finally {
+     92|       await client.query('ROLLBACK');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 32 passed (33)
+   Start at  02:44:22
+   Duration  3.20s (tests 56%, transform 23%, import 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-44-21Z-integration-9b34.json
+
+# код выхода 1 · 5 с

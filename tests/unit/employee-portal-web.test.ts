@@ -66,7 +66,7 @@ describe('salon terminology regression', () => {
   it('exposes useful service search and category', () => {
     const services = source('app/beauty/services/board.tsx');
     expect(services).toContain('Поиск услуг');
-    expect(services).toContain('Группа');
+    expect(services).toContain('Категория');
     expect(services).toContain('row.effective.priceMinor');
   });
 });

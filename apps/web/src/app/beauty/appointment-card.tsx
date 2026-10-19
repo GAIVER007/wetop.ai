@@ -1,5 +1,5 @@
 'use client';
-import { useActionState, useEffect, useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useConfirm } from '../../components/use-confirm';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
 import type { BeautyAppointmentRow, BeautyDay } from '../../lib/api';
@@ -19,8 +19,14 @@ import { ReviewInvitation } from './review-invitation';
 import { ACTION_WORD } from './appointment-status';
 import { beautyStatus } from '../../lib/status/beauty';
 import { NO_SHOW_BEFORE_START_MESSAGE } from '@pms/domain';
+import { AppointmentMoneyOperation, type PreparedMoneyRequest } from './appointment-money-operation';
+import type { JournalResult } from './journal-actions';
 
-export function AppointmentCard({
+export function AppointmentCard(props: Parameters<typeof AppointmentCardBody>[0]) {
+  return <AppointmentCardBody key={`${props.scopeKey}:${props.row.id}`} {...props} />;
+}
+
+function AppointmentCardBody({
   day,
   row,
   canEdit,
@@ -52,6 +58,49 @@ export function AppointmentCard({
   const { ask, dialog } = useConfirm();
   const [busy, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const money = useRef<AppointmentMoneyOperation | null>(null);
+  const mounted = useRef(false);
+  const [moneyStatus, setMoneyStatus] = useState<AppointmentMoneyOperation['status'] | 'confirmed'>('blocked');
+  const [moneyKind, setMoneyKind] = useState<'pay' | 'refund' | null>(null);
+  useEffect(() => {
+    mounted.current = true;
+    money.current = new AppointmentMoneyOperation(scopeKey, row.id);
+    setMoneyStatus(money.current.status);
+    return () => { mounted.current = false; };
+  }, [scopeKey, row.id]);
+  const moneyLocked = busy || moneyStatus !== 'idle';
+  const runMoney = (request: PreparedMoneyRequest, operation: AppointmentMoneyOperation) => {
+    setMoneyKind(request.kind);
+    setMoneyStatus('pending');
+    setError(null);
+    startTransition(async () => {
+      let result: JournalResult;
+      try {
+        result = request.kind === 'pay'
+          ? await payAppointment(row.id, request.method, request.amountMinor, request.idempotencyKey, scopeKey)
+          : await refundAppointment(row.id, request.method, request.amountMinor, request.reason!, request.idempotencyKey, scopeKey);
+      } catch {
+        result = { outcome: 'unknown', error: 'Ответ потерян. Результат операции не подтверждён.' };
+      }
+      const confirmed = operation.settle(result);
+      // A late response belongs to the original keyed card, not the next appointment/scope.
+      if (!mounted.current) return;
+      setMoneyStatus(confirmed ? 'confirmed' : operation.status);
+      if (!confirmed) {
+        setError(result?.error ?? 'Результат операции не подтверждён.');
+        return;
+      }
+      try { onDone(); } catch {
+        setError('Операция подтверждена. Обновите страницу, чтобы увидеть актуальный остаток.');
+      }
+    });
+  };
+  const retryMoney = () => {
+    if ((moneyKind === 'pay' && !canPay) || (moneyKind === 'refund' && !canRefund)) return;
+    const operation = money.current;
+    const request = operation?.retry();
+    if (operation && request) runMoney(request, operation);
+  };
   const master = day.columns.find((c) => c.id === row.employeeId);
   // поле datetime-local показывает местное время филиала, а на сервер уходит момент: без перевода
   // «13:00» уехало бы в часовом поясе того, кто открыл страницу
@@ -74,17 +123,10 @@ export function AppointmentCard({
     if (minor <= 0n) return setError('Сумма должна быть больше нуля');
     if (minor > BigInt(Number.MAX_SAFE_INTEGER)) return setError('Сумма слишком большая');
     if (!reason.trim()) return setError('Укажите причину возврата');
-    startTransition(async () => {
-      const result = await refundAppointment(
-        row.id,
-        refundMethod,
-        Number(minor),
-        reason.trim(),
-        crypto.randomUUID(),
-      );
-      if (result.error) setError(result.error);
-      else onDone();
-    });
+    const operation = money.current;
+    const request = operation?.begin({ kind: 'refund', method: refundMethod, amountMinor: Number(minor), reason: reason.trim() });
+    if (operation && request) runMoney(request, operation);
+    else if (operation) setMoneyStatus(operation.status);
   };
   const payable =
     canPay && row.status !== 'CANCELLED' && row.status !== 'NO_SHOW' && remaining > 0n;
@@ -96,11 +138,10 @@ export function AppointmentCard({
     const minor = BigInt(minorText || '0');
     if (minor <= 0n) return setError('Сумма должна быть больше нуля');
     if (minor > BigInt(Number.MAX_SAFE_INTEGER)) return setError('Сумма слишком большая');
-    startTransition(async () => {
-      const result = await payAppointment(row.id, method, Number(minor), crypto.randomUUID());
-      if (result.error) setError(result.error);
-      else onDone();
-    });
+    const operation = money.current;
+    const request = operation?.begin({ kind: 'pay', method, amountMinor: Number(minor) });
+    if (operation && request) runMoney(request, operation);
+    else if (operation) setMoneyStatus(operation.status);
   };
   useEffect(() => {
     if (moved) onDone();
@@ -110,7 +151,7 @@ export function AppointmentCard({
     if (status === 'CANCELLED') {
       const ok = await ask({
         title: `Отменить запись: ${row.customer.name}, ${clock(row.startMinutes)}?`,
-        body: 'Время мастера освободится.',
+        body: 'Время специалиста освободится.',
         confirmLabel: 'Отменить запись',
         tone: 'danger',
       });
@@ -160,7 +201,7 @@ export function AppointmentCard({
               <dd>{row.serviceName}</dd>
             </div>
             <div>
-              <dt>Мастер</dt>
+              <dt>Специалист</dt>
               <dd>{master?.name ?? 'не найден'}</dd>
             </div>
           </>
@@ -271,7 +312,7 @@ export function AppointmentCard({
         <section className="beauty-form" aria-label="Оплата записи">
           <h3>Оплата</h3>
           <Field label="Способ">
-            <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
+            <Select disabled={moneyLocked} value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
               {FOOD_PAYMENT_METHODS.map((m) => (
                 <option key={m} value={m}>
                   {METHOD_RU[m] ?? m}
@@ -280,9 +321,9 @@ export function AppointmentCard({
             </Select>
           </Field>
           <Field label={`Сумма, ${currencyLabel}`}>
-            <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            <Input disabled={moneyLocked} inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </Field>
-          <Button type="button" disabled={busy} onClick={pay}>
+          <Button type="button" disabled={moneyLocked} onClick={pay}>
             Принять оплату
           </Button>
           {BigInt(row.paidMinor) > 0n && (
@@ -296,6 +337,7 @@ export function AppointmentCard({
           <h3>Возврат</h3>
           <Field label="Способ возврата">
             <Select
+              disabled={moneyLocked}
               value={refundMethod}
               onChange={(e) => setRefundMethod(e.target.value as FoodPaymentMethod)}
             >
@@ -308,15 +350,16 @@ export function AppointmentCard({
           </Field>
           <Field label={`Сумма возврата, ${currencyLabel}`}>
             <Input
+              disabled={moneyLocked}
               inputMode="decimal"
               value={refundAmount}
               onChange={(e) => setRefundAmount(e.target.value)}
             />
           </Field>
           <Field label="Причина">
-            <Input value={reason} maxLength={300} onChange={(e) => setReason(e.target.value)} />
+            <Input disabled={moneyLocked} value={reason} maxLength={300} onChange={(e) => setReason(e.target.value)} />
           </Field>
-          <Button type="button" tone="danger" disabled={busy} onClick={refund}>
+          <Button type="button" tone="danger" disabled={moneyLocked} onClick={refund}>
             Оформить возврат
           </Button>
         </section>
@@ -326,7 +369,7 @@ export function AppointmentCard({
         <form action={action} className="beauty-form">
           <input type="hidden" name="id" value={row.id} />
           <h3>Перенести</h3>
-          <Field label={row.items && row.items.length > 1 ? 'Мастер первой услуги' : 'Мастер'}>
+          <Field label={row.items && row.items.length > 1 ? 'Специалист первой услуги' : 'Специалист'}>
             <Select name="employeeId" defaultValue={row.employeeId}>
               {day.columns.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -355,6 +398,17 @@ export function AppointmentCard({
         </form>
       )}
 
+      {moneyStatus === 'blocked' && (canPay || canRefund) && (
+        <Alert>Безопасная отправка недоступна или осталась неподтверждённая операция. Сверьте историю и кассу. Новая оплата или возврат заблокированы; если хранилище вкладки недоступно, разрешите его до отправки.</Alert>
+      )}
+      {moneyStatus === 'unknown' && (
+        <section aria-label="Восстановление денежной операции">
+          <Alert>Результат не подтверждён. Повтор отправит ту же сумму, способ и причину с прежним ключом. После закрытия формы сначала сверьте историю и кассу.</Alert>
+          <Button type="button" tone="secondary" disabled={busy || (moneyKind === 'pay' ? !canPay : !canRefund)} onClick={retryMoney}>
+            Повторить ту же операцию
+          </Button>
+        </section>
+      )}
       {error && <Alert>{error}</Alert>}
       {state?.message && !state.error && <p role="status">{state.message}</p>}
       {dialog}

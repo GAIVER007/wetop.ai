@@ -87,7 +87,7 @@ test('журнал: дни группами, время без года, объ�
   await expect(deleted).toContainText('удалена');
 
   // разделы — такие же чипы, как отбор на «Неисправностях»
-  const filters = main.getByRole('navigation', { name: 'Раздел журнала' });
+  const filters = main.getByRole('navigation', { name: 'Раздел истории' });
   await expect(filters).toHaveClass(/chips/);
   const chipHeight = await filters
     .getByRole('link', { name: 'брони', exact: true })
@@ -111,8 +111,8 @@ test('контроль: поиск журнала и переходы досту
   await request.post(`${API}/__test/control`, { data: { delayPath: '/audit', delayMs: 5000 } });
   const start = performance.now();
   await page.goto('/journal?q=TEST', { waitUntil: 'commit' });
-  await page.getByText('Фильтры журнала', { exact: true }).click({ timeout: 1500 });
-  await expect(page.getByLabel('Поиск в журнале')).toBeVisible({ timeout: 1500 });
+  await page.getByText('Фильтры истории', { exact: true }).click({ timeout: 1500 });
+  await expect(page.getByLabel('Поиск в истории')).toBeVisible({ timeout: 1500 });
   console.log(`CONTROL_JOURNAL_CONTROLS_MS ${Math.round(performance.now() - start)}`);
   await expect(page.getByTestId('journal-loading')).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Сотрудники и контроль', exact: true })).toBeVisible();

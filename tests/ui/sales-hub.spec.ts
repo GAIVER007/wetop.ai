@@ -49,7 +49,7 @@ test('пункт «Обзор продаж» первым в «Продажах�
   await page.goto('/today');
   await goViaMenu(page, 'Продвижение', 'Обзор продаж');
   await expect(page).toHaveURL(/\/sales$/);
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Продажи');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Обзор продаж');
 
   const kpis = page.getByTestId('sales-kpis');
   await expect(kpis.locator('.kpi-tile')).toHaveCount(6);

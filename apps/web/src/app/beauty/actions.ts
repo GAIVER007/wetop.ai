@@ -259,7 +259,7 @@ export async function addBeautyTimeOff(
     // записи отсутствие не отменяет: это деньги, решение владельца по Q-252 ещё не принято
     return {
       message: affected
-        ? `Отсутствие добавлено. В эти дни у мастера остаётся ${pluralRu(affected, ['запись', 'записи', 'записей'])}: их никто не отменил.`
+        ? `Отсутствие добавлено. В эти дни у специалиста остаётся ${pluralRu(affected, ['запись', 'записи', 'записей'])}: их никто не отменил.`
         : 'Отсутствие добавлено',
     };
   } catch (e) {
@@ -300,9 +300,9 @@ export async function saveBeautyEmployeeLocations(
     revalidatePath('/services');
     revalidatePath('/customers');
     revalidatePath('/beauty/schedule');
-    return { message: 'Филиалы мастера сохранены' };
+    return { message: 'Филиалы специалиста сохранены' };
   } catch (e) {
-    return failed(e, 'Не удалось сохранить филиалы мастера.');
+    return failed(e, 'Не удалось сохранить филиалы специалиста.');
   }
 }
 
@@ -320,7 +320,7 @@ export async function loadBeautyEmployee(id: string) {
     const employee = data.items.find((row) => row.id === id);
     return employee
       ? { employee, locationId: data.locationId, error: null }
-      : { employee: null, locationId: data.locationId, error: 'Мастер недоступен' };
+      : { employee: null, locationId: data.locationId, error: 'Специалист недоступен' };
   } catch (error) {
     return {
       employee: null,

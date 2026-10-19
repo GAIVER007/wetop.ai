@@ -21,7 +21,7 @@ const day: BeautyDay = {
   date: '2026-10-18', columns: [], appointments: [row], services: [], bounds: { fromMinutes: 480, toMinutes: 1200 },
 };
 const render = (appointment = row, canEdit = true) => renderToStaticMarkup(createElement(AppointmentCard, {
-  day, row: appointment, canEdit, onDone() {},
+  day, row: appointment, canEdit, scopeKey: JSON.stringify({ organizationId: 'org', businessId: 'business', locationId: 'location' }), onDone() {},
 }));
 
 describe('Пояснение недоступной неявки', () => {

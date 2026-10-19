@@ -26,7 +26,7 @@ test('обзор как на макете: пять KPI, графики, ком�
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
-  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Бар');
+  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Склад');
   // Приход, продажа, инвентаризация в шапке; добавление товара у списка.
   await expect(m.getByRole('button', { name: 'Добавить товар', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
@@ -212,12 +212,13 @@ test('меню: экраны бара в разделе «Склад», адре
   await expect(nav.locator('.sidenav__current')).toHaveText('Склад');
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
   const items = await openSection(page, 'Склад');
-  await expect(items.locator('a')).toHaveText(['Номенклатура', 'Продажи', 'Движение товаров', 'Настройки']);
+  // пункты в порядке вкладок экрана склада (19.10.2026)
+  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
   await expect(items.getByRole('link', { name: 'Номенклатура', exact: true })).toHaveAttribute('aria-current', 'page');
-  // приходы это движение товаров
+  // у приходов свой пункт
   await page.goto('/bar/receipts');
   await expect(nav.locator('.sidenav__current')).toHaveText('Склад');
-  await expect(nav.locator('.sidenav__items [aria-current="page"]')).toHaveText('Движение товаров');
+  await expect(nav.locator('.sidenav__items [aria-current="page"]')).toHaveText('Приходы');
 });
 
 test('новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом', async ({ page }) => {

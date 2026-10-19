@@ -23,7 +23,7 @@ function readOnlyDay(
     for (const line of lines) {
       columns.set(line.employeeId, {
         id: line.employeeId,
-        name: 'employeeName' in line ? line.employeeName : 'Мастер',
+        name: 'employeeName' in line ? line.employeeName : 'Специалист',
         intervals: [],
         timeOff: false,
         timeOffReason: null,

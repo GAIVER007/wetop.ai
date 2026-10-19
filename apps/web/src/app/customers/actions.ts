@@ -49,17 +49,24 @@ async function customerFileCsv(form: FormData): Promise<string> {
   }
 }
 
-export function createBeautyCustomer(form: FormData): Promise<CustomerActionResult>;
-export function createBeautyCustomer(
-  previous: CreateCustomerState | null,
+// Server Actions должны быть async-функциями: перегрузки TypeScript Next.js не принимает, поэтому две функции
+/** Кнопка «Добавить клиента» в инструментах списка: результат сообщением */
+export async function createBeautyCustomer(form: FormData): Promise<CustomerActionResult> {
+  return (await createCustomer(form, false)) as CustomerActionResult;
+}
+
+/** Форма с useActionState: id созданного или найденного клиента */
+export async function createBeautyCustomerState(
+  _previous: CreateCustomerState | null,
   form: FormData,
-): Promise<CreateCustomerState>;
-export async function createBeautyCustomer(
-  previousOrForm: CreateCustomerState | null | FormData,
-  submittedForm?: FormData,
+): Promise<CreateCustomerState> {
+  return (await createCustomer(form, true)) as CreateCustomerState;
+}
+
+async function createCustomer(
+  form: unknown,
+  stateAction: boolean,
 ): Promise<CustomerActionResult | CreateCustomerState> {
-  const form = submittedForm ?? previousOrForm;
-  const stateAction = submittedForm !== undefined;
   if (!(form instanceof FormData)) return { error: 'Не удалось прочитать форму клиента' };
   try {
     if (stateAction) {

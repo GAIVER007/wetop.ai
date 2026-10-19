@@ -51,7 +51,7 @@ export default async function TeamPage() {
       expectedOrganizationId={me.user?.organizationId ?? null}
     >
       <Page
-        title="Сотрудники и доступ"
+        title="Сотрудники"
         subtitle={
           me.user?.organization?.name
             ? `${me.user.organization.name}: команда, должности и приглашения`

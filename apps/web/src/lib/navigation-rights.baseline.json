@@ -320,8 +320,8 @@
     },
     "/bar/receipts": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/receipts",
+        "label": "Приходы",
         "requires": "reports"
       },
       "gate": {
@@ -336,8 +336,8 @@
     },
     "/bar/receipts/new": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/receipts",
+        "label": "Приходы",
         "requires": "reports"
       },
       "gate": {
@@ -1605,7 +1605,7 @@
     "/staff": {
       "rule": {
         "href": "/staff",
-        "label": "Сотрудники и доступ",
+        "label": "Сотрудники",
         "requires": "staff"
       },
       "gate": {
@@ -1681,7 +1681,7 @@
     "/team": {
       "rule": {
         "href": "/team",
-        "label": "Сотрудники и доступ",
+        "label": "Сотрудники",
         "requires": "staff"
       },
       "gate": {
@@ -1697,7 +1697,7 @@
     "/team/roles": {
       "rule": {
         "href": "/team",
-        "label": "Сотрудники и доступ",
+        "label": "Сотрудники",
         "requires": "staff"
       },
       "gate": {

@@ -36,7 +36,7 @@ test('mobile master filter and visible calendar select the same master', async (
   await expect(filter).toContainText(masters[1].name);
   await expect(page.locator('.beauty-current-master')).toHaveText(masters[1].name);
   await page.locator('.beauty-mobile-calendar').getByRole('button', { name: `${masters[1].name}, 09:00, свободно`, exact: true }).click();
-  await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Мастер', exact: true })).toHaveValue(masters[1].id);
+  await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Специалист', exact: true })).toHaveValue(masters[1].id);
   await page.keyboard.press('Escape');
   await chooseCalendarEmployee(page, masters[2].name);
   await expect(filter).toContainText(masters[2].name);
@@ -47,7 +47,7 @@ test('new appointment defaults to the master selected in the desktop filter', as
   const masters = await prepare(page, request);
   await chooseCalendarEmployee(page, masters[1].name);
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
-  await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Мастер', exact: true })).toHaveValue(masters[1].id);
+  await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Специалист', exact: true })).toHaveValue(masters[1].id);
   await page.screenshot({ path: testInfo.outputPath('selected-master-new-appointment.png') });
 });
 

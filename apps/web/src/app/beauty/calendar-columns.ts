@@ -7,7 +7,7 @@ export function calendarColumns(day: BeautyDay, employees: BeautyEmployeeRow[]) 
     const employee = employees.find((e) => e.id === appointment.employeeId);
     columns.push({
       id: appointment.employeeId,
-      name: `${employee?.name ?? 'Мастер'} (не принимает)`,
+      name: `${employee?.name ?? 'Специалист'} (не принимает)`,
       intervals: [],
       timeOff: false,
       timeOffReason: null,

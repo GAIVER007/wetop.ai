@@ -9,12 +9,13 @@ import type { WebVertical } from '../../lib/vertical-landing';
  */
 export type BarSection = 'overview' | 'receipts' | 'products' | 'suppliers' | 'operations' | 'consumables';
 
+// подписи вкладок совпадают с пунктами меню «Склад» (решение владельца 19.10.2026)
 const SECTIONS: Array<{ id: BarSection; href: string; label: string }> = [
   { id: 'overview', href: '/bar', label: 'Обзор' },
   { id: 'receipts', href: '/bar/receipts', label: 'Приходы' },
-  { id: 'products', href: '/bar/products', label: 'Товары' },
+  { id: 'products', href: '/bar/products', label: 'Номенклатура' },
   { id: 'suppliers', href: '/bar/suppliers', label: 'Поставщики' },
-  { id: 'operations', href: '/bar/operations', label: 'Операции' },
+  { id: 'operations', href: '/bar/operations', label: 'Движение товаров' },
 ];
 
 export function barSectionsFor(vertical: WebVertical) {

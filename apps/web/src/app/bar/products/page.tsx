@@ -32,8 +32,9 @@ export default async function BarProductsPage() {
     BigInt(item.availableUnits) <= BigInt(item.minimumStockUnits);
   const rows = [...stock.value].sort((a, b) =>
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
-  const sectionName = shell.vertical === 'BEAUTY' ? 'Склад' : 'Бар';
-  return <Page width="wide" className="bar-subpage" title={`${sectionName}: товары`} subtitle="Карточки товаров с остатками и ценой. Цена правится прямо в строке.">
+  // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
+  const sectionName = 'Склад';
+  return <Page width="wide" className="bar-subpage" title={`${sectionName}: номенклатура`} subtitle="Карточки товаров с остатками и ценой. Цена правится прямо в строке.">
     <BarTabs current="products" />
     {(rights.createCatalog || rights.archiveCatalog) && <div className="bar-catalog-grid">
       {rights.createCatalog && (

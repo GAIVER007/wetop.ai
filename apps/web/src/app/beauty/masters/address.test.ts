@@ -75,8 +75,8 @@ describe('employee profile address boundary', () => {
   it('keeps creation on the employee list behind the existing guarded dialog boundary', () => {
     const html = renderBoard();
 
-    expect(html).toContain('Добавить мастера');
-    expect(html).not.toContain('aria-label="Новый мастер"');
+    expect(html).toContain('Добавить специалиста');
+    expect(html).not.toContain('aria-label="Новый специалист"');
     expect(html).not.toContain('data-testid="create-profile"');
   });
 

@@ -6,6 +6,7 @@ import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createPrismaClient, Prisma, type Db } from '@pms/database';
 import { BeautyAppointmentsService } from '../../apps/api/src/beauty/appointments';
+import { BeautyAppointmentHistoryService } from '../../apps/api/src/beauty/appointment-history';
 import { BeautyCatalogService } from '../../apps/api/src/beauty/beauty.module';
 import { BeautyLocationHoursService } from '../../apps/api/src/beauty/location-hours';
 import { BeautyReviewsService } from '../../apps/api/src/beauty/reviews';
@@ -229,6 +230,54 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
       for (const statement of statements) await tx.$executeRawUnsafe(statement);
     });
   }
+
+  it('equal-total edits preserve complete immutable previous and next service-line snapshots', async () => {
+    const startsAt = '2037-01-12T09:00:00+05:00'; // programmatically verified unused Monday
+    const created = await asOwner(() => appointments.create({ startsAt, customerId: own.customer, items: [
+      { employeeId: own.employeeA, serviceId: own.serviceA, durationMinutes: 60, discountMinor: '100000' },
+      { employeeId: own.employeeB, serviceId: own.serviceB, durationMinutes: 30 },
+    ] }));
+    const id = created.appointments.find((row) => row.startsAt === new Date(startsAt).toISOString())!.id;
+    const previous = await db.appointmentLine.findMany({ where: { appointmentId: id }, orderBy: { position: 'asc' } });
+    const snapshot = (line: (typeof previous)[number]) => ({
+      position: line.position, employeeId: line.employeeId, serviceId: line.serviceId,
+      startsAt: line.startsAt.toISOString(), endsAt: line.endsAt.toISOString(),
+      basePriceMinor: line.basePriceMinor.toString(), discountMinor: line.discountMinor.toString(),
+      surchargeMinor: line.surchargeMinor.toString(), priceMinor: line.priceMinor.toString(),
+      discountPercent: line.discountPercent, currency: line.currency,
+    });
+    const moved = await asOwner(() => appointments.move(id, { startsAt, items: [
+      { employeeId: own.employeeA, serviceId: own.serviceA, durationMinutes: 45 },
+      { employeeId: own.employeeA, serviceId: own.serviceB, durationMinutes: 45, discountMinor: '100000' },
+    ] }));
+    const next = await db.appointmentLine.findMany({ where: { appointmentId: id }, orderBy: { position: 'asc' } });
+    const beforeVisit = created.appointments.find((row) => row.id === id)!;
+    const afterVisit = moved.appointments.find((row) => row.id === id)!;
+    expect(afterVisit.priceMinor).toBe(beforeVisit.priceMinor);
+    expect(afterVisit.startsAt).toBe(beforeVisit.startsAt);
+    expect(afterVisit.endsAt).toBe(beforeVisit.endsAt);
+    expect(next.map(snapshot)).not.toEqual(previous.map(snapshot));
+    const where = { organizationId: own.org, entityType: 'appointment', entityId: id };
+    const audit = await db.auditLog.findFirstOrThrow({ where: { ...where, action: 'beauty.appointment.moved' } });
+    expect(audit.before).toMatchObject({ priceMinor: beforeVisit.priceMinor, items: previous.map(snapshot) });
+    expect(audit.after).toMatchObject({ priceMinor: afterVisit.priceMinor, items: next.map(snapshot) });
+    const creation = await db.auditLog.findFirstOrThrow({ where: { ...where, action: 'beauty.appointment.created' } });
+    expect(creation.after).toMatchObject({ items: previous.map(snapshot) });
+    const history = new BeautyAppointmentHistoryService({ db } as unknown as PrismaService);
+    const read = await asOwner(() => history.history(id));
+    const event = read.items.find((row) => row.action === 'beauty.appointment.moved')!;
+    expect(event.before.items?.map((row) => [row.employee.id, row.endsAt, row.discountMinor]))
+      .toEqual(previous.map((row) => [row.employeeId, row.endsAt.toISOString(), row.discountMinor.toString()]));
+    expect(event.after.items?.map((row) => [row.employee.id, row.endsAt, row.discountMinor]))
+      .toEqual(next.map((row) => [row.employeeId, row.endsAt.toISOString(), row.discountMinor.toString()]));
+    try {
+      await db.beautyService.update({ where: { id: own.serviceB }, data: { name: 'Renamed synthetic catalog service' } });
+      expect((await db.auditLog.findUniqueOrThrow({ where: { id: audit.id } })).before).toEqual(audit.before);
+      expect((await db.auditLog.findUniqueOrThrow({ where: { id: audit.id } })).after).toEqual(audit.after);
+    } finally {
+      await db.beautyService.update({ where: { id: own.serviceB }, data: { name: 'Color' } });
+    }
+  });
 
   it('создаёт две последовательные строки, сумму визита и сегменты календаря по каждому мастеру', async () => {
     const day = await asOwner(() =>
@@ -693,7 +742,7 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
     );
   });
 
-  it('сопоставляет клиента по нормализованному телефону и точному имени', async () => {
+  it('переиспользует канонический телефон без перезаписи имени и не восстанавливает архивную карточку', async () => {
     const first = await asOwner(() => appointments.create({
       startsAt: at('17:00'),
       firstName: 'Synthetic',
@@ -710,13 +759,34 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
     }));
     expect(second.appointments.find((row) => row.startMinutes === 1050)?.customer.id)
       .toBe(first.appointments.find((row) => row.startMinutes === 1020)?.customer.id);
-    await expect(asOwner(() => appointments.create({
+    // DATA_MODEL SL4-M4A: the organization phone identity is reused without rewriting names/contacts.
+    const canonicalId = first.appointments.find((row) => row.startMinutes === 1020)!.customer.id;
+    const canonical = await db.customer.findUniqueOrThrow({ where: { id: canonicalId },
+      select: { firstName: true, lastName: true, phone: true, phoneNormalized: true } });
+    const differentlyNamed = await asOwner(() => appointments.create({
       startsAt: at('17:00'),
       firstName: 'Other',
       lastName: 'Client',
       phone: '+7 (700) 123-45-67',
       items: [{ employeeId: own.employeeB, serviceId: own.serviceB }],
-    }))).rejects.toThrow(/телефон.*имен|друг.*имен/i);
+    }));
+    expect(differentlyNamed.appointments.find((row) => row.startMinutes === 1020 && row.employeeId === own.employeeB)?.customer.id)
+      .toBe(canonicalId);
+    expect(await db.customer.findUniqueOrThrow({ where: { id: canonicalId },
+      select: { firstName: true, lastName: true, phone: true, phoneNormalized: true } })).toEqual(canonical);
+    expect(await db.customer.count({ where: { organizationId: own.org, phoneNormalized: canonical.phoneNormalized } })).toBe(1);
+    // Existing archive protection remains a negative acceptance case, not an assertion removed for green.
+    await db.customer.update({ where: { id: canonicalId }, data: { status: 'ARCHIVED' } });
+    try {
+      await expect(asOwner(() => appointments.create({
+        startsAt: at('17:30'), firstName: 'Other', lastName: 'Client', phone: '+7 (700) 123-45-67',
+        items: [{ employeeId: own.employeeB, serviceId: own.serviceB }],
+      }))).rejects.toThrow(/архив/i);
+      expect(await db.customer.findUniqueOrThrow({ where: { id: canonicalId }, select: { status: true } }))
+        .toEqual({ status: 'ARCHIVED' });
+    } finally {
+      await db.customer.update({ where: { id: canonicalId }, data: { status: 'ACTIVE' } });
+    }
   });
 
   it('задаёт цену мастера в валюте филиала и отдаёт effective price форме записи', async () => {
@@ -1164,12 +1234,37 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
         AND kind = 'CONSUMPTION'`;
     expect(movementSummary[0]).toEqual({ count: 3, qty: '-4.000', cost: '-700', order_links: 0 });
     expect((await db.kitchenStockLot.findUniqueOrThrow({ where: { id: lotB } })).remainingQty.toString()).toBe('1');
+    // Provenance: DONE audit names the exact recipe revision and the stored consumption per line
+    const doneAudit = await db.auditLog.findFirstOrThrow({
+      where: { organizationId: own.org, entityId: consumed.id, action: 'beauty.appointment.status' },
+      orderBy: { createdAt: 'desc' },
+    });
+    const orderedLines = [...consumedLines].sort((a, b) => a.position - b.position);
+    expect(doneAudit.after).toEqual({
+      status: 'DONE',
+      materials: orderedLines.map((line) => ({
+        appointmentLineId: line.id,
+        serviceId: own.serviceB,
+        recipeRevision: 1,
+        items: [{ productId: own.productA, normQty: '2', unit: 'г' }],
+      })),
+    });
+    expect(JSON.stringify(doneAudit.after)).not.toMatch(/Synthetic color cream|unitCost|lot/i);
 
     const cleared = await asOwner(() => materialApi.setServiceMaterials(own.serviceB, {
       expectedRevision: 1,
       items: [],
     }));
     expect(cleared.revision).toBe(2);
+    // Provenance: every recipe save stores the exact previous revision and items
+    const recipeAudits = await db.auditLog.findMany({
+      where: { organizationId: own.org, entityId: own.serviceB, action: 'beauty.service.materials' },
+      orderBy: { createdAt: 'asc' },
+    });
+    expect(recipeAudits.map((row) => [row.before, row.after])).toEqual([
+      [{ revision: 0, items: [] }, { revision: 1, items: [{ productId: own.productA, normQty: '2', unit: 'г' }] }],
+      [{ revision: 1, items: [{ productId: own.productA, normQty: '2', unit: 'г' }] }, { revision: 2, items: [] }],
+    ]);
     const emptyAt = '2036-11-03T15:30:00+05:00';
     const emptyVisit = await asOwner(() => appointments.create({
       startsAt: emptyAt,
@@ -1267,7 +1362,7 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
       await client.query('BEGIN');
       await client.query('SAVEPOINT hours_rollback');
       const { readFileSync } = await import('node:fs');
-      const down = readFileSync(resolve(import.meta.dirname, '../../packages/database/prisma/migrations-hold/20261018000135_beauty_location_hours/down.sql'),'utf8').replace(/^BEGIN;\s*/,'').replace(/COMMIT;\s*$/,'');
+      const down = readFileSync(resolve(import.meta.dirname, '../../packages/database/prisma/migrations/20261018000137_beauty_location_hours/down.sql'),'utf8').replace(/^BEGIN;\s*/,'').replace(/COMMIT;\s*$/,'');
       await expect(client.query(down)).rejects.toThrow(/Export salon opening hours/);
       await client.query('ROLLBACK TO SAVEPOINT hours_rollback');
       await client.query('DELETE FROM beauty_location_hours');

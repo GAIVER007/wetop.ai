@@ -29,7 +29,7 @@ test('владелец: вкладка, суммы, было/стало, фил�
   await main.getByRole('link', { name: 'Более ранние операции' }).click();
   await expect(main.getByTestId('journal-row')).toHaveCount(15);
   await main.getByRole('link', { name: 'К новым операциям' }).click();
-  await main.getByText('Фильтры журнала', { exact: true }).click();
+  await main.getByText('Фильтры истории', { exact: true }).click();
   await main.getByLabel('Действие', { exact: true }).selectOption('finance.cash.operation.void');
   await main
     .getByLabel('Сотрудник', { exact: true })

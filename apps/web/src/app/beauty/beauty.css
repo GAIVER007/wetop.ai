@@ -235,6 +235,23 @@
     align-items: center;
     margin-bottom: var(--space-2);
   }
+  @media (max-width: 600px) {
+    .beauty-week-nav {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .beauty-week-nav > span {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .beauty-week-nav > a {
+      min-width: 0;
+      white-space: normal;
+      text-align: center;
+    }
+  }
   .beauty-week-grid td.is-on {
     background: var(--success-soft);
   }
@@ -1242,9 +1259,6 @@
       margin: var(--space-1) 0;
       font-size: var(--text-xs);
     }
-    .beauty-mobile-calendar .beauty-current-master {
-      display: none;
-    }
     .beauty-mobile-calendar .beauty-current-master + .beauty-note {
       margin: var(--space-1) 0;
     }
@@ -1296,12 +1310,12 @@
     }
     .beauty-appointments-table td[data-label='Телефон'],
     .beauty-appointments-table td[data-label='Услуга'],
-    .beauty-appointments-table td[data-label='Мастер'] {
+    .beauty-appointments-table td[data-label='Специалист'] {
       grid-column: 1 / -1;
     }
-    .beauty-appointments-table td[data-label='Мастер']::before {
+    .beauty-appointments-table td[data-label='Специалист']::before {
       display: inline;
-      content: 'Мастер: ';
+      content: 'Специалист: ';
     }
     .beauty-appointments-table .beauty-contact--empty {
       display: none;

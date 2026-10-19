@@ -146,7 +146,9 @@ export class EmployeePortalService {
     const existing=await db.employeePublicProfile.findUnique({where:{employeeId}});
     if(existing)return existing;
     await this.writable(db);
-    return db.employeePublicProfile.upsert({where:{employeeId},create:{employeeId,slug:randomUUID()},update:{}});
+    // ON CONFLICT DO NOTHING: параллельный показ кабинета мог вставить строку между чтением и записью (P2002 → API_500)
+    await db.employeePublicProfile.createMany({data:[{employeeId,slug:randomUUID()}],skipDuplicates:true});
+    return db.employeePublicProfile.findUniqueOrThrow({where:{employeeId}});
   }
   async accountOptions(employeeId:string):Promise<EmployeeAccountOption[]> {
     const db=this.prisma.db,s=await this.resolve(db,employeeId);

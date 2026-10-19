@@ -66,6 +66,20 @@ export const BUSY: AppointmentStatus[] = ['BOOKED', 'CONFIRMED', 'IN_PROGRESS', 
 /** Сетка дня, когда график мастеров ничего не подсказал */
 const DEFAULT_FROM = 8 * 60;
 const DEFAULT_TO = 20 * 60;
+
+/** Границы сетки: режим работы салона в этот день недели, иначе 08-20; всё видимое расширяет сетку */
+function boundsOf(dayHours: Array<{ timeFrom: string; timeTo: string }>, visible: number[]) {
+  const base = dayHours.length
+    ? {
+        from: Math.min(...dayHours.map((interval) => clockMinutes(interval.timeFrom))),
+        to: Math.max(...dayHours.map((interval) => clockMinutes(interval.timeTo))),
+      }
+    : { from: DEFAULT_FROM, to: DEFAULT_TO };
+  return {
+    fromMinutes: Math.min(base.from, ...visible),
+    toMinutes: Math.max(base.to, ...visible),
+  };
+}
 const MAX_PERIOD_DAYS = 366;
 
 const customerFullName = (customer: { firstName: string; lastName: string | null }) =>
@@ -317,10 +331,11 @@ export class BeautyAppointmentsService {
             }),
         };
       }),
-      bounds: {
-        fromMinutes: Math.min(DEFAULT_FROM, ...minutes, ...spans),
-        toMinutes: Math.max(DEFAULT_TO, ...minutes, ...spans),
-      },
+      bounds: boundsOf(
+        // B4 (паритет с zapis.kz): сетка идёт по режиму работы салона (137); записи вне режима её расширяют
+        openHours?.filter((interval) => interval.weekday === weekday) ?? [],
+        [...minutes, ...spans],
+      ),
     };
   }
 

@@ -1,0 +1,19 @@
+# Модульные (unit) · 19.10.2026 18:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1e1074b (claude/salon-zapis-p0), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-47-48Z-unit-1e55.json' 'apps/web/src/app/my-work'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ✓ |unit| apps/web/src/app/my-work/archive-action.test.ts (2 tests) 11ms
+ ✓ |unit| apps/web/src/app/my-work/service-prices-actions.test.ts (3 tests) 10ms
+ ✓ |unit| apps/web/src/app/my-work/profile-version.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/my-work/pay-major-units.test.ts (2 tests) 7ms
+
+ Test Files  4 passed (4)
+      Tests  10 passed (10)
+   Start at  06:47:49
+   Duration  543ms (transform 73%, import 24%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-47-48Z-unit-1e55.json
+
+# код выхода 0 · 2 с

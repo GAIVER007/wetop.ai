@@ -32,6 +32,8 @@ describe('finance presentation: refunds are not operating expenses', () => {
     expect(flow[0]).toMatchObject({ income: 730000n, expense: 730000n });
     const html = renderToStaticMarkup(createElement(FinanceDynamics, { flow, currency: 'KZT' }));
     expect(html).toContain('Возвраты и расходы');
+    expect(html).toContain('Динамика поступлений, возвратов и расходов');
+    expect(html).toContain('<th scope="col">Поступления</th>');
     expect(html).toContain(formatMoney('730000', 'KZT'));
     // The summary comes from the unchanged combined outflow, not an inflated expense KPI.
     expect(flow.reduce((sum, day) => sum + day.expense, 0n)).toBe(730000n);
@@ -53,6 +55,19 @@ describe('finance presentation: refunds are not operating expenses', () => {
     const expenseTile = html.slice(start, end);
     expect(expenseTile).toContain(formatMoney('0', 'KZT'));
     expect(expenseTile).not.toContain('fin-spark');
+  });
+
+  it('still draws genuine cash expenses in the expenses KPI', () => {
+    const flow = dailyFlow([row('EXPENSE', '25000')], from, to);
+    const html = renderToStaticMarkup(createElement(FinanceKpis, {
+      charged: 0n, prevCharged: 0n, income: 0n, prevIncome: 0n,
+      expense: 25000n, prevExpense: 0n, profit: -25000n, prevProfit: 0n,
+      currency: 'KZT', flow,
+    }));
+    const marker = html.indexOf('data-testid="fin-expense"');
+    const tile = html.slice(html.lastIndexOf('<div class="fin-kpi">', marker), html.indexOf('<div class="fin-kpi">', marker));
+    expect(tile).toContain(formatMoney('25000', 'KZT'));
+    expect(tile).toContain('fin-spark--danger');
   });
 
   it('separates completed cash expenses from refunds and ignores voids and transfers', () => {

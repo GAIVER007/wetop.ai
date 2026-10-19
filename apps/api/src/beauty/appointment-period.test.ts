@@ -109,3 +109,21 @@ describe('C2 (паритет с zapis.kz): автор и источник в п�
     expect(result.appointments[0]).toMatchObject({ source: 'DESK', createdByName: null });
   });
 });
+
+describe('A4 (паритет с zapis.kz): платежи записи в проекции', () => {
+  it('отдаёт список платежей с видом, способом, суммой и временем', async () => {
+    const { service, findMany } = fixture();
+    findMany.mockResolvedValue([{
+      ...row,
+      payments: [
+        { id: 'op-1', kind: 'INCOME', method: 'CASH', amount: 5000n, occurredAt: new Date('2026-10-12T12:40:00Z') },
+        { id: 'op-2', kind: 'EXPENSE', method: 'CASH', amount: 1000n, occurredAt: new Date('2026-10-12T13:00:00Z') },
+      ],
+    }]);
+    const result = await service.period('2026-10-12', '2026-10-12');
+    expect((result.appointments[0] as { payments: unknown[] }).payments).toEqual([
+      { id: 'op-1', kind: 'INCOME', method: 'CASH', amountMinor: '5000', at: '2026-10-12T12:40:00.000Z' },
+      { id: 'op-2', kind: 'EXPENSE', method: 'CASH', amountMinor: '1000', at: '2026-10-12T13:00:00.000Z' },
+    ]);
+  });
+});

@@ -1,0 +1,37 @@
+# Модульные (unit) · 19.10.2026 18:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 326b1fb (claude/salon-zapis-p0), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-43-27Z-unit-5f61.json' 'apps/web/src/app/food/cash-board-appointment-link.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ❯ |unit| apps/web/src/app/food/cash-board-appointment-link.test.ts (1 test | 1 failed) 13ms
+   ❯ H1 (паритет с zapis.kz): операция кассы ссылается на запись (1)
+     × у операции с appointmentId есть ссылка на карточку записи в реестре 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/food/cash-board-appointment-link.test.ts > H1 (паритет с zapis.kz): операция кассы ссылается на запись > у операции с appointmentId есть ссылка на карточку записи в реестре
+AssertionError: expected '<div class="food-workspace" data-test…' to contain '/appointments?from=2026-10-18&amp;to=…'
+
+Expected: "/appointments?from=2026-10-18&amp;to=2026-10-18&amp;appointment=ap-1"
+Received: "<div class="food-workspace" data-testid="cash-board"><section class="stats" style="--min:170px"><div class="stat stat--tone-info"><div class="stat__label">Всего в кассе</div><div class="stat__value" data-testid="cash-total">0 ₸</div></div></section><div class="tabs-local"><div class="tabs" role="tablist" aria-label="Касса"><button type="button" role="tab" class="tabs__item" id="_R_5_-operations" aria-controls="_R_5_-panel-operations" aria-selected="true" tabindex="0">Операции</button><button type="button" role="tab" class="tabs__item" id="_R_5_-checks" aria-controls="_R_5_-panel-checks" aria-selected="false" tabindex="-1">Сверки</button></div><section id="_R_5_-panel-operations" role="tabpanel" class="tabs__panel" aria-labelledby="_R_5_-operations" tabindex="0"><div class="table-scroll" tabindex="0" role="region" aria-label="Таблица, прокрутка по горизонтали"><table class="tbl"><thead><tr><th>Когда</th><th>Вид</th><th>Способ</th><th>Сумма</th><th>Комментарий</th><th><span class="sr-only">Действия</span></th></tr></thead><tbody><tr data-status="COMPLETED"><td>2026-10-18 12:40</td><td>Приход</td><td>Наличные</td><td>5 000 ₸</td><td>Оплата записи: Клиент</td><td></td></tr></tbody></table></div></section><section id="_R_5_-panel-checks" role="tabpanel" class="tabs__panel" aria-labelledby="_R_5_-checks" hidden="" tabindex="0"><section class="empty-state"><h3 class="empty-state__title">Сверок пока не было</h3></section></section></div></div>"
+
+ ❯ apps/web/src/app/food/cash-board-appointment-link.test.ts:47:18
+     45|       }),
+     46|     );
+     47|     expect(html).toContain('/appointments?from=2026-10-18&amp;to=2026-…
+       |                  ^
+     48|     expect(html).toContain('Запись');
+     49|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  06:43:27
+   Duration  217ms (import 56%, transform 35%, tests 8%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-43-27Z-unit-5f61.json
+
+# код выхода 1 · 1 с

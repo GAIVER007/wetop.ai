@@ -107,7 +107,11 @@ const APPOINTMENT_VIEW_SELECT = {
     },
   },
   customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
-  payments: { where: { status: 'COMPLETED' }, select: { kind: true, amount: true, method: true } },
+  payments: {
+    where: { status: 'COMPLETED' },
+    orderBy: { occurredAt: 'asc' },
+    select: { id: true, kind: true, amount: true, method: true, occurredAt: true },
+  },
   // C2 (паритет с zapis.kz): автор и источник уже хранятся, реестр показывает их словами
   source: true,
   createdBy: { select: { name: true, email: true } },
@@ -141,6 +145,14 @@ function appointmentView(row: AppointmentViewRow, timezone: string, anchorDate: 
     notes: row.notes,
     source: row.source,
     createdByName: row.createdBy ? (row.createdBy.name ?? row.createdBy.email) : null,
+    // A4 (паритет с zapis.kz): платежи записи списком в карточке, а не только суммой
+    payments: row.payments.map((payment) => ({
+      id: payment.id,
+      kind: payment.kind,
+      method: payment.method,
+      amountMinor: payment.amount.toString(),
+      at: payment.occurredAt.toISOString(),
+    })),
     items: row.lines.map((line) => ({
       id: line.id,
       position: line.position,

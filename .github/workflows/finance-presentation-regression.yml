@@ -26,6 +26,8 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run generate -w @pms/database
+      - name: Strict type checks before scoped DB and browser jobs
+        run: npm run typecheck && npm run typecheck:api && npm run typecheck:web
       - name: Scoped release unit regressions, no database or server
         run: npm run test:record -- unit tests/unit/finance-outflow-label.test.ts tests/unit/db-restore-prod.test.ts apps/web/src/app/beauty/appointment-card.test.ts apps/web/src/app/customers/page.test.ts tests/unit/beauty-release-preparation.test.ts tests/unit/beauty-release-fixture.test.ts tests/unit/preview-beauty-appointment-selection.test.ts apps/web/src/app/finance/appointments-csv.test.ts --maxWorkers=1 --note "Consolidated release regressions; synthetic data only"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

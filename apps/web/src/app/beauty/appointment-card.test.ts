@@ -27,7 +27,7 @@ const render = (appointment = row, canEdit = true) => renderToStaticMarkup(creat
 describe('Пояснение недоступной неявки', () => {
   const renderSplit = (appointment: BeautyAppointmentRow, canUpdate: boolean, canEdit?: boolean) =>
     renderToStaticMarkup(createElement(AppointmentCard, {
-      day, row: appointment, canUpdate, canEdit, canCreate: true, canPay: true, onDone() {},
+      day, row: appointment, canUpdate, ...(canEdit === undefined ? {} : { canEdit }), canCreate: true, canPay: true, onDone() {},
     }));
 
   it.each(['BOOKED', 'CONFIRMED'] as const)('объясняет будущий %s с canUpdate без legacy canEdit', (status) => {

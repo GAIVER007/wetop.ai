@@ -119,12 +119,12 @@ test('manager assigns and removes salon services in the canonical profile', asyn
   await page.getByRole('tab', { name: 'Услуги', exact: true }).click();
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   const services = page.getByTestId('portal-services-form');
-  await services.getByRole('checkbox', { name: /^Тестовая услуга\b/ }).check();
+  await services.getByRole('checkbox', { name: /^Тестовая услуга(?:\s|$)/ }).check();
   await services.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
   await expect(services.getByRole('status')).toContainText('Сохранено');
   expect((await employees(request, fixture.headers))[0]!.serviceIds).toEqual([service.id]);
 
-  await services.getByRole('checkbox', { name: /^Тестовая услуга\b/ }).uncheck();
+  await services.getByRole('checkbox', { name: /^Тестовая услуга(?:\s|$)/ }).uncheck();
   await services.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
   await expect(services.getByRole('status')).toContainText('Сохранено');
   expect((await employees(request, fixture.headers))[0]!.serviceIds).toEqual([]);
@@ -140,14 +140,18 @@ test('lost create response is recovered once and redirects to the saved full pro
   const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
   await creation.getByLabel('Имя мастера').fill('Тестовый потерянный ответ');
   let intercepted = false;
+  let finishLostResponse = () => {};
+  const lostResponse = new Promise<void>((resolve) => { finishLostResponse = resolve; });
   await page.route('**/employees', async (route) => {
     if (route.request().method() !== 'POST' || intercepted) return route.continue();
     intercepted = true;
     await route.fetch();
     await route.abort('failed');
+    finishLostResponse();
   });
   await creation.getByRole('button', { name: 'Создать мастера', exact: true }).click();
   await expect.poll(async () => (await employees(request, fixture.headers)).length).toBe(1);
+  await lostResponse;
   await page.unroute('**/employees');
   page.once('dialog', async (prompt) => prompt.accept());
   await page.reload();

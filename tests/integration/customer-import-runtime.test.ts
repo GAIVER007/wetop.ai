@@ -126,11 +126,15 @@ describe.skipIf(!url)('M4-B2: durable customer import, real RLS and transactions
     expect((await admin.customerImport.findUniqueOrThrow({ where: { id: item.id } })).businessId).toBe(own.business);
   });
 
-  it('creates, reuses canonical phone, defaults name, skips bad rows and atomically undoes', async () => {
+  it('creates canonical phones, rejects mismatched names, defaults name, skips bad rows and atomically undoes', async () => {
     const number = phone();
     const id = await upload([raw('Первое имя', number), raw('Не перезаписывать', '8' + number.slice(2)), raw('', phone()), raw('Без телефона', null), raw('Неверный', 'abc'), raw('', null)]);
     const item = await drain(id);
-    expect(item).toMatchObject({ state: 'COMPLETED', processedRows: 6, createdCount: 3, linkedCount: 0, unchangedCount: 1, skippedCount: 2 });
+    expect(item).toMatchObject({ state: 'COMPLETED', processedRows: 6, createdCount: 3, linkedCount: 0, unchangedCount: 0, skippedCount: 3 });
+    expect(await admin.customerImportRow.findFirst({
+      where: { importId: id, ordinal: 1 },
+      select: { outcome: true, errorCode: true },
+    })).toEqual({ outcome: 'SKIPPED', errorCode: 'CUSTOMER_CONFLICT' });
     const ids = await createdIds(id);
     expect(await admin.customer.count({ where: { id: { in: ids }, firstName: 'Клиент' } })).toBe(1);
     expect((await admin.customer.findFirstOrThrow({ where: { organizationId: own.org, phoneNormalized: number } })).firstName).toBe('Первое имя');
@@ -142,13 +146,25 @@ describe.skipIf(!url)('M4-B2: durable customer import, real RLS and transactions
     expect(await admin.customerImportRow.count({ where: { importId: id } })).toBe(6);
   });
 
-  it('links a sibling identity without changing it; undo removes only the imported link', async () => {
+  it('rejects a sibling identity with another name, then links the exact identity and undoes only that link', async () => {
     const number = phone();
     const known = await admin.customer.create({ data: { organizationId: own.org, firstName: 'Старый профиль', phone: number } });
     await admin.customerBusiness.create({ data: { customerId: known.id, businessId: own.sibling } });
-    const id = await upload([raw('Новое имя', '8' + number.slice(2))]);
-    expect(await drain(id)).toMatchObject({ createdCount: 0, linkedCount: 1 });
-    await run(() => service.undo(id));
+    const conflictId = await upload([raw('Новое имя', '8' + number.slice(2))]);
+    expect(await drain(conflictId)).toMatchObject({
+      createdCount: 0,
+      linkedCount: 0,
+      skippedCount: 1,
+    });
+    expect(await admin.customerImportRow.findFirst({
+      where: { importId: conflictId },
+      select: { outcome: true, errorCode: true, customerId: true },
+    })).toEqual({ outcome: 'SKIPPED', errorCode: 'CUSTOMER_CONFLICT', customerId: null });
+    expect(await admin.customerBusiness.count({ where: { customerId: known.id } })).toBe(1);
+
+    const linkedId = await upload([raw('Старый профиль', '8' + number.slice(2))]);
+    expect(await drain(linkedId)).toMatchObject({ createdCount: 0, linkedCount: 1, skippedCount: 0 });
+    await run(() => service.undo(linkedId));
     expect((await admin.customer.findUniqueOrThrow({ where: { id: known.id } })).firstName).toBe('Старый профиль');
     expect(await admin.customerBusiness.findUnique({ where: { customerId_businessId: { customerId: known.id, businessId: own.business } } })).toBeNull();
     expect(await admin.customerBusiness.count({ where: { customerId: known.id } })).toBe(1);

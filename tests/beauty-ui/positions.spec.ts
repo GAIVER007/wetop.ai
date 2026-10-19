@@ -93,14 +93,14 @@ test('positions: CRUD matrix, assignment, revoke history, stale revision and res
       revision: 2,
     });
 
-    const user = page.getByLabel('Сотрудник', { exact: true });
+    const user = page.getByRole('combobox', { name: 'Сотрудник', exact: true });
     const managerOption = user.locator(`option[value="${fixture.members.manager}"]`);
     await expect(managerOption).toContainText('Тестовая управляющая Мария');
     await user.selectOption(fixture.members.manager);
-    await page.getByLabel('Должность', { exact: true }).selectOption({
+    await page.getByRole('combobox', { name: 'Должность', exact: true }).selectOption({
       label: 'Старший тестовый администратор',
     });
-    await page.getByLabel('Филиал', { exact: true }).selectOption({
+    await page.getByRole('combobox', { name: 'Филиал', exact: true }).selectOption({
       label: 'Тестовый филиал Центр',
     });
     await page.getByRole('button', { name: 'Сохранить назначение', exact: true }).click();

@@ -63,7 +63,12 @@ export function EmployeeBasicForm({
     </Field>
   );
   return (
-    <form ref={formRef} className="employee-workspace-form" onSubmit={onSave}>
+    <form
+      ref={formRef}
+      className="employee-workspace-form"
+      data-employee-transition-form
+      onSubmit={onSave}
+    >
       {error && (
         <div tabIndex={-1} data-employee-error>
           <Alert boxed>{error}</Alert>

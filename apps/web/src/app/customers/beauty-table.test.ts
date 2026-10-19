@@ -8,21 +8,27 @@ import { BeautyCustomerTools } from './customer-tools';
 vi.mock('server-only', () => ({}));
 
 describe('Дата последнего визита клиента салона', () => {
-  it('позволяет добавить клиента без визита, если разрешена запись', () => {
-    const html = renderToStaticMarkup(createElement(BeautyCustomersTable, {
-      items: [], canCreate: true, canEdit: true,
+  it('разделяет создание клиента и единый вход в импорт CSV или XLSX', () => {
+    const table = renderToStaticMarkup(createElement(BeautyCustomersTable, {
+      items: [], canCreate: true,
     }));
-    expect(html).toContain('Добавить клиента');
     const tools = renderToStaticMarkup(createElement(BeautyCustomerTools, {
-      canEdit: true, scopeKey: 'business-test:location-test', showCreate: false,
+      canEdit: true, scopeKey: 'business:location', showCreate: false,
     }));
+    expect(table).toContain('Добавить клиента');
+    expect(table).not.toContain('Импортировать клиентов');
+    expect(table).not.toContain('Новый клиент добавляется при создании записи');
     expect(tools).toContain('Импортировать клиентов');
-    expect(html).not.toContain('Новый клиент добавляется при создании записи');
+    expect(tools).toContain('CSV или XLSX');
+    expect(tools).not.toContain('Добавить клиента');
   });
   it('не предлагает создание в режиме чтения', () => {
-    const html = renderToStaticMarkup(createElement(BeautyCustomersTable, { items: [] }));
-    expect(html).not.toContain('Добавить клиента');
-    expect(html).not.toContain('Проверить CSV');
+    const table = renderToStaticMarkup(createElement(BeautyCustomersTable, { items: [] }));
+    const tools = renderToStaticMarkup(createElement(BeautyCustomerTools, {
+      canEdit: false, scopeKey: 'business:location', showCreate: false,
+    }));
+    expect(table).not.toContain('Добавить клиента');
+    expect(tools).not.toContain('Импортировать клиентов');
   });
   it('показывает локальный день визита вместо предыдущего дня UTC', () => {
     const html = renderToStaticMarkup(createElement(BeautyCustomersTable, {

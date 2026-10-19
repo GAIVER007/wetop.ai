@@ -147,6 +147,7 @@ export class BeautyCustomerImportService {
   }
 
   async apply(raw: unknown): Promise<{ created: number; linked: number; alreadyExists: number }> {
+    ownerOnly();
     await mayBeautyWrite(this.prisma, 'desk');
     const scope = await beautyScope(this.prisma);
     const parsed = parsedCsv(raw);
@@ -561,20 +562,15 @@ export class CustomerImportService {
         });
         if (!run) throw new NotFoundException('Импорт не найден');
         const actor = currentUserId();
-        const [user, membership, organization, business] = await Promise.all([
+        const [membership] = actor
+          ? await tx.$queryRaw<Array<{ role: string; status: string }>>`
+              SELECT role,status FROM memberships
+              WHERE user_id=${actor}::uuid AND organization_id=${scope.organizationId}::uuid
+              FOR SHARE`
+          : [];
+        const [user, organization, business] = await Promise.all([
           actor
             ? tx.user.findFirst({ where: { id: actor, status: 'ACTIVE' }, select: { id: true } })
-            : null,
-          actor
-            ? tx.membership.findFirst({
-                where: {
-                  userId: actor,
-                  organizationId: scope.organizationId,
-                  role: 'OWNER',
-                  status: 'ACTIVE',
-                },
-                select: { userId: true },
-              })
             : null,
           tx.organization.findUnique({
             where: { id: scope.organizationId },
@@ -593,6 +589,8 @@ export class CustomerImportService {
         if (
           !user ||
           !membership ||
+          membership.role !== 'OWNER' ||
+          membership.status !== 'ACTIVE' ||
           !organization ||
           !canWrite(organization.status, organization.trialEndsAt, now) ||
           !business

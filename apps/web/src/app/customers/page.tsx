@@ -30,7 +30,7 @@ export default async function CustomersPage() {
         subtitle="Клиенты этого бизнеса, их визиты и средний чек."
       >
         <BeautyCustomerTools
-          canEdit={canCreate}
+          canEdit={canImport}
           scopeKey={shell.scopeKey ?? ''}
           showCreate={false}
           importHistory={canCreate ? (

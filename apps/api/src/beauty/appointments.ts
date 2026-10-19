@@ -20,6 +20,7 @@ import {
   appointmentRefund,
   appointmentStatusAllowed,
   allocateStock,
+  customerPhoneKey,
   foodCashBalances,
   nextStatuses,
   milliOf,
@@ -35,6 +36,7 @@ import {
 } from '@pms/domain';
 import { currentUserId, currentBeautyOperation } from '../auth/request-context';
 import { currentBeautyPositionAccess } from './access';
+import { lockBeautyCustomerPhone } from './customer-identity';
 import { findOrCreateCustomer } from '../customers/identity';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
@@ -65,6 +67,13 @@ export const BUSY: AppointmentStatus[] = ['BOOKED', 'CONFIRMED', 'IN_PROGRESS', 
 const DEFAULT_FROM = 8 * 60;
 const DEFAULT_TO = 20 * 60;
 const MAX_PERIOD_DAYS = 366;
+
+const customerFullName = (customer: { firstName: string; lastName: string | null }) =>
+  [customer.firstName, customer.lastName]
+    .filter((part): part is string => Boolean(part))
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(' ');
 
 const APPOINTMENT_VIEW_SELECT = {
   id: true,
@@ -365,7 +374,23 @@ export class BeautyAppointmentsService {
         if (!own) throw new NotFoundException('Клиент не найден');
         customerId = own.id;
       } else {
-        customerId = (await findOrCreateCustomer(tx, scope.organizationId, input.customer)).id;
+        const normalizedPhone = customerPhoneKey(input.customer.phone);
+        if (normalizedPhone) {
+          await lockBeautyCustomerPhone(tx, scope.organizationId, normalizedPhone);
+          const known = await tx.customer.findFirst({
+            where: { organizationId: scope.organizationId, phoneNormalized: normalizedPhone },
+            select: { id: true, status: true, firstName: true, lastName: true },
+          });
+          if (known && known.status !== 'ACTIVE') throw new ConflictException('Клиент в архиве');
+          if (known && customerFullName(known) !== customerFullName(input.customer))
+            throw new ConflictException(
+              'Клиент с этим телефоном сохранён под другим именем. Выберите существующего клиента из списка.',
+            );
+          customerId = known?.id
+            ?? (await findOrCreateCustomer(tx, scope.organizationId, input.customer)).id;
+        } else {
+          customerId = (await findOrCreateCustomer(tx, scope.organizationId, input.customer)).id;
+        }
       }
       // клиент становится виден бизнесу при первом обращении в него (§19.1)
       await tx.customerBusiness.createMany({

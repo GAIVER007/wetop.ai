@@ -66,6 +66,19 @@ describe('D1/D2: клиент без записи и безопасный имп
     expect(db.customerBusiness.createMany).not.toHaveBeenCalled();
     expect(db.auditLog.create).not.toHaveBeenCalled();
   });
+
+  it('не позволяет сотруднику с customers.create обойти owner-only журнал через совместимый apply', async () => {
+    const db = database();
+    const service = new BeautyCustomerImportService({ db } as unknown as PrismaService);
+    const staffActor = { ...previewActor, role: 'STAFF' as const };
+    const csv = 'Имя;Телефон\nТестовый Клиент;+77010000000';
+
+    await expect(withSignedInUser(staffActor, () => service.apply({ csv })))
+      .rejects.toBeInstanceOf(ForbiddenException);
+    expect(db.customer.create).not.toHaveBeenCalled();
+    expect(db.customerBusiness.createMany).not.toHaveBeenCalled();
+    expect(db.auditLog.create).not.toHaveBeenCalled();
+  });
 });
 
 const actor = {
@@ -284,15 +297,44 @@ describe('CustomerImportService', () => {
         undoDeadline: new Date('2026-10-18T12:00:01.000Z'),
       }),
     );
-    let lockCalls = 0;
-    db.$queryRaw.mockImplementation(async () => {
-      lockCalls += 1;
-      if (lockCalls === 1) return [{ locked: true }];
-      if (lockCalls === 4) vi.setSystemTime(new Date('2026-10-18T12:00:02.000Z'));
+    db.$queryRaw.mockImplementation(async (query: TemplateStringsArray) => {
+      const sql = query.join(' ');
+      if (sql.includes('pg_try_advisory_xact_lock')) return [{ locked: true }];
+      if (sql.includes('FROM customer_imports')) {
+        vi.setSystemTime(new Date('2026-10-18T12:00:02.000Z'));
+      }
+      if (sql.includes('FROM memberships')) return [{ role: 'OWNER', status: 'ACTIVE' }];
       return [];
     });
     await expect(asActor(() => service.undo(row().id))).rejects.toBeInstanceOf(ConflictException);
     expect(db.customerImport.update).not.toHaveBeenCalledWith(
+      expect.objectContaining({ data: { state: 'UNDOING' } }),
+    );
+  });
+
+  it('locks the current owner membership before undo writes', async () => {
+    db.customerImport.findFirst.mockResolvedValue(
+      row({
+        state: 'COMPLETED',
+        processedRows: 1,
+        createdCount: 1,
+        completedAt: new Date('2026-10-18T11:00:00.000Z'),
+        undoDeadline: new Date(Date.now() + 60_000),
+      }),
+    );
+    db.$queryRaw.mockImplementation(async (query: TemplateStringsArray) => {
+      const sql = query.join(' ');
+      if (sql.includes('pg_try_advisory_xact_lock')) return [{ locked: true }];
+      if (sql.includes('FROM memberships')) return [{ role: 'OWNER', status: 'ACTIVE' }];
+      return [];
+    });
+
+    await expect(asActor(() => service.undo(row().id))).resolves.toMatchObject({ state: 'UNDONE' });
+    const membershipLock = db.$queryRaw.mock.calls.find(([query]) =>
+      (query as readonly string[]).join(' ').includes('FROM memberships'));
+    expect((membershipLock?.[0] as readonly string[] | undefined)?.join(' ')).toContain('FOR SHARE');
+    expect(membershipLock?.[0]).toBeDefined();
+    expect(db.customerImport.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: { state: 'UNDOING' } }),
     );
   });

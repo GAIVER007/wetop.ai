@@ -1,0 +1,17 @@
+# Модульные (unit) · 19.10.2026 09:32 Алматы · srv1719674
+# коммит cd954b5 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T04-32-05Z-unit-d363.json' 'apps/web/src/app/finance/appointments-csv.test.ts' 'apps/web/src/app/reports/salon-report-data.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |unit| apps/web/src/app/reports/salon-report-data.test.ts (7 tests) 29ms
+ ✓ |unit| apps/web/src/app/finance/appointments-csv.test.ts (6 tests) 23ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  04:32:06
+   Duration  483ms (transform 58%, tests 23%, import 15%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-19T04-32-05Z-unit-d363.json
+
+# код выхода 0 · 2 с

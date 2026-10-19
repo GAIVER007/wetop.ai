@@ -1,5 +1,6 @@
 import type { BeautyDay } from '../../lib/api';
 import { beautyStatus } from '../../lib/status/beauty';
+import { localInput } from '../beauty/time';
 import { csvField, csvTenge } from './csv';
 
 const clock = (minutes: number) =>
@@ -22,11 +23,19 @@ export function appointmentsCsv(days: BeautyDay[]): string {
     'Оплачено',
     'Возвращено',
   ];
+  const seen = new Set<string>();
   const lines = [...days]
     .sort((a, b) => a.date.localeCompare(b.date))
     .flatMap((d) => {
       const names = new Map(d.columns.map((c) => [c.id, c.name]));
       return [...d.appointments]
+        .filter((a) => {
+          // Calendar responses include prior-day tails; reports attribute each visit to its local start.
+          if (localInput(a.startsAt, d.location.timezone).slice(0, 10) !== d.date || seen.has(a.id))
+            return false;
+          seen.add(a.id);
+          return true;
+        })
         .sort((a, b) => a.startMinutes - b.startMinutes)
         .map((a) =>
           [

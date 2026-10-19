@@ -33,12 +33,12 @@ export function PortalForm({ context, command, children, label = 'Сохрани
       window.removeEventListener('wetop-scope-switch', invalidate);
     };
   }, [context.scope]);
-  // Week inputs have their own controlled draft. Never rebase its version onto unseen remote hours.
-  const formRevision = dirty || command === 'week' ? expectedRevision : (revision ?? expectedRevision);
+  // An untouched form follows the latest version; PortalWeek passes a newer one only when its hours match the server.
+  const formRevision = dirty ? expectedRevision : (revision ?? expectedRevision);
   return <><form data-testid={testId ?? `portal-${command}-form`} className="portal-form" data-employee-transition-form
     onReset={event => event.preventDefault()}
     onChange={() => {
-      if (!dirty && command !== 'week') setRevision(revision ?? expectedRevision);
+      if (!dirty) setRevision(revision ?? expectedRevision);
       setDirty(true); setSaved(false);
     }}
     onSubmit={event => {
@@ -105,14 +105,23 @@ export function PortalWeekView({ week }: { week: PortalWeekDay[] }) {
   return <div data-testid="portal-week-view"><p className="portal-week-help">График меняет руководитель. Нет часов: выходной.</p>
     <ul className="portal-list">{[1, 2, 3, 4, 5, 6, 0].map(weekday => <li key={weekday}><strong>{DAYS[weekday]}</strong><span>{week.find(d => d.weekday === weekday)?.intervals.map(i => `${i.timeFrom}–${i.timeTo}`).join(', ') || 'Выходной'}</span></li>)}</ul></div>;
 }
+const weekDays = (week: PortalWeekDay[]) => [1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] }));
 export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[]; revision: string | null; context: PortalContext }) {
-  const [days, setDays] = useState(() => [1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] })));
+  const [days, setDays] = useState(() => weekDays(week));
   const [originalRevision, setOriginalRevision] = useState(revision);
+  // The week version also moves when the profile is saved. When new server data arrives and the hours on screen still
+  // equal the server's, the draft takes the new version; edited hours keep theirs and get a conflict, not a lost update.
+  const [base, setBase] = useState(revision);
+  const hours = useRef(days);
+  hours.current = days;
+  useEffect(() => {
+    if (JSON.stringify(weekDays(week)) === JSON.stringify(hours.current)) setBase(revision);
+  }, [revision, week]);
   const [comparison, setComparison] = useState<EmployeePortalDto | null>(null);
   const [readError, setReadError] = useState('');
   const [reading, reread] = useTransition();
   const intervals = days.flatMap(day => day.intervals.map(slot => ({ weekday: day.weekday, ...slot })));
-  return <><PortalForm key={originalRevision} context={context} command="week" revision={originalRevision} label="Сохранить график">
+  return <><PortalForm key={originalRevision} context={context} command="week" revision={base} label="Сохранить график">
     <p className="portal-week-help">Рабочие часы по дням. Нет интервалов: выходной.</p>
     <input type="hidden" name="intervals" value={JSON.stringify(intervals)} />
     {days.map(day => <div className="portal-week-row" key={day.weekday} role="group" aria-label={DAYS[day.weekday]}>
@@ -139,8 +148,8 @@ export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[];
       <ul>{comparison.week.map(day => <li key={day.weekday}>{DAYS[day.weekday]}: {day.intervals.map(i => `${i.timeFrom} до ${i.timeTo}`).join(', ') || 'Выходной'}</li>)}</ul>
       <p>Ваш ввод остаётся в форме. Принятие сохранённого графика заменит черновик.</p>
       <Button type="button" tone="secondary" onClick={() => {
-        setDays([1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: comparison.week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] })));
-        setOriginalRevision(comparison.weekRevision); setComparison(null);
+        setDays(weekDays(comparison.week));
+        setOriginalRevision(comparison.weekRevision); setBase(comparison.weekRevision); setComparison(null);
       }}>Принять сохранённый график</Button>
     </section>}
   </>;

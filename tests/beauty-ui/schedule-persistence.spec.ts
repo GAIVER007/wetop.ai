@@ -60,7 +60,7 @@ test('owner saves initially empty master week through onboarding schedule and re
   const concurrent=await request.put(`${api}/beauty/employees/${employee.id}/working-hours`,{headers,data:{intervals:[{weekday:1,timeFrom:'09:00',timeTo:'21:00'}],expectedRevision:afterProfile.weekRevision}});
   expect(concurrent.ok()).toBe(true);
   await card.getByRole('button',{name:'Сохранить график',exact:true}).click();
-  await expect(card.getByTestId('portal-week-form').getByRole('alert')).toContainText('Данные изменились');
+  await expect(card.getByTestId('portal-week-form').getByRole('alert')).toContainText('Данные изменены в другом окне');
   await expect(card.getByLabel('Понедельник: до, интервал 1')).toHaveValue('20:00');
   expect((await read()).week[0].intervals).toEqual([{timeFrom:'09:00',timeTo:'21:00'}]);
 });

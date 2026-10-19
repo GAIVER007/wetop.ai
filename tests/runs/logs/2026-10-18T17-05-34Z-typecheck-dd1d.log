@@ -1,0 +1,44 @@
+# Типы (typecheck) · 18.10.2026 22:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8a5ab94 (claude/fix-main-lint-beauty), незакоммиченных файлов набора: 2
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/beauty-ui/customer-xlsx.spec.ts(3,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+tests/integration/beauty-customers.test.ts(123,17): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(126,17): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(130,12): error TS18046: 'first' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(130,27): error TS18046: 'second' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(132,74): error TS18046: 'first' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(150,15): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(157,15): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(213,58): error TS18046: 'customer' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(218,73): error TS18046: 'customer' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(219,47): error TS18046: 'customer' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(230,15): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(244,56): error TS18046: 'onlyBusinessB' is of type 'unknown'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/customers/beauty-table.test.ts(12,35): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'canImportPreview' does not exist in type 'Attributes & { items: BeautyCustomerRow[]; canCreate?: boolean; canEdit?: boolean; scopeKey?: string; businessId?: string; }'.
+apps/web/src/app/customers/customer-actions-scope.test.ts(2,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+apps/web/src/app/customers/xlsx.test.ts(2,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+apps/web/src/app/customers/xlsx.ts(3,24): error TS2307: Cannot find module 'yauzl' or its corresponding type declarations.
+apps/web/src/app/customers/xlsx.ts(4,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+apps/web/src/app/customers/xlsx.ts(32,8): error TS7006: Parameter 'openError' implicitly has an 'any' type.
+apps/web/src/app/customers/xlsx.ts(32,19): error TS7006: Parameter 'zip' implicitly has an 'any' type.
+apps/web/src/app/customers/xlsx.ts(62,26): error TS7006: Parameter 'entry' implicitly has an 'any' type.
+apps/web/src/app/customers/xlsx.ts(78,38): error TS7006: Parameter 'streamError' implicitly has an 'any' type.
+apps/web/src/app/customers/xlsx.ts(78,51): error TS7006: Parameter 'stream' implicitly has an 'any' type.
+apps/web/src/app/customers/xlsx.ts(152,32): error TS7006: Parameter 'cell' implicitly has an 'any' type.
+apps/web/src/app/customers/xlsx.ts(157,35): error TS7006: Parameter 'row' implicitly has an 'any' type.
+
+# код выхода 1 · 2 ч 6 мин

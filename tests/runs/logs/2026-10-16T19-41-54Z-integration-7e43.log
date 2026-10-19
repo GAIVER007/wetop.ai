@@ -1,4 +1,4 @@
-# Интеграционные (integration) · 17.10.2026 00:41 Алматы · srv1719674
+# Интеграционные (integration) · 17.10.2026 00:41 Алматы · <сервер>
 # коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 24
 # npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-41-54Z-integration-7e43.json' '--config' 'tests/employee-portal-ui/spec-fixes.config.ts' 'tests/integration/employee-portal-schedule-conflicts.test.ts' 'tests/integration/employee-portal.test.ts'
 

@@ -1,4 +1,4 @@
-# Типы (typecheck) · 18.10.2026 13:11 Алматы · srv1719674
+# Типы (typecheck) · 18.10.2026 13:11 Алматы · <сервер>
 # коммит fb0e786 (fix/owner-report-period-20261018), незакоммиченных файлов набора: 8
 # npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
 

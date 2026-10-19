@@ -1,4 +1,4 @@
-# Интеграционные (integration) · 15.10.2026 17:47 Алматы · srv1719674
+# Интеграционные (integration) · 15.10.2026 17:47 Алматы · <сервер>
 # коммит 6dfe1f6 (fix/audit-reset-closed-folio), незакоммиченных файлов набора: 1
 # npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T12-47-39Z-integration-7adb.json' 'tests/integration/reset-token-http.test.ts' '--testTimeout=60000' '--hookTimeout=120000' '--maxWorkers=1'
 

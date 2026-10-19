@@ -1,4 +1,4 @@
-# Модульные (unit) · 17.10.2026 10:21 Алматы · srv1719674
+# Модульные (unit) · 17.10.2026 10:21 Алматы · <сервер>
 # коммит a6c7381 (fix/supplier-payment-retry-20261017), незакоммиченных файлов набора: 1
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T05-21-18Z-unit-3783.json' 'apps/web/src/app/bar/actions.test.ts' 'apps/api/src/bar/bar-payment-methods.test.ts' '--maxWorkers=1'
 

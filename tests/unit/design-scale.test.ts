@@ -11,7 +11,10 @@ import { ALLOWED_BREAKPOINTS, LAYER_CONTRACT } from './design-slop-rules';
  */
 const ROOT = resolve(import.meta.dirname, '../..');
 const TOKENS = readFileSync(resolve(ROOT, 'apps/web/src/app/tokens.css'), 'utf8');
-const DESIGN = readFileSync(resolve(ROOT, 'DESIGN.md'), 'utf8');
+// §20 с 19.10.2026 лежит в docs/design/desk-rules.md (DESIGN.md, «Что вынесено»)
+const DESIGN = ['DESIGN.md', 'docs/design/desk-rules.md']
+  .map((f) => readFileSync(resolve(ROOT, f), 'utf8'))
+  .join('\n');
 
 /** Значения первой (светлой) темы: `--name: 8px;` → { name: '8px' } */
 function rootTokens(css: string): Record<string, string> {

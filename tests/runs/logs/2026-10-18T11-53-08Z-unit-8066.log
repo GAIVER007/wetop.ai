@@ -1,4 +1,4 @@
-# Модульные (unit) · 18.10.2026 16:53 Алматы · srv1719674
+# Модульные (unit) · 18.10.2026 16:53 Алматы · <сервер>
 # коммит 228ecdf (fix/salon-schedule-persistence-20261018), незакоммиченных файлов набора: 1
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T11-53-08Z-unit-8066.json' 'apps/web/src/app/beauty/actions.test.ts' 'apps/web/src/app/beauty/schedule/read-only.test.ts' 'tests/unit/schedule-reconcile-guards.test.ts' 'tests/unit/employee-portal-web.test.ts' '--maxWorkers=1'
 

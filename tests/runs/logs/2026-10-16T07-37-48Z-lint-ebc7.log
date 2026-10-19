@@ -1,4 +1,4 @@
-# Линтер (lint) · 16.10.2026 12:37 Алматы · srv1719674
+# Линтер (lint) · 16.10.2026 12:37 Алматы · <сервер>
 # коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 17
 # npx eslint . 'apps/api/src/finance/expense-documents.ts' 'apps/api/src/finance/expense-documents-api.test.ts' 'apps/api/src/finance/expense-store.ts' 'tests/integration/expense-documents-isolated.test.ts'
 

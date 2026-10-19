@@ -1,4 +1,4 @@
-# Модульные (unit) · 16.10.2026 22:21 Алматы · srv1719674
+# Модульные (unit) · 16.10.2026 22:21 Алматы · <сервер>
 # коммит eb65955 (private-verified-candidate)
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T17-21-46Z-unit-5052.json' 'apps/web/src/lib/auth-fallback.test.ts' '--maxWorkers=1'
 

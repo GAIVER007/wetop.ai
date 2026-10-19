@@ -1,4 +1,4 @@
-# Модульные (unit) · 16.10.2026 16:17 Алматы · srv1719674
+# Модульные (unit) · 16.10.2026 16:17 Алматы · <сервер>
 # коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 76
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-17-39Z-unit-aed2.json' 'apps/web/src/app/restaurant-settings/opening.test.ts' 'apps/api/src/food-service/opening.test.ts' '--maxWorkers=1'
 

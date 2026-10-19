@@ -1,4 +1,4 @@
-# Интеграционные (integration) · 19.10.2026 15:57 Алматы · srv1719674
+# Интеграционные (integration) · 19.10.2026 15:57 Алматы · <сервер>
 # коммит d3a65f6 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 3
 # npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T10-57-37Z-integration-2aa5.json' 'tests/integration/beauty-appointment-lines.test.ts'
 

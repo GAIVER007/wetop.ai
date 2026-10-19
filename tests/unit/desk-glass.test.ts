@@ -18,7 +18,7 @@ const strip = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '');
 const all = cssFiles(src).map((f) => ({ f, css: strip(readFileSync(f, 'utf8')) }));
 
 const documented = (() => {
-  const design = readFileSync(resolve(root, 'DESIGN.md'), 'utf8');
+  const design = readFileSync(resolve(root, 'docs/design/desk-rules.md'), 'utf8');
   const list = /## 20\.3[\s\S]*?```\n([\s\S]*?)```/.exec(design)?.[1];
   expect(list).toBeTruthy();
   return [...list!.matchAll(/\.[a-z0-9_-]+/g)].map((m) => m[0]);

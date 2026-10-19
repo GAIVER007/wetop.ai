@@ -1,4 +1,4 @@
-# Интеграционные (integration) · 16.10.2026 16:02 Алматы · srv1719674
+# Интеграционные (integration) · 16.10.2026 16:02 Алматы · <сервер>
 # коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 52
 # npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-02-05Z-integration-106d.json' '--config' 'tests/hospitality-workload-isolated.config.ts' '--maxWorkers=1'
 

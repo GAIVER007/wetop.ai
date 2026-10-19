@@ -1,4 +1,4 @@
-# Интеграционные (integration) · 17.10.2026 11:36 Алматы · srv1719674
+# Интеграционные (integration) · 17.10.2026 11:36 Алматы · <сервер>
 # коммит 0766123 (fix/tz21-working-time), незакоммиченных файлов набора: 8
 # npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T06-36-52Z-integration-b19b.json' 'tests/integration/tz21-working-time.test.ts'
 

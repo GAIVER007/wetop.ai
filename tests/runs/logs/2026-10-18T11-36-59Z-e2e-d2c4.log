@@ -1,4 +1,4 @@
-# Сквозные (e2e) · 18.10.2026 16:36 Алматы · srv1719674
+# Сквозные (e2e) · 18.10.2026 16:36 Алматы · <сервер>
 # коммит 228ecdf (fix/salon-schedule-persistence-20261018)
 # npx playwright test --workers=2 --reporter=list,json '--config' '/opt/data/workspace/wetop-browser-readonly-check/schedule-test.config.ts' 'schedule-persistence.spec.ts' '--workers=1'
 (node:2904621) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.

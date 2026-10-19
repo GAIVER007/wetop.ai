@@ -1,4 +1,4 @@
-# Модульные (unit) · 17.10.2026 14:46 Алматы · srv1719674
+# Модульные (unit) · 17.10.2026 14:46 Алматы · <сервер>
 # коммит 1d006bc (integrate/tz21-5417daa6), незакоммиченных файлов набора: 1
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T09-46-10Z-unit-028c.json' 'apps/web/src/components/dialog-focus.test.ts'
 

@@ -31,7 +31,7 @@ const GLOBALS = resolve(SITE, 'app/globals.css');
 /** Композиция главной поверх общих стилей (ADR-132): те же правила, тот же сторож. */
 const MODULE = resolve(SITE, 'app/home.module.css');
 const TOKENS = resolve(SITE, 'app/tokens.css');
-const DESIGN = resolve(ROOT, 'DESIGN.md');
+const DESIGN = resolve(ROOT, 'docs/design/site.md'); // бывший DESIGN.md §19
 
 /** Лестница отступов сайта (DESIGN.md §19.3): шаг 2 px до 16, дальше 4 px. */
 const SPACE_SCALE = new Set([0, 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64]);

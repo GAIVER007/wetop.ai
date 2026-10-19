@@ -1,4 +1,4 @@
-# Типы (typecheck) · 15.10.2026 18:09 Алматы · srv1719674
+# Типы (typecheck) · 15.10.2026 18:09 Алматы · <сервер>
 # коммит 6dfe1f6 (fix/audit-reset-closed-folio), незакоммиченных файлов набора: 12
 # npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
 

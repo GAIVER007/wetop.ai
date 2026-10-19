@@ -1,4 +1,4 @@
-# Типы (typecheck) · 17.10.2026 13:38 Алматы · srv1719674
+# Типы (typecheck) · 17.10.2026 13:38 Алматы · <сервер>
 # коммит 08f5f5b (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 30
 # npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
 

@@ -1,4 +1,4 @@
-# Модульные (unit) · 17.10.2026 00:45 Алматы · srv1719674
+# Модульные (unit) · 17.10.2026 00:45 Алматы · <сервер>
 # коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 49
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-45-13Z-unit-5e9e.json' 'tests/unit/employee-portal-web.test.ts' 'tests/unit/employee-portal-restore-profile.test.ts' 'apps/api/src/employee-portal/boundary.test.ts' 'apps/api/src/employee-portal/write-safety.test.ts'
 

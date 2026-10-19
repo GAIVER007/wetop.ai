@@ -1,4 +1,4 @@
-# Сквозные (e2e) · 18.10.2026 16:53 Алматы · srv1719674
+# Сквозные (e2e) · 18.10.2026 16:53 Алматы · <сервер>
 # коммит 228ecdf (fix/salon-schedule-persistence-20261018), незакоммиченных файлов набора: 1
 # npx playwright test --workers=2 --reporter=list,json '--config' '/opt/data/workspace/wetop-browser-readonly-check/schedule-save.playwright.config.ts' 'schedule-save-real.spec.ts' '--workers=1'
 [WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.

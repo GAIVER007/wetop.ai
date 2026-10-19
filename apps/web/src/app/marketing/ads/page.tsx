@@ -235,7 +235,7 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
   return (
     <Page
       crumbs={<BackToModules />}
-      title="Реклама"
+      title="ИИ-таргетолог"
       subtitle="Кампании, кабинет Meta, запуск с ИИ и статистика площадок."
       actions={
         launchable ? (

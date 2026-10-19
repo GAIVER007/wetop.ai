@@ -477,7 +477,7 @@ test('Все агенты возвращает в единый каталог, �
   const back = page.getByRole('link', { name: 'Все агенты', exact: true });
   await expect(back).toHaveAttribute('href', '/ai-agents');
   await back.click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
   await expect(page.getByTestId('agent-seller')).toBeVisible();
 });
 

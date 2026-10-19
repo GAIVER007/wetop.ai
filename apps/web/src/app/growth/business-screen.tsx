@@ -44,7 +44,7 @@ export function BusinessGrowthScreen({
   const q = (extra: string) => `/sales?${extra}`;
   return (
     <Page
-      title="Продажи"
+      title="Обзор продаж"
       subtitle={
         period
           ? `${restaurant ? 'Заказы и брони столов' : 'Записи и оказанные услуги'} за ${displayDate(period.from)} — ${displayDate(period.to)}`

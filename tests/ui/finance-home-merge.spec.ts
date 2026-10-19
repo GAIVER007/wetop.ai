@@ -135,8 +135,8 @@ test('меню: «Главная» первой вкладкой, «Финанс
   await expect(menu.locator('.sidenav__section').first()).toHaveText('Главная');
   await expect(menu.locator('.sidenav__section').nth(1)).toHaveText('Журнал');
   await expect(menu.locator('.sidenav__section').nth(7)).toHaveText('Финансы');
-  // активная отметка живёт на пункте группы: на /finance это «Движение денег»
-  await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Движение денег');
+  // активная отметка живёт на пункте группы: на /finance это «Обзор финансов»
+  await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Обзор финансов');
   await page.goto('/today');
   await expect(sideNav(page).locator('.sidenav__section').first()).toHaveText('Главная');
 });

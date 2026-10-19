@@ -73,7 +73,7 @@ test('меню телефона: работа смены прямыми ссыл
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
   // активная отметка на пункте группы «Финансы»
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Движение денег');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Обзор финансов');
   // «Журнал» не спрятан в группе: прямая ссылка с подписью
   const board = menu.getByRole('link', { name: 'Журнал', exact: true });
   await expect(board.locator('span')).toBeVisible();

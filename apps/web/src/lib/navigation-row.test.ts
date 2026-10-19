@@ -70,6 +70,11 @@ describe('одно меню для всех направлений', () => {
       '/beauty/schedule',
       '/employees/shifts',
     ]);
-    expect(VERTICALS.map((v) => screen(v, 'Финансы', 'Движение денег'))).toEqual(['/finance', '/cashbox', '/cashbox']);
+    expect(VERTICALS.map((v) => screen(v, 'Финансы', 'Касса'))).toEqual([undefined, '/cashbox', '/cashbox']);
+    expect(VERTICALS.map((v) => screen(v, 'Финансы', 'Обзор финансов'))).toEqual([
+      '/finance',
+      '/finance',
+      '/restaurant-finance',
+    ]);
   });
 });

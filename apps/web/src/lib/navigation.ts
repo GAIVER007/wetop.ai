@@ -649,9 +649,10 @@ const ROW: Array<{
     label: 'Финансы',
     icon: 'money',
     items: [
-      // касса филиала (§35.2, §48) у салона и ресторана; у гостиницы оплаты и касса
-      { label: 'Движение денег', at: { HOSPITALITY: '/finance', BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
-      { label: 'Приход', at: { BEAUTY: '/finance', FOOD_SERVICE: '/restaurant-finance' } },
+      // пункты называются по экранам (решение владельца 19.10.2026): касса филиала (§35.2, §48) у салона и
+      // ресторана; «Финансы» каждого направления; у гостиницы касса внутри её «Финансов»
+      { label: 'Касса', at: { BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
+      { label: 'Обзор финансов', at: { HOSPITALITY: '/finance', BEAUTY: '/finance', FOOD_SERVICE: '/restaurant-finance' } },
       { label: 'Отчеты', at: { HOSPITALITY: '/reports/finance' } },
     ],
   },

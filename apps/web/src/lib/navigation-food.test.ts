@@ -35,7 +35,7 @@ describe('Food workspace isolation', () => {
     expect(labels.find((i) => i.href === '/stock')?.label).toBe('Склад кухни');
     expect(labels.find((i) => i.href === '/employees')?.label).toBe('Специалисты');
     expect(labels.find((i) => i.href === '/employees/shifts')?.label).toBe('График работы');
-    expect(labels.find((i) => i.href === '/cashbox')?.label).toBe('Движение денег');
+    expect(labels.find((i) => i.href === '/cashbox')?.label).toBe('Касса');
     expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Записи');
   });
   it('does not expose Food to existing verticals', () => {

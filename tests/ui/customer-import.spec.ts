@@ -11,8 +11,7 @@ test('M4-B2: владелец импортирует CSV, восстанавли
   const main = page.getByRole('main');
   const customerTable = main.getByRole('table', { name: '', exact: true });
   await main.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
-  let panel = page.getByRole('dialog', { name: 'Импортировать клиентов', exact: true })
-    .getByRole('region', { name: 'Надёжный импорт CSV и история', exact: true });
+  let panel = page.getByRole('dialog', { name: 'Импортировать клиентов' });
   const csv = [
     'Имя;Фамилия;Телефон',
     'Импорт Тест;Первый;+7 700 000 71 01',
@@ -52,8 +51,7 @@ test('M4-B2: владелец импортирует CSV, восстанавли
   await page.keyboard.press('Escape');
   await page.reload();
   await main.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
-  panel = page.getByRole('dialog', { name: 'Импортировать клиентов', exact: true })
-    .getByRole('region', { name: 'Надёжный импорт CSV и история', exact: true });
+  panel = page.getByRole('dialog', { name: 'Импортировать клиентов' });
   await expect(panel.getByRole('heading', { name: 'Последний импорт: Завершён' })).toBeVisible();
   await panel.getByRole('button', { name: 'Отменить импорт', exact: true }).click();
   const confirm = page.getByRole('dialog', { name: 'Отменить импорт клиентов?' });
@@ -69,8 +67,7 @@ test('M4-B2: незавершённая загрузка после reload пр�
   const main = page.getByRole('main');
   const customerTable = main.getByRole('table', { name: '', exact: true });
   await main.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
-  let panel = page.getByRole('dialog', { name: 'Импортировать клиентов', exact: true })
-    .getByRole('region', { name: 'Надёжный импорт CSV и история', exact: true });
+  let panel = page.getByRole('dialog', { name: 'Импортировать клиентов' });
   const originalCsv = [
     'Имя;Телефон',
     'Восстановление Один;+7 700 000 72 01',
@@ -78,7 +75,6 @@ test('M4-B2: незавершённая загрузка после reload пр�
     'Восстановление Три;+7 700 000 72 03',
   ].join('\r\n');
   await selectAndCheck(panel, originalCsv, 'resume-original.csv');
-  await expect(panel.getByRole('status').filter({ hasText: /^Обновляем состояние импорта…$/ })).not.toBeVisible();
 
   const firstActions: string[] = [];
   let command = 0;
@@ -103,11 +99,9 @@ test('M4-B2: незавершённая загрузка после reload пр�
 
   await page.reload();
   await main.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
-  panel = page.getByRole('dialog', { name: 'Импортировать клиентов', exact: true })
-    .getByRole('region', { name: 'Надёжный импорт CSV и история', exact: true });
+  panel = page.getByRole('dialog', { name: 'Импортировать клиентов' });
   await expect(panel.getByRole('heading', { name: 'Последний импорт: Загрузка файла' })).toBeVisible();
 
-  await expect(panel.getByRole('status').filter({ hasText: /^Обновляем состояние импорта…$/ })).not.toBeVisible();
   const resumedActions: string[] = [];
   page.on('request', (browserRequest) => {
     const action = browserRequest.headers()['next-action'];

@@ -239,7 +239,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
     '/marketing/site/assets',
   );
 
-  // «Контент» не спрашивает данных, кроме запросов оболочки; «Реклама» спрашивает только кампании
+  // «Контент» не спрашивает данных, кроме запросов оболочки; «Реклама» спрашивает кампании и последние запуски ИИ-таргетолога
   await request.post(`${fixture}/__test/reset`);
   for (const path of ['/marketing/ads', '/marketing/content']) {
     await page.goto(path);
@@ -248,7 +248,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   const hits = (await (await request.get(`${fixture}/__test/hits`)).json()) as {
     byPath: Record<string, number>;
   };
-  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort()).toEqual(['/marketing/ad-connections/meta', '/marketing/campaigns']);
+  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort()).toEqual(['/marketing/ad-connections/meta', '/marketing/ads/launches', '/marketing/campaigns']);
 });
 
 test('администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб', async ({

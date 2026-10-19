@@ -33,8 +33,8 @@ export default async function CustomersPage() {
           canEdit={canCreate}
           scopeKey={shell.scopeKey ?? ''}
           showCreate={false}
-          importHistory={canImport ? (
-            <ImportCustomers businessId={me.context?.businessId ?? ''} canImport />
+          importHistory={canCreate ? (
+            <ImportCustomers businessId={me.context?.businessId ?? ''} canImport={canImport} />
           ) : undefined}
         />
         <BeautyCustomersTable

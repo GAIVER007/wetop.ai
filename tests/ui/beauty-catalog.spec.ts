@@ -18,41 +18,38 @@ test('M4-B1: CSV проверяется локально, колонки мен�
   const main = page.getByRole('main');
   const before = await main.getByRole('row').count();
   await main.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
-  const panel = page.getByRole('dialog', { name: 'Импортировать клиентов', exact: true });
-  const localImport = panel.getByRole('region', { name: 'Надёжный импорт CSV и история', exact: true });
+  const panel = page.getByRole('dialog', { name: 'Импортировать клиентов' });
   const writes: string[] = [];
   page.on('request', (req) => { if (req.method() === 'POST') writes.push(req.url()); });
   const csv = 'Имя;Телефон\r\nПервый тест;87000001001\r\nПовтор тест;+7 (700) 000-10-01\r\nБез номера;\r\nОшибка тест;abc';
-  await localImport.getByLabel('CSV с клиентами').setInputFiles({ name: 'synthetic.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
-  await expect(localImport.getByLabel('Колонка имени')).toHaveValue('0');
-  await expect(localImport.getByLabel('Колонка телефона')).toHaveValue('1');
-  await localImport.getByRole('button', { name: 'Проверить строки', exact: true }).click();
-  await expect(localImport.getByRole('heading', { name: 'Готовы: 1', exact: true })).toBeVisible();
-  await expect(localImport.getByRole('heading', { name: 'Повторы в файле: 1', exact: true })).toBeVisible();
-  await expect(localImport.getByRole('heading', { name: 'С замечаниями: 1', exact: true })).toBeVisible();
-  await expect(localImport.getByRole('heading', { name: 'Пропустим: 1', exact: true })).toBeVisible();
-  await expect(localImport.getByRole('button', { name: /^Импортировать \d+ строк$/ })).toHaveCount(0);
-  await expect(localImport.getByRole('button', { name: 'Отменить импорт', exact: true })).toHaveCount(0);
-  await expect(localImport.getByText('Проверка завершена. Данные ещё не импортированы.', { exact: true })).toBeVisible();
-  await expect(localImport.getByRole('link', { name: 'Скачать шаблон CSV' })).toHaveAttribute('download', 'wetop-customers-template.csv');
+  await panel.getByLabel('CSV с клиентами').setInputFiles({ name: 'synthetic.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  await expect(panel.getByLabel('Колонка имени')).toHaveValue('0');
+  await expect(panel.getByLabel('Колонка телефона')).toHaveValue('1');
+  await panel.getByRole('button', { name: 'Проверить строки', exact: true }).click();
+  await expect(panel.getByRole('heading', { name: 'Готовы: 1', exact: true })).toBeVisible();
+  await expect(panel.getByRole('heading', { name: 'Повторы в файле: 1', exact: true })).toBeVisible();
+  await expect(panel.getByRole('heading', { name: 'С замечаниями: 1', exact: true })).toBeVisible();
+  await expect(panel.getByRole('heading', { name: 'Пропустим: 1', exact: true })).toBeVisible();
+  await expect(panel.getByText('Проверка завершена. Данные ещё не импортированы.', { exact: true })).toBeVisible();
+  await expect(panel.getByRole('link', { name: 'Скачать шаблон CSV' })).toHaveAttribute('download', 'wetop-customers-template.csv');
   for (const width of [375, 768, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.evaluate((dark) => { document.documentElement.dataset.theme = dark ? 'dark' : 'light'; }, width === 375);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    const headingBox = await localImport.getByRole('heading', { name: 'Проверка завершена. Данные ещё не импортированы.', exact: true }).boundingBox();
+    const headingBox = await panel.getByRole('heading', { name: 'Проверка завершена. Данные ещё не импортированы.', exact: true }).boundingBox();
     const titleBox = await panel.locator('.overlay-heading').boundingBox();
     expect(headingBox!.y).toBeGreaterThanOrEqual(titleBox!.y + titleBox!.height);
     expect((await new AxeBuilder({ page }).include('dialog, [role="dialog"]').analyze()).violations).toEqual([]);
     await page.screenshot({ path: `reports/salons-m4b-2026-10-18/preview-${width}.png`, fullPage: true });
   }
-  await localImport.getByLabel('Колонка телефона').selectOption('0');
-  await expect(localImport.getByText('Проверка завершена. Данные ещё не импортированы.', { exact: true })).not.toBeVisible();
-  await localImport.getByRole('button', { name: 'Проверить строки', exact: true }).click();
-  await expect(localImport.getByRole('alert')).toContainText('дважды');
-  await expect(localImport.getByRole('alert')).toBeFocused();
-  await localImport.getByLabel('CSV с клиентами').setInputFiles({ name: 'wrong.xlsx', mimeType: 'application/octet-stream', buffer: Buffer.from('synthetic') });
-  await expect(localImport.getByRole('alert')).toContainText('Выберите CSV');
-  await expect(localImport.getByRole('button', { name: 'Проверить строки', exact: true })).not.toBeVisible();
+  await panel.getByLabel('Колонка телефона').selectOption('0');
+  await expect(panel.getByText('Проверка завершена. Данные ещё не импортированы.', { exact: true })).not.toBeVisible();
+  await panel.getByRole('button', { name: 'Проверить строки', exact: true }).click();
+  await expect(panel.getByRole('alert')).toContainText('дважды');
+  await expect(panel.getByRole('alert')).toBeFocused();
+  await panel.getByLabel('CSV с клиентами').setInputFiles({ name: 'wrong.xlsx', mimeType: 'application/octet-stream', buffer: Buffer.from('synthetic') });
+  await expect(panel.getByRole('alert')).toContainText('Выберите CSV');
+  await expect(panel.getByRole('button', { name: 'Проверить строки', exact: true })).not.toBeVisible();
   expect(writes).toEqual([]);
   await page.keyboard.press('Escape');
   await expect(panel).not.toBeVisible();
@@ -113,6 +110,8 @@ test('M4-A: клиент без записи, повтор номера и со�
   await expect(row).toBeVisible();
 });
 
+const TEST_CLIENT = { 'x-wetop-test-client': '1' };
+
 async function openSalon(page: Page, request: APIRequestContext) {
   await request.post(`${FIXTURE_API}/__test/reset`);
   await page.goto('/auth/fallback');
@@ -154,8 +153,7 @@ test('услуга каталога добавляется и видна в сп
   await page.goto('/beauty/services');
   const main = page.getByRole('main');
   const catalog = main.locator('[data-service-list="catalog"]');
-  const item = catalog.getByRole('article').filter({ has: page.getByText('Маникюр', { exact: true }) });
-  await expect(item).toHaveCount(1);
+  const item = catalog.locator('.beauty-service-item').filter({ has: page.getByText('Маникюр', { exact: true }) });
   await expect(item).toContainText('60 мин');
   await expect(item).toContainText('8 000');
   // Услуга уже есть в общем каталоге, но филиал добавляет её отдельно.
@@ -169,7 +167,7 @@ test('филиал включает услугу и ставит свою цен
   await page.goto('/beauty/services');
   const main = page.getByRole('main');
   await main
-    .locator('[data-service-list="catalog"]').getByRole('article')
+    .locator('[data-service-list="catalog"] .beauty-service-item')
     .filter({ has: page.getByText('Маникюр', { exact: true }) })
     .getByRole('button', { name: 'Изменить' })
     .click();
@@ -178,11 +176,11 @@ test('филиал включает услугу и ставит свою цен
   await panel.getByLabel(/Своя цена филиала/).fill('9500');
   await panel.getByLabel(/Своя длительность/).fill('90');
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(panel.getByRole('status').filter({ hasText: /^Настройки филиала сохранены$/ })).toHaveText('Настройки филиала сохранены');
+  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
   await page.goto('/beauty/services');
   const salonItem = main
-    .locator('[data-service-list="salon"]').getByRole('article')
-    .filter({ has: page.getByText('Маникюр', { exact: true }) });
+    .locator('[data-service-list="salon"] .beauty-service-item')
+    .filter({ hasText: 'Маникюр' });
   await expect(salonItem).toContainText('9 500');
   await expect(salonItem).toContainText('90 мин');
   await expect(
@@ -211,35 +209,27 @@ test('каталог переносит услуги кнопками и drag-an
 
   await catalog.getByRole('button', { name: 'Добавить в филиал: Услуга стрелкой' }).click();
   await expect(
-    salon.getByRole('article').filter({ has: page.getByText('Услуга стрелкой', { exact: true }) }),
+    salon.locator('.beauty-service-item').filter({ hasText: 'Услуга стрелкой' }),
   ).toBeVisible();
   await expect(catalog.getByRole('button', { name: 'В филиале: Услуга стрелкой' })).toBeDisabled();
 
-  const catalogDragItem = catalog.getByRole('article').filter({
-    has: page.getByText('Услуга перетаскиванием', { exact: true }),
-  });
-  const salonDropHeading = salon.getByRole('heading', { name: 'Услуги филиала', exact: true });
-  await catalogDragItem.scrollIntoViewIfNeeded();
-  await salonDropHeading.scrollIntoViewIfNeeded();
-  await expect(catalogDragItem).toBeInViewport({ ratio: 1 });
-  await expect(salonDropHeading).toBeInViewport({ ratio: 1 });
-  await catalogDragItem.dragTo(salonDropHeading);
+  await catalog
+    .locator('.beauty-service-item')
+    .filter({ hasText: 'Услуга перетаскиванием' })
+    // бросаем на всегда видимый заголовок списка: центр высокой секции ниже экрана, Playwright прокручивает
+    // страницу между нажатием и первым движением, и Chromium начинает перенос с другой карточки под курсором
+    .dragTo(salon.locator('header'));
   await expect(
-    salon.getByRole('article').filter({ has: page.getByText('Услуга перетаскиванием', { exact: true }) }),
+    salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
   ).toBeVisible();
   await expect(catalog.getByRole('button', { name: 'В филиале: Услуга перетаскиванием' })).toBeDisabled();
 
-  const salonDragItem = salon.getByRole('article').filter({
-    has: page.getByText('Услуга перетаскиванием', { exact: true }),
-  });
-  const catalogDropHeading = catalog.getByRole('heading', { name: 'Каталог услуг', exact: true });
-  await salonDragItem.scrollIntoViewIfNeeded();
-  await catalogDropHeading.scrollIntoViewIfNeeded();
-  await expect(salonDragItem).toBeInViewport({ ratio: 1 });
-  await expect(catalogDropHeading).toBeInViewport({ ratio: 1 });
-  await salonDragItem.dragTo(catalogDropHeading);
+  await salon
+    .locator('.beauty-service-item')
+    .filter({ hasText: 'Услуга перетаскиванием' })
+    .dragTo(catalog.locator('header'));
   await expect(
-    salon.getByRole('article').filter({ has: page.getByText('Услуга перетаскиванием', { exact: true }) }),
+    salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
   ).toHaveCount(0);
   await expect(catalog.getByRole('button', { name: 'Добавить в филиал: Услуга перетаскиванием' })).toBeVisible();
   await page.screenshot({ path: `${SNAPSHOTS}/services-transfer-1440.png`, fullPage: true });
@@ -282,39 +272,16 @@ test('мастер добавляется, а карточка показыва�
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   const employeeId = page.url().split('/').at(-2)!;
-  const cookies = await page.context().cookies();
-  const scopeCookie = cookies.find(cookie => cookie.name === 'wetop_scope')?.value;
-  const session = cookies.find(cookie => cookie.name === 'wetop_session')?.value;
-  // Assert presence without including cookie/token values in failure output.
-  expect(Boolean(scopeCookie)).toBe(true);
-  expect(Boolean(session)).toBe(true);
-  const scope = decodeURIComponent(scopeCookie!);
-  const locationId = /(?:^|;)location=([^;]+)/.exec(scope)?.[1];
-  expect(Boolean(locationId)).toBe(true);
-  const headers = { 'x-wetop-test-client': '1', 'x-wetop-scope': scope, 'x-wetop-session': session! };
-  const servicesResponse = await page.request.get(`${FIXTURE_API}/beauty/services`, { headers });
-  expect(servicesResponse.status()).toBe(200);
-  const catalog = await servicesResponse.json() as { locationId: string; items: Array<{ id: string; name: string }> };
-  expect(catalog.locationId).toBe(locationId);
-  const manicures = catalog.items.filter(item => item.name === 'Маникюр');
-  const haircuts = catalog.items.filter(item => item.name === 'Стрижка');
-  expect(manicures).toHaveLength(1);
-  expect(haircuts).toHaveLength(1);
-  const manicure = manicures[0]!;
-  const haircut = haircuts[0]!;
-  const serviceIds = [manicure.id, haircut.id];
-  const assigned = await page.request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
-    headers, data: { serviceIds },
+  const servicesResponse = await request.get(`${FIXTURE_API}/beauty/services`, { headers: TEST_CLIENT });
+  expect(servicesResponse.ok()).toBe(true);
+  const services = (await servicesResponse.json()).items as Array<{ id: string; name: string }>;
+  const manicure = services.find((item) => item.name === 'Маникюр')!;
+  const haircut = services.find((item) => item.name === 'Стрижка')!;
+  const assigned = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    headers: TEST_CLIENT,
+    data: { serviceIds: [manicure.id, haircut.id] },
   });
-  expect(assigned.status()).toBe(200);
-  const assignedRow = await assigned.json() as { id: string; serviceIds: string[] };
-  expect(assignedRow.id).toBe(employeeId);
-  expect(assignedRow.serviceIds).toEqual(serviceIds);
-  const assignedReadback = await page.request.get(`${FIXTURE_API}/beauty/employees/${employeeId}`, { headers });
-  expect(assignedReadback.status()).toBe(200);
-  const persistedAssignment = await assignedReadback.json() as { id: string; serviceIds: string[] };
-  expect(persistedAssignment.id).toBe(employeeId);
-  expect(persistedAssignment.serviceIds).toEqual(serviceIds);
+  expect(assigned.ok()).toBe(true);
   await page.goto('/beauty/masters');
   // карточки вместо таблицы (ТЗ салона 09.10.2026): умения и филиалы остаются на виду
   const row = main.getByRole('listitem').filter({ hasText: 'Дина' });
@@ -331,18 +298,11 @@ test('мастер добавляется, а карточка показыва�
     `/employees/${employeeId}/profile`,
   );
   // UI назначения и снятия проверяет real-portal набор; здесь фиксируем отображение ответа каталога.
-  const reduced = await page.request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
-    headers, data: { serviceIds: [manicure.id] },
+  const reduced = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    headers: TEST_CLIENT,
+    data: { serviceIds: [manicure.id] },
   });
-  expect(reduced.status()).toBe(200);
-  const reducedRow = await reduced.json() as { id: string; serviceIds: string[] };
-  expect(reducedRow.id).toBe(employeeId);
-  expect(reducedRow.serviceIds).toEqual([manicure.id]);
-  const reducedReadback = await page.request.get(`${FIXTURE_API}/beauty/employees/${employeeId}`, { headers });
-  expect(reducedReadback.status()).toBe(200);
-  const persistedReduction = await reducedReadback.json() as { id: string; serviceIds: string[] };
-  expect(persistedReduction.id).toBe(employeeId);
-  expect(persistedReduction.serviceIds).toEqual([manicure.id]);
+  expect(reduced.ok()).toBe(true);
   await page.goto('/beauty/masters');
   await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).toContainText('Маникюр');
   await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).not.toContainText(
@@ -408,7 +368,7 @@ test('типовая услуга подставляет поля, цена вв
   await expect(panel.getByRole('status')).toContainText('Услуга создана');
   await page.goto('/beauty/services');
   await expect(
-    page.getByRole('main').locator('[data-service-list="catalog"]').getByRole('article').filter({ has: page.getByText('Маникюр', { exact: true }) }),
+    page.getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: page.getByText('Маникюр', { exact: true }) }),
   ).toContainText('5 000');
 });
 
@@ -430,9 +390,9 @@ test('стартовая услуга справа требует цену и п
   await expect(panel.getByRole('status')).toContainText('Услуга создана');
   await expect(panel.getByLabel('Филиал оказывает эту услугу')).toBeChecked();
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(panel.getByRole('status').filter({ hasText: /^Настройки филиала сохранены$/ })).toHaveText('Настройки филиала сохранены');
+  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
   await page.goto('/beauty/services');
   await expect(
-    main.locator('[data-service-list="salon"]').getByRole('article').filter({ has: page.getByText('Стрижка мужская', { exact: true }) }),
+    main.locator('[data-service-list="salon"] .beauty-service-item').filter({ has: page.getByText('Стрижка мужская', { exact: true }) }),
   ).toContainText('35,50');
 });

@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const SOURCE = 'dcd29aa27c2265b12f05509e7be336ef18b13d67';
+const SOURCE = 'a242889adf3e64641876574a2a790bb857f91da3';
 const BASE = '29fd2fda0889d06aafceca055a7b0d1742869799';
 const MAIN = '2a8f7aab9c8405e03999c005d99b61ffbe8efacf';
 const image = readFileSync(resolve('.github/workflows/verified-release-image.yml'), 'utf8');

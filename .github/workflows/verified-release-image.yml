@@ -45,7 +45,7 @@ jobs:
           gate = os.environ['SOURCE_GATE_RUN']
           if not re.fullmatch(r'[0-9a-f]{40}', sha) or not re.fullmatch(r'[0-9]+', gate):
               raise SystemExit('Refused: invalid source SHA or gate ID')
-          approved = 'dcd29aa27c2265b12f05509e7be336ef18b13d67'
+          approved = 'a242889adf3e64641876574a2a790bb857f91da3'
           base = '29fd2fda0889d06aafceca055a7b0d1742869799'
           if sha != approved:
               raise SystemExit('Refused: source is not the approved FIN-only stage')
@@ -61,7 +61,8 @@ jobs:
               'reports/finance-outflow-label-2026-10-19.md',
               'tests/runs/entries/2026-10-19T05-10-02Z-unit-f1aa.json',
               'tests/runs/logs/2026-10-19T05-10-02Z-unit-f1aa.log',
-              'tests/ui/finance-home-merge.spec.ts', 'tests/unit/finance-outflow-label.test.ts',
+              'tests/ui/finance-home-merge.spec.ts',
+              'tests/ui/chessboard-card.spec.ts', 'tests/unit/finance-outflow-label.test.ts',
           }
           files = ancestry['files']
           if not (release == base and ancestry['status'] == 'ahead'

@@ -50,7 +50,7 @@ jobs:
           INPUT_SHA: ${{ github.event.inputs.sha }}
           # Owner-requested sequential release window: only the independently tested FIN stage.
           # Other automatic main results are held, not silently published as the whole bundle.
-          STAGED_RELEASE_SOURCE_SHA: dcd29aa27c2265b12f05509e7be336ef18b13d67
+          STAGED_RELEASE_SOURCE_SHA: a242889adf3e64641876574a2a790bb857f91da3
         run: |
           set -euo pipefail
           git fetch --quiet origin main release

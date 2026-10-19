@@ -273,6 +273,8 @@ export function AppointmentsList({
               <th>Услуга</th>
               <th>Специалист</th>
               <th>Статус</th>
+              <th>Источник</th>
+              <th>Автор</th>
               <th className="beauty-amount">Стоимость</th>
               <th>Действия</th>
             </tr>
@@ -316,6 +318,8 @@ export function AppointmentsList({
                 <td data-label="Статус">
                   <StatusBadge kind="beauty" value={r.status} />
                 </td>
+                <td data-label="Источник">{r.source === 'WEBSITE' ? 'Сайт' : 'Стойка'}</td>
+                <td data-label="Автор">{r.createdByName ?? '-'}</td>
                 <td data-label="Стоимость" className="beauty-amount">
                   {formatMoney(r.priceMinor, r.currency)}
                 </td>

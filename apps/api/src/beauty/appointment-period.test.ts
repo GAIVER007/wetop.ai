@@ -90,3 +90,22 @@ describe('Beauty appointment period', () => {
     expect(serviceFindMany).not.toHaveBeenCalled();
   });
 });
+
+describe('C2 (паритет с zapis.kz): автор и источник в проекции записи', () => {
+  it('отдаёт source и имя автора, когда они есть в строке', async () => {
+    const { service, findMany } = fixture();
+    findMany.mockResolvedValue([{
+      ...row,
+      source: 'WEBSITE',
+      createdBy: { name: 'Тест Админ', email: 'admin@example.invalid' },
+    }]);
+    const result = await service.period('2026-10-12', '2026-10-12');
+    expect(result.appointments[0]).toMatchObject({ source: 'WEBSITE', createdByName: 'Тест Админ' });
+  });
+  it('у старой записи без автора поля отдаются пустыми, а не падают', async () => {
+    const { service, findMany } = fixture();
+    findMany.mockResolvedValue([{ ...row, source: 'DESK', createdBy: null }]);
+    const result = await service.period('2026-10-12', '2026-10-12');
+    expect(result.appointments[0]).toMatchObject({ source: 'DESK', createdByName: null });
+  });
+});

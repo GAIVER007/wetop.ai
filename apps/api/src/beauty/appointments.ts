@@ -108,6 +108,9 @@ const APPOINTMENT_VIEW_SELECT = {
   },
   customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
   payments: { where: { status: 'COMPLETED' }, select: { kind: true, amount: true, method: true } },
+  // C2 (паритет с zapis.kz): автор и источник уже хранятся, реестр показывает их словами
+  source: true,
+  createdBy: { select: { name: true, email: true } },
 } satisfies Prisma.AppointmentSelect;
 
 type AppointmentViewRow = Prisma.AppointmentGetPayload<{ select: typeof APPOINTMENT_VIEW_SELECT }>;
@@ -136,6 +139,8 @@ function appointmentView(row: AppointmentViewRow, timezone: string, anchorDate: 
     refundedMinor: row.payments.reduce((sum, payment) => payment.kind === 'EXPENSE' ? sum + payment.amount : sum, 0n).toString(),
     currency: row.currency,
     notes: row.notes,
+    source: row.source,
+    createdByName: row.createdBy ? (row.createdBy.name ?? row.createdBy.email) : null,
     items: row.lines.map((line) => ({
       id: line.id,
       position: line.position,

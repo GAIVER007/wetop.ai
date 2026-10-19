@@ -1,0 +1,40 @@
+# Модульные (unit) · 19.10.2026 18:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6fc38e4 (claude/salon-zapis-p0), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-35-18Z-unit-42f7.json' 'apps/web/src/app/appointments/list-modal.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ❯ |unit| apps/web/src/app/appointments/list-modal.test.ts (3 tests | 1 failed) 14ms
+   ✓ appointments list card modal placement (1)
+     ✓ renders the selected appointment in a wide centered overlay 7ms
+   ✓ offers a period and shows the local date alongside appointments 1ms
+   ❯ C2 (паритет с zapis.kz): автор и источник в реестре (1)
+     × показывает колонки «Источник» и «Автор» со словами, а не кодами 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/appointments/list-modal.test.ts > C2 (паритет с zapis.kz): автор и источник в реестре > показывает колонки «Источник» и «Автор» со словами, а не кодами
+AssertionError: expected '<div class="beauty-bar beauty-operati…' to contain 'Источник'
+
+Expected: "Источник"
+Received: "<div class="beauty-bar beauty-operational-toolbar"><form class="beauty-period-filter"><label class="field">Период с<input class="inp" type="date" required="" data-testid="beauty-day-date" name="from" value="2026-10-18"/></label><label class="field">Период по<input class="inp" type="date" required="" name="to" value="2026-10-18"/></label><button class="btn btn--secondary" type="submit">Показать период</button><button class="btn btn--ghost" type="button">Сегодня</button></form><button class="btn" disabled="">+ Новая запись</button></div><div class="beauty-filters beauty-list-filters"><label class="field">Статус<select class="inp"><option value="" selected="">Все статусы</option><option value="BOOKED">Записан</option><option value="CONFIRMED">Подтверждена</option><option value="IN_PROGRESS">В процессе</option><option value="DONE">Завершена</option><option value="NO_SHOW">Не пришёл</option><option value="CANCELLED">Отменена</option></select></label><label class="field">Специалист<select class="inp"><option value="" selected="">Все специалисты</option><option value="synthetic-master">Synthetic master</option></select></label><label class="field">Услуга<select class="inp"><option value="" selected="">Все услуги</option><option value="synthetic-service">Synthetic service</option></select></label><div class="beauty-list-search"><label class="field">Поиск клиента<input class="inp" type="search" data-page-search="true" value=""/></label><p class="beauty-note">Поиск по выбранному периоду.</p><p class="beauty-note">После перезагрузки поиск клиента очищается.</p></div></div><button class="btn btn--secondary beauty-list-reset">Сбросить фильтры</button><div class="table-scroll" tabindex="0" role="region" aria-label="Таблица, прокрутка по горизонтали"><table class="tbl beauty-appointments-table"><thead><tr><th>Дата</th><th>Время</th><th>Клиент</th><th>Телефон</th><th>Услуга</th><th>Специалист</th><th>Статус</th><th class="beauty-amount">Стоимость</th><th>Действия</th></tr></thead><tbody><tr><td data-label="Дата">18 окт.</td><td data-label="Время">10:00–11:00</td><td data-label="Клиент"><button class="btn btn--ghost btn--sm">Synthetic Customer</button></td><td data-label="Телефон" class="beauty-contact beauty-contact--empty">Не указан</td><td data-label="Услуга">Synthetic service</td><td data-label="Специалист">Synthetic master</td><td data-label="Статус"><span class="badge badge--warn">Записан</span></td><td data-label="Стоимость" class="beauty-amount">100 USD</td><td data-label="Действия"><button class="btn btn--secondary">Открыть запись</button></td></tr></tbody></table></div><dialog class="ui-overlay  ui-overlay--lg appointment-card-modal" aria-labelledby="_R_8_"><div class="overlay-heading"><h2 id="_R_8_">Запись</h2><button type="button" class="icon-button" aria-label="Закрыть: Запись"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div><div class="overlay-content"><div>Synthetic list card</div></div></dialog>"
+
+ ❯ apps/web/src/app/appointments/list-modal.test.ts:78:18
+     76|       }),
+     77|     );
+     78|     expect(html).toContain('Источник');
+       |                  ^
+     79|     expect(html).toContain('Сайт');
+     80|     expect(html).toContain('Автор');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  06:35:19
+   Duration  228ms (import 56%, transform 35%, tests 8%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-35-18Z-unit-42f7.json
+
+# код выхода 1 · 1 с

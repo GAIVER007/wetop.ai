@@ -41,6 +41,11 @@ export interface BeautyAppointmentHistorySnapshot {
     startsAt: string;
     endsAt?: string;
     priceMinor: string;
+    basePriceMinor?: string;
+    discountMinor?: string;
+    surchargeMinor?: string;
+    discountPercent?: number | null;
+    currency?: string;
     employee: { id: string; name: string };
     service: { id: string; name: string };
   }>;
@@ -110,8 +115,8 @@ function sanitizeSnapshot(
     if (service) snapshot.service = service;
   }
   if (
-    action === 'beauty.appointment.created' &&
-    side === 'after' &&
+    (action === 'beauty.appointment.moved' ||
+      (action === 'beauty.appointment.created' && side === 'after')) &&
     Array.isArray(source['items'])
   ) {
     snapshot.items = source['items'].flatMap((raw) => {
@@ -124,16 +129,26 @@ function sanitizeSnapshot(
       const service = resolved(item['serviceId'], services);
       if (!Number.isInteger(position) || !startsAt || !priceMinor || !employee || !service)
         return [];
-      return [
-        {
-          position: Number(position),
-          startsAt,
-          ...(endsAt ? { endsAt } : {}),
-          priceMinor,
-          employee,
-          service,
-        },
-      ];
+      const safe: NonNullable<BeautyAppointmentHistorySnapshot['items']>[number] = {
+        position: Number(position),
+        startsAt,
+        ...(endsAt ? { endsAt } : {}),
+        priceMinor,
+        employee,
+        service,
+      };
+      // Old rows have no components: keep them unknown, never reconstruct from today's rates.
+      for (const key of ['basePriceMinor', 'discountMinor', 'surchargeMinor'] as const) {
+        const amount = item[key];
+        if (typeof amount === 'string' && /^\d+$/.test(amount)) safe[key] = amount;
+      }
+      const percent = item['discountPercent'];
+      if (percent === null ||
+        (typeof percent === 'number' && Number.isInteger(percent) && percent >= 0 && percent <= 100))
+        safe.discountPercent = percent;
+      const currency = item['currency'];
+      if (typeof currency === 'string' && /^[A-Z]{3}$/.test(currency)) safe.currency = currency;
+      return [safe];
     });
   }
   if (action === 'beauty.appointment.status') {

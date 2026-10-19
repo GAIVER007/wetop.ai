@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -97,6 +97,29 @@ describe('employee portal permissions through the stock restore mechanism', () =
           '--file',
           dump,
         ]);
+        // Historical backups require matching migration files (docs/ops/backups.md:245).
+        // The wrong current directory must fail closed and preserve the complete target state.
+        sql(target, 'CREATE TABLE restore_target_probe(id int PRIMARY KEY); INSERT INTO restore_target_probe VALUES (17)');
+        const targetBefore = sql(target, snapshot);
+        const mismatched = spawnSync('bash',
+          [resolve('scripts/ops/db-restore-prod.sh'), dump, '--yes-replace-production'],
+          { encoding: 'utf8', timeout: 120_000, env: {
+            ...process.env, ENV_FILE: join(dir, 'no.env'), RESTORE_DATABASE_URL: target,
+            RESTORE_MIGRATIONS_DIR: migrations,
+          } },
+        );
+        expect(mismatched.status).toBe(1);
+        expect(mismatched.stderr).toMatch(/relation "customer_imports" does not exist/);
+        expect(mismatched.stderr).toContain('откатилось целиком');
+        expect(sql(target, 'SELECT id FROM restore_target_probe')).toBe('17');
+        expect(sql(target, snapshot)).toBe(targetBefore);
+        expect(sql(target, "SELECT to_regclass('public.employee_public_profiles') IS NULL")).toBe('t');
+        // 129 repeats the ACL from 128 without requiring any later schema objects.
+        const historicalMigrations = join(dir, 'migrations-through-129');
+        mkdirSync(historicalMigrations);
+        for (const migration of readdirSync(migrations).sort()
+          .filter((name) => name <= '20261016000129_employee_portal_grants'))
+          cpSync(join(migrations, migration), join(historicalMigrations, migration), { recursive: true });
         const output = run(
           'bash',
           [resolve('scripts/ops/db-restore-prod.sh'), dump, '--yes-replace-production'],
@@ -104,7 +127,7 @@ describe('employee portal permissions through the stock restore mechanism', () =
             ...process.env,
             ENV_FILE: join(dir, 'no.env'),
             RESTORE_DATABASE_URL: target,
-            RESTORE_MIGRATIONS_DIR: migrations,
+            RESTORE_MIGRATIONS_DIR: historicalMigrations,
           },
         );
         expect(sql(target, snapshot)).toBe(before);

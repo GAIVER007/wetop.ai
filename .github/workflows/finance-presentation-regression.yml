@@ -130,6 +130,44 @@ jobs:
           retention-days: 7
 
 
+  historical-restore-regression:
+    name: Historical portal ACL restore, owned disposable PostgreSQL
+    needs: regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    services:
+      restore:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-restore-ci
+          POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+          POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --encoding=UTF8
+        ports: ['127.0.0.1:5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: PostgreSQL client (GitHub runner only)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+      - run: npm ci --no-audit --no-fund
+      - name: Exact historical restore contract, optional roles absent and present
+        env:
+          EMPLOYEE_PORTAL_RESTORE_TEST_URL: postgresql://postgres:${{ github.run_id }}-${{ github.run_attempt }}-restore-ci@127.0.0.1:5432/postgres
+        run: npx vitest run --config tests/restore/employee-portal-grants-restore.config.ts
+
   ui-regressions:
     name: Scoped catalog, import and future-visit UI
     needs: regression

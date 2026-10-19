@@ -25,6 +25,19 @@ const render = (appointment = row, canEdit = true) => renderToStaticMarkup(creat
 }));
 
 describe('Пояснение недоступной неявки', () => {
+  it('использует явное canUpdate без устаревшего canEdit, как настоящий журнал', () => {
+    const html = renderToStaticMarkup(createElement(AppointmentCard, {
+      day, row, canUpdate: true, onDone() {},
+    }));
+    expect(html).toContain('Можно после начала визита');
+    expect(html).not.toMatch(/<button[^>]*>Не пришёл<\/button>/);
+  });
+  it('явный запрет canUpdate не заменяется устаревшим canEdit', () => {
+    const html = renderToStaticMarkup(createElement(AppointmentCard, {
+      day, row, canEdit: true, canUpdate: false, onDone() {},
+    }));
+    expect(html).not.toContain('Можно после начала визита');
+  });
   it('объясняет серверный запрет и не рисует кнопку преждевременной неявки', () => {
     const html = render();
     expect(html).toContain('Можно после начала визита');

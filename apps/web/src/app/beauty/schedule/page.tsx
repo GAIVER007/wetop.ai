@@ -54,7 +54,7 @@ export default async function BeautySchedulePage({
       subtitle={
         loaded.value.location
           ? `Кто работает в филиале «${loaded.value.location.name ?? 'без имени'}» по дням недели.`
-          : 'График мастеров. Филиал пока не выбран.'
+          : 'График специалистов. Филиал пока не выбран.'
       }
     >
       <p>

@@ -26,7 +26,7 @@ export default async function HelpPage() {
   const access = (
     <p>
       Время показывается в часовом поясе филиала. Доступ сотрудников к WETOP настраивается в разделе{' '}
-      <Link href="/team">«Сотрудники и доступ»</Link>.
+      <Link href="/team">«Персонал → Сотрудники»</Link>.
     </p>
   );
   if (vertical === 'FOOD_SERVICE')

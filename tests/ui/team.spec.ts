@@ -31,7 +31,7 @@ test('владелец: таблица людей с ролями и датам�
   await signIn(page);
   await page.goto('/team');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
   const rows = main.getByTestId('member-row');
   await expect(rows).toHaveCount(3);
   // вошедший владелец — первым, с отметкой «это вы»
@@ -146,7 +146,7 @@ test('без сессии страница не уводит на вход: от
   await page.goto('/team');
   await expect(page).toHaveURL(/\/team$/);
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
   await expect(main).toContainText('владелец и управляющий');
   await expect(main.getByRole('button', { name: 'Пригласить сотрудника' })).toHaveCount(0);
 });
@@ -181,7 +181,7 @@ for (const theme of ['light', 'dark'] as const) {
       await page.setViewportSize({ width: 1440, height: 900 });
     };
     await page.goto('/team');
-    await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
+    await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
     const audit = await new AxeBuilder({ page })
       .include('main')
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -228,7 +228,7 @@ test('«Роли и права»: вкладка только на чтение,
     .click();
   await expect(page).toHaveURL(/\/team\/roles$/);
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
   // 15 прав: с ADR-MKT-B7 у маркетинга своё право `marketing`, с DATA_MODEL §57 запуск рекламы `ads_launch`
   await expect(main.getByTestId('roles-row')).toHaveCount(15);
   const owner = main

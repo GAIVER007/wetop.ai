@@ -61,7 +61,7 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
 
   await page.goto('/beauty/masters');
-  await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await main.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
   await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();

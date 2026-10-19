@@ -1605,7 +1605,7 @@
     "/staff": {
       "rule": {
         "href": "/staff",
-        "label": "Сотрудники и доступ",
+        "label": "Сотрудники",
         "requires": "staff"
       },
       "gate": {
@@ -1681,7 +1681,7 @@
     "/team": {
       "rule": {
         "href": "/team",
-        "label": "Сотрудники и доступ",
+        "label": "Сотрудники",
         "requires": "staff"
       },
       "gate": {
@@ -1697,7 +1697,7 @@
     "/team/roles": {
       "rule": {
         "href": "/team",
-        "label": "Сотрудники и доступ",
+        "label": "Сотрудники",
         "requires": "staff"
       },
       "gate": {

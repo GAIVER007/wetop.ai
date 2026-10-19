@@ -62,7 +62,7 @@ export default async function BeautyMastersPage({
     <Page
       className="beauty-page"
       title="Специалисты"
-      subtitle="Мастер работает в сети: его можно поставить в несколько филиалов."
+      subtitle="Специалист работает в сети: его можно поставить в несколько филиалов."
     >
       <p>
         <Link href="/register/setup">Вернуться к настройке салона</Link>

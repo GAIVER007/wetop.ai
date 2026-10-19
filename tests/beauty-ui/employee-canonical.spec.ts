@@ -58,8 +58,8 @@ test('create, canonical links and legacy addresses use one full employee profile
 }) => {
   const fixture = await reset(page, request);
   await page.goto('/employees');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
-  const creation = page.getByRole('dialog', { name: 'Новый мастер', exact: true });
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
   await creation.getByLabel('Имя мастера', { exact: true }).fill('Тестовый новый мастер');
   await creation.getByRole('button', { name: 'Создать мастера', exact: true }).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
@@ -136,8 +136,8 @@ test('lost create response is recovered once and redirects to the saved full pro
 }) => {
   const fixture = await reset(page, request);
   await page.goto('/employees');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
-  const creation = page.getByRole('dialog', { name: 'Новый мастер', exact: true });
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
   await creation.getByLabel('Имя мастера').fill('Тестовый потерянный ответ');
   let intercepted = false;
   await page.route('**/employees', async (route) => {
@@ -159,10 +159,10 @@ test('lost create response is recovered once and redirects to the saved full pro
 test('dirty creation still uses the save-before-leaving guard', async ({ page, request }) => {
   const fixture = await reset(page, request);
   await page.goto('/employees');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
-  const creation = page.getByRole('dialog', { name: 'Новый мастер', exact: true });
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
   await creation.getByLabel('Имя мастера').fill('Тестовый мастер перед закрытием');
-  await creation.getByRole('button', { name: 'Закрыть: Новый мастер' }).click();
+  await creation.getByRole('button', { name: 'Закрыть: Новый специалист' }).click();
   const confirm = page.getByRole('dialog', { name: 'Несохранённые изменения', exact: true });
   await confirm.getByRole('button', { name: 'Сохранить и перейти', exact: true }).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);

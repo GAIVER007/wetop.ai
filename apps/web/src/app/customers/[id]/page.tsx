@@ -28,20 +28,20 @@ const visitDateTime = (visit: Visit) =>
 function VisitHistory({ visits, truncated }: { visits: Visit[]; truncated: boolean }) {
   if (visits.length === 0) {
     return (
-      <EmptyState icon={<Icon name="booking" />} title="Посещений пока нет">
+      <EmptyState icon={<Icon name="booking" />} title="Визитов пока нет">
         Первое появится после создания записи для этого клиента.
       </EmptyState>
     );
   }
   return (
     <>
-      {truncated && <p className="muted">Показаны последние 100 записей.</p>}
+      {truncated && <p className="muted">Показаны последние 100 визитов.</p>}
       <Table className="beauty-customer-history">
         <thead>
           <tr>
             <th>Дата и время</th>
             <th>Услуги</th>
-            <th>Мастера</th>
+            <th>Специалисты</th>
             <th>Статус</th>
             <th>Сумма</th>
           </tr>
@@ -62,7 +62,7 @@ function VisitHistory({ visits, truncated }: { visits: Visit[]; truncated: boole
                   <time dateTime={visit.startsAt}>{visitDateTime(visit)}</time>
                 </td>
                 <td data-label="Услуги">{services.join(', ')}</td>
-                <td data-label="Мастера">{masters.join(', ')}</td>
+                <td data-label="Специалисты">{masters.join(', ')}</td>
                 <td data-label="Статус">
                   <StatusBadge kind="beauty" value={visit.status} />
                 </td>
@@ -112,7 +112,7 @@ export default async function BeautyCustomerPage({ params }: { params: Promise<{
           </dd>
         </div>
         <div>
-          <dt>Записей</dt>
+          <dt>Визитов</dt>
           <dd>
             {detail.visits.length}
             {detail.historyTruncated ? '+' : ''}
@@ -125,7 +125,7 @@ export default async function BeautyCustomerPage({ params }: { params: Promise<{
           <p className="beauty-customer-notes">{customer.notes}</p>
         </>
       )}
-      <SectionTitle>Последние записи</SectionTitle>
+      <SectionTitle>Последние визиты</SectionTitle>
       <VisitHistory visits={detail.visits.slice(0, 3)} truncated={false} />
     </>
   );
@@ -156,7 +156,7 @@ export default async function BeautyCustomerPage({ params }: { params: Promise<{
           { id: 'customer-overview', label: 'Обзор', content: overview },
           {
             id: 'customer-visits',
-            label: 'История записей',
+            label: 'История визитов',
             count: detail.visits.length,
             content: <VisitHistory visits={detail.visits} truncated={detail.historyTruncated} />,
           },

@@ -128,7 +128,7 @@ test('create then immediate services tab keeps its native dialog open',async ({p
  const headers={'x-wetop-session':cookies.find(c=>c.name==='wetop_session')!.value,'x-wetop-scope':decodeURIComponent(cookies.find(c=>c.name==='wetop_scope')!.value)};
  const service=await page.request.post(`${api}/beauty/services`,{headers,data:{creationId:randomUUID(),name:'Услуга Диагностики',durationMinutes:'30',priceMinor:'0',currency:'KZT',active:true}});expect(service.ok()).toBe(true);
  await page.goto('/employees?onboarding=1');
- await page.getByRole('button',{name:'Добавить мастера',exact:true}).click();
+ await page.getByRole('button',{name:'Добавить специалиста',exact:true}).click();
  const dialog=page.getByRole('dialog');await dialog.getByLabel('Имя мастера',{exact:true}).fill('Мастер Диагностики');
  await dialog.getByRole('button',{name:'Создать мастера',exact:true}).click();
  await expect(dialog.getByRole('tab',{name:'Услуги',exact:true})).toBeVisible();
@@ -175,8 +175,8 @@ test('Employee mobile typography, confirmed scope and create cancellation',async
  await page.getByRole('button',{name:'Сохранить и продолжить',exact:true}).click();
  await expect(page.getByText('Выполнено 0 из 4 обязательных шагов',{exact:true})).toBeVisible();
  await page.goto('/employees?onboarding=1');
- await page.getByRole('button',{name:'Добавить мастера',exact:true}).click();
- const panel=page.getByRole('dialog',{name:'Новый мастер',exact:true});
+ await page.getByRole('button',{name:'Добавить специалиста',exact:true}).click();
+ const panel=page.getByRole('dialog',{name:'Новый специалист',exact:true});
  for(const width of [320,390,600]){
   await page.setViewportSize({width,height:width===320?568:844});
   expect(await panel.getByLabel('Имя мастера',{exact:true}).evaluate(el=>getComputedStyle(el).fontSize)).toBe('17px');

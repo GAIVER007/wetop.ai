@@ -72,15 +72,15 @@ test('minimal create, saved ID, reload and actual desktop/mobile themes', async 
 }) => {
   const f = await reset(page, request);
   await page.goto('/employees');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const panel = page.getByRole('dialog').filter({ visible: true });
   await expect(panel.getByRole('group', { name: 'Что умеет' })).toHaveCount(0);
-  await expect(panel.getByLabel('Мастер работает')).toHaveCount(0);
+  await expect(panel.getByLabel('Специалист работает')).toHaveCount(0);
   await panel
     .getByLabel('Имя мастера', { exact: true })
     .fill('Тестовый мастер с длинным именем для проверки переноса');
   await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'Мастер создан' })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: 'Специалист создан' })).toBeVisible();
   await expect(page).toHaveURL(/employee=[0-9a-f-]+#profile/);
   const id = new URL(page.url()).searchParams.get('employee');
   const rows = await read(request, f.headers);
@@ -212,7 +212,7 @@ test('inaccessible deep link is neutral and old Beauty entry remains compatible'
 }) => {
   const f = await seed(page, request);
   await page.goto('/employees?employee=eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee#profile');
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('Мастер недоступен');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Специалист недоступен');
   await expect(dialog(page)).toHaveCount(0);
   await page.goto(`/beauty/masters?employee=${f.employee.id}#profile`);
   await expect(dialog(page).getByLabel('Имя мастера')).toHaveValue('Тестовый мастер');
@@ -224,7 +224,7 @@ test('lost create response is recovered on reload using one persistent operation
 }) => {
   const f = await reset(page, request);
   await page.goto('/employees');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   await page
     .getByRole('dialog')
     .filter({ visible: true })
@@ -372,7 +372,7 @@ test('a scope-switch event invalidates an in-flight profile response', async ({
   await expect(dialog(page)).toHaveCount(0);
   await expect(page.getByRole('status').filter({ hasText: 'Профиль сохранён' })).toHaveCount(0);
   await page.reload();
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('Мастер недоступен');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Специалист недоступен');
   await expect(dialog(page)).toHaveCount(0);
   await expect(page.getByRole('cell', { name: 'Тестовый мастер', exact: true })).toHaveCount(0);
 });
@@ -537,10 +537,10 @@ test('saving dirty creation before close leaves one saved employee and a closed 
 }) => {
   const f = await reset(page, request);
   await page.goto('/employees');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
-  const creating = page.getByRole('dialog', { name: 'Новый мастер', exact: true });
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
+  const creating = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
   await creating.getByLabel('Имя мастера').fill('Тестовый мастер перед закрытием');
-  await creating.getByRole('button', { name: 'Закрыть: Новый мастер' }).click();
+  await creating.getByRole('button', { name: 'Закрыть: Новый специалист' }).click();
   await confirm(page).getByRole('button', { name: 'Сохранить и перейти' }).click();
   await expect(page).toHaveURL(/\/employees$/);
   await expect(page.getByRole('dialog').filter({ visible: true })).toHaveCount(0);

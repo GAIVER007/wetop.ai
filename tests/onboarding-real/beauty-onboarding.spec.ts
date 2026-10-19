@@ -105,8 +105,8 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
     page.getByText('Выполнено 1 из 4 обязательных шагов', { exact: true }),
   ).toBeVisible();
   await page.reload();
-  await page.getByRole('link', { name: 'Добавить мастера', exact: true }).click();
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await page.getByRole('link', { name: 'Добавить специалиста', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Тестовый Мастер');
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
@@ -288,7 +288,7 @@ test('O07c: a closed employee card leaves the router on the list, so later actio
   await register(page, 'closed');
   await profileUI(page);
   await page.goto('/employees?onboarding=1');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   let dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Закрытый');
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
@@ -297,7 +297,7 @@ test('O07c: a closed employee card leaves the router on the list, so later actio
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page).not.toHaveURL(/employee=/);
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Следующий');
   const action = page.waitForRequest((r) => r.method() === 'POST' && Boolean(r.headers()['next-action']));
@@ -338,7 +338,7 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
     ).ok(),
   ).toBe(true);
   await page.goto('/employees?onboarding=1');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   let dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Частичный');
   await dialog.getByRole('button', {name:'Создать мастера',exact:true}).click();
@@ -370,7 +370,7 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   // Закрывать после подтверждения на экране: до него форма честно считает изменения несохранёнными
   await expect(dialog.getByRole('status')).toContainText('Услуги назначены');
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Потерянный Ответ');
   let dropped!: () => void;

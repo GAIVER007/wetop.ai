@@ -58,11 +58,11 @@ async function openSalon(page: Page, request: APIRequestContext, second = false)
 async function addMaster(page: Page, name: string) {
   await page.goto('/beauty/masters');
   const main = page.getByRole('main');
-  await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await main.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill(name);
   await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await expect(page.getByRole('status').filter({hasText:'Мастер создан'})).toBeVisible();
+  await expect(page.getByRole('status').filter({hasText:'Специалист создан'})).toBeVisible();
 }
 
 /** Окно часов мастера открывается по его имени в сетке */

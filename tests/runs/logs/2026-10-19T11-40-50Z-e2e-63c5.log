@@ -1,0 +1,632 @@
+# Сквозные (e2e) · 19.10.2026 16:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 17d3e9d (claude/main-gate-green), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/side-nav.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/beauty-customers.spec.ts' 'tests/ui/beauty-journal.spec.ts' 'tests/ui/beauty-schedule.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 48 tests using 1 worker
+
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-branch.spec.ts:44:1 › салон заводится той же формой и открывается своим рабочим местом (6.6s)
+  ✓   2 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-branch.spec.ts:58:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (3.8s)
+  ✓   3 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-branch.spec.ts:85:1 › карточка объекта показывает имя салона, а не «объект не загружен» (3.2s)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-branch.spec.ts:97:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (4.0s)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-branch.spec.ts:111:3 › салон доступен и в светлой теме (5.0s)
+  ✓   6 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-branch.spec.ts:111:3 › салон доступен и в тёмной теме (5.0s)
+  ✘   7 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE (45.3s)
+  ✘   8 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано (45.4s)
+  ✘   9 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:157:1 › клиенты на телефоне: без прокрутки вбок (45.2s)
+  ✘  10 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме (45.2s)
+  ✘  11 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме (45.2s)
+  ✓  12 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-schedule.spec.ts:101:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) (6.7s)
+  ✓  13 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-schedule.spec.ts:140:1 › сетка: выходной по графику ведёт в окно недели, переключатель меняет только дату (Q-SCHED-1) (5.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-schedule.spec.ts:194:1 › отбор «Профессия» по группам услуг мастера, отбора «Роль» нет (Q-SCHED-2) (5.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-schedule.spec.ts:223:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (3.9s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-schedule.spec.ts:249:1 › два интервала через перерыв сохраняются (4.6s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-schedule.spec.ts:267:1 › отсутствие на несколько дней видно в ячейке только для чтения, раздела «Нерабочие дни» нет (4.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓  18 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-schedule.spec.ts:303:1 › график на телефоне: страница без прокрутки вбок (3.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓  19 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в светлой теме (4.6s)
+  ✓  20 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в тёмной теме (4.9s)
+  ✓  21 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/navigation.spec.ts:63:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (4.1s)
+  ✓  22 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/navigation.spec.ts:107:1 › меню телефона: вложенные адреса подсвечивают свой пункт, «Каталог» в «Услугах» (2.4s)
+  ✓  23 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/navigation.spec.ts:135:1 › все пункты меню открывают существующие страницы (23.9s)
+  ✓  24 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/navigation.spec.ts:179:3 › меню телефона и планшета ровное и доступное: light (3.7s)
+  ✓  25 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/navigation.spec.ts:179:3 › меню телефона и планшета ровное и доступное: dark (3.6s)
+  ✓  26 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/navigation.spec.ts:233:1 › «Гости и бронирования»: одна вкладка меню, список броней её пунктом (1.6s)
+  ✓  27 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/side-nav.spec.ts:64:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу (2.6s)
+  ✓  28 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/side-nav.spec.ts:119:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (2.5s)
+  ✓  29 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/side-nav.spec.ts:158:1 › вложенные адреса показывают свой раздел (8.1s)
+  ✓  30 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/side-nav.spec.ts:189:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (1.4s)
+  ✓  31 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/side-nav.spec.ts:203:3 › меню без прокрутки вбок и доступное: light (3.2s)
+  ✓  32 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/side-nav.spec.ts:203:3 › меню без прокрутки вбок и доступное: dark (3.1s)
+  ✓  33 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/side-nav.spec.ts:258:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (994ms)
+  ✓  34 [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/side-nav.spec.ts:270:1 › menu panel offers an explicit close action and restores trigger focus (1.4s)
+  ✘  35 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:101:1 › запись из пустой клетки появляется в сетке и в списке дня (45.3s)
+  ✘  36 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:117:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок (2.0m)
+  ✘  37 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:158:1 › перенос мышью меняет время записи через существующий API (4.0m)
+  ✘  38 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:176:1 › занятое время мастера не предлагается и отказ приходит словами (45.2s)
+  ✘  39 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:189:1 › вне графика мастера клетки нерабочие (45.2s)
+  ✘  40 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:196:1 › M6-A: будущий визит объясняет запрет неявки на desktop, телефоне и планшете (3.0m)
+  ✘  41 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:239:1 › состояния записи идут по жизни, из выполненной дороги нет (45.2s)
+  ✘  42 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:263:1 › отмена спрашивает и освобождает время мастера (45.2s)
+  ✘  43 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:285:1 › перенос меняет время записи (45.2s)
+  ✘  44 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:301:1 › журнал на телефоне: день списком, без прокрутки вбок (45.2s)
+  ✘  45 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:316:3 › журнал доступен в светлой теме (45.2s)
+  ✘  46 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:316:3 › журнал доступен в тёмной теме (45.2s)
+  ✓  47 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:333:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (6.9s)
+  ✘  48 [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:394:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня (4.0m)
+
+
+  1) [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      50 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      51 |     .getByRole('button', { name: 'Изменить' })
+    > 52 |     .click();
+         |      ^
+      53 |   panel = page.getByRole('dialog');
+      54 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      55 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:52:6)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:120:3
+
+    Error Context: test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      50 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      51 |     .getByRole('button', { name: 'Изменить' })
+    > 52 |     .click();
+         |      ^
+      53 |   panel = page.getByRole('dialog');
+      54 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      55 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:52:6)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:138:3
+
+    Error Context: test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:157:1 › клиенты на телефоне: без прокрутки вбок 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      50 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      51 |     .getByRole('button', { name: 'Изменить' })
+    > 52 |     .click();
+         |      ^
+      53 |   panel = page.getByRole('dialog');
+      54 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      55 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:52:6)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:158:3
+
+    Error Context: test-results/beauty-customers-клиенты-на-телефоне-без-прокрутки-вбок-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-на-телефоне-без-прокрутки-вбок-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-на-телефоне-без-прокрутки-вбок-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      50 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      51 |     .getByRole('button', { name: 'Изменить' })
+    > 52 |     .click();
+         |      ^
+      53 |   panel = page.getByRole('dialog');
+      54 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      55 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:52:6)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:170:5
+
+    Error Context: test-results/beauty-customers-клиенты-доступны-в-светлой-теме-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-доступны-в-светлой-теме-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-доступны-в-светлой-теме-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      50 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      51 |     .getByRole('button', { name: 'Изменить' })
+    > 52 |     .click();
+         |      ^
+      53 |   panel = page.getByRole('dialog');
+      54 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      55 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:52:6)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:170:5
+
+    Error Context: test-results/beauty-customers-клиенты-доступны-в-тёмной-теме-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-доступны-в-тёмной-теме-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-доступны-в-тёмной-теме-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:101:1 › запись из пустой клетки появляется в сетке и в списке дня 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:102:3
+
+    Error Context: test-results/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:117:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:122:3
+
+    Error Context: test-results/beauty-journal-неделя-пока-a4eb7--телефон-без-прокрутки-вбок-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-неделя-пока-a4eb7--телефон-без-прокрутки-вбок-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-неделя-пока-a4eb7--телефон-без-прокрутки-вбок-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:158:1 › перенос мышью меняет время записи через существующий API 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.click: Test timeout of 240000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:160:3
+
+    Error Context: test-results/beauty-journal-перенос-мыш-80e72-писи-через-существующий-API-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-перенос-мыш-80e72-писи-через-существующий-API-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-перенос-мыш-80e72-писи-через-существующий-API-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:176:1 › занятое время мастера не предлагается и отказ приходит словами 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:180:3
+
+    Error Context: test-results/beauty-journal-занятое-вре-608ef-ся-и-отказ-приходит-словами-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-занятое-вре-608ef-ся-и-отказ-приходит-словами-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-занятое-вре-608ef-ся-и-отказ-приходит-словами-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:189:1 › вне графика мастера клетки нерабочие 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:190:3
+
+    Error Context: test-results/beauty-journal-вне-графика-мастера-клетки-нерабочие-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-вне-графика-мастера-клетки-нерабочие-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-вне-графика-мастера-клетки-нерабочие-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:196:1 › M6-A: будущий визит объясняет запрет неявки на desktop, телефоне и планшете 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.click: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:201:3
+
+    Error Context: test-results/beauty-journal-M6-A-будущи-38912-desktop-телефоне-и-планшете-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-M6-A-будущи-38912-desktop-телефоне-и-планшете-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-M6-A-будущи-38912-desktop-телефоне-и-планшете-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:239:1 › состояния записи идут по жизни, из выполненной дороги нет 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:240:3
+
+    Error Context: test-results/beauty-journal-состояния-з-e32f0-и-из-выполненной-дороги-нет-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-состояния-з-e32f0-и-из-выполненной-дороги-нет-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-состояния-з-e32f0-и-из-выполненной-дороги-нет-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:263:1 › отмена спрашивает и освобождает время мастера 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:264:3
+
+    Error Context: test-results/beauty-journal-отмена-спрашивает-и-освобождает-время-мастера-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-отмена-спрашивает-и-освобождает-время-мастера-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-отмена-спрашивает-и-освобождает-время-мастера-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:285:1 › перенос меняет время записи 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:286:3
+
+    Error Context: test-results/beauty-journal-перенос-меняет-время-записи-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-перенос-меняет-время-записи-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-перенос-меняет-время-записи-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:301:1 › журнал на телефоне: день списком, без прокрутки вбок 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:302:3
+
+    Error Context: test-results/beauty-journal-журнал-на-т-47462--списком-без-прокрутки-вбок-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-журнал-на-т-47462--списком-без-прокрутки-вбок-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-журнал-на-т-47462--списком-без-прокрутки-вбок-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:316:3 › журнал доступен в светлой теме 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:320:5
+
+    Error Context: test-results/beauty-journal-журнал-доступен-в-светлой-теме-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-журнал-доступен-в-светлой-теме-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-журнал-доступен-в-светлой-теме-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:316:3 › журнал доступен в тёмной теме 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: getByRole('main').getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить' })
+
+
+      55 |     .filter({ has: main.getByText('Маникюр', { exact: true }) })
+      56 |     .getByRole('button', { name: 'Изменить' })
+    > 57 |     .click();
+         |      ^
+      58 |   panel = page.getByRole('dialog');
+      59 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      60 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:57:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:320:5
+
+    Error Context: test-results/beauty-journal-журнал-доступен-в-тёмной-теме-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-журнал-доступен-в-тёмной-теме-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-журнал-доступен-в-тёмной-теме-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:394:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.click: Test timeout of 240000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button').filter({ hasText: 'Тестовый клиент' }).first()
+
+
+      446 |     .filter({ hasText: 'Тестовый клиент' })
+      447 |     .first()
+    > 448 |     .click();
+          |      ^
+      449 |   await page.getByRole('dialog').getByRole('button', { name: 'Подтвердить', exact: true }).click();
+      450 |   await openDay(page);
+      451 |   await page
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:448:6
+
+    Error Context: test-results/beauty-journal-быстрый-отч-48565-р-сохраняется-при-смене-дня-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-быстрый-отч-48565-р-сохраняется-при-смене-дня-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-быстрый-отч-48565-р-сохраняется-при-смене-дня-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18 failed
+    [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE 
+    [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано 
+    [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:157:1 › клиенты на телефоне: без прокрутки вбок 
+    [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме 
+    [main-ui-0] › ../.wetop-main-ui-q5bIQg/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:101:1 › запись из пустой клетки появляется в сетке и в списке дня 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:117:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:158:1 › перенос мышью меняет время записи через существующий API 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:176:1 › занятое время мастера не предлагается и отказ приходит словами 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:189:1 › вне графика мастера клетки нерабочие 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:196:1 › M6-A: будущий визит объясняет запрет неявки на desktop, телефоне и планшете 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:239:1 › состояния записи идут по жизни, из выполненной дороги нет 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:263:1 › отмена спрашивает и освобождает время мастера 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:285:1 › перенос меняет время записи 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:301:1 › журнал на телефоне: день списком, без прокрутки вбок 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:316:3 › журнал доступен в светлой теме 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:316:3 › журнал доступен в тёмной теме 
+    [main-ui-1] › ../.wetop-main-ui-q5bIQg/worker-1/tests/ui/beauty-journal.spec.ts:394:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня 
+  30 passed (28.5m)
+
+# код выхода 1 · 28 мин 31 с

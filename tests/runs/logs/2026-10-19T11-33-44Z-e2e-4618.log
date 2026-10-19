@@ -1,0 +1,324 @@
+# Сквозные (e2e) · 19.10.2026 16:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 17d3e9d (claude/main-gate-green)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/side-nav.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/beauty-customers.spec.ts' 'tests/ui/tab-nav.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 31 tests using 1 worker
+
+  ✘   1 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-branch.spec.ts:44:1 › салон заводится той же формой и открывается своим рабочим местом (19.7s)
+  ✓   2 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-branch.spec.ts:58:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (2.8s)
+  ✓   3 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-branch.spec.ts:85:1 › карточка объекта показывает имя салона, а не «объект не загружен» (2.6s)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-branch.spec.ts:97:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (2.8s)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-branch.spec.ts:111:3 › салон доступен и в светлой теме (3.2s)
+  ✓   6 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-branch.spec.ts:111:3 › салон доступен и в тёмной теме (4.2s)
+  ✘   7 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE (45.2s)
+  ✘   8 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано (45.3s)
+  ✘   9 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:157:1 › клиенты на телефоне: без прокрутки вбок (45.3s)
+  ✘  10 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме (45.2s)
+  ✘  11 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме (45.2s)
+  ✘  12 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/navigation.spec.ts:62:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (2.1s)
+  ✓  13 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/navigation.spec.ts:106:1 › меню телефона: вложенные адреса подсвечивают свой пункт, «Каталог» в «Услугах» (2.7s)
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/navigation.spec.ts:134:1 › все пункты меню открывают существующие страницы (23.8s)
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/navigation.spec.ts:178:3 › меню телефона и планшета ровное и доступное: light (3.7s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/navigation.spec.ts:178:3 › меню телефона и планшета ровное и доступное: dark (3.5s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/navigation.spec.ts:232:1 › «Гости и бронирования»: одна вкладка меню, список броней её пунктом (1.2s)
+  ✘  18 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:63:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу (1.1s)
+  ✓  19 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:118:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (2.6s)
+  ✓  20 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:157:1 › вложенные адреса показывают свой раздел (6.8s)
+  ✓  21 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:188:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (1.1s)
+  ✓  22 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:202:3 › меню без прокрутки вбок и доступное: light (3.2s)
+  ✓  23 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:202:3 › меню без прокрутки вбок и доступное: dark (3.2s)
+  ✓  24 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:257:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (1.0s)
+  ✓  25 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:269:1 › menu panel offers an explicit close action and restores trigger focus (1.2s)
+  ✓  26 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/tab-nav.spec.ts:26:1 › широкий экран: знак с надписью, без кнопки ☰, все разделы строкой (2.0s)
+  ✓  27 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/tab-nav.spec.ts:43:1 › наведение открывает список, щелчок ведёт на страницу и подсвечивает раздел (2.2s)
+  ✓  28 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/tab-nav.spec.ts:74:1 › клавиатура: стрелка вниз открывает список, стрелки ходят по пунктам, Escape возвращает фокус (1.2s)
+  ✓  29 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/tab-nav.spec.ts:96:1 › меню под именем: «Моя работа» у салона и ресторана, свежесть данных и пробный период (1.1s)
+  ✓  30 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/tab-nav.spec.ts:109:3 › строка разделов доступна: light (2.5s)
+  ✓  31 [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/tab-nav.spec.ts:109:3 › строка разделов доступна: dark (2.5s)
+
+
+  1) [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-branch.spec.ts:44:1 › салон заводится той же формой и открывается своим рабочим местом 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' })
+
+
+      51 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал');
+      52 |   await expect(main).toContainText('Студия Айна');
+    > 53 |   await expect(main.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' })).toBeVisible();
+         |                                                                                                                             ^
+      54 |   await expect(main.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+      55 |   await page.screenshot({ path: `${SNAPSHOTS}/salon-1440.png`, fullPage: true });
+      56 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-branch.spec.ts:53:125
+
+    Error Context: test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Маникюр' }).getByRole('button', { name: 'Изменить' })
+
+
+      50 |     .filter({ hasText: 'Маникюр' })
+      51 |     .getByRole('button', { name: 'Изменить' })
+    > 52 |     .click();
+         |      ^
+      53 |   panel = page.getByRole('dialog');
+      54 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      55 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:52:6)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:120:3
+
+    Error Context: test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Маникюр' }).getByRole('button', { name: 'Изменить' })
+
+
+      50 |     .filter({ hasText: 'Маникюр' })
+      51 |     .getByRole('button', { name: 'Изменить' })
+    > 52 |     .click();
+         |      ^
+      53 |   panel = page.getByRole('dialog');
+      54 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      55 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:52:6)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:138:3
+
+    Error Context: test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:157:1 › клиенты на телефоне: без прокрутки вбок 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Маникюр' }).getByRole('button', { name: 'Изменить' })
+
+
+      50 |     .filter({ hasText: 'Маникюр' })
+      51 |     .getByRole('button', { name: 'Изменить' })
+    > 52 |     .click();
+         |      ^
+      53 |   panel = page.getByRole('dialog');
+      54 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      55 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:52:6)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:158:3
+
+    Error Context: test-results/beauty-customers-клиенты-на-телефоне-без-прокрутки-вбок-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-на-телефоне-без-прокрутки-вбок-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-на-телефоне-без-прокрутки-вбок-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Маникюр' }).getByRole('button', { name: 'Изменить' })
+
+
+      50 |     .filter({ hasText: 'Маникюр' })
+      51 |     .getByRole('button', { name: 'Изменить' })
+    > 52 |     .click();
+         |      ^
+      53 |   panel = page.getByRole('dialog');
+      54 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      55 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:52:6)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:170:5
+
+    Error Context: test-results/beauty-customers-клиенты-доступны-в-светлой-теме-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-доступны-в-светлой-теме-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-доступны-в-светлой-теме-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Маникюр' }).getByRole('button', { name: 'Изменить' })
+
+
+      50 |     .filter({ hasText: 'Маникюр' })
+      51 |     .getByRole('button', { name: 'Изменить' })
+    > 52 |     .click();
+         |      ^
+      53 |   panel = page.getByRole('dialog');
+      54 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      55 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:52:6)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:170:5
+
+    Error Context: test-results/beauty-customers-клиенты-доступны-в-тёмной-теме-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-доступны-в-тёмной-теме-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-доступны-в-тёмной-теме-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/navigation.spec.ts:62:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+    @@ -1,10 +1,11 @@
+      Array [
+        "/ai-agents",
+        "/bar",
+        "/bar/operations",
+        "/bar/products",
+    +   "/bar/receipts",
+        "/bar/suppliers",
+        "/channels",
+        "/chessboard",
+        "/connections",
+        "/finance",
+
+      71 |     .locator('.workspace-links a')
+      72 |     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+    > 73 |   expect([...links].sort()).toEqual([...routes].sort());
+         |                             ^
+      74 |   expect(new Set(links).size).toBe(links.length);
+      75 |   // активная отметка на пункте группы «Финансы»
+      76 |   await expect(menu.locator('[aria-current="page"]')).toHaveText('Обзор финансов');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/navigation.spec.ts:73:29
+
+    Error Context: test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:63:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+    @@ -1,10 +1,11 @@
+      Array [
+        "/ai-agents",
+        "/bar",
+        "/bar/operations",
+        "/bar/products",
+    +   "/bar/receipts",
+        "/bar/suppliers",
+        "/channels",
+        "/chessboard",
+        "/connections",
+        "/finance",
+
+      78 |   // каждый адрес меню в разметке ровно один раз
+      79 |   const links = await menuLinks(page);
+    > 80 |   expect([...links].sort()).toEqual([...routes].sort());
+         |                             ^
+      81 |
+      82 |   // 2. наведение: все разделы
+      83 |   const items = await openSection(page, 'Настройки');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:80:29
+
+    Error Context: test-results/side-nav-UI3-1-кнопка-откр-29075-лы-ссылка-ведёт-на-страницу-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-UI3-1-кнопка-откр-29075-лы-ссылка-ведёт-на-страницу-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-UI3-1-кнопка-откр-29075-лы-ссылка-ведёт-на-страницу-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-branch.spec.ts:44:1 › салон заводится той же формой и открывается своим рабочим местом 
+    [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE 
+    [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано 
+    [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:157:1 › клиенты на телефоне: без прокрутки вбок 
+    [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме 
+    [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме 
+    [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/navigation.spec.ts:62:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+    [main-ui-0] › ../.wetop-main-ui-ajBJmw/worker-0/tests/ui/side-nav.spec.ts:63:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу 
+  23 passed (6.2m)
+
+# код выхода 1 · 6 мин 14 с

@@ -57,6 +57,7 @@ export function WeekCalendar({
           options={options}
           value={employee}
           allLabel="Все специалисты"
+          kind="specialists"
           onChange={(id) => router.replace(href(selectedDate, true, id), { scroll: false })}
         />
         <Link href={shift(-7)} className="btn btn--secondary">
@@ -71,7 +72,7 @@ export function WeekCalendar({
           date={selected.date}
           scope={[
             employee
-              ? (options.find((e) => e.id === employee)?.name ?? 'Сотрудник недоступен')
+              ? (options.find((e) => e.id === employee)?.name ?? 'Специалист недоступен')
               : 'Все специалисты',
             'Выбранный день',
             ...(service || status ? ['С учётом фильтров'] : []),
@@ -111,13 +112,13 @@ export function WeekCalendar({
                               {item.serviceName} ·{' '}
                               {item.employeeName ||
                                 masters.get(item.employeeId) ||
-                                'Мастер недоступен'}
+                                'Специалист недоступен'}
                             </span>
                           ))
                         ) : (
                           <>
                             <span>{row.serviceName}</span>
-                            <span>{masters.get(row.employeeId) ?? 'Мастер недоступен'}</span>
+                            <span>{masters.get(row.employeeId) ?? 'Специалист недоступен'}</span>
                           </>
                         )}
                         <StatusBadge kind="beauty" value={row.status} />

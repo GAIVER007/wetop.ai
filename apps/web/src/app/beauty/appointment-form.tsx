@@ -305,15 +305,15 @@ export function AppointmentForm({
                     ))}
                 </Select>
               </Field>
-              <Field label="Мастер">
+              <Field label="Специалист">
                 <Select
-                  aria-label={index === 0 ? 'Мастер' : `Мастер услуги ${index + 1}`}
+                  aria-label={index === 0 ? 'Специалист' : `Специалист услуги ${index + 1}`}
                   required
                   value={line.employeeId}
                   onChange={(event) => selectLine(line, { employeeId: event.target.value })}
                 >
                   <option value="" disabled>
-                    Выберите мастера
+                    Выберите специалиста
                   </option>
                   {day.columns
                     .filter(

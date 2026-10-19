@@ -6,7 +6,7 @@ for (const width of [1440,390]) for (const theme of ['light','dark'] as const) {
   await page.setViewportSize({width,height:900});await page.emulateMedia({colorScheme:theme,reducedMotion:'reduce'});
   const f=await seed(page,request);const id=(await f.book('10:00',0,0,'Тест Искомый')).appointments[0].id;
   await f.book('12:00',1,1,'Тест Другой');await page.goto(`/appointments?date=${date}`);
-  await page.getByRole('combobox',{name:'Мастер',exact:true}).selectOption(f.employees[0].id);
+  await page.getByRole('combobox',{name:'Специалист',exact:true}).selectOption(f.employees[0].id);
   await page.getByRole('combobox',{name:'Услуга',exact:true}).selectOption(f.services[0].id);
   await page.getByRole('combobox',{name:'Статус',exact:true}).selectOption('BOOKED');
   await page.getByRole('searchbox',{name:'Поиск клиента',exact:true}).fill('Искомый');
@@ -20,7 +20,7 @@ for (const width of [1440,390]) for (const theme of ['light','dark'] as const) {
   await page.getByRole('button',{name:'Закрыть: Запись',exact:true}).click();
   await expect(page.getByRole('searchbox',{name:'Поиск клиента',exact:true})).toHaveValue('Искомый');
   await page.reload();
-  await expect(page.getByRole('combobox',{name:'Мастер',exact:true})).toHaveValue(f.employees[0].id);
+  await expect(page.getByRole('combobox',{name:'Специалист',exact:true})).toHaveValue(f.employees[0].id);
   await expect(page.getByRole('combobox',{name:'Услуга',exact:true})).toHaveValue(f.services[0].id);
   await expect(page.getByRole('combobox',{name:'Статус',exact:true})).toHaveValue('BOOKED');
   // Policy boundary: no new PII persistence is approved. Reload intentionally clears only search.
@@ -35,7 +35,7 @@ for (const width of [1440,390]) for (const theme of ['light','dark'] as const) {
   await page.getByRole('button',{name:'Закрыть: Запись',exact:true}).click();
   await page.getByTestId('beauty-day-date').fill('2026-10-20');
   await expect(page.getByTestId('beauty-day-date')).toHaveValue('2026-10-20');
-  await expect(page.getByRole('combobox',{name:'Мастер',exact:true})).toHaveValue(f.employees[0].id);
+  await expect(page.getByRole('combobox',{name:'Специалист',exact:true})).toHaveValue(f.employees[0].id);
   await page.goto(`/appointments?date=${date}&master=foreign&service=${f.services[0].id}&appointment=foreign`);
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Фильтр или запись недоступны');
   await expect(page.getByRole('dialog',{name:'Запись',exact:true})).toHaveCount(0);

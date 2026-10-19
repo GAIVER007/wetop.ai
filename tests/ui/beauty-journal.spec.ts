@@ -271,7 +271,7 @@ test('отмена спрашивает и освобождает время м�
   // окно вопроса живёт внутри панели, поэтому берём его по своему признаку, а не по роли dialog
   const ask = page.getByTestId('confirm-dialog');
   await expect(ask).toContainText('Отменить запись: Жанна');
-  await expect(ask).toContainText('Время мастера освободится');
+  await expect(ask).toContainText('Время специалиста освободится');
   await ask.getByRole('button', { name: 'Отменить запись', exact: true }).click();
 
   await openDay(page);
@@ -457,7 +457,7 @@ test('быстрый отчёт календаря: выбранный маст�
   await page.getByRole('dialog').getByRole('button', { name: 'Завершить', exact: true }).click();
   await openDay(page);
   await page.locator('.employee-filter summary').click();
-  await page.getByRole('searchbox', { name: 'Поиск сотрудника' }).fill('Дин');
+  await page.getByRole('searchbox', { name: 'Поиск специалиста' }).fill('Дин');
   await page
     .locator('.employee-filter-list')
     .getByRole('button', { name: 'Дина', exact: true })

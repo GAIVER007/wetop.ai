@@ -5,11 +5,11 @@
 #
 # Запуск (ADR-152, решение владельца 09.10.2026, автовыкладка): пуш кода в `main` (слияние PR), пуш в
 # `release-candidate`, кнопка Actions → release-checks → Run workflow и, с 19.10.2026 по разбору ментора, каждый
-# запрос на слияние в `main`: это обязательная проверка защиты ветки, вливаем только зелёное. На запросе фильтра
-# путей нет: проверка, которая не запустилась, держит обязательный статус в ожидании навсегда. Зелёный гейт на `main` перематывает
+# запрос на слияние в `main`. Репозиторий приватный (19.10.2026): защиты ветки на бесплатном тарифе нет, минуты
+# платные, поэтому на запросе идёт только быстрая часть (lint, typecheck, unit), полный прогон остаётся на `main`,
+# правило «вливаем только зелёное» держит ответственный за `main` (AGENTS.md §18, решение владельца 19.10.2026). Зелёный гейт на `main` перематывает
 # `release` сам (auto-release.yml), дальше сервер забирает и выкладывает (ADR-080). Документы гейт не гоняют
-# (paths-ignore) на пуше: выкладки они не требуют. Репозиторий открытый (решение владельца 19.10.2026), минуты
-# раннеров GitHub для него бесплатны; вершины main встают в очередь concurrency ниже. Свои наборы
+# (paths-ignore): выкладки они не требуют, а минуты тратят; вершины main встают в очередь concurrency ниже. Свои наборы
 # сессии по-прежнему гоняют сами до слияния (TESTING.md).
 # Секретов здесь нет и не будет (SECURITY.md §3).
 name: release-checks
@@ -18,6 +18,17 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - 'plans/**'
+      - 'reports/**'
+      - 'tasks/**'
+      - 'templates/**'
+      - 'tests/runs/**'
+      - 'outbox/**'
+      - 'project-input/**'
+      - 'Claude outputs/**'
   push:
     branches: [release-candidate, main]
     paths-ignore:
@@ -60,10 +71,14 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck && npm run typecheck:api && npm run typecheck:web
       - run: npx vitest run --project unit
+      # дальше браузерные проверки: на запросе их нет, только lint, typecheck и unit (AGENTS.md §18)
       - name: Chromium для проверок главной
+        if: ${{ github.event_name != 'pull_request' }}
         run: npx playwright install --with-deps chromium
       - run: npm run site:check
+        if: ${{ github.event_name != 'pull_request' }}
       - name: Supplier payment source-component regressions (no database)
+        if: ${{ github.event_name != 'pull_request' }}
         run: npm run test:record -- e2e --config tests/supplier-component/playwright.config.ts --workers=1
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -75,6 +90,8 @@ jobs:
           if-no-files-found: ignore
 
   bot:
+    # на запросе только быстрая часть (AGENTS.md §18)
+    if: ${{ github.event_name != 'pull_request' }}
     name: бот · pytest
     # Тесты ИИ-продавца (apps/ai-seller). До 02.10.2026 их в проверках не было, и четыре теста покраснели
     # незамеченными (ADR-137, замечание ментора). Python ставит закреплённый uv; версия Python та же, что в образе
@@ -112,6 +129,8 @@ jobs:
           "$RUNNER_TEMP/bot-venv/bin/python" -m pytest -q -p no:cacheprovider
 
   db:
+    # на запросе только быстрая часть (AGENTS.md §18)
+    if: ${{ github.event_name != 'pull_request' }}
     name: миграции · integration · e2e на чистом PostgreSQL 16
     # при красных lint, typecheck или unit минуты на базу не тратятся
     needs: fast
@@ -274,6 +293,8 @@ jobs:
           if-no-files-found: ignore
 
   ui-shard:
+    # на запросе только быстрая часть (AGENTS.md §18)
+    if: ${{ github.event_name != 'pull_request' }}
     name: UI · часть ${{ matrix.shard }}/5
     needs: fast
     # Три части UI идут параллельно на двух ядрах GitHub. На своём раннере (боевой сервер) `next dev`
@@ -329,6 +350,8 @@ jobs:
           if-no-files-found: ignore
 
   ui-vertical:
+    # на запросе только быстрая часть (AGENTS.md §18)
+    if: ${{ github.event_name != 'pull_request' }}
     name: UI · ${{ matrix.suite }}
     needs: fast
     # Наборы салона, ресторана и филиалов (MV8.5 DS0a, решение владельца 07.10.2026): до этого их axe
@@ -384,6 +407,8 @@ jobs:
           if-no-files-found: ignore
 
   ui-auth:
+    # на запросе только быстрая часть (AGENTS.md §18)
+    if: ${{ github.event_name != 'pull_request' }}
     name: Канонический вход и сохранённые login-lock требования
     needs: fast
     runs-on: ubuntu-24.04
@@ -410,6 +435,8 @@ jobs:
           if-no-files-found: ignore
 
   onboarding-real:
+    # на запросе только быстрая часть (AGENTS.md §18)
+    if: ${{ github.event_name != 'pull_request' }}
     # Путь первого салона (17.10.2026): кнопка сайта «Начать работу», регистрация, подтверждение почты, настройка
     # салона, запись клиента и повторный вход на настоящих сайте, стойке, API и своей PostgreSQL с синтетическими
     # данными. Почта перехватывается в API набора (только @example.invalid), секретов и внешних отправок нет.
@@ -470,6 +497,8 @@ jobs:
           if-no-files-found: ignore
 
   runtime-audit:
+    # на запросе только быстрая часть (AGENTS.md §18)
+    if: ${{ github.event_name != 'pull_request' }}
     # Обязательный runtime-аудит денег, входа и схемы (A2, A23, A26, A29): настоящие API и PostgreSQL 16.14,
     # штатные роли, AUTH_REQUIRED=1, независимая SQL-сверка. База, API и тесты в одном сетевом пространстве с
     # loopback; у пространства нет внешних интерфейсов и маршрутов, connect() наружу сразу получает ENETUNREACH,
@@ -520,7 +549,7 @@ jobs:
     # Сохраняем прежнее имя обязательной проверки; успешны должны быть все части.
     name: стойка на синтетическом API (tests/ui)
     needs: [ui-shard, ui-vertical, ui-auth]
-    if: always()
+    if: always() && github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     steps:
       - name: Все части UI прошли

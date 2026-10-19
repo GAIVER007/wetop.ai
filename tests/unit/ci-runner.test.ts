@@ -69,7 +69,7 @@ describe('свой раннер CI', () => {
       // свой раннер на боевом сервере 03.10.2026 поднимал нагрузку до 85 и ронял стойку
       expect(run, file).not.toContain('self-hosted');
       const on = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
-      // запрос на слияние гоняет только гейт: обязательная проверка защиты main (разбор ментора 19.10.2026)
+      // запрос на слияние гоняет только гейт, и только его быструю часть (разбор ментора 19.10.2026)
       if (file !== 'release-checks.yml') expect(on, file).not.toMatch(/pull_request/);
       // автовыкладка (ADR-152, решение владельца 09.10.2026): пуш в main гонит ровно один workflow, гейт;
       // остальным на каждый пуш нельзя, бесплатных минут GitHub хватало на неделю (21.09.2026)
@@ -88,8 +88,19 @@ describe('свой раннер CI', () => {
     expect(triggers).toContain('workflow_dispatch:');
     // c 09.10.2026 (ADR-152) гейт идёт и на пуш кода в main: зелёный гейт перематывает release сам
     expect(triggers).toMatch(/push:\n\s+branches: \[release-candidate, main\]/);
-    // c 19.10.2026 и на запросах в main, без фильтра путей: иначе обязательный статус ждёт вечно
-    expect(triggers).toMatch(/pull_request:\n\s+branches: \[main\]\n\s+push:/);
+    // c 19.10.2026 и на запросах в main; репозиторий приватный, минуты платные: на запросе только lint, typecheck
+    // и unit, документы его не гонят, полный прогон остаётся на main (AGENTS.md §18, решение владельца 19.10.2026)
+    expect(triggers).toMatch(/pull_request:\n\s+branches: \[main\]\n\s+paths-ignore:/);
+    for (const name of ['bot', 'db', 'ui-shard', 'ui-vertical', 'ui-auth', 'onboarding-real', 'runtime-audit'])
+      expect(job(name), name).toMatch(/\n    if: \$\{\{ github\.event_name != 'pull_request' \}\}\n/);
+    expect(job('ui')).toContain("if: always() && github.event_name != 'pull_request'");
+    const steps = withoutComments(job('fast')).split('\n      - ');
+    for (const step of steps) {
+      const always = ['npm ci', 'generate', 'npm run lint', 'npm run typecheck', 'vitest run --project unit'];
+      const gated = step.includes("if: ${{ github.event_name != 'pull_request' }}");
+      if (/run: /.test(step) && !always.some((a) => step.includes(a))) expect(gated, step.slice(0, 80)).toBe(true);
+      if (always.some((a) => step.includes(a))) expect(gated, step.slice(0, 80)).toBe(false);
+    }
     for (const name of ['fast', 'bot', 'db', 'ui-shard', 'ui-vertical', 'ui-auth', 'ui'])
       expect(job(name), name).toMatch(/runs-on: ubuntu-24\.04/);
     const fast = withoutComments(job('fast'));

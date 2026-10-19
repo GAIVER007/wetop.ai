@@ -45,6 +45,51 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     expect(html).toContain('Телефон или имя');
     expect(html).toContain('Итого');
   });
+  it('A3: итог показывает суммарную длительность визита по строкам', () => {
+    const editing = {
+      id: 'visit',
+      serviceId: 'cut',
+      employeeId: 'master',
+      serviceName: 'Test haircut',
+      customer: { id: 'c1', name: 'Клиент', phone: null },
+      startsAt: '2026-10-18T10:00:00.000Z',
+      endsAt: '2026-10-18T11:15:00.000Z',
+      startMinutes: 600,
+      endMinutes: 675,
+      status: 'BOOKED',
+      next: [],
+      priceMinor: '5000',
+      paidMinor: '0',
+      refundedMinor: '0',
+      currency: 'USD',
+      notes: null,
+      items: [
+        {
+          id: 'l1', position: 0, employeeId: 'master', employeeName: 'Test Master',
+          serviceId: 'cut', serviceName: 'Test haircut',
+          startsAt: '2026-10-18T10:00:00.000Z', endsAt: '2026-10-18T10:30:00.000Z',
+          startMinutes: 600, endMinutes: 630, durationMinutes: 30,
+          basePriceMinor: '2500', discountMinor: '0', discountPercent: null,
+          surchargeMinor: '0', priceMinor: '2500',
+        },
+        {
+          id: 'l2', position: 1, employeeId: 'master', employeeName: 'Test Master',
+          serviceId: 'cut', serviceName: 'Test haircut',
+          startsAt: '2026-10-18T10:30:00.000Z', endsAt: '2026-10-18T11:15:00.000Z',
+          startMinutes: 630, endMinutes: 675, durationMinutes: 45,
+          basePriceMinor: '2500', discountMinor: '0', discountPercent: null,
+          surchargeMinor: '0', priceMinor: '2500',
+        },
+      ],
+    };
+    const html = renderToStaticMarkup(
+      createElement(AppointmentForm, {
+        day, customers: [], employeeId: 'master', onDone: vi.fn(),
+        editing: editing as never,
+      }),
+    );
+    expect(html).toContain('1 ч 15 мин');
+  });
   it('sends all ordered service lines with exact money, not only legacy serviceId', async () => {
     vi.spyOn(authApi, 'me').mockResolvedValue({
       user: { organizationId: 'org' },

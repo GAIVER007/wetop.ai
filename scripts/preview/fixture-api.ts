@@ -7383,11 +7383,17 @@ createServer(async (req, res) => {
           ),
         );
       if (path === '/beauty/appointments' && req.method === 'POST') {
+        // Веб с f8a912681 шлёт выбор строками `items: [{ employeeId, serviceId }]`, как принимает настоящий API
+        // (apps/api/src/beauty/appointments.ts). Стенд ведёт одну строку; плоские поля остаются для старых вызовов.
+        const rawItems = body['items'];
+        if (rawItems !== undefined && (!Array.isArray(rawItems) || rawItems.length !== 1))
+          return send(400, { message: 'Стенд принимает одну услугу в записи' });
+        const line = (Array.isArray(rawItems) ? rawItems[0] : body) as Record<string, unknown>;
         const employee = fixtureBeautyEmployees.find(
-          (e) => e.id === String(body['employeeId'] ?? ''),
+          (e) => e.id === String(line['employeeId'] ?? ''),
         );
         if (!employee) return send(404, { message: 'Мастер не найден' });
-        const svc = fixtureBeautyServices.find((s) => s.id === String(body['serviceId'] ?? ''));
+        const svc = fixtureBeautyServices.find((s) => s.id === String(line['serviceId'] ?? ''));
         if (!svc) return send(404, { message: 'Услуга не найдена' });
         const eff = effectiveOf(svc);
         if (!eff.sellable) return send(409, { message: 'Филиал эту услугу не оказывает' });

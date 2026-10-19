@@ -20,6 +20,7 @@ const routes = [
   '/management/analytics',
   '/bar/products',
   '/bar',
+  '/bar/receipts',
   '/bar/operations',
   '/bar/suppliers',
   '/finance',

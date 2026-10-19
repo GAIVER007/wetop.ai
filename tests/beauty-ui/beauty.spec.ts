@@ -132,7 +132,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   await expect(
     page.locator('[data-service-list="catalog"] .beauty-service-item').filter({
-      has: page.getByRole('main').getByText('Тестовая стрижка', { exact: true }),
+      has: page.getByText('Тестовая стрижка', { exact: true }),
     }),
   ).toContainText('12 000');
   await panel.getByRole('button', { name: 'Закрыть: Услуга каталога', exact: true }).click();

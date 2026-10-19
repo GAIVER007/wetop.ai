@@ -17,8 +17,8 @@ test('M4-B1: CSV проверяется локально, колонки мен�
   await page.goto('/customers');
   const main = page.getByRole('main');
   const before = await main.getByRole('row').count();
-  await main.getByRole('button', { name: 'Проверить CSV', exact: true }).click();
-  const panel = page.getByRole('dialog', { name: 'Проверка CSV клиентов' });
+  await main.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: 'Импортировать клиентов' });
   const writes: string[] = [];
   page.on('request', (req) => { if (req.method() === 'POST') writes.push(req.url()); });
   const csv = 'Имя;Телефон\r\nПервый тест;87000001001\r\nПовтор тест;+7 (700) 000-10-01\r\nБез номера;\r\nОшибка тест;abc';
@@ -110,6 +110,8 @@ test('M4-A: клиент без записи, повтор номера и со�
   await expect(row).toBeVisible();
 });
 
+const TEST_CLIENT = { 'x-wetop-test-client': '1' };
+
 async function openSalon(page: Page, request: APIRequestContext) {
   await request.post(`${FIXTURE_API}/__test/reset`);
   await page.goto('/auth/fallback');
@@ -151,7 +153,7 @@ test('услуга каталога добавляется и видна в сп
   await page.goto('/beauty/services');
   const main = page.getByRole('main');
   const catalog = main.locator('[data-service-list="catalog"]');
-  const item = catalog.locator('.beauty-service-item').filter({ has: catalog.getByText('Маникюр', { exact: true }) });
+  const item = catalog.locator('.beauty-service-item').filter({ has: page.getByText('Маникюр', { exact: true }) });
   await expect(item).toContainText('60 мин');
   await expect(item).toContainText('8 000');
   // Услуга уже есть в общем каталоге, но филиал добавляет её отдельно.
@@ -166,7 +168,7 @@ test('филиал включает услугу и ставит свою цен
   const main = page.getByRole('main');
   await main
     .locator('[data-service-list="catalog"] .beauty-service-item')
-    .filter({ has: main.getByText('Маникюр', { exact: true }) })
+    .filter({ has: page.getByText('Маникюр', { exact: true }) })
     .getByRole('button', { name: 'Изменить' })
     .click();
   const panel = page.getByRole('dialog');
@@ -214,7 +216,9 @@ test('каталог переносит услуги кнопками и drag-an
   await catalog
     .locator('.beauty-service-item')
     .filter({ hasText: 'Услуга перетаскиванием' })
-    .dragTo(salon);
+    // бросаем на всегда видимый заголовок списка: центр высокой секции ниже экрана, Playwright прокручивает
+    // страницу между нажатием и первым движением, и Chromium начинает перенос с другой карточки под курсором
+    .dragTo(salon.locator('header'));
   await expect(
     salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
   ).toBeVisible();
@@ -223,7 +227,7 @@ test('каталог переносит услуги кнопками и drag-an
   await salon
     .locator('.beauty-service-item')
     .filter({ hasText: 'Услуга перетаскиванием' })
-    .dragTo(catalog);
+    .dragTo(catalog.locator('header'));
   await expect(
     salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
   ).toHaveCount(0);
@@ -268,12 +272,13 @@ test('мастер добавляется, а карточка показыва�
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   const employeeId = page.url().split('/').at(-2)!;
-  const servicesResponse = await request.get(`${FIXTURE_API}/beauty/services`);
+  const servicesResponse = await request.get(`${FIXTURE_API}/beauty/services`, { headers: TEST_CLIENT });
   expect(servicesResponse.ok()).toBe(true);
   const services = (await servicesResponse.json()).items as Array<{ id: string; name: string }>;
   const manicure = services.find((item) => item.name === 'Маникюр')!;
   const haircut = services.find((item) => item.name === 'Стрижка')!;
   const assigned = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    headers: TEST_CLIENT,
     data: { serviceIds: [manicure.id, haircut.id] },
   });
   expect(assigned.ok()).toBe(true);
@@ -294,6 +299,7 @@ test('мастер добавляется, а карточка показыва�
   );
   // UI назначения и снятия проверяет real-portal набор; здесь фиксируем отображение ответа каталога.
   const reduced = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    headers: TEST_CLIENT,
     data: { serviceIds: [manicure.id] },
   });
   expect(reduced.ok()).toBe(true);
@@ -352,7 +358,7 @@ test('типовая услуга подставляет поля, цена вв
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Типовая услуга').selectOption({ label: 'Маникюр, 60 мин' });
   await expect(panel.getByLabel('Название')).toHaveValue('Маникюр');
-  await expect(panel.getByLabel(/Группа/)).toHaveValue('Ногти');
+  await expect(panel.getByLabel(/Категория/)).toHaveValue('Ногти');
   await expect(panel.getByLabel(/Длительность, минут/)).toHaveValue('60');
   const currencies = await panel.getByLabel('Валюта цены каталога').locator('option').allTextContents();
   expect(currencies).toEqual(['Тенге (KZT)', 'Доллар США (USD)', 'Дирхам ОАЭ (AED)', 'Катарский риал (QAR)']);
@@ -362,7 +368,7 @@ test('типовая услуга подставляет поля, цена вв
   await expect(panel.getByRole('status')).toContainText('Услуга создана');
   await page.goto('/beauty/services');
   await expect(
-    page.getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: page.getByRole('main').getByText('Маникюр', { exact: true }) }),
+    page.getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: page.getByText('Маникюр', { exact: true }) }),
   ).toContainText('5 000');
 });
 
@@ -376,7 +382,7 @@ test('стартовая услуга справа требует цену и п
   await catalog.getByRole('button', { name: 'Настроить и добавить в филиал: Стрижка мужская' }).click();
   const panel = page.getByRole('dialog');
   await expect(panel.getByLabel('Название')).toHaveValue('Стрижка мужская');
-  await expect(panel.getByLabel(/Группа/)).toHaveValue('Волосы');
+  await expect(panel.getByLabel(/Категория/)).toHaveValue('Волосы');
   await expect(panel.getByLabel(/Длительность, минут/)).toHaveValue('45');
   await expect(panel.getByLabel(/Цена каталога/)).toHaveValue('');
   await panel.getByLabel(/Цена каталога/).fill('35.50');
@@ -387,6 +393,6 @@ test('стартовая услуга справа требует цену и п
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
   await page.goto('/beauty/services');
   await expect(
-    main.locator('[data-service-list="salon"] .beauty-service-item').filter({ has: main.getByText('Стрижка мужская', { exact: true }) }),
+    main.locator('[data-service-list="salon"] .beauty-service-item').filter({ has: page.getByText('Стрижка мужская', { exact: true }) }),
   ).toContainText('35,50');
 });

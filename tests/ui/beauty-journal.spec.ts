@@ -53,7 +53,7 @@ async function readySalon(page: Page, request: APIRequestContext) {
   // услуги салона показаны карточками каталога, не строками таблицы
   await main
     .locator('[data-service-list="catalog"] .beauty-service-item')
-    .filter({ has: main.getByText('Маникюр', { exact: true }) })
+    .filter({ has: page.getByText('Маникюр', { exact: true }) })
     .getByRole('button', { name: 'Изменить' })
     .click();
   panel = page.getByRole('dialog');

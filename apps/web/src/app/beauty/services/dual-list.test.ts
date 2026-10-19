@@ -62,7 +62,7 @@ describe('Услуги салона и общий каталог', () => {
 
     const salon = html.slice(salonStart, catalogStart);
     const catalog = html.slice(catalogStart);
-    expect(salon).toContain('Услуги салона');
+    expect(salon).toContain('Услуги филиала');
     expect(salon).toContain('Массаж выбранный');
     expect(salon).not.toContain('Массаж доступный');
     expect(catalog).toContain('Каталог услуг');
@@ -83,9 +83,9 @@ describe('Услуги салона и общий каталог', () => {
       ],
     }));
 
-    expect(html).toContain('aria-label="Убрать из салона: Стрижка выбранная"');
-    expect(html).toContain('aria-label="Добавить в салон: Стрижка доступная"');
-    expect(html).toContain('aria-label="В салоне: Стрижка выбранная"');
+    expect(html).toContain('aria-label="Убрать из филиала: Стрижка выбранная"');
+    expect(html).toContain('aria-label="Добавить в филиал: Стрижка доступная"');
+    expect(html).toContain('aria-label="В филиале: Стрижка выбранная"');
     expect(html).toContain('name="priceOverrideMinor" value="125050"');
     expect(html).toContain('name="durationOverrideMinutes" value="75"');
     expect(html).toContain('name="scopeKey" value="business:location"');
@@ -105,7 +105,7 @@ describe('Услуги салона и общий каталог', () => {
     expect(catalog).toContain('Волосы');
     expect(catalog).toContain('45 мин');
     expect(catalog).toContain('Цена задаётся при добавлении');
-    expect(catalog).toContain('aria-label="Настроить и добавить в салон: Стрижка мужская"');
+    expect(catalog).toContain('aria-label="Настроить и добавить в филиал: Стрижка мужская"');
     expect(catalog).not.toContain('0 USD');
   });
 

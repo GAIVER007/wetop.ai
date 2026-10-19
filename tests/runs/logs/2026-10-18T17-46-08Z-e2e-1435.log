@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 18.10.2026 22:46 Алматы · srv1719674
+# коммит 8a5ab94 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/salon-reports-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/salon-reports-ui/reports.spec.ts:105:5 › salon reports 1440 light: API values, reload, tabs, geometry (15.1s)
+  ✓  2 tests/salon-reports-ui/reports.spec.ts:105:5 › salon reports 1440 dark: API values, reload, tabs, geometry (7.1s)
+  ✓  3 tests/salon-reports-ui/reports.spec.ts:105:5 › salon reports 390 light: API values, reload, tabs, geometry (6.1s)
+  ✓  4 tests/salon-reports-ui/reports.spec.ts:105:5 › salon reports 390 dark: API values, reload, tabs, geometry (7.6s)
+
+  4 passed (41.2s)
+
+# код выхода 0 · 43 с

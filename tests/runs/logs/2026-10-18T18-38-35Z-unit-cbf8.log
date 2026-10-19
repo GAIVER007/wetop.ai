@@ -1,0 +1,16 @@
+# Модульные (unit) · 18.10.2026 23:38 Алматы · srv1719674
+# коммит 71c5716 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-38-35Z-unit-cbf8.json' 'apps/web/src/app/bar/actions.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (28 tests) 35ms
+
+ Test Files  1 passed (1)
+      Tests  28 passed (28)
+   Start at  18:38:36
+   Duration  1.40s (transform 83%, import 14%, tests 3%)
+
+JSON report written to /tmp/pms-test-2026-10-18T18-38-35Z-unit-cbf8.json
+
+# код выхода 0 · 3 с

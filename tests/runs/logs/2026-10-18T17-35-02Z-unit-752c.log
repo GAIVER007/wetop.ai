@@ -1,0 +1,21 @@
+# Модульные (unit) · 18.10.2026 22:35 Алматы · srv1719674
+# коммит 8a5ab94 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T17-35-02Z-unit-752c.json' 'apps/web/src/app/reports/salon-reports.test.ts' 'apps/web/src/app/reports/salon-report-data.test.ts' 'apps/web/src/app/reports/salon-route.test.ts' 'apps/web/src/app/management/analytics/vertical/metrics.test.ts' 'apps/web/src/app/management/analytics/vertical/load.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 25ms
+ ✓ |unit| apps/web/src/app/reports/salon-report-data.test.ts (5 tests) 37ms
+ ✓ |unit| apps/web/src/app/reports/salon-reports.test.ts (5 tests) 41ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 57ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests) 73ms
+ ✓ |unit| apps/web/src/app/reports/salon-route.test.ts (2 tests) 7ms
+
+ Test Files  6 passed (6)
+      Tests  28 passed (28)
+   Start at  17:35:03
+   Duration  2.79s (transform 68%, import 25%, tests 6%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-18T17-35-02Z-unit-752c.json
+
+# код выхода 0 · 4 с

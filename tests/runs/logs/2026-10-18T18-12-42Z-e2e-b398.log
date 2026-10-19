@@ -1,0 +1,135 @@
+# Сквозные (e2e) · 18.10.2026 23:12 Алматы · srv1719674
+# коммит 5b409d1 (feat/salon-draft-implementation-20261018)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/schedule-persistence.spec.ts' '--workers=1'
+[WebServer] Turbopack build encountered 1 error:
+[WebServer] ./apps/web/src/app
+[WebServer] Error: Could not find the Next.js package (next/package.json)
+[WebServer] Resolved from: /srv/hermes/workspace/wetop-all-release-20261017/apps/web/src/app
+[WebServer] Filesystem root used for resolution: /srv/hermes/workspace/wetop-all-release-20261017
+[WebServer] 
+[WebServer] Possible causes:
+[WebServer]   - node_modules is being reorganized by a concurrent install (e.g. pnpm adding a package with a `next` peer dependency). This is transient and should clear once the install completes.
+[WebServer]   - node_modules/next was removed, renamed, or has a broken symlink.
+[WebServer]   - The workspace root is incorrect — see turbopack.root in the Next.js config docs for how to configure it.
+[WebServer]   - In a monorepo, the Next.js package may only exist in a directory above the closest directory containing a package manager lockfile. The workspace root is detected by locating the nearest package manager lockfile.
+[WebServer]   - Next.js is installed globally rather than as a project dependency. This is not supported; install it locally.
+[WebServer] 
+[WebServer] Note: To ensure a hermetic build and a portable cache, files outside of the workspace root are not compiled.
+[WebServer] 
+[WebServer] https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory
+[WebServer] 
+[WebServer] 
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+[WebServer] ⨯ ReferenceError: self is not defined
+[WebServer]     at Object.<anonymous> (.next-ui/dev/server/middleware.js:9:1)
+Error: Process from config.webServer exited early.
+
+
+# код выхода —, сигнал SIGTERM · 59 с

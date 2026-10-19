@@ -303,21 +303,24 @@ export function JournalBoard({
             kind="specialists"
           />
           <DateBar date={day.date} path="/calendar" filters={filters} />
-          <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
-            Компактный вид
-          </Button>
-          <QuickReport
-            key={`${day.date}:${master}`}
-            date={day.date}
-            scope={[
-              day.location.name ?? 'Салон',
-              master
-                ? (columns.find((c) => c.id === master)?.name ?? 'Специалист недоступен')
-                : 'Все специалисты',
-              ...(service || status ? ['С учётом фильтров журнала'] : []),
-            ]}
-            build={() => beautyQuickReport(reportRows)}
-          />
+          {/* Вид и отчёт: в панели на широком экране, в «Фильтрах» на телефоне (сетка дня на первом экране). */}
+          <span className="beauty-calendar-wide">
+            <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
+              Компактный вид
+            </Button>
+            <QuickReport
+              key={`${day.date}:${master}:wide`}
+              date={day.date}
+              scope={[
+                day.location.name ?? 'Салон',
+                master
+                  ? (columns.find((c) => c.id === master)?.name ?? 'Специалист недоступен')
+                  : 'Все специалисты',
+                ...(service || status ? ['С учётом фильтров журнала'] : []),
+              ]}
+              build={() => beautyQuickReport(reportRows)}
+            />
+          </span>
           <Button
             disabled={
               filterPending ||
@@ -335,6 +338,23 @@ export function JournalBoard({
         <Help
           title={`Фильтры${master || service || status ? `\nАктивных: ${[master, service, status].filter(Boolean).length}` : ''}`}
         >
+          <div className="beauty-calendar-narrow">
+          <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
+            Компактный вид
+          </Button>
+          <QuickReport
+            key={`${day.date}:${master}:narrow`}
+            date={day.date}
+            scope={[
+              day.location.name ?? 'Салон',
+              master
+                ? (columns.find((c) => c.id === master)?.name ?? 'Специалист недоступен')
+                : 'Все специалисты',
+              ...(service || status ? ['С учётом фильтров журнала'] : []),
+            ]}
+            build={() => beautyQuickReport(reportRows)}
+          />
+          </div>
           <div className="beauty-filters">
             <Field label={<span>Услуга</span>}>
               <Select

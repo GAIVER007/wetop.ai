@@ -138,7 +138,7 @@ export async function sellBarRetailAction(
   try {
     const context = await verifyContext(fd);
     const me = await currentMe();
-    const expected = [me.user?.organizationId ?? '', me.context?.businessId ?? '', me.context?.locationId ?? '', me.user?.id ?? '', context.propertyId, context.currency, me.expiresAt ?? ''];
+    const expected = [me.user?.organizationId ?? '', me.context?.businessId ?? '', me.context?.locationId ?? '', me.user?.id ?? '', context.propertyId, context.currency, me.sessionIssuedAt ?? ''];
     if (expected.some(part => !part) || value(fd, 'retailRecoveryScope') !== JSON.stringify(expected) || !Number.isFinite(Date.parse(me.expiresAt ?? '')) || Date.parse(me.expiresAt ?? '') <= Date.now())
       throw new Error('Объект формы изменился. Обновите страницу и восстановите исходный контекст.');
     const sale = await barApi.sellRetail({

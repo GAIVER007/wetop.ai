@@ -652,6 +652,8 @@ export const authApi = {
       user: SignedIn | null;
       organization?: SignedInOrganization | null;
       expiresAt?: string;
+      /** Когда выдана сессия; срок `expiresAt` сдвигается работой (Q-153 б), это время нет */
+      sessionIssuedAt?: string;
       access?: DeskAccessView;
       beautyAccess?: BeautyPositionAccess;
       /** Контекст запроса (Platform P2 К1): какой филиал выбран и какое у него направление (Q-254) */

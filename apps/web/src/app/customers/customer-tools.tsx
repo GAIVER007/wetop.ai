@@ -21,11 +21,14 @@ const importStatus: Record<BeautyCustomerImportStatus, string> = {
 
 export function BeautyCustomerTools({
   canEdit,
+  canImport = canEdit,
   scopeKey,
   showCreate = true,
   importHistory,
 }: {
   canEdit: boolean;
+  /** Сам импорт пишет клиентов: только владелец; проверка файла доступна всем, кто создаёт клиентов */
+  canImport?: boolean;
   scopeKey: string;
   showCreate?: boolean;
   importHistory?: ReactNode;
@@ -168,14 +171,18 @@ export function BeautyCustomerTools({
                 </Table>
                 <div className="form-actions">
                   <Button type="button" tone="ghost" onClick={close}>Отмена</Button>
-                  <Button
-                    type="button"
-                    onClick={applyImport}
-                    disabled={pending || preview.totals.conflicts > 0 || !!result?.message}
-                    aria-busy={pending}
-                  >
-                    Импортировать
-                  </Button>
+                  {canImport ? (
+                    <Button
+                      type="button"
+                      onClick={applyImport}
+                      disabled={pending || preview.totals.conflicts > 0 || !!result?.message}
+                      aria-busy={pending}
+                    >
+                      Импортировать
+                    </Button>
+                  ) : (
+                    <span className="muted">Импорт подтверждает владелец организации.</span>
+                  )}
                 </div>
               </>
             )}

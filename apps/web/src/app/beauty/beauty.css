@@ -149,6 +149,10 @@
     }
     .beauty-customer-tools > .btn {
       flex: 1 1 100%;
+      min-width: 0;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
   }
   /* «Мастера» карточками (ТЗ салона 09.10.2026): сетка вместо таблицы, drawer правки прежний */

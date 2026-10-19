@@ -1,7 +1,15 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { api, date, seed } from './tz11-helpers';
+import { api, seed } from './tz11-helpers';
+
+// Конфликтом API считает только будущие записи (ends_at > now()): фиксированная дата «сегодня» краснела к вечеру.
+// Берём следующий понедельник: режим в тесте задаётся на понедельник.
+const date = (() => {
+  const day = new Date();
+  day.setUTCDate(day.getUTCDate() + ((8 - day.getUTCDay()) % 7 || 7));
+  return day.toISOString().slice(0, 10);
+})();
 const evidence = process.env.ZAPIS_EVIDENCE || 'test-results/zapis-report';
 test.use({ actionTimeout: 15000, reducedMotion: 'reduce' });
 
@@ -10,7 +18,12 @@ test('salon hours: break restricts new bookings and reports existing conflicts',
   request,
 }) => {
   const f = await seed(page, request);
-  await f.book('12:00', 0, 0, 'Тестовый конфликт часов');
+  await f.call('/beauty/appointments', {
+    employeeId: f.employees[0]!.id,
+    serviceId: f.services[0]!.id,
+    startsAt: `${date}T12:00:00+05:00`,
+    firstName: 'Тестовый конфликт часов',
+  });
   try {
     await page.goto('/beauty-settings');
     await expect(page.getByText(/Режим пока не настроен/)).toBeVisible();

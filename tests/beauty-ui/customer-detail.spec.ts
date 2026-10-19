@@ -20,8 +20,8 @@ test('customer card: linked history, mobile layout and tenant isolation', async 
 
   await expect(page).toHaveURL(`/customers/${appointment.customer.id}`, { timeout: 20_000 });
   await expect(page.getByRole('heading', { name: 'Тест Карточка Клиента' })).toBeVisible();
-  await page.getByRole('tab', { name: /История записей/ }).click();
-  const history = page.getByRole('tabpanel', { name: /История записей/ }).getByRole('table');
+  await page.getByRole('tab', { name: /История визитов/ }).click();
+  const history = page.getByRole('tabpanel', { name: /История визитов/ }).getByRole('table');
   await expect(history).toContainText('Тест стрижка');
   await expect(history).toContainText('Тест Анна');
   await expect(history).toContainText('12 000 ₸');

@@ -135,7 +135,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
       has: page.getByText('Тестовая стрижка', { exact: true }),
     }),
   ).toContainText('12 000');
-  await panel.getByRole('button', { name: 'Закрыть: Услуга каталога', exact: true }).click();
+  await panel.getByRole('button', { name: /^Закрыть: / }).click();
   await expect(panel).toBeHidden();
   await expect(page).toHaveURL(/\/services$/);
   await page.reload();
@@ -148,32 +148,26 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
   await page.goto('/employees');
   await page.getByRole('button', { name: 'Добавить специалиста' }).click();
-  panel = page.getByRole('dialog');
+  panel = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
   await panel.getByLabel('Имя мастера').fill('Тестовый мастер Анна');
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
-  await panel.getByRole('checkbox', { name: 'Тестовая стрижка' }).check();
-  await panel.getByRole('button', { name: 'Сохранить услуги' }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
-  await panel.getByRole('button', { name: 'Закрыть: Мастер', exact: true }).click();
-  await expect(panel).toBeHidden();
-  await expect(page).toHaveURL(/\/employees$/);
+  // после создания открывается страница профиля: услуги и график правятся там (формы кабинета)
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const manager = page.getByTestId('employee-manager');
+  await manager.getByRole('tab', { name: 'Услуги', exact: true }).click();
+  await manager.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  const skills = page.getByTestId('portal-services-form');
+  await skills.getByRole('checkbox', { name: /^Тестовая стрижка/ }).check();
+  await skills.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await expect(skills.getByRole('status')).toContainText('Сохранено на сервере');
   await page.reload();
-  await page
-    .getByRole('listitem')
-    .filter({ hasText: 'Тестовый мастер Анна' })
-    .getByRole('button', { name: 'Открыть' })
-    .click();
-  panel = page.getByRole('dialog');
-  await panel.getByRole('tab', { name: 'График', exact: true }).click();
-  await panel
-    .getByRole('group', { name: 'Понедельник', exact: true })
-    .getByRole('button', { name: 'Сделать рабочим' })
-    .click();
-  await panel.getByLabel('Понедельник: начало').fill('09:00');
-  await panel.getByLabel('Понедельник: конец').fill('18:00');
-  await panel.getByRole('button', { name: 'Сохранить график' }).click();
-  await expect(panel.getByRole('status')).toContainText('График сохранён');
+  await manager.getByRole('tab', { name: 'График', exact: true }).click();
+  const monday = manager.getByRole('group', { name: 'Понедельник', exact: true });
+  await monday.getByRole('button', { name: 'Понедельник: добавить интервал', exact: true }).click();
+  await monday.getByLabel('Понедельник: начало', { exact: true }).first().fill('09:00');
+  await monday.getByLabel('Понедельник: до, интервал 1', { exact: true }).fill('18:00');
+  await manager.getByRole('button', { name: 'Сохранить график', exact: true }).click();
+  await expect(manager.getByTestId('portal-week-form').getByRole('status')).toContainText('Сохранено на сервере');
   await page.goto(`/calendar?date=${day}`);
   await expect(await book(page)).toBeHidden();
   await page.reload();
@@ -256,8 +250,8 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   const exported = await page.request.get(`/finance/export-appointments?from=${day}&to=${day}`);
   expect(exported.headers()['content-type']).toContain('text/csv');
   const csv = await exported.text();
-  expect(csv).toContain('Статус;Валюта;Цена;Оплачено;Возвращено');
-  expect(csv).toContain('Завершена;KZT;12000,00;5000,00;2000,00');
+  expect(csv).toContain('Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено');
+  expect(csv).toContain('Завершена;Стойка;Тестовый владелец;KZT;12000,00;5000,00;2000,00');
   expect(csv).not.toContain('Тестовая клиентка');
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');
@@ -491,9 +485,11 @@ test('TimeOff via manager API with compact employee drawer, server denial and ti
   await page
     .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
-    .getByRole('button', { name: 'Открыть' })
+    .getByRole('link', { name: 'Открыть' })
     .click();
-  const panel = page.getByRole('dialog');
+  // карточка специалиста стала страницей профиля (формы кабинета), не выдвижной панелью
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const panel = page.getByTestId('employee-manager');
   await panel.getByRole('tab', { name: 'График', exact: true }).click();
   await expect(panel.getByRole('heading', { name: 'Обычная неделя', exact: true })).toBeVisible();
   await expect(panel.getByRole('button', { name: 'Сохранить график', exact: true })).toBeVisible();

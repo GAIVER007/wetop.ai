@@ -43,6 +43,7 @@ import { Prisma, type DbTx } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
 import { fitsSalonHours, intersectLocationHours, salonHours } from './location-hours-policy';
+import { appointmentLineHistorySnapshot } from './appointment-history-snapshot';
 
 /**
  * Журнал записей салона (DATA_MODEL §19.1, срез B5): день филиала столбцами по мастерам.
@@ -414,11 +415,7 @@ export class BeautyAppointmentsService {
             endsAt: last.endsAt.toISOString(),
             priceMinor: total.toString(),
             currency: first.currency,
-            items: lines.map((line, position) => ({
-              position, employeeId: line.employeeId, serviceId: line.serviceId,
-              startsAt: line.startsAt.toISOString(), endsAt: line.endsAt.toISOString(),
-              priceMinor: line.priceMinor.toString(),
-            })),
+            items: lines.map((line, position) => appointmentLineHistorySnapshot(line, position)),
           },
         },
       });
@@ -528,13 +525,19 @@ export class BeautyAppointmentsService {
             employeeId: row.employeeId,
             serviceId: row.serviceId,
             startsAt: row.startsAt.toISOString(),
+            endsAt: row.endsAt.toISOString(),
             priceMinor: row.price.toString(),
+            currency: row.currency,
+            items: row.lines.map((line) => appointmentLineHistorySnapshot(line, line.position)),
           },
           after: {
             employeeId: first.employeeId,
             serviceId: first.serviceId,
             startsAt: first.startsAt.toISOString(),
+            endsAt: last.endsAt.toISOString(),
             priceMinor: total.toString(),
+            currency: first.currency,
+            items: lines.map((line, position) => appointmentLineHistorySnapshot(line, position)),
           },
         },
       });
@@ -780,6 +783,7 @@ export class BeautyAppointmentsService {
         employeeId: true,
         serviceId: true,
         startsAt: true,
+        endsAt: true,
         status: true,
         updatedAt: true,
         price: true,
@@ -787,9 +791,9 @@ export class BeautyAppointmentsService {
         lines: {
           orderBy: { position: 'asc' },
           select: {
-            employeeId: true, serviceId: true, startsAt: true, endsAt: true,
+            position: true, employeeId: true, serviceId: true, startsAt: true, endsAt: true,
             basePriceMinor: true, discountMinor: true, surchargeMinor: true,
-            discountPercent: true,
+            discountPercent: true, priceMinor: true, currency: true,
           },
         },
       },

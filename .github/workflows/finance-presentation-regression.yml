@@ -2,7 +2,7 @@ name: finance-presentation-regression
 
 on:
   push:
-    branches: [fix/finance-outflow-label-20261019]
+    branches: [fix/staged-finance-release-20261019]
   workflow_dispatch:
 
 permissions:

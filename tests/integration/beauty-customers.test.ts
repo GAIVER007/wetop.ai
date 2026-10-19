@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { BeautyCustomerImportService } from '../../apps/api/src/beauty/customer-import';
+import { BeautyCatalogService } from '../../apps/api/src/beauty/beauty.module';
 import { BeautyCustomerDetailService } from '../../apps/api/src/beauty/customer-detail';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 
@@ -14,7 +15,8 @@ const url = process.env.DATABASE_URL;
 
 describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
   let db: Db;
-  let service: BeautyCustomerImportService;
+  let service: BeautyCatalogService;
+  let importer: BeautyCustomerImportService;
   let detail: BeautyCustomerDetailService;
   const org = randomUUID();
   const user = randomUUID();
@@ -42,7 +44,8 @@ describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
       throw new Error('Beauty customer integration test requires a loopback database');
     }
     db = createPrismaClient(url);
-    service = new BeautyCustomerImportService({ db } as unknown as PrismaService);
+    service = new BeautyCatalogService({ db } as unknown as PrismaService);
+    importer = new BeautyCustomerImportService({ db } as unknown as PrismaService);
     detail = new BeautyCustomerDetailService({ db } as unknown as PrismaService);
     await cleanup();
     await db.$executeRawUnsafe(
@@ -117,26 +120,44 @@ describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
     });
   }
 
-  it('serializes two businesses and reuses one exact name plus normalized phone', async () => {
-    const [first, second] = await Promise.all([
-      asBusiness(businessA, () =>
-        service.create({ firstName: 'Тестовый', lastName: 'Клиент', phone: '8 701 234 56 78' }),
-      ),
-      asBusiness(businessB, () =>
-        service.create({ firstName: 'Тестовый', lastName: 'Клиент', phone: '+7 (701) 234-56-78' }),
-      ),
-    ]);
-
-    expect(first.id).toBe(second.id);
+  it('keeps one canonical identity across concurrent businesses and links the conflict retry', async () => {
+    const inputs = [
+      { businessId: businessA, phone: '8 701 234 56 78' },
+      { businessId: businessB, phone: '+7 (701) 234-56-78' },
+    ];
+    const create = (input: (typeof inputs)[number]) => asBusiness(input.businessId, () =>
+      service.createCustomer({ firstName: 'Тестовый', lastName: 'Клиент', phone: input.phone }),
+    );
+    const attempts = await Promise.allSettled(inputs.map(create));
+    expect(attempts.filter((result) => result.status === 'fulfilled' && result.value.created)).toHaveLength(1);
     expect(await db.customer.count({ where: { organizationId: org } })).toBe(1);
-    expect(await db.customerBusiness.count({ where: { customerId: String(first.id) } })).toBe(2);
+
+    // The current API explicitly returns 409 to a concurrent insert loser. Retry only that
+    // documented conflict after the winner has committed; unexpected failures still fail the test.
+    const linked = [];
+    for (const [index, result] of attempts.entries()) {
+      if (result.status === 'fulfilled') linked.push(result.value);
+      else {
+        expect(result.reason).toBeInstanceOf(ConflictException);
+        expect((result.reason as ConflictException).getStatus()).toBe(409);
+        const retried = await create(inputs[index]!);
+        expect(retried.created).toBe(false);
+        linked.push(retried);
+      }
+    }
+    const [first, second] = linked;
+    expect(first!.id).toBe(second!.id);
+    expect(await db.customer.count({ where: { organizationId: org } })).toBe(1);
+    expect(await db.customerBusiness.count({ where: { customerId: first!.id } })).toBe(2);
+    expect(await db.auditLog.count({ where: { entityId: first!.id, action: 'beauty.customer.created' } })).toBe(1);
+    expect(await db.auditLog.count({ where: { entityId: first!.id, action: 'beauty.customer.linked' } })).toBe(1);
   });
 
   it('rejects a conflicting name atomically without creating the other CSV row', async () => {
     const before = await db.customer.count({ where: { organizationId: org } });
     const csv = 'Имя;Телефон\nНовый Клиент;+77010000000\nДругое Имя;+77012345678';
 
-    await expect(asBusiness(businessB, () => service.apply({ csv }))).rejects.toBeInstanceOf(
+    await expect(asBusiness(businessB, () => importer.apply({ csv }))).rejects.toBeInstanceOf(
       ConflictException,
     );
     expect(await db.customer.count({ where: { organizationId: org } })).toBe(before);
@@ -147,14 +168,14 @@ describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
 
   it('opens a shared customer but returns history only from the selected business', async () => {
     const customer = await asBusiness(businessA, () =>
-      service.create({
+      service.createCustomer({
         firstName: 'История',
         lastName: 'Клиента',
         phone: '+77020000001',
       }),
     );
     await asBusiness(businessB, () =>
-      service.create({
+      service.createCustomer({
         firstName: 'История',
         lastName: 'Клиента',
         phone: '+77020000001',
@@ -227,7 +248,7 @@ describe.skipIf(!url)('Beauty: canonical customer across businesses', () => {
 
   it('returns not found for a customer outside the selected business or organization', async () => {
     const onlyBusinessB = await asBusiness(businessB, () =>
-      service.create({
+      service.createCustomer({
         firstName: 'Только',
         lastName: 'Другой салон',
         phone: '+77020000002',

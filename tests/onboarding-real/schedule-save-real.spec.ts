@@ -1,8 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
-const api='http://127.0.0.1:55844';
+const api=`http://127.0.0.1:${process.env.ONBOARDING_REAL_API_PORT || '55844'}`;
 async function actorHeaders(page: Page) {
-  const cookies=await page.context().cookies('http://127.0.0.1:55843');
+  const cookies=await page.context().cookies();
   const session=cookies.find(c=>c.name==='wetop_session')?.value;
   const scope=cookies.find(c=>c.name==='wetop_scope')?.value;
   if(!session || !scope) throw new Error('Synthetic auth context missing');

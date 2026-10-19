@@ -1,0 +1,29 @@
+# Типы (typecheck) · 18.10.2026 23:00 Алматы · srv1719674
+# коммит 8a5ab94 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 14
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/beauty-customers.test.ts(123,17): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(126,17): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(130,12): error TS18046: 'first' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(130,27): error TS18046: 'second' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(132,74): error TS18046: 'first' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(150,15): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(157,15): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(213,58): error TS18046: 'customer' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(218,73): error TS18046: 'customer' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(219,47): error TS18046: 'customer' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(230,15): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(244,56): error TS18046: 'onlyBusinessB' is of type 'unknown'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 1 мин 6 с

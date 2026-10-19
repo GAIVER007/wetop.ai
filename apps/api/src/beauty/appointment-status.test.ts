@@ -16,13 +16,15 @@ function fixture(status = 'BOOKED') {
   const row = { id, employeeId: 'employee', serviceId: 'service', startsAt,
     endsAt: new Date('2026-10-18T14:00:00Z'), status, updatedAt: new Date('2026-10-17T00:00:00Z'),
     price: 100000n, currency: 'KZT', notes: null, service: { name: 'Тестовая услуга' },
-    customer: { id: 'customer', firstName: 'Тестовый клиент', lastName: null, phone: null }, payments: [] };
+    customer: { id: 'customer', firstName: 'Тестовый клиент', lastName: null, phone: null }, payments: [], lines: [] };
   const db = {
     organization: { findUnique: vi.fn().mockResolvedValue({ status: 'ACTIVE', trialEndsAt: null }) },
     business: { findFirst: vi.fn().mockResolvedValue({ id: 'business' }) },
     location: { findFirst: vi.fn().mockResolvedValue({ id: 'location', name: 'Тестовый салон', currency: 'KZT', timezone: 'Asia/Almaty' }) },
     employee: { findMany: vi.fn().mockResolvedValue([]) },
     beautyService: { findMany: vi.fn().mockResolvedValue([]) },
+    employeeServicePrice: { findMany: vi.fn().mockResolvedValue([]) },
+    beautyLocationHours: { findUnique: vi.fn().mockResolvedValue(null) },
     appointment: { findFirst: vi.fn().mockResolvedValue(row), findMany: vi.fn().mockResolvedValue([row]), updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     restaurantCashOperation: { groupBy: vi.fn().mockResolvedValue([]) },
     auditLog: { create: vi.fn().mockResolvedValue({}) },

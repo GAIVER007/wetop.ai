@@ -1,0 +1,666 @@
+{
+  "baseline": "8a5ab9480109ca7881df6d7a856b1a17cea135d9",
+  "total": 94,
+  "runtime_verified": false,
+  "note": "Статическаясверка,неподтверждениеготовности. ReportsR1/R2дорабатываютсяparentпослеbaseline.",
+  "rows": [
+    {
+      "id": "A1",
+      "title": "Несколько услуг в одной записи",
+      "status": "schemaheld",
+      "evidence": "operations-gap.md",
+      "source_line": "| A1 | schemaheld | AP `create/move/planLines`, POST `beauty/appointments`, PATCH `beauty/appointments/:id`; domain `packages/domain/src/beauty/appointments.ts` | FORM `items`, отдельные service/master/duration/price; JA, CARD, `calendar-columns.ts` разбивают линии по мастерам. Не отсутствует: последовательные услуги реализованы. Требуется held131. |"
+    },
+    {
+      "id": "A2",
+      "title": "Скидка и доплата на строке услуги",
+      "status": "schemaheld",
+      "evidence": "operations-gap.md",
+      "source_line": "| A2 | schemaheld | AP `planLines`, base/discount/surcharge, процент через bigint, price permission; те же POST/PATCH | FORM строки скидки amount/percent и доплаты; CARD показывает корректировки. Held131, не проектировать финансовую формулу заново. |"
+    },
+    {
+      "id": "A3",
+      "title": "Длительность записи",
+      "status": "schemaheld",
+      "evidence": "operations-gap.md",
+      "source_line": "| A3 | schemaheld | AP `planBeautyAppointment`, `assertFree`, `employeeBusy`, domain parser длительности; те же POST/PATCH | FORM часы/минуты с пятиминутными вариантами, окончание, CARD длительность; сохранение валидирует пересечения. Есть код, runtime не проверен; новая многосервисная версия held131. |"
+    },
+    {
+      "id": "A4",
+      "title": "Оплата внутри карточки записи",
+      "status": "existing, частичное соответствие unverified",
+      "evidence": "operations-gap.md",
+      "source_line": "| A4 | existing, частичное соответствие unverified | AP `pay/refund/paidLocked`, POST `beauty/appointments/:id/payments`, POST `.../:id/refunds`; domain `packages/domain/src/beauty/payment.ts`; ordinary payment/cash migrations | CARD форма суммы/способа оплаты и остаток. Частичные последовательные оплаты и возврат существуют. Не подтверждён parity отдельного отображения предоплаты и двух операций прямо как в макете; текущие readers зависят от release baseline. |"
+    },
+    {
+      "id": "A5",
+      "title": "Быстрый поиск и выбор клиента",
+      "status": "existing, частично missing",
+      "evidence": "operations-gap.md",
+      "source_line": "| A5 | existing, частично missing | CAT GET `beauty/customers`, AP существующий/новый клиент | FORM: поиск имени/телефона, нормализованные цифры, выбор клиента, новый клиент с необязательным телефоном. Отдельные «Гость» и «Последний клиент» не найдены. Поиск по загруженной выборке, не доказан полноценный серверный поиск по всей базе. |"
+    },
+    {
+      "id": "A6",
+      "title": "Источник записи и «Сотрудник важен»",
+      "status": "missing, частичная основа",
+      "evidence": "operations-gap.md",
+      "source_line": "| A6 | missing, частичная основа | `customer-detail.ts` читает `appointments.source`, но input AP/domain не предоставляет source и employee-important | FORM не содержит редактируемого источника и «Сотрудник важен». Поле source само по себе не закрывает задачу; не добавлять правило закрепления мастера без решения. |"
+    },
+    {
+      "id": "A7",
+      "title": "Цвет записи",
+      "status": "missing",
+      "evidence": "operations-gap.md",
+      "source_line": "| A7 | missing | В просмотренном AP/domain нет контракта именованной палитры записи | JOURNAL цвет плитки задаёт CSS-класс статуса, не выбранный цвет записи. В FORM нет палитры/preview. |"
+    },
+    {
+      "id": "A8",
+      "title": "Нерабочие часы (блок времени мастера)",
+      "status": "missing целевой интервал, existing дневные отсутствия",
+      "evidence": "operations-gap.md",
+      "source_line": "| A8 | missing целевой интервал, existing дневные отсутствия | SCHEDULE POST `beauty/employees/:id/time-offs`, PORTAL POST `employee-portal/employees/:id/time-offs`, GET/PUT working-hours | SCHEDULE UI и portal имеют график/отсутствия. `dateFrom/dateTo` обозначают целые дни, не блок 13:00-14:00. Не выдавать это за внутридневную блокировку с причиной в карточке. |"
+    },
+    {
+      "id": "A9",
+      "title": "Групповая запись",
+      "status": "missing",
+      "evidence": "operations-gap.md",
+      "source_line": "| A9 | missing | Текущий AppointmentInput содержит одного customer и массив услуг, не группу участников/вместимость | FORM/CARD не содержат group flow. Несколько услуг не равно групповая запись. Нужна модель и отдельное решение правил. |"
+    },
+    {
+      "id": "A10",
+      "title": "История изменений и повтор записи",
+      "status": "schemaheld, основа existing",
+      "evidence": "operations-gap.md",
+      "source_line": "| A10 | schemaheld, основа existing | `apps/api/src/beauty/appointment-history.ts` GET `beauty/appointments/:id/history`, audit before/after/author; AP POST повторного создания | `appointment-history-panel.tsx`, `apps/web/src/components/beauty/appointment-history.tsx`, CARD «Повторить запись», FORM `repeatFrom`. Повтор сбрасывает цены/скидки к актуальным условиям. История/повтор уже есть, чтение lines требует held131. |"
+    },
+    {
+      "id": "B1",
+      "title": "Создание записи кликом по слоту",
+      "status": "existing, schemaheld reader",
+      "evidence": "operations-gap.md",
+      "source_line": "| B1 | existing, schemaheld reader | AP GET `beauty/appointments?date`, POST create | JOURNAL свободная ячейка открывает `appointment-editor.tsx` с employee/time; JA сохраняет. Сценарий не отсутствует. Текущий reader использует held131. |"
+    },
+    {
+      "id": "B2",
+      "title": "Сводка дня (закрытие смены)",
+      "status": "unverified / частично missing",
+      "evidence": "operations-gap.md",
+      "source_line": "| B2 | unverified / частично missing | AP GET `beauty/finance/day` предоставляет финансовое чтение; отдельная финчасть `apps/web/src/app/finance/beauty-finance.tsx` | JOURNAL:401-407 показывает только количество записей; подключён QuickReport, но закрытие смены, сверка наличных, предоплаты и платёжный breakdown из draft в этом календарном сценарии не подтверждены. Наличие /finance не равно закрытию смены. |"
+    },
+    {
+      "id": "B3",
+      "title": "Компактный режим сетки",
+      "status": "existing",
+      "evidence": "operations-gap.md",
+      "source_line": "| B3 | existing | Новый backend не нужен, тот же GET дня | JOURNAL:64-65,305: `compact` и изменение PX_PER_MIN, кнопка aria-pressed. Это уже реализовано, не предлагать как новый slice. Плотность колонок для 10 мастеров визуально не проверена. |"
+    },
+    {
+      "id": "C1",
+      "title": "Период вместо одного дня",
+      "status": "existing, schemaheld reader",
+      "evidence": "operations-gap.md",
+      "source_line": "| C1 | existing, schemaheld reader | AP `period`, GET `beauty/appointments/period?from&to`, доменный разбор диапазона | LIST:153-179 диапазон from/to; фильтры имени/телефона, статуса, услуги и мастера. «Источник/автор/цвет» из расширенного draft не найдены. Текущий reader lines требует held131. |"
+    },
+    {
+      "id": "C2",
+      "title": "Колонки автор, источник, история; удалённые; экспорт",
+      "status": "missing расширение, existing история",
+      "evidence": "operations-gap.md",
+      "source_line": "| C2 | missing расширение, existing история | AP history endpoint существует; текущая projection AP не выдаёт author/source/deletedAt для реестра | LIST:269-277 колонки дата/время/клиент/телефон/услуга/мастер/статус/стоимость/действия. Автор/источник/удалённые/экспорт этого реестра не найдены. Экспорт финансов `apps/web/src/app/finance/export-appointments/route.ts` не равен экспорту текущей выборки реестра. CANCELLED не означает soft-deleted. |"
+    },
+    {
+      "id": "C3",
+      "title": "Вкладка «Авторы записей»",
+      "status": "missing",
+      "evidence": "operations-gap.md",
+      "source_line": "| C3 | missing | В AP нет report endpoint авторов записей; автор audit history не равен авторской сводке | LIST не содержит вкладки авторов и агрегатов. Не изобретать семантику created-period против appointment-period. |"
+    },
+    {
+      "id": "D1",
+      "title": "Ручное создание и карточка клиента",
+      "status": "existing, частичное соответствие unverified",
+      "evidence": "operations-gap.md",
+      "source_line": "| D1 | existing, частичное соответствие unverified | CAT POST `beauty/customers`; `apps/api/src/beauty/customer-detail.ts` GET `beauty/customers/:id`, history до 100 записей | `apps/web/src/app/customers/customer-tools.tsx`, `create-customer.tsx`, `[id]/page.tsx`, `actions.ts`: ручное создание и отдельная карточка есть. Контакты, VIP/ДР, история; расширенное редактирование предпочтений/пола/полная неограниченная история не подтверждены. Detail читает held131 lines. |"
+    },
+    {
+      "id": "D2",
+      "title": "Импорт и экспорт клиентов",
+      "status": "existing",
+      "evidence": "operations-gap.md",
+      "source_line": "| D2 | existing | `apps/api/src/beauty/customer-import.ts`: POST `beauty/customers/import/preview`, POST `beauty/customers/import`; также POST/GET `beauty/customer-imports`, PUT `:id/rows`, POST `:id/submit`, GET `:id/rows`, POST `:id/undo`; worker `customer-import.worker.ts`; domain customer-import*.ts | `customer-tools.tsx` CSV/XLSX до 500 строк и preview; `import-customers.tsx` надёжный импорт/история; `xlsx.ts`; экспорт `apps/web/src/app/customers/export/route.ts`, таблица `beauty-table.tsx`. Не утверждать, что нужны импорт/экспорт с нуля. Полный parity mapping листов/кодировок/обновления пустых полей не доказан. Ordinary131/132 есть, применение базы не проверялось. |"
+    },
+    {
+      "id": "D3",
+      "title": "Автосегменты с понятными определениями",
+      "status": "unverified: действующие правила отличаются",
+      "evidence": "operations-gap.md",
+      "source_line": "| D3 | unverified: действующие правила отличаются | CAT `customers`: DONE count/sum/last visit; `apps/web/src/app/customers/customer-filter.ts:10,22-24` regular >=2 | `beauty-table.tsx`: новый/постоянный/VIP/архив. Draft требует 0/1/2/3+ разных дней и 60/90 дней. Это не пропущенная UI-деталь, а иные правила; код ссылается на Q-BS-3. Не заменять утверждённый порог 2 на иллюстративный 3. |"
+    },
+    {
+      "id": "D4",
+      "title": "Чёрный список с причиной и запрет записи",
+      "status": "missing целевой blacklist",
+      "evidence": "operations-gap.md",
+      "source_line": "| D4 | missing целевой blacklist | AP проверяет ACTIVE клиента при создании; CAT и filters используют статус/архив, но reason/override/blacklist policy не найдены | `customer-filter.ts` archived не является чёрным списком. В просмотренной карточке нет обязательной причины, согласования и запрета онлайн-записи. |"
+    },
+    {
+      "id": "D5",
+      "title": "Баланс и депозит клиента",
+      "status": "missing",
+      "evidence": "operations-gap.md",
+      "source_line": "| D5 | missing | Платёж записи и refund существуют в AP, но клиентский deposit ledger/top-up/apply endpoint не найден | `[id]/page.tsx` не даёт депозитный баланс/движения из draft. Не считать оплату записи депозитом и не вводить денежные правила. |"
+    },
+    {
+      "id": "D6",
+      "title": "Теги клиента, дни рождения, потерянные",
+      "status": "existing частично, missing теги/потерянные",
+      "evidence": "operations-gap.md",
+      "source_line": "| D6 | existing частично, missing теги/потерянные | CAT GET customers отдаёт birthDate/birthdayInDays/isVip; PATCH `beauty/customers/:id` обновляет marks | `beauty-table.tsx` показывает ДР, VIP; `customer-filter.ts` не содержит lost/sleeping/tags. Отдельный диапазон ДР, управляемые теги и потерянные из draft не подтверждены. |"
+    },
+    {
+      "id": "E1",
+      "title": "Одна карточка мастера",
+      "status": "existing",
+      "evidence": "operations-gap.md",
+      "source_line": "| E1 | existing | CAT GET/POST/PATCH `beauty/employees`; PORTAL GET `employee-portal/employees/:id`, PATCH `:id/profile`; `employee-common.ts` общие данные | `apps/web/src/app/beauty/masters/board.tsx:28,195` направляет в PROFILE; общий `employee-workspace/basic-form.tsx`, `workspace.tsx`; услуги/график/оплата/публичность/доступ в portal. Не нужно строить вторую карточку. Все поля профессии/категории и тип участия из draft не подтверждены. |"
+    },
+    {
+      "id": "E2",
+      "title": "Цена и время услуги у конкретного мастера",
+      "status": "schemaheld",
+      "evidence": "operations-gap.md",
+      "source_line": "| E2 | schemaheld | CAT GET `beauty/employees/:id/service-prices`, PUT/DELETE `.../:serviceId`; AP effective priority MASTER > LOCATION > CATALOG | `apps/web/src/components/employee-portal/service-prices.tsx`, PROFILE, `my-work/actions.ts`; types FIXED/RANGE/FREE/UNFIXED и персональное время. Есть реализация, held131. |"
+    },
+    {
+      "id": "E3",
+      "title": "Ставка в тенге, а не в тиынах",
+      "status": "existing",
+      "evidence": "operations-gap.md",
+      "source_line": "| E3 | existing | PORTAL PUT `employee-portal/employees/:id/pay-settings`, minor-unit contract; `my-work/actions.ts:75-84` parseMoney fixedAmount | `employee-portal/management.tsx:51` ввод fixedAmount в ₸ через minorToInput, `cabinet.tsx` formatMoney. Ошибка «вводить тиыны» в этой реализации уже устранена. |"
+    },
+    {
+      "id": "E4",
+      "title": "Привязка мастера к аккаунту без ввода ID",
+      "status": "existing, частичный parity unverified",
+      "evidence": "operations-gap.md",
+      "source_line": "| E4 | existing, частичный parity unverified | PORTAL GET `employee-portal/employees/:id/account-options`, PUT/DELETE `.../account`, проверка verified active membership и scope | PROFILE загружает допустимых участников; `management.tsx:37-45` именованный select, не ручной ID; ссылка /team на приглашения. Inline отправка приглашения именно по телефону/почте как в draft не подтверждена, но безопасная привязка без ID уже есть. |"
+    },
+    {
+      "id": "E5",
+      "title": "Единый статус мастера",
+      "status": "existing",
+      "evidence": "operations-gap.md",
+      "source_line": "| E5 | existing | CAT employee.active/status; AP/SCHEDULE рабочие интервалы/отсутствия | `apps/web/src/lib/beauty-master-day-status.ts`; masters board и PROFILE используют один helper, разделяют Активен/В архиве и На смене/Выходной/График недоступен. Не считать отсутствующим. Чтение дня наследует held baseline. |"
+    },
+    {
+      "id": "E6",
+      "title": "Профиль мастера для онлайн-записи",
+      "status": "existing, частичное соответствие unverified",
+      "evidence": "operations-gap.md",
+      "source_line": "| E6 | existing, частичное соответствие unverified | PORTAL PATCH profile, PUT publication, PUT avatar, POST/PATCH/DELETE portfolio, GET `employee-portal/public/:slug`; media storage fail-closed | PROFILE/employee-portal UI: biography, career year, avatar, portfolio, consent/publication. Ordinary128/129 есть. Не проверены публичный booking funnel и все настройки слотов из draft; live storage не проверен. Чтение reviews зависит от held132. |"
+    },
+    {
+      "id": "E7",
+      "title": "Гибкая зарплата мастера",
+      "status": "existing базовая оплата, missing гибкие правила",
+      "evidence": "operations-gap.md",
+      "source_line": "| E7 | existing базовая оплата, missing гибкие правила | PORTAL pay-settings и PUT `employee-portal/pay-policy`; FIXED/PERCENT/FIXED_PLUS_PERCENT/BONUS_ONLY, две базы процента | `management.tsx`, `cabinet.tsx` вывод начислений/корректировок. Нет найденной матрицы приоритетов по услуге/категории/клиенту/товару из draft. Не переизобретать текущий payroll и не добавлять правила расчёта автономно. |"
+    },
+    {
+      "id": "E8",
+      "title": "Ресурс «Комната / кабинет»",
+      "status": "missing",
+      "evidence": "operations-gap.md",
+      "source_line": "| E8 | missing | В просмотренной Beauty модели нет booking resource «кабинет» с capacity/preparation и независимым allocation | MastersBoard и PROFILE представляют employees, не комнаты. Гостиничные units нельзя молча использовать вместо salon resource. |"
+    },
+    {
+      "id": "F1",
+      "title": "Настраиваемые должности и матрица прав",
+      "status": "schemaheld",
+      "evidence": "operations-gap.md",
+      "source_line": "| F1 | schemaheld | `apps/api/src/beauty/positions.ts`: GET/POST `beauty/positions`, PATCH `:id`, POST `:id/archive`, PUT `assignments`, POST `assignments/:id/revoke`; `access.ts`, `scope.ts`, domain `beauty/access.ts` | `apps/web/src/app/team/roles/page.tsx`, `positions-board.tsx`, `position-actions.ts`: должности/матрица/назначения существуют. Это не только макет. Held134, permissions и OWN scope требуют согласованного backend release. |"
+    },
+    {
+      "id": "F2",
+      "title": "Роль «Мастер»",
+      "status": "existing, schemaheld access",
+      "evidence": "operations-gap.md",
+      "source_line": "| F2 | existing, schemaheld access | PORTAL GET `employee-portal/me`, собственные profile/week/services/time-offs; access.ts обеспечивает own scope через employee identity и permissions | `apps/web/src/app/my-work/page.tsx`, employee-portal/cabinet.tsx: свои записи/график/начисления. Не предполагать, что отсутствует роль/кабинет. Доказательство отдельного буквального legacy enum «Мастер» не получено: здесь собственный кабинет и action/scope permissions, не обещание нового enum. Безопасность OWN не проверялась исполнением; held134 и прочие portal readers остаются release dependency. |"
+    },
+    {
+      "id": "G1",
+      "title": "Расширить карточку услуги",
+      "status": "existing частично / unverified",
+      "evidence": "operations-gap.md",
+      "source_line": "| G1 | existing частично / unverified | CAT GET/POST/PATCH `beauty/services`, PUT `beauty/services/:id/location`; domain `packages/domain/src/beauty/catalog.ts`; персональные цены E2 | `apps/web/src/app/beauty/services/board.tsx`, page.tsx: каталог и филиальный override цены/длительности, активность/назначение. Полная иерархия категория/подкатегория/группа, описание для клиента и price-range всей услуги из draft не подтверждены. Master RANGE существует отдельно и held131. |"
+    },
+    {
+      "id": "G2",
+      "title": "Техкарта: расходники услуги",
+      "status": "schemaheld",
+      "evidence": "operations-gap.md",
+      "source_line": "| G2 | schemaheld | CAT GET/PUT `beauty/services/:id/materials`, materialRevision и нормы; AP `consumeMaterials` при завершении записи, складские movements с lineId | `apps/web/src/app/beauty/services/materials.tsx`, `material-actions.ts`, `board.tsx`: материалы, остаток, стоимость есть. Held133 требует held131. Не писать техкарты с нуля и не считать FIFO-списание доказанным live. |"
+    },
+    {
+      "id": "G3",
+      "title": "Скидки и акции",
+      "status": "missing акции, existing ручная скидка",
+      "evidence": "operations-gap.md",
+      "source_line": "| G3 | missing акции, existing ручная скидка | AP скидка/доплата конкретной строки A2, не campaign engine | FORM скидка не закрывает happy hours/first visit/birthday/referral с расписанием/приоритетом. В Beauty services board отдельный editor акций не найден. Новые автоматические скидки требуют решений. |"
+    },
+    {
+      "id": "G4",
+      "title": "Комплексы (экспресс-услуги)",
+      "status": "missing",
+      "evidence": "operations-gap.md",
+      "source_line": "| G4 | missing | AP items позволяет последовательные услуги, но нет найденного persisted bundle, package price и распределения скидки | FORM много услуг не равно комплекс в каталоге. В services board не найдена сборка/сохранение комплекса с фиксированной общей ценой. Требуется модель/денежные правила. |"
+    },
+    {
+      "id": "H1",
+      "title": "Оплата записи → операция в кассе",
+      "status": "actual + missing + unverified",
+      "evidence": "finance-gap.md",
+      "source_line": "| **H1** Оплата записи → касса | **actual + missing + unverified** | `apps/api/src/beauty/appointments.ts:582-701,1142-1148`: оплата/возврат визита, кассовая операция и аудит. `packages/domain/src/beauty/payment.ts`: ограничения оплаты/возврата. Общая касса: `apps/api/src/food-service/food.module.ts:254-277`, `restaurant.service.ts:1069-1378`; UI `apps/web/src/app/cashbox/`, `apps/web/src/app/food/cash-board.tsx`. Суммы визита включают оплачено/возвращено. | Критерий макета требует двусторонних ссылок операция ↔ запись, фильтров и экспорта журнала. В `CashBoard` не найдено `href` на appointment; кассовый DTO требует отдельной проверки полноты связи (в сервисе есть appointmentId для ограничений void, но это не доказательство выдачи ссылки UI). Не создавать второй платёжный контур. Поведение и ссылки не проверены браузером. Чтение визитов текущим API зависит от held lines/hours. |"
+    },
+    {
+      "id": "H2",
+      "title": "Категории и контрагенты в приходе/расходе",
+      "status": "actual (часть) + missing + blockeddecision",
+      "evidence": "finance-gap.md",
+      "source_line": "| **H2** Категории и контрагенты | **actual (часть) + missing + blockeddecision** | Касса поддерживает INCOME/EXPENSE/TRANSFER, метод, сумму, заметку и сверку: те же BranchCashController, `restaurant.service.ts`, `cash-board.tsx`. В `DATA_MODEL.md §49` есть ExpenseCategory/ExpenseDocument/ExpenseSettlement и held writer под флагом. | Полный салонный справочник статей, контрагенты, документ-основание, черновик/проведение и отнесение «Аренды» в управленческий отчёт этим не закрыты. Не переносить гостиничные `finance/cash.tsx` категории/комиссии в Beauty автоматически: это иной adapter. Held114 и правило классификации не активировать. |"
+    },
+    {
+      "id": "H3",
+      "title": "Счета со способами оплаты и комиссией",
+      "status": "actual (методы) + missing + blockeddecision",
+      "evidence": "finance-gap.md",
+      "source_line": "| **H3** Счета, методы, комиссии | **actual (методы) + missing + blockeddecision** | Касса считает остатки по методам, есть payment-method settings; `apps/api/src/bar/bar.repository.ts:119-127`, `bar.service.ts:135-144`. | Остаток по способу не равен сущности финансового счёта. Не найдены полный Beauty account CRUD, привязка методов к счёту, тариф комиссии и разделение gross/fee/net с признанием fee в P&L. Поля комиссии гостиничной кассы `apps/web/src/app/finance/cash.tsx:366+` не доказывают реализацию H3 салона. Сценарий «10 000 / 5%» требует решения модели; не внедрять из демо. |"
+    },
+    {
+      "id": "H4",
+      "title": "Отчёты ДДС, P&L и баланс счетов",
+      "status": "actual (отчёт услуг) + missing + blockeddecision",
+      "evidence": "finance-gap.md",
+      "source_line": "| **H4** ДДС / P&L / балансы | **actual (отчёт услуг) + missing + blockeddecision** | `apps/web/src/app/finance/beauty-finance.tsx:54-109,175-264`: стоимость DONE, отдельные возвраты, ожидаемые/отменённые, день/мастер, валютные группы. API `beauty/appointments.ts:1111-1124`: finance/day и finance/appointments. Кассовые остатки существуют отдельно. | Это **не P&L и не ДДС**. Нужны правила признания услуг/товаров, авансов, сертификатов, возвратов, зарплаты, материалов и комиссий, а также сверка начала/движений/конца. План явно оставляет вопрос финансового признания открытым; отдельный якорь `Q-H4` в текущем QUESTIONS.md поиском не найден. Не принимать отсутствие якоря за утверждение. Комментарий beauty-finance.tsx:23 о том, что кассы ещё нет, устарел относительно реального BranchCash API; доверять исполнению, а не этому комментарию. |"
+    },
+    {
+      "id": "I1",
+      "title": "Справочник видов начислений и история взаиморасчётов",
+      "status": "actual + missing + unverified",
+      "evidence": "finance-gap.md",
+      "source_line": "| **I1** Виды начислений / взаиморасчёты | **actual + missing + unverified** | `DATA_MODEL.md §19.2/§33.4`: общие EmployeePaySetting/Adjustment и выплата из кассы. `apps/api/src/food-service/food.module.ts:226-250`: payroll, pay-settings, payouts, pay-adjustments; `restaurant.service.ts:1390-1448,1605+`: выплаты и расчёт. UI `apps/web/src/app/food/payroll-board.tsx:144-223,305-468`: премия/штраф, список корректировок, paid/remaining. | Нет настраиваемого справочника видов (аванс/товар/депозит и т. п.) и полного фильтруемого хронологического running balance с датой/основанием/всеми выплатами. Частичная выплата уже уменьшает remaining; отдельное название «аванс» и его перенос между периодами не придумывать. Точный сценарий 30 000 без выполнения теста не подтверждён. |"
+    },
+    {
+      "id": "I2",
+      "title": "Зарплата администратора",
+      "status": "actual (общая модель) + missing + blockeddecision",
+      "evidence": "finance-gap.md",
+      "source_line": "| **I2** Зарплата администратора | **actual (общая модель) + missing + blockeddecision** | Общая FIXED/PERCENT/FIXED_PLUS_PERCENT/BONUS_ONLY уже есть в `payroll-board.tsx:29-37,108-129`; Beauty база `restaurant.service.ts:1605+` читает DONE appointmentLine по исполнителю строки. | База по автору записи или доходу смены и оклад за смену не равны существующей базе мастера. Нужны явные решения по базе/скидкам/возвратам/товарам/сменам и периоду действия. Процент администратора не включать через переиспользование процента мастера. |"
+    },
+    {
+      "id": "I3",
+      "title": "Ведомость, печать, Excel",
+      "status": "actual + missing",
+      "evidence": "finance-gap.md",
+      "source_line": "| **I3** Ведомость, печать, Excel | **actual + missing** | `/payroll`, `apps/web/src/app/payroll/page.tsx`, `food/payroll-board.tsx:317-445`: месячный экран, сотрудник, ставка, услуги, корректировки, начислено, выплачено, остаток. | В просмотренном board нет print/Excel, выбора произвольного периода, печатных подписей и сверки выгрузки с экраном. Экран уже есть, его не строить повторно. Официальный налоговый/трудовой расчёт макет не утверждает и здесь не предлагается. |"
+    },
+    {
+      "id": "J1",
+      "title": "Склад",
+      "status": "actual + unverified + missing (часть макета)",
+      "evidence": "finance-gap.md",
+      "source_line": "| **J1** Склад | **actual + unverified + missing (часть макета)** | Розничный контур: `apps/api/src/bar/bar.controller.ts:16-78`, `bar.service.ts`, `bar.repository.ts`: товары, категории, поставщики, приёмки, FIFO, продажи, списания, инвентаризация, долг поставщику. Расходники: `apps/api/src/food-service/stock.service.ts`, `food.module.ts:306-348`; UI `apps/web/src/app/food/stock-board.tsx`, `stock-actions.ts`, `apps/web/src/app/bar/`. Техкарты `apps/web/src/app/beauty/services/materials.tsx`, `apps/api/src/beauty/beauty.module.ts:1061+`. | Не считать склад отсутствующим. Но текущие retail и consumable контуры не доказывают единый экран всех 4 позиций макета, минимальные остатки, цену сотруднику и типы нескольких складов. Единое Beauty-наименование «Склад», меню, доступы, единицы, FIFO/DONE требуют свежей проверки; техкарты зависят от held133. |"
+    },
+    {
+      "id": "J2",
+      "title": "Несколько складов с типами, списание и перемещение",
+      "status": "actual (списание) + missing + blockeddecision",
+      "evidence": "finance-gap.md",
+      "source_line": "| **J2** Склады с типами / перенос | **actual (списание) + missing + blockeddecision** | Списание и инвентаризация уже реализованы в обоих складских контурах (пути J1), хранение привязано к Location. | Location не заменяет несколько складов внутри филиала. Модель warehouse «Продажа/Использование/Хранение», межскладской transfer и симметричная пара движений не найдены. Требуется согласование модели; не делать перенос как независимые расход/приход или денежный TRANSFER. |"
+    },
+    {
+      "id": "J3",
+      "title": "Продажа товара в записи и сотруднику",
+      "status": "actual (отдельная розница) + missing + blockeddecision",
+      "evidence": "finance-gap.md",
+      "source_line": "| **J3** Товар в визите / сотруднику | **actual (отдельная розница) + missing + blockeddecision** | `bar.controller.ts:60-61`, `bar.repository.ts:430+`: retail sale, FIFO и кассовый приход; folio-path существует для другой вертикали. | Нет доказанной модели строк товара Appointment, employee price/покупателя-сотрудника, удержания из зарплаты, комиссии продавцу и общей оплаты визита с товаром. Hospitality folio неприменим к Beauty (`DATA_MODEL.md §19/§21.5`). Не подключать товар к зарплате или визиту через free-text. |"
+    },
+    {
+      "id": "K1",
+      "title": "Уведомления клиенту о записи",
+      "status": "missing + blockeddecision + unverified (общие интеграции)",
+      "evidence": "finance-gap.md",
+      "source_line": "| **K1** Уведомления и fallback | **missing + blockeddecision + unverified (общие интеграции)** | В Beauty-коде есть ручное приглашение на отзыв (K3), но это не событийнная доставка записи. Существующие общие коммуникации проекта не проверялись как работоспособный Beauty event-flow. | Не найдена полная цепочка create/move/cancel/reminder → WhatsApp → SMS через заданный срок с шаблонами и delivery/retry/cost audit. Требуются канал/провайдер, согласия, сроки, идемпотентность, received/processing/error/retry audit (AGENTS §11). Нельзя считать наличие WhatsApp где-либо реализацией K1 или отправлять реальные сообщения. |"
+    },
+    {
+      "id": "K2",
+      "title": "Лояльность: бонусы, абонементы, сертификаты",
+      "status": "missing + blockeddecision",
+      "evidence": "finance-gap.md",
+      "source_line": "| **K2** Лояльность | **missing + blockeddecision** | В просмотренных Beauty domain/API/UI нет бонусного ledger, абонемента, сертификата и атомарного погашения в оплате. Отдельные occurrences subscription в системе относятся к подписке платформы, не к абонементу клиента. | Отдельная модель обязательств, выпуск/продажа/активация/срок/частичное погашение/возврат, лимиты и взаимодействие с кассой/выручкой. Проценты демокарты не правила. Не вводить payment method CERTIFICATE без ledger и утверждения. |"
+    },
+    {
+      "id": "K3",
+      "title": "Отзывы после визита",
+      "status": "actual + missing + unverified",
+      "evidence": "finance-gap.md",
+      "source_line": "| **K3** Отзывы | **actual + missing + unverified** | `apps/api/src/beauty/reviews.ts:343-361`, `apps/web/src/app/beauty/review-invitation.tsx`, `review-invitation-actions.ts`: приглашение, публичный GET/POST, выбор мастеров. Реализованная модель из held132; план фиксирует однократную ссылку на 30 дней и ручное копирование. | Автоматический запрос после DONE, канал, ответ салона и время ответа отсутствуют в подтверждённой цепочке. Не выдавать ручную ссылку за автоматическую доставку. API реализован, deployment blocked на held reviews, runtime здесь unverified. |"
+    },
+    {
+      "id": "M1",
+      "title": "Профиль и режим работы филиала",
+      "status": "actual (часы) + missing + unverified",
+      "evidence": "finance-gap.md",
+      "source_line": "| **M1** Профиль / часы | **actual (часы) + missing + unverified** | `apps/api/src/beauty/location-hours.ts`, `location-hours-policy.ts`; `appointments.ts:230-231,962-963`: использование часов при доступности. UI `apps/web/src/app/beauty-settings/page.tsx:17-33`, `hours-form.tsx`. С revision, конфликтами и проверкой прав. | Настройки салона сейчас выводят именно форму часов, не полный профиль с адресом, двумя телефонами, соцсетями, удобствами, обложкой и галереей исходника. Общие business/location/media не доказывают сохранение всех этих полей через этот экран. Часы уже реализованы, но зависят от held135 и lines; границы календаря 09:00-21:00 и storage availability не проверены runtime. |"
+    },
+    {
+      "id": "M2",
+      "title": "Правила онлайн-записи",
+      "status": "actual (слоты/часы) + missing + blockeddecision",
+      "evidence": "finance-gap.md",
+      "source_line": "| **M2** Онлайн-правила | **actual (слоты/часы) + missing + blockeddecision** | `packages/domain/src/beauty/slots.ts`, `schedule.ts`, `apps/api/src/beauty/appointments.ts`, location-hours policy: доступность услуги/мастера/филиала. | Не найден полный редактор отдельного online mode, горизонта, minimum lead time, cutoff отмены, обязательных полей/согласий, подтверждения администратором и их согласованное enforcement в публичном book API. Эти правила не равны обычному проверенному свободному слоту. До изменения статусов/политики отмены нужно решение владельца. |"
+    },
+    {
+      "id": "M3",
+      "title": "Бизнес-правила записей",
+      "status": "missing + blockeddecision",
+      "evidence": "finance-gap.md",
+      "source_line": "| **M3** Бизнес-переключатели | **missing + blockeddecision** | Базовые статусы и ограничения оплаты есть в `packages/domain/src/beauty/appointments.ts`, `payment.ts`; это не модель настроек макета. | Обязательный источник/телефон, запрет DONE без оплаты, auto-DONE, редактирование DONE, отрицательный баланс, переплата на депозит и автографик нельзя вывести из UI-переключателя. Депозит/долг особенно требуют ledger и approved financial semantics; запрет неоплаченного DONE не объявлять существующим без отдельной проверки. |"
+    },
+    {
+      "id": "M4",
+      "title": "Журнал операций «было → стало»",
+      "status": "actual (визит) + missing + unverified",
+      "evidence": "finance-gap.md",
+      "source_line": "| **M4** Было → стало | **actual (визит) + missing + unverified** | `apps/api/src/beauty/appointment-history.ts:18-23,97-155,244+`, `apps/web/src/app/beauty/appointment-history-panel.tsx`, `appointment-history-actions.ts`: allowlisted история с автором и before/after; оплаты/возвраты также события. В writers есть AuditLog. | AuditLog в БД не равен единому пользовательскому журналу товара, графика, настроек и лояльности с фильтрами/экспортом/deep-link. История изменения цены товара из M4 отдельно не показана этим appointment endpoint. Нужна проверка полноты, а не новый дублирующий аудит визита. |"
+    },
+    {
+      "id": "M5",
+      "title": "Цвета, теги, источники, виджет",
+      "status": "actual (часть смежных данных) + missing + unverified",
+      "evidence": "finance-gap.md",
+      "source_line": "| **M5** Цвета / теги / источники / виджет | **actual (часть смежных данных) + missing + unverified** | `apps/api/src/beauty/customer-detail.ts:41,91,122` возвращает source; исторический DESK/WEBSITE не является редактируемым справочником. Customer marks и публичная запись уже присутствуют в системе. | Не найдена целиком панель именованных цветов, тегов, источников и генератора iframe с default service; обязательный источник и применение к календарю должны опираться на утверждённую модель. Вымышленный `example.invalid` из макета не рабочий widget URL. Не утверждать, что базовая публичная запись отсутствует. |"
+    },
+    {
+      "id": "N1",
+      "title": "Отчёты загрузки, удержания и услуг",
+      "status": "actual (части) + missing + blockeddecision + unverified",
+      "evidence": "finance-gap.md",
+      "source_line": "| **N1** Загрузка / retention / прибыль услуги | **actual (части) + missing + blockeddecision + unverified** | `apps/web/src/app/management/analytics/vertical/screen.tsx` выводит Beauty-ветку; `finance/beauty-finance.tsx:65-74` правильно распределяет стоимость по исполнителям строк. `apps/api/src/beauty/workload.ts:6-28` содержит исторический workload с UNAVAILABLE/PARTIAL/COMPLETE; `today/unified-owner.tsx` честно показывает неполные данные. | Наличие popularity/стоимости услуг не покрывает когортное удержание/отток, зрелость 60-дневной когорты, no-show denominator, материалы+зарплата в gross profit и определения метрик. Историческая загрузка held117 и capture disabled: **не включать**, не заменять unknown нулём и не рассчитывать прошлое по сегодняшнему графику. Признание расходов и финансовая маржа блокируются решением H4; 75% из макета не runtime evidence. |"
+    },
+    {
+      "id": "N2",
+      "title": "Главная",
+      "status": "actual + missing + unverified",
+      "evidence": "finance-gap.md",
+      "source_line": "| **N2** Главная | **actual + missing + unverified** | `apps/web/src/app/today/beauty-today.tsx:18-98`: записи/стоимость DONE/клиенты/специалисты на смене, ближайшие визиты, внимание к подтверждениям/неявкам. `today/vertical-load.ts`, `vertical-metrics.ts`; также `today/unified-owner.tsx`, `owner-daily-chart.tsx` для owner-view. | Текущий beauty-day не повторяет весь макет с выручкой услуги+товары, недельной динамикой, процентом загрузки, stock/review tasks и расходами. Owner-view не доказан как эквивалент того же маршрута и прав. Тексты и 390/1440 light/dark здесь не проверялись; старые текстовые исправления из плана не дают права закрыть визуальный критерий. |"
+    },
+    {
+      "id": "R1",
+      "title": "Отчёт по продажам",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| R1 | partial | UI `/sales`: `apps/web/src/app/sales/page.tsx:47–51`, `growth/business-sales.ts:93–119`, `growth/business-screen.tsx`. Считает DONE-снимки записей выбранного филиала, среднюю стоимость записи, топ услуг/мастеров. Источник `GET /beauty/appointments?date=` через `branchReportDay`; API `apps/api/src/beauty/appointments.ts`; domain `packages/domain/src/beauty/appointments.ts`. Нет единого отчёта продаж услуг+товаров, переключателя даты оплаты/закрытия, нетто со скидками/возвратами и всех фильтров макета. Не называть этот итог оплаченной выручкой. |"
+    },
+    {
+      "id": "R2",
+      "title": "Отчёт по оказанным услугам",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| R2 | partial | Те же `beautySales()` и `BeautyAppointmentRow.items`: строки услуг уже используются для топа по услугам; финансовая страница `apps/web/src/app/finance/beauty-finance.tsx`. Есть API `GET /beauty/finance/appointments`, `/beauty/appointments/period` в `apps/api/src/beauty/appointments.ts`. Нет отдельного конструктора группировок/скидок/экспорта XLSX макета. Число DONE-записей не равно числу оказанных строк услуг. |"
+    },
+    {
+      "id": "R3",
+      "title": "Движение денег и сверка касс",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| R3 | partial | `/cashbox`: `apps/web/src/app/cashbox/page.tsx` допускает BEAUTY, читает `restaurantApi.cash()` из `apps/web/src/lib/food-api.ts:136–139`, то есть `/food-service/cash`; API `apps/api/src/food-service/food.module.ts`, реализация `restaurant.service.ts`; общий `apps/web/src/app/food/cash-board.tsx`. Есть кассовые операции/аннулирование/сверки. Платежи и возвраты записей: `/beauty/appointments/:id/payments|refunds`. Это не готовый R3 с единым отчётом, фильтрами оснований и сравнением филиалов. `/finance` показывает отдельно стоимость DONE, не кассовый поток. |"
+    },
+    {
+      "id": "R4",
+      "title": "Конструктор пользовательского отчёта",
+      "status": "backendmissing",
+      "evidence": "growth-gap.md",
+      "source_line": "| R4 | backendmissing | `/reports` не конструктор: `apps/web/src/app/reports/page.tsx:41–45` перенаправляет BEAUTY в `/management/analytics`. API сохранённых пользовательских отчётов, шаблонов с ACL и произвольной группировкой в проверенных beauty/report модулях нет. Нельзя сохранять придуманный контракт шаблона. |"
+    },
+    {
+      "id": "S1",
+      "title": "Продажи: воронка обращений",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| S1 | partial | `/sales` сейчас KPI-хаб записей, не CRM-канбан. Реальные обращения сайта: `GET /marketing/site/leads`, `PATCH /marketing/site/leads/:id` (`apps/api/src/site-forms/site-forms.module.ts:111–128`, `site-leads.service.ts`), domain `packages/domain/src/marketing/site-lead.ts`. Есть статус и пагинация; в `update()` допустимо только поле `status`, дополнительные поля отвергаются. Диалоги продавца отдельно: `/ai-seller/conversations`. Нет общей мультиканальной воронки, потенциала сделок и конверсии лид→визит макета. |"
+    },
+    {
+      "id": "S2",
+      "title": "Продажи: карточка обращения",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| S2 | partial | Сайт-лид имеет контакт/сообщение/источник и статус, но не ответственного, бюджет, интерес и желаемое время макета: `site-leads.service.ts:92–96` явно отвергает лишние поля. Диалог продавца поддерживает handling, notes и reply: `apps/api/src/ai-seller/ai-seller.controller.ts:153–190`, реализация `seller.service.ts`. Это две разные сущности, нельзя склеить их произвольным ID или объявить созданной записью. |"
+    },
+    {
+      "id": "S3",
+      "title": "Продажи: план и прогноз",
+      "status": "backendmissing",
+      "evidence": "growth-gap.md",
+      "source_line": "| S3 | backendmissing | `apps/api/src/sales/sales.controller.ts` предоставляет только `GET /sales/summary`; BEAUTY-хаб использует `loadBusinessSales()`, а не эту гостиничную сводку. План выручки/обращений/записей по сотрудникам и прогноз вероятности сделок отсутствуют. Маркетинговый бюджет в `/marketing/budget` не план продаж. |"
+    },
+    {
+      "id": "S4",
+      "title": "Продажи: задачи и контроль ответа",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| S4 | partial | У продавца есть `PATCH /ai-seller/conversations/:id/handling` и notes, UI диалогов в `apps/web/src/app/ai-seller`. Общий `apps/api/src/tasks/tasks.controller.ts` имеет list/create/update, но наличие общего tasks не доказывает связь с siteLead/beauty-обращением. Очереди CRM-задач, SLA ответа и утверждённого lead-task контракта макета нет. |"
+    },
+    {
+      "id": "T1",
+      "title": "Справочник команды и доступов",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| T1 | partial | `/employees`, `/team`, `/team/roles`: `apps/web/src/app/employees/page.tsx`, `team/page.tsx`, `team/roles/page.tsx`. Каталог BEAUTY `/beauty/employees` в `apps/api/src/beauty/beauty.module.ts`; учётки/инвайты `/auth/members`, `/auth/invites` в `apps/api/src/accounts/accounts.controller.ts`; должности `/beauty/positions` в `positions.ts`, domain `packages/domain/src/beauty/access.ts`. Сотрудник и пользователь доступа уже отдельны; нельзя создавать учётку каждому мастеру автоматически. Не все фильтры/единый справочник макета реализованы. |"
+    },
+    {
+      "id": "T2",
+      "title": "Профиль человека, оплата и права",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| T2 | partial | `/employees/[id]/profile`: `apps/web/src/app/employees/[id]/profile/page.tsx`, `/employee-portal/employees/:id` и профиль/account/pay-settings в `apps/api/src/employee-portal/employee-portal.module.ts`, `employee-portal.service.ts`. Уже есть профиль, связь учётки, услуги, расписание и оплата труда. Не внедрять проценты услуг/товаров, правило «неоплаченные не начислять», 72ч инвайт и обязательную 2FA из макета как утверждённые. |"
+    },
+    {
+      "id": "T3",
+      "title": "Планировщик смен и отсутствий",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| T3 | partial | Beauty `/beauty/schedule`, PUT working-hours, POST/DELETE time-offs: `apps/api/src/beauty/schedule.ts`; domain `packages/domain/src/beauty/schedule.ts`, `working-time.test.ts`; UI `/employees/[id]/profile`, beauty-компоненты расписания. Есть интервалы, исключения, привязка филиалов и expectedRevision. Нет оснований обещать отдельный draft→publish workflow недельных смен, оплачиваемость отсутствий и копирование недели из T3. |"
+    },
+    {
+      "id": "T4",
+      "title": "Табель, отклонения и согласование",
+      "status": "backendmissing",
+      "evidence": "growth-gap.md",
+      "source_line": "| T4 | backendmissing | Имеющиеся рабочие интервалы/time-offs и payroll не равны табелю фактических приходов/уходов с согласованием. В проверенных beauty/employee-portal модулях нет API табеля, согласования периода и его зарплатной базы. Не имитировать реальный факт присутствия плановым расписанием. |"
+    },
+    {
+      "id": "U1",
+      "title": "Аналитика выручки и структуры",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| U1 | partial | `/management/analytics`: `apps/web/src/app/management/analytics/page.tsx`, `vertical/screen.tsx`, `vertical/load.ts`, `vertical/metrics.ts:51–64`. DONE-снимки по валютам и текущие статусы; предел периода 31 день. `/sales` добавляет топ услуг/мастеров. Нет метрики чистых продаж услуг+товаров/возвратов и полного набора сравнений макета. |"
+    },
+    {
+      "id": "U2",
+      "title": "Воронка записи и завершения визита",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| U2 | partial | `vertical/screen.tsx:174–175` прямо сообщает: текущие статусы записей, начавшихся за период; проценты неявок и повторных посещений пока не рассчитываются. `vertical/metrics.ts` считает статусы, не историческую событийную воронку. История есть `apps/api/src/beauty/appointment-history.ts`, но не готовая когортная аналитика подтверждений/полной оплаты. |"
+    },
+    {
+      "id": "U3",
+      "title": "Удержание клиентов и повторные визиты",
+      "status": "backendmissing",
+      "evidence": "growth-gap.md",
+      "source_line": "| U3 | backendmissing | `apps/api/src/beauty/customer-detail.ts` и `packages/domain/src/beauty/customers.ts` дают клиентскую основу, но не retention-отчёт с первым DONE, окном 30/60/90, медианой и сохранением сегмента. `vertical/screen.tsx` явно не обещает повторные посещения. Окно и правила когорты требуют бизнес-утверждения. |"
+    },
+    {
+      "id": "U4",
+      "title": "Эффективность специалистов",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| U4 | partial | `growth/business-sales.ts:101–118` агрегирует DONE item-цены по исполнителям; `finance/beauty-finance.tsx` показывает стоимость по мастерам. `apps/api/src/beauty/workload.ts` и расписание дают отдельную основу загрузки. Нет единого отчёта выручка/час с выбором опубликованный график vs согласованный табель, поскольку последний контракт отсутствует. |"
+    },
+    {
+      "id": "V1",
+      "title": "Обзор маркетинга",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| V1 | partial | `/marketing`: `apps/web/src/app/marketing/page.tsx` реально читает бюджет месяца, `marketing/hub.tsx` выводит расходы и план. API `GET /marketing/budget`, `/marketing/results`: `apps/api/src/marketing-budget/marketing-budget.controller.ts`; domain `packages/domain/src/marketing/budget.ts`. Это уже не полностью пустой модуль. Сегменты/рассылки/ручное согласование из макета не подключены. |"
+    },
+    {
+      "id": "V2",
+      "title": "Конструктор маркетинговой кампании",
+      "status": "partial + requiresproviderdecision",
+      "evidence": "growth-gap.md",
+      "source_line": "| V2 | partial + requiresproviderdecision | Учёт рекламных кампаний уже есть: `/marketing/ads`, `apps/web/src/app/marketing/ads/page.tsx`; CRUD `/marketing/campaigns`, статистика/import в `apps/api/src/marketing-budget/campaigns.ts`; domain `packages/domain/src/marketing/campaigns.ts`. Это платная реклама, не кампания рассылки по клиентам «пауза 60 дней + согласие». Для такой рассылки нет утверждённого канала, consent/исключений и delivery API. |"
+    },
+    {
+      "id": "V3",
+      "title": "Сегменты и клиентские сценарии",
+      "status": "backendmissing + requiresproviderdecision",
+      "evidence": "growth-gap.md",
+      "source_line": "| V3 | backendmissing + requiresproviderdecision | В `/marketing/ads` вкладка audiences пока EmptyState (`page.tsx:273`). Сегментатор клиентов, таймеры сценария, opt-out/consent и прекращение при будущей записи не реализованы как единый backend. Нельзя выдать текст вкладки за работающую аудиторию или запустить сообщения. |"
+    },
+    {
+      "id": "V4",
+      "title": "Атрибуция и эффективность",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| V4 | partial | `/marketing/analytics`: `apps/web/src/app/marketing/analytics/page.tsx`, `report.ts`; backend `marketing-budget.service.ts:133–137`, repository `marketing-budget.repository.ts:366+`; domain `marketing/funnel.ts`. Расходы доступны по location. Результаты читают property/reservations и seller_booking_intents, плюс site leads; наличие этого общего endpoint НЕ доказывает атрибуцию beauty appointments. Модель last-touch с окном и paid revenue из V4 не реализована для BEAUTY. |"
+    },
+    {
+      "id": "W1",
+      "title": "ИИ-продажи: рабочее место",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| W1 | partial | UI `/ai-agents`, `/ai-agents/[id]`, `/ai-seller`; API `apps/api/src/ai-seller/ai-seller.controller.ts` status/conversations/summary, `business-agents.controller.ts`. Реальный внешний сервис `apps/ai-seller/src/ai/engine.py`. Очередь диалогов существует, но отдельного локального draft-only рабочего места W1 с полями S1 нет. Агент и организация должны передаваться явно, не смешивать агентов одного арендатора. |"
+    },
+    {
+      "id": "W2",
+      "title": "Диалог ИИ-продавца и передача человеку",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| W2 | partial | GET conversation, takeover/release, handling, notes, reply уже есть в `ai-seller.controller.ts:153–190`, реализация `seller.service.ts`. Передача и отправка реальные действия, не кнопка имитации. BEAUTY tools разрешают только `beauty.services`: `vertical-tools.service.ts:7–10`; наличие свободного времени и создание записи агентом этим не подтверждены. |"
+    },
+    {
+      "id": "W3",
+      "title": "База знаний ИИ-продаж",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| W3 | partial | GET/POST `/ai-seller/knowledge` уже есть; prompt versions/restore, facts и agent instruction также существуют. Файлы `ai-seller.controller.ts`, `agent-instructions.controller.ts`, `seller-catalog.service.ts`; UI `apps/web/src/app/ai-agents/[id]/instruction-editor.tsx`. BEAUTY каталог через `/bot/beauty-services` (`vertical-tools.controller.ts`, `vertical-tools.service.ts`). Категории/версии статей/владелец знаний из W3 не совпадают автоматически с текущим upload-контрактом. |"
+    },
+    {
+      "id": "W4",
+      "title": "Правила автоматизации ИИ-продаж",
+      "status": "partial + requiresproviderdecision",
+      "evidence": "growth-gap.md",
+      "source_line": "| W4 | partial + requiresproviderdecision | Есть инструкции GET/PUT/generate `/ai-seller/agents/:id/instruction`, lifecycle и scoped Telegram в `agent-telegram.controller.ts`; WhatsApp/profile/prompt в `ai-seller.controller.ts`; guardrails в сервисе продавца. Нет визуального rule engine приоритетов и согласования набора W4. Выбор нового канала/модели и политика эскалации не следуют из макета. AGENTS продавца запрещает автоматически включать operator-mode по сигналу модели; текст W4 не отменяет это правило. |"
+    },
+    {
+      "id": "X1",
+      "title": "ИИ-таргетолог: рабочее место",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| X1 | partial | ИИ-реклама не только план: `apps/api/src/marketing-ads/ad-proposal.ts`, `ad-launch.ts`, UI `/marketing/ads`, `/marketing/ads/launch`; интеграция Meta уже предусмотрена. Хаб `marketing/hub.tsx` всё ещё маркирует ads как «Скоро», что отстаёт от реализации. Отдельного X1 рабочего места автономной оптимизации нет. |"
+    },
+    {
+      "id": "X2",
+      "title": "Мастер рекламной кампании",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| X2 | partial | Есть POST `/marketing/ads/proposal`, `/creatives`, `/launches`, GET assets/geo/launches/:id, `apps/api/src/marketing-ads/ad-proposal.ts`, `ad-launch.ts`; domain `packages/domain/src/marketing/ad-proposal.ts`, `ad-launch.ts`. Мастер требует действующего Meta-подключения, assets, прав ads_launch и проверки бюджета. Это реальный запуск с внешними эффектами, а не разрешённая по умолчанию симуляция X2. |"
+    },
+    {
+      "id": "X3",
+      "title": "Варианты рекламных креативов",
+      "status": "partial + requiresproviderdecision",
+      "evidence": "growth-gap.md",
+      "source_line": "| X3 | partial + requiresproviderdecision | Текст предложения и загрузка JPEG/PNG-креатива уже есть в ad-proposal/ad-launch; отдельная библиотека вариантов/генерация фото и видео отсутствует, вкладка creatives в `marketing/ads/page.tsx:274` EmptyState. Для нового media-generation провайдера нужны решение и docs; не подменять этим существующий Meta creative upload. |"
+    },
+    {
+      "id": "X4",
+      "title": "Ручное согласование бюджета и результаты",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| X4 | partial | Месячный бюджет/расходы: `/marketing/budget`; запуск `ad-launch.ts:213–290` проверяет scope, active connection, creative и budget; статусы pause/resume `/marketing/ads/campaigns/:id/*`. Отдельный контракт «заявитель не может сам согласовать заявку» и approval-очередь из X4 не найдены. Не добавлять новые деньги/пороговые правила; не считать существующее право ads_launch независимым approval workflow. |"
+    },
+    {
+      "id": "Y1",
+      "title": "Компания и филиалы",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| Y1 | partial | `/beauty-settings` сейчас часы конкретного филиала: `apps/web/src/app/beauty-settings/page.tsx`, `hours-form.tsx`; API `apps/api/src/beauty/location-hours.ts`, domain schedule. Структура филиалов `/branches`, `/branches/businesses/:id/card` в `apps/api/src/hotel/branches.ts`, `business-cards.ts`. Нельзя присвоить компании произвольные язык/контакты/rooms из Y1 без проверки действующих DTO. |"
+    },
+    {
+      "id": "Y2",
+      "title": "Команда, роли и отдельные разрешения",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| Y2 | partial | `/team`, `/team/roles`, `/employees/[id]/profile`; `/auth/access-structure`, `/auth/members/:userId/scopes`, invites/member lifecycle в `apps/api/src/accounts/accounts.controller.ts`; beauty positions/access отдельно. Рабочая основа прав есть, но индивидуальные чекбоксы Y2 должны отображать существующий capability-контракт, не новые разрешения из HTML. |"
+    },
+    {
+      "id": "Y3",
+      "title": "Уведомления и шаблоны",
+      "status": "backendmissing + requiresproviderdecision",
+      "evidence": "growth-gap.md",
+      "source_line": "| Y3 | backendmissing + requiresproviderdecision | В beauty API есть review-invitation `apps/api/src/beauty/reviews.ts`, но это не общий сервис уведомлений. Конфиг quiet hours, retry delivery, редактор клиентских шаблонов и расписание отправок из Y3 не найдены в beauty backend. Нужен утверждённый провайдер уведомлений, события/согласия/ретраи. Нельзя включать Email/SMS/WhatsApp по макету. |"
+    },
+    {
+      "id": "Y4",
+      "title": "Интеграции и подключения",
+      "status": "partial + requiresproviderdecision",
+      "evidence": "growth-gap.md",
+      "source_line": "| Y4 | partial + requiresproviderdecision | Узкие подключения уже есть: Meta `apps/api/src/marketing-budget/meta-connection.ts`, Telegram `apps/api/src/ai-seller/agent-telegram.service.ts`, WhatsApp `seller.service.ts`; это не универсальный каталог коннекторов. Channex `apps/api/src/channels` гостиничный, не готовая beauty-интеграция. Любой новый коннектор требует проектной docs и решения. Ключи не выводить/не сохранять в UI-моке. |"
+    },
+    {
+      "id": "Y5",
+      "title": "Подписка и документы без оплаты",
+      "status": "partial + requiresproviderdecision",
+      "evidence": "growth-gap.md",
+      "source_line": "| Y5 | partial + requiresproviderdecision | Жизненный цикл организации и расширение продавца есть: `apps/api/src/platform/platform.controller.ts` extensions/ai-seller, status; `ai-seller/seller.service.ts` extension-off/expired. Это не self-service подписка с тарифами/оплатой/документами Y5. Стоимость, квоты, платёжный/фискальный провайдер не выбираются этим отчётом. |"
+    },
+    {
+      "id": "Y6",
+      "title": "Безопасность и сессии",
+      "status": "partial",
+      "evidence": "growth-gap.md",
+      "source_line": "| Y6 | partial | `/auth/sessions`, POST `/auth/logout-all` в `apps/api/src/accounts/accounts.controller.ts`; пароль/reset в `apps/api/src/auth/auth.controller.ts`; audit `apps/api/src/audit/audit.module.ts`. Реальные сессии/смена пароля есть, но 2FA/TOTP/recovery codes и политика 15/30 минут из Y6 не подтверждены существующим API. Не выводить «2FA включена» без серверного факта. |"
+    },
+    {
+      "id": "Z1",
+      "title": "Конкуренты и оценка загрузки",
+      "status": "backendmissing + requiresproviderdecision",
+      "evidence": "growth-gap.md",
+      "source_line": "| Z1 | backendmissing + requiresproviderdecision | `/market` прямо ограничен гостиницами: `apps/web/src/app/market/page.tsx:87–88`, `requireFeature`; browser regression `tests/beauty-ui/unified-growth.spec.ts:175–177` ожидает `/today`. `apps/api/src/market/*` и domain гостиничной загрузки не beauty-рынок услуг. Нужны отдельные утверждённые семантика наблюдения и разрешённый источник. Не переводить открытые слоты в фактическую загрузку/выручку. |"
+    },
+    {
+      "id": "Z2",
+      "title": "Календарь контента",
+      "status": "backendmissing",
+      "evidence": "growth-gap.md",
+      "source_line": "| Z2 | backendmissing | `/marketing/content` существует как preview: `apps/web/src/app/marketing/content/page.tsx:11–15`, WeekPlan в `marketing/parts.tsx`. Пустая неделя не persisted календарь; API материалов/редплана/автопубликации не обнаружен. Сайт-версии в `marketing-site` не посты социальных сетей. |"
+    },
+    {
+      "id": "Z3",
+      "title": "Редактор поста и предпросмотр",
+      "status": "backendmissing + requiresproviderdecision",
+      "evidence": "growth-gap.md",
+      "source_line": "| Z3 | backendmissing + requiresproviderdecision | Тот же content preview; нет сущности post, revision, approval, consent-for-photo и upload-for-post контракта. `/marketing/site/assets` относится к изображениям сайта, не подтверждает social content editor. Для внешней генерации/публикации нужен провайдер; можно предложить только отдельный план локального редактора после утверждения модели. |"
+    },
+    {
+      "id": "Z4",
+      "title": "Очередь согласования и ручная передача",
+      "status": "backendmissing",
+      "evidence": "growth-gap.md",
+      "source_line": "| Z4 | backendmissing | Нет backend очереди согласования конкретной версии материала и подтверждения ручной публикации. `marketing-site` approve/version/publish относится к сайту, не универсальная редакционная очередь. Не создавать ложные статусы published или внешние ссылки из имитации. |"
+    }
+  ]
+}

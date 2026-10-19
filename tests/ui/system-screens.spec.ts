@@ -28,7 +28,7 @@ test('журнал: выборка словами, разделы чипами, 
     /T08:30:00/,
   );
   // раздел — чипом с текущим состоянием, выборка пересчитана
-  const filters = main.getByRole('navigation', { name: 'Раздел журнала' });
+  const filters = main.getByRole('navigation', { name: 'Раздел истории' });
   await filters.getByRole('link', { name: 'сотрудники', exact: true }).click();
   await expect(page).toHaveURL(/type=user/);
   await expect(filters.getByRole('link', { name: 'сотрудники', exact: true })).toHaveAttribute(
@@ -51,7 +51,7 @@ test('журнал: выборка словами, разделы чипами, 
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/audit' } });
   await page.goto('/journal?q=TEST&type=Reservation');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('История действий');
-  await expect(main.getByLabel('Поиск в журнале')).toHaveValue('TEST');
+  await expect(main.getByLabel('Поиск в истории')).toHaveValue('TEST');
   const failure = main.getByTestId('journal-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
   await expect(main.getByTestId('journal-table')).toHaveCount(0);

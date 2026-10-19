@@ -19,8 +19,11 @@ const owner = <T>(fn: () => Promise<T>) => withSignedInUser({ ...f.actors.ownerA
 let own: string;
 let branch: string;
 let other: string;
+let ownLineId: string;
+let branchLineId: string;
+let otherLineId: string;
 let before: unknown;
-const snapshot = async () => ({ appointments: await db.appointment.findMany({ where: { location: { businessId: f.businessA } }, orderBy: { id: 'asc' } }), payments: await db.restaurantCashOperation.findMany({ where: { location: { businessId: f.businessA } }, orderBy: { id: 'asc' } }) });
+const snapshot = async () => ({ appointments: await db.appointment.findMany({ where: { location: { businessId: f.businessA } }, orderBy: { id: 'asc' } }), lines: await db.appointmentLine.findMany({ where: { appointment: { location: { businessId: f.businessA } } }, orderBy: { id: 'asc' } }), payments: await db.restaurantCashOperation.findMany({ where: { location: { businessId: f.businessA } }, orderBy: { id: 'asc' } }) });
 
 describe('portal schedule warnings and anonymous cache revocation', () => {
   beforeAll(async () => {
@@ -31,6 +34,20 @@ describe('portal schedule warnings and anonymous cache revocation', () => {
     own = (await appointment(f.locationA, f.employeeA, '2035-01-08T05:00:00Z')).id;
     branch = (await appointment(f.locationB, f.employeeA, '2035-01-09T05:00:00Z')).id;
     other = (await appointment(f.locationA, f.employeeB, '2035-01-08T05:00:00Z')).id;
+    // Canonical warnings identify individual service lines, not the shared visit envelope.
+    // Derive IDs through the actual FK and assert the complete intended synthetic relation;
+    // do not replace expected UUIDs with arbitrary observed warning IDs.
+    const lineId = async (appointmentId: string, employeeId: string) => {
+      const lines = await db.appointmentLine.findMany({ where: { appointmentId }, include: { appointment: true }, orderBy: { position: 'asc' } });
+      expect(lines).toHaveLength(1);
+      const line = lines[0]!;
+      expect(line).toMatchObject({ appointmentId, employeeId, serviceId: f.serviceId, position: 0, startsAt: line.appointment.startsAt, endsAt: line.appointment.endsAt });
+      expect(line.id).not.toBe(appointmentId);
+      return line.id;
+    };
+    ownLineId = await lineId(own, f.employeeA);
+    branchLineId = await lineId(branch, f.employeeA);
+    otherLineId = await lineId(other, f.employeeB);
     await appointment(f.locationA, f.employeeA, '2035-01-08T07:00:00Z', 'CANCELLED');
     for (const locationId of [f.locationA, f.locationB]) await db.workingHours.createMany({ data: Array.from({ length: 7 }, (_, weekday) => ({ employeeId: f.employeeA, locationId, weekday, timeFrom: new Date('1970-01-01T00:00:00Z'), timeTo: new Date('1970-01-01T23:59:00Z') })) });
     await db.restaurantCashOperation.create({ data: { locationId: f.locationA, kind: 'INCOME', method: 'CASH', amount: 1000n, currency: 'KZT', appointmentId: own, createdById: f.actors.ownerA.userId } });
@@ -45,9 +62,9 @@ describe('portal schedule warnings and anonymous cache revocation', () => {
     const old = dto.weekRevision;
     expect(dto.scheduleConflicts.items).toEqual([]);
     dto = await owner(() => service.mutate(f.employeeA, 'week', { intervals: [], expectedRevision: old }));
-    expect(dto.scheduleConflicts.items.map(a => a.id)).toEqual([own]);
+    expect(dto.scheduleConflicts.items.map(a => a.id)).toEqual([ownLineId]);
     expect(dto.scheduleConflicts.items[0]).toMatchObject({ reason: 'OUTSIDE_WORKING_HOURS', locationId: f.locationA });
-    expect(dto.scheduleConflicts.items.map(a => a.id)).not.toContain(other);
+    expect(dto.scheduleConflicts.items.map(a => a.id)).not.toContain(otherLineId);
     expect(JSON.stringify(dto.scheduleConflicts)).not.toContain('Synthetic private customer');
     await expect(owner(() => service.mutate(f.employeeA, 'week', { intervals: [], expectedRevision: old }))).rejects.toThrow();
     expect(await snapshot()).toEqual(before);
@@ -58,7 +75,7 @@ describe('portal schedule warnings and anonymous cache revocation', () => {
     dto = await owner(() => service.mutate(f.employeeA, 'week', { intervals: Array.from({ length: 7 }, (_, weekday) => ({ weekday, timeFrom: '00:00', timeTo: '23:59' })), expectedRevision: dto.weekRevision }));
     expect(dto.scheduleConflicts.items).toEqual([]);
     dto = await owner(() => service.mutate(f.employeeA, 'time-off', { dateFrom: '2035-01-08', dateTo: '2035-01-08', reason: 'Synthetic leave' }));
-    expect(dto.scheduleConflicts.items.map(a => a.id)).toEqual([own, branch]);
+    expect(dto.scheduleConflicts.items.map(a => a.id)).toEqual([ownLineId, branchLineId]);
     expect(dto.scheduleConflicts.items.every(a => a.reason === 'TIME_OFF')).toBe(true);
     expect(dto.scheduleConflicts.items[1]).toMatchObject({ date: '2035-01-08', timezone: 'Pacific/Honolulu', locationId: f.locationB });
     dto = await owner(() => service.mutate(f.employeeA, 'delete-time-off', {}, dto.timeOffs[0]!.id));

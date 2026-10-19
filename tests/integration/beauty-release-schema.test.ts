@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { BEAUTY_PREPARATION_NAMES } from '../tools/beauty-release-preparation';
@@ -94,7 +94,11 @@ describe('Beauty schema release on a separate owned canonical database', () => {
     mkdirSync(evidence,{recursive:true});
     const config = resolve(evidence,'prisma.config.mjs');
     writeFileSync(config,`export default { schema: ${JSON.stringify(resolve(root,'packages/database/prisma/schema.prisma'))}, datasource: { url: process.env.BEAUTY_SCHEMA_DIFF_URL } };\n`);
-    const cli = process.env.BEAUTY_PRISMA_CLI || createRequire(resolve(root,'packages/database/prisma.config.ts')).resolve('prisma');
+    // Resolve the declared executable, not Prisma's main entry (which can be a types-only export).
+    const packagePath = createRequire(resolve(root,'packages/database/prisma.config.ts')).resolve('prisma/package.json');
+    const prismaPackage = JSON.parse(readFileSync(packagePath, 'utf8')) as { bin: { prisma: string } };
+    expect(typeof prismaPackage.bin.prisma).toBe('string');
+    const cli = process.env.BEAUTY_PRISMA_CLI || resolve(dirname(packagePath), prismaPackage.bin.prisma);
     const result = spawnSync(process.execPath,[cli,'migrate','diff','--config',config,'--from-config-datasource','--to-schema',resolve(root,'packages/database/prisma/schema.prisma'),'--exit-code','--script'],
       {encoding:'utf8',env:{...process.env,BEAUTY_SCHEMA_DIFF_URL:databaseUrl},timeout:30000});
     writeFileSync(resolve(evidence,'prisma-diff.log'),result.stdout+result.stderr);

@@ -85,11 +85,11 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Exact license scenario, three repetitions, no retries or weakened axe
         env:
-          PLAYWRIGHT_JSON_OUTPUT_NAME: stage1-license-results.json
+          PLAYWRIGHT_JSON_OUTPUT_FILE: ${{ github.workspace }}/stage1-license-results.json
         run: >-
           npx playwright test --config tests/ui/playwright.config.ts site-builder-licensed.spec.ts
           --grep 'главный администратор выдаёт' --workers=1 --repeat-each=3
-          --retries=0 --forbid-only --trace=on --reporter=list,json
+          --retries=0 --forbid-only --trace=on --reporter=list,json --output=test-results/license-focused
       - name: Require exactly three real passes with zero skips and retries
         run: |
           python3 - <<'PY'
@@ -108,10 +108,10 @@ jobs:
           PY
       - name: Complete licensed-builder spec with unchanged accessibility rules
         env:
-          PLAYWRIGHT_JSON_OUTPUT_NAME: stage1-license-full-results.json
+          PLAYWRIGHT_JSON_OUTPUT_FILE: ${{ github.workspace }}/stage1-license-full-results.json
         run: >-
           npx playwright test --config tests/ui/playwright.config.ts site-builder-licensed.spec.ts
-          --workers=1 --retries=0 --forbid-only --reporter=list,json
+          --workers=1 --retries=0 --forbid-only --reporter=list,json --output=test-results/license-full
       - name: Require complete licensed-builder spec to be genuinely green
         run: |
           python3 - <<'PY'

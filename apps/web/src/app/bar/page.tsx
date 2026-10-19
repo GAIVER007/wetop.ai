@@ -86,7 +86,8 @@ export default async function BarPage({
   const me = await requireFeature('/bar');
   // бар филиала (ADR-178): «в счёт гостя» только у гостиницы; ресторан и салон продают в кассу филиала (§45, §48)
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
-  const sectionName = vertical === 'BEAUTY' ? 'Склад' : 'Бар';
+  // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
+  const sectionName = 'Склад';
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
   const [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods, today, shell] =

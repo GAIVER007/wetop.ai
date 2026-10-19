@@ -50,9 +50,10 @@ async function readySalon(page: Page, request: APIRequestContext) {
     'Услуга создана. Включите её в выбранном филиале ниже.',
   );
   await page.goto('/beauty/services');
+  // услуги салона показаны карточками каталога, не строками таблицы
   await main
-    .getByRole('row')
-    .filter({ hasText: 'Маникюр' })
+    .locator('[data-service-list="catalog"] .beauty-service-item')
+    .filter({ has: main.getByText('Маникюр', { exact: true }) })
     .getByRole('button', { name: 'Изменить' })
     .click();
   panel = page.getByRole('dialog');

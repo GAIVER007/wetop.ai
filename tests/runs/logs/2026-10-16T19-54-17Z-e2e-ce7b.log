@@ -1,4 +1,4 @@
-# Сквозные (e2e) · 17.10.2026 00:54 Алматы · srv1719674
+# Сквозные (e2e) · 17.10.2026 00:54 Алматы · <сервер>
 # коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 43
 # npx playwright test --workers=2 --reporter=list,json '--config' '/srv/hermes/workspace/wetop-portal-release-evidence-61af/quality-playwright.config.cjs' '--workers=1' '--grep' 'recovers from definitive'
 

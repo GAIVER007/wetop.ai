@@ -1,4 +1,4 @@
-# Модульные (unit) · 18.10.2026 23:18 Алматы · srv1719674
+# Модульные (unit) · 18.10.2026 23:18 Алматы · <сервер>
 # коммит 5b409d1 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 4
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-18-47Z-unit-d657.json' 'apps/api/src/beauty/appointment-status.test.ts' 'apps/web/src/app/customers/actions.test.ts' 'apps/web/src/app/finance/period-continuity.test.ts' 'apps/web/src/app/journal/labels.test.ts' '--maxWorkers=2'
 

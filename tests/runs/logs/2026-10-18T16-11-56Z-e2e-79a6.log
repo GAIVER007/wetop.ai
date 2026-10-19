@@ -1,4 +1,4 @@
-# Сквозные (e2e) · 18.10.2026 21:11 Алматы · srv1719674
+# Сквозные (e2e) · 18.10.2026 21:11 Алматы · <сервер>
 # коммит 9ef34a2 (fix/salon-mobile-followup-20261018)
 # npx playwright test --workers=2 --reporter=list,json '--config' '/opt/data/workspace/wetop-browser-readonly-check/schedule-test.config.ts' 'mobile-calendar-week.spec.ts' '--grep' '360 light' '--workers=1'
 [WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.

@@ -1,4 +1,4 @@
-# Модульные (unit) · 18.10.2026 13:05 Алматы · srv1719674
+# Модульные (unit) · 18.10.2026 13:05 Алматы · <сервер>
 # коммит fb0e786 (fix/owner-report-period-20261018), незакоммиченных файлов набора: 8
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T08-05-41Z-unit-c074.json' 'apps/web/src/app/today/unified-owner.test.ts' 'apps/web/src/app/finance/period-continuity.test.ts' 'apps/web/src/app/restaurant-finance/period-continuity.test.ts' 'apps/web/src/app/growth/business-sales.test.ts' 'apps/web/src/lib/report-query.test.ts' '--maxWorkers=2'
 

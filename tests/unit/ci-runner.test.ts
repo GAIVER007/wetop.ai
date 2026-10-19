@@ -69,7 +69,8 @@ describe('свой раннер CI', () => {
       // свой раннер на боевом сервере 03.10.2026 поднимал нагрузку до 85 и ронял стойку
       expect(run, file).not.toContain('self-hosted');
       const on = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
-      expect(on, file).not.toMatch(/pull_request/);
+      // запрос на слияние гоняет только гейт: обязательная проверка защиты main (разбор ментора 19.10.2026)
+      if (file !== 'release-checks.yml') expect(on, file).not.toMatch(/pull_request/);
       // автовыкладка (ADR-152, решение владельца 09.10.2026): пуш в main гонит ровно один workflow, гейт;
       // остальным на каждый пуш нельзя, бесплатных минут GitHub хватало на неделю (21.09.2026)
       if (file !== 'release-checks.yml') expect(on, file).not.toMatch(/branches: \[[^\]]*\bmain\b/);
@@ -87,6 +88,8 @@ describe('свой раннер CI', () => {
     expect(triggers).toContain('workflow_dispatch:');
     // c 09.10.2026 (ADR-152) гейт идёт и на пуш кода в main: зелёный гейт перематывает release сам
     expect(triggers).toMatch(/push:\n\s+branches: \[release-candidate, main\]/);
+    // c 19.10.2026 и на запросах в main, без фильтра путей: иначе обязательный статус ждёт вечно
+    expect(triggers).toMatch(/pull_request:\n\s+branches: \[main\]\n\s+push:/);
     for (const name of ['fast', 'bot', 'db', 'ui-shard', 'ui-vertical', 'ui-auth', 'ui'])
       expect(job(name), name).toMatch(/runs-on: ubuntu-24\.04/);
     const fast = withoutComments(job('fast'));
@@ -234,6 +237,9 @@ describe('свой раннер CI', () => {
       const run = withoutComments(AUTO);
       expect(run).toContain("github.event.workflow_run.conclusion == 'success'");
       expect(run).toContain("github.event.workflow_run.head_branch == 'main'");
+      // зелёный запрос на слияние release не двигает: только прогон от пуша в main
+      expect(run).toContain("github.event.workflow_run.event == 'push'");
+      expect(run).toContain('&event=push&');
       expect(run).toContain('release-checks.yml/runs?head_sha=');
       expect(run).toContain('merge-base --is-ancestor "$target" origin/main');
       expect(run).toContain('merge-base --is-ancestor "$release" "$target"');

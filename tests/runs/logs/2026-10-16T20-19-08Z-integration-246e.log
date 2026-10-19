@@ -1,4 +1,4 @@
-# Интеграционные (integration) · 17.10.2026 01:19 Алматы · srv1719674
+# Интеграционные (integration) · 17.10.2026 01:19 Алматы · <сервер>
 # коммит d02dcbf (feat/employee-portal-release-20261016)
 # npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T20-19-08Z-integration-246e.json' 'tests/integration/closed-folio-http.test.ts' 'tests/integration/reset-token-http.test.ts' 'tests/integration/rls-isolation.test.ts'
 

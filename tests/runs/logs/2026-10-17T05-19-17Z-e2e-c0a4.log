@@ -1,4 +1,4 @@
-# Сквозные (e2e) · 17.10.2026 10:19 Алматы · srv1719674
+# Сквозные (e2e) · 17.10.2026 10:19 Алматы · <сервер>
 # коммит a6c7381 (fix/supplier-payment-retry-20261017)
 # npx playwright test --workers=2 --reporter=list,json '--config' 'tests/supplier-component/playwright.config.ts' '--workers=1'
 

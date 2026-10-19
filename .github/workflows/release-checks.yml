@@ -4,16 +4,20 @@
 # нет: 03.10.2026 проверки там поднимали нагрузку до 85 при 2 ядрах и роняли стойку.
 #
 # Запуск (ADR-152, решение владельца 09.10.2026, автовыкладка): пуш кода в `main` (слияние PR), пуш в
-# `release-candidate` или кнопка Actions → release-checks → Run workflow. Зелёный гейт на `main` перематывает
+# `release-candidate`, кнопка Actions → release-checks → Run workflow и, с 19.10.2026 по разбору ментора, каждый
+# запрос на слияние в `main`: это обязательная проверка защиты ветки, вливаем только зелёное. На запросе фильтра
+# путей нет: проверка, которая не запустилась, держит обязательный статус в ожидании навсегда. Зелёный гейт на `main` перематывает
 # `release` сам (auto-release.yml), дальше сервер забирает и выкладывает (ADR-080). Документы гейт не гоняют
-# (paths-ignore): выкладки они не требуют. Один прогон стоит около 95 минут из 2000 бесплатных в месяц
-# (бюджет Actions $0 со «Stop usage»); вершины main встают в очередь concurrency ниже. Свои наборы
+# (paths-ignore) на пуше: выкладки они не требуют. Репозиторий открытый (решение владельца 19.10.2026), минуты
+# раннеров GitHub для него бесплатны; вершины main встают в очередь concurrency ниже. Свои наборы
 # сессии по-прежнему гоняют сами до слияния (TESTING.md).
 # Секретов здесь нет и не будет (SECURITY.md §3).
 name: release-checks
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   push:
     branches: [release-candidate, main]
     paths-ignore:
@@ -496,7 +500,7 @@ jobs:
         if: always()
         run: |
           mkdir -p tests/runs/runtime-audit/journal
-          git ls-files --others --exclude-standard -- tests/runs/entries tests/runs/logs | xargs -r cp -t tests/runs/runtime-audit/journal
+          git ls-files --others --ignored --exclude-standard -- tests/runs/entries tests/runs/logs | xargs -r cp -t tests/runs/runtime-audit/journal
           find test-results -name error-context.md -exec sh -c 'd="tests/runs/runtime-audit/failures/$(basename "$(dirname "$1")")"; mkdir -p "$d"; cp "$1" "$d/"' _ {} \; 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         if: always()

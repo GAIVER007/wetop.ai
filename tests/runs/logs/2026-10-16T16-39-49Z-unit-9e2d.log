@@ -1,4 +1,4 @@
-# Модульные (unit) · 16.10.2026 21:39 Алматы · srv1719674
+# Модульные (unit) · 16.10.2026 21:39 Алматы · <сервер>
 # коммит eaf0b57 (fix/calendar-release-20261016), незакоммиченных файлов набора: 4
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T16-39-49Z-unit-9e2d.json' 'apps/api/src/beauty' 'apps/web/src/app/beauty' 'apps/web/src/components/employee-workspace' 'packages/domain/src/beauty' 'tests/unit/design' '--maxWorkers=1'
 

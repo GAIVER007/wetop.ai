@@ -1,4 +1,4 @@
-# Модульные (unit) · 18.10.2026 14:28 Алматы · srv1719674
+# Модульные (unit) · 18.10.2026 14:28 Алматы · <сервер>
 # коммит 23d0ede (fix/owner-report-period-20261018), незакоммиченных файлов набора: 3
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T09-28-29Z-unit-ca16.json' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/components/quick-report.test.ts' '--maxWorkers=2'
 

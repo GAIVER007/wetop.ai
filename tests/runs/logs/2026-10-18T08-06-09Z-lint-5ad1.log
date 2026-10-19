@@ -1,4 +1,4 @@
-# Линтер (lint) · 18.10.2026 13:06 Алматы · srv1719674
+# Линтер (lint) · 18.10.2026 13:06 Алматы · <сервер>
 # коммит fb0e786 (fix/owner-report-period-20261018), незакоммиченных файлов набора: 8
 # npx eslint . 'apps/web/src/lib/finance-period.ts' 'apps/web/src/app/today/unified-owner.tsx' 'apps/web/src/app/today/unified-owner.test.ts' 'apps/web/src/app/finance/page.tsx' 'apps/web/src/app/finance/beauty-finance.tsx' 'apps/web/src/app/finance/period-continuity.test.ts' 'apps/web/src/app/restaurant-finance/page.tsx' 'apps/web/src/app/restaurant-finance/period-continuity.test.ts'
 

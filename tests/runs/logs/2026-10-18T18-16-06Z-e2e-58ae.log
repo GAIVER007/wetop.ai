@@ -1,4 +1,4 @@
-# Сквозные (e2e) · 18.10.2026 23:16 Алматы · srv1719674
+# Сквозные (e2e) · 18.10.2026 23:16 Алматы · <сервер>
 # коммит 5b409d1 (feat/salon-draft-implementation-20261018)
 # npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/schedule-persistence.spec.ts' '--workers=1'
 [WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.

@@ -1,4 +1,4 @@
-# Интеграционные (integration) · 16.10.2026 22:43 Алматы · srv1719674
+# Интеграционные (integration) · 16.10.2026 22:43 Алматы · <сервер>
 # коммит eb65955 (private-verified-candidate)
 # npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T17-43-50Z-integration-69cc.json' 'tests/integration/rls-isolation.test.ts' '--maxWorkers=1'
 

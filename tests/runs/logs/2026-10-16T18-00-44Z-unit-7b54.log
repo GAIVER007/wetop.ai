@@ -1,4 +1,4 @@
-# Модульные (unit) · 16.10.2026 23:00 Алматы · srv1719674
+# Модульные (unit) · 16.10.2026 23:00 Алматы · <сервер>
 # коммит 61af7b9 (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 38
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T18-00-44Z-unit-7b54.json' '--maxWorkers=1'
 

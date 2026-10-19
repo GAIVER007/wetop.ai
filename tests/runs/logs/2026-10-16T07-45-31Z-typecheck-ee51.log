@@ -1,4 +1,4 @@
-# Типы (typecheck) · 16.10.2026 12:45 Алматы · srv1719674
+# Типы (typecheck) · 16.10.2026 12:45 Алматы · <сервер>
 # коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 18
 # npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
 

@@ -1,4 +1,4 @@
-# Интеграционные (integration) · 16.10.2026 21:39 Алматы · srv1719674
+# Интеграционные (integration) · 16.10.2026 21:39 Алматы · <сервер>
 # коммит eaf0b57 (fix/calendar-release-20261016)
 # npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T16-39-59Z-integration-bacf.json' 'tests/integration/beauty-appointment-payment.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/beauty-branch.test.ts' 'tests/integration/beauty-catalog.test.ts' 'tests/integration/beauty-domain.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/employee-workspace.test.ts' 'tests/integration/mv4-beauty.test.ts' '--maxWorkers=1'
 

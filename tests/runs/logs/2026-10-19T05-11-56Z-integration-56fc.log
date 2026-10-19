@@ -1,4 +1,4 @@
-# Интеграционные (integration) · 19.10.2026 10:11 Алматы · srv1719674
+# Интеграционные (integration) · 19.10.2026 10:11 Алматы · <сервер>
 # коммит 445a8fc (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 12
 # npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T05-11-56Z-integration-56fc.json' 'tests/integration/db-restore-prod.test.ts' '--maxWorkers=1'
 

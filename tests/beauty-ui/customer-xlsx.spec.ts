@@ -22,7 +22,7 @@ test('customers: real XLSX preview, import, duplicate detection and filtered exp
   await page.goto('/customers');
   await page.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Импортировать клиентов', exact: true });
-  const upload = dialog.locator('input[type="file"]');
+  const upload = dialog.getByLabel('CSV или XLSX', { exact: true });
   const source = file([
     ['Имя', 'Телефон'],
     ['Тестовый Первый', '+77000000001'],

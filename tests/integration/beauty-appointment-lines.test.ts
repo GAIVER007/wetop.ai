@@ -763,14 +763,25 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
     const canonicalId = first.appointments.find((row) => row.startMinutes === 1020)!.customer.id;
     const canonical = await db.customer.findUniqueOrThrow({ where: { id: canonicalId },
       select: { firstName: true, lastName: true, phone: true, phoneNormalized: true } });
-    const differentlyNamed = await asOwner(() => appointments.create({
+    // DECISIONS BEAUTY-APPOINTMENT-CUSTOMER-NAME-20261019 (owner-approved): the same phone under another full name
+    // is a conflict; the user must pick the existing customer. Nothing is written and the card is not renamed.
+    await expect(asOwner(() => appointments.create({
       startsAt: at('17:00'),
       firstName: 'Other',
       lastName: 'Client',
       phone: '+7 (700) 123-45-67',
       items: [{ employeeId: own.employeeB, serviceId: own.serviceB }],
+    }))).rejects.toThrow(/другим именем/);
+    expect(await db.appointment.count({
+      where: { locationId: own.location, startsAt: new Date(at('17:00')), lines: { some: { employeeId: own.employeeB } } },
+    })).toBe(0);
+    // Picking the existing customer explicitly still books on the canonical card.
+    const picked = await asOwner(() => appointments.create({
+      startsAt: at('17:00'),
+      customerId: canonicalId,
+      items: [{ employeeId: own.employeeB, serviceId: own.serviceB }],
     }));
-    expect(differentlyNamed.appointments.find((row) => row.startMinutes === 1020 && row.employeeId === own.employeeB)?.customer.id)
+    expect(picked.appointments.find((row) => row.startMinutes === 1020 && row.employeeId === own.employeeB)?.customer.id)
       .toBe(canonicalId);
     expect(await db.customer.findUniqueOrThrow({ where: { id: canonicalId },
       select: { firstName: true, lastName: true, phone: true, phoneNormalized: true } })).toEqual(canonical);

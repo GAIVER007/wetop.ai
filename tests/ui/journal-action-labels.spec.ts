@@ -11,7 +11,7 @@ test('события филиалов и проверки остатков по�
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
   await page.goto('/journal');
-  await page.getByText('Фильтры журнала', { exact: true }).click();
+  await page.getByText('Фильтры истории', { exact: true }).click();
   const actions = page.getByRole('combobox', { name: 'Действие', exact: true });
   await expect(actions.getByRole('option', { name: 'Салон создан', exact: true })).toHaveAttribute(
     'value',

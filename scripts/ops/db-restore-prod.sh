@@ -37,6 +37,7 @@ dump="${1:-}"
   fail "рабочая база будет заменена копией $(basename "$dump"), всё записанное после неё пропадёт. Подтверждение: второй аргумент --yes-replace-production" 2
 [ -r "$dump" ] || fail "копия не читается: $dump" 2
 [ -d "$MIGRATIONS" ] || fail "нет папки миграций $MIGRATIONS (RESTORE_MIGRATIONS_DIR)" 2
+[ -r "$ROOT/scripts/ops/restore-mixed-domain-grants.sql" ] || fail "нет проверенного ACL companion для смешанных миграций" 2
 
 # Значение ключа из .env без вывода на экран, как в db-backup.sh
 env_value() {
@@ -115,6 +116,9 @@ done < <(find "$MIGRATIONS" -mindepth 2 -maxdepth 2 -name migration.sql | sort |
     cat "$f"
     printf '\n'
   done
+  # Mixed schema migrations cannot be replayed: restore only their reviewed ACL statements.
+  cat "$ROOT/scripts/ops/restore-mixed-domain-grants.sql"
+  printf '\n'
 } >"$work/restore.sql" 2>"$work/err" || {
   mask "$work/err"
   fail "pg_restore не прочитал копию: рабочая база не тронута"

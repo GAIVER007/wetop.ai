@@ -33,6 +33,13 @@ describe('Пояснение недоступной неявки', () => {
   it('не показывает пояснение, когда сервер разрешил неявку', () => {
     expect(render({ ...row, next: [...row.next, 'NO_SHOW'] })).not.toContain('Можно после начала визита');
   });
+  it('журнал передаёт право изменения как canUpdate, без canEdit: пояснение всё равно видно', () => {
+    const html = renderToStaticMarkup(createElement(AppointmentCard, {
+      day, row, canUpdate: true, canCreate: true, canPay: true,
+      scopeKey: JSON.stringify({ organizationId: 'org', businessId: 'business', locationId: 'location' }), onDone() {},
+    }));
+    expect(html).toContain('Можно после начала визита');
+  });
   it('не показывает ограничение для завершённого визита или режима чтения', () => {
     expect(render({ ...row, status: 'DONE', next: [] })).not.toContain('Можно после начала визита');
     expect(render(row, false)).not.toContain('Можно после начала визита');

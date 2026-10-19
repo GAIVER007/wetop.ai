@@ -12,7 +12,7 @@ const initial: BarActionResult = { error: null, ok: 0 };
 
 /** «Быстрая продажа» одной строкой (макет владельца 09.10.2026): товар, количество, оплата, «Продать».
  * Восстановление никогда не отправляет команду. Повтор вручную сохраняет исходный ключ и payload (D-KEY). */
-export function SaleForm({ stock, context, methods, recoveryScope }: { stock: BarStockRow[]; context: BarFormContext; methods: string[]; recoveryScope: string[] }) {
+export function SaleForm({ stock, context, methods, recoveryScope, expiresAt }: { stock: BarStockRow[]; context: BarFormContext; methods: string[]; recoveryScope: string[]; expiresAt: string }) {
   const [state, setState] = useState(initial);
   const [pending, setPending] = useState(false);
   const [controller, setController] = useState<ReturnType<typeof createRetailRecovery> | null>(null);
@@ -21,12 +21,15 @@ export function SaleForm({ stock, context, methods, recoveryScope }: { stock: Ba
   const active = useRef<ReturnType<typeof createRetailRecovery> | null>(null);
   const submitting = useRef(false);
   const slot = JSON.stringify(recoveryScope);
+  // срок сдвигается каждым действием (Q-153 б): форму пересоздаёт только смена сессии в slot, срок читается на месте
+  const expiry = useRef(expiresAt);
+  expiry.current = expiresAt;
   useEffect(() => {
     try {
       const parts = JSON.parse(slot) as string[];
-      const expiry = Date.parse(parts[6]!);
-      if (!Number.isFinite(expiry)) throw new Error('Неизвестен срок сессии. Войдите заново.');
-      const next = createRetailRecovery(sessionStorage, retailScope(parts), Date.now, () => crypto.randomUUID(), expiry, (record) => { if (active.current === next) setIntent(record); });
+      const until = Date.parse(expiry.current);
+      if (!Number.isFinite(until)) throw new Error('Неизвестен срок сессии. Войдите заново.');
+      const next = createRetailRecovery(sessionStorage, retailScope(parts), Date.now, () => crypto.randomUUID(), until, (record) => { if (active.current === next) setIntent(record); });
       const saved = next.read();
       active.current = next;
       setController(next); setIntent(saved); setState(initial);

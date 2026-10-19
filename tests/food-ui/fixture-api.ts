@@ -37,6 +37,8 @@ let role: MembershipRole = 'OWNER';
 const calls: string[] = [];
 const creationKeys: string[] = [];
 const sessionExpiresAt = new Date(Date.now() + 24 * 3600_000).toISOString();
+// Как настоящий /auth/me (#719): время выдачи сессии не меняется при продлении, по нему бар узнаёт ту же сессию
+const sessionIssuedAt = new Date().toISOString();
 let unavailable = false;
 let failCreate = false;
 await db.organization.create({ data: { id: org, name: `MV7-browser-${org}`, status: 'ACTIVE' } });
@@ -58,6 +60,7 @@ class FixtureController {
         organization: await db.organization.findUniqueOrThrow({ where: { id: org } }),
       },
       expiresAt: sessionExpiresAt,
+      sessionIssuedAt,
       context: {
         businessId: currentBusinessId(),
         locationId: currentLocationId(),

@@ -306,7 +306,7 @@ export default async function BarPage({
               {
                 id: 'bar-retail',
                 label: 'Продажа напрямую',
-                content: <SaleForm key={JSON.stringify([me.user?.id, me.context, me.expiresAt, context])} stock={stock.value} context={context} methods={paymentMethods.value.sale} recoveryScope={[me.user?.organizationId ?? '', me.context?.businessId ?? '', me.context?.locationId ?? '', me.user?.id ?? '', context.propertyId, context.currency, me.expiresAt ?? '']} />,
+                content: <SaleForm key={JSON.stringify([me.user?.id, me.context, me.sessionIssuedAt, context])} stock={stock.value} context={context} methods={paymentMethods.value.sale} recoveryScope={[me.user?.organizationId ?? '', me.context?.businessId ?? '', me.context?.locationId ?? '', me.user?.id ?? '', context.propertyId, context.currency, me.sessionIssuedAt ?? '']} expiresAt={me.expiresAt ?? ''} />,
               },
               ...(vertical !== 'HOSPITALITY' ? [] : [{
                 id: 'bar-folio',

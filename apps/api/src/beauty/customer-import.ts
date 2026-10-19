@@ -236,6 +236,8 @@ export class BeautyCustomerImportController {
     return this.service.preview(body);
   }
 
+  // импорт пишет клиентов: только владелец (решение владельца 19.10.2026); проверка файла выше доступна стойке
+  @Access('owner')
   @BeautyAccess('customers', 'create')
   @Post('import')
   @HttpCode(200)

@@ -3,10 +3,11 @@
  * `--bg` (design/tokens.json → tokens.css): манифест читает браузер без CSS, поэтому значения здесь, а совпадение с
  * токенами держит `app/manifest.test.ts`.
  */
-export const PWA_THEME = { light: '#085fba', dark: '#48a5ff', background: '#e9f0f8' } as const;
+export const PWA_THEME = { light: '#085fba', dark: '#48a5ff', background: '#e9f0f8' } as const; // slop-allow: color-literal манифест и значок браузер читает без CSS, токенов там нет; совпадение с токенами держит manifest.test.ts
 
 /** Синий фон знака из `app/icon.svg` и его буква «W» */
-const MARK_FILL = '#2646df';
+const MARK_FILL = '#2646df'; // slop-allow: color-literal цвет знака как в app/icon.svg, картинка значка рисуется без CSS
+const MARK_INK = '#fff'; // slop-allow: color-literal белая буква знака как в app/icon.svg
 const MARK_W = 'm10 14 5 21h5l4-13 4 13h5l5-21h-5l-3 14-4-14h-4l-4 14-3-14Z';
 
 /**
@@ -17,7 +18,7 @@ export function Mark({ size, maskable = false }: { size: number; maskable?: bool
   const glyph = maskable ? size * 0.6 : size;
   return (
     <div
-      style={{
+      style={{ // slop-allow: inline-style ImageResponse рисует значок без CSS-файлов, размер из аргумента
         width: size,
         height: size,
         display: 'flex',
@@ -28,7 +29,7 @@ export function Mark({ size, maskable = false }: { size: number; maskable?: bool
       }}
     >
       <svg width={glyph} height={glyph} viewBox="0 0 48 48">
-        <path d={MARK_W} fill="#fff" />
+        <path d={MARK_W} fill={MARK_INK} />
       </svg>
     </div>
   );

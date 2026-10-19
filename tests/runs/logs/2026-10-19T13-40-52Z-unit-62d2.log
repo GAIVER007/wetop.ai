@@ -1,0 +1,67 @@
+# Модульные (unit) · 19.10.2026 18:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 326b1fb (claude/salon-zapis-p0), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-40-52Z-unit-62d2.json' 'apps/api/src/beauty/appointment-period.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ❯ |unit| apps/api/src/beauty/appointment-period.test.ts (11 tests | 1 failed) 10ms
+   ✓ Beauty appointment period (8)
+     ✓ defaults an omitted period to today in the selected salon timezone 3ms
+     ✓ отклоняет неверный период undefined..2026-10-12 1ms
+     ✓ отклоняет неверный период 2026-10-12..undefined 0ms
+     ✓ отклоняет неверный период 2026-02-30..2026-03-01 0ms
+     ✓ отклоняет неверный период 12.10.2026..2026-10-12 0ms
+     ✓ отклоняет неверный период 2026-10-13..2026-10-12 0ms
+     ✓ отклоняет неверный период 2026-01-01..2027-01-02 0ms
+     ✓ читает до 366 дней одним запросом и не загружает календарные справочники 1ms
+   ✓ C2 (паритет с zapis.kz): автор и источник в проекции записи (2)
+     ✓ отдаёт source и имя автора, когда они есть в строке 0ms
+     ✓ у старой записи без автора поля отдаются пустыми, а не падают 0ms
+   ❯ A4 (паритет с zapis.kz): платежи записи в проекции (1)
+     × отдаёт список платежей с видом, способом, суммой и временем 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-period.test.ts > A4 (паритет с zapis.kz): платежи записи в проекции > отдаёт список платежей с видом, способом, суммой и временем
+AssertionError: expected undefined to deeply equal [ { id: 'op-1', …(4) }, …(1) ]
+
+- Expected:
+[
+  {
+    "amountMinor": "5000",
+    "at": "2026-10-12T12:40:00.000Z",
+    "id": "op-1",
+    "kind": "INCOME",
+    "method": "CASH",
+  },
+  {
+    "amountMinor": "1000",
+    "at": "2026-10-12T13:00:00.000Z",
+    "id": "op-2",
+    "kind": "EXPENSE",
+    "method": "CASH",
+  },
+]
+
++ Received:
+undefined
+
+ ❯ apps/api/src/beauty/appointment-period.test.ts:124:74
+    122|     }]);
+    123|     const result = await service.period('2026-10-12', '2026-10-12');
+    124|     expect((result.appointments[0] as { payments: unknown[] }).payment…
+       |                                                                          ^
+    125|       { id: 'op-1', kind: 'INCOME', method: 'CASH', amountMinor: '5000…
+    126|       { id: 'op-2', kind: 'EXPENSE', method: 'CASH', amountMinor: '100…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  06:40:54
+   Duration  1.28s (transform 68%, import 31%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-40-52Z-unit-62d2.json
+
+# код выхода 1 · 3 с

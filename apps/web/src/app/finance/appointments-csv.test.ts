@@ -46,11 +46,11 @@ describe('выгрузка записей салона (Q-BS-6)', () => {
     ]);
     expect(csv.startsWith('\uFEFF')).toBe(true);
     const lines = csv.slice(1).split('\r\n');
-    expect(lines[0]).toBe('Дата;Время;Мастер;Услуга;Статус;Валюта;Цена;Оплачено;Возвращено');
+    expect(lines[0]).toBe('Дата;Время;Мастер;Услуга;Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено');
     expect(lines[1]).toBe(
-      "14.10.2026;10:00;'=Мастер Дина;Стрижка;Завершена;KZT;8000,00;8000,00;300,00",
+      "14.10.2026;10:00;'=Мастер Дина;Стрижка;Завершена;Стойка;;KZT;8000,00;8000,00;300,00",
     );
-    expect(lines[2]).toBe("14.10.2026;11:30;'=Мастер Дина;Стрижка;Отменена;KZT;8000,00;0,00;0,00");
+    expect(lines[2]).toBe("14.10.2026;11:30;'=Мастер Дина;Стрижка;Отменена;Стойка;;KZT;8000,00;0,00;0,00");
     expect(csv).not.toContain('Анна');
     expect(csv).not.toContain('701');
   });
@@ -64,10 +64,10 @@ it('exports each visit currency and all service/master names without relabelling
   ] as NonNullable<typeof usd.items>;
   const csv = appointmentsCsv([day('2026-10-14', [usd, row({ id: 'kzt' })])]);
   expect(csv.split('\r\n')[0]).toBe(
-    '\uFEFFДата;Время;Мастер;Услуга;Статус;Валюта;Цена;Оплачено;Возвращено',
+    '\uFEFFДата;Время;Мастер;Услуга;Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено',
   );
   expect(csv).toContain(
-    'Тест мастер А, Тест мастер Б;Стрижка, Укладка;Завершена;USD;123,45;50,00;0,00',
+    'Тест мастер А, Тест мастер Б;Стрижка, Укладка;Завершена;Стойка;;USD;123,45;50,00;0,00',
   );
   expect(csv).toContain(';KZT;8000,00;8000,00;300,00');
   expect(csv).not.toContain('₸');
@@ -87,8 +87,8 @@ it('attributes a cross-midnight visit once to its local start day, not each over
   const tail = day('2026-10-15', [{ ...visit, startMinutes: -30, endMinutes: 30 }]);
   const csv = appointmentsCsv([tail, first]);
   expect(csv.split('\r\n')).toEqual([
-    '\uFEFFДата;Время;Мастер;Услуга;Статус;Валюта;Цена;Оплачено;Возвращено',
-    "14.10.2026;23:30;'=Мастер Дина;Стрижка;Завершена;KZT;123,45;100,00;20,00",
+    '\uFEFFДата;Время;Мастер;Услуга;Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено',
+    "14.10.2026;23:30;'=Мастер Дина;Стрижка;Завершена;Стойка;;KZT;123,45;100,00;20,00",
   ]);
   expect(first.appointments).toHaveLength(1);
   expect(tail.appointments).toHaveLength(1);
@@ -128,4 +128,13 @@ it('exports one visit once even if the same day response or appointment is repea
   const a = row({});
   const sameDay = day('2026-10-14', [a, { ...a }]);
   expect(appointmentsCsv([sameDay, sameDay]).split('\r\n')).toHaveLength(2);
+});
+
+it('C2: источник и автор выводятся словами, автор обезврежен как формула', () => {
+  const csv = appointmentsCsv([
+    day('2026-10-14', [row({ source: 'WEBSITE', createdByName: '=Админ Тест' } as never)]),
+  ]);
+  const lines = csv.slice(1).split('\r\n');
+  expect(lines[1]).toContain(';Сайт;');
+  expect(lines[1]).toContain("'=Админ Тест");
 });

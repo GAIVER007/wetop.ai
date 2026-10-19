@@ -1385,3 +1385,11 @@
     }
   }
 }
+
+/* A5 (паритет с zapis.kz): подсказки поиска клиента и быстрые кнопки «Гость» / «Последний клиент» */
+.appointment-customer-suggest,
+.appointment-customer-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

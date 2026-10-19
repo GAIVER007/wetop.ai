@@ -24,6 +24,20 @@ export function PortalManagement({
       <label><input name="publicationConsent" type="checkbox" defaultChecked={data.profile.publicationConsent} /> Получено согласие на публичную страницу</label>
       <label><input name="published" type="checkbox" defaultChecked={data.profile.published} /> Одобрить публикацию профиля</label>
     </PortalForm>
+    <h3>Статус</h3>
+    <p>
+      {/* E5 (паритет с zapis.kz): архив из карточки, без похода в форму создания */}
+      Сейчас {data.employee.active ? 'активен' : 'в архиве'}. Архивный мастер не показывается в журнале и онлайн-записи,
+      его записи и история остаются.
+    </p>
+    <PortalForm
+      context={context}
+      command="active"
+      label={data.employee.active ? 'Убрать в архив' : 'Вернуть из архива'}
+      testId="portal-active-form"
+    >
+      <input type="hidden" name="active" value={data.employee.active ? 'false' : 'true'} />
+    </PortalForm>
     <h3>Доступ сотрудника</h3>
     <p>{data.employee.accountLinked ? 'Аккаунт привязан.' : 'Аккаунт не привязан. Личный кабинет пока недоступен.'} Используйте существующий вход по коду или приглашение в команду, без создания пароля.</p>
     <a href="/team">Участники команды и приглашения</a>

@@ -11,7 +11,7 @@ import { inputToMinor } from '../../lib/money';
 export interface PortalResult { data?: EmployeePortalDto; error?: string }
 const text = (form: FormData, key: string) => String(form.get(key) ?? '').trim();
 const checked = (form: FormData, key: string) => form.get(key) === 'on';
-const managerCommands = new Set(['publication', 'account', 'unlink', 'pay', 'pay-policy']);
+const managerCommands = new Set(['publication', 'account', 'unlink', 'pay', 'pay-policy', 'active']);
 /** Every command re-reads authenticated access and scope; browser flags never confer permission. */
 export async function savePortal(target: PortalTarget, scope: string, command: string, form: FormData): Promise<PortalResult> {
   try {
@@ -87,6 +87,11 @@ export async function savePortal(target: PortalTarget, scope: string, command: s
         const basis = text(form, 'percentBasis');
         if (basis !== 'COMPLETED_SERVICES' && basis !== 'PAID_COMPLETED_SERVICES') return { error: 'Выберите базу процента.' };
         await employeePortalApi.payPolicy(basis, revision || undefined);
+        data = await employeePortalApi.load(target); break;
+      }
+      case 'active': {
+        // E5 (паритет с zapis.kz): «В архив / Вернуть» из карточки; право employees.update проверяет API
+        await beautyApi.updateEmployee(current.employee.id, { active: text(form, 'active') === 'true' });
         data = await employeePortalApi.load(target); break;
       }
       default: return { error: 'Неизвестное действие.' };

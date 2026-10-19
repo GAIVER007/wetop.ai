@@ -66,6 +66,20 @@ export const BUSY: AppointmentStatus[] = ['BOOKED', 'CONFIRMED', 'IN_PROGRESS', 
 /** Сетка дня, когда график мастеров ничего не подсказал */
 const DEFAULT_FROM = 8 * 60;
 const DEFAULT_TO = 20 * 60;
+
+/** Границы сетки: режим работы салона в этот день недели, иначе 08-20; всё видимое расширяет сетку */
+function boundsOf(dayHours: Array<{ timeFrom: string; timeTo: string }>, visible: number[]) {
+  const base = dayHours.length
+    ? {
+        from: Math.min(...dayHours.map((interval) => clockMinutes(interval.timeFrom))),
+        to: Math.max(...dayHours.map((interval) => clockMinutes(interval.timeTo))),
+      }
+    : { from: DEFAULT_FROM, to: DEFAULT_TO };
+  return {
+    fromMinutes: Math.min(base.from, ...visible),
+    toMinutes: Math.max(base.to, ...visible),
+  };
+}
 const MAX_PERIOD_DAYS = 366;
 
 const customerFullName = (customer: { firstName: string; lastName: string | null }) =>
@@ -107,7 +121,14 @@ const APPOINTMENT_VIEW_SELECT = {
     },
   },
   customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
-  payments: { where: { status: 'COMPLETED' }, select: { kind: true, amount: true, method: true } },
+  payments: {
+    where: { status: 'COMPLETED' },
+    orderBy: { occurredAt: 'asc' },
+    select: { id: true, kind: true, amount: true, method: true, occurredAt: true },
+  },
+  // C2 (паритет с zapis.kz): автор и источник уже хранятся, реестр показывает их словами
+  source: true,
+  createdBy: { select: { name: true, email: true } },
 } satisfies Prisma.AppointmentSelect;
 
 type AppointmentViewRow = Prisma.AppointmentGetPayload<{ select: typeof APPOINTMENT_VIEW_SELECT }>;
@@ -136,6 +157,16 @@ function appointmentView(row: AppointmentViewRow, timezone: string, anchorDate: 
     refundedMinor: row.payments.reduce((sum, payment) => payment.kind === 'EXPENSE' ? sum + payment.amount : sum, 0n).toString(),
     currency: row.currency,
     notes: row.notes,
+    source: row.source,
+    createdByName: row.createdBy ? (row.createdBy.name ?? row.createdBy.email) : null,
+    // A4 (паритет с zapis.kz): платежи записи списком в карточке, а не только суммой
+    payments: row.payments.map((payment) => ({
+      id: payment.id,
+      kind: payment.kind,
+      method: payment.method,
+      amountMinor: payment.amount.toString(),
+      at: payment.occurredAt.toISOString(),
+    })),
     items: row.lines.map((line) => ({
       id: line.id,
       position: line.position,
@@ -300,10 +331,11 @@ export class BeautyAppointmentsService {
             }),
         };
       }),
-      bounds: {
-        fromMinutes: Math.min(DEFAULT_FROM, ...minutes, ...spans),
-        toMinutes: Math.max(DEFAULT_TO, ...minutes, ...spans),
-      },
+      bounds: boundsOf(
+        // B4 (паритет с zapis.kz): сетка идёт по режиму работы салона (137); записи вне режима её расширяют
+        openHours?.filter((interval) => interval.weekday === weekday) ?? [],
+        [...minutes, ...spans],
+      ),
     };
   }
 

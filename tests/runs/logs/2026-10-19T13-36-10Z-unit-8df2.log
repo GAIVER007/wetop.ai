@@ -1,0 +1,98 @@
+# Модульные (unit) · 19.10.2026 18:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6fc38e4 (claude/salon-zapis-p0), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-36-10Z-unit-8df2.json' 'apps/web/src/app/finance/appointments-csv.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ❯ |unit| apps/web/src/app/finance/appointments-csv.test.ts (7 tests | 4 failed) 16ms
+   ❯ выгрузка записей салона (Q-BS-6) (1)
+     × строки по записям, суммы для Excel, без имени и телефона клиента, формулы обезврежены 12ms
+   × exports each visit currency and all service/master names without relabelling USD as tenge 0ms
+   × attributes a cross-midnight visit once to its local start day, not each overlapping day 2ms
+   ✓ does not export prior-period tails even when the start day was not requested 0ms
+   ✓ uses the branch timezone, not UTC or the server calendar date, for start attribution 0ms
+   ✓ exports one visit once even if the same day response or appointment is repeated 0ms
+   × C2: источник и автор выводятся словами, автор обезврежен как формула 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/finance/appointments-csv.test.ts > выгрузка записей салона (Q-BS-6) > строки по записям, суммы для Excel, без имени и телефона клиента, формулы обезврежены
+AssertionError: expected 'Дата;Время;Мастер;Услуга;Статус;Валют…' to be 'Дата;Время;Мастер;Услуга;Статус;Источ…' // Object.is equality
+
+Expected: "Дата;Время;Мастер;Услуга;Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено"
+Received: "Дата;Время;Мастер;Услуга;Статус;Валюта;Цена;Оплачено;Возвращено"
+
+ ❯ apps/web/src/app/finance/appointments-csv.test.ts:49:22
+     47|     expect(csv.startsWith('\uFEFF')).toBe(true);
+     48|     const lines = csv.slice(1).split('\r\n');
+     49|     expect(lines[0]).toBe('Дата;Время;Мастер;Услуга;Статус;Источник;Ав…
+       |                      ^
+     50|     expect(lines[1]).toBe(
+     51|       "14.10.2026;10:00;'=Мастер Дина;Стрижка;Завершена;Стойка;-;KZT;8…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/appointments-csv.test.ts > exports each visit currency and all service/master names without relabelling USD as tenge
+AssertionError: expected '\ufeffДата;Время;Мастер;Услуга;Статус…' to be '\ufeffДата;Время;Мастер;Услуга;Статус…' // Object.is equality
+
+Expected: "﻿Дата;Время;Мастер;Услуга;Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено"
+Received: "﻿Дата;Время;Мастер;Услуга;Статус;Валюта;Цена;Оплачено;Возвращено"
+
+ ❯ apps/web/src/app/finance/appointments-csv.test.ts:66:32
+     64|   ] as NonNullable<typeof usd.items>;
+     65|   const csv = appointmentsCsv([day('2026-10-14', [usd, row({ id: 'kzt'…
+     66|   expect(csv.split('\r\n')[0]).toBe(
+       |                                ^
+     67|     '\uFEFFДата;Время;Мастер;Услуга;Статус;Источник;Автор;Валюта;Цена;…
+     68|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/appointments-csv.test.ts > attributes a cross-midnight visit once to its local start day, not each overlapping day
+AssertionError: expected [ …(2) ] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "﻿Дата;Время;Мастер;Услуга;Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено",
+-   "14.10.2026;23:30;'=Мастер Дина;Стрижка;Завершена;Стойка;-;KZT;123,45;100,00;20,00",
++   "﻿Дата;Время;Мастер;Услуга;Статус;Валюта;Цена;Оплачено;Возвращено",
++   "14.10.2026;23:30;'=Мастер Дина;Стрижка;Завершена;KZT;123,45;100,00;20,00",
+  ]
+
+ ❯ apps/web/src/app/finance/appointments-csv.test.ts:89:29
+     87|   const tail = day('2026-10-15', [{ ...visit, startMinutes: -30, endMi…
+     88|   const csv = appointmentsCsv([tail, first]);
+     89|   expect(csv.split('\r\n')).toEqual([
+       |                             ^
+     90|     '\uFEFFДата;Время;Мастер;Услуга;Статус;Источник;Автор;Валюта;Цена;…
+     91|     "14.10.2026;23:30;'=Мастер Дина;Стрижка;Завершена;Стойка;-;KZT;123…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/appointments-csv.test.ts > C2: источник и автор выводятся словами, автор обезврежен как формула
+AssertionError: expected '14.10.2026;10:00;\'=Мастер Дина;Стриж…' to contain ';Сайт;'
+
+Expected: ";Сайт;"
+Received: "14.10.2026;10:00;'=Мастер Дина;Стрижка;Завершена;KZT;8000,00;8000,00;300,00"
+
+ ❯ apps/web/src/app/finance/appointments-csv.test.ts:138:20
+    136|   ]);
+    137|   const lines = csv.slice(1).split('\r\n');
+    138|   expect(lines[1]).toContain(';Сайт;');
+       |                    ^
+    139|   expect(lines[1]).toContain("'=Админ Тест");
+    140| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 3 passed (7)
+   Start at  06:36:11
+   Duration  109ms (transform 49%, tests 34%, import 13%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-36-10Z-unit-8df2.json
+
+# код выхода 1 · 1 с

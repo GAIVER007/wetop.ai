@@ -262,6 +262,9 @@ export interface FoodCashView {
     refund?: boolean;
     status: 'COMPLETED' | 'VOIDED';
     occurredAt: string;
+    /** H1 (паритет с zapis.kz): операция оплаты или возврата записи ссылается на неё */
+    appointmentId?: string | null;
+    appointmentStartsAt?: string | null;
   }>;
   payments: Array<{
     id: string;

@@ -1,0 +1,175 @@
+# Модульные (unit) · 19.10.2026 18:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6fc38e4 (claude/salon-zapis-p0), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-34-15Z-unit-f30d.json' 'apps/api/src/beauty/appointment-period.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ❯ |unit| apps/api/src/beauty/appointment-period.test.ts (10 tests | 2 failed) 11ms
+   ✓ Beauty appointment period (8)
+     ✓ defaults an omitted period to today in the selected salon timezone 3ms
+     ✓ отклоняет неверный период undefined..2026-10-12 0ms
+     ✓ отклоняет неверный период 2026-10-12..undefined 0ms
+     ✓ отклоняет неверный период 2026-02-30..2026-03-01 0ms
+     ✓ отклоняет неверный период 12.10.2026..2026-10-12 0ms
+     ✓ отклоняет неверный период 2026-10-13..2026-10-12 0ms
+     ✓ отклоняет неверный период 2026-01-01..2027-01-02 0ms
+     ✓ читает до 366 дней одним запросом и не загружает календарные справочники 1ms
+   ❯ C2 (паритет с zapis.kz): автор и источник в проекции записи (2)
+     × отдаёт source и имя автора, когда они есть в строке 4ms
+     × у старой записи без автора поля отдаются пустыми, а не падают 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-period.test.ts > C2 (паритет с zapis.kz): автор и источник в проекции записи > отдаёт source и имя автора, когда они есть в строке
+AssertionError: expected { id: 'record', …(19) } to match object { source: 'WEBSITE', …(1) }
+(23 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "createdByName": "Тест Админ",
+-   "source": "WEBSITE",
++   "currency": "KZT",
++   "customer": {
++     "id": "customer",
++     "name": "Тест",
++     "phone": null,
++   },
++   "employeeId": "master",
++   "endMinutes": 1470,
++   "endsAt": "2026-10-12T19:30:00.000Z",
++   "id": "record",
++   "items": [
++     {
++       "basePriceMinor": "100",
++       "currency": "KZT",
++       "discountMinor": "0",
++       "discountPercent": null,
++       "durationMinutes": 60,
++       "employeeId": "master",
++       "employeeName": "Мастер",
++       "endMinutes": 1470,
++       "endsAt": "2026-10-12T19:30:00.000Z",
++       "id": "line",
++       "position": 0,
++       "priceMinor": "100",
++       "serviceId": "service",
++       "serviceName": "Тестовая услуга",
++       "startMinutes": 1410,
++       "startsAt": "2026-10-12T18:30:00.000Z",
++       "surchargeMinor": "0",
++     },
++   ],
++   "localDate": "2026-10-12",
++   "next": [
++     "CONFIRMED",
++     "IN_PROGRESS",
++     "DONE",
++     "NO_SHOW",
++     "CANCELLED",
++   ],
++   "notes": null,
++   "paidCashMinor": "0",
++   "paidMinor": "0",
++   "paidNonCashMinor": "0",
++   "priceMinor": "100",
++   "refundedMinor": "0",
++   "serviceId": "service",
++   "serviceName": "Тестовая услуга",
++   "startMinutes": 1410,
++   "startsAt": "2026-10-12T18:30:00.000Z",
++   "status": "BOOKED",
+  }
+
+ ❯ apps/api/src/beauty/appointment-period.test.ts:103:36
+    101|     }]);
+    102|     const result = await service.period('2026-10-12', '2026-10-12');
+    103|     expect(result.appointments[0]).toMatchObject({ source: 'WEBSITE', …
+       |                                    ^
+    104|   });
+    105|   it('у старой записи без автора поля отдаются пустыми, а не падают', …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-period.test.ts > C2 (паритет с zapis.kz): автор и источник в проекции записи > у старой записи без автора поля отдаются пустыми, а не падают
+AssertionError: expected { id: 'record', …(19) } to match object { source: 'DESK', createdByName: null }
+(23 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "createdByName": null,
+-   "source": "DESK",
++   "currency": "KZT",
++   "customer": {
++     "id": "customer",
++     "name": "Тест",
++     "phone": null,
++   },
++   "employeeId": "master",
++   "endMinutes": 1470,
++   "endsAt": "2026-10-12T19:30:00.000Z",
++   "id": "record",
++   "items": [
++     {
++       "basePriceMinor": "100",
++       "currency": "KZT",
++       "discountMinor": "0",
++       "discountPercent": null,
++       "durationMinutes": 60,
++       "employeeId": "master",
++       "employeeName": "Мастер",
++       "endMinutes": 1470,
++       "endsAt": "2026-10-12T19:30:00.000Z",
++       "id": "line",
++       "position": 0,
++       "priceMinor": "100",
++       "serviceId": "service",
++       "serviceName": "Тестовая услуга",
++       "startMinutes": 1410,
++       "startsAt": "2026-10-12T18:30:00.000Z",
++       "surchargeMinor": "0",
++     },
++   ],
++   "localDate": "2026-10-12",
++   "next": [
++     "CONFIRMED",
++     "IN_PROGRESS",
++     "DONE",
++     "NO_SHOW",
++     "CANCELLED",
++   ],
++   "notes": null,
++   "paidCashMinor": "0",
++   "paidMinor": "0",
++   "paidNonCashMinor": "0",
++   "priceMinor": "100",
++   "refundedMinor": "0",
++   "serviceId": "service",
++   "serviceName": "Тестовая услуга",
++   "startMinutes": 1410,
++   "startsAt": "2026-10-12T18:30:00.000Z",
++   "status": "BOOKED",
+  }
+
+ ❯ apps/api/src/beauty/appointment-period.test.ts:109:36
+    107|     findMany.mockResolvedValue([{ ...row, source: 'DESK', createdBy: n…
+    108|     const result = await service.period('2026-10-12', '2026-10-12');
+    109|     expect(result.appointments[0]).toMatchObject({ source: 'DESK', cre…
+       |                                    ^
+    110|   });
+    111| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed (10)
+   Start at  06:34:16
+   Duration  844ms (transform 61%, import 38%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-34-15Z-unit-f30d.json
+
+# код выхода 1 · 2 с

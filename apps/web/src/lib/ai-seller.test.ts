@@ -13,6 +13,7 @@ import {
   sellerChecklist,
   sellerPromptDraft,
   SELLER_LEGACY_VIEWS,
+  sellerVerticalUiCopy,
 } from './ai-seller';
 import type { SellerCategoryPrice, SellerProfileBody, SellerStatus } from './api';
 
@@ -417,5 +418,23 @@ describe('согласованные правила короткого отве�
       'Попроси телефон, чтобы администратор подтвердил бронь.',
     );
     expect(sellerPromptDraft(null)).toContain('Контакт бери из канала связи');
+  });
+});
+
+describe('тексты продавца по направлениям (N2 zapis-parity)', () => {
+  it('ресторан не получает гостиничные слова про гостей и размещение', () => {
+    const copy = sellerVerticalUiCopy('FOOD_SERVICE');
+    for (const text of Object.values(copy)) {
+      expect(text).not.toContain('размещени');
+      expect(text).not.toContain('гостиниц');
+      expect(text).not.toContain('номер на даты');
+    }
+  });
+  it('салон не получает гостиничных слов', () => {
+    const copy = sellerVerticalUiCopy('BEAUTY');
+    for (const text of Object.values(copy)) {
+      expect(text).not.toContain('размещени');
+      expect(text).not.toContain('гостиниц');
+    }
   });
 });

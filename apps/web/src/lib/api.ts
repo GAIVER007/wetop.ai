@@ -3793,6 +3793,11 @@ export interface BeautyAppointmentRow {
   refundedMinor: string;
   currency: string;
   notes: string | null;
+  /** C2 (паритет с zapis.kz): откуда пришла запись и кто её создал; у старых записей автора нет */
+  source?: 'DESK' | 'WEBSITE';
+  createdByName?: string | null;
+  /** A4: платежи записи списком (операции кассы, только завершённые) */
+  payments?: Array<{ id: string; kind: 'INCOME' | 'EXPENSE'; method: string; amountMinor: string; at: string }>;
 }
 
 export interface BeautyDay {

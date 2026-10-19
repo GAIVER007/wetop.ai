@@ -1,0 +1,22 @@
+# Модульные (unit) · 19.10.2026 18:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 326b1fb (claude/salon-zapis-p0), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-43-40Z-unit-5dc6.json' 'apps/web/src/app/food'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ✓ |unit| apps/web/src/app/food/cash-intent.test.ts (1 test) 1ms
+ ✓ |unit| apps/web/src/app/food/stock-actions-beauty.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/food/guest-marks.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/app/food/cash-board-appointment-link.test.ts (1 test) 9ms
+ ✓ |unit| apps/web/src/app/food/payroll-currency.test.ts (3 tests) 7ms
+ ✓ |unit| apps/web/src/app/food/stock-board-access.test.ts (4 tests) 14ms
+ ✓ |unit| apps/web/src/app/food/orders-board.test.ts (3 tests) 17ms
+
+ Test Files  7 passed (7)
+      Tests  17 passed (17)
+   Start at  06:43:41
+   Duration  604ms (transform 52%, import 42%, tests 4%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-43-40Z-unit-5dc6.json
+
+# код выхода 0 · 1 с

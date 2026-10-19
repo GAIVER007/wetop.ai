@@ -1,0 +1,41 @@
+# Модульные (unit) · 19.10.2026 18:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 326b1fb (claude/salon-zapis-p0), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-42-10Z-unit-857a.json' 'apps/web/src/app/beauty/appointment-card-money.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ❯ |unit| apps/web/src/app/beauty/appointment-card-money.test.ts (3 tests | 1 failed) 15ms
+   ✓ AppointmentCard money fields (1)
+     ✓ keeps cents in defaults and labels fields with the appointment currency 9ms
+   ✓ AppointmentCard service lines (1)
+     ✓ shows the stored price, discount, surcharge, master and interval of every line 1ms
+   ❯ A4 (паритет с zapis.kz): платежи записи списком (1)
+     × карточка показывает каждый платёж со способом и временем, возврат отдельной строкой 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/appointment-card-money.test.ts > A4 (паритет с zapis.kz): платежи записи списком > карточка показывает каждый платёж со способом и временем, возврат отдельной строкой
+AssertionError: expected '<div class="beauty-form"><dl class="b…' to contain 'Платежи'
+
+Expected: "Платежи"
+Received: "<div class="beauty-form"><dl class="beauty-facts"><div><dt>Клиент</dt><dd>Synthetic Customer</dd></div><div><dt>Услуга</dt><dd>Synthetic service</dd></div><div><dt>Специалист</dt><dd>Synthetic Master</dd></div><div><dt>Время</dt><dd>2026-10-18, 10:00 до 11:00</dd></div><div><dt>Цена</dt><dd>200 USD</dd></div><div><dt>Оплачено</dt><dd data-testid="beauty-card-paid">5 000 USD из 200 USD</dd></div><div><dt>Возвращено</dt><dd data-testid="beauty-card-refunded">1 000 USD</dd></div><div><dt>Состояние</dt><dd data-testid="beauty-card-status">Завершена</dd></div></dl><section aria-label="История изменений записи"><button class="btn btn--secondary" type="button">История изменений</button></section></div>"
+
+ ❯ apps/web/src/app/beauty/appointment-card-money.test.ts:101:18
+     99|       } as never),
+    100|     );
+    101|     expect(html).toContain('Платежи');
+       |                  ^
+    102|     expect(html).toContain('Наличные');
+    103|     expect(html).toContain('Возврат');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  06:42:11
+   Duration  629ms (transform 68%, import 29%, tests 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-42-10Z-unit-857a.json
+
+# код выхода 1 · 2 с

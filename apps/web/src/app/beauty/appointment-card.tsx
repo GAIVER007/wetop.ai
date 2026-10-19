@@ -223,6 +223,24 @@ function AppointmentCardBody({
             {formatMoney(row.priceMinor, row.currency)}
           </dd>
         </div>
+        {(row.payments?.length ?? 0) > 0 && (
+          <div>
+            <dt>Платежи</dt>
+            <dd data-testid="beauty-card-payments">
+              {/* A4 (паритет с zapis.kz): каждый платёж строкой; аннулирование по-прежнему в «Кассе» */}
+              <ul className="beauty-card-payments">
+                {row.payments!.map((payment) => (
+                  <li key={payment.id}>
+                    {localInput(payment.at, day.location.timezone).slice(11, 16)},{' '}
+                    {METHOD_RU[payment.method as keyof typeof METHOD_RU] ?? payment.method},{' '}
+                    {formatMoney(payment.amountMinor, row.currency)}
+                    {payment.kind === 'EXPENSE' ? ' (Возврат)' : ''}
+                  </li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        )}
         {BigInt(row.refundedMinor) > 0n && (
           <div>
             <dt>Возвращено</dt>

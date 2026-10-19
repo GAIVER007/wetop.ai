@@ -45,6 +45,13 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     expect(html).toContain('Телефон или имя');
     expect(html).toContain('Итого');
   });
+  it('A5: рядом с поиском клиента есть «Гость» и «Последний клиент»', () => {
+    const html = renderToStaticMarkup(
+      createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn() }),
+    );
+    expect(html).toContain('>Гость<');
+    expect(html).toContain('Последний клиент');
+  });
   it('A3: итог показывает суммарную длительность визита по строкам', () => {
     const editing = {
       id: 'visit',

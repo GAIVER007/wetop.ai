@@ -6,6 +6,9 @@ import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { createAppointment, moveAppointment } from './journal-actions';
 import { instantOf, localInput } from './time';
 
+// A5 (паритет с zapis.kz): кого выбирали в прошлый раз на этой вкладке; удобство, не данные
+let lastPickedCustomerId: string | null = null;
+
 export function AppointmentForm({
   day,
   customers,
@@ -249,12 +252,57 @@ export function AppointmentForm({
               autoComplete="off"
             />
           </Field>
+          {search && matchingCustomers.length > 0 && (
+            <div className="appointment-customer-suggest" role="listbox" aria-label="Найденные клиенты">
+              {matchingCustomers.slice(0, 5).map((c) => (
+                <Button
+                  key={c.id}
+                  type="button"
+                  size="sm"
+                  tone="ghost"
+                  onClick={() => {
+                    setCustomerId(c.id);
+                    lastPickedCustomerId = c.id;
+                    setCustomerSearch('');
+                  }}
+                >
+                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${c.phone}` : ''}`}
+                </Button>
+              ))}
+            </div>
+          )}
+          <div className="appointment-customer-quick">
+            {/* A5 (паритет с zapis.kz): «Гость» - визит без контактов, «Последний клиент» - выбранный в прошлый раз */}
+            <Button
+              type="button"
+              size="sm"
+              tone="secondary"
+              onClick={() => {
+                setCustomerId('');
+                setDraft({ ...draft, firstName: 'Гость', lastName: '', phone: '' });
+              }}
+            >
+              Гость
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              tone="secondary"
+              disabled={!lastPickedCustomerId || !customers.some((c) => c.id === lastPickedCustomerId)}
+              onClick={() => lastPickedCustomerId && setCustomerId(lastPickedCustomerId)}
+            >
+              Последний клиент
+            </Button>
+          </div>
           <Field label="Клиент">
             <Select
               name="customerId"
               aria-label="Клиент"
               value={customerId}
-              onChange={(e) => setCustomerId(e.target.value)}
+              onChange={(e) => {
+                setCustomerId(e.target.value);
+                if (e.target.value) lastPickedCustomerId = e.target.value;
+              }}
             >
               <option value="">Новый клиент</option>
               {repeatFrom && !matchingCustomers.some((c) => c.id === repeatFrom.customer.id) && (
@@ -489,7 +537,7 @@ export function AppointmentForm({
             {validMoney
               ? formatMoney(total.toString(), day.location.currency)
               : 'Проверьте суммы услуг'}
-            {validDuration && totalMinutes > 0 ? ` · ${durationText(totalMinutes)}` : ''}
+            {validDuration && totalMinutes > 0 ? `, ${durationText(totalMinutes)}` : ''}
           </strong>
         </p>
         <div className="beauty-fields-pair">

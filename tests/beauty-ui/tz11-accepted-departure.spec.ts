@@ -7,8 +7,11 @@ for (const mode of ['same-date', 'different-date']) {
   if(mode==='different-date') {
    // Use the real day-navigation action for this history setup. A pre-hydration native date fill
    // can change only the DOM value without dispatching the React navigation on a cold stream.
-   await page.getByRole('button',{name:'Следующий день',exact:true}).click();
-   await expect(page).toHaveURL(/date=2026-10-20/);
+   // список записей выбирает период полями «Период с/по» (работа «Запись»): шаг истории через «Показать период»
+   await page.getByLabel('Период с',{exact:true}).fill('2026-10-20');
+   await page.getByLabel('Период по',{exact:true}).fill('2026-10-20');
+   await page.getByRole('button',{name:'Показать период',exact:true}).click();
+   await expect(page).toHaveURL(/from=2026-10-20/);
   } else {
    await page.evaluate(()=>history.pushState({...history.state},'',location.href+'&reviewstep=1'));
   }

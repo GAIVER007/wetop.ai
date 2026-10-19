@@ -75,11 +75,15 @@ for (const theme of ['light', 'dark'] as const)
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
         .analyze();
       expect(axe.violations).toEqual([]);
+      // «Записать» активна только с выбранной услугой (работа «Запись», f8a912681)
+      await editor.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
       await editor.getByLabel('Заметка', { exact: true }).focus();
       await page.keyboard.press('Tab');
       await expect(editor.getByRole('button', { name: 'Записать', exact: true })).toBeFocused();
       results.push({ route, theme, createTarget: box, focus, violations: axe.violations });
       await page.keyboard.press('Escape');
+      const confirm = page.getByRole('dialog', { name: 'Закрыть без сохранения?', exact: true });
+      await confirm.getByRole('button', { name: 'Закрыть без сохранения', exact: true }).click();
       await expect(editor).toBeHidden();
       await expect(create).toBeFocused();
     }

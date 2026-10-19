@@ -17,7 +17,7 @@ for (const entry of ['calendar','appointments']) {
       commands++;await route.fetch();reached();await gate;await route.abort('failed');
     });
     await p.getByRole('button',{name:'Записать',exact:true}).click(); await arrived;
-    await expect(p.getByRole('button',{name:'Записываем…',exact:true})).toBeDisabled();
+    await expect(p.getByRole('button',{name:'Сохраняем…',exact:true})).toBeDisabled();
     await page.keyboard.press('Escape');await expect(p).toBeVisible();
     release();
     await expect(p.getByRole('alert')).toContainText('Результат не подтверждён');

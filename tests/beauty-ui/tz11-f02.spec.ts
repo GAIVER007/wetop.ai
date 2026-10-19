@@ -46,7 +46,8 @@ for (const entry of ['calendar', 'appointments']) {
     await page.goto(`/${entry}?date=${date}`);
     await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
     const p = page.getByRole('dialog', { name:'Новая запись',exact:true });
-    await p.getByRole('button', {name:'Записать',exact:true}).click();
+    // пустую форму отправить нельзя: «Записать» неактивна, пока не выбрана услуга (работа «Запись», f8a912681)
+    await expect(p.getByRole('button', {name:'Записать',exact:true})).toBeDisabled();
     await expect(p).toBeVisible();
     await p.getByLabel('Имя клиента',{exact:true}).fill('Тест новый');
     await p.getByLabel('Услуга',{exact:true}).selectOption(f.services[0].id);

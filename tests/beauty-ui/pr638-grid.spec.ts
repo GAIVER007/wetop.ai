@@ -1,6 +1,14 @@
 import { test, expect } from '../ui/fixtures';
 import { api, evidence, seed } from './tz11-helpers';
 
+// The grid hides past days' absences (schedule.ts: dateTo >= today in the salon timezone), so a fixed calendar
+// week turns red once it is in the past (main 39307259722 ran after midnight in Almaty on 20.10). Use the next
+// Monday after today in Asia/Almaty, and the Monday after it.
+const salonToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+const addDays = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
+const weekStart = addDays(salonToday, ((8 - new Date(`${salonToday}T00:00:00Z`).getUTCDay()) % 7) || 7);
+const nextMonday = addDays(weekStart, 7);
+
 // Real Beauty schedule/API + owned PostgreSQL, not the permissive tests/ui fixture.
 // Q-SCHED-1 (подтверждено владельцем 18.10.2026): переключатель в сетке меняет только эту дату через однодневное
 // отсутствие; недельный шаблон и выходной по графику меняются в окне мастера, там же защита от чужой правки.
@@ -17,24 +25,24 @@ test('PR638 grid switch changes only that date, the weekly template and the othe
     s.timeOffs.some((t) => t.dateFrom === date && t.dateTo === date);
   const original = await read(a.id);
   const other = await read(b.id);
-  await page.goto('/beauty/schedule?week=2026-10-19');
+  await page.goto(`/beauty/schedule?week=${weekStart}`);
   const row = page.getByRole('row').filter({ has: page.getByRole('button', { name: 'Тест Анна', exact: true }) });
   const monday = row.getByRole('switch').first();
   await expect(monday).toBeChecked();
   await monday.uncheck();
-  await expect.poll(async () => offOn(await read(a.id), '2026-10-19')).toBe(true);
+  await expect.poll(async () => offOn(await read(a.id), weekStart)).toBe(true);
   await expect(monday).toBeEnabled();
   expect((await read(a.id)).week).toEqual(original.week);
   expect((await read(b.id)).week).toEqual(other.week);
   // следующая неделя: тот же понедельник по шаблону рабочий
   await page.getByRole('link', { name: 'Следующая неделя', exact: true }).click();
-  await expect(page).toHaveURL(/week=2026-10-26/);
+  await expect(page).toHaveURL(new RegExp(`week=${nextMonday}`));
   await expect(monday).toBeChecked();
   await page.getByRole('link', { name: 'Прошлая неделя', exact: true }).click();
-  await expect(page).toHaveURL(/week=2026-10-19/);
+  await expect(page).toHaveURL(new RegExp(`week=${weekStart}`));
   await expect(monday).not.toBeChecked();
   await monday.check();
-  await expect.poll(async () => offOn(await read(a.id), '2026-10-19')).toBe(false);
+  await expect.poll(async () => offOn(await read(a.id), weekStart)).toBe(false);
   await page.reload();
   await expect(monday).toBeChecked();
   // выходной по шаблону: в ячейке нет переключателя, окно мастера объясняет, что меняется каждая неделя
@@ -65,7 +73,7 @@ test('PR638 stale weekly window rejects repeated saves without replacing the com
     expect(response.ok()).toBe(true);
     return response.json();
   };
-  await page.goto('/beauty/schedule?week=2026-10-19');
+  await page.goto(`/beauty/schedule?week=${weekStart}`);
   await page.getByRole('button', { name: 'Тест Анна', exact: true }).click();
   const dialog = page.getByRole('dialog');
   const save = dialog.getByRole('button', { name: 'Сохранить график', exact: true });

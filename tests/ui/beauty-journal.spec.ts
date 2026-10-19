@@ -361,6 +361,8 @@ test('быстрый отчёт календаря: пустой день, ка�
     await page.setViewportSize({ width, height: 900 });
     for (const colorScheme of ['light', 'dark'] as const) {
       await page.emulateMedia({ colorScheme });
+      // На телефоне отчёт открывается из «Фильтров»: панель остаётся раскрытой между темами.
+      if (width < 600 && !(await trigger.isVisible())) await page.getByText(/^Фильтры/).click();
       await trigger.click();
       const report = page.getByRole('dialog', { name: /Статистика за/ });
       await expect(report).toContainText('Все специалисты');

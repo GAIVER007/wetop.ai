@@ -64,3 +64,70 @@ jobs:
           name: stage1-test3-fixture-failure
           path: test-results/
           retention-days: 7
+
+  licensed-builder-contract:
+    name: License action title readiness and complete licensed-builder spec
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      UI_BROWSER_CHANNEL: chromium
+      UI_RUNTIME_WORKERS: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      - name: Exact license scenario, three repetitions, no retries or weakened axe
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: stage1-license-results.json
+        run: >-
+          npx playwright test --config tests/ui/playwright.config.ts site-builder-licensed.spec.ts
+          --grep 'главный администратор выдаёт' --workers=1 --repeat-each=3
+          --retries=0 --forbid-only --trace=on --reporter=list,json
+      - name: Require exactly three real passes with zero skips and retries
+        run: |
+          python3 - <<'PY'
+          import json
+          report = json.load(open('stage1-license-results.json'))
+          queue, tests = list(report['suites']), []
+          while queue:
+              suite = queue.pop()
+              queue.extend(suite.get('suites', []))
+              for spec in suite.get('specs', []):
+                  tests.extend(spec['tests'])
+          assert not report.get('errors') and len(tests) == 3
+          assert all(t['expectedStatus'] == 'passed' and len(t['results']) == 1
+                     and t['results'][0]['status'] == 'passed' and t['results'][0]['retry'] == 0 for t in tests)
+          print('LICENSE_TITLE_CONTRACT_3_OF_3_NO_SKIPS_NO_RETRIES')
+          PY
+      - name: Complete licensed-builder spec with unchanged accessibility rules
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: stage1-license-full-results.json
+        run: >-
+          npx playwright test --config tests/ui/playwright.config.ts site-builder-licensed.spec.ts
+          --workers=1 --retries=0 --forbid-only --reporter=list,json
+      - name: Require complete licensed-builder spec to be genuinely green
+        run: |
+          python3 - <<'PY'
+          import json
+          r = json.load(open('stage1-license-full-results.json'))
+          s = r['stats']
+          assert not r.get('errors') and s['expected'] > 0
+          assert s['unexpected'] == s['flaky'] == s['skipped'] == 0
+          print('LICENSED_BUILDER_FULL_SPEC_PASS_COUNT', s['expected'])
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: stage1-license-readiness-evidence
+          path: |
+            stage1-license-results.json
+            stage1-license-full-results.json
+            test-results/
+          retention-days: 7

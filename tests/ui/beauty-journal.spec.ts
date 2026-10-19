@@ -120,6 +120,11 @@ async function book(page: Page, time: string, name: string) {
   await panel.getByLabel('Услуга').selectOption({ label: 'Маникюр, 60 мин' });
   await panel.getByLabel('Имя клиента').fill(name);
   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
+  // A click starts the server action; navigation must wait for its successful acknowledgement.
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(
+    page.getByRole('main').getByRole('button').filter({ hasText: name }).filter({ hasText: time }).first(),
+  ).toBeVisible();
   return panel;
 }
 

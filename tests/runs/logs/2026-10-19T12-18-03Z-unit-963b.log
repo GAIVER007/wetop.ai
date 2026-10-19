@@ -1,0 +1,24 @@
+# Модульные (unit) · 19.10.2026 17:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8344c59 (fix/restore-mixed-grants), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T12-18-03Z-unit-963b.json' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/migrations-hold.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 6ms
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 6136ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 1789ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 852ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 821ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 838ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 878ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 946ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  05:18:04
+   Duration  6.24s (tests 99%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T12-18-03Z-unit-963b.json
+
+# код выхода 0 · 7 с

@@ -94,7 +94,9 @@ describe.skipIf(!url)('Beauty: ограничения и триггеры баз
 
   async function cleanup() {
     const orgs = [own.org, neighbour.org].map((v) => `'${v}'`).join(', ');
-    for (const stmt of [
+    await db.$transaction(async (tx) => {
+      for (const stmt of [
+      `DELETE FROM "appointment_lines" WHERE "appointment_id" IN (SELECT "id" FROM "appointments" WHERE "location_id" IN (SELECT "id" FROM "locations" WHERE "business_id" IN (SELECT "id" FROM "businesses" WHERE "organization_id" IN (${orgs})))))`,
       `DELETE FROM "appointments" WHERE "location_id" IN (SELECT "id" FROM "locations" WHERE "business_id" IN (SELECT "id" FROM "businesses" WHERE "organization_id" IN (${orgs})))`,
       `DELETE FROM "working_hours" WHERE "employee_id" IN (SELECT "id" FROM "employees" WHERE "business_id" IN (SELECT "id" FROM "businesses" WHERE "organization_id" IN (${orgs})))`,
       `DELETE FROM "time_offs" WHERE "employee_id" IN (SELECT "id" FROM "employees" WHERE "business_id" IN (SELECT "id" FROM "businesses" WHERE "organization_id" IN (${orgs})))`,
@@ -109,14 +111,14 @@ describe.skipIf(!url)('Beauty: ограничения и триггеры баз
       `DELETE FROM "businesses" WHERE "organization_id" IN (${orgs})`,
       `DELETE FROM "organizations" WHERE "id" IN (${orgs})`,
     ]) {
-      await db.$executeRawUnsafe(stmt).catch(() => undefined);
-    }
+        await tx.$executeRawUnsafe(stmt);
+      }
+    });
   }
 
   afterAll(async () => {
     if (!db) return;
-    await cleanup();
-    await db.$disconnect();
+    try { await cleanup(); } finally { await db.$disconnect(); }
   });
 
   function appointment(opts: {
@@ -203,10 +205,12 @@ describe.skipIf(!url)('Beauty: ограничения и триггеры баз
   it('записи одного мастера не пересекаются: это запрещает база', async () => {
     await sql(appointment({ from: '2026-10-05T05:00:00Z', to: '2026-10-05T06:00:00Z' }));
     // пересечение
-    await rejects(
-      appointment({ from: '2026-10-05T05:30:00Z', to: '2026-10-05T06:30:00Z' }),
-      /appointments_no_overlap|conflict/i,
-    );
+    const rejectedId = randomUUID();
+    await expect(sql(
+      appointment({ id: rejectedId, from: '2026-10-05T05:30:00Z', to: '2026-10-05T06:30:00Z' }),
+    )).rejects.toThrow('Appointment line overlaps another service for this master');
+    expect(await db.appointment.count({ where: { id: rejectedId } })).toBe(0);
+    expect(await db.appointmentLine.count({ where: { appointmentId: rejectedId } })).toBe(0);
     // встык разрешено: граница правая открытая
     await sql(appointment({ from: '2026-10-05T06:00:00Z', to: '2026-10-05T07:00:00Z' }));
     // другой мастер в то же время можно
@@ -225,6 +229,9 @@ describe.skipIf(!url)('Beauty: ограничения и триггеры баз
     );
     // живая запись на то же время встаёт поверх отменённой
     await sql(appointment({ from: '2026-10-06T05:00:00Z', to: '2026-10-06T06:00:00Z' }));
+    await expect(sql(`UPDATE "appointments" SET "status"='BOOKED' WHERE "id"='${cancelled}'`))
+      .rejects.toThrow('Appointment status reactivation overlaps another service for this master');
+    expect((await db.appointment.findUniqueOrThrow({ where: { id: cancelled } })).status).toBe('CANCELLED');
   });
 
   it('окно записи: конец позже начала', async () => {

@@ -85,6 +85,7 @@ describe.skipIf(!url)('M4-B2: customer import undo FK races', () => {
       if (!admin) return;
       await admin.$transaction(async (tx) => {
         await tx.$queryRaw`SELECT set_config('wetop.audit_purge','on',true)`;
+        await tx.appointmentLine.deleteMany({ where: { appointment: { locationId: scope.beautyLocationId } } });
         await tx.appointment.deleteMany({ where: { locationId: scope.beautyLocationId } });
         await tx.restaurantReservation.deleteMany({ where: { locationId: scope.foodLocationId } });
         await tx.customerImportRow.deleteMany({ where: { organizationId: scope.organizationId } });
@@ -203,6 +204,7 @@ describe.skipIf(!url)('M4-B2: customer import undo FK races', () => {
   }
 
   async function cleanupRace(fixture: RaceFixture): Promise<void> {
+    await admin.appointmentLine.deleteMany({ where: { appointment: { customerId: fixture.customerId } } });
     await admin.appointment.deleteMany({ where: { customerId: fixture.customerId } });
     await admin.restaurantReservation.deleteMany({ where: { customerId: fixture.customerId } });
     await admin.customerImportRow.deleteMany({ where: { importId: fixture.importId } });

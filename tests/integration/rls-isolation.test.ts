@@ -141,6 +141,14 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
         WHERE n.nspname = current_schema() AND c.relkind = 'r' AND c.relrowsecurity`,
     );
     expect(rls.rows.map((r) => r.relname).sort()).toEqual([...TENANT_TABLES].sort());
+    const canonicalBeauty = [
+      'beauty_appointment_reviews', 'beauty_review_invitations',
+      'beauty_service_material_revisions', 'beauty_service_materials',
+      'beauty_positions', 'beauty_position_permissions', 'beauty_position_assignments', 'beauty_location_hours',
+    ];
+    expect(rls.rows.filter(row => canonicalBeauty.includes(row.relname)).map(row => row.relname).sort()).toEqual(canonicalBeauty.sort());
+    expect(rls.rows.filter(row => canonicalBeauty.includes(row.relname) && !row.relforcerowsecurity).map(row => row.relname),
+      'canonical Beauty tables require FORCE RLS').toEqual([]);
     expect(rls.rows.filter((r) => (HELD_TENANT_TABLES as readonly string[]).includes(r.relname) && !r.relforcerowsecurity).map((r) => r.relname), 'held tenant tables require FORCE RLS').toEqual([]);
     const barTables = RLS_TENANT_TABLES.filter((table) => table.startsWith('bar_'));
     expect(

@@ -153,6 +153,9 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     }
   });
   beforeEach(async () => {
+    await db.appointmentLine.deleteMany({
+      where: { appointment: { locationId: { in: [location, secondLocation, otherLocation] } } },
+    });
     await db.appointment.deleteMany({
       where: { locationId: { in: [location, secondLocation, otherLocation] } },
     });
@@ -169,6 +172,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     await db.$transaction(async (tx) => {
       const businesses = { in: [business, secondBusiness, foreignBusiness] };
       const locations = { in: [location, secondLocation, otherLocation] };
+      await tx.appointmentLine.deleteMany({ where: { appointment: { locationId: locations } } });
       await tx.appointment.deleteMany({ where: { locationId: locations } });
       await tx.timeOff.deleteMany({ where: { employee: { businessId: businesses } } });
       await tx.workingHours.deleteMany({ where: { locationId: locations } });
@@ -487,9 +491,20 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     const constraints = await db.$queryRaw<Array<{ name: string; definition: string }>>`
       SELECT conname AS name, pg_get_constraintdef(oid) AS definition FROM pg_constraint
       WHERE conrelid = 'appointments'::regclass AND conname = 'appointments_no_overlap_per_employee'`;
-    expect(constraints).toHaveLength(1);
-    expect(constraints[0]!.definition).toContain('employee_id WITH =');
-    expect(constraints[0]!.definition).not.toContain('location_id WITH =');
+    // Canonical133 replaces the parent exclusion with employee-wide line/status guards.
+    expect(constraints).toHaveLength(0);
+    const triggers = await db.$queryRaw<Array<{ table: string; name: string; function: string; enabled: string }>>`
+      SELECT c.relname AS "table", t.tgname AS name, p.proname AS "function", t.tgenabled::text AS enabled
+      FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid
+      JOIN pg_namespace n ON n.oid=c.relnamespace JOIN pg_proc p ON p.oid=t.tgfoid
+      WHERE n.nspname=current_schema() AND NOT t.tgisinternal
+        AND t.tgname IN ('appointment_lines_guard','appointments_legacy_line_sync','appointments_status_overlap_guard')
+      ORDER BY t.tgname`;
+    expect(triggers).toEqual([
+      { table: 'appointment_lines', name: 'appointment_lines_guard', function: 'beauty_appointment_line_guard', enabled: 'O' },
+      { table: 'appointments', name: 'appointments_legacy_line_sync', function: 'beauty_appointment_legacy_sync', enabled: 'O' },
+      { table: 'appointments', name: 'appointments_status_overlap_guard', function: 'beauty_appointment_status_overlap_guard', enabled: 'O' },
+    ]);
     const functions = await db.$queryRaw<Array<{ name: string; config: string[] | null }>>`
       SELECT p.proname AS name, proconfig AS config FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
       WHERE n.nspname = current_schema() AND p.proname LIKE 'beauty_%'`;
@@ -506,6 +521,19 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
       'beauty_employee_service_guard',
       'beauty_working_hours_guard',
       'beauty_appointment_guard',
+      'beauty_employee_service_price_guard',
+      'beauty_appointment_line_guard',
+      'beauty_appointment_legacy_sync',
+      'beauty_appointment_status_overlap_guard',
+      'beauty_appointment_review_guard',
+      'beauty_service_material_guard',
+      'beauty_position_guard',
+      'beauty_position_assignment_guard',
+      'beauty_position_assignment_retain',
+      'beauty_location_hours_valid',
+      'beauty_location_hours_guard',
+      'beauty_time_in_hours',
+      'beauty_appointment_location_hours_guard',
       ...(heldTables.length === 3 ? [
         'beauty_appointment_changed',
         'beauty_capacity_changed',

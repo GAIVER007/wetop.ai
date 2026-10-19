@@ -27,11 +27,139 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run generate -w @pms/database
       - name: Scoped release unit regressions, no database or server
-        run: npm run test:record -- unit tests/unit/finance-outflow-label.test.ts tests/unit/beauty-release-preparation.test.ts tests/unit/beauty-release-fixture.test.ts tests/unit/preview-beauty-appointment-selection.test.ts apps/web/src/app/finance/appointments-csv.test.ts --maxWorkers=1 --note "Consolidated release regressions; synthetic data only"
+        run: npm run test:record -- unit tests/unit/finance-outflow-label.test.ts tests/unit/db-restore-prod.test.ts apps/web/src/app/beauty/appointment-card.test.ts apps/web/src/app/customers/page.test.ts tests/unit/beauty-release-preparation.test.ts tests/unit/beauty-release-fixture.test.ts tests/unit/preview-beauty-appointment-selection.test.ts apps/web/src/app/finance/appointments-csv.test.ts --maxWorkers=1 --note "Consolidated release regressions; synthetic data only"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: finance-presentation-test-record
           path: tests/runs/
+          if-no-files-found: warn
+          retention-days: 7
+
+
+  database-regressions:
+    name: Scoped DB regressions, owned disposable PostgreSQL
+    needs: regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      owner-home:
+        image: postgres:16
+        env:
+          POSTGRES_USER: owner_home_test
+          POSTGRES_DB: wetop_owner_home
+          POSTGRES_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
+          POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+          POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --encoding=UTF8
+        ports: ['127.0.0.1:55516:5432']
+        options: >-
+          --health-cmd "pg_isready -U owner_home_test -d wetop_owner_home"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: PostgreSQL client (GitHub runner only)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+          psql --version
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - name: Canonical owned schema and unchanged held fixture prerequisites
+        env:
+          DATABASE_URL: postgresql://owner_home_test@127.0.0.1:55516/wetop_owner_home
+          DIRECT_URL: postgresql://owner_home_test@127.0.0.1:55516/wetop_owner_home
+          PGPASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
+          TEST_DATA: seed
+          CI: 'true'
+          PMS_PORTAL_FIXTURE: owner-home-ci
+          EXPENSE_LINKS_ENABLED: '0'
+          BEAUTY_WORKLOAD_CAPTURE: 'false'
+          HOSPITALITY_WORKLOAD_CAPTURE: 'false'
+          RESTAURANT_CAPACITY_CAPTURE: 'false'
+          RESTAURANT_OCCUPANCY_CAPTURE: 'false'
+        run: |
+          set -euo pipefail
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public'
+          npm run test:schema
+          npx tsx --tsconfig apps/api/tsconfig.json scripts/ci/check-owner-home-baseline.ts
+          PGOPTIONS='-c search_path=pms_test,public' psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f packages/database/prisma/migrations-hold/owner-home-release.sql
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+          \getenv fixture_password PGPASSWORD
+          SELECT format('ALTER ROLE wetop_app LOGIN PASSWORD %L', :'fixture_password') \gexec
+          SQL
+      - name: All eleven historically failing integration files, assertions intact
+        env:
+          PMS_PORTAL_FIXTURE: owner-home-ci
+          CI: 'true'
+          DATABASE_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
+          DATABASE_APP_URL: postgresql://wetop_app:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
+          DIRECT_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
+          PGPASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
+        run: >-
+          npm run test:record -- integration
+          tests/integration/beauty-domain.test.ts
+          tests/integration/beauty-release-schema.test.ts
+          tests/integration/core-security/beauty-appointment-concurrency.test.ts
+          tests/integration/core-security/beauty-employee-locations.test.ts
+          tests/integration/core-security/customer-explicit-id.test.ts
+          tests/integration/customer-import-race.test.ts
+          tests/integration/customer-import-runtime.test.ts
+          tests/integration/db-restore-prod.test.ts
+          tests/integration/function-search-path.test.ts
+          tests/integration/mv4-beauty.test.ts
+          tests/integration/rls-isolation.test.ts
+          --maxWorkers=1 --note "Actual historical RED files on owned CI PostgreSQL; no production connection"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: release-scoped-database-proof
+          path: |
+            tests/runs/
+            test-results/beauty-schema-release/
+          if-no-files-found: warn
+          retention-days: 7
+
+
+  ui-regressions:
+    name: Scoped catalog, import and future-visit UI
+    needs: regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      - name: Actual failed UI boundaries on the unchanged isolated synthetic harness
+        env:
+          UI_BROWSER_CHANNEL: chromium
+          UI_REUSE: '0'
+        run: >-
+          npm run test:record -- e2e
+          --config tests/ui/playwright.alt.config.ts
+          tests/ui/beauty-catalog.spec.ts tests/ui/customer-import.spec.ts tests/ui/beauty-journal.spec.ts
+          --grep "CSV|услуга каталога|филиал включает|каталог переносит|мастер добавляется|типовая услуга|стартовая услуга|M4-B2|M6-A|быстрый отчёт календаря"
+          --workers=1 --note "Scoped real source UI regressions on GitHub; synthetic fixture only"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: release-scoped-ui-proof
+          path: |
+            tests/runs/
+            test-results/
           if-no-files-found: warn
           retention-days: 7

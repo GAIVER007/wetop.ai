@@ -95,6 +95,12 @@ describe('восстановление рабочей базы из копии (
 
   it('данные и все миграции прав одной транзакцией, права после данных и по порядку', () => {
     expect(privilegeMigrations.length, 'миграции прав в репозитории').toBeGreaterThan(0);
+    expect(privilegeMigrations).toContain('20261019000139_customer_beauty_restore_grants');
+    for (const name of privilegeMigrations) {
+      const body = readFileSync(join(MIGRATIONS, name, 'migration.sql'), 'utf8')
+        .split('\n').filter(line => !/^\s*--/.test(line)).join('\n');
+      expect(body, `${name} must not escape the restore transaction`).not.toMatch(/^\s*(?:BEGIN|COMMIT|ROLLBACK)\s*;/m);
+    }
     const s = sandbox();
     const r = s.run([s.dump, '--yes-replace-production']);
     expect(r.code, r.out).toBe(0);
@@ -121,6 +127,9 @@ describe('восстановление рабочей базы из копии (
     const sql = s.read('restore.sql');
     expect(sql).not.toContain('-- права: 20261005000058_food_service_domain');
     expect(sql).not.toContain('CREATE TYPE "RestaurantReservationStatus"');
+    expect(sql).not.toContain('-- права: 20261018000137_beauty_location_hours');
+    expect(sql).not.toContain('-- права: 20261019000138_beauty_helper_search_path');
+    expect(sql).toContain('-- права: 20261019000139_customer_beauty_restore_grants');
   });
 
   it('схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления', () => {

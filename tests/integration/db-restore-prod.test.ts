@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -42,8 +42,24 @@ union all select 'S|' || relname || '|' || r || '|' || has_sequence_privilege(r,
   from seqs, roles
 union all select 'P|' || tablename || ':' || policyname || '|' || array_to_string(roles, ',') || '|' || cmd
   from pg_policies where schemaname = 'public'
-union all select 'R|' || c.relname || '|' || c.relrowsecurity
+union all select 'R|' || c.relname || '|' || c.relrowsecurity || '|' || c.relforcerowsecurity
   from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind = 'r'
+union all select 'A|relation|' || c.relname || '|' || pg_get_userbyid(a.grantor) || '|' ||
+    case when a.grantee=0 then 'PUBLIC' else pg_get_userbyid(a.grantee) end || '|' || a.privilege_type || '|' || a.is_grantable
+  from pg_class c join pg_namespace n on n.oid=c.relnamespace
+  cross join lateral aclexplode(coalesce(c.relacl,acldefault(case when c.relkind='S' then 'S'::"char" else 'r'::"char" end,c.relowner))) a
+  where n.nspname='public' and c.relkind in ('r','p','v','m','S')
+union all select 'A|column|' || c.relname || '.' || col.attname || '|' || pg_get_userbyid(a.grantor) || '|' ||
+    case when a.grantee=0 then 'PUBLIC' else pg_get_userbyid(a.grantee) end || '|' || a.privilege_type || '|' || a.is_grantable
+  from pg_attribute col join pg_class c on c.oid=col.attrelid join pg_namespace n on n.oid=c.relnamespace
+  cross join lateral aclexplode(coalesce(col.attacl,'{}'::aclitem[])) a
+  where n.nspname='public' and c.relkind in ('r','p') and col.attnum>0 and not col.attisdropped
+union all select 'A|function|' || p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')|' ||
+    pg_get_userbyid(a.grantor) || '|' || case when a.grantee=0 then 'PUBLIC' else pg_get_userbyid(a.grantee) end ||
+    '|' || a.privilege_type || '|' || a.is_grantable
+  from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+  cross join lateral aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a
+  where n.nspname='public'
 order by 1`;
 
 describe.skipIf(!url || pgMajor === null)(
@@ -168,20 +184,19 @@ describe.skipIf(!url || pgMajor === null)(
     it('сбой посреди восстановления откатывает всё: база остаётся как была', () => {
       const [dump] = readdirSync(dir).filter((f) => /^wetop-.*\.dump$/.test(f));
       psql("INSERT INTO public.restore_probe VALUES (4, 'после копии, до сбоя')");
+      // Make the target ACL distinguishable from the backup before the deliberately late failure.
+      psql('REVOKE UPDATE ON public.restore_probe FROM wetop_app');
+      const privilegesBefore = psql(PRIVILEGES_SQL);
+      const rowsBefore = psql('SELECT json_agg(p ORDER BY id)::text FROM public.restore_probe p');
+      expect(psql("SELECT to_regclass('public.no_such_table') IS NULL")).toBe('t');
       const broken = mkdtempSync(join(tmpdir(), 'wetop-restore-broken-'));
       try {
-        // папка миграций, где последняя миграция прав ссылается на несуществующую таблицу
-        const name = readdirSync(MIGRATIONS)
-          .sort()
-          .filter((n) =>
-            /\b(GRANT|REVOKE)\b/.test(readFileSync(join(MIGRATIONS, n, 'migration.sql'), 'utf8')),
-          )
-          .pop()!;
-        spawnSync('cp', ['-R', MIGRATIONS, join(broken, 'migrations')]);
-        spawnSync('sh', [
-          '-c',
-          `printf '\\nGRANT SELECT ON TABLE public.no_such_table TO wetop_app;\\n' >> "${join(broken, 'migrations', name, 'migration.sql')}"`,
-        ]);
+        // Inject a pure-grants file that the unchanged production selector MUST replay last.
+        const copied = spawnSync('cp', ['-R', MIGRATIONS, join(broken, 'migrations')]);
+        expect(copied.status).toBe(0);
+        const probe = join(broken, 'migrations', '99999999999999_restore_failure_probe');
+        mkdirSync(probe);
+        writeFileSync(join(probe, 'migration.sql'), 'GRANT SELECT ON TABLE public.no_such_table TO wetop_app;\n');
         const r = spawnSync(
           'bash',
           [resolve('scripts/ops/db-restore-prod.sh'), join(dir, dump!), '--yes-replace-production'],
@@ -197,7 +212,10 @@ describe.skipIf(!url || pgMajor === null)(
         );
         expect(r.status).toBe(1);
         expect(r.stderr).toContain('откатилось целиком');
+        expect(r.stderr).toContain('no_such_table');
         expect(psql('SELECT count(*) FROM public.restore_probe WHERE id = 4')).toBe('1');
+        expect(psql(PRIVILEGES_SQL)).toBe(privilegesBefore);
+        expect(psql('SELECT json_agg(p ORDER BY id)::text FROM public.restore_probe p')).toBe(rowsBefore);
       } finally {
         rmSync(broken, { recursive: true, force: true });
       }

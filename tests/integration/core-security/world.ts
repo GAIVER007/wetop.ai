@@ -195,5 +195,19 @@ export async function seedBeautyFoodWorld(admin: Db): Promise<BeautyFoodWorld> {
     'foreignOwner',
     actorOf(await user('OWNER', 'foreignowner', foreignOrg), foreignOrg, 'OWNER'),
   );
+  // Beauty writes revalidate the live assignments against the request actor.
+  // Persist only the same declared fixture scopes, never broaden actors to OWNER.
+  for (const actor of actors.values()) {
+    if (!actor.scopes?.length) continue;
+    await admin.membershipScope.createMany({
+      data: actor.scopes.map((scope) => ({
+        userId: actor.id,
+        organizationId: actor.organizationId,
+        role: scope.role,
+        businessId: scope.businessId,
+        locationId: scope.locationId,
+      })),
+    });
+  }
   return { org, foreignOrg, ids, actors };
 }

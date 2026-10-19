@@ -92,6 +92,15 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'working_hours',
   'time_offs',
   'appointments',
+  // Canonical Beauty134–137: FORCE RLS and tenant policies in the source migrations.
+  'beauty_appointment_reviews',
+  'beauty_review_invitations',
+  'beauty_service_material_revisions',
+  'beauty_service_materials',
+  'beauty_positions',
+  'beauty_position_permissions',
+  'beauty_position_assignments',
+  'beauty_location_hours',
   // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
   'competitors',
   'competitor_occupancy',

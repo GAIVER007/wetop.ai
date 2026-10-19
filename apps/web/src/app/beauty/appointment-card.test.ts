@@ -25,6 +25,26 @@ const render = (appointment = row, canEdit = true) => renderToStaticMarkup(creat
 }));
 
 describe('Пояснение недоступной неявки', () => {
+  const renderSplit = (appointment: BeautyAppointmentRow, canUpdate: boolean, canEdit?: boolean) =>
+    renderToStaticMarkup(createElement(AppointmentCard, {
+      day, row: appointment, canUpdate, canEdit, canCreate: true, canPay: true, onDone() {},
+    }));
+
+  it.each(['BOOKED', 'CONFIRMED'] as const)('объясняет будущий %s с canUpdate без legacy canEdit', (status) => {
+    const html = renderSplit({ ...row, status }, true);
+    expect(html).toContain('Не пришёл: Можно после начала визита');
+    expect(html).not.toMatch(/<button[^>]*>Не пришёл<\/button>/);
+  });
+  it('не подменяет canUpdate правами создания, оплаты или legacy canEdit', () => {
+    expect(renderSplit(row, false)).not.toContain('Можно после начала визита');
+    expect(renderSplit(row, false, true)).not.toContain('Можно после начала визита');
+  });
+  it('с canUpdate скрывает пояснение при разрешённой неявке и в конечном состоянии', () => {
+    const allowed = renderSplit({ ...row, next: [...row.next, 'NO_SHOW'] }, true);
+    expect(allowed).not.toContain('Можно после начала визита');
+    expect(allowed).toMatch(/<button[^>]*>Не пришёл<\/button>/);
+    expect(renderSplit({ ...row, status: 'DONE', next: [] }, true)).not.toContain('Можно после начала визита');
+  });
   it('объясняет серверный запрет и не рисует кнопку преждевременной неявки', () => {
     const html = render();
     expect(html).toContain('Можно после начала визита');

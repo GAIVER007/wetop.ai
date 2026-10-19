@@ -558,7 +558,7 @@ export class BeautyAppointmentsService {
     await beautyTransaction(this.prisma, scope, async (tx) => {
       const refused = appointmentStatusAllowed(to, await this.paidLocked(tx, row.id));
       if (refused) throw new ConflictException(refused);
-      if (to === 'DONE') await this.consumeMaterials(tx, scope, row.id);
+      const materials = to === 'DONE' ? await this.consumeMaterials(tx, scope, row.id) : null;
       await tx.$queryRaw`SELECT set_config('wetop.appointment_lines_write','on',true)`;
       const changed = await tx.appointment.updateMany({ where: { id: row.id, status: row.status, updatedAt: row.updatedAt }, data: { status: to } });
       if (changed.count !== 1) throw new ConflictException('Запись уже изменена, обновите данные');
@@ -570,7 +570,7 @@ export class BeautyAppointmentsService {
           entityId: row.id,
           action: 'beauty.appointment.status',
           before: { status: row.status },
-          after: { status: to },
+          after: materials ? { status: to, materials } : { status: to },
         },
       });
     });
@@ -702,8 +702,15 @@ export class BeautyAppointmentsService {
     return this.day(localDate(row.startsAt, scope.locationTimezone ?? 'UTC'));
   }
 
-  /** Чистая оплата записи под замком записи (§49, §54): оплаты минус возвраты; оплата, возврат, отмена и перенос по очереди */
-  private async consumeMaterials(tx: DbTx, scope: BeautyScope, appointmentId: string): Promise<void> {
+  /**
+   * Списание по техкарте при первом DONE. Возвращает снимок использованных техкарт для журнала:
+   * id строки, услуга, точная revision и нормы, без названий, партий и себестоимости.
+   * null: повторный DONE, списание уже было и нового снимка нет.
+   */
+  private async consumeMaterials(tx: DbTx, scope: BeautyScope, appointmentId: string): Promise<Array<{
+    appointmentLineId: string; serviceId: string; recipeRevision: number;
+    items: Array<{ productId: string; normQty: string; unit: string }>;
+  }> | null> {
     const completed = await tx.auditLog.findFirst({
       where: {
         entityType: 'appointment', entityId: appointmentId, action: 'beauty.appointment.status',
@@ -711,20 +718,37 @@ export class BeautyAppointmentsService {
       },
       select: { id: true },
     });
-    if (completed) return;
+    if (completed) return null;
+    // Сначала FOR SHARE на услугах записи: состав техкарты и её revision читаются под одним замком
+    const lineServices = await tx.appointmentLine.findMany({ where: { appointmentId }, select: { serviceId: true } });
+    const serviceIds = [...new Set(lineServices.map((line) => line.serviceId))].sort();
+    if (serviceIds.length)
+      await tx.$queryRaw`SELECT id FROM beauty_services WHERE id IN (${Prisma.join(serviceIds.map((id) => Prisma.sql`${id}::uuid`))}) ORDER BY id FOR SHARE`;
     const lines = await tx.appointmentLine.findMany({
       where: { appointmentId },
       orderBy: { position: 'asc' },
       select: {
         id: true,
+        serviceId: true,
         service: { select: { name: true, materials: {
           orderBy: { productId: 'asc' },
           select: { productId: true, normQty: true, unit: true, product: { select: { name: true } } },
         } } },
       },
     });
+    const revisions = new Map((serviceIds.length ? await tx.beautyServiceMaterialRevision.findMany({
+      where: { serviceId: { in: serviceIds } }, select: { serviceId: true, revision: true },
+    }) : []).map((row) => [row.serviceId, row.revision]));
+    const provenance = lines.map((line) => ({
+      appointmentLineId: line.id,
+      serviceId: line.serviceId,
+      recipeRevision: revisions.get(line.serviceId) ?? 0,
+      items: line.service.materials.map((material) => ({
+        productId: material.productId, normQty: milliText(milliOf(material.normQty)), unit: material.unit,
+      })),
+    }));
     const productIds = [...new Set(lines.flatMap((line) => line.service.materials.map((material) => material.productId)))].sort();
-    if (!productIds.length) return;
+    if (!productIds.length) return provenance;
     await tx.$queryRaw`SELECT id FROM kitchen_products WHERE id IN (${Prisma.join(productIds.map((id) => Prisma.sql`${id}::uuid`))}) ORDER BY id FOR SHARE`;
     await tx.$queryRaw`SELECT id FROM kitchen_stock_lots
       WHERE location_id = ${scope.locationId!}::uuid AND product_id IN (${Prisma.join(productIds.map((id) => Prisma.sql`${id}::uuid`))})
@@ -761,8 +785,10 @@ export class BeautyAppointmentsService {
         } });
       }
     }
+    return provenance;
   }
 
+  /** Чистая оплата записи под замком записи (§49, §54): оплаты минус возвраты; оплата, возврат, отмена и перенос по очереди */
   private async paidLocked(tx: DbTx, appointmentId: string): Promise<bigint> {
     await tx.$queryRaw`SELECT id FROM appointments WHERE id = ${appointmentId}::uuid FOR UPDATE`;
     const sums = await tx.restaurantCashOperation.groupBy({ by: ['kind'], where: { appointmentId, status: 'COMPLETED' }, _sum: { amount: true } });

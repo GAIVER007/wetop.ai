@@ -50,7 +50,7 @@ test('салон заводится той же формой и открывае
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал');
   await expect(main).toContainText('Студия Айна');
-  await expect(main.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' })).toBeVisible();
+  await expect(main.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и специалисты с рабочим графиком.' })).toBeVisible();
   await expect(main.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
   await page.screenshot({ path: `${SNAPSHOTS}/salon-1440.png`, fullPage: true });
 });

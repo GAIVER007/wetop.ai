@@ -6,6 +6,7 @@ import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createPrismaClient, Prisma, type Db } from '@pms/database';
 import { BeautyAppointmentsService } from '../../apps/api/src/beauty/appointments';
+import { BeautyAppointmentHistoryService } from '../../apps/api/src/beauty/appointment-history';
 import { BeautyCatalogService } from '../../apps/api/src/beauty/beauty.module';
 import { BeautyLocationHoursService } from '../../apps/api/src/beauty/location-hours';
 import { BeautyReviewsService } from '../../apps/api/src/beauty/reviews';
@@ -229,6 +230,54 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
       for (const statement of statements) await tx.$executeRawUnsafe(statement);
     });
   }
+
+  it('equal-total edits preserve complete immutable previous and next service-line snapshots', async () => {
+    const startsAt = '2037-01-12T09:00:00+05:00'; // programmatically verified unused Monday
+    const created = await asOwner(() => appointments.create({ startsAt, customerId: own.customer, items: [
+      { employeeId: own.employeeA, serviceId: own.serviceA, durationMinutes: 60, discountMinor: '100000' },
+      { employeeId: own.employeeB, serviceId: own.serviceB, durationMinutes: 30 },
+    ] }));
+    const id = created.appointments.find((row) => row.startsAt === new Date(startsAt).toISOString())!.id;
+    const previous = await db.appointmentLine.findMany({ where: { appointmentId: id }, orderBy: { position: 'asc' } });
+    const snapshot = (line: (typeof previous)[number]) => ({
+      position: line.position, employeeId: line.employeeId, serviceId: line.serviceId,
+      startsAt: line.startsAt.toISOString(), endsAt: line.endsAt.toISOString(),
+      basePriceMinor: line.basePriceMinor.toString(), discountMinor: line.discountMinor.toString(),
+      surchargeMinor: line.surchargeMinor.toString(), priceMinor: line.priceMinor.toString(),
+      discountPercent: line.discountPercent, currency: line.currency,
+    });
+    const moved = await asOwner(() => appointments.move(id, { startsAt, items: [
+      { employeeId: own.employeeA, serviceId: own.serviceA, durationMinutes: 45 },
+      { employeeId: own.employeeA, serviceId: own.serviceB, durationMinutes: 45, discountMinor: '100000' },
+    ] }));
+    const next = await db.appointmentLine.findMany({ where: { appointmentId: id }, orderBy: { position: 'asc' } });
+    const beforeVisit = created.appointments.find((row) => row.id === id)!;
+    const afterVisit = moved.appointments.find((row) => row.id === id)!;
+    expect(afterVisit.priceMinor).toBe(beforeVisit.priceMinor);
+    expect(afterVisit.startsAt).toBe(beforeVisit.startsAt);
+    expect(afterVisit.endsAt).toBe(beforeVisit.endsAt);
+    expect(next.map(snapshot)).not.toEqual(previous.map(snapshot));
+    const where = { organizationId: own.org, entityType: 'appointment', entityId: id };
+    const audit = await db.auditLog.findFirstOrThrow({ where: { ...where, action: 'beauty.appointment.moved' } });
+    expect(audit.before).toMatchObject({ priceMinor: beforeVisit.priceMinor, items: previous.map(snapshot) });
+    expect(audit.after).toMatchObject({ priceMinor: afterVisit.priceMinor, items: next.map(snapshot) });
+    const creation = await db.auditLog.findFirstOrThrow({ where: { ...where, action: 'beauty.appointment.created' } });
+    expect(creation.after).toMatchObject({ items: previous.map(snapshot) });
+    const history = new BeautyAppointmentHistoryService({ db } as unknown as PrismaService);
+    const read = await asOwner(() => history.history(id));
+    const event = read.items.find((row) => row.action === 'beauty.appointment.moved')!;
+    expect(event.before.items?.map((row) => [row.employee.id, row.endsAt, row.discountMinor]))
+      .toEqual(previous.map((row) => [row.employeeId, row.endsAt.toISOString(), row.discountMinor.toString()]));
+    expect(event.after.items?.map((row) => [row.employee.id, row.endsAt, row.discountMinor]))
+      .toEqual(next.map((row) => [row.employeeId, row.endsAt.toISOString(), row.discountMinor.toString()]));
+    try {
+      await db.beautyService.update({ where: { id: own.serviceB }, data: { name: 'Renamed synthetic catalog service' } });
+      expect((await db.auditLog.findUniqueOrThrow({ where: { id: audit.id } })).before).toEqual(audit.before);
+      expect((await db.auditLog.findUniqueOrThrow({ where: { id: audit.id } })).after).toEqual(audit.after);
+    } finally {
+      await db.beautyService.update({ where: { id: own.serviceB }, data: { name: 'Color' } });
+    }
+  });
 
   it('создаёт две последовательные строки, сумму визита и сегменты календаря по каждому мастеру', async () => {
     const day = await asOwner(() =>

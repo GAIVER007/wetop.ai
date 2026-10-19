@@ -763,15 +763,15 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
     const canonicalId = first.appointments.find((row) => row.startMinutes === 1020)!.customer.id;
     const canonical = await db.customer.findUniqueOrThrow({ where: { id: canonicalId },
       select: { firstName: true, lastName: true, phone: true, phoneNormalized: true } });
-    const differentlyNamed = await asOwner(() => appointments.create({
+    // Решение владельца 19.10.2026 (QUESTIONS.md): тот же телефон с другим полным именем не связывается сам,
+    // запись отказывает и просит выбрать существующего клиента; карточка и записи не меняются.
+    await expect(asOwner(() => appointments.create({
       startsAt: at('17:00'),
       firstName: 'Other',
       lastName: 'Client',
       phone: '+7 (700) 123-45-67',
       items: [{ employeeId: own.employeeB, serviceId: own.serviceB }],
-    }));
-    expect(differentlyNamed.appointments.find((row) => row.startMinutes === 1020 && row.employeeId === own.employeeB)?.customer.id)
-      .toBe(canonicalId);
+    }))).rejects.toThrow(/другим именем/);
     expect(await db.customer.findUniqueOrThrow({ where: { id: canonicalId },
       select: { firstName: true, lastName: true, phone: true, phoneNormalized: true } })).toEqual(canonical);
     expect(await db.customer.count({ where: { organizationId: own.org, phoneNormalized: canonical.phoneNormalized } })).toBe(1);

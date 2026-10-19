@@ -19,6 +19,16 @@ export function PortalForm({ context, command, children, label = 'Сохрани
   const [expectedRevision, setRevision] = useState(revision ?? '');
   const [expectedProfileRevision, setProfileRevision] = useState(profileRevision ?? '');
   const [dirty, setDirty] = useState(false);
+  const [rebaseline, setRebaseline] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    const form = formRef.current;
+    if (!rebaseline || !form) return;
+    form.dispatchEvent(new CustomEvent('employee-save-result', {
+      bubbles: true,
+      detail: { success: true, snapshot: employeeFormSignature(form) },
+    }));
+  }, [rebaseline]);
   const alive = useRef(true);
   const requestVersion = useRef(0);
   useEffect(() => {
@@ -35,7 +45,7 @@ export function PortalForm({ context, command, children, label = 'Сохрани
   }, [context.scope]);
   // Week inputs have their own controlled draft. Never rebase its version onto unseen remote hours.
   const formRevision = dirty || command === 'week' ? expectedRevision : (revision ?? expectedRevision);
-  return <><form data-testid={testId ?? `portal-${command}-form`} className="portal-form" data-employee-transition-form
+  return <><form ref={formRef} data-testid={testId ?? `portal-${command}-form`} className="portal-form" data-employee-transition-form
     onReset={event => event.preventDefault()}
     onChange={() => {
       if (!dirty && command !== 'week') setRevision(revision ?? expectedRevision);
@@ -64,6 +74,8 @@ export function PortalForm({ context, command, children, label = 'Сохрани
             bubbles: true,
             detail: { success: true, snapshot },
           }));
+          // Upload forms create a new item: the remounted fieldset comes back empty, so re-baseline after that render.
+          if (element.querySelector('input[type="file"]')) setRebaseline(n => n + 1);
           context.onSaved(result.data); setSaved(true); setDirty(false);
           if (command === 'profile') setProfileRevision(result.data.employee.profileRevision);
           const next = command === 'services' ? result.data.servicesRevision : command === 'week' ? result.data.weekRevision : command === 'pay-policy' ? result.data.pay.policyRevision : result.data.profile.revision;

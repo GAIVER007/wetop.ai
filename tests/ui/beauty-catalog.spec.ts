@@ -176,7 +176,7 @@ test('филиал включает услугу и ставит свою цен
   await panel.getByLabel(/Своя цена филиала/).fill('9500');
   await panel.getByLabel(/Своя длительность/).fill('90');
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+  await expect(panel.getByRole('status').filter({ hasText: 'Настройки филиала сохранены' })).toBeVisible();
   await page.goto('/beauty/services');
   const salonItem = main
     .locator('[data-service-list="salon"] .beauty-service-item')
@@ -390,7 +390,7 @@ test('стартовая услуга справа требует цену и п
   await expect(panel.getByRole('status')).toContainText('Услуга создана');
   await expect(panel.getByLabel('Филиал оказывает эту услугу')).toBeChecked();
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+  await expect(panel.getByRole('status').filter({ hasText: 'Настройки филиала сохранены' })).toBeVisible();
   await page.goto('/beauty/services');
   await expect(
     main.locator('[data-service-list="salon"] .beauty-service-item').filter({ has: page.getByText('Стрижка мужская', { exact: true }) }),

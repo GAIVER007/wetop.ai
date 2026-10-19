@@ -35,6 +35,24 @@ async function openSalon(page: Page, request: APIRequestContext) {
 }
 
 /** Салон, в котором уже можно записывать: услуга продаётся, мастер её умеет и работает в понедельник */
+/** Назначает специалисту услугу через API стенда с той же сессией и областью, что у страницы */
+async function assignService(page: Page, employeeId: string, name: string) {
+  const cookies = await page.context().cookies();
+  const scope = decodeURIComponent(cookies.find((c) => c.name === 'wetop_scope')!.value);
+  const session = cookies.find((c) => c.name === 'wetop_session')!.value;
+  const headers = { 'x-wetop-test-client': '1', 'x-wetop-scope': scope, 'x-wetop-session': session };
+  const catalog = await page.request.get(`${FIXTURE_API}/beauty/services`, { headers });
+  expect(catalog.status()).toBe(200);
+  const service = ((await catalog.json()) as { items: Array<{ id: string; name: string }> }).items.find(
+    (item) => item.name === name,
+  )!;
+  const assigned = await page.request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    headers,
+    data: { serviceIds: [service.id] },
+  });
+  expect(assigned.status()).toBe(200);
+}
+
 async function readySalon(page: Page, request: APIRequestContext) {
   await openSalon(page, request);
 
@@ -66,10 +84,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
   await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await panel.getByRole('tab', { name: 'Услуги', exact: true }).click();
-  await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
-  await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
+  // после создания открывается профиль специалиста; кабинета в подставном API нет, услуга назначается запросом
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  await assignService(page, page.url().split('/').at(-2)!, 'Маникюр');
 
   await page.goto('/beauty/schedule');
   await main.getByRole('button', { name: 'Дина', exact: true }).click();

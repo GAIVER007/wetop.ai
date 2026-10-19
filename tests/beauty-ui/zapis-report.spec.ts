@@ -26,10 +26,10 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await form.getByLabel('Услуга', { exact: true }).selectOption(f.services[0]!.id);
   await form.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   await form.getByLabel('Услуга 2', { exact: true }).selectOption(f.services[1]!.id);
-  await form.getByLabel('Мастер услуги 2', { exact: true }).selectOption(f.employees[1]!.id);
+  await form.getByLabel('Специалист услуги 2', { exact: true }).selectOption(f.employees[1]!.id);
   await form.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   await form.getByLabel('Услуга 3', { exact: true }).selectOption(f.services[0]!.id);
-  await form.getByLabel('Мастер услуги 3', { exact: true }).selectOption(f.employees[0]!.id);
+  await form.getByLabel('Специалист услуги 3', { exact: true }).selectOption(f.employees[0]!.id);
   await form.getByLabel('Часы услуги 1', { exact: true }).selectOption('0');
   await form.getByLabel('Минуты услуги 1', { exact: true }).selectOption('45');
   await form.getByText('Скидка и доплата', { exact: true }).first().click();

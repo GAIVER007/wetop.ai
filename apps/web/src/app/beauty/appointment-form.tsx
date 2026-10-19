@@ -174,8 +174,11 @@ export function AppointmentForm({
     return total < 0n ? null : total;
   };
   const totals = lines.map(lineTotal);
-  const validMoney = totals.every((value) => value !== null);
+  // An unselected service is reported by the native `required` check on submit; only lines with a
+  // chosen service can make the money or the duration invalid.
+  const validMoney = totals.every((value, index) => value !== null || !lines[index]!.serviceId);
   const validDuration = lines.every((line) => {
+    if (!line.serviceId) return true;
     const minutes = Number(line.duration || effectiveFor(line).duration);
     return Number.isInteger(minutes) && minutes > 0 && minutes <= 1440;
   });
@@ -576,7 +579,13 @@ export function AppointmentForm({
           type="submit"
           disabled={pending || !validMoney || !validDuration || state?.outcome === 'unknown'}
         >
-          {pending ? 'Сохраняем…' : editing ? 'Сохранить изменения' : 'Записать'}
+          {pending
+            ? editing
+              ? 'Сохраняем…'
+              : 'Записываем…'
+            : editing
+              ? 'Сохранить изменения'
+              : 'Записать'}
         </Button>
       </div>
     </form>

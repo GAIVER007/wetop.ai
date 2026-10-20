@@ -1,12 +1,17 @@
+import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
+import { can } from '@pms/domain';
 import type { SearchParams } from '../../../lib/search-params';
 import { requireFeature } from '../../../lib/vertical-guard';
 import { formatMoney } from '../../../lib/money';
+import { deskShell } from '../../../lib/desk-shell';
 import { verticalCopy } from '../../../lib/vertical-copy';
 import {
   marketingBudgetApi,
   marketingCampaignsApi,
+  metaConnectionApi,
   type MarketingCampaignView,
+  type MetaConnectionView,
   type MarketingResultsView,
 } from '../../../lib/api';
 import { Page } from '../../../components/page';
@@ -18,6 +23,9 @@ import './budget.css';
 import { loadBudget } from './load';
 import { BUDGET_TITLE, BudgetTabs, ChooseLocation, MonthNav, platformLabel } from './parts';
 import { budgetSummary, type CabinetSum, type Metric, type MoneyMetric } from './summary';
+import { dataSources, type DataSource, type SourceState } from './sources';
+import { ExpenseButton, ImportCsvButton, type ExpenseDefaults } from './drawers';
+import { ConnectButton } from '../ads/meta';
 
 /**
  * «Бюджет и аналитика → Сводка» (решение владельца 20.10.2026, `docs/decisions/2026-10-20-budget-analytics-summary.md`):
@@ -54,7 +62,9 @@ const romiCell = (m: Metric<number>) => (m.value === null ? <Missing reason={m.r
 export default async function BudgetSummaryPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const me = await requireFeature('/marketing/budget');
   const copy = verticalCopy(me.context?.vertical);
-  const loaded = await loadBudget(await searchParams);
+  const [loaded, shell] = await Promise.all([loadBudget(await searchParams), deskShell()]);
+  const role = shell.access.role;
+  const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
   const subtitle = 'Сколько потратили на продвижение, сколько пришло заявок и окупается ли каждый канал.';
   if (loaded.chooseLocation || loaded.error)
     return (
@@ -63,15 +73,30 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
       </Page>
     );
   const view = loaded.view!;
-  const [campaigns, results] = await Promise.all([
-    quiet(marketingCampaignsApi.list(view.month)).then((r): MarketingCampaignView[] | 'error' =>
-      r === 'error' ? r : r.campaigns,
-    ),
+  const [campaignsView, results, meta] = await Promise.all([
+    quiet(marketingCampaignsApi.list(view.month)),
     quiet<MarketingResultsView>(marketingBudgetApi.results(view.month)),
+    quiet<MetaConnectionView>(metaConnectionApi.view()),
   ]);
+  const campaigns: MarketingCampaignView[] | 'error' = campaignsView === 'error' ? 'error' : campaignsView.campaigns;
   const s = budgetSummary({ view, campaigns, results });
   const rc = view.reportingCurrency;
   const cabinet = s.cabinetSpend;
+  const sources = dataSources({
+    expenses: view.expenses.length,
+    otherAds: [...new Set(view.expenses.map((e) => e.platform))].filter((p) =>
+      ['GOOGLE', 'TIKTOK', 'YOUTUBE'].includes(p),
+    ),
+    meta,
+    results,
+    editable,
+  });
+  const defaults: ExpenseDefaults = {
+    today: view.today,
+    reportingCurrency: rc,
+    locationCurrency: view.locationCurrency,
+    campaigns: campaigns === 'error' ? [] : campaigns,
+  };
 
   return (
     <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
@@ -125,6 +150,7 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
             testId="summary-romi"
           />
         </Stats>
+        <Sources sources={sources} month={view.month} defaults={defaults} reportingCurrency={rc} />
         <p className="settings-note" data-testid="summary-separate-note">
           Расход вручную и расход кабинета Meta показаны отдельно и не складываются: оплата счёта Meta, записанная в
           журнал, это те же деньги, что у кабинета.
@@ -220,5 +246,78 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
         </section>
       </div>
     </Page>
+  );
+}
+
+const STATE: Record<SourceState, { tone: 'ok' | 'warn' | 'danger' | 'neutral' | 'info'; label: string }> = {
+  ok: { tone: 'ok', label: 'Работает' },
+  todo: { tone: 'warn', label: 'Нужно добавить' },
+  error: { tone: 'danger', label: 'Ошибка' },
+  off: { tone: 'neutral', label: 'Недоступно' },
+  manual: { tone: 'info', label: 'Вручную' },
+};
+
+/**
+ * «Откуда берутся цифры»: каждый источник сводки строкой: что он даёт, состояние и кнопка, которая его включает
+ * (добавить расход, загрузить CSV, подключить кабинет Meta). Владелец видит, что сделать, не уходя со сводки.
+ */
+function Sources({
+  sources,
+  month,
+  defaults,
+  reportingCurrency,
+}: {
+  sources: DataSource[];
+  month: string;
+  defaults: ExpenseDefaults;
+  reportingCurrency: string;
+}) {
+  return (
+    <section aria-labelledby="summary-sources-title" data-testid="summary-sources">
+      <SectionTitle id="summary-sources-title">Откуда берутся цифры</SectionTitle>
+      <ul className="budget-sources">
+        {sources.map((src) => (
+          <li key={src.key} className="panel budget-sources__row" data-testid={`source-${src.key}`}>
+            <div className="budget-sources__head">
+              <h3 className="budget-sources__title">{src.title}</h3>
+              <Badge tone={STATE[src.state].tone} data-testid={`source-${src.key}-state`}>
+                {STATE[src.state].label}
+              </Badge>
+            </div>
+            <p className="budget-sources__status" data-testid={`source-${src.key}-status`}>
+              {src.status}
+            </p>
+            <p className="budget-sources__text">{src.text}</p>
+            {src.actions.length > 0 && (
+              <div className="budget-sources__actions">
+                {src.actions.map((a) =>
+                  a === 'add-expense' ? (
+                    <ExpenseButton key={a} primary={src.state === 'todo'} defaults={defaults} />
+                  ) : a === 'import-csv' ? (
+                    <ImportCsvButton key={a} reportingCurrency={reportingCurrency} />
+                  ) : a === 'connect-meta' ? (
+                    <ConnectButton key={a} again={src.state === 'error'} />
+                  ) : (
+                    <Link
+                      key={a}
+                      className="btn btn--ghost btn--sm"
+                      href={
+                        a === 'journal'
+                          ? `/marketing/budget/expenses?month=${month}`
+                          : a === 'open-ads'
+                            ? '/marketing/ads'
+                            : `/marketing/analytics?month=${month}`
+                      }
+                    >
+                      {a === 'journal' ? 'Журнал расходов' : a === 'open-ads' ? 'Открыть «Рекламу»' : 'Открыть аналитику'}
+                    </Link>
+                  ),
+                )}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

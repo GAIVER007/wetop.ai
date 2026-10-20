@@ -130,6 +130,45 @@ test('сводка: расход вручную и кабинета раздел
   await expect(main.getByTestId('man-romi')).toHaveText('-28 %');
 });
 
+test('«Откуда берутся цифры»: состояние каждого источника и как его добавить прямо со сводки', async ({
+  page,
+  request,
+}) => {
+  const { month } = await seed(request);
+  const main = await openSummary(page, month);
+  const sources = main.getByTestId('summary-sources');
+  await expect(sources.getByRole('heading', { level: 3 })).toHaveText([
+    'Расходы вручную',
+    'Кабинет Meta (Facebook и Instagram)',
+    'Заявки и выручка',
+    'Другая реклама',
+  ]);
+  // пять строк журнала, одна из них вне бюджета
+  await expect(main.getByTestId('source-manual-status')).toHaveText('5 расходов за месяц');
+  await expect(main.getByTestId('source-manual-state')).toHaveText('Работает');
+  // кабинет в засеве не подключён: «нужно добавить» и вход через Facebook прямо здесь
+  await expect(main.getByTestId('source-meta-state')).toHaveText('Нужно добавить');
+  await expect(main.getByTestId('source-meta').getByTestId('meta-connect')).toBeVisible();
+  await expect(main.getByTestId('source-results-status')).toHaveText('Подтягиваются сами');
+  await expect(main.getByTestId('source-other-ads')).toContainText('Google Ads');
+
+  // расход добавляется со сводки, и сводка пересчитывается: +1 000 ₸ на сайт
+  await main.getByTestId('source-manual').getByTestId('budget-add').click();
+  const form = page.getByTestId('budget-expense-form');
+  await form.getByTestId('budget-platform').selectOption('SITE');
+  await form.getByTestId('budget-amount').fill('1000');
+  await form.getByTestId('budget-category').fill('Реклама');
+  await form.getByTestId('budget-save').click();
+  await expect(page.getByText('Расход добавлен')).toBeVisible();
+  await expect(main.getByTestId('summary-manual')).toHaveText('19 000 ₸');
+  await expect(main.getByTestId('source-manual-status')).toHaveText('6 расходов за месяц');
+  await expect(main.getByTestId('summary-row-SITE')).toContainText('5 000 ₸');
+
+  // CSV открывается той же панелью, что в журнале
+  await main.getByTestId('source-manual').getByTestId('budget-import').click();
+  await expect(page.getByRole('dialog', { name: 'Загрузка расходов' })).toBeVisible();
+});
+
 test('один пункт меню «Бюджет и аналитика»; прежние адреса работают и подсвечивают его', async ({ page, request }) => {
   // четыре экрана подряд: в режиме разработки каждый собирается при первом заходе
   test.setTimeout(120_000);

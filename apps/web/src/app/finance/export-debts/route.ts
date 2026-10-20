@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         422,
         `Долгов за период больше ${debts.rows.length} — укоротите период и выгрузите по частям.`,
       );
-    return new Response(debtsCsv(debts.rows), {
+    return new Response(debtsCsv(debts.rows, debts.currency), {
       headers: {
         'content-type': 'text/csv; charset=utf-8',
         'content-disposition': `attachment; filename="wetop-debts-${from}_${to}.csv"`,

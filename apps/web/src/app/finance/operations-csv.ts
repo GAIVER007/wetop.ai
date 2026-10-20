@@ -1,5 +1,6 @@
 import type { PeriodOperations } from '../../lib/api';
 import { csvField as field, csvTenge as tenge } from './csv';
+import { currencySign } from '../../lib/money';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 
 type Operation = PeriodOperations['rows'][number];
@@ -9,8 +10,8 @@ type Operation = PeriodOperations['rows'][number];
  * Дата и время — по часам объекта, возврат и расход — с минусом, перевод — «откуда → куда». Имён гостей нет:
  * файл уходит из системы, бронь находится по номеру.
  */
-export function operationsCsv(rows: Operation[]): string {
-  const head = ['Дата', 'Время', 'Тип', 'Статус', 'Способ', 'Сумма, ₸', 'Бронь', 'Статья', 'Комментарий'];
+export function operationsCsv(rows: Operation[], currency = 'KZT'): string {
+  const head = ['Дата', 'Время', 'Тип', 'Статус', 'Способ', `Сумма, ${currencySign(currency)}`, 'Бронь', 'Статья', 'Комментарий'];
   const lines = rows.map((o) => {
     const [day = '', time = ''] = o.localAt.split(' ');
     const [y, m, d] = day.split('-');

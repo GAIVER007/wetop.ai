@@ -28,7 +28,7 @@ import { Icon } from '../../components/icon';
 import { useConfirm } from '../../components/use-confirm';
 import type { AuthAccessStructure, AuthInvite, AuthMember } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
-import { periodTitle, revenueCells, revenueTotal, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
+import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import { ScopeEditor } from './scope-editor';
 import {
   fromScopes,
@@ -312,7 +312,6 @@ export function MembersTable({
   actorRole = null,
   revenue = null,
   revenueNav = null,
-  invites = 0,
 }: {
   members: AuthMember[];
   structure?: AuthAccessStructure | null;
@@ -320,8 +319,6 @@ export function MembersTable({
   /** «Сколько принёс» гостиницы по создавшему бронь (решение 20.10.2026); null = колонки нет */
   revenue?: StaffRevenue | null;
   revenueNav?: ReactNode;
-  /** число ожидающих приглашений для плитки «Ожидают ответа» */
-  invites?: number;
 }) {
   const earned = revenue ? revenueCells(revenue.items) : null;
   const unattributed = revenue ? unattributedLabel(revenue.items, 'HOSPITALITY') : null;
@@ -332,24 +329,13 @@ export function MembersTable({
   const withScope = hasChoice(structure);
   const [editing, setEditing] = useState<AuthMember | null>(null);
   const rows = members.map((m) => ({ ...m, id: m.userId }));
-  const suspended = members.filter((m) => m.suspended).length;
-  const admins = members.filter((m) => m.role === 'STAFF').length;
   return (
     <section className="settings-catalog" aria-label="Люди организации">
       <StaffBoard<AuthMember & { id: string }>
         caption="Сотрудники организации"
         tableTestId="team-table"
         rowTestId="member-row"
-        statsTestId="team-stats"
         notice={error ? <Alert boxed>{error}</Alert> : null}
-        stats={[
-          { label: 'Сотрудников', value: members.length, testId: 'team-stat-total' },
-          { label: 'Активных', value: members.length - suspended, testId: 'team-stat-active' },
-          ...(revenue ? [{ label: `Принесли ${periodTitle(revenue.period)}`, value: revenueTotal(revenue.items), testId: 'staff-total' }] : []),
-          { label: 'Ожидают ответа', value: invites, testId: 'team-stat-invites' },
-          { label: 'Доступ приостановлен', value: suspended, testId: 'team-stat-suspended' },
-          { label: 'Администраторов', value: admins, testId: 'team-stat-admins' },
-        ]}
         tabs={[{ id: 'all', label: 'Все', rows, empty: 'В организации пока никого нет' }]}
         search={(m) => `${m.name ?? ''} ${m.email} ${m.phone ?? ''}`}
         searchPlaceholder="Поиск по имени, почте или телефону"

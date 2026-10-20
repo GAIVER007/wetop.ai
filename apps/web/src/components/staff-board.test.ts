@@ -25,7 +25,6 @@ const columns: StaffColumn<Row>[] = [
 const render = (extra: Record<string, unknown> = {}) =>
   renderToStaticMarkup(createElement(StaffBoard<Row>, {
     caption: 'Сотрудники ресторана',
-    stats: [{ label: 'В персонале', value: 2 }, { label: 'Не назначено', value: 1, tone: 'warning' }],
     tabs: [{ id: 'all', label: 'Все', rows }, { id: 'un', label: 'Не назначено', rows: rows.slice(1) }],
     columns,
     search: (r: Row) => r.name,
@@ -36,9 +35,10 @@ const render = (extra: Record<string, unknown> = {}) =>
   }));
 
 describe('StaffBoard: один вид для всех направлений', () => {
-  it('плитки сводки, вкладки с числами, период и итог под таблицей', () => {
+  it('без плиток сводки (владелец 20.10.2026: «убери вообще»); вкладки с числами, период и итог под таблицей', () => {
     const html = render();
-    expect(html).toContain('В персонале');
+    expect(html).not.toContain('staff-board__stats');
+    expect(html).not.toContain('В персонале');
     expect(html).toMatch(/data-tab="all">Все2/);
     expect(html).toMatch(/data-tab="un">Не назначено1/);
     expect(html).toContain('data-period');

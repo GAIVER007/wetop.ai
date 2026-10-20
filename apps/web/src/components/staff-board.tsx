@@ -2,12 +2,12 @@
 import { useState, type ReactNode } from 'react';
 import { IconField } from './icon-field';
 import { Tabs } from './tabs';
-import { Field, Input, Stat, Stats, Table, type StatTone } from './ui';
+import { Field, Input, Table } from './ui';
 
 /**
  * Экран персонала, один вид для салона, ресторана и гостиницы (вариант A «Рабочая таблица», решение владельца
- * 20.10.2026, docs/decisions/2026-10-20-unified-staff-screen.md, DESIGN.md §8.4). Сверху плитки сводки, ниже карточка:
- * вкладки, поиск и период в одной полосе, таблица (каждый человек в одну строку), итог под таблицей.
+ * 20.10.2026, docs/decisions/2026-10-20-unified-staff-screen.md, DESIGN.md §8.4). Плиток сводки нет (владелец
+ * 20.10.2026: «убери вообще»). Карточка: поиск и период в одной полосе, вкладки, таблица (каждый человек в одну строку), итог под таблицей.
  * Направление передаёт только слова, строки и ячейки; раскладку и стили не трогает.
  */
 export interface StaffColumn<T> {
@@ -38,7 +38,6 @@ const cellClass = (c: { align?: 'start' | 'end'; className?: string }) =>
 
 export function StaffBoard<T extends { id: string }>({
   caption,
-  stats,
   tabs,
   columns,
   search,
@@ -48,11 +47,9 @@ export function StaffBoard<T extends { id: string }>({
   searchPlaceholder = 'Поиск по имени или телефону',
   rowTestId = 'staff-row',
   tableTestId,
-  statsTestId,
   notice,
 }: {
   caption: string;
-  stats: Array<{ label: string; value: ReactNode; tone?: StatTone; testId?: string }>;
   tabs: StaffTab<T>[];
   columns: StaffColumn<T>[];
   /** текст строки для поиска; нет = поиска нет */
@@ -62,10 +59,9 @@ export function StaffBoard<T extends { id: string }>({
   footer?: ReactNode;
   actions?: ReactNode;
   searchPlaceholder?: string;
-  /** прежние имена для тестов раздела: строка, таблица, плитки */
+  /** прежние имена для тестов раздела: строка и таблица */
   rowTestId?: string;
   tableTestId?: string;
-  statsTestId?: string;
   /** отказ действия или предупреждение над таблицей */
   notice?: ReactNode;
 }) {
@@ -117,16 +113,6 @@ export function StaffBoard<T extends { id: string }>({
   return (
     <div className="staff-board" data-testid="staff-board">
       {actions && <div className="staff-board__actions">{actions}</div>}
-      <Stats
-        min={180}
-        aria-label="Сводка по персоналу"
-        className="staff-board__stats"
-        {...(statsTestId ? { 'data-testid': statsTestId } : {})}
-      >
-        {stats.map((s) => (
-          <Stat key={s.label} label={s.label} value={s.value} tone={s.tone} testId={s.testId} />
-        ))}
-      </Stats>
       <section className="staff-board__card">
         <div className="staff-board__tools">
           {search && (

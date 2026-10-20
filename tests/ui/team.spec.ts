@@ -200,17 +200,16 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('«Сотрудники и доступ»: сводка по команде и должность выбором из двух вариантов', async ({
+test('«Сотрудники и доступ»: таблица без плиток и должность выбором из двух вариантов', async ({
   page,
 }) => {
   await signIn(page);
   await page.goto('/team');
   const main = page.getByRole('main');
-  const stats = main.getByTestId('team-stats');
-  await expect(stats.getByTestId('team-stat-total')).toHaveText('3');
-  await expect(stats.getByTestId('team-stat-active')).toHaveText('3');
-  await expect(stats.getByTestId('team-stat-suspended')).toHaveText('0');
-  await expect(stats.getByTestId('team-stat-admins')).toHaveText('1');
+  // плиток сводки нет (владелец 20.10.2026: «убери вообще»): сразу таблица команды
+  await expect(main.getByTestId('team-stats')).toHaveCount(0);
+  await expect(main.locator('.staff-board__stats')).toHaveCount(0);
+  await expect(main.getByTestId('member-row')).toHaveCount(3);
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const position = page.getByRole('dialog').getByLabel('Должность', { exact: true });
   await expect(position.locator('option')).toHaveText(['Управляющий', 'Администратор']);
@@ -268,7 +267,7 @@ test('приглашение: «Отправить заново» отзывае
   );
 });
 
-test('приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием', async ({
+test('приостановка доступа: подтверждение, метка, возобновление одним действием', async ({
   page,
 }) => {
   await signIn(page);
@@ -281,14 +280,11 @@ test('приостановка доступа: подтверждение, ме�
   await expect(confirm).toContainText('останется в команде');
   await confirm.getByRole('button', { name: 'Приостановить' }).click();
   await expect(yurij.getByTestId('member-suspended')).toHaveText('Приостановлен');
-  await expect(main.getByTestId('team-stat-suspended')).toHaveText('1');
-  await expect(main.getByTestId('team-stat-active')).toHaveText('2');
   // из команды не ушёл
   await expect(main.getByTestId('member-row')).toHaveCount(3);
   await yurij.getByRole('button', { name: /^Ещё:/ }).click();
   await page.getByRole('menuitem', { name: 'Возобновить' }).click();
   await expect(yurij.getByTestId('member-suspended')).toHaveCount(0);
-  await expect(main.getByTestId('team-stat-suspended')).toHaveText('0');
 });
 
 test('приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора', async ({

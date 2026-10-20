@@ -81,7 +81,6 @@ export default async function TeamPage({
               members={members}
               structure={structure}
               actorRole={role}
-              invites={invites.length}
               revenue={revenue}
               revenueNav={<StaffRevenuePeriodNav path="/team" period={period} />}
             />

@@ -62,7 +62,8 @@ test('вкладки по назначению и назначение стар�
   await seedPeople(request);
   await page.goto('/employees');
   const tabs = tablist(page);
-  // единый экран (вариант A, 20.10.2026): «Все» первой, «Не назначено» с числом и плиткой-предупреждением
+  // единый экран (вариант A, 20.10.2026): «Все» первой, «Не назначено» с числом; плиток сводки нет (владелец 20.10.2026)
+  await expect(page.getByRole('main').locator('.staff-board__stats')).toHaveCount(0);
   await expect(tabs.getByRole('tab')).toHaveText([
     'Все4',
     'Не назначено1',

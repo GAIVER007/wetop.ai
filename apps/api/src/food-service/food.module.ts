@@ -270,6 +270,11 @@ export class BranchCashController {
   @Get('cash') cash(@Query() q: Record<string, unknown>) {
     return this.service.cash(q);
   }
+  /** «Сколько принёс сотрудник» (docs/decisions/2026-10-20-personnel-revenue.md): оплачено минус возвраты */
+  @BeautyAccess('finance','view')
+  @Get('staff-revenue') @Access('reports') staffRevenue(@Query() q: Record<string, unknown>) {
+    return this.service.staffRevenue(q);
+  }
   @BeautyAccess('finance','create')
   @Post('cash/operations') cashOperation(@Body() b: unknown) {
     return this.service.cashOperation(b);

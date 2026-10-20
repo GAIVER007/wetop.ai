@@ -55,12 +55,13 @@ import {
   parsePersonnelKind,
 } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
-import { actorMay, currentRole, currentUserId } from '../auth/request-context';
+import { actorMay, currentRole, currentUserId, currentVertical } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { BRANCH_CASH_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/write-contract';
 import { StockService } from './stock.service';
+import { branchStaffRevenue } from './staff-revenue';
 
 /** Срок ссылки на оценку с телефона гостя (§40) */
 const RATING_LINK_TTL_MS = 72 * 3_600_000;
@@ -1485,6 +1486,23 @@ export class RestaurantService {
   }
 
   // ─── Отчёт ресторана за период (Аналитика) ───
+
+  /**
+   * «Сколько принёс сотрудник» салона и ресторана (docs/decisions/2026-10-20-personnel-revenue.md):
+   * оплачено минус возвраты за день, неделю или месяц по часам филиала
+   */
+  async staffRevenue(query: unknown, now = new Date()) {
+    foodMay('reports');
+    const s = await foodScope(this.prisma.db, BRANCH_CASH_VERTICALS);
+    const q = parsed(() => foodObject(query, ['period']));
+    const vertical = currentVertical() === 'BEAUTY' ? 'BEAUTY' : 'FOOD_SERVICE';
+    try {
+      return await branchStaffRevenue(this.prisma.db, { ...s, vertical }, q.period, now);
+    } catch (e) {
+      if (e instanceof RangeError) throw new BadRequestException(e.message);
+      throw e;
+    }
+  }
 
   /** Деньги и продажи за период по поясу филиала: закрытые заказы, оплаты по способам, блюда, официанты */
   async periodReport(query: unknown) {

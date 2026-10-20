@@ -378,6 +378,9 @@ function makeFakes() {
       return itemId === 'S-1' ? { code: '9001' } : null;
     },
     // ── касса (DATA_MODEL §21): статьи как после первого чтения (стартовый набор), операции в памяти ──
+    async staffRevenueEntries() {
+      return { fromDate: '2026-10-20', toDate: '2026-10-20', entries: [], names: {} };
+    },
     async cashBalanceSources() {
       return {
         currency: 'KZT',

@@ -318,7 +318,8 @@ auto-release → Run workflow (перемотает вершину, у кото�
 копию проекта под каждую задачу и сам их не удаляет; 17–18.10 диск из-за этого дважды подходил к 97 %. Каждую ночь
 `scripts/ops/hermes-workspace-prune.sh` убирает в его копиях только `node_modules` и `.next*`, и только там, где файлы не
 менялись 6 часов и нет процессов Hermes; исходники, `.git`, отчёты и базы не трогает, затем чистит кэш сборки Docker.
-`--dry-run` только показывает. Установка от root (повторить строку при обновлении скрипта):
+`--dry-run` только показывает. С 19.10.2026 тот же скрипт ещё и удаляет несвежие копии целиком, сохранив их
+(см. [§1е](#1е-ночная-уборка-копий-агента-hermes-19102026)). Установка от root (повторить строку при обновлении скрипта):
 
 ```bash
 git -C /root/wetop fetch -q origin main && git -C /root/wetop show origin/main:scripts/ops/hermes-workspace-prune.sh > /usr/local/sbin/hermes-workspace-prune && chmod +x /usr/local/sbin/hermes-workspace-prune
@@ -402,8 +403,8 @@ ssh hostinger /usr/local/sbin/hermes-workspace-prune --dry-run
 ```
 
 Вернуть удалённую копию: в клоне или новом рабочем дереве `git fetch <бэкап>/unpushed.bundle HEAD` и
-`git checkout FETCH_HEAD` (коммит из `head.txt`), затем `git apply tracked.patch` и `tar xzf untracked.tgz`. Установка новой версии скрипта:
-`scp scripts/ops/hermes-workspace-prune.sh hostinger:/usr/local/sbin/hermes-workspace-prune`.
+`git checkout FETCH_HEAD` (коммит из `head.txt`), затем `git apply tracked.patch` и `tar xzf untracked.tgz`. Установка и обновление скрипта: команда в §1д,
+абзац «Кэши агента Hermes».
 
 ## 2. Главная `wetop.ai`
 

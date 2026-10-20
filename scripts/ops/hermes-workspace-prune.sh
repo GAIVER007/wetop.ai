@@ -65,8 +65,8 @@ refs_of() {
 
 # сохранить копию $1 (полный путь) в каталог $2; каждая ошибка возвращает 1 (set -e внутри `if` не действует)
 backup() {
-  local src="$1" dst="$2" refs
-  mapfile -t refs < <(refs_of "$src")
+  local src="$1" dst="$2" refs r
+  refs=(); while IFS= read -r r; do refs+=("$r"); done < <(refs_of "$src")
   mkdir -p "$dst" || return 1
   echo "$(basename "$src") $(g -C "$src" rev-parse HEAD) $(g -C "$src" symbolic-ref -q --short HEAD || true)" > "$dst/head.txt" || return 1
   if [ "$(g -C "$src" rev-list --count "${refs[@]}" --not --remotes)" -gt 0 ]; then
@@ -101,7 +101,7 @@ for dir in "$ROOT"/*/; do
   [ -e "$dst" ] && dst="$dst-$(date -u +%H%M%S)"
   size="$(du -xsm "$path" | cut -f1)"
   if [ "$DRY" = 1 ]; then
-    mapfile -t refs < <(refs_of "$path")
+    refs=(); while IFS= read -r r; do refs+=("$r"); done < <(refs_of "$path")
     unpushed="$(g -C "$path" rev-list --count "${refs[@]}" --not --remotes 2>/dev/null || echo '?')"
     changed="$(g -C "$path" status --porcelain 2>/dev/null | wc -l)"
     say "удалилась бы ($kind, ${size} МБ, неотправленных коммитов $unpushed, изменённых файлов $changed): $copy → $dst"
@@ -132,10 +132,10 @@ while IFS= read -r cache; do
   recent "$copy" caches "$IDLE" && continue
   size="$(du -xsk "$cache" | cut -f1)"
   if [ "$DRY" = 1 ]; then
-    say "убрался бы кэш: $cache (${size} КБ)"
+    echo "убралось бы: $cache (${size} КБ)"
   else
     rm -rf -- "$cache"
-    echo "убран кэш: $cache (${size} КБ)"
+    echo "убрано: $cache (${size} КБ)"
   fi
   freed=$((freed + size))
 done < <(find . -xdev -mindepth 2 -maxdepth 5 -type d \( -name node_modules -o -name .next -o -name '.next-*' \) -prune -print)

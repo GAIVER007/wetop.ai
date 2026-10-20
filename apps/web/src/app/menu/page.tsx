@@ -7,6 +7,8 @@ import { completeFoodList } from '../../lib/food-data';
 import type { MenuCategory, MenuItemView } from '../../lib/food-types';
 import { MenuBoard } from '../food/menu-board';
 import { restaurantShell } from '../food/restaurant-load';
+import { currencySign } from '../../lib/money';
+import { selectedWorkspaceBranch } from '../../lib/workspace-context';
 import '../food/food.css';
 import '../food/restaurant.css';
 
@@ -14,7 +16,7 @@ import '../food/restaurant.css';
 export default async function MenuPage() {
   try {
     const shell = await restaurantShell();
-    const [categories, items, stock] = await Promise.all([
+    const [categories, items, stock, branch] = await Promise.all([
       completeFoodList<MenuCategory>(restaurantApi.categories),
       completeFoodList<MenuItemView>(restaurantApi.menuItems),
       // склад нужен только для связи техкарты (§38); нет доступа к складу — техкарта без связи
@@ -22,6 +24,8 @@ export default async function MenuPage() {
         (r) => r.items.filter((p) => p.active).map((p) => ({ id: p.id, name: p.name, unit: p.unit })),
         () => [],
       ),
+      // цены меню в валюте филиала, не всегда тенге (поручение владельца 20.10.2026)
+      selectedWorkspaceBranch(),
     ]);
     return (
       <Page title="Меню">
@@ -30,7 +34,7 @@ export default async function MenuPage() {
             ctx={{
               scopeKey: shell.scopeKey,
               write: shell.canProperty && !shell.readOnly,
-              currencyHint: '₸',
+              currencyHint: currencySign(branch?.currency ?? 'KZT'),
             }}
             categories={categories}
             items={items}

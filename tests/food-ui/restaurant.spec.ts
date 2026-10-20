@@ -462,6 +462,15 @@ test('сотрудники: «Принёс» за период, добавлен
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя и фамилия').fill('Петров Максим');
   await expect(dialog.getByLabel('Кто это')).toHaveValue('OTHER_EMPLOYEE');
+  // «Доступ в WETOP» (решение владельца 20.10.2026): другой сотрудник по умолчанию без входа, официант в кабинет
+  const access = dialog.getByTestId('staff-access');
+  await expect(access.getByRole('radio', { name: /^Без входа/ })).toBeChecked();
+  await dialog.getByLabel('Кто это').selectOption('SPECIALIST');
+  await expect(access.getByRole('radio', { name: /^Личный кабинет/ })).toBeChecked();
+  await expect(access.getByTestId('staff-access-details')).toContainText('Свои заказы');
+  await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/staff-access-food-1440.png', fullPage: true });
+  await dialog.getByLabel('Кто это').selectOption('OTHER_EMPLOYEE');
+  await access.getByRole('radio', { name: /^Без входа/ }).check();
   await dialog.getByRole('button', { name: 'Сохранить' }).click();
   await expect(dialog).not.toBeVisible();
   await tabs.getByRole('tab', { name: /^Другие сотрудники/ }).click();

@@ -213,6 +213,11 @@ test('«Сотрудники и доступ»: таблица без плито
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const position = page.getByRole('dialog').getByLabel('Должность', { exact: true });
   await expect(position.locator('option')).toHaveText(['Управляющий', 'Администратор']);
+  // что увидит человек с выбранной должностью (уровни доступа, решение владельца 20.10.2026)
+  const sees = page.getByRole('dialog').getByTestId('invite-role-sees');
+  await expect(sees).toContainText('Шахматка');
+  await position.selectOption('MANAGER');
+  await expect(sees).toContainText('Сотрудники и доступ');
   // свободного текста «Должность» в приглашении нет: только выбор
   await expect(page.getByRole('dialog').locator('input[name="memberPosition"]')).toHaveCount(0);
 });
@@ -357,7 +362,7 @@ test('приглашение с именем, телефоном и филиал
   await expect(page.getByTestId('invite-list')).toContainText('scoped@example.com');
 });
 
-test('управляющий: «Доступ» только администраторам, в списке ролей один вариант', async ({
+test('управляющий: «Доступ» только администраторам, в списке ролей администратор и личный кабинет', async ({
   page,
   request,
 }) => {
@@ -374,8 +379,10 @@ test('управляющий: «Доступ» только администра
     .click();
   const drawer = page.getByRole('dialog');
   await drawer.getByLabel('Выбранные филиалы').check();
+  // «Личный кабинет» управляющий тоже выдаёт (уровни доступа, решение владельца 20.10.2026), «Управляющего» нет
   await expect(drawer.getByLabel('Главный филиал: роль').locator('option')).toHaveText([
     'Нет доступа',
     'Администратор',
+    'Личный кабинет',
   ]);
 });

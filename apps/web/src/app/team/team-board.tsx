@@ -9,6 +9,7 @@ import {
 } from 'react';
 import {
   MEMBERSHIP_ROLES,
+  accessLevelInfo,
   invitableRoles,
   type InviteRole,
   type MembershipRole,
@@ -134,7 +135,8 @@ function InviteForm({
   onDone: () => void;
 }) {
   const team = useContext(TeamContext);
-  const roles = invitableRoles(role);
+  // «Личный кабинет» выдаётся из формы «Новый сотрудник» (вход привязывается к карточке сотрудника), здесь его нет
+  const roles = invitableRoles(role).filter((r) => r !== 'EMPLOYEE');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -247,6 +249,9 @@ function InviteForm({
           владелец.
         </p>
       )}
+      <p className="muted" data-testid="invite-role-sees">
+        Увидит: {accessLevelInfo('HOSPITALITY')[inviteRole === 'MANAGER' ? 'MANAGER' : 'STAFF'].sees.join(', ')}.
+      </p>
       <Field label="Телефон (необязательно)">
         <Input
           type="tel"
@@ -394,6 +399,7 @@ export function MembersTable({
                 >
                   <option value="MANAGER">{capital(MEMBERSHIP_ROLES.MANAGER)}</option>
                   <option value="STAFF">{capital(MEMBERSHIP_ROLES.STAFF)}</option>
+                  <option value="EMPLOYEE">{capital(MEMBERSHIP_ROLES.EMPLOYEE)}</option>
                 </Select>
               ) : (
                 MEMBERSHIP_ROLES[m.role]

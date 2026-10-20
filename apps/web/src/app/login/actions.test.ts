@@ -1,7 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { INVITE_ROLE_MESSAGE } from '@pms/domain';
 import { authApi } from '../../lib/api';
-import { inviteAction, setMemberScopesAction, signOut, signIn } from './actions';
+import { inviteAction, inviteNewStaffAction, setMemberScopesAction, signOut, signIn } from './actions';
 import { redirect } from 'next/navigation';
 import { clearScopeCookie } from '../../lib/session';
 
@@ -123,4 +123,34 @@ it('устаревшая организация блокирует измене�
     error: expect.any(String),
   });
   expect(setScopes).not.toHaveBeenCalled();
+});
+
+// Доступ при добавлении сотрудника (решение владельца 20.10.2026): уровень → роль приглашения, сотрудник и филиалы
+it('новый сотрудник: «Без входа» ничего не шлёт, «Личный кабинет» зовёт с ролью EMPLOYEE и сотрудником', async () => {
+  const invite = vi.spyOn(authApi, 'invite').mockResolvedValue({
+    id: 'i-2',
+    email: 'anna@example.invalid',
+    expiresAt: '',
+    acceptedAt: null,
+    createdAt: '',
+  });
+  expect(await inviteNewStaffAction({ employeeId: 'e-1', level: 'NONE', email: '', allBranches: false })).toEqual({
+    error: null,
+    invited: null,
+  });
+  expect(invite).not.toHaveBeenCalled();
+  expect(
+    await inviteNewStaffAction({ employeeId: 'e-1', level: 'PORTAL', email: '', allBranches: false }),
+  ).toEqual({ error: 'Для входа в WETOP укажите почту: на неё придёт приглашение.', invited: null });
+  expect(
+    await inviteNewStaffAction({ employeeId: 'e-1', level: 'PORTAL', email: ' anna@example.invalid ', allBranches: false }),
+  ).toEqual({ error: null, invited: 'anna@example.invalid' });
+  expect(invite).toHaveBeenLastCalledWith('ui-session', 'anna@example.invalid', 'EMPLOYEE', expect.anything(), {
+    employeeId: 'e-1',
+  });
+  await inviteNewStaffAction({ employeeId: 'e-1', level: 'STAFF', email: 'a@example.invalid', allBranches: true });
+  expect(invite).toHaveBeenLastCalledWith('ui-session', 'a@example.invalid', 'STAFF', expect.anything(), {
+    employeeId: 'e-1',
+    allBranches: true,
+  });
 });

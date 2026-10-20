@@ -59,15 +59,18 @@ const ROLE_PERMISSIONS: Readonly<Record<MembershipRole, readonly Permission[]>> 
   OWNER: ALL,
   MANAGER: ALL.filter((p) => p !== 'owner' && p !== 'journal'),
   STAFF: ['self', 'desk', 'dialogs', 'reports'],
+  // «Личный кабинет» (20.10.2026): только своё; свои записи, график, зарплату и отзывы отдаёт кабинет сотрудника
+  EMPLOYEE: ['self'],
 };
 
-const ROLE_ORDER: readonly MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF'];
+const ROLE_ORDER: readonly MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF', 'EMPLOYEE'];
 
 /** Родительный падеж — для строки отказа «доступ есть у владельца и управляющего» */
 const GENITIVE: Readonly<Record<MembershipRole, string>> = {
   OWNER: 'владельца',
   MANAGER: 'управляющего',
   STAFF: 'администратора',
+  EMPLOYEE: 'сотрудника',
 };
 
 /**

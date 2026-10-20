@@ -1,0 +1,10 @@
+{
+  "pages": {},
+  "app": {
+    "[project]/wt-personnel/apps/web/src/app/customers/[id]/page": [
+      "static/media/inter_wetop-s.p.0g7knm8koy6_q.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pagesUsingSizeAdjust": false
+}

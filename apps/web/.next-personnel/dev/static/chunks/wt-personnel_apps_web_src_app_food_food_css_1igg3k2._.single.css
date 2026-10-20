@@ -1,0 +1,278 @@
+/* [project]/wt-personnel/apps/web/src/app/food/food.css [app-client] (css) */
+@layer sections {
+  .food-workspace {
+    gap: 24px;
+    min-width: 0;
+    display: grid;
+  }
+
+  .food-toolbar, .food-tabs, .food-inline-actions, .food-section-heading {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    display: flex;
+  }
+
+  .food-section-heading {
+    justify-content: space-between;
+  }
+
+  @media (max-width: 600px) {
+    .food-section-heading > a {
+      min-height: var(--touch-target);
+      align-items: center;
+      display: inline-flex;
+    }
+  }
+
+  .food-section-heading h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  .food-toolbar .field {
+    min-width: 0;
+  }
+
+  .food-summary {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 24px;
+    padding: 16px 0;
+    display: flex;
+  }
+
+  .food-summary span {
+    align-items: baseline;
+    gap: 8px;
+    font-size: 13px;
+    display: flex;
+  }
+
+  .food-summary strong {
+    font-size: 18px;
+  }
+
+  .food-table-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+    display: grid;
+  }
+
+  .food-table-card {
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    min-height: 156px;
+    color: var(--text);
+    cursor: pointer;
+    flex-direction: column;
+    align-items: start;
+    gap: 8px;
+    padding: 16px;
+    display: flex;
+  }
+
+  .food-table-card:hover {
+    border-color: var(--primary);
+  }
+
+  .food-table-card strong {
+    font-size: 16px;
+  }
+
+  .food-table-card small {
+    color: var(--muted);
+  }
+
+  .food-table-card[data-status="SEATED"] {
+    border-left: 3px solid var(--primary);
+  }
+
+  .food-table-card .badge {
+    margin-top: auto;
+  }
+
+  .food-unassigned {
+    gap: 8px;
+    display: grid;
+  }
+
+  .food-reservation-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    gap: 8px;
+    padding: 16px;
+    display: grid;
+  }
+
+  .food-catalog-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+    gap: 16px;
+    display: grid;
+  }
+
+  .food-catalog-list {
+    margin-bottom: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .food-catalog-list li {
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    display: flex;
+  }
+
+  .food-catalog-list li > div {
+    flex: 1;
+    gap: 4px;
+    display: grid;
+  }
+
+  .food-catalog-list span {
+    font-size: 13px;
+  }
+
+  .food-form, .food-detail {
+    gap: 16px;
+    display: grid;
+  }
+
+  .food-form-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    display: grid;
+  }
+
+  .food-form .field, .food-form-row .field {
+    min-width: 0;
+  }
+
+  .food-check {
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    display: flex;
+  }
+
+  .food-detail dl {
+    grid-template-columns: 1fr 1.4fr;
+    gap: 16px;
+    margin: 0;
+    display: grid;
+  }
+
+  .food-detail dd {
+    overflow-wrap: anywhere;
+    margin: 0;
+  }
+
+  .food-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+    display: flex;
+  }
+
+  .food-mobile-reservations {
+    display: none;
+  }
+
+  .food-drawer {
+    max-width: 520px;
+  }
+
+  .food-drawer .overlay-content {
+    padding-bottom: 32px;
+  }
+
+  @media (max-width: 600px) {
+    .food-workspace {
+      gap: 16px;
+    }
+
+    .food-toolbar {
+      gap: 8px;
+    }
+
+    .food-toolbar .field {
+      flex: 120px;
+    }
+
+    .food-toolbar input, .food-toolbar select {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .food-summary {
+      gap: 16px;
+    }
+
+    .food-summary span {
+      font-size: var(--text-xs);
+      gap: 4px;
+    }
+
+    .food-summary strong {
+      font-size: 16px;
+    }
+
+    .food-table-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .food-table-card {
+      overflow-wrap: anywhere;
+      min-height: 156px;
+      padding: 16px;
+    }
+
+    .food-desktop-reservations {
+      display: none;
+    }
+
+    .food-mobile-reservations {
+      gap: 16px;
+      display: grid;
+    }
+
+    .food-drawer {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .food-section-heading {
+      align-items: flex-start;
+    }
+
+    .food-inline-actions {
+      gap: 8px;
+    }
+  }
+
+  .food-drawer.ui-overlay {
+    background: var(--surface-solid);
+  }
+
+  .food-detail dt {
+    color: var(--text-2);
+  }
+
+  .food-workspace > section > h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+}
+
+/*# sourceMappingURL=wt-personnel_apps_web_src_app_food_food_css_1igg3k2._.single.css.map*/

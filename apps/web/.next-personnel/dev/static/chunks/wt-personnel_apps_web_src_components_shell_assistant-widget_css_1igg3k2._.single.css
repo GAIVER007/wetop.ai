@@ -1,0 +1,21 @@
+/* [project]/wt-personnel/apps/web/src/components/shell/assistant-widget.css [app-client] (css) */
+@layer sections {
+  @media (max-width: 600px) {
+    body .pmsw-b {
+      bottom: calc(var(--space-16) + var(--space-6) + env(safe-area-inset-bottom, 0px));
+    }
+
+    body .pmsw-p {
+      bottom: calc(var(--space-16) * 2 + var(--space-10) + env(safe-area-inset-bottom, 0px));
+      max-height: calc(100vh - var(--space-16) * 3 - var(--space-10) - env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  @media print {
+    body .pmsw {
+      display: none;
+    }
+  }
+}
+
+/*# sourceMappingURL=wt-personnel_apps_web_src_components_shell_assistant-widget_css_1igg3k2._.single.css.map*/

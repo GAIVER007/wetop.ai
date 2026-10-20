@@ -1,0 +1,28 @@
+/* [project]/wt-personnel/apps/web/src/app/inter_5bd4dcbe.module.css [app-client] (css) */
+@font-face {
+  font-family: inter;
+  src: url("../media/inter_wetop-s.p.0g7knm8koy6_q.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: inter Fallback;
+  src: local(Arial);
+  ascent-override: 89.79%;
+  descent-override: 22.36%;
+  line-gap-override: 0.0%;
+  size-adjust: 107.89%;
+}
+
+.inter_5bd4dcbe-module__ofEkSq__className {
+  font-family: inter, inter Fallback, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+  font-style: normal;
+}
+
+.inter_5bd4dcbe-module__ofEkSq__variable {
+  --font-inter: "inter", "inter Fallback", -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+}
+
+/*# sourceMappingURL=wt-personnel_apps_web_src_app_inter_5bd4dcbe_module_css_1igg3k2._.single.css.map*/

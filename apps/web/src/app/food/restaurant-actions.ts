@@ -173,17 +173,18 @@ export async function setTableCleaning(
 export async function mutateStaff(
   scopeKey: string,
   command: StaffCommand,
-): Promise<{ error: string | null }> {
+): Promise<{ error: string | null; createdId?: string }> {
   try {
     await scope(scopeKey);
-    if (command.kind === 'create') await restaurantApi.createEmployee(command.body);
+    let createdId: string | undefined;
+    if (command.kind === 'create') createdId = (await restaurantApi.createEmployee(command.body)).id;
     else if (command.kind === 'edit') await restaurantApi.updateEmployee(command.id, command.body);
     else if (command.kind === 'pay-settings')
       await restaurantApi.setPaySettings(command.id, command.body);
     else if (command.kind === 'payout') await restaurantApi.payout(command.id, command.body);
     else await restaurantApi.addPayAdjustment(command.id, command.body);
     for (const path of ['/employees', '/payroll', '/cashbox']) revalidatePath(path);
-    return { error: null };
+    return { error: null, ...(createdId ? { createdId } : {}) };
   } catch (error) {
     return failure(error);
   }

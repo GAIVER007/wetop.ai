@@ -37,6 +37,12 @@ export async function FoodEmployeesScreen({ period = 'day' }: { period?: StaffRe
             canAssignPersonnelKind={canAssignPersonnelKind && !shell.readOnly}
             revenue={revenue}
             revenueNav={<StaffRevenuePeriodNav path="/employees" period={period} />}
+            access={{
+              levels: shell.readOnly ? [] : shell.accessLevels,
+              canAllBranches: shell.canAllBranches,
+              branchName: shell.branchName,
+              vertical: 'FOOD_SERVICE',
+            }}
           />
         </div>
       </Page>

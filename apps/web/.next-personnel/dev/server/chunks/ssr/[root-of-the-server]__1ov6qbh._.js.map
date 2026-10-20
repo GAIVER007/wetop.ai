@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 10, "column": 0}, "map": {"version":3,"sources":["file:///home/hermes/wt-personnel/apps/web/src/app/@drawer/[...catchAll]/page.tsx"],"sourcesContent":["export default function CatchAll() {\n  return null;\n}\n"],"names":["CatchAll"],"mappings":";;;;AAAe,SAASA;IACtB,OAAO;AACT"}},
+    {"offset": {"line": 28, "column": 0}, "map": {"version":3,"sources":["file:///home/hermes/wt-personnel/apps/web/src/app/icon.svg.mjs%20(structured%20image%20object)"],"sourcesContent":["import src from \"IMAGE\";\nexport default { src, width: 48, height: 48 }\n"],"names":["src","width","height"],"mappings":";;;;AAAA;;uCACe;IAAEA,KAAAA,yKAAG;IAAEC,OAAO;IAAIC,QAAQ;AAAG"}}]
+}

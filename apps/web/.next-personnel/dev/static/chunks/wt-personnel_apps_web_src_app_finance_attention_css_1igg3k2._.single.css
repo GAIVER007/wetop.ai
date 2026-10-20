@@ -1,0 +1,337 @@
+/* [project]/wt-personnel/apps/web/src/app/finance/attention.css [app-client] (css) */
+@layer sections {
+  .card-heading__link {
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--primary);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+    display: inline-flex;
+  }
+
+  .card-heading__link:hover {
+    text-decoration: underline;
+  }
+
+  .attention-card {
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .attention-heading {
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-soft);
+    margin: 0;
+    display: flex;
+  }
+
+  .attention-heading h2 {
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+    margin: 0;
+  }
+
+  .attention-count {
+    min-width: 24px;
+    height: 24px;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-xs);
+    background: var(--warning-soft);
+    color: var(--warning);
+    font-size: var(--text-xs);
+    place-items: center;
+    display: grid;
+  }
+
+  .attention-count[data-state="off"] {
+    color: var(--muted);
+    background: var(--chip-bg);
+  }
+
+  .attention-list {
+    padding: 0 var(--space-2) var(--space-2);
+  }
+
+  .attention-item {
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    color: var(--text);
+    background: none;
+    display: flex;
+  }
+
+  .attention-item + .attention-item {
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .attention-item:hover {
+    background: var(--surface-muted);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+  }
+
+  .attention-icon {
+    border-radius: var(--radius-sm);
+    background: var(--warning-soft);
+    width: 32px;
+    height: 32px;
+    color: var(--warning);
+    flex-shrink: 0;
+    place-items: center;
+    display: grid;
+  }
+
+  .attention-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .attention-item > svg {
+    width: 16px;
+    height: 16px;
+    margin-top: var(--space-2);
+    color: var(--muted);
+    flex: none;
+    margin-left: auto;
+  }
+
+  .attention-item__text {
+    gap: var(--space-1);
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+  }
+
+  .attention-item__head {
+    align-items: baseline;
+    gap: 0 var(--space-2);
+    flex-wrap: wrap;
+    display: flex;
+  }
+
+  .attention-item strong {
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+  }
+
+  .attention-item .booking-number {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: var(--text-xs);
+  }
+
+  .attention-item small {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    line-height: var(--leading-base);
+    display: block;
+  }
+
+  .attention-item--debt small {
+    color: var(--danger);
+  }
+
+  .attention-item--overdue small {
+    color: var(--warning);
+  }
+
+  .attention-item--debt .attention-icon {
+    color: var(--danger);
+  }
+
+  .attention-footer {
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-top: 1px solid var(--border-soft);
+    background: var(--surface-muted);
+    color: var(--muted);
+    font-size: var(--text-xs);
+    display: flex;
+  }
+
+  .attention-footer svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .attention-empty {
+    padding: var(--space-4) var(--space-4) var(--space-6);
+    text-align: center;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  .attention-empty svg {
+    margin: 0 auto var(--space-2);
+    color: var(--primary);
+    display: block;
+  }
+
+  .attention-empty strong {
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    color: var(--text);
+  }
+
+  .attention-empty p {
+    line-height: var(--leading-relaxed);
+    margin-bottom: 0;
+  }
+
+  .attention-tally {
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-soft);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    list-style: none;
+    display: grid;
+  }
+
+  .attention-tally li {
+    gap: var(--space-1);
+    min-width: 0;
+    padding: var(--space-2);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: var(--surface-muted);
+    flex-direction: column;
+    display: flex;
+  }
+
+  .attention-tally strong {
+    color: var(--muted);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+
+  .attention-tally span {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+  }
+
+  .attention-tally li[data-state="on"] {
+    border-color: var(--warning-border);
+    background: var(--warning-bg);
+  }
+
+  .attention-tally li[data-state="on"] strong {
+    color: var(--warning);
+  }
+
+  .attention-tally li[data-state="on"] span {
+    color: var(--text-2);
+  }
+
+  @media (max-width: 1279px) {
+    .attention-list {
+      column-gap: var(--space-2);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      display: grid;
+    }
+
+    .attention-item + .attention-item {
+      border-top: 0;
+    }
+
+    .attention-item:nth-child(n+3) {
+      border-top: 1px solid var(--border-soft);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .attention-list {
+      display: block;
+    }
+
+    .attention-item:nth-child(n+3) {
+      border-top: 0;
+    }
+
+    .attention-item + .attention-item {
+      border-top: 1px solid var(--border-soft);
+    }
+  }
+
+  .attention-event {
+    gap: var(--space-1);
+    padding: var(--space-2);
+    display: grid;
+  }
+
+  .attention-event + .attention-event {
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .attention-event__head {
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+    flex-wrap: wrap;
+    display: flex;
+  }
+
+  .attention-event__text {
+    min-width: 0;
+    color: var(--text);
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    flex: 224px;
+  }
+
+  .attention-event__head > a {
+    margin-left: auto;
+  }
+
+  .attention-event__more {
+    padding-left: var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  .attention-event .attention-item {
+    padding-left: var(--space-4);
+  }
+
+  .attention-item--critical small {
+    color: var(--danger);
+  }
+
+  .attention-item--warning small {
+    color: var(--warning);
+  }
+
+  .attention-tally [data-severity="critical"][data-state="on"] {
+    border-color: var(--danger-border);
+    background: var(--danger-soft);
+  }
+
+  .attention-tally [data-severity="critical"][data-state="on"] strong {
+    color: var(--danger);
+  }
+
+  .attention-tally [data-severity="info"][data-state="on"] {
+    border-color: var(--border-soft);
+    background: var(--surface-muted);
+  }
+
+  .attention-tally [data-severity="warning"][data-state="on"] strong {
+    color: var(--warning);
+  }
+
+  .attention-tally [data-severity="info"][data-state="on"] strong {
+    color: var(--text-2);
+  }
+}
+
+/*# sourceMappingURL=wt-personnel_apps_web_src_app_finance_attention_css_1igg3k2._.single.css.map*/

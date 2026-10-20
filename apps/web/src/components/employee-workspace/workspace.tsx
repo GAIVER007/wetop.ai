@@ -5,6 +5,9 @@ import type { BeautyEmployeeRow } from '../../lib/api';
 import { loadBeautyEmployee, saveBeautyEmployee } from '../../app/beauty/actions';
 import { useCreationKey } from '../../app/beauty/creation-key';
 import { EmployeeBasicForm, type EmployeeProfileDraft } from './basic-form';
+import { inviteNewStaffAction } from '../../app/login/actions';
+import { StaffAccessPicker, staffAccessDraft, type StaffAccessDraft } from '../staff-access-picker';
+import type { AccessLevel } from '@pms/domain';
 import { Overlay } from '../overlay';
 import { Alert, Button } from '../ui';
 import { rovingIndex } from '../tabs';
@@ -22,12 +25,15 @@ export function EmployeeProfile({
   canEdit,
   onSaved,
   onCancelCreate,
+  access,
 }: {
   row: BeautyEmployeeRow | null;
   scopeKey: string;
   canEdit: boolean;
   onSaved: (row: BeautyEmployeeRow) => void;
   onCancelCreate?: () => void;
+  /** «Доступ в WETOP» в форме нового сотрудника (решение владельца 20.10.2026) */
+  access?: { levels: AccessLevel[]; canAllBranches: boolean; branchName: string | null } | undefined;
 }) {
   const [original, setOriginal] = useState(() => fields(row));
   const [draft, setDraft] = useState(original);
@@ -37,6 +43,11 @@ export function EmployeeProfile({
   const [pending, setPending] = useState(false);
   // по умолчанию «Специалист»: руководитель видит выбор и может сменить его до создания
   const [personnelKind, setPersonnelKind] = useState<PersonnelKind>('SPECIALIST');
+  // доступ по умолчанию от назначения: специалист в личный кабинет, другой сотрудник без входа
+  const [accessDraft, setAccessDraft] = useState<StaffAccessDraft>(() => staffAccessDraft('SPECIALIST'));
+  const [accessTouched, setAccessTouched] = useState(false);
+  const showAccess = !row && !!access && access.levels.length > 0;
+  const [created, setCreated] = useState<BeautyEmployeeRow | null>(null);
   const form = useRef<HTMLFormElement>(null);
   const alive = useRef(true);
   const busy = useRef(false);
@@ -80,6 +91,11 @@ export function EmployeeProfile({
     const parsed = parseEmployeeInput(draft);
     if (!parsed.ok) {
       setError(parsed.reason);
+      finish(false);
+      return;
+    }
+    if (showAccess && accessDraft.level !== 'NONE' && !draft.email.trim()) {
+      setError('Для входа в WETOP укажите почту: на неё придёт приглашение.');
       finish(false);
       return;
     }
@@ -133,6 +149,21 @@ export function EmployeeProfile({
       setRevision(saved.profileRevision);
       creation.clear();
       finish(true, fields(saved));
+      if (showAccess && accessDraft.level !== 'NONE') {
+        const invited = await inviteNewStaffAction({
+          employeeId: saved.id,
+          level: accessDraft.level,
+          email: draft.email.trim(),
+          allBranches: accessDraft.allBranches,
+        });
+        if (!alive.current) return;
+        // специалист уже создан: ошибку приглашения показываем, пригласить заново можно в «Сотрудники и доступ»
+        if (invited.error) {
+          setCreated(saved);
+          setError(`Специалист добавлен, но приглашение не отправлено: ${invited.error}`);
+          return;
+        }
+      }
       onSaved(saved);
     } catch {
       if (alive.current && version === requestVersion.current) {
@@ -196,8 +227,38 @@ export function EmployeeProfile({
         error={error || creation.error || null}
         current={current ? fields(current) : null}
         formRef={form}
-        {...(row ? {} : { personnelKind, onPersonnelKindChange: setPersonnelKind })}
+        {...(row
+          ? {}
+          : {
+              personnelKind,
+              onPersonnelKindChange: (next: PersonnelKind) => {
+                setPersonnelKind(next);
+                if (!accessTouched) setAccessDraft(staffAccessDraft(next));
+              },
+            })}
+        access={
+          showAccess && access ? (
+            <StaffAccessPicker
+              vertical="BEAUTY"
+              levels={access.levels}
+              value={accessDraft}
+              onChange={(next) => {
+                setAccessTouched(true);
+                setAccessDraft(next);
+              }}
+              branchName={access.branchName}
+              canAllBranches={access.canAllBranches}
+              email={draft.email}
+              disabled={pending || !canEdit}
+            />
+          ) : null
+        }
       />
+      {created && (
+        <Button tone="secondary" onClick={() => onSaved(created)}>
+          Открыть карточку специалиста
+        </Button>
+      )}
     </>
   );
 }

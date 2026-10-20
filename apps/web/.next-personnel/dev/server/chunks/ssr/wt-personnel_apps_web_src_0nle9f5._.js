@@ -1,0 +1,752 @@
+module.exports = [
+"[project]/wt-personnel/apps/web/src/app/beauty/time.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/** «2026-10-12T13:00» в поясе филиала это какой момент */ __turbopack_context__.s([
+    "clock",
+    ()=>clock,
+    "clockMinutes",
+    ()=>clockMinutes,
+    "instantOf",
+    ()=>instantOf,
+    "localInput",
+    ()=>localInput,
+    "zoneOffsetMs",
+    ()=>zoneOffsetMs
+]);
+function instantOf(local, timezone) {
+    const naive = Date.parse(`${local}:00Z`);
+    if (Number.isNaN(naive)) return '';
+    let guess = naive - zoneOffsetMs(new Date(naive), timezone);
+    guess = naive - zoneOffsetMs(new Date(guess), timezone);
+    return new Date(guess).toISOString();
+}
+function clock(minutes) {
+    const m = (minutes % 1440 + 1440) % 1440;
+    return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+}
+function clockMinutes(value) {
+    const [hh, mm] = value.split(':');
+    return Number(hh) * 60 + Number(mm);
+}
+function zoneOffsetMs(at, timezone) {
+    const parts = new Map(new Intl.DateTimeFormat('en-CA', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+    }).formatToParts(at).map((p)=>[
+            p.type,
+            p.value
+        ]));
+    return Date.UTC(Number(parts.get('year')), Number(parts.get('month')) - 1, Number(parts.get('day')), Number(parts.get('hour')), Number(parts.get('minute')), Number(parts.get('second'))) - at.getTime();
+}
+function localInput(iso, timezone) {
+    const at = new Date(iso);
+    const parts = new Map(new Intl.DateTimeFormat('en-CA', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+    }).formatToParts(at).map((p)=>[
+            p.type,
+            p.value
+        ]));
+    return `${parts.get('year')}-${parts.get('month')}-${parts.get('day')}T${parts.get('hour')}:${parts.get('minute')}`;
+}
+}),
+"[project]/wt-personnel/apps/web/src/app/food/load.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "loadFood",
+    ()=>loadFood
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$vertical$2d$guard$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/vertical-guard.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$desk$2d$shell$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/desk-shell.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$workspace$2d$context$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/workspace-context.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/food-api.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/food-data.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$navigation$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/navigation.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$beauty$2f$time$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/beauty/time.ts [app-rsc] (ecmascript)");
+;
+;
+;
+;
+;
+;
+;
+async function loadFood(dateParam, timeParam, day = false, withOrders = false) {
+    const me = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$vertical$2d$guard$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["requireVertical"])([
+        'FOOD_SERVICE'
+    ]);
+    if (me.context?.vertical !== 'FOOD_SERVICE' || !me.context.businessId || !me.context.locationId) throw new Error('Выберите ресторан и филиал');
+    const [shell, branch] = await Promise.all([
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$desk$2d$shell$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["deskShell"])(),
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$workspace$2d$context$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["selectedWorkspaceBranch"])()
+    ]);
+    if (!branch) throw new Error('Выбранный филиал недоступен');
+    const timezone = branch.timezone;
+    const local = (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$beauty$2f$time$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["localInput"])(new Date().toISOString(), timezone);
+    const date = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) && !Number.isNaN(Date.parse(dateParam)) ? dateParam : local.slice(0, 10);
+    const [areas, tables, periods, customers] = await Promise.all([
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["completeFoodList"])(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["foodApi"].areas),
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["completeFoodList"])(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["foodApi"].tables),
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["completeFoodList"])(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["foodApi"].periods),
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["completeFoodList"])(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["foodApi"].customers)
+    ]);
+    const weekday = new Date(`${date}T12:00:00Z`).getUTCDay();
+    const first = periods.filter((p)=>p.active && p.weekday === weekday).sort((a, b)=>a.timeFrom.localeCompare(b.timeFrom))[0];
+    const time = timeParam && /^([01]\d|2[0-3]):[0-5]\d$/.test(timeParam) ? timeParam : date === local.slice(0, 10) ? local.slice(11, 16) : first?.timeFrom ?? '12:00';
+    const days = day ? [
+        date
+    ] : [
+        date,
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["previousDate"])(date)
+    ];
+    const [lists, orders] = await Promise.all([
+        Promise.all(days.map((d)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["completeFoodList"])((cursor)=>__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["foodApi"].reservations(d, cursor), __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["validFoodReservation"]))),
+        withOrders ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["completeFoodList"])((cursor)=>__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["restaurantApi"].openOrders(cursor)) : Promise.resolve(undefined)
+    ]);
+    return {
+        ...orders ? {
+            orders
+        } : {},
+        areas,
+        tables,
+        periods,
+        customers,
+        reservations: [
+            ...new Map(lists.flat().map((r)=>[
+                    r.id,
+                    r
+                ])).values()
+        ],
+        date,
+        time,
+        timezone,
+        scopeKey: `${me.context.businessId}:${me.context.locationId}`,
+        readOnly: shell.readOnly,
+        canDesk: (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$navigation$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["mayAccess"])(shell.access, 'desk'),
+        canProperty: (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$navigation$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["mayAccess"])(shell.access, 'property')
+    };
+}
+}),
+"[project]/wt-personnel/apps/web/src/app/food/settings-board.tsx [app-rsc] (client reference proxy)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "RestaurantSettings",
+    ()=>RestaurantSettings
+]);
+// This file is generated by next-core EcmascriptClientReferenceModule.
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-server.js [app-rsc] (ecmascript)");
+;
+const RestaurantSettings = (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerClientReference"])(function() {
+    throw new Error("Attempted to call RestaurantSettings() from the server but RestaurantSettings is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.");
+}, "[project]/wt-personnel/apps/web/src/app/food/settings-board.tsx", "RestaurantSettings");
+}),
+"[project]/wt-personnel/apps/web/src/app/food/settings-board.tsx [app-rsc] (client reference proxy) <module evaluation>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "RestaurantSettings",
+    ()=>RestaurantSettings
+]);
+// This file is generated by next-core EcmascriptClientReferenceModule.
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-server.js [app-rsc] (ecmascript)");
+;
+const RestaurantSettings = (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerClientReference"])(function() {
+    throw new Error("Attempted to call RestaurantSettings() from the server but RestaurantSettings is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.");
+}, "[project]/wt-personnel/apps/web/src/app/food/settings-board.tsx <module evaluation>", "RestaurantSettings");
+}),
+"[project]/wt-personnel/apps/web/src/app/food/settings-board.tsx [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$food$2f$settings$2d$board$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__$3c$module__evaluation$3e$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/food/settings-board.tsx [app-rsc] (client reference proxy) <module evaluation>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$food$2f$settings$2d$board$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/food/settings-board.tsx [app-rsc] (client reference proxy)");
+;
+__turbopack_context__.n(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$food$2f$settings$2d$board$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__);
+}),
+"[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-actions.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/* __next_internal_action_entry_do_not_use__ [{"00efe5f684e90d98fc0867a4ffcabc7a0bcc2d0bd5":{"name":"loadOpening"},"706a523c5d11d38d7d609d1723fa37c3f7db7298c6":{"name":"saveOpening"}},"wt-personnel/apps/web/src/app/restaurant-settings/opening-actions.ts",""] */ __turbopack_context__.s([
+    "loadOpening",
+    ()=>loadOpening,
+    "saveOpening",
+    ()=>saveOpening
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/build/webpack/loaders/next-flight-loader/server-reference.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/cache.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$api$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/api/navigation.react-server.js [app-rsc] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/client/components/navigation.react-server.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$desk$2d$shell$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/desk-shell.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$navigation$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/navigation.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$opening$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/opening-api.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$restaurant$2d$settings$2f$opening$2d$input$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-input.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/build/webpack/loaders/next-flight-loader/action-validate.js [app-rsc] (ecmascript)");
+;
+;
+;
+;
+;
+;
+;
+async function loadOpening() {
+    if (process.env.RESTAURANT_CAPACITY_CAPTURE !== 'true' || process.env.RESTAURANT_OCCUPANCY_CAPTURE !== 'true') return {
+        enabled: false,
+        schedule: null
+    };
+    try {
+        return {
+            enabled: true,
+            schedule: (await __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$opening$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["openingApi"].read())[0] ?? null
+        };
+    } catch (e) {
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["unstable_rethrow"])(e);
+        return {
+            enabled: true,
+            schedule: null,
+            error: 'Расписание недоступно. Обновите страницу перед изменением.'
+        };
+    }
+}
+async function saveOpening(scopeKey, raw, confirmed) {
+    try {
+        if (process.env.RESTAURANT_CAPACITY_CAPTURE !== 'true' || process.env.RESTAURANT_OCCUPANCY_CAPTURE !== 'true') throw new Error('Учёт физических часов отключён.');
+        const me = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$desk$2d$shell$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["currentMe"])();
+        const shell = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$desk$2d$shell$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["deskShell"])();
+        const c = me.context;
+        if (!me.user || c?.vertical !== 'FOOD_SERVICE' || !c.businessId || !c.locationId || scopeKey !== `${c.businessId}:${c.locationId}`) throw new Error('Выбран другой ресторан. Откройте настройки заново.');
+        if (shell.readOnly || !(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$navigation$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["mayAccess"])(shell.access, 'property')) throw new Error('Нет права изменять настройки ресторана.');
+        if (!confirmed) throw new Error('Подтвердите физические часы работы зала.');
+        await __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$opening$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["openingApi"].confirm((0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$restaurant$2d$settings$2f$opening$2d$input$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["openingInput"])(raw));
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])('/restaurant-settings');
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])('/today');
+        return {
+            error: null
+        };
+    } catch (e) {
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["unstable_rethrow"])(e);
+        const message = e instanceof Error ? e.message : '';
+        return {
+            error: message.includes('LOCAL_TIME_NONEXISTENT_OR_AMBIGUOUS') ? 'Переход часов: указанное местное время отсутствует или неоднозначно. Исправьте часы.' : message || 'Не удалось сохранить. Проверьте результат перед повтором.'
+        };
+    }
+}
+;
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ensureServerEntryExports"])([
+    loadOpening,
+    saveOpening
+]);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(loadOpening, "00efe5f684e90d98fc0867a4ffcabc7a0bcc2d0bd5", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(saveOpening, "706a523c5d11d38d7d609d1723fa37c3f7db7298c6", null);
+}),
+"[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-form.tsx [app-rsc] (client reference proxy)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "OpeningForm",
+    ()=>OpeningForm
+]);
+// This file is generated by next-core EcmascriptClientReferenceModule.
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-server.js [app-rsc] (ecmascript)");
+;
+const OpeningForm = (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerClientReference"])(function() {
+    throw new Error("Attempted to call OpeningForm() from the server but OpeningForm is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.");
+}, "[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-form.tsx", "OpeningForm");
+}),
+"[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-form.tsx [app-rsc] (client reference proxy) <module evaluation>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "OpeningForm",
+    ()=>OpeningForm
+]);
+// This file is generated by next-core EcmascriptClientReferenceModule.
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-server.js [app-rsc] (ecmascript)");
+;
+const OpeningForm = (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerClientReference"])(function() {
+    throw new Error("Attempted to call OpeningForm() from the server but OpeningForm is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.");
+}, "[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-form.tsx <module evaluation>", "OpeningForm");
+}),
+"[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-form.tsx [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$restaurant$2d$settings$2f$opening$2d$form$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__$3c$module__evaluation$3e$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-form.tsx [app-rsc] (client reference proxy) <module evaluation>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$restaurant$2d$settings$2f$opening$2d$form$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-form.tsx [app-rsc] (client reference proxy)");
+;
+__turbopack_context__.n(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$restaurant$2d$settings$2f$opening$2d$form$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__);
+}),
+"[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-input.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "openingDraft",
+    ()=>openingDraft,
+    "openingInput",
+    ()=>openingInput
+]);
+function openingInput(input) {
+    const day = (s)=>/^\d{4}-\d{2}-\d{2}$/.test(s) && Number.isFinite(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s;
+    if (!day(input.effectiveFrom) || !day(input.effectiveTo) || input.effectiveTo < input.effectiveFrom || Date.parse(input.effectiveTo) - Date.parse(input.effectiveFrom) > 366 * 86400000) throw new Error('Укажите корректный период действия, не больше 367 дней.');
+    if (input.intervals.length > 100 || input.closures.length > 367) throw new Error('Слишком много интервалов или закрытых дат.');
+    for (const i of input.intervals){
+        if (!Number.isInteger(i.weekday) || i.weekday < 0 || i.weekday > 6 || !/^([01]\d|2[0-3]):[0-5]\d$/.test(i.localStart) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(i.localEnd) || typeof i.endsNextDay !== 'boolean' || (i.endsNextDay ? i.localEnd > i.localStart : i.localEnd <= i.localStart)) throw new Error('Проверьте часы и явно укажите переход на следующий день (не больше 24 часов).');
+    }
+    const seen = new Set();
+    for (const c of input.closures){
+        if (!day(c.day) || c.day < input.effectiveFrom || Date.parse(c.day) > Date.parse(input.effectiveTo) + 86400000 || !c.reason.trim() || c.reason.length > 500 || seen.has(c.day)) throw new Error('Проверьте закрытые даты: дата в периоде (или следующий день), уникальная, с причиной до 500 символов.');
+        seen.add(c.day);
+    }
+    return {
+        effectiveFrom: input.effectiveFrom,
+        effectiveTo: input.effectiveTo,
+        intervals: input.intervals.map((i)=>({
+                weekday: i.weekday,
+                localStart: i.localStart,
+                localEnd: i.localEnd,
+                endsNextDay: i.endsNextDay
+            })),
+        closures: input.closures.map((c)=>({
+                day: c.day,
+                reason: c.reason.trim()
+            }))
+    };
+}
+function openingDraft(row) {
+    return row ? {
+        effectiveFrom: row.effective_from.slice(0, 10),
+        effectiveTo: row.effective_to.slice(0, 10),
+        intervals: row.intervals.map((i)=>({
+                weekday: i.weekday,
+                localStart: i.local_start.slice(0, 5),
+                localEnd: i.local_end.slice(0, 5),
+                endsNextDay: i.ends_next_day
+            })),
+        closures: row.closures.map((c)=>({
+                day: c.day.slice(0, 10),
+                reason: c.reason
+            }))
+    } : {
+        effectiveFrom: '',
+        effectiveTo: '',
+        intervals: [],
+        closures: []
+    };
+}
+}),
+"[project]/wt-personnel/apps/web/src/app/restaurant-settings/page.tsx [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>RestaurantSettingsPage
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$api$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/api/navigation.react-server.js [app-rsc] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/client/components/navigation.react-server.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$components$2f$page$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/components/page.tsx [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$components$2f$load$2d$error$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/components/load-error.tsx [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$load$2d$error$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/load-error.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$food$2f$load$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/food/load.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/food-api.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$food$2f$settings$2d$board$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/food/settings-board.tsx [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$restaurant$2d$settings$2f$opening$2d$form$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-form.tsx [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$restaurant$2d$settings$2f$opening$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/restaurant-settings/opening-actions.ts [app-rsc] (ecmascript)");
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+const SECTIONS = [
+    'hours',
+    'bookings',
+    'notifications'
+];
+async function RestaurantSettingsPage({ searchParams }) {
+    const { section } = await searchParams;
+    const current = SECTIONS.find((s)=>s === section) ?? 'hours';
+    try {
+        const data = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$food$2f$load$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["loadFood"])();
+        const booking = current === 'bookings' ? await __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$food$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["foodApi"].bookingRules() : undefined;
+        const opening = current === 'hours' ? await (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$restaurant$2d$settings$2f$opening$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["loadOpening"])() : undefined;
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$components$2f$page$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Page"], {
+            title: "Настройки ресторана",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$food$2f$settings$2d$board$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["RestaurantSettings"], {
+                    data: data,
+                    section: current,
+                    booking: booking,
+                    physicalOpening: opening ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$app$2f$restaurant$2d$settings$2f$opening$2d$form$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["OpeningForm"], {
+                        initial: opening,
+                        scopeKey: data.scopeKey,
+                        timezone: data.timezone,
+                        write: data.canProperty && !data.readOnly
+                    }, void 0, false, {
+                        fileName: "[project]/wt-personnel/apps/web/src/app/restaurant-settings/page.tsx",
+                        lineNumber: 30,
+                        columnNumber: 106
+                    }, this) : undefined
+                }, void 0, false, {
+                    fileName: "[project]/wt-personnel/apps/web/src/app/restaurant-settings/page.tsx",
+                    lineNumber: 30,
+                    columnNumber: 11
+                }, this)
+            }, data.scopeKey, false, {
+                fileName: "[project]/wt-personnel/apps/web/src/app/restaurant-settings/page.tsx",
+                lineNumber: 29,
+                columnNumber: 9
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/wt-personnel/apps/web/src/app/restaurant-settings/page.tsx",
+            lineNumber: 28,
+            columnNumber: 7
+        }, this);
+    } catch (error) {
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["unstable_rethrow"])(error);
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$components$2f$page$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Page"], {
+            title: "Настройки ресторана",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$components$2f$load$2d$error$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["LoadError"], {
+                testId: "restaurant-settings-error",
+                ...(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$load$2d$error$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["loadErrorProps"])(error)
+            }, void 0, false, {
+                fileName: "[project]/wt-personnel/apps/web/src/app/restaurant-settings/page.tsx",
+                lineNumber: 38,
+                columnNumber: 9
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/wt-personnel/apps/web/src/app/restaurant-settings/page.tsx",
+            lineNumber: 37,
+            columnNumber: 7
+        }, this);
+    }
+}
+}),
+"[project]/wt-personnel/apps/web/src/app/restaurant-settings/page.tsx [app-rsc] (ecmascript, Next.js Server Component)", (function(__turbopack_context__){
+
+__turbopack_context__.n(__turbopack_context__.i("[project]/wt-personnel/apps/web/src/app/restaurant-settings/page.tsx [app-rsc] (ecmascript)"));
+}),
+"[project]/wt-personnel/apps/web/src/components/load-error.tsx [app-rsc] (client reference proxy)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "LoadError",
+    ()=>LoadError
+]);
+// This file is generated by next-core EcmascriptClientReferenceModule.
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-server.js [app-rsc] (ecmascript)");
+;
+const LoadError = (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerClientReference"])(function() {
+    throw new Error("Attempted to call LoadError() from the server but LoadError is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.");
+}, "[project]/wt-personnel/apps/web/src/components/load-error.tsx", "LoadError");
+}),
+"[project]/wt-personnel/apps/web/src/components/load-error.tsx [app-rsc] (client reference proxy) <module evaluation>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "LoadError",
+    ()=>LoadError
+]);
+// This file is generated by next-core EcmascriptClientReferenceModule.
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-server.js [app-rsc] (ecmascript)");
+;
+const LoadError = (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerClientReference"])(function() {
+    throw new Error("Attempted to call LoadError() from the server but LoadError is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.");
+}, "[project]/wt-personnel/apps/web/src/components/load-error.tsx <module evaluation>", "LoadError");
+}),
+"[project]/wt-personnel/apps/web/src/components/load-error.tsx [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$components$2f$load$2d$error$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__$3c$module__evaluation$3e$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/components/load-error.tsx [app-rsc] (client reference proxy) <module evaluation>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$components$2f$load$2d$error$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/components/load-error.tsx [app-rsc] (client reference proxy)");
+;
+__turbopack_context__.n(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$components$2f$load$2d$error$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__);
+}),
+"[project]/wt-personnel/apps/web/src/lib/food-api.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "foodApi",
+    ()=>foodApi,
+    "restaurantApi",
+    ()=>restaurantApi,
+    "stockApi",
+    ()=>stockApi
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/api.ts [app-rsc] (ecmascript) <locals>");
+;
+const base = '/food-service';
+const idPath = (collection, id)=>`${base}/${collection}/${encodeURIComponent(id)}`;
+const query = (cursor, date)=>{
+    const q = new URLSearchParams({
+        limit: '100'
+    });
+    if (cursor) q.set('cursor', cursor);
+    if (date) q.set('date', date);
+    return `?${q}`;
+};
+const foodApi = {
+    areas: (cursor)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/areas${query(cursor)}`),
+    createArea: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/areas`, body),
+    updateArea: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', idPath('areas', id), body),
+    /** Правила брони столов (§43): настройки и будущие закрытые дни */ bookingRules: ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/booking-rules`),
+    setBookingRules: (rules)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PUT', `${base}/booking-rules`, rules),
+    addClosedDay: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/closed-days`, body),
+    removeClosedDay: (id)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('DELETE', idPath('closed-days', id), {}),
+    /** Схема зала (§42): расстановка зоны целиком */ setLayout: (areaId, tables)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PUT', `${idPath('areas', areaId)}/layout`, {
+            tables
+        }),
+    tables: (cursor)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/tables${query(cursor)}`),
+    createTable: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/tables`, body),
+    updateTable: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', idPath('tables', id), body),
+    periods: (cursor)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/service-periods${query(cursor)}`),
+    createPeriod: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/service-periods`, body),
+    updatePeriod: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', idPath('service-periods', id), body),
+    customers: (cursor)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/customers${query(cursor)}`),
+    updateCustomer: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', idPath('customers', id), body),
+    reservations: (date, cursor)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/reservations${query(cursor, date)}`),
+    create: (body, key)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/reservations`, body, {
+            'Idempotency-Key': key
+        }),
+    update: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', idPath('reservations', id), body),
+    status: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('reservations', id)}/status`, body),
+    assign: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PUT', `${idPath('reservations', id)}/table`, body),
+    unassign: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('DELETE', `${idPath('reservations', id)}/table`, body)
+};
+const restaurantApi = {
+    categories: (cursor)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/menu/categories${query(cursor)}`),
+    createCategory: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/menu/categories`, body),
+    updateCategory: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', idPath('menu/categories', id), body),
+    menuItems: (cursor)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/menu/items${query(cursor)}`),
+    menuItem: (id)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(idPath('menu/items', id)),
+    createMenuItem: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/menu/items`, body),
+    updateMenuItem: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', idPath('menu/items', id), body),
+    replaceIngredients: (id, ingredients)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PUT', `${idPath('menu/items', id)}/ingredients`, {
+            ingredients
+        }),
+    orders: (date, cursor)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/orders${query(cursor, date)}`),
+    openOrders: (cursor)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/orders${query(cursor)}&open=1`),
+    createOrder: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/orders`, body),
+    updateOrder: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', idPath('orders', id), body),
+    orderStatus: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('orders', id)}/status`, body),
+    payOrder: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('orders', id)}/payments`, body),
+    rateOrder: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('orders', id)}/rating`, body),
+    /** Ссылка на оценку с телефона гостя (§40): ключ только в ответе, 72 часа */ ratingLink: (id)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('orders', id)}/rating-link`, {}),
+    voidPayment: (id, reason)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('payments', id)}/void`, {
+            reason
+        }),
+    /** Возврат по закрытому заказу (§56) */ refundOrder: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('orders', id)}/refunds`, body),
+    // период считает сервер (ADR-181); без дат прежние последние 100 строк для экрана «Касса»
+    cash: (period)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/cash${period ? `?from=${period.from}&to=${period.to}` : ''}`),
+    cashOperation: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/cash/operations`, body),
+    voidCashOperation: (id)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('cash/operations', id)}/void`, {}),
+    cashReconciliation: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/cash/reconciliations`, body),
+    payout: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('employees', id)}/payouts`, body),
+    tableCleaning: (id, needsCleaning)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('tables', id)}/cleaning`, {
+            needsCleaning
+        }),
+    report: (date)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/report?date=${date}`),
+    employees: (cursor)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/employees${query(cursor)}`),
+    assignEmployeePersonnelKind: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', `${idPath('employees', id)}/personnel-kind`, body),
+    createEmployee: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/employees`, body),
+    updateEmployee: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', idPath('employees', id), body),
+    shifts: ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/shifts`),
+    setShifts: (id, intervals, expectedRevision)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PUT', `${idPath('employees', id)}/working-hours`, {
+            intervals,
+            expectedRevision
+        }),
+    payroll: (month)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/payroll?month=${month}`),
+    setPaySettings: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PUT', `${idPath('employees', id)}/pay-settings`, body),
+    addPayAdjustment: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('employees', id)}/pay-adjustments`, body)
+};
+const stockApi = {
+    products: ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/stock/products`),
+    createProduct: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/stock/products`, body),
+    updateProduct: (id, body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PATCH', idPath('stock/products', id), body),
+    lots: (productId)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/stock/lots?productId=${encodeURIComponent(productId)}`),
+    movements: ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])(`${base}/stock/movements`),
+    receipt: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/stock/receipts`, body),
+    reverseLot: (id)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${idPath('stock/lots', id)}/reverse`, {}),
+    writeOff: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/stock/write-offs`, body),
+    inventory: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('POST', `${base}/stock/inventory`, body)
+};
+}),
+"[project]/wt-personnel/apps/web/src/lib/food-data.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "completeFoodList",
+    ()=>completeFoodList,
+    "foodStatusActions",
+    ()=>foodStatusActions,
+    "occupiedAt",
+    ()=>occupiedAt,
+    "previousDate",
+    ()=>previousDate,
+    "shiftDate",
+    ()=>shiftDate,
+    "validFoodReservation",
+    ()=>validFoodReservation,
+    "weekdays",
+    ()=>weekdays
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$status$2f$food$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/status/food.ts [app-rsc] (ecmascript)");
+;
+async function completeFoodList(load, valid = ()=>true) {
+    let cursor;
+    const cursors = new Set();
+    const items = new Map();
+    for(let page = 0; page < 1000; page++){
+        const raw = await load(cursor);
+        if (!raw || typeof raw !== 'object' || !('items' in raw) || !Array.isArray(raw.items) || !('nextCursor' in raw) || raw.nextCursor !== null && typeof raw.nextCursor !== 'string') throw new Error('Не удалось загрузить полный список. Обновите страницу.');
+        for (const item of raw.items){
+            if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !valid(item)) throw new Error('Некорректный ответ списка');
+            items.set(item.id, item);
+        }
+        if (raw.nextCursor === null) return [
+            ...items.values()
+        ];
+        if (!raw.items.length || !raw.nextCursor || cursors.has(raw.nextCursor)) throw new Error('Повтор страницы списка. Обновите страницу.');
+        cursors.add(raw.nextCursor);
+        cursor = raw.nextCursor;
+    }
+    throw new Error('Не удалось загрузить полный список. Обновите страницу.');
+}
+function occupiedAt(r, selected) {
+    const at = Date.parse(selected);
+    return [
+        'BOOKED',
+        'CONFIRMED',
+        'SEATED'
+    ].includes(r.status) && Date.parse(r.startsAt) <= at && at < Date.parse(r.endsAt);
+}
+function previousDate(date) {
+    return shiftDate(date, -1);
+}
+function shiftDate(date, days) {
+    const at = new Date(`${date}T12:00:00Z`);
+    at.setUTCDate(at.getUTCDate() + days);
+    return at.toISOString().slice(0, 10);
+}
+const foodStatusActions = {
+    BOOKED: 'Бронь',
+    CONFIRMED: 'Подтвердить',
+    SEATED: 'Посадить',
+    COMPLETED: 'Завершить',
+    NO_SHOW: 'Не пришли',
+    CANCELLED: 'Отменить'
+};
+const weekdays = [
+    'Вс',
+    'Пн',
+    'Вт',
+    'Ср',
+    'Чт',
+    'Пт',
+    'Сб'
+];
+function validFoodReservation(value) {
+    if (!value || typeof value !== 'object') return false;
+    const r = value;
+    return typeof r.id === 'string' && typeof r.status === 'string' && Object.hasOwn(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$status$2f$food$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["foodStatus"], r.status) && typeof r.startsAt === 'string' && typeof r.endsAt === 'string' && Number.isFinite(Date.parse(r.startsAt)) && Date.parse(r.endsAt) > Date.parse(r.startsAt) && (r.table === null || !!r.table && typeof r.table === 'object' && 'id' in r.table && typeof r.table.id === 'string' && 'areaId' in r.table && typeof r.table.areaId === 'string') && !!r.customer && typeof r.customer === 'object' && 'firstName' in r.customer && typeof r.customer.firstName === 'string' && Number.isInteger(r.partySize) && !!r.servicePeriod && typeof r.servicePeriod === 'object' && 'id' in r.servicePeriod && typeof r.servicePeriod.id === 'string' && 'name' in r.servicePeriod && typeof r.servicePeriod.name === 'string' && typeof r.updatedAt === 'string' && Number.isFinite(Date.parse(r.updatedAt)) && Array.isArray(r.nextStatuses) && r.nextStatuses.every((status)=>typeof status === 'string' && Object.hasOwn(__TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$status$2f$food$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["foodStatus"], status));
+}
+}),
+"[project]/wt-personnel/apps/web/src/lib/load-error.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/**
+ * Отказ запроса → пропсы `LoadError`: только код статуса от `ApiError`. Текст ошибки не передаётся: пропсы
+ * клиентского компонента попадают в RSC-данные страницы, а в тексте бывают внутренние адреса и подробности сбоя
+ * (аудит платформы 17.10.2026, Д11); экран ошибки и так советует по коду. Лежит отдельно от клиентского
+ * компонента: функцию зовёт серверная страница, а из модуля `'use client'` сервер её звать не может.
+ */ __turbopack_context__.s([
+    "loadErrorProps",
+    ()=>loadErrorProps
+]);
+function loadErrorProps(e) {
+    const status = typeof e === 'object' && e !== null && 'status' in e && typeof e.status === 'number' ? e.status : undefined;
+    return {
+        status
+    };
+}
+}),
+"[project]/wt-personnel/apps/web/src/lib/opening-api.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "openingApi",
+    ()=>openingApi
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/api.ts [app-rsc] (ecmascript) <locals>");
+;
+const openingApi = {
+    read: ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getJsonPublic"])('/food-service/opening-schedule'),
+    confirm: (body)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["sendJson"])('PUT', '/food-service/opening-schedule', body)
+};
+}),
+"[project]/wt-personnel/apps/web/src/lib/vertical-guard.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "requireFeature",
+    ()=>requireFeature,
+    "requireVertical",
+    ()=>requireVertical
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$api$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/api/navigation.react-server.js [app-rsc] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/node_modules/next/dist/client/components/navigation.react-server.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2d$error$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/api-error.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$session$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/session.ts [app-rsc] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$desk$2d$shell$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/desk-shell.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$vertical$2d$landing$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/vertical-landing.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$scope$2d$gate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/scope-gate.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$features$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/wt-personnel/apps/web/src/lib/features.ts [app-rsc] (ecmascript)");
+;
+;
+;
+;
+;
+;
+;
+async function requireVertical(allowed) {
+    const me = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$desk$2d$shell$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["currentMe"])().catch(async (error)=>{
+        // /auth/me is quiet in the shared API client because login pages also use it.
+        // A protected vertical must route expired sessions through the existing login gate.
+        if (error instanceof __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$api$2d$error$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ApiError"] && error.status === 401) await (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$session$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["redirectToLoginIfRequired"])();
+        throw error;
+    });
+    // Устаревший указатель: сначала выбор филиала, иначе страница отрисовалась бы на ответах 403 (SCOPE-HARDENING)
+    await (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$scope$2d$gate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["redirectIfScopeStale"])(me);
+    const v = me.context?.vertical;
+    if (v && [
+        'HOSPITALITY',
+        'BEAUTY',
+        'FOOD_SERVICE'
+    ].includes(v) && !allowed.includes(v)) (0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["redirect"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$vertical$2d$landing$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["landingForVertical"])(v));
+    return me;
+}
+async function requireFeature(route) {
+    return requireVertical([
+        ...(0, __TURBOPACK__imported__module__$5b$project$5d2f$wt$2d$personnel$2f$apps$2f$web$2f$src$2f$lib$2f$features$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["featureVerticals"])(route)
+    ]);
+}
+}),
+];
+
+//# sourceMappingURL=wt-personnel_apps_web_src_0nle9f5._.js.map

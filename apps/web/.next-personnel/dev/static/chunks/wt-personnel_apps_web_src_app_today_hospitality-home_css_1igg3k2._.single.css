@@ -1,0 +1,137 @@
+/* [project]/wt-personnel/apps/web/src/app/today/hospitality-home.css [app-client] (css) */
+@layer sections {
+  .page:has(.hospitality-home) .page__head {
+    max-width: 1280px;
+    margin-inline: auto;
+  }
+
+  .hospitality-home {
+    gap: var(--space-4);
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+  }
+
+  .hospitality-home .biz-row--two {
+    align-items: stretch;
+    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .hospitality-home .owner-load, .hospitality-home .biz-today, .hospitality-home .biz-attention {
+    padding: var(--space-4);
+  }
+
+  .hospitality-home .owner-load-main {
+    justify-content: flex-start;
+    gap: var(--space-6);
+    padding-block: var(--space-2);
+  }
+
+  .hospitality-home .owner-load-numbers {
+    flex: 1;
+  }
+
+  .hospitality-home .owner-load-value {
+    font-size: var(--text-4xl);
+  }
+
+  .hospitality-home .owner-load .owner-ring {
+    width: 104px;
+    height: 104px;
+  }
+
+  .hospitality-home .owner-load-counts {
+    margin-block: var(--space-2);
+  }
+
+  .hospitality-home .owner-placeholder--load {
+    min-height: 196px;
+  }
+
+  .hospitality-home .owner-section-head {
+    align-items: baseline;
+  }
+
+  .hospitality-home .owner-section-head h2 {
+    font-size: var(--text-lg);
+  }
+
+  .hospitality-home .biz-today__tiles {
+    gap: var(--space-2);
+  }
+
+  .hospitality-home .biz-today__tile {
+    min-height: 64px;
+    padding: var(--space-4);
+    text-decoration: none;
+  }
+
+  .hospitality-home .biz-attention__list {
+    gap: var(--space-2);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hospitality-home .biz-attention__list li {
+    min-width: 0;
+  }
+
+  .hospitality-home .biz-attention__list a {
+    height: 100%;
+    min-height: 80px;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+    gap: var(--space-4);
+    text-decoration: none;
+  }
+
+  .hospitality-home .biz-attention__list a:hover {
+    background: var(--row-hover);
+  }
+
+  .hospitality-home .biz-attention__count {
+    min-width: 32px;
+    height: 32px;
+  }
+
+  .hospitality-home .biz-attention__text {
+    gap: var(--space-1);
+  }
+
+  .hospitality-home .biz-attention__text strong {
+    color: var(--text);
+  }
+
+  .hospitality-home .biz-attention .owner-attention-button {
+    margin-top: var(--space-4);
+  }
+
+  .hospitality-home a:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 1279px) {
+    .hospitality-home .owner-load-main {
+      gap: var(--space-4);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .hospitality-home .biz-row--two, .hospitality-home .biz-attention__list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hospitality-home .biz-today__tile {
+      padding: var(--space-2);
+    }
+
+    .hospitality-home .biz-card__head {
+      align-items: start;
+    }
+  }
+}
+
+/*# sourceMappingURL=wt-personnel_apps_web_src_app_today_hospitality-home_css_1igg3k2._.single.css.map*/

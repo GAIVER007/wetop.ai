@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/hermes/wt-personnel/apps/web/src/app/loading.tsx"],"sourcesContent":["export default function Loading() {\n  return (\n    <main id=\"main-content\" className=\"page\" aria-busy=\"true\" aria-label=\"Загрузка страницы\">\n      <div className=\"skeleton skeleton-title\" />\n      <div className=\"stats\">\n        {[1, 2, 3, 4, 5].map((n) => (\n          <div key={n} className=\"skeleton skeleton-stat\" />\n        ))}\n      </div>\n      <div className=\"panel\">\n        {[1, 2, 3, 4, 5].map((n) => (\n          <div key={n} className=\"skeleton skeleton-row\" />\n        ))}\n      </div>\n      <span className=\"sr-only\" role=\"status\">\n        Загружаем данные…\n      </span>\n    </main>\n  );\n}\n"],"names":["Loading","id","className","map","n","role"],"mappings":";;;;;;AAAe,SAASA;IACtB,qBACE,iQAAC;QAAKC,IAAG;QAAeC,WAAU;QAAO,aAAU;QAAO,cAAW;;0BACnE,iQAAC;gBAAIA,WAAU;;;;;;0BACf,iQAAC;gBAAIA,WAAU;0BACZ;oBAAC;oBAAG;oBAAG;oBAAG;oBAAG;iBAAE,CAACC,GAAG,CAAC,CAACC,kBACpB,iQAAC;wBAAYF,WAAU;uBAAbE;;;;;;;;;;0BAGd,iQAAC;gBAAIF,WAAU;0BACZ;oBAAC;oBAAG;oBAAG;oBAAG;oBAAG;iBAAE,CAACC,GAAG,CAAC,CAACC,kBACpB,iQAAC;wBAAYF,WAAU;uBAAbE;;;;;;;;;;0BAGd,iQAAC;gBAAKF,WAAU;gBAAUG,MAAK;0BAAS;;;;;;;;;;;;AAK9C"}}]
+}

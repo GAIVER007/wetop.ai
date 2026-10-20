@@ -148,4 +148,25 @@ describe('Beauty position access in the web shell', () => {
     expect(beautyPageOpen(customers, '/bar/consumables')).toBe(false);
     expect(hrefs(customers)).not.toContain('/bar/consumables');
   });
+
+  // «Личный кабинет» (роль EMPLOYEE, решение владельца 20.10.2026): в меню только «Моя работа», рабочие разделы закрыты
+  it('EMPLOYEE sees only «Моя работа» in every vertical', () => {
+    const employee: NavigationAccess = {
+      aiSeller: false,
+      platform: false,
+      role: 'EMPLOYEE',
+      beautyAccess: { mode: 'LEGACY', assigned: false, permissions: [] },
+    };
+    expect(beautyPageOpen(employee, '/my-work')).toBe(true);
+    for (const path of ['/calendar', '/customers', '/finance', '/employees', '/team'])
+      expect(beautyPageOpen(employee, path)).toBe(false);
+    // «Моя работа» открывается из меню профиля в шапке; рабочих разделов в меню нет
+    expect(hrefs(employee)).not.toContain('/customers');
+    expect(hrefs(employee)).not.toContain('/calendar');
+    const food = menuSectionsFor({ aiSeller: false, platform: false, role: 'EMPLOYEE' }, 'FOOD_SERVICE').flatMap(
+      (section) => section.items.map((item) => item.href),
+    );
+    expect(food).not.toContain('/orders');
+    expect(food).not.toContain('/kitchen');
+  });
 });

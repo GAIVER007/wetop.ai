@@ -10,6 +10,9 @@ import { pluralRu } from '../../lib/plural';
 import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import type { FoodEmployee } from '../../lib/food-types';
 import { assignFoodPersonnelKind, mutateStaff } from './restaurant-actions';
+import { inviteNewStaffAction } from '../login/actions';
+import { StaffAccessPicker, staffAccessDraft, type StaffAccessDraft } from '../../components/staff-access-picker';
+import type { AccessLevel } from '@pms/domain';
 
 /**
  * Назначение строки (DATA_MODEL.md, решения 18.10 и 20.10.2026): руководитель выбирает «специалист», «другой
@@ -55,14 +58,24 @@ function KindCell({ scopeKey, employee, canAssign }: { scopeKey: string; employe
   );
 }
 
+export interface StaffAccessOptions {
+  /** уровни, которые может выдать вошедший; пусто: блока «Доступ в WETOP» нет */
+  levels: AccessLevel[];
+  canAllBranches: boolean;
+  branchName: string | null;
+  vertical: string;
+}
+
 function EmployeeDrawer({
   scopeKey,
   employee,
   close,
+  access,
 }: {
   scopeKey: string;
   employee: FoodEmployee | null;
   close: () => void;
+  access?: StaffAccessOptions | undefined;
 }) {
   const router = useRouter();
   const { ask, dialog } = useConfirm();
@@ -74,11 +87,19 @@ function EmployeeDrawer({
   const [status, setStatus] = useState(employee?.status ?? 'ACTIVE');
   // назначение нового сотрудника выбирает руководитель; по умолчанию «Другой сотрудник»: у ресторана это чаще
   const [personnelKind, setPersonnelKind] = useState<PersonnelKind>('OTHER_EMPLOYEE');
+  // доступ по умолчанию от назначения (решение 20.10.2026): специалист в кабинет, другой сотрудник без входа
+  const [accessDraft, setAccessDraft] = useState<StaffAccessDraft>(() => staffAccessDraft('OTHER_EMPLOYEE'));
+  const [accessTouched, setAccessTouched] = useState(false);
+  const showAccess = !employee && !!access && access.levels.length > 0;
   const [expectedProfileRevision] = useState(employee?.profileRevision ?? '');
   function submit() {
     setError('');
     if (!name.trim()) {
       setError('Имя обязательно');
+      return;
+    }
+    if (showAccess && accessDraft.level !== 'NONE' && !email.trim()) {
+      setError('Для входа в WETOP укажите почту: на неё придёт приглашение.');
       return;
     }
     start(async () => {
@@ -94,7 +115,18 @@ function EmployeeDrawer({
           : { kind: 'create', body: { ...body, personnelKind } },
       );
       if (result.error) setError(result.error);
-      else {
+      else if (showAccess && result.createdId && accessDraft.level !== 'NONE') {
+        const invited = await inviteNewStaffAction({
+          employeeId: result.createdId,
+          level: accessDraft.level,
+          email: email.trim(),
+          allBranches: accessDraft.allBranches,
+        });
+        router.refresh();
+        // сотрудник уже создан: ошибку приглашения показываем, а не прячем, повторить можно в «Сотрудники и доступ»
+        if (invited.error) setError(`Сотрудник добавлен, но приглашение не отправлено: ${invited.error}`);
+        else close();
+      } else {
         router.refresh();
         close();
       }
@@ -134,7 +166,14 @@ function EmployeeDrawer({
         </div>
         {!employee && (
           <Field label="Кто это">
-            <Select value={personnelKind} onChange={(e) => setPersonnelKind(e.target.value as PersonnelKind)}>
+            <Select
+              value={personnelKind}
+              onChange={(e) => {
+                const next = e.target.value as PersonnelKind;
+                setPersonnelKind(next);
+                if (!accessTouched) setAccessDraft(staffAccessDraft(next));
+              }}
+            >
               {PERSONNEL_KINDS.map((value) => (
                 <option key={value} value={value}>
                   {PERSONNEL_KIND_LABELS[value]}
@@ -142,6 +181,21 @@ function EmployeeDrawer({
               ))}
             </Select>
           </Field>
+        )}
+        {showAccess && access && (
+          <StaffAccessPicker
+            vertical={access.vertical}
+            levels={access.levels}
+            value={accessDraft}
+            onChange={(next) => {
+              setAccessTouched(true);
+              setAccessDraft(next);
+            }}
+            branchName={access.branchName}
+            canAllBranches={access.canAllBranches}
+            email={email}
+            disabled={pending}
+          />
         )}
         {employee && (
           <Field label="Статус">
@@ -177,6 +231,7 @@ export function EmployeesBoard({
   canAssignPersonnelKind = false,
   revenue = null,
   revenueNav = null,
+  access,
 }: {
   scopeKey: string;
   write: boolean;
@@ -187,6 +242,8 @@ export function EmployeesBoard({
   revenue?: StaffRevenue | null;
   /** переключатель периода (серверные ссылки) */
   revenueNav?: ReactNode;
+  /** «Доступ в WETOP» в форме нового сотрудника (решение 20.10.2026) */
+  access?: StaffAccessOptions;
 }) {
   const [draft, setDraft] = useState<FoodEmployee | null | 'new'>(null);
   const earned = revenue ? revenueCells(revenue.items) : null;
@@ -303,6 +360,7 @@ export function EmployeesBoard({
         <EmployeeDrawer
           scopeKey={scopeKey}
           employee={draft === 'new' ? null : draft}
+          access={access}
           close={() => setDraft(null)}
         />
       )}

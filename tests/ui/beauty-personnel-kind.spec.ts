@@ -156,12 +156,66 @@ test('новый сотрудник: назначение выбирается �
   await expect(kind).toHaveValue('SPECIALIST');
   await kind.selectOption('BOTH');
   await dialog.getByLabel('Имя мастера').fill('Ержан Новый');
+  // без входа: приглашение не нужно (уровни доступа, 20.10.2026)
+  await dialog.getByTestId('staff-access').getByRole('radio', { name: /^Без входа/ }).check();
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
   // карточка мастера остаётся отдельной страницей (решение владельца 20.10.2026)
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/, { timeout: 90_000 });
   await page.goto('/employees');
   await expect(tablist(page).getByRole('tab')).toHaveText(['Все1', 'Специалисты1', 'Другие сотрудники1']);
   await expect(panel(page).getByLabel('Назначение: Ержан Новый')).toHaveValue('BOTH');
+});
+
+// доступ при добавлении (решение владельца 20.10.2026, docs/decisions/2026-10-20-staff-access-levels.md)
+test('новый специалист: «Доступ в WETOP», по умолчанию личный кабинет в этом филиале, приглашение уходит', async ({
+  page,
+  request,
+}) => {
+  await openSalon(page, request);
+  await page.goto('/employees');
+  await page.getByRole('main').getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  const access = dialog.getByTestId('staff-access');
+  await expect(access.getByRole('group', { name: 'Доступ в WETOP' }).or(access)).toBeVisible();
+  // четыре уровня, у специалиста по умолчанию «Личный кабинет»
+  await expect(access.locator('[data-level]')).toHaveCount(4);
+  await expect(access.getByRole('radio', { name: /^Личный кабинет/ })).toBeChecked();
+  await expect(access.getByTestId('staff-access-details')).toContainText('Свои записи');
+  await expect(access.getByTestId('staff-access-details')).toContainText('Не увидит');
+  await expect(access.getByRole('radio', { name: /^Только филиал/ })).toBeChecked();
+  await expect(access.getByRole('radio', { name: 'Все филиалы' })).toBeVisible();
+  // другой сотрудник: по умолчанию без входа, пока владелец сам не выбрал уровень
+  await dialog.getByLabel('Кто это').selectOption('OTHER_EMPLOYEE');
+  await expect(access.getByRole('radio', { name: /^Без входа/ })).toBeChecked();
+  await expect(access.getByTestId('staff-access-details')).toHaveCount(0);
+  await dialog.getByLabel('Кто это').selectOption('SPECIALIST');
+  await expect(access.getByRole('radio', { name: /^Личный кабинет/ })).toBeChecked();
+  // администратор: другой список «увидит»
+  await access.getByRole('radio', { name: /^Администратор/ }).check();
+  await expect(access.getByTestId('staff-access-details')).toContainText('Клиенты');
+  await access.getByRole('radio', { name: /^Личный кабинет/ }).check();
+  await expect(access.getByTestId('staff-access-invite')).toContainText('Укажите почту');
+  await page.screenshot({ path: `${SNAPSHOTS}/staff-access-beauty-1440.png`, fullPage: true });
+  // без почты не создаёт: подсказка словами
+  await dialog.getByLabel('Имя мастера').fill('Карина Доступ');
+  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await expect(dialog).toContainText('Для входа в WETOP укажите почту');
+  await dialog.getByLabel('Почта').fill('karina@example.invalid');
+  await expect(access.getByTestId('staff-access-invite')).toContainText('karina@example.invalid');
+  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/, { timeout: 90_000 });
+  // приглашение ушло с ролью «личный кабинет», сотрудником и только этим филиалом
+  const invites = (await (await request.get(`${FIXTURE_API}/__test/invites`)).json()) as Array<{
+    email: string;
+    role: string;
+    employeeId?: string;
+    firstName: string | null;
+    scopes: Array<{ locationId: string | null }>;
+  }>;
+  const sent = invites.find((i) => i.email === 'karina@example.invalid');
+  expect(sent).toMatchObject({ role: 'EMPLOYEE', firstName: 'Карина' });
+  expect(sent?.employeeId).toBeTruthy();
+  expect(sent?.scopes).toHaveLength(1);
 });
 
 // «сколько принёс» (решение владельца 20.10.2026): строка на карточке и переключатель периода ссылками

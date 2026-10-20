@@ -1,0 +1,117 @@
+/* [project]/wt-personnel/apps/web/src/app/today/vertical-today.css [app-client] (css) */
+@layer sections {
+  .vertical-today {
+    gap: var(--space-4);
+    display: grid;
+  }
+
+  .vertical-today .stats {
+    margin-bottom: 0;
+  }
+
+  .vertical-today__attention, .vertical-today__rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .vertical-today__attention li {
+    min-height: var(--touch-target);
+    border-left: 3px solid var(--warning);
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0 4px 16px;
+    display: flex;
+  }
+
+  .vertical-today__attention li + li {
+    margin-top: 8px;
+  }
+
+  .vertical-today__rows li {
+    min-height: var(--touch-target);
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 0;
+    display: grid;
+  }
+
+  .vertical-today__rows li + li {
+    border-top: 1px solid var(--border);
+  }
+
+  .vertical-today__time {
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--weight-medium);
+  }
+
+  .vertical-today__who {
+    min-width: 0;
+    display: grid;
+  }
+
+  .vertical-today__who > * {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .vertical-today__who span, .vertical-today__status {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 600px) {
+    .vertical-today__rows li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 4px;
+    }
+  }
+
+  .vertical-today__split {
+    gap: var(--space-4);
+    align-items: start;
+    display: grid;
+  }
+
+  @media (min-width: 1280px) {
+    .vertical-today__split {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+  }
+
+  .vertical-today__masters {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .vertical-today__masters li {
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: var(--touch-target);
+    padding: var(--space-2) 0;
+    display: flex;
+  }
+
+  .vertical-today__masters li + li {
+    border-top: 1px solid var(--border);
+  }
+
+  .vertical-today__actions {
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    display: flex;
+  }
+
+  @media (max-width: 600px) {
+    .vertical-today__actions .btn {
+      flex: 100%;
+    }
+  }
+}
+
+/*# sourceMappingURL=wt-personnel_apps_web_src_app_today_vertical-today_css_1igg3k2._.single.css.map*/

@@ -1,0 +1,166 @@
+/* [project]/wt-personnel/apps/web/src/app/globals.css [app-client] (css) */
+@layer reset {
+  *, :before, :after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+@layer tokens;
+
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: var(--text-md);
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  small {
+    font-size: var(--text-xs);
+  }
+
+  main :is(p, li) > a {
+    text-underline-offset: 2px;
+    text-decoration: underline;
+  }
+
+  button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-head);
+    letter-spacing: -.005em;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  [data-quick-target] {
+    outline: var(--focus-ring-w) solid var(--focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  @media print {
+    body {
+      background: var(--surface);
+    }
+  }
+
+  body {
+    background: var(--bg);
+  }
+
+  button, a, input, select, textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  dialog {
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 80px var(--overlay);
+  }
+
+  dialog::backdrop {
+    background: var(--primary-soft);
+  }
+
+  [id^="booking-"], [id^="guest-"] {
+    scroll-margin-top: calc(var(--header-h) + 20px);
+  }
+
+  body {
+    font-family: var(--font);
+    font-size: var(--text-md);
+    line-height: 1.5;
+  }
+
+  button, a, input, select, textarea {
+    transition: background var(--ease),
+      border-color var(--ease),
+      box-shadow var(--ease),
+      color var(--ease);
+  }
+
+  button, [role="button"] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
+
+  h1, h2, h3, p {
+    overflow-wrap: anywhere;
+  }
+
+  h1, h2, h3 {
+    letter-spacing: -.035em;
+  }
+
+  time {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media print {
+    html {
+      --lightningcss-light: initial;
+      --lightningcss-dark: ;
+      color-scheme: light;
+    }
+  }
+}
+
+@layer components, sections;
+
+@layer utilities {
+  .sr-only {
+    clip-path: inset(50%);
+    white-space: nowrap;
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, :before, :after {
+      scroll-behavior: auto;
+      transition: none;
+      animation: none;
+    }
+  }
+
+  @media print {
+    .workspace-header, .skip-link, .bottom-navigation, .demo-banner, .read-only-banner {
+      display: none;
+    }
+  }
+}
+
+/*# sourceMappingURL=wt-personnel_apps_web_src_app_globals_css_1igg3k2._.single.css.map*/

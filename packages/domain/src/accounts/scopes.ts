@@ -19,7 +19,7 @@ export interface ScopeTarget {
   locationId?: string | undefined;
 }
 
-const RANK: Readonly<Record<MembershipRole, number>> = { OWNER: 3, MANAGER: 2, STAFF: 1 };
+const RANK: Readonly<Record<MembershipRole, number>> = { OWNER: 3, MANAGER: 2, STAFF: 1, EMPLOYEE: 0 };
 
 export function higherRole(a: MembershipRole, b: MembershipRole): MembershipRole {
   return RANK[a] >= RANK[b] ? a : b;
@@ -68,7 +68,7 @@ export function membershipRoleFor(
   fallback: MembershipRole,
 ): MembershipRole {
   if (assignments.length === 0) return fallback;
-  return assignments.map((a) => a.role).reduce<MembershipRole>(higherRole, 'STAFF');
+  return assignments.map((a) => a.role).reduce<MembershipRole>(higherRole, 'EMPLOYEE');
 }
 
 export type AssignmentCheck = { ok: true } | { ok: false; reason: string };
@@ -108,7 +108,7 @@ export function validateAssignments(input: {
 }
 
 export const SCOPES_MESSAGE =
-  'Назначения: список из роли (управляющий или администратор), бизнеса и, если нужно, филиала.';
+  'Назначения: список из роли (управляющий, администратор или личный кабинет), бизнеса и, если нужно, филиала.';
 export const SCOPES_MAX = 50;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -128,7 +128,7 @@ export function parseScopeAssignments(
     const role = typeof o.role === 'string' ? o.role.trim().toUpperCase() : '';
     const businessId = o.businessId;
     const locationId = o.locationId ?? null;
-    if (role !== 'MANAGER' && role !== 'STAFF') return { ok: false, message: SCOPES_MESSAGE };
+    if (role !== 'MANAGER' && role !== 'STAFF' && role !== 'EMPLOYEE') return { ok: false, message: SCOPES_MESSAGE };
     if (typeof businessId !== 'string' || !UUID_RE.test(businessId))
       return { ok: false, message: SCOPES_MESSAGE };
     if (locationId !== null && (typeof locationId !== 'string' || !UUID_RE.test(locationId)))

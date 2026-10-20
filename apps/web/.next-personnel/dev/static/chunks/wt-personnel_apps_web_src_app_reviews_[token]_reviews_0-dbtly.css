@@ -1,0 +1,101 @@
+/* [project]/wt-personnel/apps/web/src/app/reviews/[token]/reviews.css [app-client] (css) */
+@layer sections {
+  .beauty-review-page {
+    min-height: 100dvh;
+  }
+
+  .beauty-review-card {
+    width: min(600px, 100%);
+  }
+
+  .beauty-review-card h1 {
+    margin: 0 0 var(--space-4);
+  }
+
+  .beauty-review-form, .beauty-review-master {
+    gap: var(--space-4);
+    display: grid;
+  }
+
+  .beauty-review-form textarea.inp {
+    height: auto;
+  }
+
+  .beauty-review-hint {
+    color: var(--text-2);
+    margin: 0;
+  }
+
+  .beauty-review-master {
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+    margin: 0;
+  }
+
+  .beauty-review-choice {
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--touch-target);
+    font-weight: var(--weight-semibold);
+    display: flex;
+  }
+
+  .beauty-review-stars {
+    gap: var(--space-1);
+    flex-wrap: wrap;
+    display: flex;
+  }
+
+  .beauty-review-stars label {
+    width: var(--touch-target);
+    height: var(--touch-target);
+    color: var(--warning);
+    cursor: pointer;
+    place-items: center;
+    display: grid;
+  }
+
+  .beauty-review-stars input {
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    position: absolute;
+  }
+
+  .beauty-review-stars span[aria-hidden="true"] {
+    font-size: var(--text-2xl);
+    filter: grayscale();
+    opacity: .45;
+  }
+
+  .beauty-review-stars span[data-on="true"] {
+    filter: none;
+    opacity: 1;
+  }
+
+  .beauty-review-stars label:has(input:focus-visible) {
+    border-radius: var(--radius-control);
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  .beauty-review-stars label:has(input:disabled) {
+    cursor: not-allowed;
+    opacity: .5;
+  }
+
+  @media (max-width: 600px) {
+    .beauty-review-page .login-form-panel {
+      padding-inline: var(--space-4);
+      align-items: start;
+    }
+
+    .beauty-review-form > .btn {
+      width: 100%;
+    }
+  }
+}
+
+/*# sourceMappingURL=wt-personnel_apps_web_src_app_reviews_%5Btoken%5D_reviews_0-dbtly.css.map*/

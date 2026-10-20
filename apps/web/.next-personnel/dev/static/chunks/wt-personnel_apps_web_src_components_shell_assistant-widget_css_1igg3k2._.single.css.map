@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/wt-personnel/apps/web/src/components/shell/assistant-widget.css"],"sourcesContent":["/*\n * Виджет ИИ-помощника (ТЗ П2) — чужая разметка: скрипт бота кладёт её в body с классами .pmsw-* и своими\n * стилями (docs/assistant/README.md §1). Здесь только то, что касается раскладки стойки.\n */ /* На телефоне внизу стойки навигация (premium.css, до 600 px): пузырь и окно чата поднимаются над ней,\n   иначе пузырь закрывает последний пункт меню. body — чтобы перебить стили виджета без !important. */\n@layer sections {\n  @media (max-width: 600px) {\n    body .pmsw-b {\n      bottom: calc(var(--space-16) + var(--space-6) + env(safe-area-inset-bottom, 0px));\n    }\n    body .pmsw-p {\n      bottom: calc(var(--space-16) * 2 + var(--space-10) + env(safe-area-inset-bottom, 0px));\n      max-height: calc(\n        100vh - var(--space-16) * 3 - var(--space-10) - env(safe-area-inset-bottom, 0px)\n      );\n    }\n  } /* На печати (счёт, договор) пузыря нет: fixed-элемент печатается на каждой странице */\n  @media print {\n    body .pmsw {\n      display: none;\n    }\n  }\n}\n"],"names":[],"mappings":"AAKA;EACE;IACE;;;;IAGA;;;;;;EAOF;IACE"}}]
+}

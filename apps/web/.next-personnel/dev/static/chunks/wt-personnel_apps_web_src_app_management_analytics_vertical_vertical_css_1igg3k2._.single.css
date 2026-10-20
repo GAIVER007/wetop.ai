@@ -1,0 +1,80 @@
+/* [project]/wt-personnel/apps/web/src/app/management/analytics/vertical/vertical.css [app-client] (css) */
+@layer sections {
+  .vertical-report {
+    gap: var(--space-4);
+    display: grid;
+  }
+
+  .vertical-report-period {
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    align-items: end;
+    display: flex;
+  }
+
+  .vertical-report-period label {
+    gap: var(--space-2);
+    display: grid;
+  }
+
+  .vertical-report-period input {
+    max-width: 100%;
+  }
+
+  .vertical-report section {
+    gap: var(--space-4);
+    min-width: 0;
+    display: grid;
+  }
+
+  .vertical-report .stat__value {
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 600px) {
+    .vertical-report-period label {
+      flex: 130px;
+      min-width: 0;
+    }
+  }
+
+  .vertical-food__charts {
+    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: start;
+    display: grid;
+  }
+
+  @media (max-width: 960px) {
+    .vertical-food__charts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .vertical-food__kpis .stat {
+    text-align: left;
+    justify-content: flex-start;
+    min-height: 0;
+  }
+
+  .vertical-food__facts {
+    gap: var(--space-4) var(--space-8);
+    flex-wrap: wrap;
+    margin: 0;
+    display: flex;
+  }
+
+  .vertical-food__facts dt {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+
+  .vertical-food__facts dd {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+  }
+}
+
+/*# sourceMappingURL=wt-personnel_apps_web_src_app_management_analytics_vertical_vertical_css_1igg3k2._.single.css.map*/

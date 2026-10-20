@@ -2200,6 +2200,8 @@ interface FixtureInvite {
   lastName?: string | null;
   position?: string | null;
   scopes?: ScopeAssignment[];
+  /** сотрудник из формы «Новый сотрудник» (уровни доступа, 20.10.2026) */
+  employeeId?: string;
 }
 /** Бизнесы и филиалы вымышленной организации для области доступа (DATA_MODEL §31.1) */
 const FIXTURE_STRUCTURE = {
@@ -5723,6 +5725,8 @@ createServer(async (req, res) => {
         ],
       });
     }
+    // приглашения как есть, с сотрудником и областью: проверка формы «Новый сотрудник» (уровни доступа, 20.10.2026)
+    if (path === '/__test/invites' && req.method === 'GET') return send(200, uiInvites);
     if (path === '/__test/hits')
       return send(200, {
         total: [...hits.values()].reduce((a, b) => a + b, 0),
@@ -6721,6 +6725,17 @@ createServer(async (req, res) => {
           });
           if (!check.ok) return send(400, { message: check.reason });
         }
+        // приглашение из формы «Новый сотрудник» (уровни доступа, 20.10.2026): филиал и имя сотрудника, как в API
+        const employeeId = typeof body['employeeId'] === 'string' ? body['employeeId'] : null;
+        const employee = employeeId ? fixtureBeautyEmployees.find((e) => e.id === employeeId) : null;
+        if (employeeId && !employee) return send(400, { message: 'Сотрудник не найден в вашей организации.' });
+        if (employee && parsedScopes.assignments.length === 0 && body['allBranches'] !== true)
+          parsedScopes.assignments = (employee.locationIds.length ? employee.locationIds : [null]).map((locationId) => ({
+            role,
+            businessId: FIXTURE_STRUCTURE.businesses.find((b) => b.locations.some((l) => l.id === locationId))?.id
+              ?? FIXTURE_STRUCTURE.businesses[0]!.id,
+            locationId,
+          }));
         const invite: FixtureInvite = {
           id: `inv-${Date.now()}`,
           email,
@@ -6734,7 +6749,13 @@ createServer(async (req, res) => {
           lastName: typeof body['lastName'] === 'string' ? body['lastName'] : null,
           position: null,
           scopes: parsedScopes.assignments,
+          ...(employee ? { employeeId: employee.id } : {}),
         };
+        if (employee && !invite.firstName) {
+          const [first, ...rest] = employee.name.split(' ');
+          invite.firstName = first ?? null;
+          invite.lastName = rest.join(' ') || null;
+        }
         uiInvites.unshift(invite);
         return send(201, view(invite));
       }

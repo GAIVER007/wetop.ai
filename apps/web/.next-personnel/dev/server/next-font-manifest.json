@@ -1,0 +1,13 @@
+{
+  "app": {
+    "[project]/wt-personnel/apps/web/src/app/employees/page": [
+      "static/media/inter_wetop-s.p.0g7knm8koy6_q.woff2"
+    ],
+    "[project]/wt-personnel/apps/web/src/app/register/page": [
+      "static/media/inter_wetop-s.p.0g7knm8koy6_q.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}

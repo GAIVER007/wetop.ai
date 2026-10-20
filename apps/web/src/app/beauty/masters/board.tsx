@@ -1,4 +1,5 @@
 'use client';
+import type { AccessLevel } from '@pms/domain';
 import { useCallback, useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -104,6 +105,7 @@ export function MastersBoard({
   canAssignPersonnelKind = false,
   revenue = null,
   revenueNav = null,
+  access,
 }: {
   items: BeautyEmployeeRow[];
   services: BeautyServiceRow[];
@@ -123,6 +125,8 @@ export function MastersBoard({
   /** «Сколько принёс» за период (решение 20.10.2026); null = нет права на отчёты, строки нет */
   revenue?: StaffRevenue | null;
   revenueNav?: ReactNode;
+  /** «Доступ в WETOP» в форме нового специалиста (решение 20.10.2026) */
+  access?: { levels: AccessLevel[]; canAllBranches: boolean; branchName: string | null };
 }) {
   const earned = revenue ? revenueCells(revenue.items) : null;
   const unattributed = revenue ? unattributedLabel(revenue.items, 'BEAUTY') : null;
@@ -325,6 +329,7 @@ export function MastersBoard({
                   scopeKey={scopeKey}
                   canEdit={canCreate}
                   onSaved={savedProfile}
+                  access={access}
                 />
               </>
             )}

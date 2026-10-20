@@ -6,7 +6,8 @@ import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { beautyApi, type BeautyDay } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
-import { mayBeautyAccess } from '../../../lib/navigation';
+import { mayAccess, mayBeautyAccess } from '../../../lib/navigation';
+import { accessLevelsFor } from '@pms/domain';
 import { MastersBoard } from './board';
 import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../../lib/staff-revenue-load';
 import { revenuePeriodParam } from '../../../lib/staff-revenue';
@@ -92,6 +93,13 @@ export default async function BeautyMastersPage({
         initialEmployeeId={employeeId}
         revenue={revenue}
         revenueNav={<StaffRevenuePeriodNav path="/employees" period={period} />}
+        access={{
+          levels: may('employees', 'create') && shell.access.role ? accessLevelsFor(shell.access.role) : [],
+          canAllBranches:
+            shell.access.role === 'OWNER' ||
+            (mayAccess(shell.access, 'staff') && shell.access.restricted !== true),
+          branchName: typeof loadedSchedule?.location?.name === 'string' ? loadedSchedule.location.name : null,
+        }}
         unavailable={Boolean(requested) && !employees.items.some((row) => row.id === employeeId)}
       />
     </Page>

@@ -1,0 +1,87 @@
+/* [project]/wt-personnel/apps/web/src/components/shell/branch-switcher.module.css [app-client] (css) */
+.branch-switcher-module__KpchWW__switcher .workspace-property {
+  min-height: 48px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface-solid);
+  text-align: left;
+}
+
+.branch-switcher-module__KpchWW__switcher .branch-switcher__list {
+  width: min(400px, 100vw - 24px);
+  max-height: min(640px, 100dvh - 100px);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-solid);
+  box-shadow: var(--shadow-floating);
+  overflow: auto;
+}
+
+.branch-switcher-module__KpchWW__switcher .branch-switcher__heading {
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.branch-switcher-module__KpchWW__switcher .branch-switcher__options {
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  display: grid;
+}
+
+.branch-switcher-module__KpchWW__group {
+  gap: var(--space-2);
+  display: grid;
+}
+
+.branch-switcher-module__KpchWW__groupTitle {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.branch-switcher-module__KpchWW__group button {
+  min-height: 64px;
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  text-align: left;
+}
+
+.branch-switcher-module__KpchWW__group button[aria-pressed="true"] {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+}
+
+.branch-switcher-module__KpchWW__group button strong {
+  font-size: var(--text-md);
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+.branch-switcher-module__KpchWW__group button small {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.branch-switcher-module__KpchWW__group button span {
+  font-size: var(--text-xs);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+  .branch-switcher-module__KpchWW__switcher .branch-switcher__list {
+    width: auto;
+    position: fixed;
+    top: 72px;
+    left: 12px;
+    right: 12px;
+  }
+}
+
+/*# sourceMappingURL=wt-personnel_apps_web_src_components_shell_branch-switcher_module_css_1igg3k2._.single.css.map*/

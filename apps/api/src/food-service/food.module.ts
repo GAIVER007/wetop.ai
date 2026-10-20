@@ -18,11 +18,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { SITE_ASSET_LIMITS } from '@pms/domain';
+import { RESTRICTED_CATALOG_WRITE_MESSAGE, SITE_ASSET_LIMITS } from '@pms/domain';
 import { SITE_ASSET_STORAGE, siteAssetStorageFromEnv } from '../marketing-site/asset-storage';
 import { MenuPhotoService } from './menu-photos';
 import { OrderRatingLinkController, OrderRatingLinkService } from './order-rating-link';
 import { Access } from '../auth/access.decorator';
+import { OrganizationLevel } from '../auth/organization-level.decorator';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { FoodService } from './food.service';
@@ -128,6 +129,7 @@ export class FoodMenuController {
     @Inject(MenuPhotoService) private readonly photos: MenuPhotoService,
   ) {}
   // Фото блюда (DATA_MODEL §37): одно на блюдо, правка меню под `property`
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Post('menu/items/:id/photo')
   @Access('property')
   @HttpCode(201)
@@ -139,15 +141,18 @@ export class FoodMenuController {
   uploadPhoto(@Param('id') id: string, @UploadedFile() file: { buffer?: Buffer } | undefined) {
     return this.photos.upload(id, file);
   }
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Delete('menu/items/:id/photo') @Access('property') removePhoto(@Param('id') id: string) {
     return this.photos.remove(id);
   }
   @Get('menu/categories') categories(@Query() q: Record<string, unknown>) {
     return this.service.categories(q);
   }
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Post('menu/categories') @Access('property') createCategory(@Body() b: unknown) {
     return this.service.createCategory(b);
   }
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Patch('menu/categories/:id') @Access('property') updateCategory(
     @Param('id') id: string,
     @Body() b: unknown,
@@ -160,15 +165,18 @@ export class FoodMenuController {
   @Get('menu/items/:id') item(@Param('id') id: string) {
     return this.service.menuItem(id);
   }
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Post('menu/items') @Access('property') createItem(@Body() b: unknown) {
     return this.service.createMenuItem(b);
   }
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Patch('menu/items/:id') @Access('property') updateItem(
     @Param('id') id: string,
     @Body() b: unknown,
   ) {
     return this.service.updateMenuItem(id, b);
   }
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Put('menu/items/:id/ingredients') @Access('property') replaceIngredients(
     @Param('id') id: string,
     @Body() b: unknown,

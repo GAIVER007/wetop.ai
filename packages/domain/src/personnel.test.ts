@@ -71,12 +71,13 @@ describe('personnel tabs', () => {
     ]);
     assert.deepEqual(tabs.map((t) => [t.key, t.count]), [['specialists', 2], ['employees', 2]]);
   });
-  it('shows unassigned tab with its count when legacy rows exist', () => {
-    const tabs = personnelTabs([{ id: 'd', personnelKind: null }]);
+  it('puts unassigned tab first with its count while legacy rows exist', () => {
+    // после выпуска у всех старых записей назначения нет: первой открывается вкладка, где нужно действие
+    const tabs = personnelTabs([{ id: 'd', personnelKind: null }, { id: 'e', personnelKind: 'SPECIALIST' as const }]);
     assert.deepEqual(tabs.map((t) => [t.key, t.label, t.count]), [
-      ['specialists', 'Специалисты', 0],
-      ['employees', 'Другие сотрудники', 0],
       ['unassigned', 'Не назначено (1)', 1],
+      ['specialists', 'Специалисты', 1],
+      ['employees', 'Другие сотрудники', 0],
     ]);
   });
   it('labels every kind in Russian', () => {

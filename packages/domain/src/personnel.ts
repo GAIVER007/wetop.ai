@@ -40,7 +40,7 @@ export const PERSONNEL_KIND_LABELS: Readonly<Record<PersonnelKind, string>> = {
 
 export type PersonnelTabKey = 'specialists' | 'employees' | 'unassigned';
 
-/** Вкладки экрана: «Не назначено (N)» только при N > 0, чтобы старые записи не терялись и не мешали */
+/** Вкладки экрана: «Не назначено (N)» только при N > 0 и первой, пока есть старые записи без назначения */
 export function personnelTabs<T extends { personnelKind: PersonnelKind | null }>(
   people: readonly T[],
 ): Array<{ key: PersonnelTabKey; label: string; count: number; items: T[] }> {
@@ -50,7 +50,7 @@ export function personnelTabs<T extends { personnelKind: PersonnelKind | null }>
     { key: 'employees', label: 'Другие сотрудники', count: lists.employees.length, items: lists.employees },
   ];
   if (lists.unassigned.length > 0)
-    tabs.push({
+    tabs.unshift({
       key: 'unassigned',
       label: `Не назначено (${lists.unassigned.length})`,
       count: lists.unassigned.length,

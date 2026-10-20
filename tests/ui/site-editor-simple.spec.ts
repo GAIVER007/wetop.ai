@@ -20,7 +20,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 test('по умолчанию чат слева, сайт справа, без вкладок; текст правится на месте и сохраняется сам', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?chat=1');
   const m = main(page);
   await expect(m.getByTestId('site-editor')).toBeVisible();
   await expect(m.getByRole('tablist')).toHaveCount(0);
@@ -49,7 +49,7 @@ test('по умолчанию чат слева, сайт справа, без �
 });
 
 test('ИИ: подсказка-чип, правка блока, «Вернуть как было»', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?chat=1');
   const m = main(page);
   const ai = m.getByTestId('ed-ai');
   await expect(m.getByTestId('ed-chip')).toHaveCount(4);
@@ -68,6 +68,9 @@ test('шаблон меняет оформление одним касанием
   await request.post(`${FIXTURE_API}/__test/marketing-site`, { data: { noSite: true } });
   await page.goto('/marketing/site/editor');
   await main(page).getByTestId('create-site-start').click();
+  await expect(main(page).getByTestId('site-setup')).toBeVisible({ timeout: 15_000 });
+  // чат с ИИ по отдельной ссылке
+  await page.goto('/marketing/site/editor?chat=1');
   const m = main(page);
   await m.getByTestId('ed-template-open').click({ timeout: 15_000 });
   await expect(m.getByTestId('ed-templates')).toBeVisible();
@@ -82,8 +85,9 @@ test('шаблон меняет оформление одним касанием
   await m.getByTestId('ed-advanced').click();
   await expect(page).toHaveURL(/full=1/);
   await expect(main(page).getByRole('tablist', { name: 'Части редактора' })).toBeVisible();
+  // «Простой режим» ведёт на экран из пяти шагов
   await main(page).getByTestId('ed-simple').click();
-  await expect(main(page).getByTestId('ed-template-open')).toBeVisible();
+  await expect(main(page).getByTestId('site-setup')).toBeVisible();
 });
 
 for (const theme of ['light', 'dark'] as const)
@@ -92,7 +96,7 @@ for (const theme of ['light', 'dark'] as const)
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-      await page.goto('/marketing/site/editor');
+      await page.goto('/marketing/site/editor?chat=1');
       await expect(main(page).getByTestId('ed-template-open')).toBeVisible();
       await expect(frame(page).locator('#sec-hero')).toBeVisible();
       const wide = await page.evaluate(() =>

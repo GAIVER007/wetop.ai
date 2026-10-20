@@ -112,8 +112,8 @@ test('«Собрать с ИИ по описанию» на первом экр�
   await win.getByLabel('Опишите, каким должен быть сайт').fill('Строго и по делу');
   const cards = win.getByTestId('site-designs');
   await expect(cards.getByRole('radio')).toHaveCount(3);
-  await cards.getByText('Бутик-отель').click();
-  await expect(cards.getByRole('radio', { name: /Бутик-отель/ })).toBeChecked();
+  await cards.getByTestId('site-design-card').filter({ hasText: 'Бутик-отель' }).getByTestId('site-design-choose').click();
+  await expect(cards.getByRole('radio', { name: /Бутик-отель/ })).toHaveAttribute('aria-checked', 'true');
   await clean(page);
   await shot(page, 'design-cards-light-1440');
   await win.getByTestId('create-site-ai').click();

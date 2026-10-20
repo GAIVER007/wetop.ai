@@ -3,64 +3,88 @@
   .tabnav {
     display: none;
   }
+  /* Две строки шапки (решение владельца 20.10.2026): сверху знак, поиск, филиал и профиль, ниже все разделы
+     на всю ширину, значок рядом с подписью. Подписи не обрезаются: у каждого элемента своя колонка сетки. */
   @media (min-width: 1280px) {
-    .tabnav {
-      display: flex;
-      align-items: stretch;
-      align-self: stretch;
-      flex: 0 1 auto;
-      min-width: 0;
-      overflow-x: auto;
-      scrollbar-width: none;
+    div.workspace {
+      --header-h: calc(var(--header-row-h) + var(--header-menu-h) + env(safe-area-inset-top, 0px));
     }
-    /* строка разделов заменяет кнопку ☰ (решение владельца 18.10.2026): кнопки нет, знак «W» с надписью WETOP.AI;
-       поиск значком, подписи профиля и филиала сжимаются первыми */
     .sidenav {
       display: none;
     }
-    .workspace-search .workspace-search-full,
-    .workspace-search .workspace-search-short,
-    .workspace-search kbd {
+    .workspace .workspace-header .workspace-header__row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) minmax(220px, 300px) minmax(200px, 280px) auto;
+      grid-template-rows: var(--header-row-h) var(--header-menu-h);
+      align-items: center;
+      gap: 0 var(--space-4);
+      height: auto;
+      min-height: 0;
+      padding: 0 var(--space-6);
+    }
+    .workspace-header__row > .workspace-brand {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .workspace .workspace-header .workspace-search {
+      grid-column: 3;
+      grid-row: 1;
+      width: auto;
+      margin: 0;
+      padding: 0 var(--space-3);
+      justify-content: flex-start;
+      gap: var(--space-2);
+    }
+    .workspace-search .workspace-search-short {
       display: none;
     }
-    .workspace .workspace-header__row {
-      gap: var(--space-2);
-      padding: 0 var(--space-4);
+    .workspace-search .workspace-search-full {
+      flex: 1;
+      text-align: left;
+      white-space: nowrap;
     }
-    .workspace .workspace-search {
-      flex: none;
-      width: var(--touch-target);
-      margin: 0 0 0 auto;
-      padding: 0;
-      justify-content: center;
+    .workspace-header__row > .workspace-header__property {
+      grid-column: 4;
+      grid-row: 1;
+      min-width: 0;
+      max-width: none;
     }
-    /* разделы не сжимаются (самые длинные подписи у салона влезают от 1280 px); сжатие по весу у филиала и профиля:
-       на 1280 px у профиля остаётся аватар, шире появляются имя и роль */
-    .tabnav {
-      flex-shrink: 0;
+    .workspace-header__row > .header-tools {
+      grid-column: 5;
+      grid-row: 1;
     }
-    .workspace-header__property {
-      flex: 0 40 auto;
-      min-width: 120px;
-      max-width: 200px;
-    }
-    .workspace .header-tools,
-    .header-tools .profile-menu {
-      flex: 0 20 auto;
+    .workspace .header-tools .profile-menu {
       min-width: 0;
     }
     .profile-trigger {
-      max-width: 100%;
       min-width: 0;
     }
-    .profile-caption {
+    .workspace-header__row > .tabnav {
+      display: flex;
+      grid-column: 1 / -1;
+      grid-row: 2;
+      align-self: stretch;
+      justify-content: space-between;
       min-width: 0;
+      border-top: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
     }
-    .profile-caption strong,
-    .profile-caption small {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .tabnav .tabnav__group {
+      flex: 1 1 auto;
+    }
+    .tabnav .tabnav__tab {
+      flex-direction: row;
+      width: 100%;
+      gap: var(--space-2);
+      padding: 0 var(--space-3);
+      border-top: 0;
+      border-bottom: 3px solid transparent;
+      font-size: var(--text-sm);
+    }
+    .tabnav .tabnav__tab.is-current {
+      border-top-color: transparent;
+      border-bottom-color: var(--primary);
     }
   }
   .tabnav::-webkit-scrollbar {

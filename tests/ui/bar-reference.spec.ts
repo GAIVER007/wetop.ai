@@ -72,7 +72,7 @@ for (const width of [1333,390]) test(`direct sale visible labels and journal ${w
  await panel.getByLabel('Количество, шт.',{exact:true}).fill('3');
  await page.screenshot({path:`reports/bar-direct-sale-2026-10-14/${width}.png`});
  await panel.getByRole('button',{name:'Продать',exact:true}).click();
- await expect(panel.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+ await expect(panel.getByRole('status')).toContainText('Продажа записана');
  await expect(panel.getByTestId('retail-recovery-panel')).toContainText('подтверждена');
  await panel.getByRole('button', { name: 'Новая продажа', exact: true }).click();
  await expect(panel.locator('.bar-retail-product-info')).toHaveCount(0);

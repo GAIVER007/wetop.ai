@@ -238,7 +238,7 @@ async function sell(page: Page, name: string, qty: string) {
     .selectOption({ label: await form.locator('option').filter({ hasText: name }).innerText() });
   await form.locator('input[name=quantityUnits]').fill(qty);
   await form.getByRole('button', { name: 'Продать' }).click();
-  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+  await expect(form.getByRole('status')).toContainText('Продажа записана');
 }
 async function legacyStock(currency: string, name: string, units = '3', cost = '1000', price = '2000', receiptCurrency = currency) {
   const product = await call(currency, '/bar/products', 'POST', {
@@ -579,7 +579,7 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   await form.getByRole('button', { name: 'Продать' }).dblclick();
   const command = await posted;
   const replay = () => page.request.post(command.url(), { headers: command.headers(), data: command.postDataBuffer()! });
-  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+  await expect(form.getByRole('status')).toContainText('Продажа записана');
   expect((await call('KZT', '/bar/sales')).length).toBe(1);
   expect((await replay()).status()).toBe(200);
   expect((await call('KZT', '/bar/sales')).length).toBe(1);
@@ -600,7 +600,7 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   const completed = page.waitForResponse((r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/bar');
   await form.getByRole('button', { name: 'Продать' }).click();
   await completed;
-  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+  await expect(form.getByRole('status')).toContainText('Продажа записана');
   await expect.poll(async () => (await call('KZT', '/bar/sales')).length).toBe(2);
   writeFileSync(evidence + '/replay-ui.json', JSON.stringify({ sameKeyCount: 1, newKeyCount: 2, reversedReplayUnchanged: true }));
   privateData.scopes.KZT = previous;

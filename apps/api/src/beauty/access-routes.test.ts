@@ -76,6 +76,7 @@ describe('Beauty route action metadata', () => {
       serviceMaterials: { section: 'services', action: 'view' },
       setServiceMaterials: { section: 'services', action: 'update' },
       employees: { section: 'employees', action: 'view' },
+      assignPersonnelKind: { section: 'employees', action: 'update' },
       createEmployee: { section: 'employees', action: 'create' },
       updateEmployee: { section: 'employees', action: 'update' },
       setEmployeeServices: { section: 'employees', action: 'update' },

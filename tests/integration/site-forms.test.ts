@@ -562,4 +562,108 @@ describe.skipIf(!url)('формы сайта салона и ресторана,
       expect(row).toMatchObject({ organizationId: w.foreignOrg, locationId: w.ids.fbl1 });
     });
   });
+
+  // ───────── STAFF-TG-20261020: очередь уведомлений сотрудникам в транзакции записи ─────────
+
+  describe('STAFF-TG: запись с сайта ставит уведомление сотрудникам в той же транзакции', () => {
+    const tg = { owner: '', staff: '', scopedOther: '', disabled: '', off: '', foreign: '' };
+    let chat = 900_000_000 + Math.floor(Math.random() * 1_000_000);
+    const link = (userId: string, extra: Record<string, unknown> = {}) =>
+      admin.$executeRawUnsafe(
+        `INSERT INTO staff_telegram_links(user_id,chat_id,site_bookings,disabled_at) VALUES($1::uuid,$2,$3,$4)`,
+        userId,
+        chat++,
+        extra['siteBookings'] ?? true,
+        extra['disabledAt'] ?? null,
+      );
+    const queued = (sourceId: string) =>
+      admin.$queryRawUnsafe<Array<{ recipient_user_id: string; kind: string; location_id: string; organization_id: string; status: string }>>(
+        `SELECT recipient_user_id::text, kind::text, location_id::text, organization_id::text, status::text FROM staff_notifications WHERE source_id=$1::uuid ORDER BY recipient_user_id`,
+        sourceId,
+      );
+
+    beforeAll(async () => {
+      tg.owner = await seedUser(admin, w.org, 'OWNER', `tgo-${run}`);
+      tg.staff = await seedUser(admin, w.org, 'STAFF', `tgs-${run}`);
+      // администратор только салона BL2: бронь BL1 ему не видна
+      tg.scopedOther = await seedUser(admin, w.org, 'STAFF', `tgx-${run}`);
+      const bl2 = await admin.location.findUniqueOrThrow({ where: { id: w.ids.bl2! } });
+      await admin.membershipScope.create({ data: { organizationId: w.org, userId: tg.scopedOther, role: 'STAFF', businessId: bl2.businessId, locationId: bl2.id } });
+      tg.disabled = await seedUser(admin, w.org, 'STAFF', `tgd-${run}`);
+      tg.off = await seedUser(admin, w.org, 'STAFF', `tgf-${run}`);
+      tg.foreign = await seedUser(admin, w.foreignOrg, 'OWNER', `tgz-${run}`);
+      for (const u of [tg.owner, tg.staff, tg.scopedOther, tg.foreign]) await link(u);
+      await link(tg.disabled, { disabledAt: new Date() });
+      await link(tg.off, { siteBookings: false });
+      // бот подключён: строки ждут отправщика (PENDING); без токена событие сразу SKIPPED, проверка ниже
+      process.env.TELEGRAM_STAFF_BOT_TOKEN = 'synthetic-staff-bot-token';
+    });
+    afterAll(async () => {
+      delete process.env.TELEGRAM_STAFF_BOT_TOKEN;
+      await admin.$executeRawUnsafe(`DELETE FROM staff_telegram_links WHERE user_id = ANY($1::uuid[])`, Object.values(tg));
+    });
+
+    const expected = () => [tg.owner, tg.staff].sort();
+
+    it('запись к мастеру: строка на каждого получателя с правом на филиал, без чужих, выключенных и чужой организации', async () => {
+      const r = await post('/w/beauty/book', beautyBody(), host('salon'));
+      expect(r.status, r.text).toBe(201);
+      const rows = await queued(r.json['appointmentId'] as string);
+      expect(rows.map((x) => x.recipient_user_id).sort()).toEqual(expected());
+      expect(rows.every((x) => x.kind === 'SITE_APPOINTMENT' && x.location_id === w.ids.bl1 && x.organization_id === w.org && x.status === 'PENDING')).toBe(true);
+    });
+
+    it('повтор той же записи (тот же ключ) второй строки не даёт', async () => {
+      const body = beautyBody();
+      const a = await post('/w/beauty/book', body, host('salon'));
+      const b = await post('/w/beauty/book', { ...body, turnstileToken: token() }, host('salon'));
+      expect([a.status, b.status]).toEqual([201, 201]);
+      expect(b.json['appointmentId']).toBe(a.json['appointmentId']);
+      expect((await queued(a.json['appointmentId'] as string)).length).toBe(2);
+    });
+
+    it('бронь стола и заявка: свои виды событий, получатели по праву филиала и праву заявок', async () => {
+      const t = await post(
+        '/w/food/reserve',
+        { k: site.food, date: nextMonday(week++), time: '19:00', partySize: 2, name: 'Бауыржан', phone: phone(), requestKey: randomUUID(), turnstileToken: token() },
+        host('food'),
+      );
+      expect(t.status, t.text).toBe(201);
+      const tableRows = await queued(t.json['reservationId'] as string);
+      expect(tableRows.map((x) => x.kind)).toEqual(['SITE_TABLE', 'SITE_TABLE']);
+      expect(tableRows.map((x) => x.recipient_user_id).sort()).toEqual(expected());
+      const l = await post('/w/lead', { k: site.salon, name: 'Сауле', phone: phone(), requestKey: randomUUID(), turnstileToken: token() }, host('salon'));
+      expect(l.status, l.text).toBe(201);
+      const leadRows = await queued(l.json['leadId'] as string);
+      expect(leadRows.map((x) => x.kind)).toEqual(['SITE_LEAD', 'SITE_LEAD']);
+      // администратор с ограничением по филиалам заявки не получает: «Заявки с сайта» уровня организации
+      expect(leadRows.map((x) => x.recipient_user_id)).not.toContain(tg.scopedOther);
+    });
+
+    it('без токена бота событие пишется в журнал сразу SKIPPED: после включения бота старые не досылаются', async () => {
+      delete process.env.TELEGRAM_STAFF_BOT_TOKEN;
+      try {
+        const r = await post('/w/beauty/book', beautyBody(), host('salon'));
+        expect(r.status, r.text).toBe(201);
+        const rows = await queued(r.json['appointmentId'] as string);
+        expect(rows.map((x) => x.status)).toEqual(['SKIPPED', 'SKIPPED']);
+      } finally {
+        process.env.TELEGRAM_STAFF_BOT_TOKEN = 'synthetic-staff-bot-token';
+      }
+    });
+
+    it('сбой записи очереди откатывает и саму запись: бронь без уведомления не фиксируется', async () => {
+      // строка очереди, которая займёт ключ будущей записи, невозможна заранее; ломаем очередь на время запроса
+      await admin.$executeRawUnsafe(`ALTER TABLE staff_notifications ADD CONSTRAINT stg_test_block CHECK (kind <> 'SITE_APPOINTMENT') NOT VALID`);
+      try {
+        const body = beautyBody();
+        const r = await post('/w/beauty/book', body, host('salon'));
+        expect(r.status).toBe(500);
+        const leftovers = await admin.appointment.count({ where: { creationKey: `site:${siteId.salon}:${body.requestKey as string}` } });
+        expect(leftovers).toBe(0);
+      } finally {
+        await admin.$executeRawUnsafe(`ALTER TABLE staff_notifications DROP CONSTRAINT stg_test_block`);
+      }
+    });
+  });
 });

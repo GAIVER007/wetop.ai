@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { enqueueStaffNotifications, staffTargetOfProperty } from '../staff-telegram/recipients';
 import {
   lockOpenFolios,
   ensureFolioWithAccommodation,
@@ -395,6 +396,11 @@ export interface ReservationsRepository {
     },
   ): Promise<void>;
   audit(entry: AuditEntry): Promise<void>;
+  /**
+   * STAFF-TG-20261020: строки очереди уведомлений сотрудникам о брони с сайта, в транзакции брони. Необязателен:
+   * фальшивые репозитории тестов его не реализуют.
+   */
+  enqueueStaffSiteBooking?(reservationId: string): Promise<number>;
   card(confirmationNumber: string): Promise<ReservationCard | null>;
 }
 
@@ -1453,6 +1459,13 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       },
     });
   }
+  async enqueueStaffSiteBooking(reservationId: string): Promise<number> {
+    const property = await this.property();
+    const target = await staffTargetOfProperty(this.db, property.id);
+    if (!target) return 0;
+    return enqueueStaffNotifications(this.db, { ...target, kind: 'SITE_BOOKING_HOTEL', sourceId: reservationId });
+  }
+
   async audit(entry: AuditEntry): Promise<void> {
     // В-5 (ТЗ аудита 25.09.2026): карточка в журнале — без ФИО, телефон маской. Остальное — без данных гостя под его
     // ключами, и в свободном тексте (заметка, комментарий, причина) контакты под маской: журнал только дописывается

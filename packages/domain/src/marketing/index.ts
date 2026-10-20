@@ -16,6 +16,7 @@ export * from './live-sync';
 export * from './simple-edit';
 export * from './site-copy';
 export * from './site-notification';
+export * from './staff-telegram';
 export * from './conversation';
 export * from './budget';
 export * from './site-lead';

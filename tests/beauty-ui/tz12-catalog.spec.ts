@@ -14,7 +14,9 @@ test('catalog customers mobile contact cards retain secondary existing metrics',
   await expect(table.locator('thead')).not.toBeVisible();
   await expect(table.locator('[data-label="Последний визит"]')).toBeVisible();
   await expect(table.locator('[data-label="Средний чек"]')).toBeVisible();
-  await expect(table.getByRole('link')).toHaveCount(0);
+  // Имя клиента теперь ведёт в карточку (D1); посторонних ссылок в таблице по-прежнему нет.
+  for (const href of await table.getByRole('link').evaluateAll((links) => links.map((l) => l.getAttribute('href'))))
+    expect(href).toMatch(/^\/customers\//);
 });
 
 test('catalog services branch price duration precede secondary full catalog data', async ({

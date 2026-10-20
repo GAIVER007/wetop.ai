@@ -62,7 +62,9 @@ export function PortalForm({ context, command, children, label = 'Сохрани
           }
           element.dispatchEvent(new CustomEvent('employee-save-result', {
             bubbles: true,
-            detail: { success: true, snapshot },
+            // reset: смена formRevision перемонтирует fieldset (файл в input пропадает),
+            // поэтому опорная подпись перечитывается после перерисовки, а не со снимка отправки.
+            detail: { success: true, snapshot, reset: true },
           }));
           context.onSaved(result.data); setSaved(true); setDirty(false);
           if (command === 'profile') setProfileRevision(result.data.employee.profileRevision);

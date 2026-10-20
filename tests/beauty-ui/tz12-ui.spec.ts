@@ -65,7 +65,9 @@ test('calendar compact controls preserve filtering and hidden occupancy', async 
       return { tag: node.tagName, classes: String(node.className), x: rect.x, y: rect.y, width: rect.width, height: rect.height };
     }),
   );
-  expect((await timeline.boundingBox())!.y, JSON.stringify(layout)).toBeLessThanOrEqual(422);
+  // 422 → 470: «Компактный вид» добавил тулбару ряд 44px (салонный выпуск 18.10), при 2x шрифте
+  // на 320 кнопки не делят ряд, поэтому ряд не убрать; «Записей: N» переехал в ряд «День | Неделя».
+  expect((await timeline.boundingBox())!.y, JSON.stringify(layout)).toBeLessThanOrEqual(470);
   await expect(page.getByLabel('Статус записи', { exact: true })).not.toBeVisible();
   await page.getByText(/^Фильтры/).click();
   await page.getByLabel('Статус записи', { exact: true }).selectOption('DONE');
@@ -87,7 +89,7 @@ test('list mobile cards retain contact semantics and honest record action', asyn
   await populated(page, request);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/appointments?date=${date}`);
-  await expect(page.getByText('Поиск только по выбранному дню.')).toBeVisible();
+  await expect(page.getByText('Поиск по выбранному периоду.')).toBeVisible();
   await expect(page.locator('.beauty-appointments-table')).not.toContainText('—');
   const row = page.locator('.beauty-appointments-table tr').filter({ hasText: longName });
   await expect(row.getByRole('button', { name: /Открыть запись/ })).toBeVisible();

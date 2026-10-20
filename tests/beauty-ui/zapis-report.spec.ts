@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { api, date, seed } from './tz11-helpers';
+import { api, date, seed , nextDate } from './tz11-helpers';
 const evidence = process.env.ZAPIS_EVIDENCE || 'test-results/zapis-report';
 
 test('report: centered multi-service appointment, per-master occupancy and exact payment', async ({
@@ -26,10 +26,10 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await form.getByLabel('Услуга', { exact: true }).selectOption(f.services[0]!.id);
   await form.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   await form.getByLabel('Услуга 2', { exact: true }).selectOption(f.services[1]!.id);
-  await form.getByLabel('Мастер услуги 2', { exact: true }).selectOption(f.employees[1]!.id);
+  await form.getByLabel('Специалист услуги 2', { exact: true }).selectOption(f.employees[1]!.id);
   await form.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   await form.getByLabel('Услуга 3', { exact: true }).selectOption(f.services[0]!.id);
-  await form.getByLabel('Мастер услуги 3', { exact: true }).selectOption(f.employees[0]!.id);
+  await form.getByLabel('Специалист услуги 3', { exact: true }).selectOption(f.employees[0]!.id);
   await form.getByLabel('Часы услуги 1', { exact: true }).selectOption('0');
   await form.getByLabel('Минуты услуги 1', { exact: true }).selectOption('45');
   await form.getByText('Скидка и доплата', { exact: true }).first().click();
@@ -131,12 +131,12 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await f.call('/beauty/appointments', {
     employeeId: f.employees[0]!.id,
     serviceId: f.services[0]!.id,
-    startsAt: '2026-10-20T10:00:00+05:00',
+    startsAt: `${nextDate}T10:00:00+05:00`,
     firstName: 'Тестовый клиент периода',
   });
   await page.goto(`/appointments?date=${date}`);
   await page.getByLabel('Период с', { exact: true }).fill(date);
-  await page.getByLabel('Период по', { exact: true }).fill('2026-10-20');
+  await page.getByLabel('Период по', { exact: true }).fill(nextDate);
   await page.getByRole('button', { name: 'Показать период', exact: true }).click();
   await expect(
     page.getByRole('button', { name: 'Тестовый клиент отчёта', exact: true }),

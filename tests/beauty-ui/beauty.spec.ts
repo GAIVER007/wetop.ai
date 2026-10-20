@@ -135,7 +135,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
       has: page.getByText('Тестовая стрижка', { exact: true }),
     }),
   ).toContainText('12 000');
-  await panel.getByRole('button', { name: 'Закрыть: Услуга каталога', exact: true }).click();
+  await panel.getByRole('button', { name: 'Закрыть: Новая услуга', exact: true }).click();
   await expect(panel).toBeHidden();
   await expect(page).toHaveURL(/\/services$/);
   await page.reload();

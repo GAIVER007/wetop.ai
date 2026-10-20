@@ -149,6 +149,9 @@
     }
     .beauty-customer-tools > .btn {
       flex: 1 1 100%;
+      min-width: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
   }
   /* «Мастера» карточками (ТЗ салона 09.10.2026): сетка вместо таблицы, drawer правки прежний */
@@ -1207,8 +1210,27 @@
     .beauty-page:has(.beauty-calendar-toolbar) > .page__head {
       margin-bottom: var(--space-1);
     }
+    /* «Записей: N» в одном ряду с «День | Неделя»: лишний ряд текста опускал шкалу дня. */
+    .beauty-page:has(.beauty-calendar-toolbar) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-content: start;
+    }
+    .beauty-page:has(.beauty-calendar-toolbar) > * {
+      grid-column: 1 / -1;
+      min-width: 0;
+    }
     .beauty-page:has(.beauty-calendar-toolbar) > .beauty-calendar-views {
+      grid-column: 1;
+      grid-row: 2;
       margin-bottom: var(--space-1);
+    }
+    .beauty-page:has(.beauty-calendar-toolbar) > [data-testid='beauty-day-summary'] {
+      grid-column: 2;
+      grid-row: 2;
+      align-self: center;
+      margin: 0;
+      text-align: right;
     }
     .beauty-page:has(.beauty-calendar-toolbar) > .beauty-calendar-toolbar {
       margin-bottom: 0;
@@ -1239,6 +1261,8 @@
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: start;
       padding: 0 var(--space-2);
+      /* Ряды плотнее: при 2x шрифте пары кнопок всё равно по одному текстовому элементу в колонке. */
+      gap: var(--space-1) var(--space-2);
     }
     .beauty-calendar-toolbar .beauty-calendar-actions {
       display: contents;
@@ -1256,7 +1280,7 @@
       grid-column: auto;
     }
     .beauty-page:has(.beauty-calendar-toolbar) > [data-testid='beauty-day-summary'] {
-      margin: var(--space-1) 0;
+      margin: 0;
       font-size: var(--text-xs);
     }
     .beauty-mobile-calendar .beauty-current-master + .beauty-note {

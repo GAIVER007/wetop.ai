@@ -29,8 +29,9 @@ export default async function CustomersPage() {
         title="Клиенты"
         subtitle="Клиенты этого бизнеса, их визиты и средний чек."
       >
+        {/* Локальная проверка CSV доступна праву customers.create; журнальный импорт ниже остаётся OWNER (SL4-M4B) */}
         <BeautyCustomerTools
-          canEdit={canImport}
+          canEdit={canCreate}
           scopeKey={shell.scopeKey ?? ''}
           showCreate={false}
           importHistory={canCreate ? (

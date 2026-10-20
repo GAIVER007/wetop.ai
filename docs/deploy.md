@@ -372,6 +372,39 @@ mig status     # ждём: Database schema is up to date
 
 Бот «ИИ-продавец» (`apps/ai-seller`) автовыкладкой не выкладывается: он собирается своим `compose.yml` из своей папки.
 
+## 1е. Ночная уборка копий агента Hermes (19.10.2026)
+
+Hermes на том же сервере заводит копию репозитория под каждую задачу в `/srv/hermes/workspace` и не удаляет её.
+19.10.2026 копии заняли 54 ГБ, диск дошёл до 92 %; при полном диске встаёт автовыкладка из §1д. Уборку делает
+[`scripts/ops/hermes-workspace-prune.sh`](../scripts/ops/hermes-workspace-prune.sh), на сервере это
+`/usr/local/sbin/hermes-workspace-prune`, строка в `crontab -l` у root:
+
+```
+15 3 * * * /usr/local/sbin/hermes-workspace-prune >> /var/log/hermes-workspace-prune.log 2>&1
+```
+
+Что делает за ночь:
+
+1. Копия-репозиторий первого уровня (есть `.git`), где 48 часов не менялся ни один файл вне `.git` и где нет
+   процессов пользователя `hermes` (рабочий каталог, открытый файл или аргументы процесса внутри копии), сначала
+   сохраняется в `/root/hermes-backups/workspace-<дата UTC>/<копия>/`: `unpushed.bundle` (неотправленные ветки и
+   отцепленный HEAD, только если они есть), `tracked.patch`, `untracked.tgz`, `status.txt`, `head.txt`. Затем удаляется:
+   рабочее дерево через `git worktree remove --force --force`, отдельный клон через `rm`, в конце `git worktree prune`.
+   Не удалось сохранить, копия остаётся. Не трогаются никогда: `wetop-audit-main`, клон с привязанными рабочими
+   деревьями, каталоги без `.git` (`*-pg`, `*-evidence`), репозитории глубже первого уровня.
+2. В оставшихся копиях, простоявших 6 часов, убирает `node_modules` и `.next*` (так было с 18.10).
+3. Чистит кэш сборки Docker и удаляет каталоги `workspace-*` в `/root/hermes-backups` старше 30 дней.
+
+Сроки и пути меняются переменными, перечисленными в шапке скрипта. Посмотреть, что убралось бы, ничего не трогая:
+
+```bash
+ssh hostinger /usr/local/sbin/hermes-workspace-prune --dry-run
+```
+
+Вернуть удалённую копию: в клоне или новом рабочем дереве `git fetch <бэкап>/unpushed.bundle HEAD` и
+`git checkout FETCH_HEAD` (коммит из `head.txt`), затем `git apply tracked.patch` и `tar xzf untracked.tgz`. Установка новой версии скрипта:
+`scp scripts/ops/hermes-workspace-prune.sh hostinger:/usr/local/sbin/hermes-workspace-prune`.
+
 ## 2. Главная `wetop.ai`
 
 Статическая сборка `apps/site`, выкладывается прямой загрузкой в Cloudflare Pages: приватный репозиторий

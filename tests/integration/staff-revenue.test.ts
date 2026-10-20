@@ -26,7 +26,7 @@ describe.skipIf(!process.env.DATABASE_URL)('Staff revenue: salon and restaurant'
         locationId: v === 'BEAUTY' ? salon.location : food.location },
       fn,
     );
-  type Rev = { period: string; totals: unknown; previous: { fromDate: string; toDate: string; totals: unknown }; items: Array<{ employeeId: string | null; paidMinor: string; refundedMinor: string; netMinor: string; currency: string }> };
+  type Rev = { period: string; items: Array<{ employeeId: string | null; paidMinor: string; refundedMinor: string; netMinor: string; currency: string }> };
   let anna: string, bota: string, waiter: string;
   // сейчас: вторник 20.10.2026 12:00 по Алматы
   const now = new Date('2026-10-20T07:00:00Z');
@@ -110,12 +110,6 @@ describe.skipIf(!process.env.DATABASE_URL)('Staff revenue: salon and restaurant'
     expect(month.items.find((r) => r.employeeId === anna)!.paidMinor).toBe('315000');
     const week = (await as('BEAUTY', () => svc.staffRevenue({ period: 'week' }, now))) as Rev;
     expect(week.items.find((r) => r.employeeId === anna)!.paidMinor).toBe('300000');
-    // плитки: итог недели и та же часть прошлой недели (пн 12.10 12:00 входит: вторник 20.10 12:00 против вт 13.10 12:00)
-    expect(week.totals).toEqual([{ currency: 'KZT', paidMinor: '1000000', refundedMinor: '100000', netMinor: '900000' }]);
-    expect(week.previous).toEqual({
-      fromDate: '2026-10-12', toDate: '2026-10-18',
-      totals: [{ currency: 'KZT', paidMinor: '50000', refundedMinor: '0', netMinor: '50000' }],
-    });
   });
 
   it('ресторан: оплаты заказа официанту минус возврат, заказ без официанта отдельной строкой', async () => {

@@ -207,13 +207,10 @@ test('«Сотрудники и доступ»: сводка по команде
   await page.goto('/team');
   const main = page.getByRole('main');
   const stats = main.getByTestId('team-stats');
-  // плитки (замечание владельца 20.10.2026): деньги первыми, состав одной плиткой с подсказкой,
-  // «Доступ приостановлен» только когда такие есть
   await expect(stats.getByTestId('team-stat-total')).toHaveText('3');
-  await expect(stats).toContainText('1 администратор, ждут ответа: 2');
-  await expect(stats.getByTestId('team-stat-suspended')).toHaveCount(0);
-  await expect(stats.getByTestId('staff-total')).toBeVisible();
-  await expect(stats.getByTestId('staff-best')).toBeVisible();
+  await expect(stats.getByTestId('team-stat-active')).toHaveText('3');
+  await expect(stats.getByTestId('team-stat-suspended')).toHaveText('0');
+  await expect(stats.getByTestId('team-stat-admins')).toHaveText('1');
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const position = page.getByRole('dialog').getByLabel('Должность', { exact: true });
   await expect(position.locator('option')).toHaveText(['Управляющий', 'Администратор']);
@@ -285,12 +282,13 @@ test('приостановка доступа: подтверждение, ме�
   await confirm.getByRole('button', { name: 'Приостановить' }).click();
   await expect(yurij.getByTestId('member-suspended')).toHaveText('Приостановлен');
   await expect(main.getByTestId('team-stat-suspended')).toHaveText('1');
+  await expect(main.getByTestId('team-stat-active')).toHaveText('2');
   // из команды не ушёл
   await expect(main.getByTestId('member-row')).toHaveCount(3);
   await yurij.getByRole('button', { name: /^Ещё:/ }).click();
   await page.getByRole('menuitem', { name: 'Возобновить' }).click();
   await expect(yurij.getByTestId('member-suspended')).toHaveCount(0);
-  await expect(main.getByTestId('team-stat-suspended')).toHaveCount(0);
+  await expect(main.getByTestId('team-stat-suspended')).toHaveText('0');
 });
 
 test('приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора', async ({

@@ -3493,12 +3493,6 @@
   .staff-board__stats {
     margin-bottom: 0;
   }
-  /* длинное имя лучшего сотрудника в одну строку, полное имя в подсказке строкой ниже не нужно: обрезаем */
-  .staff-board__stats [data-testid='staff-best'] {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
   .staff-board__card {
     overflow: hidden;
     border: 1px solid var(--border);

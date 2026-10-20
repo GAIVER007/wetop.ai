@@ -28,7 +28,7 @@ import { Icon } from '../../components/icon';
 import { useConfirm } from '../../components/use-confirm';
 import type { AuthAccessStructure, AuthInvite, AuthMember } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
-import { periodTitle, revenueCells, staffSummaryStats, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
+import { periodTitle, revenueCells, revenueTotal, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import { ScopeEditor } from './scope-editor';
 import {
   fromScopes,
@@ -298,11 +298,6 @@ function useTeamActions() {
 
 /** Сводка (STAFF2.2): считает только то, что API отдаёт; «доступ приостановлен» не показываем: данных нет */
 const who = (m: AuthMember) => m.name ?? m.email;
-const pluralPeople = (n: number, one: string, few: string, many: string) => {
-  const m10 = n % 10,
-    m100 = n % 100;
-  return `${n} ${m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? few : many}`;
-};
 const initialsOf = (name: string) =>
   name
     .split(/[\s@.]+/)
@@ -348,26 +343,12 @@ export function MembersTable({
         statsTestId="team-stats"
         notice={error ? <Alert boxed>{error}</Alert> : null}
         stats={[
-          // деньги первыми (замечание владельца 20.10.2026: плитки должны давать полезную сводку)
-          ...(revenue
-            ? staffSummaryStats({
-                revenue,
-                names: new Map(members.map((m) => [m.userId, who(m)])),
-                earners: members.filter((m) => !m.suspended && earned?.has(m.userId)).length,
-                unassigned: 0,
-              })
-            : []),
-          {
-            label: 'Команда',
-            value: members.length,
-            testId: 'team-stat-total',
-            hint: `${pluralPeople(admins, 'администратор', 'администратора', 'администраторов')}${
-              invites ? `, ждут ответа: ${invites}` : ''
-            }`,
-          },
-          ...(suspended
-            ? [{ label: 'Доступ приостановлен', value: suspended, tone: 'warning' as const, testId: 'team-stat-suspended', hint: 'войти не могут' }]
-            : []),
+          { label: 'Сотрудников', value: members.length, testId: 'team-stat-total' },
+          { label: 'Активных', value: members.length - suspended, testId: 'team-stat-active' },
+          ...(revenue ? [{ label: `Принесли ${periodTitle(revenue.period)}`, value: revenueTotal(revenue.items), testId: 'staff-total' }] : []),
+          { label: 'Ожидают ответа', value: invites, testId: 'team-stat-invites' },
+          { label: 'Доступ приостановлен', value: suspended, testId: 'team-stat-suspended' },
+          { label: 'Администраторов', value: admins, testId: 'team-stat-admins' },
         ]}
         tabs={[{ id: 'all', label: 'Все', rows, empty: 'В организации пока никого нет' }]}
         search={(m) => `${m.name ?? ''} ${m.email} ${m.phone ?? ''}`}

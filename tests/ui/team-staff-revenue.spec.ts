@@ -25,14 +25,6 @@ test('колонка «Принёс» и переключатель период
   const marat = table.getByTestId('member-row').filter({ hasText: 'Марат Тестов' });
   await expect(marat.getByTestId('member-earned')).toHaveText('—');
   await expect(main.getByTestId('team-unattributed')).toHaveText('Брони из каналов и сайта: 12 000 ₸');
-  // плитки: деньги команды и рост к вчера, лучший сотрудник с долей, возвраты
-  const stats = main.getByTestId('team-stats');
-  await expect(stats.getByTestId('staff-total')).toHaveText('37 000 ₸');
-  await expect(stats).toContainText('+25 % к вчера');
-  await expect(stats.getByTestId('staff-best')).toHaveText('Юрий Тестов');
-  await expect(stats).toContainText('25 000 ₸, 68 % от всех денег');
-  await expect(stats.getByTestId('staff-refunds')).toHaveText('5 000 ₸');
-  await expect(stats).not.toContainText('На смене');
   await main.getByRole('navigation', { name: 'Период для «Принёс»' }).getByRole('link', { name: 'Месяц' }).click();
   await expect(page).toHaveURL(/\/team\?period=month$/, { timeout: 90_000 });
   await expect(table.locator('thead')).toContainText('Принёс за месяц');

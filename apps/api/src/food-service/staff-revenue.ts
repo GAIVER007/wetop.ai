@@ -1,13 +1,5 @@
 import type { DbTx } from '@pms/database';
-import {
-  parseRevenuePeriod,
-  previousRevenueWindow,
-  revenueSummary,
-  revenueTotals,
-  revenueWindow,
-  splitByWeights,
-  type RevenueEntry,
-} from '@pms/domain';
+import { parseRevenuePeriod, revenueSummary, revenueWindow, splitByWeights, type RevenueEntry } from '@pms/domain';
 
 /**
  * «Сколько принёс сотрудник» салона и ресторана (docs/decisions/2026-10-20-personnel-revenue.md): оплачено минус
@@ -20,19 +12,6 @@ type Scope = { locationId: string; timezone: string; vertical: 'FOOD_SERVICE' | 
 export async function branchStaffRevenue(db: Db, s: Scope, rawPeriod: unknown, now = new Date()) {
   const period = parseRevenuePeriod(rawPeriod);
   const w = revenueWindow(period, now, s.timezone);
-  const prev = previousRevenueWindow(period, now, s.timezone);
-  const [entries, before] = await Promise.all([windowEntries(db, s, w), windowEntries(db, s, prev)]);
-  return {
-    period,
-    fromDate: w.fromDate,
-    toDate: w.toDate,
-    items: revenueSummary(entries),
-    totals: revenueTotals(entries),
-    previous: { fromDate: prev.fromDate, toDate: prev.toDate, totals: revenueTotals(before) },
-  };
-}
-
-async function windowEntries(db: Db, s: Scope, w: { from: Date; toExclusive: Date }) {
   const entries: RevenueEntry[] = [];
   if (s.vertical === 'BEAUTY') {
     const money = await db.$queryRaw<Array<{ appointmentId: string; kind: 'INCOME' | 'EXPENSE'; amount: bigint; currency: string }>>`
@@ -83,5 +62,5 @@ async function windowEntries(db: Db, s: Scope, w: { from: Date; toExclusive: Dat
     for (const p of paid) entries.push({ employeeId: p.waiterId, currency: p.currency, paidMinor: p.amount, refundedMinor: 0n });
     for (const r of refunded) entries.push({ employeeId: r.waiterId, currency: r.currency, paidMinor: 0n, refundedMinor: r.amount });
   }
-  return entries;
+  return { period, fromDate: w.fromDate, toDate: w.toDate, items: revenueSummary(entries) };
 }

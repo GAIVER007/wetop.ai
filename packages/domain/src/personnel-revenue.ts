@@ -40,37 +40,6 @@ export function revenueWindow(period: RevenuePeriod, now: Date, timezone: string
 }
 
 /**
- * Прошлый период для сравнения на плитках «Персонала»: та же доля периода, а не весь (четверг этой недели против
- * понедельника по четверг прошлой, 22-е число против 1–22 прошлого месяца, сегодня против вчера до того же часа).
- * `fromDate`/`toDate` показывают весь прошлый период для подписи; окно денег обрезано до того же момента.
- */
-export function previousRevenueWindow(period: RevenuePeriod, now: Date, timezone: string) {
-  const current = revenueWindow(period, now, timezone);
-  const prevDay = iso(at(current.fromDate) - DAY);
-  const previous = revenueWindow(period, zonedStartOfDay(prevDay, timezone), timezone);
-  const elapsed = Math.max(0, now.getTime() - current.from.getTime());
-  const cut = Math.min(previous.from.getTime() + elapsed, previous.toExclusive.getTime());
-  return { ...previous, toExclusive: new Date(cut) };
-}
-
-/** Итоги периода по валютам: оплачено, возвраты, чистые деньги; валюты не смешиваются */
-export function revenueTotals(entries: readonly RevenueEntry[]) {
-  const map = new Map<string, { paid: bigint; refunded: bigint }>();
-  for (const e of entries) {
-    const row = map.get(e.currency) ?? { paid: 0n, refunded: 0n };
-    row.paid += e.paidMinor;
-    row.refunded += e.refundedMinor;
-    map.set(e.currency, row);
-  }
-  return [...map].map(([currency, r]) => ({
-    currency,
-    paidMinor: r.paid.toString(),
-    refundedMinor: r.refunded.toString(),
-    netMinor: (r.paid - r.refunded).toString(),
-  }));
-}
-
-/**
  * Деление суммы по весам (цене услуг мастеров в записи) в целых тиынах: сумма долей равна сумме,
  * остаток раздают крупнейшим остаткам, при равенстве первым по порядку. Нулевые веса: поровну.
  */

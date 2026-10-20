@@ -3,7 +3,6 @@ import { useState, type ReactNode } from 'react';
 import { IconField } from './icon-field';
 import { Tabs } from './tabs';
 import { Field, Input, Stat, Stats, Table, type StatTone } from './ui';
-import type { Delta } from '../lib/dashboard-format';
 
 /**
  * Экран персонала, один вид для салона, ресторана и гостиницы (вариант A «Рабочая таблица», решение владельца
@@ -53,16 +52,7 @@ export function StaffBoard<T extends { id: string }>({
   notice,
 }: {
   caption: string;
-  stats: Array<{
-    label: string;
-    value: ReactNode;
-    tone?: StatTone;
-    testId?: string;
-    /** строка пояснения под цифрой */
-    hint?: ReactNode;
-    /** изменение к прошлому периоду */
-    delta?: Delta;
-  }>;
+  stats: Array<{ label: string; value: ReactNode; tone?: StatTone; testId?: string }>;
   tabs: StaffTab<T>[];
   columns: StaffColumn<T>[];
   /** текст строки для поиска; нет = поиска нет */
@@ -134,15 +124,7 @@ export function StaffBoard<T extends { id: string }>({
         {...(statsTestId ? { 'data-testid': statsTestId } : {})}
       >
         {stats.map((s) => (
-          <Stat
-            key={s.label}
-            label={s.label}
-            value={s.value}
-            tone={s.tone}
-            testId={s.testId}
-            hint={s.hint}
-            delta={s.delta}
-          />
+          <Stat key={s.label} label={s.label} value={s.value} tone={s.tone} testId={s.testId} />
         ))}
       </Stats>
       <section className="staff-board__card">

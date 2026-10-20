@@ -176,13 +176,6 @@ test('«Принёс» на карточке специалиста: день, �
   await periods.getByRole('link', { name: 'Неделя' }).click();
   await expect(page).toHaveURL(/\/employees\?period=week$/, { timeout: 90_000 });
   await expect(card.getByTestId('employee-earned')).toHaveText('40 000 ₸');
-  // плитки сводки (замечание владельца 20.10.2026): деньги и сравнение вместо «на смене сейчас»
-  const stats = page.getByRole('main').getByLabel('Сводка по персоналу');
-  await expect(stats.getByTestId('staff-total')).toHaveText('40 000 ₸');
-  await expect(stats).toContainText('−20 % к прошлой неделе');
-  await expect(stats.getByTestId('staff-best')).toHaveText('Алия Старая запись');
-  await expect(stats.getByTestId('staff-unassigned')).toHaveText('1');
-  await expect(stats).not.toContainText('На смене сейчас');
   await page.screenshot({ path: `${SNAPSHOTS}/beauty-earned-1440.png`, fullPage: true });
   await tablist(page).getByRole('tab', { name: /^Специалисты/ }).click();
   const bota = panel(page).getByTestId('staff-row').filter({ hasText: 'Бота Специалист' });

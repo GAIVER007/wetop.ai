@@ -45,7 +45,15 @@ type CashCommand =
   | { kind: 'void'; id: string }
   | { kind: 'reconcile'; body: { method: FoodPaymentMethod; counted: number; note?: string | null } };
 type StaffCommand =
-  | { kind: 'create'; body: { name: string; phone?: string | null; email?: string | null } }
+  | {
+      kind: 'create';
+      body: {
+        name: string;
+        phone?: string | null;
+        email?: string | null;
+        personnelKind?: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH';
+      };
+    }
   | {
       kind: 'edit';
       id: string;
@@ -177,6 +185,27 @@ export async function mutateStaff(
     for (const path of ['/employees', '/payroll', '/cashbox']) revalidatePath(path);
     return { error: null };
   } catch (error) {
+    return failure(error);
+  }
+}
+
+/** Назначение «специалист / другой сотрудник / оба» со строки «Сотрудников» ресторана (решение 20.10.2026) */
+export async function assignFoodPersonnelKind(
+  scopeKey: string,
+  id: string,
+  personnelKind: string,
+  expectedProfileRevision: string,
+): Promise<{ error: string | null }> {
+  if (personnelKind !== 'SPECIALIST' && personnelKind !== 'OTHER_EMPLOYEE' && personnelKind !== 'BOTH')
+    return { error: 'Выберите назначение: специалист, другой сотрудник или оба.' };
+  try {
+    await scope(scopeKey);
+    await restaurantApi.assignEmployeePersonnelKind(id, { personnelKind, expectedProfileRevision });
+    revalidatePath('/employees');
+    return { error: null };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 409)
+      return { error: 'Сотрудника изменили в другом окне. Список обновлён, выберите назначение ещё раз.' };
     return failure(error);
   }
 }

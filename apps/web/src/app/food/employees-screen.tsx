@@ -15,7 +15,13 @@ import './restaurant.css';
 export async function FoodEmployeesScreen() {
   try {
     const shell = await restaurantShell();
-    const employees = await completeFoodList<FoodEmployee>(restaurantApi.employees);
+    // право назначать считает сервер и кладёт в каждую страницу ответа; берём из первой
+    let canAssignPersonnelKind = false;
+    const employees = await completeFoodList<FoodEmployee>(async (cursor) => {
+      const page = await restaurantApi.employees(cursor);
+      if (!cursor) canAssignPersonnelKind = (page as { canAssignPersonnelKind?: boolean }).canAssignPersonnelKind === true;
+      return page;
+    });
     return (
       <Page title="Сотрудники">
         <StaffTabs current="list" />
@@ -25,6 +31,7 @@ export async function FoodEmployeesScreen() {
             write={shell.canStaff && !shell.readOnly}
             employees={employees}
             branchName={shell.branchName}
+            canAssignPersonnelKind={canAssignPersonnelKind && !shell.readOnly}
           />
         </div>
       </Page>

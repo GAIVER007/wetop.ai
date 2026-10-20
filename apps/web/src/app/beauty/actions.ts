@@ -149,6 +149,10 @@ export async function saveBeautyEmployee(
           })
         : await beautyApi.createEmployee({
             ...body,
+            // назначение нового сотрудника выбирает руководитель в форме; старые клиенты поле не шлют
+            ...(isPersonnelKind(text(form, 'personnelKind'))
+              ? { personnelKind: text(form, 'personnelKind') }
+              : {}),
             creationId: text(form, 'creationId') || undefined,
           });
       employee = saved;
@@ -202,6 +206,41 @@ export async function saveBeautyEmployee(
       ...(resourceId ? { resourceId } : {}),
       ...(revision ? { revision } : {}),
     };
+  }
+}
+
+const isPersonnelKind = (value: string): value is NonNullable<BeautyEmployeeRow['personnelKind']> =>
+  value === 'SPECIALIST' || value === 'OTHER_EMPLOYEE' || value === 'BOTH';
+
+export interface PersonnelKindResult {
+  employee?: BeautyEmployeeRow;
+  error?: string;
+  /** 409: сотрудника изменили в другом окне, экран перезагружает список */
+  conflict?: boolean;
+}
+
+/** Назначение «специалист / другой сотрудник / оба» со строки экрана «Специалисты» */
+export async function assignBeautyPersonnelKind(
+  id: string,
+  personnelKind: string,
+  expectedProfileRevision: string,
+): Promise<PersonnelKindResult> {
+  if (!isPersonnelKind(personnelKind))
+    return { error: 'Выберите назначение: специалист, другой сотрудник или оба.' };
+  try {
+    const employee = await beautyApi.assignEmployeePersonnelKind(id, {
+      personnelKind,
+      expectedProfileRevision,
+    });
+    for (const path of ['/employees', '/beauty/masters']) revalidatePath(path);
+    return { employee };
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 409)
+      return {
+        conflict: true,
+        error: 'Сотрудника изменили в другом окне. Список обновлён, выберите назначение ещё раз.',
+      };
+    return failed(e, 'Не удалось сохранить назначение. Попробуйте ещё раз.');
   }
 }
 

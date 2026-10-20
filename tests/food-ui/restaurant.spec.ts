@@ -438,12 +438,33 @@ test('сотрудники: список с продажами, добавлен
   const row = page.locator('tbody tr', { hasText: 'Иванова Анна' });
   await expect(row).toContainText('390 ₸');
   await expect(row).toContainText('Не на смене');
+  // назначение (решение владельца 20.10.2026): официант из seed без назначения стоит во вкладке «Не назначено»
+  const tabs = page.getByRole('tablist', { name: 'Назначение в персонале' });
+  await expect(tabs.getByRole('tab', { name: 'Не назначено (1)' })).toHaveAttribute('aria-selected', 'true');
   await page.getByRole('button', { name: '+ Добавить сотрудника' }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя и фамилия').fill('Петров Максим');
+  await expect(dialog.getByLabel('Кто это')).toHaveValue('OTHER_EMPLOYEE');
   await dialog.getByRole('button', { name: 'Сохранить' }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(page.locator('tbody tr', { hasText: 'Петров Максим' })).toBeVisible();
+  await tabs.getByRole('tab', { name: /^Другие сотрудники/ }).click();
+  await expect(page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Петров Максим' })).toBeVisible();
+  // руководитель назначает старую запись: вкладка «Не назначено» пропадает, официант среди специалистов
+  await tabs.getByRole('tab', { name: 'Не назначено (1)' }).click();
+  await page.getByRole('tabpanel').getByLabel('Назначение: Иванова Анна').selectOption('SPECIALIST');
+  await expect(tabs.getByRole('tab')).toHaveText(['Специалисты1', 'Другие сотрудники1']);
+  await expect(page.getByRole('tabpanel').getByLabel('Назначение: Иванова Анна')).toHaveValue('SPECIALIST');
+  await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/food-employees-1440.png', fullPage: true });
+  // строка в одну линию (замечание владельца 20.10.2026 «кривые переносы»): имя, телефон и действия без переносов
+  const line = page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Иванова Анна' });
+  for (const cell of await line.locator('td').all()) {
+    const box = await cell.boundingBox();
+    expect(box!.height, await cell.innerText()).toBeLessThan(60);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/food-employees-390.png', fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
 });

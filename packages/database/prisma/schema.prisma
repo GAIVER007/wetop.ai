@@ -3171,6 +3171,8 @@ model Employee {
   email      String?        @db.VarChar(320)
   userId     String?        @map("user_id") @db.Uuid
   status     EmployeeStatus @default(ACTIVE)
+  /// Назначение в «Персонале»: SPECIALIST | OTHER_EMPLOYEE | BOTH (CHECK в базе, миграция 138); NULL = не назначено
+  personnelKind String?    @map("personnel_kind")
   createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 

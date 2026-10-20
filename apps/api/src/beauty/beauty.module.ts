@@ -1,7 +1,6 @@
 import 'reflect-metadata';
-import { personnelKindEnabled, parsePersonnelKindCommand, readPersonnelEmployeeProfiles, writePersonnelKind } from './personnel-kind';
-import { canManageStaff, canWrite } from '@pms/domain';
 import { writeEmployeeCommon } from '../employee-portal/employee-common';
+import { parseCreatePersonnelKind, parsePersonnelKindCommand, writePersonnelKind } from './personnel-kind';
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
@@ -10,7 +9,6 @@ import {
   ConflictException,
   Delete,
   ForbiddenException,
-  ServiceUnavailableException,
   Get,
   Inject,
   Injectable,
@@ -35,6 +33,10 @@ import {
   parseEmployeeInput,
   parseLocationServiceInput,
   stockQty,
+  canManageStaff,
+  canWrite,
+  parsePersonnelKind,
+  type PersonnelKind,
   type Permission,
   RESTRICTED_CATALOG_WRITE_MESSAGE,
 } from '@pms/domain';
@@ -49,7 +51,7 @@ import {
   skillsRevision,
   canonicalRevision,
 } from './write-contract';
-import { currentUserId, currentRole, actorMay } from '../auth/request-context';
+import { actorMay, currentRole, currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import { OrganizationLevel } from '../auth/organization-level.decorator';
@@ -567,24 +569,23 @@ export class BeautyCatalogService {
   async employees() {
     this.may('desk');
     const scope = await this.scope();
-    const enabled = personnelKindEnabled();
-    const org = enabled ? await this.prisma.db.organization.findUnique({
-      where: { id: scope.organizationId }, select: { status: true, trialEndsAt: true },
-    }) : null;
+    const profiles = await employeeProfiles(this.prisma.db, scope.businessId);
+    const children = await employeeChildren(
+      this.prisma.db,
+      profiles.map((row) => row.id),
+    );
+    // Право назначать считает сервер: экран только показывает выбор, решение остаётся за PATCH personnel-kind
     const role = currentRole();
-    const canAssignPersonnelKind = !!(enabled && role && canManageStaff(role) && actorMay('property') &&
-      org && canWrite(org.status, org.trialEndsAt, new Date()));
-    const profiles = enabled
-      ? await readPersonnelEmployeeProfiles(this.prisma.db, scope)
-      : await employeeProfiles(this.prisma.db, scope.businessId);
-    const children = await employeeChildren(this.prisma.db, profiles.map((row) => row.id));
+    const org = role && canManageStaff(role) && actorMay('property')
+      ? await this.prisma.db.organization.findUnique({
+          where: { id: scope.organizationId }, select: { status: true, trialEndsAt: true },
+        })
+      : null;
     return {
       locationId: scope.locationId,
-      personnelKindEnabled: enabled,
-      canAssignPersonnelKind,
+      canAssignPersonnelKind: Boolean(org && canWrite(org.status, org.trialEndsAt, new Date())),
       items: profiles.map((profile) => ({
         ...employeeView(profile, children.get(profile.id)),
-        ...(enabled ? { personnelKind: 'personnelKind' in profile ? profile.personnelKind : null } : {}),
         profileRevision: profile.profileRevision,
         servicesRevision: canonicalRevision(
           (children.get(profile.id)?.services ?? []).map((row) => [
@@ -596,13 +597,13 @@ export class BeautyCatalogService {
     };
   }
 
+  // Назначение мастер/сотрудник/оба меняет существующую карточку: права руководителя, область и версия профиля
   async assignPersonnelKind(id: string, raw: unknown) {
     const input = parsePersonnelKindCommand(raw);
-    if (!personnelKindEnabled()) throw new ServiceUnavailableException('Personnel kind unavailable');
     await mayBeautyWrite(this.prisma, 'property');
     const role = currentRole();
-    if (!role || !canManageStaff(role)) throw new ForbiddenException('Manager only');
-    if (!UUID.test(id)) throw new NotFoundException('Employee not found');
+    if (!role || !canManageStaff(role)) throw new ForbiddenException('Назначение меняет только руководитель');
+    if (!UUID.test(id)) throw new NotFoundException('Сотрудник не найден');
     const scope = await this.scope();
     return beautyTransaction(this.prisma, scope, async (tx) => {
       const { before, after } = await writePersonnelKind(tx, scope, id, input);
@@ -611,7 +612,7 @@ export class BeautyCatalogService {
         entityType: 'employee', entityId: id, action: 'beauty.employee.personnel_kind',
         before: { personnelKind: before.personnelKind }, after: { personnelKind: after.personnelKind },
       } });
-      return after;
+      return this.employee(id, scope.businessId, tx);
     });
   }
 
@@ -619,7 +620,11 @@ export class BeautyCatalogService {
     await mayBeautyWrite(this.prisma, 'property');
     const parsed = parseEmployeeInput(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
-    const input = parsed.value as Required<NonNullable<typeof parsed.value>>;
+    const personnelKind = parseCreatePersonnelKind(raw);
+    const input = {
+      ...(parsed.value as Required<NonNullable<typeof parsed.value>>),
+      ...(personnelKind ? { personnelKind } : {}),
+    };
     const scope = await this.scope();
     const key = creationKey(raw);
     const receipt = key ? receiptFor(scope, 'employee', input) : null;
@@ -645,6 +650,7 @@ export class BeautyCatalogService {
           phone: input.phone,
           email: input.email,
           status: input.active ? 'ACTIVE' : 'ARCHIVED',
+          personnelKind,
         },
       });
       // новый мастер сразу работает в выбранном филиале: иначе он нигде не работает и не виден в расписании
@@ -662,6 +668,7 @@ export class BeautyCatalogService {
           after: {
             name: row.name,
             locationId: scope.locationId,
+            personnelKind,
             ...(receipt ? { creationReceipt: receipt } : {}),
           },
         },
@@ -876,6 +883,7 @@ type EmployeeProfile = {
   phone: string | null;
   email: string | null;
   status: 'ACTIVE' | 'ARCHIVED';
+  personnelKind: string | null;
   profileRevision: string;
 };
 type EmployeeChildren = {
@@ -890,6 +898,7 @@ async function employeeProfiles(db: EmployeeDb, businessId: string): Promise<Emp
            phone,
            email,
            status::text AS status,
+           personnel_kind AS "personnelKind",
            to_char(updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "profileRevision"
     FROM employees
     WHERE business_id = ${businessId}::uuid
@@ -908,6 +917,7 @@ async function employeeProfile(
            phone,
            email,
            status::text AS status,
+           personnel_kind AS "personnelKind",
            to_char(updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "profileRevision"
     FROM employees
     WHERE id = ${id}::uuid AND business_id = ${businessId}::uuid
@@ -1015,6 +1025,7 @@ function employeeView(
     phone: string | null;
     email: string | null;
     status: string;
+    personnelKind?: string | null;
   },
   children: EmployeeChildren | undefined,
 ) {
@@ -1024,6 +1035,8 @@ function employeeView(
     phone: row.phone,
     email: row.email,
     active: row.status === 'ACTIVE',
+    // неизвестное значение в базе не выдаётся за назначение (CHECK его и так не пустит)
+    personnelKind: (row.personnelKind == null ? null : parsePersonnelKind(row.personnelKind)) as PersonnelKind | null,
     locationIds: (children?.locations ?? []).map((location) => location.locationId),
     serviceIds: (children?.services ?? []).map((service) => service.serviceId),
   };
@@ -1114,7 +1127,7 @@ export class BeautyCatalogController {
   employees() {
     return this.service.employees();
   }
-  // Назначение мастер/сотрудник/оба меняет существующую карточку: те же права и защиты, что у PATCH employees/:id
+  // Назначение мастер/сотрудник/оба: те же права и защиты, что у PATCH employees/:id, плюс роль руководителя
   @RequiresBusinessCapability('beauty.employees')
   @BeautyAccess('employees', 'update')
   @Access('property')

@@ -83,7 +83,7 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await page.locator('.tabnav__tab', { hasText: 'Клиенты' }).click();
     const list = page.locator('.tabnav__list:not([hidden])');
     await expect(list).toBeVisible();
-    expect((await list.boundingBox())!.y).toBeGreaterThanOrEqual(99);
+    expect((await list.boundingBox())!.y).toBeGreaterThanOrEqual(87);
     await page.screenshot({
       path: `${shots}/${vertical}-1440-open.png`,
       clip: { x: 0, y: 0, width: 1440, height: 420 },

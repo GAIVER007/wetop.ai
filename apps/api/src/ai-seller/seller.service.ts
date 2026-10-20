@@ -100,6 +100,30 @@ const LLM_KEY_MAX = 200;
  * рассказа — ход модели, проверка ключа — запрос к роутеру моделей с произвольным ключом (оракул годности ключей).
  * Окно в памяти процесса на человека, как у входа (`auth.controller.ts`); длина сообщений режется отдельно выше.
  */
+/** Состояния ключа модели у бота (apps/ai-seller/src/ai/key_state.py) */
+export const SELLER_KEY_STATES = ['ok', 'no_credits', 'invalid_key', 'rate_limited', 'error'] as const;
+export type SellerKeyState = (typeof SELLER_KEY_STATES)[number];
+export type SellerLlmKeyStatus = {
+  set: boolean;
+  last4: string | null;
+  state: SellerKeyState | null;
+  reason: string | null;
+  checkedAt: string | null;
+};
+export type SellerLlmUsage = {
+  month: string | null;
+  replies: number;
+  tokens: number;
+  costUsd: number | null;
+  costPartial: boolean;
+};
+
+/** Состояние и подпись из ответа бота; незнакомое состояние дальше не пропускаем */
+function keyState(body: Record<string, unknown>): { state: SellerKeyState | null; reason: string | null } {
+  const state = SELLER_KEY_STATES.find((s) => s === body.state) ?? null;
+  return { state, reason: str(body.reason) };
+}
+
 export const SELLER_LLM_LIMITS = { sandbox: 60, extract: 10, 'llm-key': 10 } as const;
 const HOUR_MS = 60 * 60_000;
 export const SELLER_LLM_TOO_OFTEN = 'Слишком много запросов за час — попробуйте позже';
@@ -597,11 +621,28 @@ export class SellerService {
 
   // ── ключ модели партнёра (С2, Q-186) ──────────────────────────────────────────────────────
 
-  /** Статус ключа: хранит его только бот, платформа видит «установлен + последние 4 знака» */
-  async llmKey(now: Date = new Date()): Promise<{ set: boolean; last4: string | null }> {
+  /**
+   * Статус ключа: хранит его только бот, платформа видит «установлен + последние 4 знака» и последнее известное
+   * состояние (работает, нет денег, неверный): остаток счёта поставщика по API не узнать (20.10.2026).
+   */
+  async llmKey(now: Date = new Date()): Promise<SellerLlmKeyStatus> {
     const { client, organizationId } = await this.bound('configure', now);
     const body = obj(await this.call(() => client.llmKeyStatus(organizationId)));
-    return { set: body.set === true, last4: str(body.last4) };
+    return { set: body.set === true, last4: str(body.last4), ...keyState(body), checkedAt: str(body.checked_at) };
+  }
+
+  /** Расход модели за текущий месяц по учёту ответов бота; стоимость только при заданных у бота ценах */
+  async llmUsage(now: Date = new Date()): Promise<SellerLlmUsage> {
+    const { client, organizationId } = await this.bound('configure', now);
+    const body = obj(await this.call(() => client.llmUsage(organizationId)));
+    const count = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.round(v) : 0);
+    return {
+      month: str(body.month),
+      replies: count(body.replies),
+      tokens: count(body.tokens),
+      costUsd: typeof body.cost_usd === 'number' && Number.isFinite(body.cost_usd) ? body.cost_usd : null,
+      costPartial: body.cost_partial === true,
+    };
   }
 
   /** Поставить или снять (пустая строка) ключ; в ответах платформы ключа нет */
@@ -614,16 +655,18 @@ export class SellerService {
     return { set: body.set === true, last4: str(body.last4) };
   }
 
-  /** Проверка ключа до сохранения: живой вызов роутера делает бот, наружу — вердикт словами */
+  /**
+   * Проверка ключа живым вызовом модели у бота: ключ из формы до сохранения или, пустой строкой, сохранённый.
+   * Наружу вердикт словами и состояние: так видно и неверный ключ, и пустой счёт.
+   */
   async checkLlmKey(raw: unknown, now: Date = new Date()) {
     const key = typeof raw === 'string' ? raw.trim() : '';
-    if (key === '') throw new BadRequestException('Нечего проверять: ключ пуст');
     if (key.length > LLM_KEY_MAX)
       throw new BadRequestException(`Ключ длиннее ${LLM_KEY_MAX} знаков — это не ключ`);
     const { client, organizationId } = await this.bound('configure', now);
     this.takeLlmTurn('llm-key', now);
     const body = obj(await this.call(() => client.checkLlmKey(organizationId, key)));
-    return { valid: body.valid === true, reason: str(body.reason) };
+    return { valid: body.valid === true, ...keyState(body) };
   }
 
   // ── подключение WhatsApp (С3, Q-185 (а)) ───────────────────────────────────────────────────

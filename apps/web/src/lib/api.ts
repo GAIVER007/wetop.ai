@@ -2971,6 +2971,24 @@ export const businessAgentsApi = {
     sendJson<BusinessAgentView>('POST', '/ai-seller/agents', input, { 'idempotency-key': key }),
 };
 
+/** Состояние ключа модели у продавца: последнее, что видели ход модели или проверка (остаток счёта по API не узнать) */
+export type SellerKeyState = 'ok' | 'no_credits' | 'invalid_key' | 'rate_limited' | 'error';
+export interface SellerLlmKeyStatus {
+  set: boolean;
+  last4: string | null;
+  state: SellerKeyState | null;
+  reason: string | null;
+  checkedAt: string | null;
+}
+export interface SellerLlmUsage {
+  month: string | null;
+  replies: number;
+  tokens: number;
+  /** null: у продавца не заданы цены моделей (LLM_PRICES) */
+  costUsd: number | null;
+  costPartial: boolean;
+}
+
 export const sellerApi = {
   status: () => getJson<SellerStatus>('/ai-seller/status'),
   /** Каталог AI-агентов организации (SA1): только чтение, права `dialogs` */
@@ -2988,11 +3006,14 @@ export const sellerApi = {
   extract: (story: string) =>
     sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),
   /** Ключ модели партнёра (С2): хранит бот, наружу — «установлен + последние 4 знака» */
-  llmKey: () => getJson<{ set: boolean; last4: string | null }>('/ai-seller/llm-key'),
+  llmKey: () => getJson<SellerLlmKeyStatus>('/ai-seller/llm-key'),
+  /** Расход модели за месяц по учёту продавца (не счёт поставщика) */
+  llmUsage: () => getJson<SellerLlmUsage>('/ai-seller/llm-usage'),
   saveLlmKey: (key: string) =>
     sendJson<{ set: boolean; last4: string | null }>('PUT', '/ai-seller/llm-key', { key }),
+  /** Пустой ключ: проверить сохранённый */
   checkLlmKey: (key: string) =>
-    sendJson<{ valid: boolean; reason: string | null }>('POST', '/ai-seller/llm-key/check', {
+    sendJson<{ valid: boolean; state: SellerKeyState | null; reason: string | null }>('POST', '/ai-seller/llm-key/check', {
       key,
     }),
   /** Подключение WhatsApp (С3): токен и секрет Meta живут только у бота */

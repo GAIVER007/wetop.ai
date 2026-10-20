@@ -567,6 +567,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /ai-seller/apply': 'seller',
   'POST /ai-seller/extract': 'seller',
   'GET /ai-seller/llm-key': 'seller',
+  'GET /ai-seller/llm-usage': 'seller',
   'PUT /ai-seller/llm-key': 'seller',
   'POST /ai-seller/llm-key/check': 'seller',
   'GET /ai-seller/whatsapp': 'seller',

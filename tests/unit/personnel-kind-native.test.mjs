@@ -1,5 +1,6 @@
 // Native adapter boundary tests; not HTTP/PG acceptance. DI inspects SQL and failures only.
 import { readFileSync } from 'node:fs';
+import { URL } from 'node:url';
 import { stripTypeScriptTypes } from 'node:module';
 import { runInNewContext } from 'node:vm';
 import assert from 'node:assert/strict';

@@ -1,44 +1,30 @@
 'use client';
 
-import { useRef, useState, useTransition, type FormEvent, type ReactNode } from 'react';
+import { useState, useTransition, type FormEvent, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { Alert, Button, Field, Input, Notice, Stack, Table } from '../../components/ui';
+import { Alert, Button, Field, Input, Notice, Stack } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
-import type { BeautyCustomerImportPreview, BeautyCustomerImportStatus } from '../../lib/api';
-import {
-  applyBeautyCustomerImport,
-  createBeautyCustomer,
-  previewBeautyCustomerImport,
-  type CustomerActionResult,
-} from './actions';
-
-const importStatus: Record<BeautyCustomerImportStatus, string> = {
-  CREATE: 'Будет создан',
-  ALREADY_EXISTS: 'Уже есть',
-  CONFLICT: 'Конфликт',
-  DUPLICATE_IN_FILE: 'Повтор в файле',
-};
+import { createBeautyCustomer, type CustomerActionResult } from './actions';
 
 export function BeautyCustomerTools({
   canEdit,
-  canImport = canEdit,
   scopeKey,
   showCreate = true,
   importHistory,
 }: {
   canEdit: boolean;
-  /** Сам импорт пишет клиентов: только владелец; проверка файла доступна всем, кто создаёт клиентов */
-  canImport?: boolean;
   scopeKey: string;
   showCreate?: boolean;
+  /**
+   * Единственный импорт клиентов (решение владельца 20.10.2026): надёжный импорт CSV или Excel с историей и отменой.
+   * Быстрый импорт до 500 строк убран: два поля файла в одном окне путали, какой из импортов сработал.
+   */
   importHistory?: ReactNode;
 }) {
   const [mode, setMode] = useState<'create' | 'import' | null>(null);
   const [result, setResult] = useState<CustomerActionResult | null>(null);
-  const [preview, setPreview] = useState<BeautyCustomerImportPreview | null>(null);
   const [draftScope, setDraftScope] = useState('');
   const [pending, startTransition] = useTransition();
-  const importForm = useRef<HTMLFormElement>(null);
   const router = useRouter();
 
   if (!canEdit) return null;
@@ -46,12 +32,10 @@ export function BeautyCustomerTools({
     setDraftScope(scopeKey);
     setMode(next);
     setResult(null);
-    setPreview(null);
   };
   const close = () => {
     setMode(null);
     setResult(null);
-    setPreview(null);
     setDraftScope('');
   };
   const submitCreate = (event: FormEvent<HTMLFormElement>) => {
@@ -66,31 +50,12 @@ export function BeautyCustomerTools({
       }
     });
   };
-  const submitPreview = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    startTransition(async () => {
-      const next = await previewBeautyCustomerImport(new FormData(form));
-      setResult(next);
-      setPreview(next.preview ?? null);
-    });
-  };
-  const applyImport = () => {
-    if (!importForm.current) return;
-    startTransition(async () => {
-      const next = await applyBeautyCustomerImport(new FormData(importForm.current!));
-      setResult(next);
-      if (!next.error) {
-        router.refresh();
-      }
-    });
-  };
   return (
     <>
       <div className="beauty-customer-tools">
         {showCreate && <Button type="button" onClick={() => open('create')}>Добавить клиента</Button>}
         <Button type="button" tone="secondary" onClick={() => open('import')}>Импортировать клиентов</Button>
-        <span className="muted">CSV или XLSX с колонками «Имя» и «Телефон», до 500 строк.</span>
+        <span className="muted">CSV или XLSX (Excel) с колонками «Имя» и «Телефон», до 50 000 строк.</span>
       </div>
 
       {showCreate && <Overlay open={mode === 'create'} onClose={close} title="Добавить клиента" trapFocus>
@@ -117,77 +82,7 @@ export function BeautyCustomerTools({
       </Overlay>}
 
       <Overlay open={mode === 'import'} onClose={close} title="Импортировать клиентов" trapFocus size="lg">
-        <Stack gap="sm">
-          {importHistory && (
-            <section aria-labelledby="beauty-customer-import-history-title">
-              <h3 id="beauty-customer-import-history-title">Надёжный импорт CSV и история</h3>
-              {importHistory}
-            </section>
-          )}
-          <section aria-labelledby="beauty-customer-import-file-title">
-            <h3 id="beauty-customer-import-file-title">Импорт CSV или XLSX до 500 строк</h3>
-            <Notice tone="muted">
-              Поддерживаются XLSX и CSV в UTF-8 или Windows-1251. В CSV разделитель может быть точкой с запятой,
-              запятой или табуляцией.
-              Сначала проверьте отчёт, затем подтвердите импорт.
-            </Notice>
-            <form ref={importForm} className="settings-form" onSubmit={submitPreview}>
-              <input type="hidden" name="scopeKey" value={draftScope} />
-              <Field label="CSV или XLSX" controlId="beauty-customer-import-file" required>
-                <Input
-                  id="beauty-customer-import-file"
-                  name="file"
-                  type="file"
-                  accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                  disabled={pending}
-                  onChange={() => {
-                    setPreview(null);
-                    setResult(null);
-                  }}
-                />
-              </Field>
-              <Button type="submit" tone="secondary" disabled={pending} aria-busy={pending}>Проверить файл</Button>
-            </form>
-            {result?.error && <Alert>{result.error}</Alert>}
-            {result?.message && <Notice>{result.message}</Notice>}
-            {preview && (
-              <>
-                <p role="status">
-                  Будет создано: {preview.totals.create}. Уже есть: {preview.totals.alreadyExists}.
-                  Конфликтов: {preview.totals.conflicts}. Повторов в файле: {preview.totals.duplicatesInFile}.
-                </p>
-                <Table aria-label="Предпросмотр импорта клиентов">
-                  <thead><tr><th>Строка</th><th>Имя</th><th>Телефон</th><th>Результат</th></tr></thead>
-                  <tbody>
-                    {preview.rows.map((row) => (
-                      <tr key={row.line}>
-                        <td data-label="Строка">{row.line}</td>
-                        <td data-label="Имя">{row.name}</td>
-                        <td data-label="Телефон">{row.phone}</td>
-                        <td data-label="Результат">{importStatus[row.status]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-                <div className="form-actions">
-                  <Button type="button" tone="ghost" onClick={close}>Отмена</Button>
-                  {canImport ? (
-                    <Button
-                      type="button"
-                      onClick={applyImport}
-                      disabled={pending || preview.totals.conflicts > 0 || !!result?.message}
-                      aria-busy={pending}
-                    >
-                      Импортировать
-                    </Button>
-                  ) : (
-                    <span className="muted">Импорт подтверждает владелец организации.</span>
-                  )}
-                </div>
-              </>
-            )}
-          </section>
-        </Stack>
+        {importHistory}
       </Overlay>
     </>
   );

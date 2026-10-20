@@ -66,8 +66,8 @@ async function readySalon(page: Page, request: APIRequestContext) {
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
   await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  // Создание ведёт на полную карточку /employees/<id>/profile; назначение услуг через UI проверяет
-  // real-portal набор (как в beauty-catalog.spec.ts), здесь услугу назначает фикстурный API.
+  // Создание ведёт на полную карточку /employees/<id>/profile (решение владельца 20.10); назначение
+  // услуг через UI проверяет real-portal набор, здесь услугу назначает фикстурный API.
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   const employeeId = page.url().split('/').at(-2)!;
   const testClient = { 'x-wetop-test-client': '1' };
@@ -107,6 +107,8 @@ async function book(page: Page, time: string, name: string) {
   await panel.getByLabel('Услуга').selectOption({ label: 'Маникюр, 60 мин' });
   await panel.getByLabel('Имя клиента').fill(name);
   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
+  // Клик запускает серверное действие: дальше идём только после подтверждения записи (78dac8d64, против флейка)
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   return panel;
 }
 

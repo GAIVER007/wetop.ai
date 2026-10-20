@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- тест читает документ по путям */
 import 'reflect-metadata';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -6,7 +7,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { siteSpecHash } from '@pms/domain';
+import { buildSiteFacts, siteSpecHash, siteTemplatesFor, templateSiteSpec, type SiteFacts } from '@pms/domain';
 import { Access } from '../auth/access.decorator';
 import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
@@ -62,6 +63,8 @@ let domains: Record<string, string> = {};
 let previews: Record<string, PublishedSiteRow> = {};
 const previewCalls: Array<{ siteId: string; versionId: string; tenant: string | null }> = [];
 let categoriesFail = false;
+/** SITE-1: свежие факты филиала сайта; undefined значит у репозитория нет чтения фактов, 'fail' значит сбой */
+let liveFacts: SiteFacts | null | 'fail' = null;
 /** MKT8: библиотека (филиал → строки) и версии, которые уже публиковались (`siteId:versionId`) */
 let library: Record<string, AssetRow[]> = {};
 let publishedVersions = new Set<string>();
@@ -85,6 +88,10 @@ const repo: SitesRuntimeRepository = {
   async previewSite(siteId, versionId) {
     previewCalls.push({ siteId, versionId, tenant: databaseTenant() });
     return previews[`${siteId}:${versionId}`] ?? null;
+  },
+  async liveFacts() {
+    if (liveFacts === 'fail') throw new Error('db down');
+    return liveFacts;
   },
   async categories(_propertyId, codes) {
     if (categoriesFail) throw new Error('db down');
@@ -150,6 +157,7 @@ afterEach(() => {
   domains = {};
   previews = {};
   categoriesFail = false;
+  liveFacts = null;
   library = {};
   publishedVersions = new Set();
   assetCalls.length = 0;
@@ -308,6 +316,48 @@ describe('ответ контракта', () => {
     const res = await current('host=stepnoy.localhost').expect(200);
     expect(res.body.publicKey).toBeNull();
     expect(res.body.bookingEnabled).toBe(false);
+  });
+});
+
+describe('SITE-1: живые данные WETOP на опубликованном сайте', () => {
+  const STAFF = '0b0e6a1c-0000-4000-8000-0000000000a1';
+  const salon = (minor: string) =>
+    buildSiteFacts({
+      vertical: 'BEAUTY',
+      location: { id: 'loc-a', name: 'Студия', address: 'Алматы, ул. Тестовая, 1', phone: '+7 700 000 00 01', whatsapp: null, city: null },
+      catalog: { kind: 'services', items: [{ code: 'svc-1', name: 'Маникюр', price: { minor, currency: 'KZT' }, durationMin: 60 }] },
+      staff: [{ id: STAFF, name: 'Айгерим', specialization: 'Маникюр' }],
+      hours: { days: [{ weekday: 1, open: '10:00', close: '20:00' }], checkInTime: null, checkOutTime: null },
+      photosCount: 0,
+      reviews: null,
+    });
+  const spec = templateSiteSpec(salon('800000'), siteTemplatesFor('BEAUTY')[0]!.id)!;
+  const price = (doc: { pages: Array<{ sections: Array<Record<string, any>> }> }) =>
+    doc.pages[0]!.sections.find((x) => x['type'] === 'services')!['items'][0].price.minor;
+
+  it('цена поменялась в WETOP: документ с новой ценой и новым хэшем, рантайм заберёт его сам', async () => {
+    published[SITE] = row({ spec, specHash: siteSpecHash(spec), propertyId: null, vertical: 'BEAUTY', organizationId: 'org', businessId: 'biz' });
+    liveFacts = salon('900000');
+    const res = await current(`host=stepnoy.localhost&knownSpecHash=${siteSpecHash(spec)}`).expect(200);
+    expect(price(res.body.spec)).toBe('900000');
+    expect(res.body.specHash).toBe(siteSpecHash(res.body.spec));
+    expect(res.body.specHash).not.toBe(siteSpecHash(spec));
+  });
+
+  it('в WETOP ничего не менялось: прежний хэш, документа в ответе нет', async () => {
+    published[SITE] = row({ spec, specHash: siteSpecHash(spec), propertyId: null, vertical: 'BEAUTY', organizationId: 'org', businessId: 'biz' });
+    liveFacts = salon('800000');
+    const res = await current(`host=stepnoy.localhost&knownSpecHash=${siteSpecHash(spec)}`).expect(200);
+    expect(res.body.spec).toBeUndefined();
+    expect(res.body.specHash).toBe(siteSpecHash(spec));
+  });
+
+  it('факты не прочитались: сайт отвечает опубликованным документом', async () => {
+    published[SITE] = row({ spec, specHash: siteSpecHash(spec), propertyId: null, vertical: 'BEAUTY', organizationId: 'org', businessId: 'biz' });
+    liveFacts = 'fail';
+    const res = await current('host=stepnoy.localhost').expect(200);
+    expect(price(res.body.spec)).toBe('800000');
+    expect(res.body.specHash).toBe(siteSpecHash(spec));
   });
 });
 

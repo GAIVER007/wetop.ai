@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { api, date, seed } from './tz11-helpers';
+import { api, date, seed , nextDate } from './tz11-helpers';
 const evidence = process.env.ZAPIS_EVIDENCE || 'test-results/zapis-report';
 
 test('report: centered multi-service appointment, per-master occupancy and exact payment', async ({
@@ -131,12 +131,12 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await f.call('/beauty/appointments', {
     employeeId: f.employees[0]!.id,
     serviceId: f.services[0]!.id,
-    startsAt: '2026-10-20T10:00:00+05:00',
+    startsAt: `${nextDate}T10:00:00+05:00`,
     firstName: 'Тестовый клиент периода',
   });
   await page.goto(`/appointments?date=${date}`);
   await page.getByLabel('Период с', { exact: true }).fill(date);
-  await page.getByLabel('Период по', { exact: true }).fill('2026-10-20');
+  await page.getByLabel('Период по', { exact: true }).fill(nextDate);
   await page.getByRole('button', { name: 'Показать период', exact: true }).click();
   await expect(
     page.getByRole('button', { name: 'Тестовый клиент отчёта', exact: true }),

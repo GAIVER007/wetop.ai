@@ -2,7 +2,9 @@ import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
+import { buildSiteFacts, type SiteFacts } from '@pms/domain';
 import type { AssetRow } from '../marketing-site/asset-refs';
+import { readSiteFactsSnapshot } from '../marketing-site/site-facts.service';
 
 /** Опубликованная версия сайта с его цепочкой: ровно то, что видит рантайм */
 export interface PublishedSiteRow {
@@ -22,6 +24,10 @@ export interface PublishedSiteRow {
   bookingEnabled: boolean;
   /** MKT7: основной ACTIVE домен сайта; null у превью и у сайта без домена (карта dev) */
   primaryHost: string | null;
+  /** SITE-1, живые данные: чьи факты накладывать на документ; наружу не отдаются */
+  organizationId?: string;
+  businessId?: string;
+  vertical?: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
 }
 
 export interface CategoryFact {
@@ -52,6 +58,8 @@ export interface SitesRuntimeRepository {
   assets(locationId: string, ids: string[]): Promise<AssetRow[]>;
   /** MKT8: версия уже публиковалась (журнал PUBLISH, ROLLBACK, RESUME): превью может показать удержанные удалённые */
   versionPublished(siteId: string, versionId: string): Promise<boolean>;
+  /** SITE-1: свежие факты филиала сайта (услуги, цены, мастера, меню, часы, контакты) тем же чтением, что карточка */
+  liveFacts?(row: PublishedSiteRow): Promise<SiteFacts | null>;
 }
 export const SITES_RUNTIME_REPOSITORY = Symbol('SITES_RUNTIME_REPOSITORY');
 
@@ -63,6 +71,9 @@ export class PrismaSitesRuntimeRepository implements SitesRuntimeRepository {
     const rows = await this.prisma.db.$queryRaw<PublishedSiteRow[]>(Prisma.sql`
       SELECT s."id"::text AS "siteId",
         s."location_id"::text AS "locationId",
+        b."organization_id"::text AS "organizationId",
+        b."id"::text AS "businessId",
+        b."vertical"::text AS "vertical",
         v."id"::text AS "versionId",
         v."schema_version" AS "schemaVersion",
         v."spec_hash" AS "specHash",
@@ -97,6 +108,9 @@ export class PrismaSitesRuntimeRepository implements SitesRuntimeRepository {
     const rows = await this.prisma.db.$queryRaw<PublishedSiteRow[]>(Prisma.sql`
       SELECT s."id"::text AS "siteId",
         s."location_id"::text AS "locationId",
+        b."organization_id"::text AS "organizationId",
+        b."id"::text AS "businessId",
+        b."vertical"::text AS "vertical",
         v."id"::text AS "versionId",
         v."schema_version" AS "schemaVersion",
         v."spec_hash" AS "specHash",
@@ -140,5 +154,12 @@ export class PrismaSitesRuntimeRepository implements SitesRuntimeRepository {
       SELECT "code", "active", "capacity_adults" AS "capacityAdults"
       FROM "accommodation_types"
       WHERE "property_id" = ${propertyId}::uuid AND "code" = ANY(${codes}::text[])`);
+  }
+
+  async liveFacts(row: PublishedSiteRow): Promise<SiteFacts | null> {
+    if (!row.organizationId || !row.businessId || !row.vertical) return null;
+    const target = { organizationId: row.organizationId, businessId: row.businessId, locationId: row.locationId, vertical: row.vertical };
+    const snapshot = await this.prisma.db.$transaction((tx) => readSiteFactsSnapshot(tx, target));
+    return buildSiteFacts(snapshot);
   }
 }

@@ -22,44 +22,33 @@ test('customers: real XLSX preview, import, duplicate detection and filtered exp
   await page.goto('/customers');
   await page.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Импортировать клиентов', exact: true });
-  const upload = dialog.getByLabel('CSV или XLSX', { exact: true });
+  const upload = dialog.getByLabel('Файл с клиентами: CSV или Excel', { exact: true });
+  // Один импорт на окно (решение владельца 20.10.2026): Excel идёт тем же надёжным путём, что CSV
+  await expect(dialog.locator('input[type="file"]')).toHaveCount(1);
+  await expect(dialog.getByRole('status')).toHaveCount(1);
   const source = file([
     ['Имя', 'Телефон'],
     ['Тестовый Первый', '+77000000001'],
     ['Тестовый Второй', '+77000000002'],
   ]);
   await upload.setInputFiles(source);
-  await dialog.getByRole('button', { name: 'Проверить файл', exact: true }).click();
-  await expect(dialog.getByRole('status')).toContainText('Будет создано: 2');
-  await dialog.getByRole('button', { name: 'Импортировать', exact: true }).click();
-  await expect(dialog).toContainText('Создано: 2', { timeout: 20000 });
+  await dialog.getByRole('button', { name: 'Проверить строки', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: 'Готовы: 2', exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: 'Импортировать 2 строк', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: 'Последний импорт: Завершён' })).toBeVisible({ timeout: 20000 });
+  await expect(dialog.getByText('Созданы').locator('..')).toContainText('2');
   await dialog.getByRole('button', { name: /^Закрыть:/ }).click();
   await expect(page.locator('.beauty-customers-table')).toContainText('Тестовый Первый');
   await expect(page.locator('.beauty-customers-table')).toContainText('Тестовый Второй');
+  // тот же файл ещё раз: сервер узнаёт клиентов по телефону и не создаёт вторые карточки
   await page.getByRole('button', { name: 'Импортировать клиентов', exact: true }).click();
   await upload.setInputFiles(source);
-  await dialog.getByRole('button', { name: 'Проверить файл', exact: true }).click();
-  await expect(dialog.getByRole('status')).toContainText('Уже есть: 2');
-  await upload.setInputFiles(
-    file([
-      ['Имя', 'Телефон'],
-      ['Тестовый Конфликт', '+77000000001'],
-    ]),
-  );
-  await expect(dialog.getByRole('table')).toHaveCount(0);
-  await dialog.getByRole('button', { name: 'Проверить файл', exact: true }).click();
-  await expect(dialog.getByRole('status')).toContainText('Конфликтов: 1');
-  await expect(dialog.getByRole('button', { name: 'Импортировать', exact: true })).toBeDisabled();
-  await upload.setInputFiles(file([['Имя', 'Телефон'], ['Тестовый Третий', '+77000000003']]));
-  const setLocation = async (location: string) => page.context().addCookies([{
-    name: 'wetop_scope', value: encodeURIComponent(`business=${f.business};location=${location}`),
-    domain: '127.0.0.1', path: '/',
-  }]);
-  await setLocation(f.locations[1]);
-  await dialog.getByRole('button', { name: 'Проверить файл', exact: true }).click();
-  await expect(dialog.getByRole('alert')).toContainText('Филиал изменился');
-  await setLocation(f.locations[0]);
+  await dialog.getByRole('button', { name: 'Проверить строки', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Импортировать 2 строк', exact: true }).click();
+  await expect(dialog.getByText('Уже были в салоне').locator('..')).toContainText('2', { timeout: 20000 });
+  await expect(dialog.getByText('Созданы').locator('..')).toContainText('0');
   await dialog.getByRole('button', { name: /^Закрыть:/ }).click();
+  expect(f.locations.length).toBeGreaterThan(0);
   await page.getByRole('searchbox', { name: 'Поиск по имени или телефону' }).fill('Первый');
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Скачать Excel', exact: true }).click();

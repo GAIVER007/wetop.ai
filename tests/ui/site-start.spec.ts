@@ -29,7 +29,7 @@ async function paintPreviews(page: Page) {
   await page.waitForTimeout(300);
   await page.evaluate('window.scrollTo(0, 0)');
 }
-const editor = (page: Page) => main(page).getByTestId('site-editor');
+const editor = (page: Page) => main(page).getByTestId('site-setup');
 const designIds = async (page: Page) => main(page).getByTestId('site-design-card').evaluateAll((els) => els.map((e) => e.getAttribute('data-design')));
 
 async function signIn(page: Page) {
@@ -83,10 +83,22 @@ test('гостиница: филиал → факты → чип → три ша
   expect(await designIds(page)).toEqual(['hotel-classic', 'hotel-boutique', 'hotel-hostel']);
   await expect(win.getByTestId('site-design-frame')).toHaveCount(3);
   await expect(win.getByTestId('site-design-frame').first()).toHaveAttribute('srcdoc', /Luxx Aparts[\s\S]*Стандарт/);
-  await expect(win.getByRole('radio', { name: /Классический отель/ })).toBeChecked();
+  await expect(win.getByRole('radio', { name: /Классический отель/ })).toHaveAttribute('aria-checked', 'true');
   await win.getByRole('radio', { name: /Классический отель/ }).focus();
   await page.keyboard.press('ArrowRight');
-  await expect(win.getByRole('radio', { name: /Бутик-отель/ })).toBeChecked();
+  await expect(win.getByRole('radio', { name: /Бутик-отель/ })).toHaveAttribute('aria-checked', 'true');
+  await expect(win.getByRole('radio', { name: /Бутик-отель/ })).toBeFocused();
+  // «Посмотреть»: сайт по шаблону целиком в окне, на компьютере и телефоне; выбрать прямо из окна
+  await win.getByTestId('site-design-card').filter({ hasText: 'Хостел' }).getByTestId('site-design-view').click();
+  const viewer = page.getByTestId('tpl-viewer');
+  await expect(viewer).toBeVisible();
+  await expect(viewer.getByTestId('tpl-viewer-frame')).toHaveAttribute('srcdoc', /Luxx Aparts/);
+  await viewer.getByRole('button', { name: 'Телефон' }).click();
+  await page.screenshot({ path: `${SHOTS}/hotel-template-view-1440.png` });
+  await viewer.getByTestId('tpl-viewer-choose').click();
+  await expect(viewer).toHaveCount(0);
+  await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран шаблон «Хостел и апарт».');
+  await win.getByTestId('site-design-card').filter({ hasText: 'Бутик-отель' }).getByTestId('site-design-choose').click();
   await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран шаблон «Бутик-отель».');
   // «Собрать с ИИ» доступна только с текстом; текст уже есть
   await expect(win.getByTestId('create-site-ai')).toBeEnabled();
@@ -98,8 +110,8 @@ test('гостиница: филиал → факты → чип → три ша
   // создать по шаблону: без ИИ, сразу редактор с готовым сайтом в теме шаблона, сайт правится
   await win.getByTestId('create-site-start').click();
   await expect(editor(page)).toBeVisible({ timeout: 15_000 });
-  await main(page).getByRole('tab', { name: 'Дизайн', exact: true }).click();
-  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NIGHT');
+  // сайт открылся на простом экране с выбранным шаблоном
+  await expect(main(page).getByTestId('setup-template').getByTestId('site-design-card').filter({ hasText: 'Бутик-отель' }).getByRole('radio')).toHaveAttribute('aria-checked', 'true');
 });
 
 test('диктовка: фраза дописывается в запрос, язык выбирается; без поддержки браузера кнопки нет', async ({ page, request }) => {
@@ -177,13 +189,13 @@ test('салон: выбор филиала переключает стойку,
   await page.screenshot({ path: `${SHOTS}/salon-light-1440.png`, fullPage: true });
   // три своих шаблона салона; выбранный создаётся сразу, без ИИ, и открывается редактор с услугами и мастерами
   expect(await designIds(page)).toEqual(['beauty-studio', 'beauty-boutique', 'beauty-express']);
-  await win.getByTestId('site-design-card').filter({ hasText: 'Запись за минуту' }).click();
+  await win.getByTestId('site-design-card').filter({ hasText: 'Запись за минуту' }).getByTestId('site-design-choose').click();
   await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран шаблон «Запись за минуту».');
   await win.getByTestId('create-site-start').click();
   await expect(editor(page)).toBeVisible({ timeout: 15_000 });
   await expect(main(page).getByTestId('create-site-error')).toHaveCount(0);
-  await main(page).getByRole('tab', { name: 'Дизайн', exact: true }).click();
-  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('WARM');
+  await expect(main(page).getByTestId('setup-template').getByTestId('site-design-card').filter({ hasText: 'Запись за минуту' }).getByRole('radio')).toHaveAttribute('aria-checked', 'true');
+  await expect(page.frameLocator('[data-testid="ed-frame"]').locator('main')).toContainText('Маникюр с покрытием');
   await page.screenshot({ path: `${SHOTS}/salon-editor-1440.png`, fullPage: true });
 });
 
@@ -208,11 +220,11 @@ test('ресторан: меню с ценами, чипы и три шабло�
   await paintPreviews(page);
   await page.screenshot({ path: `${SHOTS}/restaurant-light-1440.png`, fullPage: true });
   expect(await designIds(page)).toEqual(['food-cafe', 'food-restaurant', 'food-delivery']);
-  await win.getByTestId('site-design-card').filter({ hasText: 'Ресторан' }).filter({ hasText: 'Вечерний' }).click();
+  await win.getByTestId('site-design-card').filter({ hasText: 'Ресторан' }).filter({ hasText: 'Вечерний' }).getByTestId('site-design-choose').click();
   await win.getByTestId('create-site-start').click();
   await expect(editor(page)).toBeVisible({ timeout: 15_000 });
-  await main(page).getByRole('tab', { name: 'Дизайн', exact: true }).click();
-  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NIGHT');
+  await expect(main(page).getByTestId('setup-template').getByTestId('site-design-card').filter({ hasText: 'Ресторан' }).filter({ hasText: 'Вечерний' }).getByRole('radio')).toHaveAttribute('aria-checked', 'true');
+  await expect(page.frameLocator('[data-testid="ed-frame"]').locator('main')).toContainText('Бешбармак');
 });
 
 for (const theme of ['light', 'dark'] as const)

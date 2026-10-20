@@ -14,7 +14,8 @@ import type { Spec } from './fields';
  * редактируемым, Enter применяет, Escape отменяет, щелчок мимо применяет. Это правка документа на экране, ИИ не зовётся;
  * метки целей ставит только рендер черновика по правилу `inlineTextTargets`.
  */
-export type PreviewMode = 'select' | 'text';
+/** `simple`: простой редактор, щелчок по тексту правит его на месте, щелчок по блоку выбирает блок */
+export type PreviewMode = 'select' | 'text' | 'simple';
 type Renderer = typeof import('../../../../../../sites/src/draft-preview');
 let renderer: Promise<Renderer> | null = null;
 const loadRenderer = () => (renderer ??= import('../../../../../../sites/src/draft-preview'));
@@ -36,6 +37,7 @@ export function SitePreview({
   setMode,
   onInlineEdit,
   readOnly,
+  simple = false,
 }: {
   spec: Spec;
   pageId: string | null;
@@ -50,6 +52,8 @@ export function SitePreview({
   setMode: (mode: PreviewMode) => void;
   onInlineEdit: (path: string, locale: string, text: string) => void;
   readOnly: boolean;
+  /** простой редактор: без панели режимов, языка и «новой вкладки», только страница и ширина */
+  simple?: boolean;
 }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [html, setHtml] = useState<string | null>(null);
@@ -60,7 +64,10 @@ export function SitePreview({
   const scroll = useRef(0);
   const handlers = useRef({ onPage, onPickSection, onInlineEdit });
   handlers.current = { onPage, onPickSection, onInlineEdit };
-  const textMode = mode === 'text' && !readOnly;
+  const textMode = (mode === 'text' || mode === 'simple') && !readOnly;
+  const both = mode === 'simple';
+  const bothRef = useRef(both);
+  bothRef.current = both;
   const modeRef = useRef(textMode);
   modeRef.current = textMode;
   const selected = useRef(selectedSectionId);
@@ -75,6 +82,7 @@ export function SitePreview({
   // S и T переключают режим, если фокус не в поле ввода: и в стойке, и внутри рамки сайта (туда уходит фокус после щелчка)
   const hotkey = useRef<(e: KeyboardEvent) => void>(() => undefined);
   hotkey.current = (e: KeyboardEvent) => {
+    if (bothRef.current) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const el = e.target as HTMLElement | null;
     if (el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))) return;
@@ -184,8 +192,16 @@ export function SitePreview({
       // режим «Текст»: щелчок по разрешённому тексту делает его редактируемым; остальное ничего не делает
       if (modeRef.current) {
         const editable = target.closest('[data-editor-path]') as HTMLElement | null;
-        if (editable) editText(doc, editable);
-        return;
+        if (editable) {
+          // простой редактор: текст правится, а его блок заодно выбирается целью ИИ
+          if (bothRef.current) {
+            const own = editable.closest('main section[id]');
+            if (own && shownPage) handlers.current.onPickSection(shownPage, own.id);
+          }
+          editText(doc, editable);
+          return;
+        }
+        if (!bothRef.current) return;
       }
       const section = target.closest('main section[id]');
       if (section && shownPage) return handlers.current.onPickSection(shownPage, section.id);
@@ -199,8 +215,9 @@ export function SitePreview({
   };
 
   return (
-    <section className="ed-preview" aria-label="Просмотр сайта" data-testid="ed-preview-pane">
+    <section className={cx('ed-preview', simple && 'ed-preview--simple')} aria-label="Просмотр сайта" data-testid="ed-preview-pane">
       <div className="ed-preview__bar">
+        {!simple && (
         <div className="ed-preview__tools" role="radiogroup" aria-label="Режим работы с сайтом" data-testid="ed-tools">
           {(
             [
@@ -223,16 +240,33 @@ export function SitePreview({
             </button>
           ))}
         </div>
-        <Field label="Страница" controlId="ed-preview-page" className="ed-preview__field">
-          <Select value={shownPage ?? pageId ?? ''} onChange={(e) => handlers.current.onPage(e.currentTarget.value)}>
-            {pages.map((p) => (
-              <option key={String(p['id'])} value={String(p['id'])}>
-                {localizedText(p['title'], defaultLocale) || 'Без названия'}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        {locales.length > 1 && (
+        )}
+        {(!simple || pages.length > 1) &&
+          (simple ? (
+            <Select
+              aria-label="Страница"
+              className="ed-preview__page"
+              value={shownPage ?? pageId ?? ''}
+              onChange={(e) => handlers.current.onPage(e.currentTarget.value)}
+            >
+              {pages.map((p) => (
+                <option key={String(p['id'])} value={String(p['id'])}>
+                  {localizedText(p['title'], defaultLocale) || 'Без названия'}
+                </option>
+              ))}
+            </Select>
+          ) : (
+            <Field label="Страница" controlId="ed-preview-page" className="ed-preview__field">
+              <Select value={shownPage ?? pageId ?? ''} onChange={(e) => handlers.current.onPage(e.currentTarget.value)}>
+                {pages.map((p) => (
+                  <option key={String(p['id'])} value={String(p['id'])}>
+                    {localizedText(p['title'], defaultLocale) || 'Без названия'}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          ))}
+        {!simple && locales.length > 1 && (
           <Field label="Язык" controlId="ed-preview-locale" className="ed-preview__field">
             <Select value={shownLocale} onChange={(e) => setLocale(e.currentTarget.value)}>
               {locales.map((l) => (
@@ -256,15 +290,21 @@ export function SitePreview({
             </button>
           ))}
         </div>
-        <Button type="button" tone="secondary" data-testid="ed-preview" onClick={onOpenSeparately}>
-          Открыть в новой вкладке
-        </Button>
+        {!simple && (
+          <Button type="button" tone="secondary" data-testid="ed-preview" onClick={onOpenSeparately}>
+            Открыть в новой вкладке
+          </Button>
+        )}
       </div>
+      {!simple && (
       <p className="muted ed-preview__hint" data-testid="ed-preview-hint">
-        {textMode
+        {both
+          ? 'Щёлкните текст на сайте, чтобы исправить его, или блок, чтобы попросить ИИ изменить именно его. Изменения сохраняются сами.'
+          : textMode
           ? 'Щёлкните текст на сайте и исправьте его. Enter сохраняет в черновике, Escape отменяет. Цены, контакты и ссылки так не меняются.'
           : 'Щёлкните блок на сайте, чтобы изменить его. Бронирование и цены работают только на опубликованном сайте.'}
       </p>
+      )}
       {broken && (
         <p className="ed-preview__broken" role="status" data-testid="ed-preview-broken">
           Сайт с этими правками пока не нарисовать: исправьте отмеченные поля. Показан последний удачный вид.

@@ -10,7 +10,7 @@ import { verticalCopy } from '../../../../lib/vertical-copy';
 import type { WebVertical } from '../../../../lib/vertical-landing';
 import { createFromTemplateAction, createSiteAction, type SiteDesignChoice } from './actions';
 import { BuildProgress } from './ai-chat';
-import { TemplatePicker } from './design-picker';
+import { TemplateGallery } from './template-gallery';
 import { LocationPicker } from './location-picker';
 import { runErrorText, useGenerationRun } from './run';
 import { SiteFactsCard } from './site-facts-card';
@@ -237,7 +237,7 @@ export function CreateSite({
           <p id="site-designs-hint" className="muted">
             Три готовых сайта для {copy.businessesOf}. Превью собрано из данных филиала: что видно, то и получится.
           </p>
-          <TemplatePicker name="site-design" facts={previewFacts} templates={templates} chosen={template.id} onChoose={setChosen} disabled={busy} />
+          <TemplateGallery facts={previewFacts} templates={templates} chosen={template.id} onChoose={setChosen} disabled={busy} />
           <div className="site-start__actions">
             <Button type="button" tone="secondary" disabled={busy || readOnly || !text.trim()} onClick={() => void build()} data-testid="create-site-ai">
               {phase === 'building' ? 'ИИ собирает…' : 'Собрать с ИИ по описанию'}

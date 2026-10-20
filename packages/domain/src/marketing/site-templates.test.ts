@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- тест читает документ по путям */
 import { describe, expect, it } from 'vitest';
-import { SITE_TEMPLATES, siteTemplateById, siteTemplatesFor, templateSiteSpec } from './site-templates';
+import { SITE_TEMPLATES, applySiteTemplate, currentSiteTemplate, siteTemplateById, siteTemplatesFor, templateSiteSpec } from './site-templates';
 import { buildSiteFacts, type SiteFacts, type SiteFactsSnapshot } from './site-facts';
 import { validateSiteSpec } from './site-spec';
 
@@ -101,5 +101,37 @@ describe('шаблоны готовых сайтов по сегментам', (
     expect(templateSiteSpec(facts('BEAUTY'), 'food-cafe')).toBeNull();
     expect(templateSiteSpec(facts('BEAUTY'), 'no-such')).toBeNull();
     expect(siteTemplateById(42)).toBeNull();
+  });
+});
+
+describe('смена шаблона у готового сайта (простой редактор)', () => {
+  it('тексты, цены и блоки остаются; меняются тема, порядок и варианты; документ валиден', () => {
+    for (const vertical of VERTICALS) {
+      const [first, second] = siteTemplatesFor(vertical);
+      const site = templateSiteSpec(facts(vertical), first!.id) as Record<string, any>;
+      // человек поправил заголовок первого экрана
+      site['pages'][0].sections[0].heading = { ru: 'Мой заголовок' };
+      const next = applySiteTemplate(site, second!.id) as Record<string, any>;
+      const checked = validateSiteSpec(next);
+      expect(checked.ok ? [] : checked.errors, vertical).toEqual([]);
+      expect(next['pages'][0].sections[0].heading).toEqual({ ru: 'Мой заголовок' });
+      expect(next['theme']).toMatchObject(second!.direction.theme);
+      expect(new Set(home(next).map((s) => s.type))).toEqual(new Set(home(site).map((s) => s.type)));
+      expect(currentSiteTemplate(next, vertical)?.id).toBe(second!.id);
+    }
+  });
+
+  it('первый экран с фото фото сохраняет', () => {
+    const site = templateSiteSpec(facts('HOSPITALITY'), 'hotel-classic') as Record<string, any>;
+    site['pages'][0].sections[0] = { ...site['pages'][0].sections[0], variant: 'IMAGE_FULL', image: { assetId: '00000001-0000-4000-8000-000000000001', alt: { ru: 'Фасад' } } };
+    const next = applySiteTemplate(site, 'hotel-boutique') as Record<string, any>;
+    expect(next['pages'][0].sections[0]).toMatchObject({ variant: 'IMAGE_FULL', image: { assetId: '00000001-0000-4000-8000-000000000001' } });
+  });
+
+  it('неизвестный шаблон: null; сайт, который правили в теме, без текущего шаблона', () => {
+    expect(applySiteTemplate({}, 'no-such')).toBeNull();
+    const site = templateSiteSpec(facts('BEAUTY'), 'beauty-studio') as Record<string, any>;
+    site['theme'] = { ...site['theme'], accent: 'GOLD' };
+    expect(currentSiteTemplate(site, 'BEAUTY')).toBeNull();
   });
 });

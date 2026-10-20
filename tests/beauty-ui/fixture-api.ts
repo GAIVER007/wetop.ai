@@ -268,6 +268,9 @@ app.use(
                 await tx.locationService.deleteMany({ where: { service: { business: b } } });
                 await tx.beautyServiceMaterial.deleteMany({ where: { service: { business: b } } });
                 await tx.beautyServiceMaterialRevision.deleteMany({ where: { service: { business: b } } });
+                // журнал импорта клиентов (132) держит бизнес RESTRICT: строки, затем сам импорт
+                await tx.customerImportRow.deleteMany({ where: { organizationId: org } });
+                await tx.customerImport.deleteMany({ where: { organizationId: org } });
                 await tx.customerBusiness.deleteMany({ where: { business: b } });
                 await tx.customer.deleteMany({ where: { organizationId: org } });
                 await tx.employee.deleteMany({ where: { business: b } });

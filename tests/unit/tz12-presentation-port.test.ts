@@ -30,7 +30,8 @@ describe('approved TZ12 presentation compatibility port', () => {
   });
   it('groups the shared editor and keeps its scoped save footer reachable', () => {
     const text = source('beauty/appointment-form.tsx');
-    for (const name of ['Клиент', 'Услуги', 'Дополнительно']) expect(text).toContain(`<legend>${name}</legend>`);
+    // Группа «Услуга и время» (341554556, решение 19.10): название группы сверяется с tests/beauty-ui/tz12-ui.spec.ts
+    for (const name of ['Клиент', 'Услуга и время', 'Дополнительно']) expect(text).toContain(`<legend>${name}</legend>`);
     expect(text).toContain('aria-live="polite"');
     expect(text).toContain('<span className="beauty-selection-line">Дата: {date}</span>');
     expect(text).toMatch(/<span className="beauty-selection-line">\s*Время: \{hour\} \(\{day\.location\.timezone\}\)\s*<\/span>/);

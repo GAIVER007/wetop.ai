@@ -10110,6 +10110,18 @@ createServer(async (req, res) => {
     res.writeHead(400, { 'content-type': 'application/json' });
     res.end(JSON.stringify({ message: 'Некорректный запрос к демонстрационному API' }));
   }
-}).listen(port, '127.0.0.1', () =>
-  console.log(`WETOP ${demo ? 'demo' : 'test'} API on 127.0.0.1:${port} (no DB/providers)`),
-);
+})
+  // Оборванное браузером соединение (ECONNRESET/aborted) не повод ронять весь стенд:
+  // упавшая фикстура пропускает сотни тестов шарда (гейт 20.10, 386 skipped).
+  .on('clientError', (error, socket) => socket.destroy(error as Error))
+  .listen(port, '127.0.0.1', () =>
+    console.log(`WETOP ${demo ? 'demo' : 'test'} API on 127.0.0.1:${port} (no DB/providers)`),
+  );
+process.on('uncaughtException', (error: NodeJS.ErrnoException) => {
+  const benign = error?.code === 'ECONNRESET' || error?.message === 'aborted';
+  if (!benign) {
+    console.error(error);
+    process.exit(1);
+  }
+  console.error(`[fixture] клиент оборвал соединение: ${error.code ?? error.message}`);
+});

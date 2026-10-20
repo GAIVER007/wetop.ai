@@ -8,7 +8,8 @@ const revision = '2026-10-18T12:00:00.123456Z';
 const row = { id: 'id', name: 'Synthetic', phone: null, email: null, status: 'ACTIVE', profileRevision: revision, personnelKind: null };
 const originalFlag = process.env.PERSONNEL_KIND_ENABLED;
 afterEach(() => { if (originalFlag === undefined) delete process.env.PERSONNEL_KIND_ENABLED; else process.env.PERSONNEL_KIND_ENABLED = originalFlag; });
-const dbFor = (query: (...args: any[]) => any) => ({ $queryRaw: query }) as Parameters<typeof adapter.writePersonnelKind>[0];
+const dbFor = (query: (strings: TemplateStringsArray, ...values: unknown[]) => unknown) =>
+  ({ $queryRaw: query }) as unknown as Parameters<typeof adapter.writePersonnelKind>[0];
 
 describe('personnel SQL adapter', () => {
   it('OFF never queries and denies writes', async () => {

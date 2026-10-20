@@ -1,0 +1,23 @@
+# Модульные (unit) · 17.10.2026 19:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (codex/calendar-quick-report), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T14-04-56Z-unit-8685.json' 'apps/web/src/components/quick-report.test.ts' 'apps/web/src/components/primitives-ds1c.test.ts' 'apps/web/src/app/beauty/empty-workspaces.test.ts' 'apps/web/src/app/beauty/page.test.ts' 'apps/web/src/app/food/orders-board.test.ts' 'apps/web/src/app/management/analytics/vertical/metrics.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/design-rules.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /private/tmp/wetop-calendar-quick-report
+
+ ✓ |unit| apps/web/src/app/beauty/page.test.ts (2 tests) 17ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 76ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 368ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (36 tests) 311ms
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (5 tests) 47ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 35ms
+ ✓ |unit| apps/web/src/components/quick-report.test.ts (7 tests) 12ms
+ ✓ |unit| apps/web/src/app/food/orders-board.test.ts (3 tests) 33ms
+
+ Test Files  8 passed (8)
+      Tests  90 passed (90)
+   Start at  07:05:02
+   Duration  6.30s (transform 42%, import 40%, tests 17%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T14-04-56Z-unit-8685.json
+
+# код выхода 0 · 12 с

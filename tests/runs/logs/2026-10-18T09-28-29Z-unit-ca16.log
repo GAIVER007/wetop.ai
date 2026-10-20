@@ -1,0 +1,19 @@
+# Модульные (unit) · 18.10.2026 14:28 Алматы · <сервер>
+# коммит 23d0ede (fix/owner-report-period-20261018), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T09-28-29Z-unit-ca16.json' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/components/quick-report.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-pr599-reconcile
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 76ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 14ms
+ ✓ |unit| apps/web/src/components/quick-report.test.ts (9 tests) 19ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 129ms
+
+ Test Files  4 passed (4)
+      Tests  45 passed (45)
+   Start at  09:28:30
+   Duration  5.20s (transform 67%, import 29%, tests 4%)
+
+JSON report written to /tmp/pms-test-2026-10-18T09-28-29Z-unit-ca16.json
+
+# код выхода 0 · 6 с

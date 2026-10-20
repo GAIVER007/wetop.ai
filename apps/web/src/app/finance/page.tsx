@@ -1,3 +1,4 @@
+import { financePeriodHref } from '../../lib/finance-period';
 import { requireFeature } from '../../lib/vertical-guard';
 import { FilterHistory } from './filter-history';
 import type { ReactNode } from 'react';
@@ -97,17 +98,18 @@ export default async function FinanceReportPage({
   searchParams: Promise<SearchParams>;
 }) {
   const me = await requireFeature('/finance');
-  // Ресторан и салон: свои финансовые экраны (restaurant-finance, cashbox); общий /finance перенаправляет
+  const requested = await searchParams;
+  // Ресторан и салон сохраняют выбранные даты до перехода к своим финансовым источникам.
   if (me.context?.vertical === 'FOOD_SERVICE') {
     const { redirect } = await import('next/navigation');
-    redirect('/restaurant-finance');
+    redirect(financePeriodHref('/restaurant-finance', requested));
   }
   if (me.context?.vertical === 'BEAUTY') {
-    // Салон пока не имеет собственного финансового модуля: показываем упрощённый экран выручки из записей
+    // Снимки цен услуг остаются отдельными от поступлений: меняется только окно дат.
     const { BeautyFinanceScreen } = await import('./beauty-finance');
-    return <BeautyFinanceScreen />;
+    return <BeautyFinanceScreen searchParams={requested} />;
   }
-  const sp = normalizeSearchParams(await searchParams);
+  const sp = normalizeSearchParams(requested);
   const cal = periods(await hotelToday());
   const yesterday = new Date(`${cal.today}T00:00:00Z`);
   yesterday.setUTCDate(yesterday.getUTCDate() - 1);

@@ -1,0 +1,65 @@
+# Сквозные (e2e) · 18.10.2026 23:14 Алматы · <сервер>
+# коммит 5b409d1 (feat/salon-draft-implementation-20261018)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/schedule-persistence.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/beauty-ui/schedule-persistence.spec.ts:6:1 › desktop › owner saves initially empty master week through onboarding schedule and reloads persisted hours (2ms)
+  ✘  2 tests/beauty-ui/schedule-persistence.spec.ts:6:1 › mobile touch › owner saves initially empty master week through onboarding schedule and reloads persisted hours (2ms)
+
+
+  1) tests/beauty-ui/schedule-persistence.spec.ts:6:1 › desktop › owner saves initially empty master week through onboarding schedule and reloads persisted hours 
+
+    Error: browserType.launch: Executable doesn't exist at /srv/hermes/home/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/schedule-persistence-deskt-3e2d9-and-reloads-persisted-hours/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/schedule-persistence-deskt-3e2d9-and-reloads-persisted-hours/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/schedule-persistence-deskt-3e2d9-and-reloads-persisted-hours/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/schedule-persistence.spec.ts:6:1 › mobile touch › owner saves initially empty master week through onboarding schedule and reloads persisted hours 
+
+    Error: browserType.launch: Executable doesn't exist at /srv/hermes/home/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/schedule-persistence-mobil-9547f-and-reloads-persisted-hours/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/schedule-persistence-mobil-9547f-and-reloads-persisted-hours/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/schedule-persistence-mobil-9547f-and-reloads-persisted-hours/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/beauty-ui/schedule-persistence.spec.ts:6:1 › desktop › owner saves initially empty master week through onboarding schedule and reloads persisted hours 
+    tests/beauty-ui/schedule-persistence.spec.ts:6:1 › mobile touch › owner saves initially empty master week through onboarding schedule and reloads persisted hours 
+
+# код выхода 1 · 13 с

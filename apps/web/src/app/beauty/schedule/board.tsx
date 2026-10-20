@@ -142,7 +142,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
           <input type="hidden" name="week" value={data.monday} />
           <Field label="Профессия">
             <Select name="group" defaultValue={data.group ?? ''}>
-              <option value="">Все мастера</option>
+              <option value="">Все специалисты</option>
               {data.groups!.map((g) => (
                 <option key={g} value={g}>
                   {g}
@@ -157,7 +157,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
       )}
       <p className="beauty-note">
         Переключатель меняет только эту дату.
-        {canEdit && ' Выходной по графику и часы работы меняются в окне мастера: нажмите на его имя.'}
+        {canEdit && ' Выходной по графику и часы работы меняются в окне специалиста: нажмите на его имя.'}
       </p>
       {error && <Alert>{error}</Alert>}
       {/* записи в выключенный день не отменяются: тогда это предупреждение, а не просто отметка */}
@@ -170,7 +170,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
       <Table className="beauty-week-grid" aria-busy={busy}>
         <thead>
           <tr>
-            <th scope="col">Мастера</th>
+            <th scope="col">Специалисты</th>
             {days.map((d) => (
               <th key={d.date} scope="col">
                 {label(d.date)}, {shortDay.format(new Date(`${d.date}T12:00:00Z`))}
@@ -252,8 +252,8 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
           {data.masters.length === 0 && (
             <tr>
               <td colSpan={8} data-testid="beauty-schedule-empty">
-                {data.group ? 'Мастеров этой профессии в филиале нет.' : 'В этом филиале пока нет мастеров.'}{' '}
-                {canEdit && <Link href="/employees">Добавить мастера</Link>}
+                {data.group ? 'Специалистов этой профессии в филиале нет.' : 'В этом филиале пока нет специалистов.'}{' '}
+                {canEdit && <Link href="/employees">Добавить специалиста</Link>}
               </td>
             </tr>
           )}
@@ -261,7 +261,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
       </Table>
       {data.elsewhere > 0 && (
         <p className="beauty-note">
-          Мастеров из других филиалов здесь не видно: {data.elsewhere}. Поставить мастера в этот
+          Специалистов из других филиалов здесь не видно: {data.elsewhere}. Поставить специалиста в этот
           филиал можно в его карточке, раздел «Филиалы».
         </p>
       )}
@@ -275,7 +275,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
           <>
             {editing.weekday !== undefined && (
               <p className="beauty-note" data-testid="beauty-week-hint">
-                Это обычная неделя мастера: {DAYS[editing.weekday]?.toLowerCase()} изменится{' '}
+                Это обычная неделя специалиста: {DAYS[editing.weekday]?.toLowerCase()} изменится{' '}
                 {EVERY[editing.weekday]}, а не одна дата.
               </p>
             )}
@@ -532,7 +532,7 @@ export function LocationsForm({
     <form action={action} className="beauty-form">
       <input type="hidden" name="id" value={employeeId} />
       <fieldset className="beauty-skills">
-        <legend>Где мастер работает</legend>
+        <legend>Где специалист работает</legend>
         {locations.map((location) => (
           <label key={location.id} className="beauty-check">
             <input
@@ -546,7 +546,7 @@ export function LocationsForm({
         ))}
       </fieldset>
       <p className="beauty-note">
-        Снятый филиал забирает и график мастера в нём. Если там остались будущие записи, филиал не
+        Снятый филиал забирает и график специалиста в нём. Если там остались будущие записи, филиал не
         снимется: сначала разберитесь с записями.
       </p>
       {state?.error && <Alert>{state.error}</Alert>}

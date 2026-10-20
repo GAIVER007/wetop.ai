@@ -6,13 +6,13 @@ import { activeMenuRoute, menuSections, phoneNavigation } from './navigation';
 it('organizes the menu by tasks: one row of sections shared by all verticals', () => {
   expect(menuSections.map((s) => [s.label, s.items.map((i) => i.href)])).toEqual([
     ['Главная', ['/today']],
-    ['Шахматка', ['/chessboard']],
+    ['Журнал', ['/chessboard']],
     ['Персонал', ['/team']],
-    ['Гости', ['/guests', '/reservations']],
-    ['Номера', ['/inventory']],
-    ['Статистика', ['/reports', '/management/analytics']],
+    ['Клиенты', ['/guests', '/reservations']],
+    ['Услуги', ['/inventory']],
+    ['Статистика', ['/management/analytics', '/reports']],
     // «Бар» (ADR-157) стал разделом «Склад»
-    ['Склад', ['/bar/products', '/bar', '/bar/operations', '/bar/suppliers']],
+    ['Склад', ['/bar', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
     ['Финансы', ['/finance', '/reports/finance']],
     ['Настройки', ['/hotel-settings', '/channels', '/connections', '/incidents', '/journal', '/platform']],
     // «Продвижение» (ADR-184) вместе с бывшими «Продажами»
@@ -28,9 +28,9 @@ it('organizes the menu by tasks: one row of sections shared by all verticals', (
 it('phone bottom bar: the four leading tabs; a group tab opens its first item under the group name', () => {
   expect(phoneNavigation.map((i) => [i.href, i.label])).toEqual([
     ['/today', 'Главная'],
-    ['/chessboard', 'Шахматка'],
-    ['/guests', 'Гости'],
-    ['/inventory', 'Номера'],
+    ['/chessboard', 'Журнал'],
+    ['/guests', 'Клиенты'],
+    ['/inventory', 'Услуги'],
   ]);
 });
 

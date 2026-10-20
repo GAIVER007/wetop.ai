@@ -1,3 +1,5 @@
+import { currentBeautyAssignments, filterBeautyLocations } from '../beauty/access';
+import { currentOrganizationId, currentUserId } from './request-context';
 import { parseBusinessVertical } from '@pms/domain';
 import { registrationBusiness } from './registration-contract';
 import 'reflect-metadata';
@@ -82,6 +84,8 @@ interface WhoAmI {
   user: SignedInUser;
   organization: SignedInOrganization | null;
   expiresAt: string;
+  /** Когда выдана сессия: не меняется при продлении, по нему стойка узнаёт ту же сессию (бар, восстановление продажи) */
+  sessionIssuedAt: string;
 }
 
 export interface LoginResult {
@@ -223,6 +227,14 @@ export class AuthService {
     options?: { unambiguous?: boolean },
   ) {
     const assignments = access?.scopes ?? [];
+    if (access && access.role !== 'OWNER' && currentUserId() && currentOrganizationId() === organizationId && (await currentBeautyAssignments(this.prisma.db)).length) {
+      const businesses = await this.prisma.db.business.findMany({where:{organizationId,status:'ACTIVE'},orderBy:{createdAt:'asc'},select:{id:true,name:true,vertical:true,locations:{where:{status:'ACTIVE'},orderBy:{createdAt:'asc'},select:{id:true,name:true}}}});
+      const candidates = businesses.flatMap(business => visibleLocations(access.role, assignments, business.locations.map(location=>({...location,businessId:business.id,vertical:business.vertical,businessName:business.name}))));
+      const visible = await filterBeautyLocations(this.prisma.db, candidates);
+      if (options?.unambiguous && visible.length !== 1) return null;
+      const first=visible[0];
+      return first ? {businessId:first.businessId,locationId:first.id,vertical:parseBusinessVertical(first.vertical)!,businessName:first.businessName,locationName:first.name} : null;
+    }
     if (access && isRestricted(access.role, assignments))
       return this.restrictedRegistrationContext(organizationId, access.role, assignments);
     const business = await this.prisma.db.business.findFirst({
@@ -594,15 +606,14 @@ export class AuthService {
   private async readWhoAmI(token: string, now: Date): Promise<WhoAmI | null> {
     const found = await this.session(token, now);
     if (!found) return null;
-    // Продление сессии при работе (§13.5, PR #29) касалось только входа по коду: смена по паролю
-    // кончается через 12 часов намеренно (ADR-049). Вход по коду снят 20.09.2026 — продлевать стало
-    // нечего, и ветка убрана, чтобы не выглядеть работающей. Продлевать ли смену по паролю — вопрос
-    // к владельцу (Q-152), а не решение правки-сноса: `shouldRenewSession` в домене остался на месте.
+    // Q-153 (б), владелец 19.10.2026: смена по паролю продлевается работой. Каждое действие сдвигает срок на
+    // 12 часов от себя, 12 часов простоя смену обрывают (ADR-049 про забытый ноутбук остаётся в силе: оборвёт простой).
+    // Запись та же, что отмечает активность, лишнего обращения к базе нет.
+    const expiresAt = sessionExpiry(now);
     await this.prisma.db.session.update({
       where: { id: found.session.id },
-      data: { lastSeenAt: now },
+      data: { lastSeenAt: now, expiresAt },
     });
-    const expiresAt = found.session.expiresAt;
     const org = found.session.organization;
     return {
       user: visible(
@@ -618,6 +629,7 @@ export class AuthService {
           }
         : null,
       expiresAt: expiresAt.toISOString(),
+      sessionIssuedAt: found.session.issuedAt.toISOString(),
     };
   }
 

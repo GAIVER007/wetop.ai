@@ -1,4 +1,4 @@
-# Модульные (unit) · 16.10.2026 19:56 Алматы · srv1719674
+# Модульные (unit) · 16.10.2026 19:56 Алматы · <сервер>
 # коммит 4cf28b7 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 167
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T14-56-37Z-unit-7356.json' 'apps/api/src/finance/owner-money.test.ts' 'apps/api/src/finance/owner-summary.test.ts' '--maxWorkers=1'
 

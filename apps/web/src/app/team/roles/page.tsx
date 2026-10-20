@@ -9,9 +9,12 @@ import {
 } from '@pms/domain';
 import { TeamNavigation } from '../../../components/team-navigation';
 import { Page } from '../../../components/page';
-import { Notice, Table } from '../../../components/ui';
+import { Alert, Notice, Table } from '../../../components/ui';
 import { currentMe, deskShell } from '../../../lib/desk-shell';
+import { beautyApi, type BeautyPositionsWorkspace } from '../../../lib/api';
+import { deskAccessOf, mayBeautyAccess } from '../../../lib/navigation';
 import { sessionToken } from '../../../lib/session';
+import { PositionsBoard } from './positions-board';
 import '../team.css';
 
 /**
@@ -44,51 +47,99 @@ const HOTEL_ONLY: readonly Permission[] = ['dialogs', 'rates', 'channels', 'sell
 
 export default async function TeamRolesPage() {
   const token = await sessionToken();
-  const me = await currentMe().catch(() => ({ user: null }));
-  const role = me.user?.role ? parseMembershipRole(me.user.role) : null;
-  const allowed = !!token && !!role && canManageStaff(role);
-  const vertical = me.user ? (await deskShell()).vertical : 'HOSPITALITY';
+  const me = await currentMe().catch(() => null);
+  const role = me?.user?.role ? parseMembershipRole(me.user.role) : null;
+  const shell = me?.user ? await deskShell() : null;
+  const vertical = shell?.vertical ?? 'HOSPITALITY';
+  const routeAccess = me ? deskAccessOf(me) : shell?.access;
+  const roleAllowed = !!token && !!role && canManageStaff(role);
+  const allowed = roleAllowed && (
+    vertical !== 'BEAUTY' ||
+    !!routeAccess && mayBeautyAccess(routeAccess, 'employees', 'view', { legacy: 'staff' })
+  );
   const labels = vertical === 'HOSPITALITY' ? {} : (VERTICAL_LABELS[vertical] ?? {});
   const rows = (Object.keys(PERMISSIONS) as Permission[]).filter(
     (p) => vertical === 'HOSPITALITY' || !HOTEL_ONLY.includes(p),
   );
+  let beautyWorkspace: BeautyPositionsWorkspace | null = null;
+  let beautyScopeKey = '';
+  let canEditBeauty = false;
+  let canCreateBeauty = false;
+  let canArchiveBeauty = false;
+  if (
+    allowed &&
+    vertical === 'BEAUTY' &&
+    shell &&
+    me?.user?.organizationId &&
+    me.context?.businessId
+  ) {
+    beautyScopeKey = JSON.stringify({
+      organizationId: me.user.organizationId,
+      businessId: me.context.businessId,
+      locationId: me.context.locationId ?? null,
+    });
+    beautyWorkspace = await beautyApi.positions().catch(() => null);
+    canCreateBeauty = !shell.readOnly &&
+      !!routeAccess && mayBeautyAccess(routeAccess, 'employees', 'create', { legacy: 'staff' });
+    canEditBeauty = !shell.readOnly &&
+      !!routeAccess && mayBeautyAccess(routeAccess, 'employees', 'update', { legacy: 'staff' });
+    canArchiveBeauty = !shell.readOnly &&
+      !!routeAccess && mayBeautyAccess(routeAccess, 'employees', 'delete', { legacy: 'staff' });
+  }
   return (
-    <Page title="Сотрудники и доступ" subtitle="Роли и права: что разрешено каждой должности">
+    <Page title="Сотрудники" subtitle="Роли и права: что разрешено каждой должности">
       {allowed ? (
         <>
           <TeamNavigation current="roles" owner={role === 'OWNER'} />
-          <p className="muted">
-            Права даёт должность, отдельному человеку их не выдают. Менять набор прав ролей здесь
-            нельзя.
-          </p>
-          <Table data-testid="roles-table" className="settings-table">
-            <thead>
-              <tr>
-                <th>Раздел</th>
-                {ROLES.map((r) => (
-                  <th key={r}>{capital(MEMBERSHIP_ROLES[r])}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((p) => (
-                <tr key={p} data-testid="roles-row">
-                  <td>{labels[p] ?? PERMISSIONS[p].label}</td>
-                  {ROLES.map((r) => (
-                    <td key={r}>
-                      {can(r, p) ? (
-                        <span aria-label="разрешено">Да</span>
-                      ) : (
-                        <span className="muted" aria-label="не разрешено">
-                          Нет
-                        </span>
-                      )}
-                    </td>
+          {vertical === 'BEAUTY' ? (
+            beautyWorkspace && beautyScopeKey ? (
+              <PositionsBoard
+                initial={beautyWorkspace}
+                scopeKey={beautyScopeKey}
+                canEdit={canEditBeauty}
+                canCreate={canCreateBeauty}
+                canUpdate={canEditBeauty}
+                canArchive={canArchiveBeauty}
+              />
+            ) : (
+              <Alert boxed>Не удалось загрузить должности выбранного салона.</Alert>
+            )
+          ) : (
+            <>
+              <p className="muted">
+                Права даёт должность, отдельному человеку их не выдают. Менять набор прав ролей здесь
+                нельзя.
+              </p>
+              <Table data-testid="roles-table" className="settings-table">
+                <thead>
+                  <tr>
+                    <th>Раздел</th>
+                    {ROLES.map((r) => (
+                      <th key={r}>{capital(MEMBERSHIP_ROLES[r])}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((p) => (
+                    <tr key={p} data-testid="roles-row">
+                      <td>{labels[p] ?? PERMISSIONS[p].label}</td>
+                      {ROLES.map((r) => (
+                        <td key={r}>
+                          {can(r, p) ? (
+                            <span aria-label="разрешено">Да</span>
+                          ) : (
+                            <span className="muted" aria-label="не разрешено">
+                              Нет
+                            </span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
                   ))}
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+                </tbody>
+              </Table>
+            </>
+          )}
         </>
       ) : (
         <Notice tone="muted">Роли и права видят владелец и управляющий.</Notice>

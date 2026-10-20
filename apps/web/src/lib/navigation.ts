@@ -3,8 +3,12 @@ import { featureVerticals } from './features';
 import {
   ORGANIZATION_LEVEL_PERMISSIONS,
   can,
+  parseBeautyPermissions,
   parseMembershipRole,
   rolesWith,
+  type BeautyAction,
+  type BeautyPositionAccess,
+  type BeautySection,
   type MembershipRole,
   type Permission,
 } from '@pms/domain';
@@ -33,6 +37,8 @@ export interface NavigationAccess {
    * адресу открывается как есть (`pageOpen`): решает API, а «нет доступа» было бы неправдой.
    */
   unknown?: true;
+  /** Exact Beauty position grants for the selected salon. Missing means legacy/non-Beauty access. */
+  beautyAccess?: BeautyPositionAccess;
 }
 
 /** Никто не вошёл (или API не ответил): «Платформы» нет, разделы по ролям не прячутся */
@@ -77,6 +83,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       // макет ресторана из 14 экранов (12.10.2026): бар, финансы и настройки ресторана своими экранами
       { href: '/drinks', label: 'Напитки', icon: 'breakfast', requires: 'desk', description: 'Напитки: заказы бара и витрина' },
       { href: '/restaurant-finance', label: 'Финансы', icon: 'money', requires: 'reports', description: 'Выручка, расходы и поступления ресторана' },
+      { href: '/beauty-settings', label: 'Настройки салона', icon: 'settings', requires: 'desk', description: 'Режим работы выбранного салона.' },
       { href: '/restaurant-settings', label: 'Настройки', icon: 'settings', requires: 'property', description: 'Часы работы, бронирования и разделы ресторана' },
 
       {
@@ -108,6 +115,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Мастера филиала: что умеют и где работают.',
       },
       {
+        // смены сотрудников ресторана: пункт «График работы» раздела «Персонал» (верхнее меню 17.10.2026)
+        href: '/employees/shifts',
+        label: 'График работы',
+        icon: 'clock',
+        requires: 'desk',
+        description: 'Смены сотрудников на неделю.',
+      },
+      {
         href: '/services',
         label: 'Услуги',
         icon: 'rates',
@@ -116,7 +131,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/staff',
-        label: 'Сотрудники и доступ',
+        // заголовок как пункт меню «Персонал → Сотрудники» (решение владельца 19.10.2026)
+        label: 'Сотрудники',
         icon: 'guests',
         requires: 'staff',
         description: 'Люди организации: роли, приглашения и доступ.',
@@ -255,6 +271,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         icon: 'receipt',
         description: 'Приходы, товары, остатки, наценка и долги поставщикам.',
       },
+      {
+        href: '/bar/consumables',
+        requires: 'reports',
+        label: 'Расходники',
+        icon: 'stock',
+        description: 'Материалы услуг, приходы, списания и остатки салона.',
+      },
       // подстраницы бара пунктами раздела «Склад» (верхнее меню 17.10.2026); право то же, что у `/bar`
       {
         href: '/bar/products',
@@ -269,6 +292,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Движение товаров',
         icon: 'move',
         description: 'Приходы, продажи и списания товаров.',
+      },
+      {
+        href: '/bar/receipts',
+        requires: 'reports',
+        label: 'Приходы',
+        icon: 'receipt',
+        description: 'Приходы от поставщиков: документы, суммы и долги.',
       },
       {
         href: '/bar/suppliers',
@@ -459,7 +489,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         // при слиянии 02.10 заменил параллельный /staff (список на login/team-section): /staff — переадресация
         href: '/team',
         requires: 'staff',
-        label: 'Сотрудники и доступ',
+        label: 'Сотрудники',
         icon: 'guests',
         description: 'Люди организации: роли, приглашения и доступ.',
       },
@@ -527,230 +557,157 @@ function menuItem(href: string, label?: string): NavigationItem {
   return label ? { ...item, label } : item;
 }
 
-function direct(
-  id: string,
-  href: string,
-  icon: IconName,
-  label?: string,
-  match?: string[],
-): MenuSection {
-  const item = menuItem(href, label);
-  return { id, label: item.label, icon, direct: true, items: [item], ...(match ? { match } : {}) };
-}
-
 /**
- * Верхнее меню одной строкой разделов для всех направлений (решение владельца 17.10.2026, черновик
- * `plans/top-nav-draft-2026-10-17.html`): Главная, Журнал, Персонал, Клиенты, Услуги, Статистика, Склад, Финансы,
- * Настройки, Продвижение, Помощь. Разделы те же, слова у направления свои: у гостиницы «Шахматка», «Гости», «Номера»,
- * у ресторана «Зал», «Гости», «Заказы». Пунктов без готового экрана в меню нет, пока экран не построен.
- * Адреса и права страниц прежние: их держит реестр выше (`navigation-rights.baseline.json`).
+ * Верхнее меню: одна таблица разделов и пунктов для всех направлений (решения владельца 17.10.2026, ADR-TOPNAV-20261017
+ * и уточнение «у всех одинаково»). Разделы, пункты, их подписи и порядок одни; у пункта свой экран в каждом
+ * направлении (`at`). Нет экрана у направления, пункта у него нет. Раздел из одного пункта (Главная, Журнал, Помощь)
+ * это прямая ссылка, остальные открывают список у всех направлений. Адреса и права страниц прежние: их держит реестр выше.
  */
-const HELP = direct('help', '/help', 'help', 'Помощь');
-
-/** «Склад» на экранах бара: номенклатура, продажа, движение и поставщики (ADR-157) */
-function stockItems(): NavigationItem[] {
-  return [
-    menuItem('/bar/products'),
-    menuItem('/bar', 'Продажи'),
-    menuItem('/bar/operations'),
-    menuItem('/bar/suppliers', 'Настройки'),
-  ];
-}
-
-/**
- * «Продвижение»: бывшие «Маркетинг» и «Продажи» одним разделом (ADR-184, решение владельца 17.10.2026).
- * «Анализ конкурентов» и «Сайт» пока только у гостиницы: реестр функций уберёт их у салона и ресторана.
- */
-function promotionSection(): MenuSection {
-  return {
-    id: 'marketing',
-    label: 'Продвижение',
-    icon: 'send' as IconName,
-    items: [
-      menuItem('/marketing', 'Обзор'),
-      menuItem('/marketing/ads', 'ИИ-таргетолог'),
-      menuItem('/marketing/content', 'Контент'),
-      menuItem('/ai-agents', 'ИИ-продавец'),
-      menuItem('/market', 'Анализ конкурентов'),
-      menuItem('/sales', 'Обзор продаж'),
-      menuItem('/marketing/budget', 'Бюджет'),
-      menuItem('/marketing/analytics', 'Аналитика рекламы'),
-    ],
-    match: ['/website', '/ai-seller'],
-  };
-}
-
-export const menuSections: MenuSection[] = [
-  direct('today', '/today', 'today', 'Главная'),
-  // задачи смены открываются из панели «Сегодня» календаря (ADR-145): раздел тот же
-  direct('journal', '/chessboard', 'board', 'Шахматка', ['/tasks']),
+type Screens = Partial<Record<WebVertical, string>>;
+const ALL = (href: string): Screens => ({ HOSPITALITY: href, BEAUTY: href, FOOD_SERVICE: href });
+const ROW: Array<{
+  id: string;
+  label: string;
+  icon: IconName;
+  items: Array<{ label: string; at: Screens }>;
+  match?: string[];
+}> = [
+  { id: 'today', label: 'Главная', icon: 'today', items: [{ label: 'Главная', at: ALL('/today') }] },
+  {
+    id: 'journal',
+    label: 'Журнал',
+    icon: 'board',
+    // `/beauty` прежний адрес журнала салона; задачи смены открываются из шахматки (ADR-145)
+    items: [{ label: 'Журнал', at: { HOSPITALITY: '/chessboard', BEAUTY: '/calendar', FOOD_SERVICE: '/floor-plan' } }],
+    match: ['/beauty', '/tasks'],
+  },
   {
     id: 'staff',
     label: 'Персонал',
-    icon: 'person' as IconName,
-    items: [menuItem('/team', 'Сотрудники')],
-    match: ['/staff'],
-  },
-  {
-    id: 'clients',
-    label: 'Гости',
-    icon: 'guests' as IconName,
-    // «Гости и бронирования» (09.10.2026): список броней открывается кнопкой на экране и пунктом здесь
-    items: [menuItem('/guests', 'Гости и брони'), menuItem('/reservations', 'Список броней')],
-  },
-  direct('services', '/inventory', 'bed', 'Номера', ['/units', '/rooms', '/rates']),
-  {
-    id: 'stats',
-    label: 'Статистика',
-    icon: 'chart' as IconName,
-    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics', 'Аналитика бизнеса')],
-    match: ['/management'],
-  },
-  { id: 'stock', label: 'Склад', icon: 'stock' as IconName, items: stockItems() },
-  {
-    id: 'money',
-    label: 'Финансы',
-    icon: 'money' as IconName,
-    items: [menuItem('/finance', 'Движение денег'), menuItem('/reports/finance', 'Отчеты')],
-  },
-  {
-    id: 'settings',
-    label: 'Настройки',
-    icon: 'settings' as IconName,
+    icon: 'person',
     items: [
-      menuItem('/hotel-settings', 'Объект'),
-      menuItem('/channels'),
-      menuItem('/connections'),
-      // право `desk`: администратор видит неисправности (ADR-107)
-      menuItem('/incidents'),
-      menuItem('/journal'),
-      // «Организации» только главному администратору (отметка `platform`)
-      menuItem('/platform'),
-    ],
-    match: ['/branches', '/hotel-settings', '/connections', '/channel-manager', '/platform'],
-  },
-  promotionSection(),
-  HELP,
-];
-
-/** Verified Business.vertical selects the working Beauty routes (MV5). */
-export const beautyMenuSections: MenuSection[] = [
-  direct('today', '/today', 'today', 'Главная'),
-  // `/beauty` прежний адрес календаря салона: тот же экран
-  direct('journal', '/calendar', 'board', 'Журнал', ['/beauty']),
-  {
-    id: 'staff',
-    label: 'Персонал',
-    icon: 'person' as IconName,
-    items: [
-      menuItem('/employees', 'Специалисты'),
-      menuItem('/team', 'Сотрудники'),
-      menuItem('/beauty/schedule', 'График работы'),
-      menuItem('/payroll'),
+      { label: 'Специалисты', at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
+      { label: 'Сотрудники', at: ALL('/team') },
+      { label: 'График работы', at: { BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
+      { label: 'Зарплата', at: { BEAUTY: '/payroll', FOOD_SERVICE: '/payroll' } },
     ],
     match: ['/staff', '/beauty/masters'],
   },
   {
     id: 'clients',
     label: 'Клиенты',
-    icon: 'guests' as IconName,
-    items: [menuItem('/customers'), menuItem('/appointments')],
-  },
-  direct('services', '/services', 'beauty', undefined, ['/beauty/services']),
-  {
-    id: 'stats',
-    label: 'Статистика',
-    icon: 'chart' as IconName,
-    // `/reports` салону перенаправляет на «Аналитику бизнеса» (аудит 17.10.2026, Д2)
-    items: [menuItem('/management/analytics', 'Отчёт по записям')],
-    match: ['/management', '/reports'],
-  },
-  { id: 'stock', label: 'Склад', icon: 'stock' as IconName, items: stockItems() },
-  {
-    id: 'money',
-    label: 'Финансы',
-    icon: 'money' as IconName,
-    // касса филиала §35.2, общая с рестораном (§48)
-    items: [menuItem('/cashbox', 'Движение денег'), menuItem('/finance', 'Приход')],
-  },
-  {
-    id: 'settings',
-    label: 'Настройки',
-    icon: 'settings' as IconName,
-    // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
-    items: [menuItem('/journal')],
-  },
-  promotionSection(),
-  HELP,
-];
-
-/** Меню ресторана (ADR-159) в той же строке разделов. Адреса и права прежние. */
-export const foodMenuSections: MenuSection[] = [
-  direct('today', '/today', 'today', 'Главная'),
-  {
-    id: 'journal',
-    label: 'Зал',
-    icon: 'layers' as IconName,
+    icon: 'guests',
     items: [
-      menuItem('/floor-plan'),
-      menuItem('/table-reservations', 'Брони столов'),
-      menuItem('/dining-areas'),
+      { label: 'Клиенты', at: { HOSPITALITY: '/guests', BEAUTY: '/customers', FOOD_SERVICE: '/customers' } },
+      {
+        label: 'Записи',
+        at: { HOSPITALITY: '/reservations', BEAUTY: '/appointments', FOOD_SERVICE: '/table-reservations' },
+      },
     ],
-  },
-  {
-    id: 'staff',
-    label: 'Персонал',
-    icon: 'person' as IconName,
-    // старый `/staff` только перенаправляет на `/team` (DS2 §14)
-    items: [
-      menuItem('/employees', 'Специалисты'),
-      menuItem('/team', 'Сотрудники'),
-      menuItem('/payroll'),
-    ],
-    match: ['/staff'],
-  },
-  // гости ресторана это его клиенты (`customers`); гостиничный `/guests` ресторану не нужен
-  {
-    id: 'clients',
-    label: 'Гости',
-    icon: 'guests' as IconName,
-    items: [menuItem('/customers', 'Гости')],
   },
   {
     id: 'services',
-    label: 'Заказы',
-    icon: 'receipt' as IconName,
-    items: [menuItem('/orders'), menuItem('/kitchen'), menuItem('/drinks'), menuItem('/menu')],
+    label: 'Услуги',
+    icon: 'layers',
+    items: [
+      { label: 'Каталог', at: { HOSPITALITY: '/inventory', BEAUTY: '/services', FOOD_SERVICE: '/menu' } },
+      { label: 'Заказы', at: { FOOD_SERVICE: '/orders' } },
+      { label: 'Кухня', at: { FOOD_SERVICE: '/kitchen' } },
+      { label: 'Напитки', at: { FOOD_SERVICE: '/drinks' } },
+      { label: 'Залы и столы', at: { FOOD_SERVICE: '/dining-areas' } },
+    ],
+    match: ['/beauty/services', '/units', '/rooms', '/rates'],
   },
   {
     id: 'stats',
     label: 'Статистика',
-    icon: 'chart' as IconName,
-    items: [menuItem('/management/analytics', 'Отчёт по заказам')],
+    icon: 'chart',
+    items: [
+      { label: 'Аналитика бизнеса', at: ALL('/management/analytics') },
+      // Отчёты салона теперь отдельный рабочий экран, не редирект в аналитику.
+      { label: 'Все отчёты', at: { HOSPITALITY: '/reports', BEAUTY: '/reports' } },
+    ],
     match: ['/management', '/reports'],
   },
   {
     id: 'stock',
     label: 'Склад',
-    icon: 'stock' as IconName,
-    items: [menuItem('/stock', 'Склад кухни'), ...stockItems()],
+    icon: 'stock',
+    items: [
+      // пункты в порядке вкладок экрана склада (решение владельца 19.10.2026): одно название в меню и на вкладке
+      { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
+      { label: 'Обзор склада', at: ALL('/bar') },
+      { label: 'Расходники', at: { BEAUTY: '/bar/consumables' } },
+      { label: 'Приходы', at: ALL('/bar/receipts') },
+      { label: 'Номенклатура', at: ALL('/bar/products') },
+      { label: 'Поставщики', at: ALL('/bar/suppliers') },
+      { label: 'Движение товаров', at: ALL('/bar/operations') },
+    ],
   },
   {
     id: 'money',
     label: 'Финансы',
-    icon: 'money' as IconName,
-    // `/finance` ресторану не свой экран: он перенаправляет на «Финансы» ресторана (аудит 17.10.2026, Д2)
-    items: [menuItem('/cashbox', 'Движение денег'), menuItem('/restaurant-finance', 'Приход')],
+    icon: 'money',
+    items: [
+      // пункты называются по экранам (решение владельца 19.10.2026): касса филиала (§35.2, §48) у салона и
+      // ресторана; «Финансы» каждого направления; у гостиницы касса внутри её «Финансов»
+      { label: 'Касса', at: { BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
+      { label: 'Обзор финансов', at: { HOSPITALITY: '/finance', BEAUTY: '/finance', FOOD_SERVICE: '/restaurant-finance' } },
+      { label: 'Отчеты', at: { HOSPITALITY: '/reports/finance' } },
+    ],
   },
   {
     id: 'settings',
     label: 'Настройки',
-    icon: 'settings' as IconName,
-    items: [menuItem('/restaurant-settings', 'Ресторан'), menuItem('/journal')],
+    icon: 'settings',
+    items: [
+      { label: 'Объект', at: { HOSPITALITY: '/hotel-settings', BEAUTY: '/beauty-settings', FOOD_SERVICE: '/restaurant-settings' } },
+      { label: 'Каналы продаж', at: { HOSPITALITY: '/channels' } },
+      { label: 'Подключения', at: { HOSPITALITY: '/connections' } },
+      // право `desk`: администратор видит неисправности (ADR-107)
+      { label: 'Неисправности', at: { HOSPITALITY: '/incidents' } },
+      { label: 'История действий', at: ALL('/journal') },
+      // «Организации» только главному администратору (отметка `platform`)
+      { label: 'Организации', at: ALL('/platform') },
+    ],
+    match: ['/branches', '/beauty-settings', '/hotel-settings', '/connections', '/channel-manager', '/platform'],
   },
-  promotionSection(),
-  HELP,
+  {
+    // «Продвижение» (ADR-184): бывшие «Маркетинг» и «Продажи»
+    id: 'marketing',
+    label: 'Продвижение',
+    icon: 'send',
+    items: [
+      { label: 'Обзор', at: ALL('/marketing') },
+      { label: 'ИИ-таргетолог', at: ALL('/marketing/ads') },
+      { label: 'Контент', at: ALL('/marketing/content') },
+      { label: 'ИИ-продавец', at: ALL('/ai-agents') },
+      // мониторинг загрузки соседей пока только у гостиницы (ADR-142)
+      { label: 'Анализ конкурентов', at: { HOSPITALITY: '/market' } },
+      { label: 'Обзор продаж', at: ALL('/sales') },
+      { label: 'Бюджет', at: ALL('/marketing/budget') },
+      { label: 'Аналитика маркетинга', at: ALL('/marketing/analytics') },
+    ],
+    match: ['/website', '/ai-seller'],
+  },
+  { id: 'help', label: 'Помощь', icon: 'help', items: [{ label: 'Помощь', at: ALL('/help') }] },
 ];
+
+/** Меню направления из общей таблицы: свои экраны, те же подписи и тот же вид раздела */
+function rowFor(vertical: WebVertical): MenuSection[] {
+  return ROW.flatMap(({ items, ...section }) => {
+    const own = items.flatMap((item) => (item.at[vertical] ? [{ href: item.at[vertical]!, label: item.label }] : []));
+    // вид раздела общий у всех направлений: Главная, Журнал и Помощь прямые ссылки, остальные открывают список
+    if (items.length === 1 && own.length)
+      return [{ ...section, direct: true, items: [menuItem(own[0]!.href, section.label)] }];
+    return own.length ? [{ ...section, items: own.map((item) => menuItem(item.href, item.label)) }] : [];
+  });
+}
+
+export const menuSections: MenuSection[] = rowFor('HOSPITALITY');
+/** Verified Business.vertical selects the working Beauty routes (MV5). */
+export const beautyMenuSections: MenuSection[] = rowFor('BEAUTY');
+export const foodMenuSections: MenuSection[] = rowFor('FOOD_SERVICE');
 
 /** Разделы нижней панели телефона: Главная, Журнал, Клиенты и Услуги своего направления (ADR-050) */
 const PHONE_SECTIONS = ['today', 'journal', 'clients', 'services'];
@@ -759,8 +716,8 @@ function phoneTabs(sections: MenuSection[]): NavigationItem[] {
   return PHONE_SECTIONS.flatMap((id) => {
     const section = sections.find((s) => s.id === id);
     if (!section) return [];
-    // группа даёт панели свой первый пункт под именем группы
-    return [section.direct ? section.items[0]! : { ...section.items[0]!, label: section.label }];
+    // вкладка панели ведёт на первый пункт раздела под именем раздела
+    return [{ ...section.items[0]!, label: section.label }];
   });
 }
 
@@ -774,10 +731,104 @@ export function phoneNavigationFor(vertical: WebVertical = 'HOSPITALITY'): Navig
   return phoneNavigation;
 }
 
+/**
+ * Первые шаги «Помощи» из того же меню (решение владельца 19.10.2026: «всё едино под все направления»): шаги одни у
+ * всех направлений, путь и ссылка берутся из меню направления. Нет экрана или права, нет шага; новое направление
+ * получает справку вместе с меню.
+ */
+const HELP_STEPS: Array<{ section: string; item: string; text: string }> = [
+  { section: 'services', item: 'Каталог', text: 'заполните то, что продаёте: названия, длительность или вместимость и цены.' },
+  { section: 'staff', item: 'Специалисты', text: 'добавьте тех, кто оказывает услуги, назначьте им услуги и рабочие часы.' },
+  { section: 'journal', item: 'Журнал', text: 'создайте первую запись или бронь.' },
+  { section: 'settings', item: 'Объект', text: 'проверьте данные объекта, часы работы и подключения.' },
+];
+
+export function helpSteps(sections: MenuSection[]): Array<{ path: string; href: string; text: string }> {
+  return HELP_STEPS.flatMap((step) => {
+    const section = sections.find((s) => s.id === step.section);
+    if (!section) return [];
+    if (section.direct) return [{ path: section.label, href: section.items[0]!.href, text: step.text }];
+    const item = section.items.find((i) => i.label === step.item);
+    return item ? [{ path: `${section.label} → ${item.label}`, href: item.href, text: step.text }] : [];
+  });
+}
+
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
 export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
   if (access.restricted && ORGANIZATION_LEVEL_PERMISSIONS.includes(permission)) return false;
   return access.role === null || can(access.role, permission);
+}
+
+/** Exact Beauty permission. Legacy roles remain the fallback only until a position has been assigned. */
+export function mayBeautyAccess(
+  access: NavigationAccess,
+  section: BeautySection,
+  action: BeautyAction,
+  options: { legacy: Permission; own?: boolean },
+): boolean {
+  if (access.role === 'OWNER') return true;
+  const projection = access.beautyAccess;
+  if (!projection || projection.mode === 'LEGACY') return mayAccess(access, options.legacy);
+  if (!projection.assigned) return false;
+  const grant = projection.permissions.find(
+    (permission) => permission.section === section && permission.action === action,
+  );
+  return grant?.scope === 'BUSINESS' || (options.own === true && grant?.scope === 'OWN');
+}
+
+interface BeautyRouteAccess {
+  section: BeautySection;
+  legacy: Permission;
+}
+
+const BEAUTY_ROUTES: Array<{ href: string; access: BeautyRouteAccess }> = [
+  { href: '/beauty-settings', access: { section: 'settings', legacy: 'desk' } },
+  { href: '/beauty/schedule', access: { section: 'journal', legacy: 'desk' } },
+  { href: '/beauty/masters', access: { section: 'employees', legacy: 'desk' } },
+  { href: '/beauty/services', access: { section: 'services', legacy: 'desk' } },
+  { href: '/appointments', access: { section: 'appointments', legacy: 'desk' } },
+  { href: '/customers', access: { section: 'customers', legacy: 'desk' } },
+  { href: '/employees', access: { section: 'employees', legacy: 'desk' } },
+  { href: '/services', access: { section: 'services', legacy: 'desk' } },
+  { href: '/calendar', access: { section: 'journal', legacy: 'desk' } },
+  { href: '/payroll', access: { section: 'payroll', legacy: 'staff' } },
+  { href: '/cashbox', access: { section: 'finance', legacy: 'desk' } },
+  { href: '/finance', access: { section: 'finance', legacy: 'reports' } },
+  { href: '/journal', access: { section: 'settings', legacy: 'journal' } },
+  { href: '/bar', access: { section: 'stock', legacy: 'reports' } },
+  { href: '/beauty', access: { section: 'journal', legacy: 'desk' } },
+  { href: '/today', access: { section: 'journal', legacy: 'desk' } },
+];
+
+const within = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
+
+function beautyRouteAccess(path: string): BeautyRouteAccess | undefined {
+  return BEAUTY_ROUTES.filter((route) => within(path, route.href)).sort(
+    (left, right) => right.href.length - left.href.length,
+  )[0]?.access;
+}
+
+function personalBeautyWork(access: NavigationAccess): boolean {
+  if (access.role === 'OWNER') return true;
+  const projection = access.beautyAccess;
+  if (!projection || projection.mode === 'LEGACY') return mayAccess(access, 'desk');
+  if (!projection.assigned) return false;
+  return projection.permissions.some(
+    (permission) =>
+      permission.action === 'view' &&
+      ['journal', 'appointments', 'payroll', 'reviews'].includes(permission.section),
+  );
+}
+
+/** Whether a path needs the selected salon's exact position projection in addition to its legacy route rule. */
+export function carriesBeautyAccess(path: string): boolean {
+  return (
+    path === '/my-work' ||
+    path.startsWith('/my-work/') ||
+    path === '/team' ||
+    path.startsWith('/team/') ||
+    beautyRouteAccess(path) !== undefined
+  );
 }
 
 /**
@@ -785,8 +836,15 @@ export function mayAccess(access: NavigationAccess, permission: Permission): boo
  * всё равно не отдаст, а при недоступном API страница сама скажет, что связи нет, — вместо «Нет доступа… ваша роль —
  * администратор», неправды для владельца. Кнопки возврата и сторно этим не открываются: они смотрят `mayAccess`.
  */
-export function pageOpen(access: NavigationAccess, permission: Permission): boolean {
-  return mayAccess(access, permission) || access.unknown === true;
+export function pageOpen(access: NavigationAccess, permission: Permission, path?: string): boolean {
+  if (!path || !access.beautyAccess) return mayAccess(access, permission) || access.unknown === true;
+  if (access.role === 'OWNER') return true;
+  if (path === '/my-work' || path.startsWith('/my-work/')) return personalBeautyWork(access);
+  if (path === '/team' || path.startsWith('/team/'))
+    return mayAccess(access, 'staff') && mayBeautyAccess(access, 'employees', 'view', { legacy: 'staff' });
+  const route = beautyRouteAccess(path);
+  if (!route) return access.beautyAccess.mode === 'LEGACY' && (mayAccess(access, permission) || access.unknown === true);
+  return mayBeautyAccess(access, route.section, 'view', { legacy: route.legacy });
 }
 
 /** Открыт ли пункт этому вошедшему */
@@ -811,6 +869,7 @@ export function openToEveryRole(requires: NavigationRequirement | undefined): bo
  */
 const OFF_MENU_ROUTES: Array<Pick<NavigationItem, 'href' | 'label' | 'requires'>> = [
   { href: '/ai-seller/knowledge', label: 'Знания ИИ-продавца', requires: 'seller' },
+  { href: '/whats-new', label: 'Что нового', requires: 'desk' },
   { href: '/ai-seller/connections', label: 'Подключения ИИ-продавца', requires: 'seller' },
   { href: '/ai-seller/agents', label: 'Агенты ИИ-продавца', requires: 'seller' },
 ];
@@ -838,9 +897,12 @@ export function menuSectionsFor(
     .map((section) => ({
       ...section,
       // реестр функций (У1): пункт чужого направления в меню не попадает, даже если его поставили в состав по ошибке
-      items: section.items.filter(
-        (item) => allowedItem(item, access) && featureVerticals(item.href).includes(vertical),
-      ),
+      items: section.items.filter((item) => {
+        if (!featureVerticals(item.href).includes(vertical)) return false;
+        if (vertical !== 'BEAUTY' || !access.beautyAccess) return allowedItem(item, access);
+        if (!item.requires || item.requires === 'platform') return allowedItem(item, access);
+        return pageOpen(access, item.requires, item.href);
+      }),
     }))
     .filter((section) => section.items.length > 0);
 }
@@ -853,16 +915,30 @@ export function deskAccessOf(
   me: {
     user: { platformAdmin?: boolean; role?: string; restricted?: boolean } | null;
     access?: { aiSeller?: { access?: string } | null } | null;
+    beautyAccess?: unknown;
   } | null,
 ): NavigationAccess {
   if (!me?.user) return CLOSED_ACCESS;
   const seller = me.access?.aiSeller?.access;
+  const beautyAccess = normalizeBeautyAccess(me.beautyAccess);
   return {
     aiSeller: seller === 'active' || seller === 'expired',
     platform: me.user.platformAdmin === true,
     role: (me.user.role && parseMembershipRole(me.user.role)) || 'STAFF',
     ...(me.user.restricted === true ? { restricted: true as const } : {}),
+    ...(beautyAccess ? { beautyAccess } : {}),
   };
+}
+
+function normalizeBeautyAccess(raw: unknown): BeautyPositionAccess | undefined {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const value = raw as Record<string, unknown>;
+  if (value.mode === 'LEGACY') return { mode: 'LEGACY', assigned: false, permissions: [] };
+  if (value.mode !== 'ASSIGNED') return undefined;
+  const parsed = parseBeautyPermissions(value.permissions);
+  if (!parsed.ok || typeof value.assigned !== 'boolean')
+    return { mode: 'ASSIGNED', assigned: false, permissions: [] };
+  return { mode: 'ASSIGNED', assigned: value.assigned, permissions: parsed.value };
 }
 
 /**
@@ -872,8 +948,8 @@ export function deskAccessOf(
 export function activeMenuRoute(path: string): string | undefined {
   const route = activeNavigation(path)?.href;
   if (!route) return undefined;
-  // приходы бара это движение товаров раздела «Склад» (верхнее меню 17.10.2026)
-  if (path === '/bar/receipts' || path.startsWith('/bar/receipts/')) return '/bar/operations';
+  // новый приход подсвечивает пункт «Приходы» (у пункта свой адрес с 19.10.2026)
+  if (path.startsWith('/bar/receipts/')) return '/bar/receipts';
   if (route.startsWith('/hotel-settings')) return '/hotel-settings';
   if (route.startsWith('/rooms')) return '/inventory';
   if (route.startsWith('/channels')) return '/channels';
@@ -902,6 +978,7 @@ export function activeSectionOf(sections: MenuSection[], path: string): MenuSect
 const PAGE_LABELS: Array<{ href: string; label: string; icon: IconName }> = [
   { href: '/profile', label: 'Профиль', icon: 'person' },
   { href: '/help', label: 'Помощь', icon: 'help' },
+  { href: '/whats-new', label: 'Что нового', icon: 'star' },
   { href: '/branches', label: 'Филиалы', icon: 'hotel' },
   { href: '/onboarding', label: 'Настройка объекта', icon: 'settings' },
   { href: '/platform/support', label: 'Техподдержка', icon: 'chat' },

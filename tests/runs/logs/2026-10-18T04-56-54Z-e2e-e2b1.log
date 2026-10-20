@@ -1,0 +1,84 @@
+# Сквозные (e2e) · 18.10.2026 09:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 33b587c (claude/bar-money-currency-rules), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/bar.spec.ts' 'tests/ui/bar-reference.spec.ts' 'tests/ui/bar-payment-methods.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 30 tests using 1 worker
+
+  ✓   1 tests/ui/bar-payment-methods.spec.ts:25:1 › быстрая продажа: Halyk первым, Kaspi выключен и не предлагается (11.9s)
+  ✓   2 tests/ui/bar-payment-methods.spec.ts:36:1 › оплата поставщику: список по настройке, счёт организации остаётся умолчанием, пока включён (7.1s)
+  ✓   3 tests/ui/bar-payment-methods.spec.ts:45:1 › объект оставил только депозит и гарантию: форма говорит словами, кнопки продажи нет (6.0s)
+  ✓   4 tests/ui/bar-reference.spec.ts:2:32 › bar reference layout 1333 (2.6s)
+  ✓   5 tests/ui/bar-reference.spec.ts:2:32 › bar reference layout 390 (2.6s)
+  ✓   6 tests/ui/bar-reference.spec.ts:15:1 › inventory direct entry and existing handler (7.1s)
+  ✓   7 tests/ui/bar-reference.spec.ts:21:1 › inventory uses the existing stock and action (10.1s)
+  ✓   8 tests/ui/bar-reference.spec.ts:30:1 › sort stock preserves the loaded quantities (6.4s)
+  ✘   9 tests/ui/bar-reference.spec.ts:38:1 › mobile quick actions open the existing forms (32.9s)
+  ✓  10 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 light (32.5s)
+  ✓  11 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 dark (7.4s)
+  ✓  12 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 light (6.5s)
+  ✓  13 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 dark (5.8s)
+  ✓  14 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 light (9.2s)
+  ✓  15 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 dark (5.6s)
+  ✓  16 tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 1333 (5.3s)
+  ✓  17 tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 390 (8.2s)
+  ✓  18 tests/ui/bar.spec.ts:23:1 › обзор как на макете: пять KPI, графики, компактная доска и подробности (4.9s)
+  ✓  19 tests/ui/bar.spec.ts:75:1 › быстрая продажа одной строкой и фильтры доски (4.8s)
+  ✓  20 tests/ui/bar.spec.ts:100:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (6.3s)
+  ✓  21 tests/ui/bar.spec.ts:133:1 › N6: товар в архивной категории сохраняет её при правке карточки (ADR-186) (4.5s)
+  ✓  22 tests/ui/bar.spec.ts:174:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (3.1s)
+  ✓  23 tests/ui/bar.spec.ts:191:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (2.2s)
+  ✓  24 tests/ui/bar.spec.ts:205:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (18.5s)
+  ✓  25 tests/ui/bar.spec.ts:217:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (15.9s)
+  ✓  26 tests/ui/bar.spec.ts:246:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (2.6s)
+  ✓  27 tests/ui/bar.spec.ts:258:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (4.0s)
+  ✓  28 tests/ui/bar.spec.ts:284:1 › операции: списание с причиной, журнал продаж и лента движений (3.3s)
+  ✓  29 tests/ui/bar.spec.ts:310:3 › доступность и телефон: light (7.6s)
+  ✓  30 tests/ui/bar.spec.ts:310:3 › доступность и телефон: dark (5.7s)
+
+
+  1) tests/ui/bar-reference.spec.ts:38:1 › mobile quick actions open the existing forms ────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Бар: поставщики"
+    Received: "Бар"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        27 × locator resolved to <h1 class="page__title">Бар</h1>
+           - unexpected value "Бар"
+
+
+      42 |  await expect(page.getByRole('button',{name:'Продать',exact:true})).toBeVisible();
+      43 |  await page.getByRole('navigation',{name:'Разделы бара'}).getByRole('link',{name:'Поставщики',exact:true}).click();
+    > 44 |  await expect(page.getByRole('heading',{level:1})).toHaveText('Бар: поставщики');
+         |                                                    ^
+      45 | });
+      46 |
+      47 | for(const width of [1333,960,390]) for(const theme of ['light','dark'] as const) test(`clear KPI ${width} ${theme}`,async({page,request})=>{
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/ui/bar-reference.spec.ts:44:52
+
+    Error Context: test-results/bar-reference-mobile-quick-actions-open-the-existing-forms/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-reference-mobile-quick-actions-open-the-existing-forms/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-reference-mobile-quick-actions-open-the-existing-forms/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/bar-reference.spec.ts:38:1 › mobile quick actions open the existing forms ─────────────
+  29 passed (5.0m)
+
+# код выхода 1 · 5 мин 3 с

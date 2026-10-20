@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
 import { BeautyCatalogService } from '../../apps/api/src/beauty/beauty.module';
 import { BeautyScheduleService } from '../../apps/api/src/beauty/schedule';
@@ -95,7 +95,15 @@ describe('оплата записи салона (integration, §49)', () => {
     const a = await book('12:00');
     await pay(a.id, 500000);
     await expect(as(() => service.setStatus(a.id, { status: 'CANCELLED' }))).rejects.toThrow('Сначала аннулируйте оплату записи в кассе');
-    await expect(as(() => service.setStatus(a.id, { status: 'NO_SHOW' }))).rejects.toThrow('Сначала аннулируйте оплату записи в кассе');
+    // M6a rejects future NO_SHOW before checking payments. At the start boundary,
+    // the independent payment guard must still refuse the transition unchanged.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date(at('12:00')));
+      await expect(as(() => service.setStatus(a.id, { status: 'NO_SHOW' }))).rejects.toThrow('Сначала аннулируйте оплату записи в кассе');
+    } finally {
+      vi.useRealTimers();
+    }
     await expect(as(() => service.move(a.id, { serviceId: cheap }))).rejects.toThrow('Цена услуги меньше уже оплаченного');
     const op = await db.restaurantCashOperation.findFirstOrThrow({ where: { appointmentId: a.id } });
     await as(() => cash.voidCashOperation(op.id));

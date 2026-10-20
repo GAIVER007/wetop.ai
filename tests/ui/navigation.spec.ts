@@ -19,6 +19,7 @@ const routes = [
   '/reports',
   '/management/analytics',
   '/bar/products',
+  '/bar/receipts',
   '/bar',
   '/bar/operations',
   '/bar/suppliers',
@@ -42,10 +43,10 @@ const routes = [
 
 const SECTIONS = [
   'Главная',
-  'Шахматка',
+  'Журнал',
   'Персонал',
-  'Гости',
-  'Номера',
+  'Клиенты',
+  'Услуги',
   'Статистика',
   'Склад',
   'Финансы',
@@ -73,9 +74,9 @@ test('меню телефона: работа смены прямыми ссыл
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
   // активная отметка на пункте группы «Финансы»
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Движение денег');
-  // «Шахматка» не спрятана в группе: прямая ссылка с подписью
-  const board = menu.getByRole('link', { name: 'Шахматка', exact: true });
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Обзор финансов');
+  // «Журнал» не спрятан в группе: прямая ссылка с подписью
+  const board = menu.getByRole('link', { name: 'Журнал', exact: true });
   await expect(board.locator('span')).toBeVisible();
   await board.click();
   await expect(page).toHaveURL(/\/chessboard$/);
@@ -103,7 +104,7 @@ test('меню телефона: работа смены прямыми ссыл
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
-test('меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номера»', async ({
+test('меню телефона: вложенные адреса подсвечивают свой пункт, «Каталог» в «Услугах»', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -115,8 +116,9 @@ test('меню телефона: вложенные адреса подсвеч�
     'true',
   );
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Объект');
-  // «Номера» (экран «Номерной фонд»): прямая ссылка без раскрывашки (ADR-108)
-  await menu.getByRole('link', { name: 'Номера', exact: true }).click();
+  // номерной фонд гостиницы это «Каталог» раздела «Услуги» (одно меню у всех направлений, 17.10.2026)
+  await menu.getByRole('button', { name: 'Услуги', exact: true }).click();
+  await menu.getByRole('link', { name: 'Каталог', exact: true }).click();
   await expect(page).toHaveURL(/\/inventory$/);
   await expect(
     page
@@ -126,7 +128,7 @@ test('меню телефона: вложенные адреса подсвеч�
       .filter({ visible: true }),
   ).toHaveText('Номерной фонд');
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Номера');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Каталог');
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
@@ -227,7 +229,7 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-// «Гости и бронирования» (09.10.2026) одной вкладкой «Гости»; с 17.10.2026 список броней её вторым пунктом
+// «Гости и бронирования» (09.10.2026) в разделе «Клиенты»; список броней его пункт «Записи» (17.10.2026)
 test('«Гости и бронирования»: одна вкладка меню, список броней её пунктом', async ({
   page,
 }) => {
@@ -235,11 +237,11 @@ test('«Гости и бронирования»: одна вкладка мен
   const main = page.getByRole('main');
   // подразделы левого меню (ADR-161): каждый адрес один раз, текущий помечен
   const menu = page.locator('.sidenav__nav');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и брони');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Клиенты');
   await main.getByRole('link', { name: 'Список броней', exact: true }).click();
   await expect(page).toHaveURL(/\/reservations$/);
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Брони');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Список броней');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Записи');
   // обратно: кнопка на списке броней ведёт на экран гостей
   await main.getByRole('link', { name: 'Гости', exact: true }).click();
   await expect(page).toHaveURL(/\/guests$/);

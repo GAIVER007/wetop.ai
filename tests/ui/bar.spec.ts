@@ -1,4 +1,5 @@
 import { FIXTURE_API, expect, test, type Page, sideNav, openSection } from './fixtures';
+import { signInForBar } from './bar-auth';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -25,7 +26,7 @@ test('обзор как на макете: пять KPI, графики, ком�
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
-  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Бар');
+  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Склад');
   // Приход, продажа, инвентаризация в шапке; добавление товара у списка.
   await expect(m.getByRole('button', { name: 'Добавить товар', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
@@ -73,6 +74,7 @@ test('обзор как на макете: пять KPI, графики, ком�
 });
 
 test('быстрая продажа одной строкой и фильтры доски', async ({ page }) => {
+  await signInForBar(page);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
@@ -81,7 +83,7 @@ test('быстрая продажа одной строкой и фильтры 
   await expect(sale.getByLabel('Количество, шт.')).toHaveValue('1');
   await sale.getByLabel('Товар').selectOption({ index: 1 });
   await sale.getByRole('button', { name: 'Продать' }).click();
-  await expect(sale.getByRole('status')).toContainText('Продажа записана');
+  await expect(sale.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
   await m.getByLabel('Поиск товара').fill('red');
   await expect(board.locator('tbody tr')).toHaveCount(1);
@@ -210,12 +212,13 @@ test('меню: экраны бара в разделе «Склад», адре
   await expect(nav.locator('.sidenav__current')).toHaveText('Склад');
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
   const items = await openSection(page, 'Склад');
-  await expect(items.locator('a')).toHaveText(['Номенклатура', 'Продажи', 'Движение товаров', 'Настройки']);
+  // пункты в порядке вкладок экрана склада (19.10.2026)
+  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
   await expect(items.getByRole('link', { name: 'Номенклатура', exact: true })).toHaveAttribute('aria-current', 'page');
-  // приходы это движение товаров
+  // у приходов свой пункт
   await page.goto('/bar/receipts');
   await expect(nav.locator('.sidenav__current')).toHaveText('Склад');
-  await expect(nav.locator('.sidenav__items [aria-current="page"]')).toHaveText('Движение товаров');
+  await expect(nav.locator('.sidenav__items [aria-current="page"]')).toHaveText('Приходы');
 });
 
 test('новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом', async ({ page }) => {

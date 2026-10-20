@@ -1,0 +1,37 @@
+# Модульные (unit) · 19.10.2026 17:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит e072a4e (claude/salon-cash-rights), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T12-30-04Z-unit-4131.json' 'apps/web/src/app/finance/export-appointments'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ❯ |unit| apps/web/src/app/finance/export-appointments/route.test.ts (2 tests | 1 failed) 12ms
+   ❯ выгрузка записей идёт финансовой проекцией, а не журналом (2)
+     × один запрос периода вместо запроса на каждый день; дни в CSV по local start day 10ms
+     ✓ период длиннее месяца по-прежнему отклоняется до запроса 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/finance/export-appointments/route.test.ts > выгрузка записей идёт финансовой проекцией, а не журналом > один запрос периода вместо запроса на каждый день; дни в CSV по local start day
+TypeError: Cannot read properties of undefined (reading 'columns')
+ ❯ apps/web/src/app/finance/appointments-csv.ts:30:31
+     28|     .sort((a, b) => a.date.localeCompare(b.date))
+     29|     .flatMap((d) => {
+     30|       const names = new Map(d.columns.map((c) => [c.id, c.name]));
+       |                               ^
+     31|       return [...d.appointments]
+     32|         .filter((a) => {
+ ❯ appointmentsCsv apps/web/src/app/finance/appointments-csv.ts:29:6
+ ❯ Module.GET apps/web/src/app/finance/export-appointments/route.ts:35:25
+ ❯ apps/web/src/app/finance/export-appointments/route.test.ts:58:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  05:30:06
+   Duration  416ms (transform 79%, import 17%, tests 3%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T12-30-04Z-unit-4131.json
+
+# код выхода 1 · 2 с

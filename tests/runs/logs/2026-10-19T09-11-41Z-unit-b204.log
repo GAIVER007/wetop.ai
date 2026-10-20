@@ -1,0 +1,175 @@
+# Модульные (unit) · 19.10.2026 14:11 Алматы · <сервер>
+# коммит afc9a1f (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T09-11-41Z-unit-b204.json' 'apps/api/src/beauty/appointment-history.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |unit| apps/api/src/beauty/appointment-history.test.ts (5 tests | 2 failed) 21ms
+   ✓ A10/M4: история одной записи (2)
+     ✓ возвращает только известные события, автора и сохранённые before/after 4ms
+     ✓ не читает аудит до подтверждения принадлежности записи текущему филиалу 2ms
+   ❯ line provenance allowlist, independent from current totals and private audit fields (3)
+     × retains moved before/after line changes despite equal visit totals and strips private fields 10ms
+     ✓ preserves legacy created lines without inventing missing components and ignores created.before 1ms
+     × does not leak unresolved entities or malformed optional component values 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-history.test.ts > line provenance allowlist, independent from current totals and private audit fields > retains moved before/after line changes despite equal visit totals and strips private fields
+AssertionError: expected [ { id: 'audit', …(5) } ] to deeply equal [ { id: 'audit', …(5) } ]
+
+- Expected
++ Received
+
+@@ -1,95 +1,15 @@
+  [
+    {
+      "action": "beauty.appointment.moved",
+      "after": {
+-       "items": [
+-         {
+-           "basePriceMinor": "1000",
+-           "currency": "KZT",
+-           "discountMinor": "200",
+-           "discountPercent": null,
+-           "employee": {
+-             "id": "master-a",
+-             "name": "Тест мастер А",
+-           },
+-           "endsAt": "2036-10-19T05:30:00Z",
+-           "position": 0,
+-           "priceMinor": "800",
+-           "service": {
+-             "id": "service-a",
+-             "name": "Тест услуга А",
+-           },
+-           "startsAt": "2036-10-19T05:00:00Z",
+-           "surchargeMinor": "0",
+-         },
+-         {
+-           "basePriceMinor": "1000",
+-           "currency": "KZT",
+-           "discountMinor": "0",
+-           "discountPercent": null,
+-           "employee": {
+-             "id": "master-b",
+-             "name": "Тест мастер Б",
+-           },
+-           "endsAt": "2036-10-19T06:15:00Z",
+-           "position": 1,
+-           "priceMinor": "1000",
+-           "service": {
+-             "id": "service-b",
+-             "name": "Тест услуга Б",
+-           },
+-           "startsAt": "2036-10-19T05:30:00Z",
+-           "surchargeMinor": "0",
+-         },
+-       ],
+        "priceMinor": "1800",
+        "startsAt": "2036-10-19T05:00:00Z",
+      },
+      "at": "2036-10-19T05:00:00.000Z",
+      "author": null,
+      "before": {
+-       "items": [
+-         {
+-           "basePriceMinor": "1000",
+-           "currency": "KZT",
+-           "discountMinor": "100",
+-           "discountPercent": null,
+-           "employee": {
+-             "id": "master-a",
+-             "name": "Тест мастер А",
+-           },
+-           "endsAt": "2036-10-19T05:30:00Z",
+-           "position": 0,
+-           "priceMinor": "900",
+-           "service": {
+-             "id": "service-a",
+-             "name": "Тест услуга А",
+-           },
+-           "startsAt": "2036-10-19T05:00:00Z",
+-           "surchargeMinor": "0",
+-         },
+-         {
+-           "basePriceMinor": "1000",
+-           "currency": "KZT",
+-           "discountMinor": "100",
+-           "discountPercent": null,
+-           "employee": {
+-             "id": "master-a",
+-             "name": "Тест мастер А",
+-           },
+-           "endsAt": "2036-10-19T06:00:00Z",
+-           "position": 1,
+-           "priceMinor": "900",
+-           "service": {
+-             "id": "service-b",
+-             "name": "Тест услуга Б",
+-           },
+-           "startsAt": "2036-10-19T05:30:00Z",
+-           "surchargeMinor": "0",
+-         },
+-       ],
+        "priceMinor": "1800",
+        "startsAt": "2036-10-19T05:00:00Z",
+      },
+      "id": "audit",
+    },
+
+ ❯ apps/api/src/beauty/appointment-history.test.ts:137:26
+    135|       { ...top, items: [firstChanged, changed].map((item) => ({ ...ite…
+    136|     const result = await f.read();
+    137|     expect(result.items).toEqual([{
+       |                          ^
+    138|       id: 'audit', at: '2036-10-19T05:00:00.000Z', action: 'beauty.app…
+    139|       before: { startsAt: line.startsAt, priceMinor: '1800', items: [s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-history.test.ts > line provenance allowlist, independent from current totals and private audit fields > does not leak unresolved entities or malformed optional component values
+AssertionError: expected {} to deeply equal { items: [ { position: +0, …(5) } ] }
+
+- Expected
++ Received
+
+- {
+-   "items": [
+-     {
+-       "employee": {
+-         "id": "master-a",
+-         "name": "Тест мастер А",
+-       },
+-       "endsAt": "2036-10-19T05:30:00Z",
+-       "position": 0,
+-       "priceMinor": "900",
+-       "service": {
+-         "id": "service-a",
+-         "name": "Тест услуга А",
+-       },
+-       "startsAt": "2036-10-19T05:00:00Z",
+-     },
+-   ],
+- }
++ {}
+
+ ❯ apps/api/src/beauty/appointment-history.test.ts:161:36
+    159|     const malformed = { ...line, basePriceMinor: '-1', discountMinor: …
+    160|     const result = await fixture('beauty.appointment.moved', {}, { ite…
+    161|     expect(result.items[0]?.after).toEqual({ items: [{
+       |                                    ^
+    162|       position: 0, startsAt: line.startsAt, endsAt: line.endsAt, price…
+    163|     }] });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  09:11:43
+   Duration  2.65s (transform 73%, import 26%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-19T09-11-41Z-unit-b204.json
+
+# код выхода 1 · 4 с

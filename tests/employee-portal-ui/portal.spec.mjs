@@ -91,8 +91,19 @@ test('real browser avatar/profile persistence, work approval and three views',as
  await call(request,f,`/employee-portal/employees/${f.employeeA}/portfolio/${latest.portfolio[0].id}`,{actor:'ownerA',method:'patch',data:{title:latest.portfolio[0].title,description:latest.portfolio[0].description,publicationConsent:true,published:true}});
  const version=await call(request,f,`/employee-portal/employees/${f.employeeA}`,{actor:'ownerA'});
  const published=await call(request,f,`/employee-portal/employees/${f.employeeA}/publication`,{actor:'ownerA',method:'put',data:{published:true,publicationConsent:true,expectedRevision:version.profile.revision}});
- const anonymous=await browser.newContext({baseURL:WEB,locale:'ru-RU',viewport:{width:1440,height:1000}});const client=await anonymous.newPage();await client.goto(`/specialists/${published.profile.slug}?locationId=${f.locationA}`);await expect(client.getByRole('heading',{name:'Анна Демонстрационная',exact:true})).toBeVisible();await expect(client.getByText('Пример портфолио: тестовая иллюстрация',{exact:true})).toBeVisible();await expect(client.getByTestId('portal-pay')).toHaveCount(0);await expect(client.locator('body')).not.toContainText('private@example.invalid');await capture(client,'public-specialist');
+ const anonymous=await browser.newContext({baseURL:WEB,locale:'ru-RU',viewport:{width:1440,height:1000}});const client=await anonymous.newPage();await client.goto(`/specialists/${published.profile.slug}?locationId=${f.locationA}`);await expect(client.getByRole('heading',{name:'Анна Демонстрационная',exact:true})).toBeVisible();// ролью, а не текстом: пока поток не вставлен, копия страницы лежит в скрытом <div hidden id="S:0">
+ await expect(client.getByRole('heading',{name:'Пример портфолио: тестовая иллюстрация',exact:true})).toBeVisible();await expect(client.getByTestId('portal-pay')).toHaveCount(0);await expect(client.locator('body')).not.toContainText('private@example.invalid');await capture(client,'public-specialist');
  await anonymous.close();await manager.close();await staff.close();
+});
+test('specialist list opens one canonical profile and creation lands on the same screen',async({browser,request})=>{
+ const f=await reset(request);const manager=await context(browser,f,'ownerA');const page=await manager.newPage();
+ await page.goto('/employees');const card=page.locator('.beauty-master-card').filter({hasText:'Synthetic specialist A'});
+ const open=card.getByRole('link',{name:'Открыть',exact:true});await expect(open).toHaveAttribute('href',`/employees/${f.employeeA}/profile`);await open.click();
+ await expect(page).toHaveURL(new RegExp(`/employees/${f.employeeA}/profile$`));await expect(page.getByRole('heading',{name:'Карточка сотрудника',exact:true})).toBeVisible();await expect(page.getByTestId('employee-manager')).toBeVisible();await expect(page.getByRole('dialog')).toHaveCount(0);
+ await page.goto(`/employees?employee=${f.employeeA}#profile`);await expect(page).toHaveURL(new RegExp(`/employees/${f.employeeA}/profile$`));await expect(page.getByTestId('employee-manager')).toBeVisible();
+ await page.goto(`/beauty/masters?employee=${f.employeeA}#profile`);await expect(page).toHaveURL(new RegExp(`/employees/${f.employeeA}/profile$`));await expect(page.getByTestId('employee-manager')).toBeVisible();
+ await page.goto('/employees');await page.getByRole('button',{name:'Добавить специалиста',exact:true}).click();const create=page.getByRole('dialog',{name:'Новый специалист',exact:true});await create.getByLabel('Имя мастера',{exact:true}).fill('Synthetic created specialist');await create.getByRole('button',{name:'Создать мастера',exact:true}).click();
+ await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);await expect(page.getByRole('heading',{name:'Карточка сотрудника',exact:true})).toBeVisible();await expect(page.getByTestId('employee-manager')).toBeVisible();await expect(page.getByRole('dialog')).toHaveCount(0);await manager.close();
 });
 test('waiter owns orders and existing payroll without salon controls',async({browser,request})=>{
  const f=await reset(request,'FOOD_SERVICE');const d=await call(request,f,'/employee-portal/me');
@@ -162,6 +173,44 @@ test('my services add button opens catalog and persists selection',async({browse
  await expect(page.getByRole('button',{name:'Добавить услугу',exact:true})).toBeVisible({timeout:3000});await page.getByRole('button',{name:'Добавить услугу',exact:true}).click();const form=page.getByTestId('portal-services-form');await expect(form).toBeVisible();await form.locator(`input[value="${f.serviceId}"]`).check();await form.getByRole('button',{name:'Сохранить услуги',exact:true}).click();await expect(form.getByRole('status')).toContainText('Сохранено на сервере');await page.reload();await select(page,'Услуги');
  const data=await call(request,f,'/employee-portal/me');expect(data.services.find(s=>s.id===f.serviceId).assigned).toBe(true);await expect(page.getByTestId('portal-assigned-services')).toContainText(data.services.find(s=>s.id===f.serviceId).name);
  const dir=OUT+'/compact-v3';mkdirSync(dir,{recursive:true});for(const theme of ['light','dark']){await page.evaluate(t=>{document.documentElement.dataset.theme=t;window.scrollTo(0,0);},theme);await page.screenshot({path:`${dir}/services-${theme}.png`,fullPage:false,animations:'disabled',timeout:20000});}await c.close();
+});
+
+test('manager sets exact service price and duration while employee sees read-only services',async({browser,request})=>{
+ const f=await reset(request);const manager=await context(browser,f,'ownerA');const page=await manager.newPage();await page.goto(`/employees/${f.employeeA}/profile`);await select(page,'Услуги');
+ const editor=page.getByTestId('portal-service-prices');await expect(editor).toBeVisible();await expect(editor.locator('form')).toHaveCount(1);const form=editor.locator('form');
+ await form.getByRole('combobox',{name:'Тип цены',exact:true}).selectOption('FIXED',{timeout:10000});await form.getByLabel('Цена, KZT',{exact:true}).fill('1234.56');await form.getByLabel('Длительность, минут',{exact:true}).fill('75');await form.getByRole('button',{name:'Сохранить',exact:true}).click();await expect(editor.getByRole('status')).toContainText('Сохранено');
+ const saved=await call(request,f,`/beauty/employees/${f.employeeA}/service-prices`,{actor:'ownerA'});const row=saved.find(item=>item.serviceId===f.serviceId);expect(row).toMatchObject({priceType:'FIXED',priceMinMinor:'123456',priceMaxMinor:'123456',durationMinutes:75,source:'MASTER'});
+ await page.reload();await select(page,'Услуги');const persistedEditor=page.getByTestId('portal-service-prices');await expect(persistedEditor.locator('form')).toHaveCount(1);const persisted=persistedEditor.locator('form');await expect(persisted.getByLabel('Цена, KZT',{exact:true})).toHaveValue('1234.56');await expect(persisted.getByLabel('Длительность, минут',{exact:true})).toHaveValue('75');
+ for(const width of [1440,390]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth),`service price editor fits ${width}px`).toBeLessThanOrEqual(width);}
+ await capture(page,'manager-service-price');
+ const staff=await context(browser,f,'staffA');const own=await staff.newPage();await own.goto('/my-work');await select(own,'Услуги');await expect(own.getByTestId('portal-service-prices')).toHaveCount(0);await staff.close();await manager.close();
+});
+
+test('master sees own reviews and manager sees reviews of the selected master',async({browser,request})=>{
+ test.setTimeout(process.env.PORTAL_CAPTURE==='1'?180000:90000);
+ const f=await reset(request);
+ const ownData=await call(request,f,'/employee-portal/me');
+ expect(ownData.reviews).toMatchObject({averageStars:5,count:1,hasMore:false});
+ expect(ownData.reviews.items).toEqual([expect.objectContaining({stars:5,comment:'Synthetic own review'})]);
+ const selectedData=await call(request,f,`/employee-portal/employees/${f.employeeB}`,{actor:'ownerA'});
+ expect(selectedData.reviews).toMatchObject({averageStars:4,count:1,hasMore:false});
+ expect(selectedData.reviews.items).toEqual([expect.objectContaining({stars:4,comment:'Synthetic selected master review'})]);
+
+ const staff=await context(browser,f,'staffA');const own=await staff.newPage();await own.goto('/my-work');await select(own,'Отзывы');
+ const ownReviews=own.getByTestId('portal-reviews');await expect(ownReviews).toContainText('Synthetic own review');await expect(ownReviews).toContainText('5 из 5');await expect(ownReviews).not.toContainText('Synthetic selected master review');await expect(ownReviews).not.toContainText('Клиент:');await capture(own,'master-reviews');
+
+ const manager=await context(browser,f,'ownerA');const selected=await manager.newPage();await selected.goto(`/employees/${f.employeeB}/profile`);await select(selected,'Отзывы');
+ const selectedReviews=selected.getByTestId('portal-reviews');await expect(selectedReviews).toContainText('Synthetic selected master review');await expect(selectedReviews).toContainText('4 из 5');await expect(selectedReviews).not.toContainText('Synthetic own review');await expect(selectedReviews).not.toContainText('Клиент:');await capture(selected,'manager-selected-master-reviews');
+ await manager.close();await staff.close();
+});
+
+test('manager saves an exact service material norm and sees server-calculated cost',async({browser,request})=>{
+ test.setTimeout(process.env.PORTAL_CAPTURE==='1'?180000:90000);
+ const f=await reset(request);const manager=await context(browser,f,'ownerA');const page=await manager.newPage();await page.goto('/beauty/services');
+ await page.getByRole('button',{name:'Техкарта услуги: Synthetic haircut',exact:true}).click();const materials=page.getByTestId('beauty-service-materials');await expect(materials).toBeVisible();await expect(materials).toContainText('Материалы не добавлены');
+ await materials.getByRole('button',{name:'Добавить материал',exact:true}).click();await expect(materials.getByLabel('Материал 1',{exact:true})).toHaveValue(/.+/);await materials.getByLabel('Норма, мл, материал 1',{exact:true}).fill('125.5');await materials.getByRole('button',{name:'Сохранить техкарту',exact:true}).click();await expect(materials.getByRole('status')).toContainText('Техкарта сохранена');
+ const saved=await call(request,f,`/beauty/services/${f.serviceId}/materials`,{actor:'ownerA'});expect(saved).toMatchObject({revision:1,totalCostMinor:'15060',missingCost:false});expect(saved.items).toEqual([expect.objectContaining({productName:'Synthetic salon shampoo',unit:'мл',normQty:'125.5',costMinor:'15060'})]);
+ await page.reload();await page.getByRole('button',{name:'Техкарта услуги: Synthetic haircut',exact:true}).click();const persisted=page.getByTestId('beauty-service-materials');await expect(persisted.getByLabel('Норма, мл, материал 1',{exact:true})).toHaveValue('125.5');await expect(persisted).toContainText('150,60');await capture(page,'service-materials');await manager.close();
 });
 
 test('personal finance shows real server amounts and never invents unavailable earnings',async({browser,request})=>{

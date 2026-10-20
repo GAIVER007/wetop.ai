@@ -112,3 +112,49 @@ describe('branch cash server actions use verified capability context', () => {
     expect(m.operation).not.toHaveBeenCalled();
   });
 });
+
+// В салоне с назначенными должностями право решает должность (request-context.ts:204), а не старая роль:
+// STAFF с finance.refund делает возврат, а STAFF без finance.create не отправляет операцию в API.
+describe('salon positions decide branch cash rights in ASSIGNED mode', () => {
+  const staff = (permissions: Array<{ section: string; action: string; scope: string }>) => ({
+    user: {
+      id: 'test-user',
+      name: 'Test',
+      email: 'test@example.invalid',
+      role: 'STAFF',
+      organization: { status: 'ACTIVE', trialEndsAt: null },
+    },
+    beautyAccess: { mode: 'ASSIGNED', assigned: true, permissions },
+    context,
+  });
+  it('lets STAFF with finance.refund void an operation', async () => {
+    m.me.mockResolvedValue(staff([{ section: 'finance', action: 'refund', scope: 'BUSINESS' }]));
+    expect(await mutateCash('synthetic-business:synthetic-location', { kind: 'void', id: 'op-1' })).toEqual({
+      error: null,
+    });
+    expect(m.void).toHaveBeenCalledExactlyOnceWith('op-1');
+  });
+  it('blocks STAFF without finance.create before the API', async () => {
+    m.me.mockResolvedValue(staff([{ section: 'finance', action: 'refund', scope: 'BUSINESS' }]));
+    expect((await mutateCash('synthetic-business:synthetic-location', command)).error).toBeTruthy();
+    expect(m.operation).not.toHaveBeenCalled();
+  });
+  it('lets STAFF with finance.update reconcile the register', async () => {
+    m.me.mockResolvedValue(staff([{ section: 'finance', action: 'update', scope: 'BUSINESS' }]));
+    expect(
+      await mutateCash('synthetic-business:synthetic-location', {
+        kind: 'reconcile',
+        body: { method: 'CASH', counted: 100 },
+      }),
+    ).toEqual({ error: null });
+    expect(m.reconcile).toHaveBeenCalledOnce();
+  });
+  it('keeps the legacy role rule in a restaurant: STAFF cannot void', async () => {
+    m.me.mockResolvedValue({
+      ...staff([{ section: 'finance', action: 'refund', scope: 'BUSINESS' }]),
+      context: { ...context, vertical: 'FOOD_SERVICE' },
+    });
+    expect((await mutateCash('synthetic-business:synthetic-location', { kind: 'void', id: 'op-1' })).error).toBeTruthy();
+    expect(m.void).not.toHaveBeenCalled();
+  });
+});

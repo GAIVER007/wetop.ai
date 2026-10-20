@@ -63,7 +63,12 @@ export function EmployeeBasicForm({
     </Field>
   );
   return (
-    <form ref={formRef} className="employee-workspace-form" onSubmit={onSave}>
+    <form
+      ref={formRef}
+      className="employee-workspace-form"
+      data-employee-transition-form
+      onSubmit={onSave}
+    >
       {error && (
         <div tabIndex={-1} data-employee-error>
           <Alert boxed>{error}</Alert>
@@ -80,7 +85,7 @@ export function EmployeeBasicForm({
             <dt>Почта</dt>
             <dd>{current.email || 'Не указана'}</dd>
             <dt>Статус</dt>
-            <dd>{current.active ? 'Работает' : 'В архиве'}</dd>
+            <dd>{current.active ? 'Активен' : 'В архиве'}</dd>
           </dl>
           <p>
             Ваш ввод остаётся ниже. Отмените черновик и загрузите сохранённый профиль, затем внесите изменения заново.
@@ -101,7 +106,7 @@ export function EmployeeBasicForm({
             disabled={pending || disabled}
             onChange={(event) => onChange({ ...draft, active: event.target.checked })}
           />
-          Мастер работает
+          Специалист работает
         </label>
       )}
       {creating && (

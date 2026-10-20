@@ -14,7 +14,7 @@ export function trapDialogFocus(e: ReactKeyboardEvent<HTMLDialogElement>) {
   if ((e.target as HTMLElement).closest('dialog') !== element) return;
   const controls = [
     ...element.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], summary, [tabindex]:not([tabindex="-1"])',
     ),
   ].filter((control) => control.getClientRects().length > 0 && !control.closest('[inert]'));
   const first = controls[0];

@@ -1,0 +1,217 @@
+# Модульные (unit) · 18.10.2026 13:13 Алматы · <сервер>
+# коммит fb0e786 (fix/owner-report-period-20261018), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T08-13-46Z-unit-955a.json' 'apps/web/src/app/finance/period-continuity.test.ts' 'apps/web/src/app/restaurant-finance/period-continuity.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-pr599-reconcile
+
+ ❯ |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts (6 tests | 4 failed) 14ms
+   ❯ restaurant finance date context (6)
+     × preserves exact valid owner dates 8ms
+     × uses the first repeated date like the other Next routes 1ms
+     × invalid dates are an error, not a silently changed period: {"from":"2026-10-18","to":"2026-10-01"} 2ms
+     ✓ invalid dates are an error, not a silently changed period: {"from":"2026-02-30","to":"2026-03-01"} 1ms
+     ✓ invalid dates are an error, not a silently changed period: {"from":"2026-07-01","to":"2026-10-18"} 1ms
+     × keeps the existing no-query month-to-date based on the restaurant clock 1ms
+ ❯ |unit| apps/web/src/app/finance/period-continuity.test.ts (16 tests | 6 failed) 25ms
+   ✓ finance route keeps date context (2)
+     ✓ passes the raw date parameters to BEAUTY before hospitality queries 4ms
+     ✓ preserves dates in FOOD_SERVICE redirect without copying unrelated query values 2ms
+   ❯ BEAUTY finance uses requested days instead of hardcoded week (14)
+     ✓ today fetches exactly the requested inclusive window 2ms
+     × week fetches exactly the requested inclusive window 7ms
+     × month fetches exactly the requested inclusive window 1ms
+     × historical fetches exactly the requested inclusive window 1ms
+     × does not silently fall back to seven days for a reversed window 2ms
+     ✓ does not turn a failed selected day into zero money 1ms
+     × keeps no-query week based on API local today, not machine UTC date 1ms
+     ✓ rejects an invalid or over-31-day window without querying its days: {"from":"2026-02-30","to":"2026-03-01"} 1ms
+     ✓ rejects an invalid or over-31-day window without querying its days: {"from":"","to":"2026-10-18"} 0ms
+     ✓ rejects an invalid or over-31-day window without querying its days: {"from":"2026-09-01","to":"2026-10-18"} 0ms
+     ✓ rejects an invalid or over-31-day window without querying its days: {"from":"2026-10-01","to":"2026-13-01"} 0ms
+     × uses the first repeated date value consistently with other Next routes 1ms
+     ✓ refuses to combine mismatched source location or currency 0ms
+     ✓ bounds concurrent day requests 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > week fetches exactly the requested inclusive window
+AssertionError: expected 1 to be 7 // Object.is equality
+
+- Expected
++ Received
+
+- 7
++ 1
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:57:36
+     55|     const dates = mockDay.mock.calls.map(([date]) => date ?? '2026-10-…
+     56|     const selected = dates.filter((date) => date >= from && date <= to…
+     57|     expect(new Set(selected).size).toBe(count);
+       |                                    ^
+     58|     expect(dates.filter((date) => date !== '2026-10-18')).toHaveLength…
+     59|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > month fetches exactly the requested inclusive window
+AssertionError: expected 1 to be 18 // Object.is equality
+
+- Expected
++ Received
+
+- 18
++ 1
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:57:36
+     55|     const dates = mockDay.mock.calls.map(([date]) => date ?? '2026-10-…
+     56|     const selected = dates.filter((date) => date >= from && date <= to…
+     57|     expect(new Set(selected).size).toBe(count);
+       |                                    ^
+     58|     expect(dates.filter((date) => date !== '2026-10-18')).toHaveLength…
+     59|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > historical fetches exactly the requested inclusive window
+AssertionError: expected +0 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 0
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:57:36
+     55|     const dates = mockDay.mock.calls.map(([date]) => date ?? '2026-10-…
+     56|     const selected = dates.filter((date) => date >= from && date <= to…
+     57|     expect(new Set(selected).size).toBe(count);
+       |                                    ^
+     58|     expect(dates.filter((date) => date !== '2026-10-18')).toHaveLength…
+     59|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > does not silently fall back to seven days for a reversed window
+AssertionError: expected undefined to be 'beauty-finance-error' // Object.is equality
+
+- Expected:
+"beauty-finance-error"
+
++ Received:
+undefined
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:63:60
+     61|     const page = await BeautyFinanceScreen({ searchParams: { from: '20…
+     62|     const child = asProps(page).children;
+     63|     expect(isValidElement(child) && asProps(child).testId).toBe('beaut…
+       |                                                            ^
+     64|     expect(mockDay.mock.calls.length).toBeLessThanOrEqual(1);
+     65|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > keeps no-query week based on API local today, not machine UTC date
+AssertionError: expected [ undefined ] to include '2026-02-23'
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:78:54
+     76|     mockDay.mockImplementation(async (date) => day(date ?? '2026-03-01…
+     77|     const page = await BeautyFinanceScreen();
+     78|     expect(mockDay.mock.calls.map(([date]) => date)).toContain('2026-0…
+       |                                                      ^
+     79|     expect(asProps(page).subtitle).toContain('23 февр.');
+     80|     expect(asProps(page).subtitle).toContain('1 мар.');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > uses the first repeated date value consistently with other Next routes
+AssertionError: expected "vi.fn()" to be called 2 times, but got 1 times
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:96:21
+     94|   it('uses the first repeated date value consistently with other Next …
+     95|     await BeautyFinanceScreen({ searchParams: { from: ['2026-10-17', '…
+     96|     expect(mockDay).toHaveBeenCalledTimes(2);
+       |                     ^
+     97|     expect(mockDay).toHaveBeenCalledWith('2026-10-17');
+     98|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts > restaurant finance date context > preserves exact valid owner dates
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { from: '2026-09-29', …(1) } ]
+
+Number of calls: 0
+
+ ❯ apps/web/src/app/restaurant-finance/period-continuity.test.ts:18:32
+     16|   it('preserves exact valid owner dates', async () => {
+     17|     await RestaurantFinancePage({ searchParams: Promise.resolve({ from…
+     18|     expect(restaurantApi.cash).toHaveBeenCalledExactlyOnceWith({ from:…
+       |                                ^
+     19|   });
+     20|   it('uses the first repeated date like the other Next routes', async …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts > restaurant finance date context > uses the first repeated date like the other Next routes
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { from: '2026-10-03', …(1) } ]
+
+Number of calls: 0
+
+ ❯ apps/web/src/app/restaurant-finance/period-continuity.test.ts:22:32
+     20|   it('uses the first repeated date like the other Next routes', async …
+     21|     await RestaurantFinancePage({ searchParams: Promise.resolve({ from…
+     22|     expect(restaurantApi.cash).toHaveBeenCalledExactlyOnceWith({ from:…
+       |                                ^
+     23|   });
+     24|   it.each([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts > restaurant finance date context > invalid dates are an error, not a silently changed period: {"from":"2026-10-18","to":"2026-10-01"}
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "from": "2026-10-18",
+        "to": "2026-10-01",
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/app/restaurant-finance/period-continuity.test.ts:30:36
+     28|   ])('invalid dates are an error, not a silently changed period: %j', …
+     29|     const page = await RestaurantFinancePage({ searchParams: Promise.r…
+     30|     expect(restaurantApi.cash).not.toHaveBeenCalled();
+       |                                    ^
+     31|     const child = props(page).children;
+     32|     expect(isValidElement(child) && props(child).testId).toBe('restaur…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts > restaurant finance date context > keeps the existing no-query month-to-date based on the restaurant clock
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { from: '2026-10-01', …(1) } ]
+
+Number of calls: 0
+
+ ❯ apps/web/src/app/restaurant-finance/period-continuity.test.ts:36:32
+     34|   it('keeps the existing no-query month-to-date based on the restauran…
+     35|     await RestaurantFinancePage({ searchParams: Promise.resolve({}) });
+     36|     expect(restaurantApi.cash).toHaveBeenCalledExactlyOnceWith({ from:…
+       |                                ^
+     37|   });
+     38| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  10 failed | 12 passed (22)
+   Start at  08:13:47
+   Duration  2.11s (transform 70%, import 28%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-18T08-13-46Z-unit-955a.json
+
+# код выхода 1 · 3 с

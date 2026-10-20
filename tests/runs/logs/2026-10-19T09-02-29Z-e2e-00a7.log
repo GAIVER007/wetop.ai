@@ -1,0 +1,113 @@
+# Сквозные (e2e) · 19.10.2026 14:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1a5add6 (codex/beauty-zapis-report), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/employee-workspace.spec.ts' 'tests/beauty-ui/zapis-report.spec.ts' 'tests/beauty-ui/positions.spec.ts' '--workers=1' '--max-failures=1'
+[WebServer] (node:93087) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93143) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 17 tests using 1 worker
+
+(node:93209) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93238) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/beauty-ui/employee-workspace.spec.ts:96:1 › minimal create, saved ID, reload and actual desktop/mobile themes (5.0s)
+[WebServer] (node:93250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93260) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/beauty-ui/employee-workspace.spec.ts:132:1 › two stale forms keep the second draft and show the current profile (2.1s)
+[WebServer] (node:93265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/beauty-ui/employee-workspace.spec.ts:156:1 › dirty stay, discard and save before tabs/close; failed save keeps draft (1.6s)
+[WebServer] (node:93287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/beauty-ui/employee-workspace.spec.ts:194:1 › Back/Forward and keyboard tabs retain a consistent employee URL (1.3s)
+[WebServer] (node:93293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/beauty-ui/employee-workspace.spec.ts:215:1 › inaccessible deep link is neutral and old Beauty entry remains compatible (1.5s)
+[WebServer] (node:93301) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/beauty-ui/employee-workspace.spec.ts:228:1 › lost create response is recovered on reload using one persistent operation (1.7s)
+[WebServer] (node:93303) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/beauty-ui/employee-workspace.spec.ts:293:1 › late schedule A cannot populate employee B or a new employee (1.5s)
+[WebServer] (node:93307) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93318) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/beauty-ui/employee-workspace.spec.ts:335:1 › a scope-switch event invalidates an in-flight profile response (6.1s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/beauty-ui/employee-workspace.spec.ts:335:1 › a scope-switch event invalidates an in-flight profile response 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('employee-manager')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('employee-manager') with timeout 5000ms
+      - waiting for getByTestId('employee-manager')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      370 |   release();
+      371 |   await expect(page.getByRole('status').filter({ hasText: 'Переключаем филиал' })).toBeVisible();
+    > 372 |   await expect(manager(page)).toHaveCount(0);
+          |                               ^
+      373 |   await expect(page.getByRole('status').filter({ hasText: 'Сохранено на сервере' })).toHaveCount(0);
+      374 |   await page.reload();
+      375 |   await expect(page.getByTestId('portal-unavailable')).toContainText('Кабинет недоступен');
+        at /Users/vyacheslav/.codex/worktrees/beauty-zapis-report/WETOP/tests/beauty-ui/employee-workspace.spec.ts:372:31
+
+    Error Context: test-results/employee-workspace-a-scope-d0c26--in-flight-profile-response/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/employee-workspace-a-scope-d0c26--in-flight-profile-response/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/employee-workspace-a-scope-d0c26--in-flight-profile-response/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/employee-workspace.spec.ts:335:1 › a scope-switch event invalidates an in-flight profile response 
+  9 did not run
+  7 passed (26.9s)
+  1 error was not a part of any test, see above for details
+
+# код выхода 1 · 29 с

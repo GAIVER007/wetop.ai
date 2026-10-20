@@ -1,4 +1,4 @@
-# Модульные (unit) · 17.10.2026 11:34 Алматы · srv1719674
+# Модульные (unit) · 17.10.2026 11:34 Алматы · <сервер>
 # коммит 0766123 (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 4
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T06-34-59Z-unit-d44b.json' 'tests/unit/branch-cash-actions.test.ts' '--maxWorkers=1'
 

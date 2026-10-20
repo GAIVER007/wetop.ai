@@ -48,7 +48,7 @@ describe('реестр функций', () => {
       // `requireFeature` называет свой раздел, а не чужой: иначе реестр и страница разойдутся молча
       const feature = /requireFeature\(\s*'([^']+)'/.exec(source)?.[1];
       if (feature) expect(feature).toBe(own);
-      expect(sorted(pageVerticals(source))).toEqual(sorted(featureVerticals(route.replace(/\/\[.*$/, '') || route)));
+      expect(sorted(pageVerticals(source))).toEqual(sorted(featureVerticals(route)));
     });
   }
 
@@ -68,4 +68,13 @@ describe('реестр функций', () => {
     expect(featureVerticals('/marketing/site')).toEqual(['HOSPITALITY']);
     expect(featureVerticals('/marketing/sites')).toEqual(ALL_VERTICALS);
   });
+});
+
+it('customer detail has its own vertical boundary while the customer list remains shared', () => {
+  expect(featureVerticals('/customers')).toEqual(['BEAUTY','FOOD_SERVICE']);
+  expect(featureVerticals('/customers/11111111-1111-4111-8111-111111111111')).toEqual(['BEAUTY']);
+});
+
+it('salon consumables do not open in other verticals', () => {
+  expect(featureVerticals('/bar/consumables')).toEqual(['BEAUTY']);
 });

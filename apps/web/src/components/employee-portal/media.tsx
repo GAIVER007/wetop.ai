@@ -6,8 +6,10 @@ export function PortalMedia({ data, context }: { data: EmployeePortalDto; contex
   return <>
     <section className="panel portal-section" data-testid="portal-avatar"><h2>Фото профиля</h2>
       {data.avatar ? <img className="portal-avatar" src={data.avatar.url} alt={`Фото: ${data.employee.name}`} width={120} height={120} /> : <p>Фото пока нет</p>}
-      <p>JPG, PNG или WebP до 5 МиБ. Старое фото остаётся до подтверждения загрузки сервером.</p>
-      <PortalForm context={context} command="avatar" label="Загрузить фото"><Field label="Новое фото"><Input name="file" type="file" accept="image/jpeg,image/png,image/webp" required /></Field></PortalForm>
+      {data.canUpload ? <>
+        <p>JPG, PNG или WebP до 5 МиБ. Старое фото остаётся до подтверждения загрузки сервером.</p>
+        <PortalForm context={context} command="avatar" label="Загрузить фото"><Field label="Новое фото"><Input name="file" type="file" accept="image/jpeg,image/png,image/webp" required /></Field></PortalForm>
+      </> : <p role="status">Хранилище изображений не подключено. Загрузка фото временно недоступна.</p>}
       {data.avatar && <PortalForm context={context} command="remove-avatar" label="Удалить фото" />}
     </section>
     <section className="panel portal-section" data-testid="portal-portfolio"><h2>Портфолио</h2>
@@ -22,12 +24,12 @@ export function PortalMedia({ data, context }: { data: EmployeePortalDto; contex
         <PortalForm context={context} command="remove-work" label="Удалить работу"><input type="hidden" name="workId" value={work.id} /></PortalForm>
         </details>
       </article>)}</div>
-      <details className="portal-add-work"><summary>Добавить работу</summary>
+      {data.canUpload && <details className="portal-add-work"><summary>Добавить работу</summary>
       <PortalForm context={context} command="add-work" label="Добавить работу">
         <Field label="Фото работы"><Input name="file" type="file" accept="image/jpeg,image/png,image/webp" required /></Field>
         <WorkFields data={data} />
       </PortalForm>
-      </details>
+      </details>}
     </section>
   </>;
 }

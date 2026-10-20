@@ -10,7 +10,17 @@ import type { BarFormContext } from './context';
  * безвозвратно, поэтому вопрос с суммой и последствием вместо кнопки в один клик. Двойная отправка
  * закрыта pending: обе кнопки гаснут на время запроса.
  */
-export function BarReturnButtons({ saleId, amountText, context }: { saleId: string; amountText: string; context: BarFormContext }) {
+export function BarReturnButtons({
+  saleId,
+  amountText,
+  context,
+  canRestock,
+}: {
+  saleId: string;
+  amountText: string;
+  context: BarFormContext;
+  canRestock: boolean;
+}) {
   const { ask, dialog } = useConfirm();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +39,7 @@ export function BarReturnButtons({ saleId, amountText, context }: { saleId: stri
     fd.set('barCurrency', context.currency);
     fd.set('id', saleId);
     fd.set('restock', String(restock));
-    fd.set('reason', restock ? 'Возврат гостя, товар пригоден' : 'Возврат гостя, товар непригоден');
+    fd.set('reason', restock ? 'Возврат продажи, товар пригоден' : 'Возврат продажи, товар непригоден');
     start(async () => {
       // отказ сервера (объект или валюта формы устарели, касса не даёт вернуть) показываем словами, а не молчим
       const result = await reverseBarSaleAction(fd);
@@ -39,9 +49,11 @@ export function BarReturnButtons({ saleId, amountText, context }: { saleId: stri
   return (
     <div className="bar-return">
       {dialog}
-      <Button type="button" tone="ghost" size="xs" disabled={pending} onClick={() => reverse(true)}>
-        Вернуть на склад
-      </Button>
+      {canRestock && (
+        <Button type="button" tone="ghost" size="xs" disabled={pending} onClick={() => reverse(true)}>
+          Вернуть на склад
+        </Button>
+      )}
       <Button type="button" tone="ghost" size="xs" disabled={pending} onClick={() => reverse(false)}>
         Без возврата на склад
       </Button>

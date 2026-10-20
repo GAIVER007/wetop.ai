@@ -1,0 +1,52 @@
+# Модульные (unit) · 18.10.2026 15:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 20
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-06-24Z-unit-71e1.json' 'packages/domain/src/customer-import-job.test.ts' 'packages/domain/src/customer-import.test.ts' 'packages/domain/src/customers.test.ts' 'apps/api/src/beauty/customer-import.test.ts' 'apps/api/src/beauty/customer-import.worker.test.ts' 'apps/api/src/beauty/customers-create.test.ts' 'apps/web/src/app/customers/customer-import-actions.test.ts' 'apps/web/src/app/customers/beauty-table.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ✓ |unit| apps/api/src/beauty/customer-import.test.ts (6 tests) 54ms
+ ✓ |unit| apps/api/src/beauty/customer-import.worker.test.ts (4 tests) 11ms
+ ✓ |unit| apps/web/src/app/customers/customer-import-actions.test.ts (6 tests) 9ms
+ ✓ |unit| apps/api/src/beauty/customers-create.test.ts (13 tests) 419ms
+   ✓ POST /beauty/customers: клиент без записи (13)
+     ✓ создаёт клиента в серверном scope, сохраняет исходный номер и audit без контактов 331ms
+ ✓ |unit| apps/web/src/app/customers/beauty-table.test.ts (3 tests) 35ms
+ ✓ |unit| packages/domain/src/customer-import.test.ts (13 tests) 36ms
+ ❯ |unit| packages/domain/src/customer-import-job.test.ts (10 tests | 1 failed) 8ms
+   ❯ M4-B2: durable customer import domain contract (10)
+     ✓ parses an idempotent start request and rejects unsafe bounds 1ms
+     ✓ accepts a bounded sequential chunk and keeps only mapped row fields 0ms
+     ✓ rejects malformed chunk structure without echoing personal content 0ms
+     × keeps offsets, batch ranges and source lines inside database integer bounds 4ms
+     ✓ measures the complete serialized UTF-8 envelope and fails safely when it cannot serialize 1ms
+     ✓ normalizes valid row fields without accepting forged identifiers 1ms
+     ✓ uses the approved default name only for a valid phone without a name 0ms
+     ✓ allows a named customer without phone and classifies row errors with safe codes 0ms
+     ✓ keeps the undo boundary strict and UTC-instant based 0ms
+     ✓ exports the approved states, outcomes and exact public view shape 0ms
+ ✓ |unit| packages/domain/src/customers.test.ts (14 tests) 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/customer-import-job.test.ts > M4-B2: durable customer import domain contract > keeps offsets, batch ranges and source lines inside database integer bounds
+AssertionError: expected Error: expected CustomerImportError to be an instance of CustomerImportError
+ ❯ expectSafeError packages/domain/src/customer-import-job.test.ts:21:19
+     19|     throw new Error('expected CustomerImportError');
+     20|   } catch (error) {
+     21|     expect(error).toBeInstanceOf(CustomerImportError);
+       |                   ^
+     22|     expect((error as CustomerImportError).code).toBe(code);
+     23|     expect((error as Error).message).toBe(code);
+ ❯ packages/domain/src/customer-import-job.test.ts:86:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 7 passed (8)
+      Tests  1 failed | 68 passed (69)
+   Start at  03:06:49
+   Duration  23.94s (import 50%, transform 46%, tests 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-06-24Z-unit-71e1.json
+
+# код выхода 1 · 50 с

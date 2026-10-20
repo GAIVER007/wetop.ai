@@ -1,4 +1,4 @@
-# Модульные (unit) · 17.10.2026 11:42 Алматы · srv1719674
+# Модульные (unit) · 17.10.2026 11:42 Алматы · <сервер>
 # коммит 0766123 (fix/tz21-working-time), незакоммиченных файлов набора: 8
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T06-42-47Z-unit-b667.json' 'tests/unit/tz21-week-editors.test.ts'
 

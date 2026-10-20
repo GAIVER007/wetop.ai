@@ -69,7 +69,7 @@ describe('MV4 explicit Beauty boundary', () => {
   }
   it('every existing Beauty handler has the canonical capability', () => {
     for (const [controller, methods, capability] of [
-      [BeautyCatalogController, ['customers'], 'beauty.customers'],
+      [BeautyCatalogController, ['customers', 'createCustomer', 'updateCustomer'], 'beauty.customers'],
       [
         BeautyCatalogController,
         ['services', 'createService', 'updateService', 'setLocationService'],
@@ -77,7 +77,15 @@ describe('MV4 explicit Beauty boundary', () => {
       ],
       [
         BeautyCatalogController,
-        ['employees', 'createEmployee', 'updateEmployee', 'setEmployeeServices'],
+        [
+          'employees',
+          'createEmployee',
+          'updateEmployee',
+          'setEmployeeServices',
+          'employeeServicePrices',
+          'setEmployeeServicePrice',
+          'removeEmployeeServicePrice',
+        ],
         'beauty.employees',
       ],
       [
@@ -85,7 +93,7 @@ describe('MV4 explicit Beauty boundary', () => {
         ['schedule', 'setWorkingHours', 'addTimeOff', 'removeTimeOff', 'setLocations'],
         'beauty.employees',
       ],
-      [BeautyAppointmentsController, ['day', 'create', 'move', 'setStatus'], 'beauty.appointments'],
+      [BeautyAppointmentsController, ['day', 'period', 'create', 'move', 'setStatus'], 'beauty.appointments'],
     ] as const) {
       for (const method of methods) {
         const handler = (controller.prototype as unknown as Record<string, object>)[method]!;

@@ -1,0 +1,77 @@
+# Сквозные (e2e) · 18.10.2026 12:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0ae6325 (claude/gate-0ae6-fixes), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/tz12-ui.spec.ts' '--workers=1' '-g' 'operational reflow 320'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:75389) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 320 light (3.3s)
+  ✘  2 tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 320 dark (3.7s)
+
+
+  1) tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 320 light ──────────────────────────
+
+    Error: calendar
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+      129 |           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      130 |           path,
+    > 131 |         ).toBeTruthy();
+          |           ^
+      132 |       }
+      133 |     });
+      134 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/beauty-ui/tz12-ui.spec.ts:131:11
+
+    Error Context: test-results/tz12-ui-operational-reflow-320-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/tz12-ui-operational-reflow-320-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/tz12-ui-operational-reflow-320-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 320 dark ───────────────────────────
+
+    Error: calendar
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+      129 |           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      130 |           path,
+    > 131 |         ).toBeTruthy();
+          |           ^
+      132 |       }
+      133 |     });
+      134 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/beauty-ui/tz12-ui.spec.ts:131:11
+
+    Error Context: test-results/tz12-ui-operational-reflow-320-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/tz12-ui-operational-reflow-320-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/tz12-ui-operational-reflow-320-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 320 light ───────────────────────────
+    tests/beauty-ui/tz12-ui.spec.ts:116:5 › operational reflow 320 dark ────────────────────────────
+
+# код выхода 1 · 15 с

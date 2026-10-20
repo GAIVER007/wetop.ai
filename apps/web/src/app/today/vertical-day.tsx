@@ -47,6 +47,7 @@ export interface DayQuickAction {
 
 export function VerticalDay({
   testId,
+  title = 'Сегодня',
   subtitle,
   action,
   stats,
@@ -58,8 +59,11 @@ export function VerticalDay({
   quickActions,
 }: {
   testId: string;
+  /** заголовок экрана: у салона «Главная», как раздел меню (17.10.2026) */
+  title?: string;
   subtitle: string;
-  action: { href: string; label: string };
+  /** `primary`: главное действие смены залито `--primary` (DESIGN.md, главная кнопка одна на экран) */
+  action: { href: string; label: string; primary?: boolean };
   stats: DayStat[];
   attention: DayAttention[];
   upcomingTitle: string;
@@ -90,10 +94,10 @@ export function VerticalDay({
   );
   return (
     <Page
-      title="Сегодня"
+      title={title}
       subtitle={subtitle}
       actions={
-        <Link className="btn btn--secondary" href={action.href}>
+        <Link className={action.primary ? 'btn btn--primary' : 'btn btn--secondary'} href={action.href}>
           {action.label}
         </Link>
       }

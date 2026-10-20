@@ -1,3 +1,4 @@
+import { findOrCreateCustomer } from '../customers/identity';
 import {
   BadRequestException,
   ConflictException,
@@ -596,9 +597,7 @@ export class FoodService {
         )
           throw new NotFoundException('Клиент недоступен');
       } else
-        customerId = (
-          await tx.customer.create({ data: { organizationId: s.organizationId, ...b.customer! } })
-        ).id;
+        customerId = (await findOrCreateCustomer(tx, s.organizationId, b.customer!)).id;
       await tx.customerBusiness.upsert({
         where: { customerId_businessId: { customerId, businessId: s.businessId } },
         create: { customerId, businessId: s.businessId },

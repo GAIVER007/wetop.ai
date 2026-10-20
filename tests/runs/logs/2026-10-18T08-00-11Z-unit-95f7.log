@@ -1,0 +1,184 @@
+# Модульные (unit) · 18.10.2026 13:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит a1c5d36 (codex/salons-tz4-m4a), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-00-11Z-unit-95f7.json' 'apps/api/src/beauty/customers-create.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| apps/api/src/beauty/customers-create.test.ts (12 tests | 12 failed) 145ms
+   ❯ POST /beauty/customers: клиент без записи (12)
+     × создаёт клиента в серверном scope, сохраняет исходный номер и audit без контактов 117ms
+     × повтор <телефон>: использует каноническую карточку без перезаписи профиля 4ms
+     × повтор <телефон>: использует каноническую карточку без перезаписи профиля 2ms
+     × повтор 7000001001: использует каноническую карточку без перезаписи профиля 2ms
+     × повтор <телефон>: использует каноническую карточку без перезаписи профиля 2ms
+     × не восстанавливает архивного клиента 2ms
+     × отклоняет некорректный ввод {"phone":"<телефон>"} 2ms
+     × отклоняет некорректный ввод {"firstName":"Тест"} 2ms
+     × отклоняет некорректный ввод {"firstName":"Тест","phone":"abc123"} 2ms
+     × не обходит backend право записи 2ms
+     × не пишет в read-only организации 2ms
+     × конкурентный UNIQUE даёт 409 без привязки и ложного audit 6ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > создаёт клиента в серверном scope, сохраняет исходный номер и audit без контактов
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/beauty/customers-create.test.ts:53:8
+     51|       firstName: ' Тестовый клиент ', lastName: ' Синтетический ', pho…
+     52|       organizationId: 'foreign', businessId: 'foreign', phoneNormalize…
+     53|     }).expect(201);
+       |        ^
+     54|     expect(result.body).toMatchObject({ created: true, id: expect.any(…
+     55|     expect(db.customer.create).toHaveBeenCalledWith({ data: expect.obj…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:904:3
+ ❯ callback node_modules/superagent/src/node/index.js:1183:18
+ ❯ fn node_modules/superagent/src/node/parsers/json.js:19:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > повтор <телефон>: использует каноническую карточку без перезаписи профиля
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > повтор <телефон>: использует каноническую карточку без перезаписи профиля
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > повтор 7000001001: использует каноническую карточку без перезаписи профиля
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > повтор <телефон>: использует каноническую карточку без перезаписи профиля
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/beauty/customers-create.test.ts:70:51
+     68|       db.customer.findFirst.mockResolvedValue({ id: customerId, status…
+     69|       const result = await request(app.getHttpServer()).post('/beauty/…
+     70|         .send({ firstName: 'Другое имя', phone }).expect(201);
+       |                                                   ^
+     71|       expect(result.body).toEqual({ id: customerId, created: false });
+     72|       expect(db.customer.findFirst).toHaveBeenCalledWith(expect.object…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:904:3
+ ❯ callback node_modules/superagent/src/node/index.js:1183:18
+ ❯ fn node_modules/superagent/src/node/parsers/json.js:19:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > не восстанавливает архивного клиента
+Error: expected 409 "Conflict", got 404 "Not Found"
+ ❯ apps/api/src/beauty/customers-create.test.ts:83:59
+     81|     db.customer.findFirst.mockResolvedValue({ id: customerId, status: …
+     82|     await request(app.getHttpServer()).post('/beauty/customers')
+     83|       .send({ firstName: 'Тест', phone: '<телефон>' }).expect(409);
+       |                                                           ^
+     84|     expect(db.customer.create).not.toHaveBeenCalled();
+     85|     expect(db.customerBusiness.upsert).not.toHaveBeenCalled();
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:904:3
+ ❯ callback node_modules/superagent/src/node/index.js:1183:18
+ ❯ fn node_modules/superagent/src/node/parsers/json.js:19:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > отклоняет некорректный ввод {"phone":"<телефон>"}
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > отклоняет некорректный ввод {"firstName":"Тест"}
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > отклоняет некорректный ввод {"firstName":"Тест","phone":"abc123"}
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/beauty/customers-create.test.ts:90:79
+     88|   for (const body of [{ phone: '<телефон>' }, { firstName: 'Тест' }…
+     89|     it(`отклоняет некорректный ввод ${JSON.stringify(body)}`, async ()…
+     90|       await request(app.getHttpServer()).post('/beauty/customers').sen…
+       |                                                                               ^
+     91|       expect(db.customer.create).not.toHaveBeenCalled();
+     92|     });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:904:3
+ ❯ callback node_modules/superagent/src/node/index.js:1183:18
+ ❯ fn node_modules/superagent/src/node/parsers/json.js:19:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > не обходит backend право записи
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/beauty/customers-create.test.ts:98:59
+     96|     actor.role = null;
+     97|     await request(app.getHttpServer()).post('/beauty/customers')
+     98|       .send({ firstName: 'Тест', phone: '<телефон>' }).expect(403);
+       |                                                           ^
+     99|     expect(db.customer.findFirst).not.toHaveBeenCalled();
+    100|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:904:3
+ ❯ callback node_modules/superagent/src/node/index.js:1183:18
+ ❯ fn node_modules/superagent/src/node/parsers/json.js:19:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > не пишет в read-only организации
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/beauty/customers-create.test.ts:105:59
+    103|     db.organization.findUnique.mockResolvedValue({ status: 'READ_ONLY'…
+    104|     await request(app.getHttpServer()).post('/beauty/customers')
+    105|       .send({ firstName: 'Тест', phone: '<телефон>' }).expect(403);
+       |                                                           ^
+    106|     expect(db.customer.create).not.toHaveBeenCalled();
+    107|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:904:3
+ ❯ callback node_modules/superagent/src/node/index.js:1183:18
+ ❯ fn node_modules/superagent/src/node/parsers/json.js:19:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customers-create.test.ts > POST /beauty/customers: клиент без записи > конкурентный UNIQUE даёт 409 без привязки и ложного audit
+Error: expected 409 "Conflict", got 404 "Not Found"
+ ❯ apps/api/src/beauty/customers-create.test.ts:112:59
+    110|     db.customer.create.mockRejectedValue({ code: 'P2002' });
+    111|     await request(app.getHttpServer()).post('/beauty/customers')
+    112|       .send({ firstName: 'Тест', phone: '<телефон>' }).expect(409);
+       |                                                           ^
+    113|     expect(db.customerBusiness.upsert).not.toHaveBeenCalled();
+    114|     expect(db.auditLog.create).not.toHaveBeenCalled();
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:904:3
+ ❯ callback node_modules/superagent/src/node/index.js:1183:18
+ ❯ fn node_modules/superagent/src/node/parsers/json.js:19:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed (12)
+   Start at  01:00:12
+   Duration  1.12s (transform 44%, import 41%, tests 14%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-00-11Z-unit-95f7.json
+
+# код выхода 1 · 3 с

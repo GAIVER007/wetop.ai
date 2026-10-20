@@ -1,6 +1,11 @@
 import type { WebVertical } from './vertical-landing';
 import type { ActionPreview } from './action-preview';
-import type { GuestMainStay } from '@pms/domain';
+import type {
+  CustomerImportChunkInput,
+  CustomerImportStartInput,
+  CustomerImportView,
+  GuestMainStay,
+} from '@pms/domain';
 export type { ActionPreview } from './action-preview';
 export type { GuestMainStay, GuestMainStayKind, GuestStayMoney } from '@pms/domain';
 
@@ -18,9 +23,12 @@ import type {
   InviteRole,
   MembershipRole,
   BusinessVertical,
+  BeautyPositionAccess,
+  BeautyPermission,
   UnitStats,
 } from '@pms/domain';
 import { ApiError } from './api-error';
+import { callerFrames, diagnosticId, diagnosticsEnabled, settingsRequest, SETTINGS_DIAGNOSTIC_HEADER, transportEvent } from './settings-request-diagnostics';
 import type {
   SupportLastMessage,
   SupportPriority,
@@ -123,6 +131,16 @@ async function backendFetch(
   if (!testing && new URL(endpoint).port === '4311') {
     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.');
   }
+  let diagnostic: { id: string; callers: string[] } | undefined;
+  if (diagnosticsEnabled(process.env) && settingsRequest(path, options.method)) {
+    diagnostic = { id: 'unbound', callers: callerFrames(new Error().stack) };
+    try {
+      const { headers } = await import('next/headers');
+      diagnostic.id = diagnosticId((await headers()).get(SETTINGS_DIAGNOSTIC_HEADER));
+    } catch { /* No request context: label unbound, never intercept business fetch failures. */ }
+    try { console.info(JSON.stringify(transportEvent(diagnostic.id, 'start', diagnostic.callers))); }
+    catch { /* Diagnostics are best effort. */ }
+  }
   let response: Response;
   try {
     response = await fetch(`${endpoint.replace(/\/$/, '')}${path}`, {
@@ -142,6 +160,10 @@ async function backendFetch(
       signal: AbortSignal.timeout(60_000),
     });
   } catch (error) {
+    if (diagnostic) {
+      try { console.info(JSON.stringify(transportEvent(diagnostic.id, 'throw', diagnostic.callers))); }
+      catch { /* Never replace a business or framework exception with a logging error. */ }
+    }
     // Next.js also throws here to switch static prerendering to request-time rendering.
     // Only translate actual fetch failures; framework control flow must propagate unchanged.
     if (!(
@@ -156,6 +178,10 @@ async function backendFetch(
         ? 'Нет ответа API. Проверьте результат операции перед повтором.'
         : 'Нет связи с API. Проверьте подключение.',
     );
+  }
+  if (diagnostic) {
+    try { console.info(JSON.stringify(transportEvent(diagnostic.id, 'end', diagnostic.callers, response.status))); }
+    catch { /* Diagnostics are best effort. */ }
   }
   // Сессия кончилась: при включённом замке человека ведём на вход. Ответы самого входа исключены —
   // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046). Подпись помощника
@@ -626,7 +652,10 @@ export const authApi = {
       user: SignedIn | null;
       organization?: SignedInOrganization | null;
       expiresAt?: string;
+      /** Когда выдана сессия; срок `expiresAt` сдвигается работой (Q-153 б), это время нет */
+      sessionIssuedAt?: string;
       access?: DeskAccessView;
+      beautyAccess?: BeautyPositionAccess;
       /** Контекст запроса (Platform P2 К1): какой филиал выбран и какое у него направление (Q-254) */
       context?: {
         scope?: string | null;
@@ -3661,6 +3690,20 @@ export interface BeautyEmployeeRow {
   profileRevision?: string;
 }
 
+export interface BeautyEmployeeServicePriceRow {
+  employeeId: string;
+  serviceId: string;
+  serviceName: string;
+  priceType: 'FIXED' | 'RANGE' | 'FREE' | 'UNFIXED';
+  priceMinMinor: string | null;
+  priceMaxMinor: string | null;
+  durationMinutes: number;
+  currency: string;
+  source: 'MASTER' | 'LOCATION' | 'CATALOG';
+  revision: number | null;
+  sellable: boolean;
+}
+
 export interface BeautyWorkingInterval {
   weekday: number;
   timeFrom: string;
@@ -3709,8 +3752,29 @@ export interface BeautyDayColumn {
   serviceIds: string[];
 }
 
+export interface BeautyAppointmentLine {
+  id: string;
+  position: number;
+  employeeId: string;
+  employeeName: string;
+  serviceId: string;
+  serviceName: string;
+  startsAt: string;
+  endsAt: string;
+  startMinutes: number;
+  endMinutes: number;
+  durationMinutes: number;
+  basePriceMinor: string;
+  discountMinor: string;
+  surchargeMinor: string;
+  priceMinor: string;
+  currency: string;
+  discountPercent: number | null;
+}
+
 export interface BeautyAppointmentRow {
   id: string;
+  items?: BeautyAppointmentLine[];
   employeeId: string;
   serviceId: string;
   serviceName: string;
@@ -3725,10 +3789,17 @@ export interface BeautyAppointmentRow {
   priceMinor: string;
   /** оплачено в кассу филиала (§49), действующие приходы */
   paidMinor: string;
+  paidCashMinor?: string;
+  paidNonCashMinor?: string;
   /** возвращено по выполненной записи (§54), действующие расходы */
   refundedMinor: string;
   currency: string;
   notes: string | null;
+  /** C2 (паритет с zapis.kz): откуда пришла запись и кто её создал; у старых записей автора нет */
+  source?: 'DESK' | 'WEBSITE';
+  createdByName?: string | null;
+  /** A4: платежи записи списком (операции кассы, только завершённые) */
+  payments?: Array<{ id: string; kind: 'INCOME' | 'EXPENSE'; method: string; amountMinor: string; at: string }>;
 }
 
 export interface BeautyDay {
@@ -3744,6 +3815,16 @@ export interface BeautyDay {
     durationMinutes: number;
     priceMinor: string;
     currency: string;
+    masterPrices?: Array<{
+      employeeId: string;
+      priceType: 'FIXED' | 'RANGE' | 'FREE' | 'UNFIXED';
+      priceMinMinor: string | null;
+      priceMaxMinor: string | null;
+      durationMinutes: number;
+      currency: string;
+      source: 'MASTER' | 'LOCATION' | 'CATALOG';
+      revision: number | null;
+    }>;
   }>;
   bounds: { fromMinutes: number; toMinutes: number };
 }
@@ -3769,11 +3850,252 @@ export interface BeautyCustomerRow {
   birthdayInDays: number | null;
 }
 
+export interface BeautyCustomerDetail {
+  customer: {
+    id: string;
+    firstName: string;
+    lastName: string | null;
+    phone: string | null;
+    email: string | null;
+    notes: string | null;
+    status: string;
+    isVip: boolean;
+    birthDate: string | null;
+  };
+  visits: Array<{
+    id: string;
+    startsAt: string;
+    endsAt: string;
+    status: string;
+    priceMinor: string;
+    currency: string;
+    source: string;
+    location: { id: string; name: string; timezone: string };
+    service: { id: string; name: string };
+    employee: { id: string; name: string };
+    lines: Array<{
+      position: number;
+      startsAt: string;
+      endsAt: string;
+      priceMinor: string;
+      currency: string;
+      service: { id: string; name: string };
+      employee: { id: string; name: string };
+    }>;
+  }>;
+  historyTruncated: boolean;
+}
+
+export type BeautyMaterialUnit = 'г' | 'мл' | 'шт';
+export interface BeautyServiceMaterials {
+  serviceId: string;
+  revision: number;
+  locationId: string;
+  currency: string;
+  totalCostMinor: string | null;
+  missingCost: boolean;
+  items: Array<{
+    productId: string;
+    productName: string;
+    unit: BeautyMaterialUnit;
+    normQty: string;
+    onHand: string;
+    costMinor: string | null;
+    active: boolean;
+  }>;
+  products: Array<{
+    id: string;
+    name: string;
+    unit: BeautyMaterialUnit;
+    onHand: string;
+    active: boolean;
+  }>;
+}
+
+export type BeautyCustomerImportStatus = 'CREATE' | 'ALREADY_EXISTS' | 'CONFLICT' | 'DUPLICATE_IN_FILE';
+export interface BeautyCustomerImportPreview {
+  rows: Array<{
+    line: number;
+    name: string;
+    phone: string;
+    status: BeautyCustomerImportStatus;
+  }>;
+  totals: { create: number; alreadyExists: number; conflicts: number; duplicatesInFile: number };
+}
+
+export const BEAUTY_APPOINTMENT_HISTORY_ACTIONS = [
+  'beauty.appointment.created',
+  'beauty.appointment.moved',
+  'beauty.appointment.status',
+  'beauty.appointment.paid',
+  'beauty.appointment.refunded',
+] as const;
+
+export type BeautyAppointmentHistoryAction = (typeof BEAUTY_APPOINTMENT_HISTORY_ACTIONS)[number];
+
+export interface BeautyAppointmentHistorySnapshot {
+  startsAt?: string;
+  endsAt?: string;
+  employee?: { id: string; name: string };
+  service?: { id: string; name: string };
+  priceMinor?: string;
+  status?: string;
+  method?: string;
+  amountMinor?: string;
+  paidMinor?: string;
+  reason?: string;
+  items?: Array<{
+    position: number;
+    startsAt: string;
+    endsAt?: string;
+    priceMinor: string;
+    basePriceMinor?: string;
+    discountMinor?: string;
+    surchargeMinor?: string;
+    discountPercent?: number | null;
+    currency?: string;
+    employee: { id: string; name: string };
+    service: { id: string; name: string };
+  }>;
+}
+
+export interface BeautyAppointmentHistoryResponse {
+  timezone: string;
+  currency: string;
+  items: Array<{
+    id: string;
+    at: string;
+    action: BeautyAppointmentHistoryAction;
+    author: { id: string; name: string } | null;
+    before: BeautyAppointmentHistorySnapshot;
+    after: BeautyAppointmentHistorySnapshot;
+  }>;
+  truncated: boolean;
+}
+
+export interface BeautyLocationHoursResponse {
+  location: { id: string; name: string | null; timezone: string };
+  configured: boolean;
+  revision: number;
+  intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>;
+  conflicts: Array<{ id: string; startsAt: string; endsAt: string; customerName: string }>;
+  conflictsTruncated: boolean;
+}
+
+export interface BeautyPositionRow {
+  id: string;
+  name: string;
+  revision: number;
+  archivedAt: string | null;
+  permissions: BeautyPermission[];
+}
+
+export interface BeautyPositionAssignmentRow {
+  id: string;
+  userId: string;
+  locationId: string | null;
+  positionId: string;
+  revision: number;
+  revokedAt: string | null;
+}
+
+export interface BeautyPositionsWorkspace {
+  businessId: string;
+  positions: BeautyPositionRow[];
+  assignments: BeautyPositionAssignmentRow[];
+  members: Array<{
+    userId: string;
+    name: string | null;
+    email: string;
+    businessWide: boolean;
+    locationIds: string[];
+  }>;
+  locations: Array<{ id: string; name: string }>;
+}
+
+function beautyPeriodPath(path: string, from?: string, to?: string): string {
+  const params = new URLSearchParams();
+  if (from !== undefined) params.set('from', from);
+  if (to !== undefined) params.set('to', to);
+  const query = params.toString();
+  return query ? `${path}?${query}` : path;
+}
+
 export const beautyApi = {
+  positions: () => getJson<BeautyPositionsWorkspace>('/beauty/positions'),
+  createPosition: (body: { name: string; permissions: BeautyPermission[] }) =>
+    sendJson<BeautyPositionRow>('POST', '/beauty/positions', body),
+  updatePosition: (
+    id: string,
+    body: { name: string; permissions: BeautyPermission[]; expectedRevision: number },
+  ) => sendJson<BeautyPositionRow>(
+    'PATCH',
+    `/beauty/positions/${encodeURIComponent(id)}`,
+    body,
+  ),
+  archivePosition: (id: string, expectedRevision: number) =>
+    sendJson<BeautyPositionRow>(
+      'POST',
+      `/beauty/positions/${encodeURIComponent(id)}/archive`,
+      { expectedRevision },
+    ),
+  assignPosition: (body: {
+    userId: string;
+    positionId: string;
+    locationId: string | null;
+    expectedRevision: number;
+  }) => sendJson<BeautyPositionAssignmentRow>('PUT', '/beauty/positions/assignments', body),
+  revokePosition: (id: string, expectedRevision: number) =>
+    sendJson<BeautyPositionAssignmentRow>(
+      'POST',
+      `/beauty/positions/assignments/${encodeURIComponent(id)}/revoke`,
+      { expectedRevision },
+    ),
+  locationHours: () => getJson<BeautyLocationHoursResponse>('/beauty/location-hours'),
+  saveLocationHours: (body: { expectedRevision: number; intervals: BeautyLocationHoursResponse['intervals'] }) => sendJson<BeautyLocationHoursResponse>('PUT', '/beauty/location-hours', body),
+  appointmentHistory: (id: string) => getJson<BeautyAppointmentHistoryResponse>(`/beauty/appointments/${encodeURIComponent(id)}/history`),
+  issueReviewInvitation: (id: string) => sendJson<{ reviewPath: string; expiresAt: string; masterCount: number }>(
+    'POST', `/beauty/appointments/${encodeURIComponent(id)}/review-invitation`, {},
+  ),
   customers: () => getJson<{ items: BeautyCustomerRow[] }>('/beauty/customers'),
+  customer: (id: string) => getJson<BeautyCustomerDetail>(`/beauty/customers/${encodeURIComponent(id)}`),
+  createCustomer: (body: { firstName: string; lastName: string; phone: string }) =>
+    sendJson<{ id: string; created: boolean }>('POST', '/beauty/customers', body),
+  previewCustomerImport: (csv: string) =>
+    sendJson<BeautyCustomerImportPreview>('POST', '/beauty/customers/import/preview', { csv }),
+  importCustomers: (csv: string) =>
+    sendJson<{ created: number; linked: number; alreadyExists: number }>(
+      'POST',
+      '/beauty/customers/import',
+      { csv },
+    ),
   /** VIP и день рождения клиента салона (§36) */
   updateCustomer: (id: string, body: { isVip: boolean; birthDate: string | null }) =>
     sendJson<unknown>('PATCH', `/beauty/customers/${encodeURIComponent(id)}`, body),
+  listCustomerImports: () =>
+    getJson<{ items: CustomerImportView[] }>('/beauty/customer-imports'),
+  getCustomerImport: (id: string) =>
+    getJson<CustomerImportView>(`/beauty/customer-imports/${encodeURIComponent(id)}`),
+  startCustomerImport: (body: CustomerImportStartInput) =>
+    sendJson<CustomerImportView>('POST', '/beauty/customer-imports', body),
+  uploadCustomerImportRows: (id: string, body: CustomerImportChunkInput) =>
+    sendJson<CustomerImportView>(
+      'PUT',
+      `/beauty/customer-imports/${encodeURIComponent(id)}/rows`,
+      body,
+    ),
+  submitCustomerImport: (id: string) =>
+    sendJson<CustomerImportView>(
+      'POST',
+      `/beauty/customer-imports/${encodeURIComponent(id)}/submit`,
+      {},
+    ),
+  undoCustomerImport: (id: string) =>
+    sendJson<CustomerImportView>(
+      'POST',
+      `/beauty/customer-imports/${encodeURIComponent(id)}/undo`,
+      {},
+    ),
   services: () =>
     getJson<{
       locationId: string | null;
@@ -3783,6 +4105,19 @@ export const beautyApi = {
   createService: (body: unknown) => sendJson<BeautyServiceRow>('POST', '/beauty/services', body),
   updateService: (id: string, body: unknown) =>
     sendJson<BeautyServiceRow>('PATCH', `/beauty/services/${encodeURIComponent(id)}`, body),
+  serviceMaterials: (id: string) =>
+    getJson<BeautyServiceMaterials>(`/beauty/services/${encodeURIComponent(id)}/materials`),
+  saveServiceMaterials: (
+    id: string,
+    body: {
+      expectedRevision: number;
+      items: Array<{ productId: string; normQty: string; unit: BeautyMaterialUnit }>;
+    },
+  ) => sendJson<BeautyServiceMaterials>(
+    'PUT',
+    `/beauty/services/${encodeURIComponent(id)}/materials`,
+    body,
+  ),
   setLocationService: (id: string, body: unknown) =>
     sendJson<{ items: BeautyServiceRow[] }>(
       'PUT',
@@ -3799,6 +4134,32 @@ export const beautyApi = {
       serviceIds,
       ...(expectedRevision ? { expectedRevision } : {}),
     }),
+  employeeServicePrices: (id: string) =>
+    getJson<BeautyEmployeeServicePriceRow[]>(
+      `/beauty/employees/${encodeURIComponent(id)}/service-prices`,
+    ),
+  setEmployeeServicePrice: (
+    id: string,
+    serviceId: string,
+    body: {
+      expectedRevision: number;
+      priceType: BeautyEmployeeServicePriceRow['priceType'];
+      priceMinMinor: string | null;
+      priceMaxMinor: string | null;
+      durationMinutes: number;
+      currency: string;
+    },
+  ) => sendJson<BeautyEmployeeServicePriceRow[]>(
+    'PUT',
+    `/beauty/employees/${encodeURIComponent(id)}/service-prices/${encodeURIComponent(serviceId)}`,
+    body,
+  ),
+  removeEmployeeServicePrice: (id: string, serviceId: string, body: { expectedRevision: number }) =>
+    sendJson<BeautyEmployeeServicePriceRow[]>(
+      'DELETE',
+      `/beauty/employees/${encodeURIComponent(id)}/service-prices/${encodeURIComponent(serviceId)}`,
+      body,
+    ),
   schedule: (employee?: string) =>
     getJson<BeautySchedule>(
       employee ? `/beauty/schedule?employee=${encodeURIComponent(employee)}` : '/beauty/schedule',
@@ -3829,6 +4190,20 @@ export const beautyApi = {
     getJson<BeautyDay>(
       date ? `/beauty/appointments?date=${encodeURIComponent(date)}` : '/beauty/appointments',
     ),
+  period: (from?: string, to?: string) => getJson<{
+    location: BeautyDay['location'];
+    period: { from: string; to: string };
+    appointments: Array<BeautyAppointmentRow & { localDate: string }>;
+  }>(beautyPeriodPath('/beauty/appointments/period', from, to)),
+  financeDay: (date?: string) =>
+    getJson<BeautyDay>(
+      date ? `/beauty/finance/day?date=${encodeURIComponent(date)}` : '/beauty/finance/day',
+    ),
+  financePeriod: (from: string, to: string) => getJson<{
+    location: BeautyDay['location'];
+    period: { from: string; to: string };
+    appointments: Array<BeautyAppointmentRow & { localDate: string }>;
+  }>(`/beauty/finance/appointments?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`),
   createAppointment: (body: unknown) => sendJson<BeautyDay>('POST', '/beauty/appointments', body),
   moveAppointment: (id: string, body: unknown) =>
     sendJson<BeautyDay>('PATCH', `/beauty/appointments/${encodeURIComponent(id)}`, body),

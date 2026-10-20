@@ -24,7 +24,7 @@ export default async function PayrollPage({
     const payroll = await restaurantApi.payroll(chosen);
     return (
       <Page
-        title="Зарплата и финансы"
+        title="Зарплата"
         subtitle={`Оклады, процент от ${salon ? 'выполненных записей' : 'заказов'}, премии и штрафы. Выплата уходит расходом из кассы`}
       >
         {/* вкладки сотрудников ресторана ведут на его экраны (график смен): у салона их нет */}
@@ -42,7 +42,7 @@ export default async function PayrollPage({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Зарплата и финансы">
+      <Page title="Зарплата">
         <LoadError testId="payroll-load-error" {...loadErrorProps(error)} />
       </Page>
     );

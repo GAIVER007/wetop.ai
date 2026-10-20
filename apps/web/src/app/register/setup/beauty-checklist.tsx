@@ -275,7 +275,7 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
                         : step.id === 'services'
                           ? 'Добавить услугу'
                           : step.id === 'masters'
-                            ? 'Добавить мастера'
+                            ? 'Добавить специалиста'
                             : step.id === 'skills'
                               ? 'Назначить услуги'
                               : 'Настроить график'}

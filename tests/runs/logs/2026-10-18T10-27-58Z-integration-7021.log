@@ -1,0 +1,141 @@
+# Интеграционные (integration) · 18.10.2026 15:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 19
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-27-58Z-integration-7021.json' 'tests/integration/customer-import-storage.test.ts' 'tests/integration/customer-import-runtime.test.ts' 'tests/integration/customer-import-race.test.ts' 'tests/integration/function-search-path.test.ts' 'tests/integration/customers-create.test.ts' 'tests/integration/customer-phone.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/customer-import-storage.test.ts (6 tests) 802ms
+ ✓ |integration| tests/integration/customer-import-runtime.test.ts (13 tests | 1 skipped) 3163ms
+   ✓ M4-B2: durable customer import, real RLS and transactions (13)
+     ✓ exposes an owner-only real HTTP endpoint with dependency injection 757ms
+     ✓ creates, reuses canonical phone, defaults name, skips bad rows and atomically undoes 429ms
+     ✓ rechecks the owner between batches and allows safe undo of partial failure 359ms
+(node:1365) PromiseRejectionHandledWarning: Promise rejection was handled asynchronously (rejection id: 2)
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ |integration| tests/integration/customer-import-race.test.ts (6 tests | 1 failed) 963698ms
+   ❯ M4-B2: customer import undo FK races (6)
+     × undo wins against a concurrent customer-business insert, so the FK insert fails 960993ms
+     ✓ undo wins against a concurrent beauty insert, so the FK insert fails 1485ms
+     ✓ undo wins against a concurrent food insert, so the FK insert fails 213ms
+     ✓ customer-business insert wins before undo, so undo sees the dependency and deletes nothing 98ms
+     ✓ beauty insert wins before undo, so undo sees the dependency and deletes nothing 148ms
+     ✓ food insert wins before undo, so undo sees the dependency and deletes nothing 96ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 1021ms
+ ❯ |integration| tests/integration/function-search-path.test.ts (2 tests | 1 failed) 353ms
+   ❯ search_path у функций схемы закреплён (integration, DATABASE_URL required) (2)
+     × у каждой своей функции схемы search_path задан и начинается с её схемы 188ms
+     ✓ закреплённый путь не ломает функции: запись журнала идёт, правка записи запрещена 87ms
+ ✓ |integration| tests/integration/customer-phone.test.ts (9 tests) 120ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/customer-import-race.test.ts > M4-B2: customer import undo FK races
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.delete()` invocation:
+
+
+Foreign key constraint violated on the constraint: `audit_logs_organization_id_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ admin.$transaction.timeout tests/integration/customer-import-race.test.ts:100:7
+     98|       await tx.membership.deleteMany({ where: { organizationId: scope.…
+     99|       await tx.business.deleteMany({ where: { organizationId: scope.or…
+    100|       await tx.organization.delete({ where: { id: scope.organizationId…
+       |       ^
+    101|       await tx.user.delete({ where: { id: ownerId } });
+    102|     }, { timeout: 60_000 });
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ tests/integration/customer-import-race.test.ts:84:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/customer-import-race.test.ts > M4-B2: customer import undo FK races > undo wins against a concurrent customer-business insert, so the FK insert fails
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/customer-import-race.test.ts:240:60
+    238|   }, () => service.undo(importId));
+    239|
+    240|   it.each(['customer-business', 'beauty', 'food'] as const)(
+       |                                                            ^
+    241|     'undo wins against a concurrent %s insert, so the FK insert fails',
+    242|     async (kind) => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/function-search-path.test.ts > search_path у функций схемы закреплён (integration, DATABASE_URL required) > у каждой своей функции схемы search_path задан и начинается с её схемы
+AssertionError: функции без закреплённого search_path своей схемы: expected [ 'customer_import_race_pause()' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "customer_import_race_pause()",
++ ]
+
+ ❯ tests/integration/function-search-path.test.ts:48:77
+     46|         })
+     47|         .map((r) => r.fn);
+     48|       expect(unpinned, 'функции без закреплённого search_path своей сх…
+       |                                                                             ^
+     49|     });
+     50|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: Connection terminated due to connection timeout
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ SchemaCheckedPool.checkout packages/database/src/connection-timezone.ts:123:20
+    121|
+    122|   private async checkout(): Promise<pg.PoolClient> {
+    123|     const client = await this.pool.connect();
+       |                    ^
+    124|     try {
+    125|       const result = await client.query<{
+ ❯ TenantPool.checkout packages/database/src/rls.ts:240:21
+ ❯ run packages/database/src/rls.ts:280:22
+ ❯ PrismaPgAdapter.performIO node_modules/@prisma/adapter-pg/dist/index.mjs:645:22
+ ❯ PrismaPgAdapter.queryRaw node_modules/@prisma/adapter-pg/dist/index.mjs:595:30
+ ❯ node_modules/@prisma/client/runtime/client.js:11:70479
+ ❯ e.run node_modules/@prisma/client/runtime/client.js:11:69220
+ ❯ execute node_modules/@prisma/client/runtime/client.js:57:815
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { clientVersion: '7.10.0' }
+This error originated in "tests/integration/customer-import-race.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "undo wins against a concurrent beauty insert, so the FK insert fails". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+Caused by: Error: Connection terminated unexpectedly
+ ❯ Connection.<anonymous> node_modules/pg/lib/client.js:204:73
+ ❯ Object.onceWrapper node:events:630:28
+ ❯ Connection.emit node:events:509:28
+ ❯ Socket.<anonymous> node_modules/pg/lib/connection.js:64:12
+ ❯ Socket.emit node:events:509:28
+ ❯ TCP.<anonymous> node:net:355:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  2 failed | 4 passed (6)
+      Tests  2 failed | 37 passed | 1 skipped (40)
+     Errors  1 error
+   Start at  03:44:40
+   Duration  7269.79s (transform 51%, tests 49%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-27-58Z-integration-7021.json
+
+# код выхода 1 · 2 ч 17 мин

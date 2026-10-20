@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { unstable_rethrow } from 'next/navigation';
-import { can, parseMembershipRole } from '@pms/domain';
+import { beautyPermissionScope, can, parseMembershipRole } from '@pms/domain';
 import { ApiError } from '../../lib/api-error';
 import { currentMe } from '../../lib/desk-shell';
 import { readOnlyOf } from '../../lib/desk-person';
@@ -32,12 +32,20 @@ export async function mutateCash(
       scopeKey !== `${c.businessId}:${c.locationId}`
     )
       throw new ApiError(409, 'Выбран другой филиал. Откройте форму заново.');
-    const role = me.user?.role ? parseMembershipRole(me.user.role) : null;
-    if (
-      !role ||
-      !can(role, command.kind === 'void' ? 'refunds' : 'desk') ||
-      readOnlyOf(me.user?.organization, new Date())
-    )
+    // В салоне с назначенными должностями решает должность, как в API (request-context.ts): операция —
+    // finance.create, возврат — finance.refund, сверка — finance.update. Иначе — старая роль, как раньше.
+    const assigned = c.vertical === 'BEAUTY' && me.beautyAccess?.mode === 'ASSIGNED';
+    const allowed = assigned
+      ? beautyPermissionScope(
+          me.beautyAccess!.permissions,
+          'finance',
+          command.kind === 'void' ? 'refund' : command.kind === 'reconcile' ? 'update' : 'create',
+        ) !== null
+      : (() => {
+          const role = me.user?.role ? parseMembershipRole(me.user.role) : null;
+          return role !== null && can(role, command.kind === 'void' ? 'refunds' : 'desk');
+        })();
+    if (!allowed || readOnlyOf(me.user?.organization, new Date()))
       throw new ApiError(403, 'Нет права на эту кассовую операцию.');
     // Reuse existing branch-ledger endpoints; no restaurant menu/order capability is granted here.
     if (command.kind === 'operation') await restaurantApi.cashOperation(command.body);

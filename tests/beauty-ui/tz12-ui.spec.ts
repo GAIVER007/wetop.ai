@@ -1,3 +1,4 @@
+import { chooseCalendarEmployee } from './calendar-employee';
 import { test, expect } from '../ui/fixtures';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { seed, date, evidence } from './tz11-helpers';
@@ -52,7 +53,7 @@ test('calendar compact controls preserve filtering and hidden occupancy', async 
   page,
   request,
 }) => {
-  const f = await populated(page, request);
+  await populated(page, request);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/calendar?date=${date}`);
   const timeline = page.getByTestId('beauty-mobile-calendar').locator('.beauty-mobile-timeline');
@@ -64,7 +65,10 @@ test('calendar compact controls preserve filtering and hidden occupancy', async 
       return { tag: node.tagName, classes: String(node.className), x: rect.x, y: rect.y, width: rect.width, height: rect.height };
     }),
   );
-  expect((await timeline.boundingBox())!.y, JSON.stringify(layout)).toBeLessThanOrEqual(422);
+  // Controls end by 422 px; below them only the chosen specialist and their hours (a48f54bb6), then the grid.
+  const calendarTop = (await page.getByTestId('beauty-mobile-calendar').boundingBox())!.y;
+  expect(calendarTop, JSON.stringify(layout)).toBeLessThanOrEqual(422);
+  expect((await timeline.boundingBox())!.y - calendarTop, JSON.stringify(layout)).toBeLessThanOrEqual(64);
   await expect(page.getByLabel('Статус записи', { exact: true })).not.toBeVisible();
   await page.getByText(/^Фильтры/).click();
   await page.getByLabel('Статус записи', { exact: true }).selectOption('DONE');
@@ -75,8 +79,8 @@ test('calendar compact controls preserve filtering and hidden occupancy', async 
   await expect(timeline).not.toContainText(longName);
   await page.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click();
   await expect(timeline.locator('.beauty-tile')).toHaveCount(3);
-  await page.getByLabel('Мастер', { exact: true }).selectOption(f.employees[1]!.id);
-  await expect(page.getByLabel('Мастер календаря')).toHaveValue(f.employees[1]!.id);
+  await chooseCalendarEmployee(page, 'Тест Борис');
+  await expect(page.locator('.employee-filter summary')).toContainText('Тест Борис');
 });
 
 test('list mobile cards retain contact semantics and honest record action', async ({
@@ -86,7 +90,7 @@ test('list mobile cards retain contact semantics and honest record action', asyn
   await populated(page, request);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/appointments?date=${date}`);
-  await expect(page.getByText('Поиск только по выбранному дню.')).toBeVisible();
+  await expect(page.getByText('Поиск по выбранному периоду.')).toBeVisible();
   await expect(page.locator('.beauty-appointments-table')).not.toContainText('—');
   const row = page.locator('.beauty-appointments-table tr').filter({ hasText: longName });
   await expect(row.getByRole('button', { name: /Открыть запись/ })).toBeVisible();
@@ -100,7 +104,7 @@ test('shared form groups and save stay accessible in short viewport', async ({ p
   await page.goto(`/appointments?date=${date}`);
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Новая запись', exact: true });
-  for (const name of ['Клиент', 'Услуга и время', 'Дополнительно'])
+  for (const name of ['Клиент', 'Услуги', 'Дополнительно'])
     await expect(dialog.getByRole('group', { name, exact: true })).toBeVisible();
   await dialog.getByLabel('Заметка', { exact: true }).focus();
   await expect(dialog.getByLabel('Заметка', { exact: true })).toBeInViewport();
@@ -112,7 +116,7 @@ test('shared form groups and save stay accessible in short viewport', async ({ p
 
 for (const width of [320, 768, 1440])
   for (const theme of ['light', 'dark'] as const)
-    test(`operational reflow ${width} ${theme}`, async ({ page, request }) => {
+    test(`operational reflow ${width} ${theme}`, async ({ page, request }, testInfo) => {
       await populated(page, request);
       await page.setViewportSize({ width, height: 844 });
       await page.emulateMedia({ colorScheme: theme });
@@ -124,9 +128,27 @@ for (const width of [320, 768, 1440])
             const sizes = elements.map(el => parseFloat(getComputedStyle(el).fontSize));
             elements.forEach((el, index) => { el.style.fontSize = `${sizes[index]! * 2}px`; });
           });
-        expect(
-          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-          path,
-        ).toBeTruthy();
+        const reflow = await page.evaluate(() => ({
+          fits: document.documentElement.scrollWidth <= innerWidth,
+          viewport: innerWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          overflow: [...document.querySelectorAll<HTMLElement>('main *')]
+            .map((el) => {
+              const box = el.getBoundingClientRect();
+              const style = getComputedStyle(el);
+              return { tag: el.tagName, className: el.className, left: box.left, right: box.right,
+                width: box.width, fontSize: style.fontSize, minWidth: style.minWidth,
+                gridTemplateColumns: style.gridTemplateColumns };
+            })
+            .filter((el) => el.width > 0 && (el.right > innerWidth || el.left < 0))
+            .slice(0, 30),
+        }));
+        if (!reflow.fits) {
+          await testInfo.attach(`reflow-${path}-${width}-${theme}`, {
+            body: JSON.stringify(reflow), contentType: 'application/json',
+          });
+          console.info('REFLOW_OVERFLOW', JSON.stringify({ path, width, theme, ...reflow }));
+        }
+        expect(reflow.fits, path).toBeTruthy();
       }
     });

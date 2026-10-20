@@ -1,0 +1,136 @@
+# Модульные (unit) · 18.10.2026 14:27 Алматы · <сервер>
+# коммит 23d0ede (fix/owner-report-period-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T09-27-18Z-unit-3e6e.json' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/components/quick-report.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-pr599-reconcile
+
+ ❯ |unit| scripts/design/build-tokens.test.ts (15 tests | 1 failed) 128ms
+   ❯ tokens.css генерируется из design/tokens.json (4)
+     ✓ контрастная тема задаёт светлый фон даже внутри тёмной темы 3ms
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 1ms
+     ✓ design/contrast.md совпадает с расчётом 3ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 87ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 6ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 1ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 8ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 1ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 7ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 1ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 4ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+ ✓ |unit| apps/web/src/components/quick-report.test.ts (9 tests) 19ms
+ ❯ |unit| tests/unit/design-slop.test.ts (18 tests | 2 failed) 21ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (18)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 2ms
+     ✓ space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 3ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 0ms
+     × shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 8ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     ✓ dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 0ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     ✓ radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 0ms
+     × z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 2ms
+     ✓ font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a) 0ms
+     ✓ space-literal-not-var: отступ литералом вместо --space-*, даже на шкале (DESIGN.md §4.1, MV8.5 DS0a) 0ms
+     ✓ inline-style: style={…} в TSX: только геометрия из данных и только с `slop-allow: inline-style <причина>` (MV8.5 DS0a) 0ms
+     ✓ important: !important в CSS: каскад решают слои и порядок, исключение только с `slop-allow: important <причина>` (MV8.5 DS0b) 0ms
+     ✓ breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1) 0ms
+     ✓ layer-name: @layer вне договора reset, tokens, base, components, sections, utilities (DESIGN.md §20.6) 0ms
+     ✓ orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a) 0ms
+     ✓ снимок покрывает все правила 0ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 155ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 97ms
+     ✓ MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 56ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--space-3', '--text-base' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--space-3",
++   "--text-base",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:122:21
+    120|     ]);
+    121|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+    122|     expect(missing).toEqual([]);
+       |                     ^
+    123|   });
+    124| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/quick-report.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(543) } to deeply equal { …(543) }
+
+- Expected
++ Received
+
+@@ -336,10 +336,11 @@
+    "POST /bar/write-offs": "desk",
+    "POST /beauty/appointments": "desk",
+    "POST /beauty/appointments/:id/payments": "desk",
+    "POST /beauty/appointments/:id/refunds": "refunds",
+    "POST /beauty/appointments/:id/status": "desk",
++   "POST /beauty/customers": "desk",
+    "POST /beauty/employees": "property",
+    "POST /beauty/employees/:id/time-offs": "property",
+    "POST /beauty/services": "rates",
+    "POST /bot/booking-intents": "public",
+    "POST /bot/booking-intents/confirm": "public",
+
+ ❯ apps/api/src/auth/route-access.test.ts:676:20
+    674|       .map(([key]) => key);
+    675|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    676|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    677|   });
+    678|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  3 failed | 1 passed (4)
+      Tests  4 failed | 41 passed (45)
+   Start at  09:27:19
+   Duration  6.00s (transform 58%, import 37%, tests 5%)
+
+JSON report written to /tmp/pms-test-2026-10-18T09-27-18Z-unit-3e6e.json
+
+# код выхода 1 · 7 с

@@ -1,4 +1,4 @@
-# Модульные (unit) · 15.10.2026 18:12 Алматы · srv1719674
+# Модульные (unit) · 15.10.2026 18:12 Алматы · <сервер>
 # коммит 6dfe1f6 (fix/audit-reset-closed-folio), незакоммиченных файлов набора: 10
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T13-12-37Z-unit-3097.json' '--maxWorkers=2' '--testTimeout=15000'
 

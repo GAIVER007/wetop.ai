@@ -1,0 +1,596 @@
+# Сквозные (e2e) · 18.10.2026 11:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 27980e5 (claude/salon-blocks-edit), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/global-search-navigation.spec.ts' 'tests/ui/empty-base.spec.ts' 'tests/ui/team.spec.ts' 'tests/ui/guests-bookings.spec.ts' 'tests/ui/beauty-customers.spec.ts' 'tests/ui/beauty-journal.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 74 tests using 1 worker
+
+  ✘   1 tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE (47.2s)
+  ✘   2 tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано (47.7s)
+  ✓   3 tests/ui/beauty-customers.spec.ts:157:1 › клиенты на телефоне: без прокрутки вбок (34.2s)
+  ✘   4 tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме (47.8s)
+  ✘   5 tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме (19.3s)
+  ✘   6 tests/ui/beauty-journal.spec.ts:101:1 › запись из пустой клетки появляется в сетке и в списке дня (48.3s)
+  ✓   7 tests/ui/beauty-journal.spec.ts:117:1 › неделя показывает запись и открывает её карточку, телефон без прокрутки вбок (1.4m)
+  ✓   8 tests/ui/beauty-journal.spec.ts:158:1 › перенос мышью меняет время записи через существующий API (38.1s)
+  ✓   9 tests/ui/beauty-journal.spec.ts:176:1 › занятое время мастера не предлагается и отказ приходит словами (45.3s)
+  ✓  10 tests/ui/beauty-journal.spec.ts:189:1 › вне графика мастера клетки нерабочие (13.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓  11 tests/ui/beauty-journal.spec.ts:196:1 › состояния записи идут по жизни, из выполненной дороги нет (19.9s)
+  ✓  12 tests/ui/beauty-journal.spec.ts:220:1 › отмена спрашивает и освобождает время мастера (35.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓  13 tests/ui/beauty-journal.spec.ts:242:1 › перенос меняет время записи (31.1s)
+  ✓  14 tests/ui/beauty-journal.spec.ts:258:1 › журнал на телефоне: день списком, без прокрутки вбок (26.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓  15 tests/ui/beauty-journal.spec.ts:273:3 › журнал доступен в светлой теме (14.7s)
+  ✓  16 tests/ui/beauty-journal.spec.ts:273:3 › журнал доступен в тёмной теме (19.4s)
+  ✓  17 tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (36.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓  18 tests/ui/beauty-journal.spec.ts:339:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня (1.2m)
+  ✓  19 tests/ui/empty-base.spec.ts:40:3 › пустая база: /chessboard открывается и объясняет пустоту (24.0s)
+  ✓  20 tests/ui/empty-base.spec.ts:40:3 › пустая база: /reservations открывается и объясняет пустоту (13.9s)
+  ✓  21 tests/ui/empty-base.spec.ts:40:3 › пустая база: /guests открывается и объясняет пустоту (11.2s)
+  ✓  22 tests/ui/empty-base.spec.ts:40:3 › пустая база: /rooms открывается и объясняет пустоту (17.3s)
+  ✓  23 tests/ui/empty-base.spec.ts:40:3 › пустая база: /rooms/categories открывается и объясняет пустоту (6.1s)
+  ✓  24 tests/ui/empty-base.spec.ts:40:3 › пустая база: /rooms/availability открывается и объясняет пустоту (9.1s)
+  ✓  25 tests/ui/empty-base.spec.ts:40:3 › пустая база: /today открывается и объясняет пустоту (8.2s)
+  ✓  26 tests/ui/empty-base.spec.ts:40:3 › пустая база: /finance открывается и объясняет пустоту (27.7s)
+  ✓  27 tests/ui/empty-base.spec.ts:40:3 › пустая база: /management/analytics открывается и объясняет пустоту (33.6s)
+  ✓  28 tests/ui/empty-base.spec.ts:40:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту (19.1s)
+  ✓  29 tests/ui/empty-base.spec.ts:40:3 › пустая база: /journal открывается и объясняет пустоту (12.5s)
+  ✓  30 tests/ui/empty-base.spec.ts:40:3 › пустая база: /incidents открывается и объясняет пустоту (25.4s)
+  ✓  31 tests/ui/empty-base.spec.ts:40:3 › пустая база: /channels открывается и объясняет пустоту (25.7s)
+  ✓  32 tests/ui/empty-base.spec.ts:40:3 › пустая база: /connections открывается и объясняет пустоту (14.3s)
+  ✓  33 tests/ui/empty-base.spec.ts:40:3 › пустая база: /website открывается и объясняет пустоту (8.9s)
+  ✓  34 tests/ui/empty-base.spec.ts:40:3 › пустая база: /website/analytics открывается и объясняет пустоту (6.9s)
+  ✓  35 tests/ui/empty-base.spec.ts:40:3 › пустая база: /hotel-settings открывается и объясняет пустоту (10.9s)
+  ✓  36 tests/ui/empty-base.spec.ts:40:3 › пустая база: /channels/mapping открывается и объясняет пустоту (7.7s)
+  ✓  37 tests/ui/empty-base.spec.ts:50:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (8.0s)
+  ✓  38 tests/ui/empty-base.spec.ts:61:1 › пустая база: финансы и главная говорят про ноль словами, а не пустыми плитками (19.6s)
+  ✓  39 tests/ui/global-search-navigation.spec.ts:8:1 › поиск гостиницы предлагает гостиничные разделы и открывает календарь (7.5s)
+  ✓  40 tests/ui/global-search-navigation.spec.ts:25:1 › поиск не предлагает закрытый роли журнал (6.3s)
+  ✓  41 tests/ui/guests-bookings.spec.ts:25:1 › гости и бронирования: плитки, виды со счётчиками, одна строка на гостя, панель первого гостя (5.7s)
+  ✓  42 tests/ui/guests-bookings.spec.ts:90:1 › гости и бронирования: панель гостя: вкладки, бронь, оплата, история, закрытие и выбор строкой (16.6s)
+  ✓  43 tests/ui/guests-bookings.spec.ts:160:1 › гости и бронирования: отметки строк и нижняя полоса действий (7.2s)
+  ✘  44 tests/ui/guests-bookings.spec.ts:198:1 › гости и бронирования: поиск, статус, источник, переключатели и период живут в адресе (48.3s)
+  ✓  45 tests/ui/guests-bookings.spec.ts:264:1 › гости и бронирования: страницы и размер страницы (34.5s)
+  ✓  46 tests/ui/guests-bookings.spec.ts:283:1 › гости и бронирования: пустые состояния, пустая база, сбой API (29.6s)
+  ✘  47 tests/ui/guests-bookings.spec.ts:315:1 › гости и бронирования: одна вкладка меню, ссылка в классический список и новая бронь (49.6s)
+  ✘  48 tests/ui/guests-bookings.spec.ts:335:3 › гости и бронирования: доступность и ширина экрана, светлая тема (50.9s)
+  ✘  49 tests/ui/guests-bookings.spec.ts:335:3 › гости и бронирования: доступность и ширина экрана, тёмная тема (47.0s)
+  ✓  50 tests/ui/guests-bookings.spec.ts:374:3 › гости и бронирования: на 1366×768 таблица показывает несколько строк, а не одну (22.0s)
+  ✓  51 tests/ui/guests-bookings.spec.ts:374:3 › гости и бронирования: на 1280×800 таблица показывает несколько строк, а не одну (8.2s)
+  ✓  52 tests/ui/guests-bookings.spec.ts:374:3 › гости и бронирования: на 1280×900 таблица показывает несколько строк, а не одну (7.2s)
+  ✓  53 tests/ui/guests-bookings.spec.ts:374:3 › гости и бронирования: на 1440×1000 таблица показывает несколько строк, а не одну (45.0s)
+  ✘  54 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (50.2s)
+  ✓  55 tests/ui/team.spec.ts:49:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (23.2s)
+  ✓  56 tests/ui/team.spec.ts:66:1 › ошибка приглашения — словами в панели, ввод не стирается (23.4s)
+  ✓  57 tests/ui/team.spec.ts:78:1 › «Отключить» — только после подтверждения с последствием (44.9s)
+  ✘  58 tests/ui/team.spec.ts:90:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке (52.6s)
+  ✘  59 tests/ui/team.spec.ts:111:1 › неверный телефон: словами в панели, введённое не стирается (1.5m)
+  ✓  60 tests/ui/team.spec.ts:125:1 › управляющий: роль не меняет, приглашает только администраторов (7.4s)
+  ✓  61 tests/ui/team.spec.ts:141:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (3.5s)
+  ✓  62 tests/ui/team.spec.ts:152:1 › администратору раздел закрыт: гейт и меню без пункта (31.1s)
+  ✓  63 tests/ui/team.spec.ts:161:3 › снимки TEAM1 и доступность: light (24.1s)
+  ✓  64 tests/ui/team.spec.ts:161:3 › снимки TEAM1 и доступность: dark (29.6s)
+  ✓  65 tests/ui/team.spec.ts:200:1 › «Сотрудники и доступ»: сводка по команде и должность выбором из двух вариантов (15.3s)
+  ✘  66 tests/ui/team.spec.ts:218:1 › «Роли и права»: вкладка только на чтение, права трёх ролей по таблице API (55.9s)
+  ✘  67 tests/ui/team.spec.ts:245:1 › «Роли и права»: администратору закрыто (52.8s)
+  ✘  68 tests/ui/team.spec.ts:253:1 › приглашение: «Отправить заново» отзывает старое и шлёт новое на ту же почту с той же ролью (50.8s)
+  ✘  69 tests/ui/team.spec.ts:268:1 › приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием (48.7s)
+  ✓  70 tests/ui/team.spec.ts:289:1 › приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора (36.0s)
+  ✓  71 tests/ui/team.spec.ts:305:1 › область доступа сотрудника: «Доступ» → выбранные филиалы с ролью по месту → подпись в таблице; очистка (37.7s)
+  ✓  72 tests/ui/team.spec.ts:330:1 › область доступа: пустой выбор при «Выбранные филиалы» не отправляется, словами (28.3s)
+  ✓  73 tests/ui/team.spec.ts:343:1 › приглашение с именем, телефоном и филиалами: уходит с областью, видно в ожидающих (28.0s)
+  ✓  74 tests/ui/team.spec.ts:361:1 › управляющий: «Доступ» только администраторам, в списке ролей один вариант (16.2s)
+
+
+  1) tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Журнал"
+    Received: ""
+
+
+      80 | async function openDay(page: Page) {
+      81 |   await page.goto(`/beauty?date=${DAY}`);
+    > 82 |   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Журнал');
+         |                                                                           ^
+      83 | }
+      84 |
+      85 | async function book(page: Page, time: string, name: string, existing = false) {
+        at openDay (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:82:75)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:109:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:120:3
+
+    Error Context: test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Журнал"
+    Received: ""
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      80 | async function openDay(page: Page) {
+      81 |   await page.goto(`/beauty?date=${DAY}`);
+    > 82 |   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Журнал');
+         |                                                                           ^
+      83 | }
+      84 |
+      85 | async function book(page: Page, time: string, name: string, existing = false) {
+        at openDay (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:82:75)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:109:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:138:3
+
+    Error Context: test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме ─────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('button', { name: 'Записать', exact: true })
+        - locator resolved to <button class="btn" type="submit">Записать</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      89 |   if (existing) await panel.getByLabel('Клиент', { exact: true }).selectOption({ label: name });
+      90 |   else await panel.getByLabel('Имя клиента').fill(name);
+    > 91 |   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
+         |                                                                      ^
+      92 |   await expect(page.getByRole('dialog')).toHaveCount(0);
+      93 | }
+      94 |
+        at book (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:91:70)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:113:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:170:5
+
+    Error Context: test-results/beauty-customers-клиенты-доступны-в-светлой-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-доступны-в-светлой-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-доступны-в-светлой-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме ──────────────────────
+
+    Error: locator.check: Clicking the checkbox did not change its state
+    Call log:
+      - waiting for getByRole('dialog').getByRole('checkbox', { name: 'Маникюр' })
+        - locator resolved to <input type="checkbox" name="serviceIds" value="svc-1-0000-4000-8000-000000000000"/>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - performing click action
+        - click action done
+        - waiting for scheduled navigations to finish
+        - navigations have finished
+
+
+      61 |   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
+      62 |   await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
+    > 63 |   await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
+         |                                                          ^
+      64 |   await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+      65 |   await expect(panel.getByRole('status')).toContainText('Услуги назначены');
+      66 |   await page.goto('/beauty/schedule');
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:63:58)
+        at seededCustomers (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:105:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-customers.spec.ts:170:5
+
+    Error Context: test-results/beauty-customers-клиенты-доступны-в-тёмной-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-доступны-в-тёмной-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-доступны-в-тёмной-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/beauty-journal.spec.ts:101:1 › запись из пустой клетки появляется в сетке и в списке дня 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Добавить услугу', exact: true })
+        - locator resolved to <button class="btn" type="button">Добавить услугу</button>
+
+
+      41 |   await page.goto('/beauty/services');
+      42 |   const main = page.getByRole('main');
+    > 43 |   await main.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+         |                                                                            ^
+      44 |   let panel = page.getByRole('dialog');
+      45 |   await panel.getByLabel('Название').fill('Маникюр');
+      46 |   await panel.getByLabel(/Длительность, минут/).fill('60');
+        at readySalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-journal.spec.ts:43:76)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-journal.spec.ts:102:3
+
+    Error Context: test-results/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-запись-из-п-e10ea-ется-в-сетке-и-в-списке-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/guests-bookings.spec.ts:198:1 › гости и бронирования: поиск, статус, источник, переключатели и период живут в адресе 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/guests$/
+    Received string:  "http://127.0.0.1:3158/guests?view=attention&debt=1&size=25"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        8 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+          - unexpected value "http://127.0.0.1:3158/guests?view=attention&debt=1&size=25"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      241 |   await expect(rows.filter({ hasText: 'Задолжавший' })).toHaveCount(1);
+      242 |   await main.getByRole('link', { name: 'Сбросить фильтры' }).first().click();
+    > 243 |   await expect(page).toHaveURL(/\/guests$/);
+          |                      ^
+      244 |   // по умолчанию на странице десять гостей из тринадцати
+      245 |   await expect(rows).toHaveCount(10);
+      246 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/guests-bookings.spec.ts:243:22
+
+    Error Context: test-results/guests-bookings-гости-и-бр-58d65-ели-и-период-живут-в-адресе/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-bookings-гости-и-бр-58d65-ели-и-период-живут-в-адресе/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-bookings-гости-и-бр-58d65-ели-и-период-живут-в-адресе/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/guests-bookings.spec.ts:315:1 › гости и бронирования: одна вкладка меню, ссылка в классический список и новая бронь 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/new/
+    Received string:  "http://127.0.0.1:3158/guests"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        19 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+           - unexpected value "http://127.0.0.1:3158/guests"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      329 |   await page.goto('/guests');
+      330 |   await page.getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true }).first().click();
+    > 331 |   await expect(page).toHaveURL(/\/reservations\/new/);
+          |                      ^
+      332 | });
+      333 |
+      334 | for (const scheme of ['light', 'dark'] as const) {
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/guests-bookings.spec.ts:331:22
+
+    Error Context: test-results/guests-bookings-гости-и-бр-c2f1c-ческий-список-и-новая-бронь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-bookings-гости-и-бр-c2f1c-ческий-список-и-новая-бронь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-bookings-гости-и-бр-c2f1c-ческий-список-и-новая-бронь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/guests-bookings.spec.ts:335:3 › гости и бронирования: доступность и ширина экрана, светлая тема 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3158/guests", waiting until "load"
+
+
+      345 |     ] as const) {
+      346 |       await page.setViewportSize({ width, height });
+    > 347 |       await page.goto('/guests');
+          |                  ^
+      348 |       await expect(page.getByRole('main').getByTestId('guests-table')).toBeVisible();
+      349 |       // страница не уезжает вбок: на телефоне лишние колонки скрыты, строка остаётся читаемой
+      350 |       const overflow = await page.evaluate(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/guests-bookings.spec.ts:347:18
+
+    Error Context: test-results/guests-bookings-гости-и-бр-7bd04--ширина-экрана-светлая-тема/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-bookings-гости-и-бр-7bd04--ширина-экрана-светлая-тема/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-bookings-гости-и-бр-7bd04--ширина-экрана-светлая-тема/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/guests-bookings.spec.ts:335:3 › гости и бронирования: доступность и ширина экрана, тёмная тема 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 45000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      352 |       );
+      353 |       expect(overflow, `ширина ${width}`).toBeLessThanOrEqual(1);
+    > 354 |       const audit = await new AxeBuilder({ page })
+          |                     ^
+      355 |         .include('main')
+      356 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      357 |         .analyze();
+        at AxeBuilder.analyze (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/node_modules/@axe-core/playwright/dist/index.mjs:218:13)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/guests-bookings.spec.ts:354:21
+
+    Error Context: test-results/guests-bookings-гости-и-бр-61523-и-ширина-экрана-тёмная-тема/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-bookings-гости-и-бр-61523-и-ширина-экрана-тёмная-тема/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-bookings-гости-и-бр-61523-и-ширина-экрана-тёмная-тема/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3158/team", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/fixtures.ts:166:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/team.spec.ts:32:3
+
+    Error Context: test-results/team-владелец-таблица-люде-70662-и-пункт-«Сотрудники»-в-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-владелец-таблица-люде-70662-и-пункт-«Сотрудники»-в-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-владелец-таблица-люде-70662-и-пункт-«Сотрудники»-в-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/team.spec.ts:90:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      22 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      23 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 24 |   await page.waitForURL('**/today');
+         |              ^
+      25 | }
+      26 |
+      27 | const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF') =>
+        at signIn (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/team.spec.ts:24:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/team.spec.ts:93:3
+
+    Error Context: test-results/team-телефон-и-должность-T-c8ca0-е-сохранения-видны-в-строке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-телефон-и-должность-T-c8ca0-е-сохранения-видны-в-строке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-телефон-и-должность-T-c8ca0-е-сохранения-видны-в-строке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/team.spec.ts:111:1 › неверный телефон: словами в панели, введённое не стирается ─────
+
+    Test timeout of 45000ms exceeded.
+
+    Tearing down "context" exceeded the test timeout of 45000ms.
+
+    Error Context: test-results/team-неверный-телефон-слов-9c678-нели-введённое-не-стирается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-неверный-телефон-слов-9c678-нели-введённое-не-стирается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-неверный-телефон-слов-9c678-нели-введённое-не-стирается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/team.spec.ts:218:1 › «Роли и права»: вкладка только на чтение, права трёх ролей по таблице API 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Target page, context or browser has been closed
+
+      224 |     .getByRole('navigation', { name: 'Сотрудники и контроль' })
+      225 |     .getByRole('link', { name: 'Роли и права' })
+    > 226 |     .click();
+          |      ^
+      227 |   await expect(page).toHaveURL(/\/team\/roles$/);
+      228 |   const main = page.getByRole('main');
+      229 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/team.spec.ts:226:6
+
+    Error Context: test-results/team-«Роли-и-права»-вкладк-f95e2-а-трёх-ролей-по-таблице-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-«Роли-и-права»-вкладк-f95e2-а-трёх-ролей-по-таблице-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-«Роли-и-права»-вкладк-f95e2-а-трёх-ролей-по-таблице-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/team.spec.ts:245:1 › «Роли и права»: администратору закрыто ─────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3158/team/roles", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/fixtures.ts:166:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/team.spec.ts:248:3
+
+    Error Context: test-results/team-«Роли-и-права»-администратору-закрыто/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-«Роли-и-права»-администратору-закрыто/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-«Роли-и-права»-администратору-закрыто/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/team.spec.ts:253:1 › приглашение: «Отправить заново» отзывает старое и шлёт новое на ту же почту с той же ролью 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/team-приглашение-«Отправит-66d3d--ту-же-почту-с-той-же-ролью/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-приглашение-«Отправит-66d3d--ту-же-почту-с-той-же-ролью/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-приглашение-«Отправит-66d3d--ту-же-почту-с-той-же-ролью/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/team.spec.ts:268:1 › приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      22 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      23 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 24 |   await page.waitForURL('**/today');
+         |              ^
+      25 | }
+      26 |
+      27 | const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF') =>
+        at signIn (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/team.spec.ts:24:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/team.spec.ts:271:3
+
+    Error Context: test-results/team-приостановка-доступа--ff541-зобновление-одним-действием/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-приостановка-доступа--ff541-зобновление-одним-действием/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-приостановка-доступа--ff541-зобновление-одним-действием/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/ui/empty-base.spec.ts (5.2m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  16 failed
+    tests/ui/beauty-customers.spec.ts:116:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE 
+    tests/ui/beauty-customers.spec.ts:134:1 › поиск и сегмент отбирают строки, итог говорит сколько показано 
+    tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в светлой теме ──────────────────────
+    tests/ui/beauty-customers.spec.ts:166:3 › клиенты доступны в тёмной теме ───────────────────────
+    tests/ui/beauty-journal.spec.ts:101:1 › запись из пустой клетки появляется в сетке и в списке дня 
+    tests/ui/guests-bookings.spec.ts:198:1 › гости и бронирования: поиск, статус, источник, переключатели и период живут в адресе 
+    tests/ui/guests-bookings.spec.ts:315:1 › гости и бронирования: одна вкладка меню, ссылка в классический список и новая бронь 
+    tests/ui/guests-bookings.spec.ts:335:3 › гости и бронирования: доступность и ширина экрана, светлая тема 
+    tests/ui/guests-bookings.spec.ts:335:3 › гости и бронирования: доступность и ширина экрана, тёмная тема 
+    tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню 
+    tests/ui/team.spec.ts:90:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке 
+    tests/ui/team.spec.ts:111:1 › неверный телефон: словами в панели, введённое не стирается ───────
+    tests/ui/team.spec.ts:218:1 › «Роли и права»: вкладка только на чтение, права трёх ролей по таблице API 
+    tests/ui/team.spec.ts:245:1 › «Роли и права»: администратору закрыто ───────────────────────────
+    tests/ui/team.spec.ts:253:1 › приглашение: «Отправить заново» отзывает старое и шлёт новое на ту же почту с той же ролью 
+    tests/ui/team.spec.ts:268:1 › приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием 
+  58 passed (39.5m)
+
+# код выхода 1 · 39 мин 34 с

@@ -3,9 +3,10 @@
 #
 # Проверено на сервере 13.09.2026: Traefik работает в сети хоста (network_mode: host), docker-провайдер с
 # exposedbydefault=false, точка входа https — `websecure`, сертификаты — резолвер `letsencrypt`; любое имя
-# *.srv1719674.hstgr.cloud указывает на сервер. Поэтому своей сети Traefik не нужно: он достаёт контейнер по его IP.
+# *.<имя сервера> указывает на сервер. Поэтому своей сети Traefik не нужно: он достаёт контейнер по его IP.
 #
-# Секреты — в файле .env рядом (вписывает владелец): WATCH_SECRET, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID.
+# Секреты — в файле .env рядом (вписывает владелец): WATCH_SECRET, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, а также WATCH_HOST
+# (имя сторожа на сервере; в открытый репозиторий не пишем, 19.10.2026).
 name: pms-lux-watch
 services:
   watch:
@@ -17,7 +18,7 @@ services:
     mem_limit: 128m
     labels:
       - traefik.enable=true
-      - traefik.http.routers.pms-lux-watch.rule=Host(`pms-watch.srv1719674.hstgr.cloud`)
+      - traefik.http.routers.pms-lux-watch.rule=Host(`${WATCH_HOST:?впишите WATCH_HOST в .env}`)
       - traefik.http.routers.pms-lux-watch.entrypoints=websecure
       - traefik.http.routers.pms-lux-watch.tls.certresolver=letsencrypt
       - traefik.http.services.pms-lux-watch.loadbalancer.server.port=8080

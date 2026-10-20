@@ -1,9 +1,10 @@
 'use client';
-import { useState, useTransition, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import type { EmployeePortalDto, PortalWeekDay } from '@pms/domain';
 import { loadPortalWeek, savePortal } from '../../app/my-work/actions';
 import { Alert, Button, Input } from '../ui';
 import { useConfirm } from '../use-confirm';
+import { employeeFormSignature } from '../employee-workspace/workspace';
 export type PortalContext = {
   target: { employeeId: string | null }; scope: string; onSaved: (data: EmployeePortalDto) => void;
 };
@@ -18,26 +19,74 @@ export function PortalForm({ context, command, children, label = 'Сохрани
   const [expectedRevision, setRevision] = useState(revision ?? '');
   const [expectedProfileRevision, setProfileRevision] = useState(profileRevision ?? '');
   const [dirty, setDirty] = useState(false);
-  // Week inputs have their own controlled draft. Never rebase its version onto unseen remote hours.
-  const formRevision = dirty || command === 'week' ? expectedRevision : (revision ?? expectedRevision);
-  return <><form data-testid={testId ?? `portal-${command}-form`} className="portal-form"
+  const [rebaseline, setRebaseline] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    const form = formRef.current;
+    if (!rebaseline || !form) return;
+    form.dispatchEvent(new CustomEvent('employee-save-result', {
+      bubbles: true,
+      detail: { success: true, snapshot: employeeFormSignature(form) },
+    }));
+  }, [rebaseline]);
+  const alive = useRef(true);
+  const requestVersion = useRef(0);
+  useEffect(() => {
+    alive.current = true;
+    const invalidate = () => {
+      requestVersion.current++;
+    };
+    window.addEventListener('wetop-scope-switch', invalidate);
+    return () => {
+      alive.current = false;
+      requestVersion.current++;
+      window.removeEventListener('wetop-scope-switch', invalidate);
+    };
+  }, [context.scope]);
+  // An untouched form follows the latest version; PortalWeek passes a newer one only when its hours match the server.
+  const formRevision = dirty ? expectedRevision : (revision ?? expectedRevision);
+  return <><form ref={formRef} data-testid={testId ?? `portal-${command}-form`} className="portal-form" data-employee-transition-form
     onReset={event => event.preventDefault()}
     onChange={() => {
-      if (!dirty && command !== 'week') setRevision(revision ?? expectedRevision);
+      if (!dirty) setRevision(revision ?? expectedRevision);
       setDirty(true); setSaved(false);
     }}
     onSubmit={event => {
       event.preventDefault();
-      const form = new FormData(event.currentTarget);
+      const element = event.currentTarget;
+      const snapshot = employeeFormSignature(element);
+      const form = new FormData(element);
+      const version = ++requestVersion.current;
       setSaved(false); setError('');
       start(async () => {
-        const result = await savePortal(context.target, context.scope, command, form);
-        if (result.error) setError(result.error);
-        else if (result.data) {
+        try {
+          const result = await savePortal(context.target, context.scope, command, form);
+          if (!alive.current || version !== requestVersion.current) return;
+          if (result.error || !result.data) {
+            setError(result.error || 'Не удалось подтвердить сохранение. Повторите попытку.');
+            element.dispatchEvent(new CustomEvent('employee-save-result', {
+              bubbles: true,
+              detail: { success: false },
+            }));
+            return;
+          }
+          element.dispatchEvent(new CustomEvent('employee-save-result', {
+            bubbles: true,
+            detail: { success: true, snapshot },
+          }));
+          // Upload forms create a new item: the remounted fieldset comes back empty, so re-baseline after that render.
+          if (element.querySelector('input[type="file"]')) setRebaseline(n => n + 1);
           context.onSaved(result.data); setSaved(true); setDirty(false);
           if (command === 'profile') setProfileRevision(result.data.employee.profileRevision);
           const next = command === 'services' ? result.data.servicesRevision : command === 'week' ? result.data.weekRevision : command === 'pay-policy' ? result.data.pay.policyRevision : result.data.profile.revision;
           setRevision(next ?? '');
+        } catch {
+          if (!alive.current || version !== requestVersion.current) return;
+          setError('Не удалось подтвердить сохранение. Ваш ввод сохранён в форме. Повторите попытку.');
+          element.dispatchEvent(new CustomEvent('employee-save-result', {
+            bubbles: true,
+            detail: { success: false },
+          }));
         }
       });
     }}>
@@ -68,14 +117,23 @@ export function PortalWeekView({ week }: { week: PortalWeekDay[] }) {
   return <div data-testid="portal-week-view"><p className="portal-week-help">График меняет руководитель. Нет часов: выходной.</p>
     <ul className="portal-list">{[1, 2, 3, 4, 5, 6, 0].map(weekday => <li key={weekday}><strong>{DAYS[weekday]}</strong><span>{week.find(d => d.weekday === weekday)?.intervals.map(i => `${i.timeFrom}–${i.timeTo}`).join(', ') || 'Выходной'}</span></li>)}</ul></div>;
 }
+const weekDays = (week: PortalWeekDay[]) => [1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] }));
 export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[]; revision: string | null; context: PortalContext }) {
-  const [days, setDays] = useState(() => [1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] })));
+  const [days, setDays] = useState(() => weekDays(week));
   const [originalRevision, setOriginalRevision] = useState(revision);
+  // The week version also moves when the profile is saved. When new server data arrives and the hours on screen still
+  // equal the server's, the draft takes the new version; edited hours keep theirs and get a conflict, not a lost update.
+  const [base, setBase] = useState(revision);
+  const hours = useRef(days);
+  hours.current = days;
+  useEffect(() => {
+    if (JSON.stringify(weekDays(week)) === JSON.stringify(hours.current)) setBase(revision);
+  }, [revision, week]);
   const [comparison, setComparison] = useState<EmployeePortalDto | null>(null);
   const [readError, setReadError] = useState('');
   const [reading, reread] = useTransition();
   const intervals = days.flatMap(day => day.intervals.map(slot => ({ weekday: day.weekday, ...slot })));
-  return <><PortalForm key={originalRevision} context={context} command="week" revision={originalRevision} label="Сохранить график">
+  return <><PortalForm key={originalRevision} context={context} command="week" revision={base} label="Сохранить график">
     <p className="portal-week-help">Рабочие часы по дням. Нет интервалов: выходной.</p>
     <input type="hidden" name="intervals" value={JSON.stringify(intervals)} />
     {days.map(day => <div className="portal-week-row" key={day.weekday} role="group" aria-label={DAYS[day.weekday]}>
@@ -102,8 +160,8 @@ export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[];
       <ul>{comparison.week.map(day => <li key={day.weekday}>{DAYS[day.weekday]}: {day.intervals.map(i => `${i.timeFrom} до ${i.timeTo}`).join(', ') || 'Выходной'}</li>)}</ul>
       <p>Ваш ввод остаётся в форме. Принятие сохранённого графика заменит черновик.</p>
       <Button type="button" tone="secondary" onClick={() => {
-        setDays([1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: comparison.week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] })));
-        setOriginalRevision(comparison.weekRevision); setComparison(null);
+        setDays(weekDays(comparison.week));
+        setOriginalRevision(comparison.weekRevision); setBase(comparison.weekRevision); setComparison(null);
       }}>Принять сохранённый график</Button>
     </section>}
   </>;

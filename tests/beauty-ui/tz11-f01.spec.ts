@@ -1,3 +1,4 @@
+import { chooseCalendarEmployee } from './calendar-employee';
 import { test, expect } from '../ui/fixtures';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import pg from 'pg';
@@ -51,11 +52,10 @@ for (const width of [1440, 390]) for (const theme of ['light', 'dark'] as const)
       await page.screenshot({ path: `${evidence}/screenshots/f01-filtered-${width}-${theme}.png`, fullPage: true });
       await page.getByLabel('Услуга', { exact: true }).selectOption('');
       await page.getByLabel('Статус записи', { exact: true }).selectOption('');
-      await page.getByLabel('Мастер', { exact: true }).selectOption(f.employees[1].id);
-      if (width === 390) await expect(page.getByLabel('Мастер календаря')).toHaveValue(f.employees[1].id);
+      await chooseCalendarEmployee(page, 'Тест Борис');
+      if (width === 390) await expect(page.locator('.employee-filter summary')).toContainText('Тест Борис');
       await expect(board.getByRole('button', { name: 'Тест Борис, 10:00, свободно', exact: true })).toHaveCount(0);
-      await page.getByLabel('Мастер', { exact: true }).selectOption(f.employees[0].id);
-      if (width === 390) await page.getByLabel('Мастер календаря').selectOption(f.employees[0].id);
+      await chooseCalendarEmployee(page, 'Тест Анна');
       await board.locator('.beauty-tile').filter({ hasText: 'Тест клиент' }).click();
       await expect(page.getByRole('dialog', { name: 'Запись', exact: true })).toBeVisible();
       await page.getByRole('button', { name: 'Закрыть: Запись', exact: true }).click();

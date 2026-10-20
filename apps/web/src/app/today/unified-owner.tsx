@@ -1,3 +1,4 @@
+import { financePeriodHref } from '../../lib/finance-period';
 import type { OwnerSummaryDto, Workload } from '../../lib/owner-summary';
 import { formatOwnerMoney, ownerReason } from '../../lib/owner-summary';
 import './unified-owner.css';
@@ -82,7 +83,10 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
       : s.scope.vertical === 'FOOD_SERVICE'
         ? '/floor-plan'
         : '/chessboard';
-  const finance = s.scope.vertical === 'FOOD_SERVICE' ? '/restaurant-finance' : '/finance';
+  const finance = financePeriodHref(
+    s.scope.vertical === 'FOOD_SERVICE' ? '/restaurant-finance' : '/finance',
+    { from: s.period.fromDate, to: s.period.toDate },
+  );
   return (
     <main id="main-content" className="owner-home" tabIndex={-1}>
       <header className="owner-heading">

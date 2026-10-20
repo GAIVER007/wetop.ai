@@ -1,0 +1,96 @@
+# Интеграционные (integration) · 19.10.2026 15:55 Алматы · <сервер>
+# коммит d3a65f6 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T10-55-20Z-integration-dfaa.json' 'tests/integration/beauty-appointment-lines.test.ts' '-t' 'техкарту по revision'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:1003762) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/beauty-appointment-lines.test.ts (28 tests | 1 failed | 27 skipped) 1922ms
+   ❯ Beauty: строки услуг записи и совместимость старых writers (28)
+     ↓ equal-total edits preserve complete immutable previous and next service-line snapshots
+     ↓ создаёт две последовательные строки, сумму визита и сегменты календаря по каждому мастеру
+     ↓ читает период одним срезом филиала, включая пересечение границы в его часовом поясе
+     ↓ RLS скрывает строки услуг и цены мастера другой организации
+     ↓ кабинет второго мастера показывает только его строку, цену и интервал
+     ↓ проверяет занятость каждого сегмента, но разрешает ту же услугу другому мастеру
+     ↓ не принимает мастера или услугу другого бизнеса внутри строки
+     ↓ гонка двух созданий одного слота оставляет ровно одну строку
+     ↓ старый INSERT и UPDATE поддерживают одну строку, а поля строк многострочного визита меняются только через API
+     ↓ legacy перенос первой строки сохраняет остальные строки и все снимки цены
+     ↓ не даёт администратору сбросить скидку и ручную длительность заменой items без права rates
+     ↓ перечитывает цену услуги после получения транзакционных замков
+     ↓ не создаёт новую строку после архивации мастера между планом и транзакцией
+     ↓ legacy writer не создаёт новую строку для архивного мастера или услуги
+     ↓ явно отклоняет перенос старой записи в валюте, отличной от текущей валюты филиала
+     ↓ отмена освобождает интервалы, но реактивация не создаёт пересечение
+     ↓ гонка двух правок принимает одну и отклоняет zero-row optimistic update
+     ↓ переиспользует канонический телефон без перезаписи имени и не восстанавливает архивную карточку
+     ↓ задаёт цену мастера в валюте филиала и отдаёт effective price форме записи
+     ↓ хранит один отзыв мастеру за DONE-визит и показывает только отзывы выбранного мастера
+     ↓ выдаёт ссылку на 30 дней от первого DONE, не хранит raw token и ротирует только неотправленную ссылку
+     ↓ отклоняет истёкший DONE и атомарно принимает выбранных мастеров только один раз
+     × сохраняет техкарту по revision, считает FIFO и списывает материалы только при первом DONE 803ms
+     ↓ new bookings respect salon breaks while existing visits remain unchanged
+     ↓ salon hours configuration rejects lost updates, checks rights and reports existing conflicts
+     ↓ salon hours RLS hides another organization and the rollback refuses saved configuration
+     ↓ authorized salon hours writes work through the real restricted application role
+     ↓ authorized private review links work through the real restricted application role
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-appointment-lines.test.ts > Beauty: строки услуг записи и совместимость старых writers > сохраняет техкарту по revision, считает FIFO и списывает материалы только при первом DONE
+AssertionError: expected { status: 'DONE' } to deeply equal { status: 'DONE', materials: [ …(2) ] }
+
+- Expected
++ Received
+
+  {
+-   "materials": [
+-     {
+-       "appointmentLineId": "575e1087-c636-4277-a9d2-fe8f9956dfdc",
+-       "items": [
+-         {
+-           "normQty": "2.000",
+-           "productId": "a5bdb7ab-7849-4c25-b694-aa0c807c8707",
+-           "unit": "г",
+-         },
+-       ],
+-       "recipeRevision": 1,
+-       "serviceId": "6f94c187-263d-4edd-9501-823c16462728",
+-     },
+-     {
+-       "appointmentLineId": "bc52f2cc-c9a9-4741-b942-25a1e5d0f09c",
+-       "items": [
+-         {
+-           "normQty": "2.000",
+-           "productId": "a5bdb7ab-7849-4c25-b694-aa0c807c8707",
+-           "unit": "г",
+-         },
+-       ],
+-       "recipeRevision": 1,
+-       "serviceId": "6f94c187-263d-4edd-9501-823c16462728",
+-     },
+-   ],
+    "status": "DONE",
+  }
+
+ ❯ tests/integration/beauty-appointment-lines.test.ts:1243:29
+    1241|     });
+    1242|     const orderedLines = [...consumedLines].sort((a, b) => a.position …
+    1243|     expect(doneAudit.after).toEqual({
+       |                             ^
+    1244|       status: 'DONE',
+    1245|       materials: orderedLines.map((line) => ({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 skipped (28)
+   Start at  10:55:24
+   Duration  11.00s (transform 46%, tests 28%, import 26%)
+
+JSON report written to /tmp/pms-test-2026-10-19T10-55-20Z-integration-dfaa.json
+
+# код выхода 1 · 15 с

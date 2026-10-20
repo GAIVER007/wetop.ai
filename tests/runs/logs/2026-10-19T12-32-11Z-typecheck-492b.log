@@ -1,0 +1,7 @@
+# Типы (typecheck) · 19.10.2026 17:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит e072a4e (claude/salon-cash-rights), незакоммиченных файлов набора: 2
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+apps/web/src/app/finance/export-appointments/route.ts(39,13): error TS2322: Type 'BeautyDay | { location: { id: string; name: string | null; timezone: string; currency: string; }; date: string; columns: never[]; appointments: never[]; }' is not assignable to type 'BeautyDay'.
+  Type '{ location: { id: string; name: string | null; timezone: string; currency: string; }; date: string; columns: never[]; appointments: never[]; }' is missing the following properties from type 'BeautyDay': services, bounds
+
+# код выхода 1 · 1 мин 35 с

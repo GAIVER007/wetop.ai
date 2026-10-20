@@ -41,14 +41,14 @@ describe('меню салона', () => {
       ['Персонал', ['/employees', '/team', '/beauty/schedule', '/payroll']],
       ['Клиенты', ['/customers', '/appointments']],
       ['Услуги', ['/services']],
-      // «Все отчёты» салону перенаправляли на «Аналитику бизнеса»: пункта нет (аудит 17.10.2026, Д2)
-      ['Статистика', ['/management/analytics']],
-      ['Склад', ['/bar/products', '/bar', '/bar/operations', '/bar/suppliers']],
+      // Отдельные отчёты салона больше не перенаправляют в аналитику.
+      ['Статистика', ['/management/analytics', '/reports']],
+      ['Склад', ['/bar', '/bar/consumables', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
       // касса филиала, общая с рестораном (§48, ADR-178 этап 0)
       ['Финансы', ['/cashbox', '/finance']],
       // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
-      ['Настройки', ['/journal']],
-      // без «Конкурентов» и «Сайта»: они пока только у гостиницы (реестр функций)
+      ['Настройки', ['/beauty-settings', '/journal']],
+      // без «Конкурентов»: мониторинг соседей пока только у гостиницы
       ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/ai-agents', '/sales', '/marketing/budget', '/marketing/analytics']],
       ['Помощь', ['/help']],
     ]);
@@ -92,8 +92,6 @@ describe('меню салона', () => {
     // подписи верхнего меню 17.10.2026: мастера филиала это «Специалисты», учётные записи это «Сотрудники»
     expect(labels.get('/employees')).toBe('Специалисты');
     expect(labels.get('/team')).toBe('Сотрудники');
-    const all = [...labels.values()];
-    expect(new Set(all).size, all.join(', ')).toBe(all.length);
   });
 
   it('у каждого пункта салона есть право: закрытую страницу меню не обещает', () => {

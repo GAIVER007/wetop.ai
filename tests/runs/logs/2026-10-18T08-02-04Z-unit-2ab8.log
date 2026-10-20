@@ -1,0 +1,281 @@
+# Модульные (unit) · 18.10.2026 13:02 Алматы · <сервер>
+# коммит fb0e786 (fix/owner-report-period-20261018), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T08-02-04Z-unit-2ab8.json' 'apps/web/src/app/today/unified-owner.test.ts' 'apps/web/src/app/finance/period-continuity.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-pr599-reconcile
+
+ ❯ |unit| apps/web/src/app/today/unified-owner.test.ts (24 tests | 9 failed) 128ms
+   ❯ unified owner actual DTO (24)
+     × preserves API dates in every finance link: BEAUTY/today 38ms
+     × preserves API dates in every finance link: BEAUTY/week 5ms
+     × preserves API dates in every finance link: BEAUTY/month 5ms
+     × preserves API dates in every finance link: FOOD_SERVICE/today 8ms
+     × preserves API dates in every finance link: FOOD_SERVICE/week 6ms
+     × preserves API dates in every finance link: FOOD_SERVICE/month 4ms
+     × preserves API dates in every finance link: HOSPITALITY/today 4ms
+     × preserves API dates in every finance link: HOSPITALITY/week 4ms
+     × preserves API dates in every finance link: HOSPITALITY/month 5ms
+     ✓ provides the skip-link main landmark in supported and unsupported views 3ms
+     ✓ explains missing money without exposing a raw reason code or invented totals 3ms
+     ✓ passes actual previous daily money to the always-open chart 7ms
+     ✓ shows category bars only for a complete reconciled currency breakdown 6ms
+     ✓ renders linked category names safely and minute units without claiming disconnected 4ms
+     ✓ today 5ms
+     ✓ week 3ms
+     ✓ month 4ms
+     ✓ renders exact signed comparable money and basis point rate, never previous workload 3ms
+     ✓ formats big minor units without float loss 0ms
+     ✓ normalizes query, not rolling 30 days 0ms
+     ✓ unknown vertical is explicit unsupported 0ms
+     ✓ keeps room and bed separate without invented percent 3ms
+     ✓ keeps the approved home free of developer diagnostics and extra pseudo-tasks 3ms
+     ✓ ведёт к рабочему дню: экраны дня живут на /today/operations (аудит 17.10.2026, Д6) 3ms
+ ❯ |unit| apps/web/src/app/finance/period-continuity.test.ts (10 tests | 9 failed) 30ms
+   ❯ finance route keeps date context (2)
+     × passes the raw date parameters to BEAUTY before hospitality queries 8ms
+     × preserves dates in FOOD_SERVICE redirect without copying unrelated query values 3ms
+   ❯ BEAUTY finance uses requested days instead of hardcoded week (8)
+     × today fetches exactly the requested inclusive window 6ms
+     ✓ week fetches exactly the requested inclusive window 1ms
+     × month fetches exactly the requested inclusive window 1ms
+     × historical fetches exactly the requested inclusive window 2ms
+     × does not silently fall back to seven days for a reversed window 1ms
+     × does not turn a failed selected day into zero money 1ms
+     × keeps no-query week based on API local today, not machine UTC date 3ms
+     × bounds concurrent day requests 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > finance route keeps date context > passes the raw date parameters to BEAUTY before hospitality queries
+AssertionError: expected undefined to deeply equal { Object (from, to) }
+
+- Expected:
+{
+  "from": "2026-10-01",
+  "to": "2026-10-18",
+}
+
++ Received:
+undefined
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:37:42
+     35|     const params = { from: '2026-10-01', to: '2026-10-18' };
+     36|     const screen = await FinanceReportPage({ searchParams: Promise.res…
+     37|     expect(asProps(screen).searchParams).toEqual(params);
+       |                                          ^
+     38|     expect(mockDay).not.toHaveBeenCalled();
+     39|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > finance route keeps date context > preserves dates in FOOD_SERVICE redirect without copying unrelated query values
+AssertionError: expected [Function] to throw error including 'REDIRECT:/restaurant-finance?from=202…' but got 'REDIRECT:/restaurant-finance'
+
+Expected: "REDIRECT:/restaurant-finance?from=2026-10-01&to=2026-10-18"
+Received: "REDIRECT:/restaurant-finance"
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:42:131
+     40|   it('preserves dates in FOOD_SERVICE redirect without copying unrelat…
+     41|     vi.mocked(requireFeature).mockResolvedValue({ context: { vertical:…
+     42|     await expect(FinanceReportPage({ searchParams: Promise.resolve({ f…
+       |                                                                                                                                   ^
+     43|       .rejects.toThrow('REDIRECT:/restaurant-finance?from=2026-10-01&t…
+     44|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > today fetches exactly the requested inclusive window
+AssertionError: expected [ '2026-10-17', '2026-10-16', …(4) ] to have a length of +0 but got 6
+
+- Expected
++ Received
+
+- 0
++ 6
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:58:59
+     56|     const selected = dates.filter((date) => date >= from && date <= to…
+     57|     expect(new Set(selected).size).toBe(count);
+     58|     expect(dates.filter((date) => date !== '2026-10-18')).toHaveLength…
+       |                                                           ^
+     59|   });
+     60|   it('does not silently fall back to seven days for a reversed window'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > month fetches exactly the requested inclusive window
+AssertionError: expected 7 to be 18 // Object.is equality
+
+- Expected
++ Received
+
+- 18
++ 7
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:57:36
+     55|     const dates = mockDay.mock.calls.map(([date]) => date ?? '2026-10-…
+     56|     const selected = dates.filter((date) => date >= from && date <= to…
+     57|     expect(new Set(selected).size).toBe(count);
+       |                                    ^
+     58|     expect(dates.filter((date) => date !== '2026-10-18')).toHaveLength…
+     59|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > historical fetches exactly the requested inclusive window
+AssertionError: expected +0 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 0
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:57:36
+     55|     const dates = mockDay.mock.calls.map(([date]) => date ?? '2026-10-…
+     56|     const selected = dates.filter((date) => date >= from && date <= to…
+     57|     expect(new Set(selected).size).toBe(count);
+       |                                    ^
+     58|     expect(dates.filter((date) => date !== '2026-10-18')).toHaveLength…
+     59|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > does not silently fall back to seven days for a reversed window
+AssertionError: expected undefined to be 'beauty-finance-error' // Object.is equality
+
+- Expected:
+"beauty-finance-error"
+
++ Received:
+undefined
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:63:60
+     61|     const page = await BeautyFinanceScreen({ searchParams: { from: '20…
+     62|     const child = asProps(page).children;
+     63|     expect(isValidElement(child) && asProps(child).testId).toBe('beaut…
+       |                                                            ^
+     64|     expect(mockDay.mock.calls.length).toBeLessThanOrEqual(1);
+     65|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > does not turn a failed selected day into zero money
+AssertionError: expected undefined to be 'beauty-finance-error' // Object.is equality
+
+- Expected:
+"beauty-finance-error"
+
++ Received:
+undefined
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:73:60
+     71|     const page = await BeautyFinanceScreen({ searchParams: { from: '20…
+     72|     const child = asProps(page).children;
+     73|     expect(isValidElement(child) && asProps(child).testId).toBe('beaut…
+       |                                                            ^
+     74|   });
+     75|   it('keeps no-query week based on API local today, not machine UTC da…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > keeps no-query week based on API local today, not machine UTC date
+AssertionError: expected 'Стоимость услуг за 23 февр.: 1 мар.' to contain '23.02.2026'
+
+Expected: "23.02.2026"
+Received: "Стоимость услуг за 23 февр.: 1 мар."
+
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:78:36
+     76|     mockDay.mockImplementation(async (date) => day(date ?? '2026-03-01…
+     77|     const page = await BeautyFinanceScreen();
+     78|     expect(asProps(page).subtitle).toContain('23.02.2026');
+       |                                    ^
+     79|     expect(asProps(page).subtitle).toContain('01.03.2026');
+     80|     expect(mockDay).toHaveBeenCalledTimes(7);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/period-continuity.test.ts > BEAUTY finance uses requested days instead of hardcoded week > bounds concurrent day requests
+AssertionError: expected 6 to be less than or equal to 4
+ ❯ apps/web/src/app/finance/period-continuity.test.ts:92:21
+     90|     });
+     91|     await BeautyFinanceScreen({ searchParams: { from: '2026-10-01', to…
+     92|     expect(maximum).toBeLessThanOrEqual(4);
+       |                     ^
+     93|   });
+     94| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > preserves API dates in every finance link: BEAUTY/today
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > preserves API dates in every finance link: FOOD_SERVICE/today
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > preserves API dates in every finance link: HOSPITALITY/today
+AssertionError: expected null to be '2026-10-18' // Object.is equality
+
+- Expected:
+"2026-10-18"
+
++ Received:
+null
+
+ ❯ apps/web/src/app/today/unified-owner.test.ts:67:48
+     65|         for (const url of links) {
+     66|           expect(url.pathname).toBe(vertical === 'FOOD_SERVICE' ? '/re…
+     67|           expect(url.searchParams.get('from')).toBe(from);
+       |                                                ^
+     68|           expect(url.searchParams.get('to')).toBe('2026-10-18');
+     69|           expect([...url.searchParams.keys()].sort()).toEqual(['from',…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯
+
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > preserves API dates in every finance link: BEAUTY/week
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > preserves API dates in every finance link: FOOD_SERVICE/week
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > preserves API dates in every finance link: HOSPITALITY/week
+AssertionError: expected null to be '2026-10-12' // Object.is equality
+
+- Expected:
+"2026-10-12"
+
++ Received:
+null
+
+ ❯ apps/web/src/app/today/unified-owner.test.ts:67:48
+     65|         for (const url of links) {
+     66|           expect(url.pathname).toBe(vertical === 'FOOD_SERVICE' ? '/re…
+     67|           expect(url.searchParams.get('from')).toBe(from);
+       |                                                ^
+     68|           expect(url.searchParams.get('to')).toBe('2026-10-18');
+     69|           expect([...url.searchParams.keys()].sort()).toEqual(['from',…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯
+
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > preserves API dates in every finance link: BEAUTY/month
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > preserves API dates in every finance link: FOOD_SERVICE/month
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > preserves API dates in every finance link: HOSPITALITY/month
+AssertionError: expected null to be '2026-10-01' // Object.is equality
+
+- Expected:
+"2026-10-01"
+
++ Received:
+null
+
+ ❯ apps/web/src/app/today/unified-owner.test.ts:67:48
+     65|         for (const url of links) {
+     66|           expect(url.pathname).toBe(vertical === 'FOOD_SERVICE' ? '/re…
+     67|           expect(url.searchParams.get('from')).toBe(from);
+       |                                                ^
+     68|           expect(url.searchParams.get('to')).toBe('2026-10-18');
+     69|           expect([...url.searchParams.keys()].sort()).toEqual(['from',…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  18 failed | 16 passed (34)
+   Start at  08:02:06
+   Duration  2.30s (transform 71%, import 22%, tests 6%)
+
+JSON report written to /tmp/pms-test-2026-10-18T08-02-04Z-unit-2ab8.json
+
+# код выхода 1 · 4 с

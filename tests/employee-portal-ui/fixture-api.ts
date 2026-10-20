@@ -18,6 +18,9 @@ import { scopeView } from '../../apps/api/src/auth/request-context';
 import { DiskPortalStorage } from './disk-storage';
 import { assertPortalDatabase, seedPortalFixture, type PortalActor } from './fixture-support';
 
+// Защищённое создание (creationId, apps/api/src/beauty/write-contract.ts receiptFor) подписывает квитанцию ключом
+// сессии: без него «Добавить специалиста» честно отказывает. Синтетический ключ только для этого стенда.
+process.env.SESSION_SECRET ??= 'synthetic-employee-portal-replay-key-not-production';
 const db = createPrismaClient(assertPortalDatabase(), 'pms_test');
 const port = Number(process.env.EMPLOYEE_PORTAL_API_PORT || '26831');
 const storage = new DiskPortalStorage(undefined, `http://127.0.0.1:${port}`);

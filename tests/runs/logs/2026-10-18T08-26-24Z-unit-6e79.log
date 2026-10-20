@@ -1,0 +1,105 @@
+# Модульные (unit) · 18.10.2026 13:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит ef17fbd (codex/salons-tz4-m4b), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-26-24Z-unit-6e79.json' 'packages/domain/src/customer-import.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| packages/domain/src/customer-import.test.ts (13 tests | 5 failed) 88ms
+   ❯ M4-B1 CSV: проверка без записи (13)
+     × BOM/CRLF и разделитель ; 9ms
+     × BOM/CRLF и разделитель , 1ms
+     × BOM/CRLF и разделитель 	 1ms
+     ✓ кавычки, разделитель и перенос внутри поля 1ms
+     × повтор канонического номера, отсутствие номера, пустая строка и плохой телефон 3ms
+     × ручное сопоставление и отсутствие обязательных колонок 1ms
+     ✓ повреждённые кавычки отклоняются 0ms
+     ✓ повреждённые кавычки отклоняются 0ms
+     ✓ повреждённые кавычки отклоняются 0ms
+     ✓ не принимает строки с лишними ячейками и слишком длинными полями 0ms
+     ✓ пустые конечные ячейки можно опустить; сохраняются физические номера строк 1ms
+     ✓ ограничивает количество строк 50 000 68ms
+     ✓ не утрачивает нулевой индекс колонки и отвергает поддельные индексы 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > BOM/CRLF и разделитель ;
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > BOM/CRLF и разделитель ,
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > BOM/CRLF и разделитель 	
+AssertionError: expected { ready: +0, warning: +0, …(2) } to deeply equal { ready: 1, warning: +0, …(2) }
+
+- Expected
++ Received
+
+  {
+-   "duplicate": 0,
+-   "ready": 1,
++   "duplicate": 1,
++   "ready": 0,
+    "skipped": 0,
+    "warning": 0,
+  }
+
+ ❯ packages/domain/src/customer-import.test.ts:8:27
+      6|     const file = readCustomerCsv(`\uFEFFИмя${d}Телефон\r\nТест${d}8700…
+      7|     const report = previewCustomerCsv(file, file.mapping);
+      8|     expect(report.counts).toEqual({ ready: 1, warning: 0, duplicate: 0…
+       |                           ^
+      9|     expect(report.rows[0]).toMatchObject({ phoneNormalized: '+77000001…
+     10|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > повтор канонического номера, отсутствие номера, пустая строка и плохой телефон
+AssertionError: expected { ready: +0, warning: 1, …(2) } to deeply equal { ready: 1, warning: 2, …(2) }
+
+- Expected
++ Received
+
+  {
+-   "duplicate": 1,
+-   "ready": 1,
++   "duplicate": 3,
++   "ready": 0,
+    "skipped": 2,
+-   "warning": 2,
++   "warning": 1,
+  }
+
+ ❯ packages/domain/src/customer-import.test.ts:18:27
+     16|     const file = readCustomerCsv('Имя;Телефон\nПервый;<телефон>\nВто…
+     17|     const result = previewCustomerCsv(file, file.mapping);
+     18|     expect(result.counts).toEqual({ ready: 1, warning: 2, duplicate: 1…
+       |                           ^
+     19|     expect(result.rows[1]).toMatchObject({ status: 'duplicate', duplic…
+     20|     expect(result.rows[3]).toMatchObject({ status: 'skipped', line: 5 …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > ручное сопоставление и отсутствие обязательных колонок
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ packages/domain/src/customer-import.test.ts:25:95
+     23|     const file = readCustomerCsv('A;B\n7000001001;Тест');
+     24|     expect(() => previewCustomerCsv(file, file.mapping)).toThrow('имен…
+     25|     expect(previewCustomerCsv(file, { firstName: 1, lastName: null, ph…
+       |                                                                                               ^
+     26|     expect(() => previewCustomerCsv(file, { firstName: 0, lastName: nu…
+     27|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 8 passed (13)
+   Start at  01:26:26
+   Duration  326ms (transform 45%, tests 43%, import 10%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-26-24Z-unit-6e79.json
+
+# код выхода 1 · 3 с

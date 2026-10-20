@@ -1,4 +1,4 @@
-# Модульные (unit) · 16.10.2026 22:24 Алматы · srv1719674
+# Модульные (unit) · 16.10.2026 22:24 Алматы · <сервер>
 # коммит eb65955 (private-verified-candidate)
 # npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T17-24-00Z-unit-e01c.json' '--shard=3/8' '--maxWorkers=1'
 

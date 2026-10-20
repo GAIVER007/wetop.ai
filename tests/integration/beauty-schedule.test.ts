@@ -98,6 +98,8 @@ describe.skipIf(!url)('график мастера (integration, DATA_MODEL §19
   const customerId = randomUUID();
 
   beforeAll(async () => {
+    if (!['127.0.0.1', 'localhost', '::1'].includes(new URL(url!).hostname))
+      throw new Error('Beauty schedule integration requires an owned loopback database');
     db = createPrismaClient(url);
     const prisma = { db } as unknown as PrismaService;
     catalog = new BeautyCatalogService(prisma);
@@ -126,6 +128,7 @@ describe.skipIf(!url)('график мастера (integration, DATA_MODEL §19
     );
     serviceId = svc.id;
     await as('OWNER', () => catalog.setLocationService(serviceId, { enabled: true }));
+    await as('OWNER', () => catalog.setEmployeeServices(employeeId, { serviceIds: [serviceId] }));
   });
 
   afterAll(async () => {

@@ -1,0 +1,653 @@
+# Типы (typecheck) · 18.10.2026 22:52 Алматы · <сервер>
+# коммит 8a5ab94 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 13
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(569,20): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/auth/auth.controller.ts(212,43): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/auth/auth.service.ts(228,143): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/auth/auth.service.ts(231,51): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/auth/author.interceptor.ts(111,62): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/auth/author.interceptor.ts(112,68): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/auth/author.interceptor.ts(120,60): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/bar/bar.repository.ts(501,37): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/access.ts(14,34): error TS2344: Type '"beautyPositionAssignment"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/beauty/access.ts(20,22): error TS18046: 'db.beautyPositionAssignment' is of type 'unknown'.
+apps/api/src/beauty/access.ts(24,19): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/access.ts(25,75): error TS7031: Binding element 'section' implicitly has an 'any' type.
+apps/api/src/beauty/access.ts(25,84): error TS7031: Binding element 'action' implicitly has an 'any' type.
+apps/api/src/beauty/access.ts(25,92): error TS7031: Binding element 'scope' implicitly has an 'any' type.
+apps/api/src/beauty/access.ts(120,36): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/access.ts(121,85): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/appointments.ts(80,3): error TS2353: Object literal may only specify known properties, and 'lines' does not exist in type 'AppointmentSelect<DefaultArgs>'.
+apps/api/src/beauty/appointments.ts(129,22): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/beauty/appointments.ts(129,27): error TS7006: Parameter 'line' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(169,56): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/appointments.ts(225,24): error TS2551: Property 'employeeServicePrice' does not exist on type 'Db'. Did you mean 'employeeService'?
+apps/api/src/beauty/appointments.ts(230,42): error TS2339: Property 'beautyLocationHours' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(251,31): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(260,59): error TS7006: Parameter 'price' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(268,48): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(344,44): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyDb'.
+  Type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' is missing the following properties from type 'BeautyDb': beautyLocationHours, employeeServicePrice, appointmentLine
+apps/api/src/beauty/appointments.ts(346,29): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+apps/api/src/beauty/appointments.ts(351,42): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyDb'.
+  Type 'TransactionClient' is missing the following properties from type 'BeautyDb': beautyLocationHours, employeeServicePrice, appointmentLine
+apps/api/src/beauty/appointments.ts(353,31): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+apps/api/src/beauty/appointments.ts(391,16): error TS2551: Property 'appointmentLine' does not exist on type 'TransactionClient'. Did you mean 'appointment'?
+apps/api/src/beauty/appointments.ts(392,16): error TS2551: Property 'appointmentLine' does not exist on type 'TransactionClient'. Did you mean 'appointment'?
+apps/api/src/beauty/appointments.ts(450,30): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/beauty/appointments.ts(450,35): error TS7006: Parameter 'line' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(450,41): error TS7006: Parameter 'position' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(468,30): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/beauty/appointments.ts(468,35): error TS7006: Parameter 'line' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(481,44): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyDb'.
+  Type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' is missing the following properties from type 'BeautyDb': beautyLocationHours, employeeServicePrice, appointmentLine
+apps/api/src/beauty/appointments.ts(483,29): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+apps/api/src/beauty/appointments.ts(486,42): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyDb'.
+  Type 'TransactionClient' is missing the following properties from type 'BeautyDb': beautyLocationHours, employeeServicePrice, appointmentLine
+apps/api/src/beauty/appointments.ts(489,31): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+apps/api/src/beauty/appointments.ts(496,16): error TS2551: Property 'appointmentLine' does not exist on type 'TransactionClient'. Did you mean 'appointment'?
+apps/api/src/beauty/appointments.ts(497,16): error TS2551: Property 'appointmentLine' does not exist on type 'TransactionClient'. Did you mean 'appointment'?
+apps/api/src/beauty/appointments.ts(712,28): error TS2551: Property 'appointmentLine' does not exist on type 'TransactionClient'. Did you mean 'appointment'?
+apps/api/src/beauty/appointments.ts(723,51): error TS7006: Parameter 'line' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(723,88): error TS7006: Parameter 'material' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(731,60): error TS2322: Type 'unknown[]' is not assignable to type 'string[] | FieldRef<"KitchenStockLot", "String[]"> | undefined'.
+  Type 'unknown[]' is not assignable to type 'string[]'.
+    Type 'unknown' is not assignable to type 'string'.
+apps/api/src/beauty/appointments.ts(870,20): error TS2344: Type '"appointmentLine"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/beauty/appointments.ts(893,28): error TS2344: Type '"employee" | "beautyService" | "beautyLocationHours" | "employeeServicePrice" | "appointmentLine"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+  Type '"beautyLocationHours"' is not assignable to type 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/beauty/appointments.ts(936,7): error TS18046: 'db.employeeServicePrice' is of type 'unknown'.
+apps/api/src/beauty/appointments.ts(962,25): error TS18046: 'db.beautyLocationHours' is of type 'unknown'.
+apps/api/src/beauty/appointments.ts(1001,18): error TS2344: Type '"appointmentLine"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/beauty/appointments.ts(1007,22): error TS18046: 'db.appointmentLine' is of type 'unknown'.
+apps/api/src/beauty/beauty.module.ts(123,37): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(123,42): error TS7006: Parameter 'material' implicitly has an 'any' type.
+apps/api/src/beauty/beauty.module.ts(146,66): error TS2339: Property 'revision' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(181,33): error TS2339: Property 'beautyServiceMaterialRevision' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/beauty.module.ts(191,16): error TS2339: Property 'beautyServiceMaterial' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/beauty.module.ts(192,35): error TS2339: Property 'beautyServiceMaterial' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/beauty.module.ts(196,30): error TS2339: Property 'beautyServiceMaterialRevision' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/beauty.module.ts(197,21): error TS2339: Property 'beautyServiceMaterialRevision' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/beauty.module.ts(376,43): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+apps/api/src/beauty/beauty.module.ts(740,25): error TS2339: Property 'priceType' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(741,30): error TS2339: Property 'priceMinMinor' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(742,30): error TS2339: Property 'priceMaxMinor' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(743,31): error TS2339: Property 'durationMinutes' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(744,24): error TS2339: Property 'currency' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(746,24): error TS2339: Property 'revision' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(764,32): error TS2551: Property 'employeeServicePrice' does not exist on type 'TransactionClient'. Did you mean 'employeeService'?
+apps/api/src/beauty/beauty.module.ts(776,16): error TS2551: Property 'employeeServicePrice' does not exist on type 'TransactionClient'. Did you mean 'employeeService'?
+apps/api/src/beauty/beauty.module.ts(799,32): error TS2551: Property 'employeeServicePrice' does not exist on type 'TransactionClient'. Did you mean 'employeeService'?
+apps/api/src/beauty/beauty.module.ts(805,16): error TS2551: Property 'employeeServicePrice' does not exist on type 'TransactionClient'. Did you mean 'employeeService'?
+apps/api/src/beauty/customer-detail.ts(126,26): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/beauty/customer-detail.ts(126,31): error TS7006: Parameter 'line' implicitly has an 'any' type.
+apps/api/src/beauty/customer-import.ts(342,40): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+apps/api/src/beauty/customer-import.ts(354,37): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(365,21): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(384,45): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+apps/api/src/beauty/customer-import.ts(410,28): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(445,16): error TS2339: Property 'customerImportRow' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(448,18): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(468,28): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(476,32): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(497,38): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+apps/api/src/beauty/customer-import.ts(510,39): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+apps/api/src/beauty/customer-import.ts(515,31): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/beauty/customer-import.ts(522,39): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+apps/api/src/beauty/customer-import.ts(537,48): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/beauty/customer-import.ts(559,30): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.ts(604,34): error TS2339: Property 'customerImportRow' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.ts(613,39): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/beauty/customer-import.ts(702,18): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.ts(707,34): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(136,34): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(166,22): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(177,37): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(190,33): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(213,34): error TS2339: Property 'customerImportRow' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(221,35): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(264,29): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(275,18): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(357,31): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+apps/api/src/beauty/customer-import.worker.ts(385,27): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+apps/api/src/beauty/customer-import.worker.ts(428,18): error TS2339: Property 'customerImportRow' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.worker.ts(437,23): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+apps/api/src/beauty/customer-import.worker.ts(441,18): error TS2339: Property 'customerImportRow' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.worker.ts(456,16): error TS2339: Property 'customerImportRow' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.worker.ts(481,27): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.worker.ts(504,27): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.worker.ts(551,20): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(564,20): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(586,18): error TS2339: Property 'customerImportRow' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/location-hours.ts(36,41): error TS2339: Property 'beautyLocationHours' does not exist on type 'Db'.
+apps/api/src/beauty/location-hours.ts(84,28): error TS2339: Property 'beautyLocationHours' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/location-hours.ts(88,32): error TS2339: Property 'beautyLocationHours' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/location-hours.ts(94,23): error TS2339: Property 'beautyLocationHours' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(46,40): error TS2344: Type '"beautyPositionAssignment"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/beauty/positions.ts(55,26): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(61,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(64,22): error TS2339: Property 'beautyPosition' does not exist on type 'Db'.
+apps/api/src/beauty/positions.ts(65,22): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'Db'.
+apps/api/src/beauty/positions.ts(72,37): error TS7006: Parameter 'member' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(72,147): error TS7006: Parameter 'member' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(73,42): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(73,83): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(74,40): error TS7006: Parameter 'location' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(75,208): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(76,15): error TS7006: Parameter 'member' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(81,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(86,28): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(93,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(99,28): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(101,30): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(103,16): error TS2339: Property 'beautyPositionPermission' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(104,46): error TS2339: Property 'beautyPositionPermission' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(105,28): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(112,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(118,26): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(120,20): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(121,28): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(123,26): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(138,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(150,20): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(151,26): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(153,32): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(153,152): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(160,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(166,26): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(170,26): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/reviews.ts(124,33): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/reviews.ts(165,32): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/reviews.ts(171,16): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/reviews.ts(229,34): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/reviews.ts(239,35): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/reviews.ts(279,16): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/reviews.ts(288,16): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/reviews.ts(313,27): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(303,43): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+apps/api/src/beauty/schedule.ts(425,29): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+apps/api/src/beauty/schedule.ts(433,27): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(433,32): error TS7006: Parameter 'count' implicitly has an 'any' type.
+apps/api/src/beauty/scope.ts(114,44): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/scope.ts(120,106): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'BeautyAccessDb'.
+apps/api/src/employee-portal/employee-portal.service.ts(53,54): error TS2345: Argument of type 'TransactionClient | Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'BeautyAccessDb'.
+apps/api/src/employee-portal/employee-portal.service.ts(94,35): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'BeautyAccessDb'.
+apps/api/src/employee-portal/employee-portal.service.ts(117,10): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient | Db'.
+  Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/employee-portal/employee-portal.service.ts(223,48): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Db'.
+apps/api/src/employee-portal/employee-portal.service.ts(224,48): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Db'.
+apps/api/src/employee-portal/employee-portal.service.ts(228,33): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+apps/api/src/employee-portal/employee-portal.service.ts(238,10): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+apps/api/src/employee-portal/employee-portal.service.ts(244,121): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(244,169): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(244,267): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(247,29): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(249,51): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(254,51): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(255,32): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(255,96): error TS7006: Parameter 'k' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(255,124): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(255,865): error TS7006: Parameter 'k' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(255,1007): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(256,29): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(256,147): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(256,466): error TS7006: Parameter 'o' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(258,178): error TS7006: Parameter 'review' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1410,48): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "employee" | "restaurantOrder" | "employeePayAdjustment" | "restaurantCashOperation" | "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "employee" | "restaurantOrder" | "employeePayAdjustment" | "restaurantCashOperation" | "appointmentLine">'.
+apps/api/src/food-service/restaurant.service.ts(1411,31): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1431,31): error TS2365: Operator '-' cannot be applied to types 'number' and 'bigint'.
+apps/api/src/food-service/restaurant.service.ts(1448,45): error TS2365: Operator '-' cannot be applied to types 'number' and 'bigint'.
+apps/api/src/food-service/restaurant.service.ts(1606,20): error TS2344: Type '"employee" | "restaurantOrder" | "employeePayAdjustment" | "restaurantCashOperation" | "appointmentLine"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+  Type '"appointmentLine"' is not assignable to type 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'. Did you mean '"appointment"'?
+apps/api/src/food-service/restaurant.service.ts(1623,11): error TS18046: 'db.appointmentLine' is of type 'unknown'.
+apps/api/src/food-service/restaurant.service.ts(1635,20): error TS7006: Parameter 'rows' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1635,39): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1661,47): error TS7006: Parameter 'o' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1662,49): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1663,33): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1668,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1668,73): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1669,61): error TS2345: Argument of type '{}' is not assignable to parameter of type 'bigint'.
+apps/api/src/food-service/restaurant.service.ts(1678,62): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "employee" | "restaurantOrder" | "employeePayAdjustment" | "restaurantCashOperation" | "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "employee" | "restaurantOrder" | "employeePayAdjustment" | "restaurantCashOperation" | "appointmentLine">'.
+apps/api/src/food-service/restaurant.service.ts(1684,29): error TS7031: Binding element 'e' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1684,32): error TS7031: Binding element 'setting' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1684,41): error TS7031: Binding element 'sales' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1684,48): error TS7031: Binding element 't' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1684,51): error TS7031: Binding element 'paid' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1718,37): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/hotel/branches.ts(145,60): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/hotel/organization-summary.ts(69,60): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/marketing-site/site-facts.service.ts(261,39): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/marketing-site/site-facts.service.ts(286,60): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/onboarding/onboarding.module.ts(75,25): error TS2741: Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+apps/api/src/onboarding/onboarding.module.ts(75,40): error TS2344: Type '"location" | "beautyPositionAssignment"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+  Type '"beautyPositionAssignment"' is not assignable to type 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/onboarding/onboarding.module.ts(190,42): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+apps/api/src/onboarding/onboarding.module.ts(316,41): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+apps/api/src/onboarding/onboarding.module.ts(401,45): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+apps/api/src/site-forms/site-forms.service.ts(275,52): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'BeautyDb'.
+  Type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is missing the following properties from type 'BeautyDb': beautyLocationHours, employeeServicePrice, appointmentLine
+apps/api/src/site-forms/site-forms.service.ts(276,34): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+apps/api/src/site-forms/site-forms.service.ts(355,50): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyDb'.
+  Type 'TransactionClient' is missing the following properties from type 'BeautyDb': beautyLocationHours, employeeServicePrice, appointmentLine
+apps/api/src/site-forms/site-forms.service.ts(356,34): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+tests/beauty-ui/customer-xlsx.spec.ts(3,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+tests/beauty-ui/fixture-api.ts(251,26): error TS2339: Property 'beautyLocationHours' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/beauty-ui/fixture-api.ts(254,26): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/beauty-ui/fixture-api.ts(255,26): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/beauty-ui/fixture-api.ts(256,26): error TS2551: Property 'appointmentLine' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'appointment'?
+tests/beauty-ui/fixture-api.ts(260,26): error TS2551: Property 'employeeServicePrice' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'employeeService'?
+tests/beauty-ui/fixture-api.ts(269,26): error TS2339: Property 'beautyServiceMaterial' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/beauty-ui/fixture-api.ts(270,26): error TS2339: Property 'beautyServiceMaterialRevision' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/beauty-ui/fixture-api.ts(280,26): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/beauty-ui/fixture-api.ts(282,26): error TS2339: Property 'beautyPositionPermission' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/beauty-ui/fixture-api.ts(285,26): error TS2339: Property 'beautyPosition' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/employee-portal-ui/fixture-support.ts(94,16): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/beauty-appointment-history.test.ts(173,16): error TS2551: Property 'appointmentLine' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'appointment'?
+tests/integration/beauty-appointment-lines.test.ts(306,14): error TS2551: Property 'employeeServicePrice' does not exist on type 'Db'. Did you mean 'employeeService'?
+tests/integration/beauty-appointment-lines.test.ts(336,16): error TS2551: Property 'employeeServicePrice' does not exist on type 'Db'. Did you mean 'employeeService'?
+tests/integration/beauty-appointment-lines.test.ts(432,21): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+tests/integration/beauty-appointment-lines.test.ts(541,26): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+tests/integration/beauty-appointment-lines.test.ts(750,31): error TS7006: Parameter 'service' implicitly has an 'any' type.
+tests/integration/beauty-appointment-lines.test.ts(891,18): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Db'.
+tests/integration/beauty-appointment-lines.test.ts(941,18): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+tests/integration/beauty-appointment-lines.test.ts(983,31): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Db'.
+tests/integration/beauty-appointment-lines.test.ts(1003,16): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Db'.
+tests/integration/beauty-appointment-lines.test.ts(1004,16): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+tests/integration/beauty-appointment-lines.test.ts(1063,23): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Db'.
+tests/integration/beauty-appointment-lines.test.ts(1071,16): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Db'.
+tests/integration/beauty-appointment-lines.test.ts(1072,16): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Db'.
+tests/integration/beauty-appointment-lines.test.ts(1073,16): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+tests/integration/beauty-appointment-lines.test.ts(1158,36): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+tests/integration/beauty-appointment-lines.test.ts(1163,70): error TS7006: Parameter 'line' implicitly has an 'any' type.
+tests/integration/beauty-appointment-lines.test.ts(1254,14): error TS2339: Property 'beautyLocationHours' does not exist on type 'Db'.
+tests/integration/beauty-appointment-lines.test.ts(1277,23): error TS2339: Property 'beautyLocationHours' does not exist on type 'Db'.
+tests/integration/beauty-appointment-lines.test.ts(1281,16): error TS2339: Property 'beautyLocationHours' does not exist on type 'Db'.
+tests/integration/beauty-appointment-lines.test.ts(1293,16): error TS2339: Property 'beautyLocationHours' does not exist on type 'Db'.
+tests/integration/beauty-appointment-lines.test.ts(1311,16): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Db'.
+tests/integration/beauty-customers.test.ts(83,16): error TS2551: Property 'appointmentLine' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'appointment'?
+tests/integration/beauty-customers.test.ts(123,17): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(126,17): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(130,12): error TS18046: 'first' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(130,27): error TS18046: 'second' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(132,74): error TS18046: 'first' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(150,15): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(157,15): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(213,58): error TS18046: 'customer' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(218,73): error TS18046: 'customer' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(219,47): error TS18046: 'customer' is of type 'unknown'.
+tests/integration/beauty-customers.test.ts(230,15): error TS2339: Property 'create' does not exist on type 'BeautyCustomerImportService'.
+tests/integration/beauty-customers.test.ts(244,56): error TS18046: 'onlyBusinessB' is of type 'unknown'.
+tests/integration/beauty-positions-api.test.ts(163,36): error TS7006: Parameter 'row' implicitly has an 'any' type.
+tests/integration/beauty-positions-api.test.ts(164,36): error TS7006: Parameter 'row' implicitly has an 'any' type.
+tests/integration/beauty-positions-api.test.ts(165,38): error TS7006: Parameter 'row' implicitly has an 'any' type.
+tests/integration/beauty-positions-api.test.ts(199,31): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+tests/integration/beauty-positions-api.test.ts(209,40): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+tests/integration/beauty-positions-api.test.ts(270,23): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+tests/integration/beauty-positions-api.test.ts(274,33): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'BeautyAccessDb'.
+tests/integration/beauty-positions-api.test.ts(288,23): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+tests/integration/beauty-positions-api.test.ts(296,33): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+tests/integration/beauty-positions-api.test.ts(305,23): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+tests/integration/customer-import-race.test.ts(90,18): error TS2339: Property 'customerImportRow' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/customer-import-race.test.ts(91,18): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/customer-import-race.test.ts(173,29): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-race.test.ts(190,17): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-race.test.ts(208,17): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-race.test.ts(209,17): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(41,32): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(47,21): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(52,57): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(52,173): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/customer-import-runtime.test.ts(79,16): error TS2339: Property 'customerImportRow' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/customer-import-runtime.test.ts(80,16): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/customer-import-runtime.test.ts(121,24): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(125,25): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(141,24): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(162,25): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(179,35): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(184,17): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(186,24): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(187,17): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(190,24): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(204,31): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(207,24): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(218,34): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(230,17): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(232,30): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(245,24): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(256,24): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(257,17): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(261,24): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+tests/integration/customer-import-runtime.test.ts(262,25): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+tests/integration/employee-portal-payroll-scope.test.ts(82,39): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/employee-portal-payroll-scope.test.ts(103,35): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/salon-payroll.test.ts(70,16): error TS2551: Property 'appointmentLine' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'appointment'?
+tests/integration/site-forms.test.ts(235,18): error TS2551: Property 'appointmentLine' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'appointment'?
+tests/integration/site-forms.test.ts(275,26): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(569,20): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/auth/auth.controller.ts(212,43): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/auth/auth.service.ts(228,143): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/auth/auth.service.ts(231,51): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/auth/author.interceptor.ts(111,62): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/auth/author.interceptor.ts(112,68): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/auth/author.interceptor.ts(120,60): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/bar/bar.repository.ts(501,37): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/access.ts(14,34): error TS2344: Type '"beautyPositionAssignment"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/beauty/access.ts(20,22): error TS18046: 'db.beautyPositionAssignment' is of type 'unknown'.
+apps/api/src/beauty/access.ts(24,19): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/access.ts(25,75): error TS7031: Binding element 'section' implicitly has an 'any' type.
+apps/api/src/beauty/access.ts(25,84): error TS7031: Binding element 'action' implicitly has an 'any' type.
+apps/api/src/beauty/access.ts(25,92): error TS7031: Binding element 'scope' implicitly has an 'any' type.
+apps/api/src/beauty/access.ts(120,36): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/access.ts(121,85): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/appointments.ts(80,3): error TS2353: Object literal may only specify known properties, and 'lines' does not exist in type 'AppointmentSelect<DefaultArgs>'.
+apps/api/src/beauty/appointments.ts(129,22): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/beauty/appointments.ts(129,27): error TS7006: Parameter 'line' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(169,56): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/appointments.ts(225,24): error TS2551: Property 'employeeServicePrice' does not exist on type 'Db'. Did you mean 'employeeService'?
+apps/api/src/beauty/appointments.ts(230,42): error TS2339: Property 'beautyLocationHours' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(251,31): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(260,59): error TS7006: Parameter 'price' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(268,48): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(344,44): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyDb'.
+  Type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' is missing the following properties from type 'BeautyDb': appointmentLine, beautyLocationHours, employeeServicePrice
+apps/api/src/beauty/appointments.ts(346,29): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+apps/api/src/beauty/appointments.ts(351,42): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyDb'.
+  Type 'TransactionClient' is missing the following properties from type 'BeautyDb': appointmentLine, beautyLocationHours, employeeServicePrice
+apps/api/src/beauty/appointments.ts(353,31): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+apps/api/src/beauty/appointments.ts(391,16): error TS2551: Property 'appointmentLine' does not exist on type 'TransactionClient'. Did you mean 'appointment'?
+apps/api/src/beauty/appointments.ts(392,16): error TS2551: Property 'appointmentLine' does not exist on type 'TransactionClient'. Did you mean 'appointment'?
+apps/api/src/beauty/appointments.ts(450,30): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/beauty/appointments.ts(450,35): error TS7006: Parameter 'line' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(450,41): error TS7006: Parameter 'position' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(468,30): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/beauty/appointments.ts(468,35): error TS7006: Parameter 'line' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(481,44): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyDb'.
+  Type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' is missing the following properties from type 'BeautyDb': appointmentLine, beautyLocationHours, employeeServicePrice
+apps/api/src/beauty/appointments.ts(483,29): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+apps/api/src/beauty/appointments.ts(486,42): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyDb'.
+  Type 'TransactionClient' is missing the following properties from type 'BeautyDb': appointmentLine, beautyLocationHours, employeeServicePrice
+apps/api/src/beauty/appointments.ts(489,31): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+apps/api/src/beauty/appointments.ts(496,16): error TS2551: Property 'appointmentLine' does not exist on type 'TransactionClient'. Did you mean 'appointment'?
+apps/api/src/beauty/appointments.ts(497,16): error TS2551: Property 'appointmentLine' does not exist on type 'TransactionClient'. Did you mean 'appointment'?
+apps/api/src/beauty/appointments.ts(712,28): error TS2551: Property 'appointmentLine' does not exist on type 'TransactionClient'. Did you mean 'appointment'?
+apps/api/src/beauty/appointments.ts(723,51): error TS7006: Parameter 'line' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(723,88): error TS7006: Parameter 'material' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(731,60): error TS2322: Type 'unknown[]' is not assignable to type 'string[] | FieldRef<"KitchenStockLot", "String[]"> | undefined'.
+  Type 'unknown[]' is not assignable to type 'string[]'.
+    Type 'unknown' is not assignable to type 'string'.
+apps/api/src/beauty/appointments.ts(870,20): error TS2344: Type '"appointmentLine"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/beauty/appointments.ts(893,28): error TS2344: Type '"employee" | "beautyService" | "appointmentLine" | "beautyLocationHours" | "employeeServicePrice"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+  Type '"appointmentLine"' is not assignable to type 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'. Did you mean '"appointment"'?
+apps/api/src/beauty/appointments.ts(936,7): error TS18046: 'db.employeeServicePrice' is of type 'unknown'.
+apps/api/src/beauty/appointments.ts(962,25): error TS18046: 'db.beautyLocationHours' is of type 'unknown'.
+apps/api/src/beauty/appointments.ts(1001,18): error TS2344: Type '"appointmentLine"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/beauty/appointments.ts(1007,22): error TS18046: 'db.appointmentLine' is of type 'unknown'.
+apps/api/src/beauty/beauty.module.ts(123,37): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(123,42): error TS7006: Parameter 'material' implicitly has an 'any' type.
+apps/api/src/beauty/beauty.module.ts(146,66): error TS2339: Property 'revision' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(181,33): error TS2339: Property 'beautyServiceMaterialRevision' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/beauty.module.ts(191,16): error TS2339: Property 'beautyServiceMaterial' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/beauty.module.ts(192,35): error TS2339: Property 'beautyServiceMaterial' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/beauty.module.ts(196,30): error TS2339: Property 'beautyServiceMaterialRevision' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/beauty.module.ts(197,21): error TS2339: Property 'beautyServiceMaterialRevision' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/beauty.module.ts(376,43): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+apps/api/src/beauty/beauty.module.ts(740,25): error TS2339: Property 'priceType' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(741,30): error TS2339: Property 'priceMinMinor' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(742,30): error TS2339: Property 'priceMaxMinor' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(743,31): error TS2339: Property 'durationMinutes' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(744,24): error TS2339: Property 'currency' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(746,24): error TS2339: Property 'revision' does not exist on type 'never'.
+apps/api/src/beauty/beauty.module.ts(764,32): error TS2551: Property 'employeeServicePrice' does not exist on type 'TransactionClient'. Did you mean 'employeeService'?
+apps/api/src/beauty/beauty.module.ts(776,16): error TS2551: Property 'employeeServicePrice' does not exist on type 'TransactionClient'. Did you mean 'employeeService'?
+apps/api/src/beauty/beauty.module.ts(799,32): error TS2551: Property 'employeeServicePrice' does not exist on type 'TransactionClient'. Did you mean 'employeeService'?
+apps/api/src/beauty/beauty.module.ts(805,16): error TS2551: Property 'employeeServicePrice' does not exist on type 'TransactionClient'. Did you mean 'employeeService'?
+apps/api/src/beauty/customer-detail.ts(126,26): error TS2339: Property 'map' does not exist on type 'never'.
+apps/api/src/beauty/customer-detail.ts(126,31): error TS7006: Parameter 'line' implicitly has an 'any' type.
+apps/api/src/beauty/customer-import.ts(342,40): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+apps/api/src/beauty/customer-import.ts(354,37): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(365,21): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(384,45): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+apps/api/src/beauty/customer-import.ts(410,28): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(445,16): error TS2339: Property 'customerImportRow' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(448,18): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(468,28): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(476,32): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.ts(497,38): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+apps/api/src/beauty/customer-import.ts(510,39): error TS2339: Property 'customerImport' does not exist on type 'Db'.
+apps/api/src/beauty/customer-import.ts(515,31): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/beauty/customer-import.ts(522,39): error TS2339: Property 'customerImportRow' does not exist on type 'Db'.
+apps/api/src/beauty/customer-import.ts(537,48): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/beauty/customer-import.ts(559,30): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.ts(604,34): error TS2339: Property 'customerImportRow' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.ts(613,39): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/beauty/customer-import.ts(702,18): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.ts(707,34): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(136,34): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(166,22): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(177,37): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(190,33): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(213,34): error TS2339: Property 'customerImportRow' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(221,35): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(264,29): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(275,18): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(357,31): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+apps/api/src/beauty/customer-import.worker.ts(385,27): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+apps/api/src/beauty/customer-import.worker.ts(428,18): error TS2339: Property 'customerImportRow' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.worker.ts(437,23): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+apps/api/src/beauty/customer-import.worker.ts(441,18): error TS2339: Property 'customerImportRow' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.worker.ts(456,16): error TS2339: Property 'customerImportRow' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.worker.ts(481,27): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.worker.ts(504,27): error TS2339: Property 'customerImport' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/customer-import.worker.ts(551,20): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(564,20): error TS2339: Property 'customerImport' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/customer-import.worker.ts(586,18): error TS2339: Property 'customerImportRow' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/location-hours.ts(36,41): error TS2339: Property 'beautyLocationHours' does not exist on type 'Db'.
+apps/api/src/beauty/location-hours.ts(84,28): error TS2339: Property 'beautyLocationHours' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/location-hours.ts(88,32): error TS2339: Property 'beautyLocationHours' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/location-hours.ts(94,23): error TS2339: Property 'beautyLocationHours' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(46,40): error TS2344: Type '"beautyPositionAssignment"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/beauty/positions.ts(55,26): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(61,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(64,22): error TS2339: Property 'beautyPosition' does not exist on type 'Db'.
+apps/api/src/beauty/positions.ts(65,22): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'Db'.
+apps/api/src/beauty/positions.ts(72,37): error TS7006: Parameter 'member' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(72,147): error TS7006: Parameter 'member' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(73,42): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(73,83): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(74,40): error TS7006: Parameter 'location' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(75,208): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(76,15): error TS7006: Parameter 'member' implicitly has an 'any' type.
+apps/api/src/beauty/positions.ts(81,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(86,28): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(93,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(99,28): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(101,30): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(103,16): error TS2339: Property 'beautyPositionPermission' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(104,46): error TS2339: Property 'beautyPositionPermission' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(105,28): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(112,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(118,26): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(120,20): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(121,28): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(123,26): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(138,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(150,20): error TS2339: Property 'beautyPosition' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(151,26): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(153,32): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(153,152): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(160,24): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "beautyPositionAssignment">'.
+apps/api/src/beauty/positions.ts(166,26): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/positions.ts(170,26): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/reviews.ts(124,33): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/reviews.ts(165,32): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/reviews.ts(171,16): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'TransactionClient'.
+apps/api/src/beauty/reviews.ts(229,34): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/reviews.ts(239,35): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/reviews.ts(279,16): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/reviews.ts(288,16): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/reviews.ts(313,27): error TS2339: Property 'beautyReviewInvitation' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(303,43): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+apps/api/src/beauty/schedule.ts(425,29): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+apps/api/src/beauty/schedule.ts(433,27): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(433,32): error TS7006: Parameter 'count' implicitly has an 'any' type.
+apps/api/src/beauty/scope.ts(114,44): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'BeautyAccessDb'.
+apps/api/src/beauty/scope.ts(120,106): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'BeautyAccessDb'.
+apps/api/src/employee-portal/employee-portal.service.ts(53,54): error TS2345: Argument of type 'TransactionClient | Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'BeautyAccessDb'.
+apps/api/src/employee-portal/employee-portal.service.ts(94,35): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'BeautyAccessDb'.
+apps/api/src/employee-portal/employee-portal.service.ts(117,10): error TS2339: Property 'beautyPositionAssignment' does not exist on type 'TransactionClient | Db'.
+  Property 'beautyPositionAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/employee-portal/employee-portal.service.ts(223,48): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Db'.
+apps/api/src/employee-portal/employee-portal.service.ts(224,48): error TS2339: Property 'beautyAppointmentReview' does not exist on type 'Db'.
+apps/api/src/employee-portal/employee-portal.service.ts(228,33): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+apps/api/src/employee-portal/employee-portal.service.ts(238,10): error TS2551: Property 'appointmentLine' does not exist on type 'Db'. Did you mean 'appointment'?
+apps/api/src/employee-portal/employee-portal.service.ts(244,121): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(244,169): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(244,267): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(247,29): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(249,51): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(254,51): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(255,32): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(255,96): error TS7006: Parameter 'k' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(255,124): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(255,865): error TS7006: Parameter 'k' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(255,1007): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(256,29): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(256,147): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(256,466): error TS7006: Parameter 'o' implicitly has an 'any' type.
+apps/api/src/employee-portal/employee-portal.service.ts(258,178): error TS7006: Parameter 'review' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1410,48): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "employee" | "restaurantOrder" | "employeePayAdjustment" | "restaurantCashOperation" | "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "employee" | "restaurantOrder" | "employeePayAdjustment" | "restaurantCashOperation" | "appointmentLine">'.
+apps/api/src/food-service/restaurant.service.ts(1411,31): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1431,31): error TS2365: Operator '-' cannot be applied to types 'number' and 'bigint'.
+apps/api/src/food-service/restaurant.service.ts(1448,45): error TS2365: Operator '-' cannot be applied to types 'number' and 'bigint'.
+apps/api/src/food-service/restaurant.service.ts(1606,20): error TS2344: Type '"employee" | "restaurantOrder" | "employeePayAdjustment" | "restaurantCashOperation" | "appointmentLine"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+  Type '"appointmentLine"' is not assignable to type 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'. Did you mean '"appointment"'?
+apps/api/src/food-service/restaurant.service.ts(1623,11): error TS18046: 'db.appointmentLine' is of type 'unknown'.
+apps/api/src/food-service/restaurant.service.ts(1635,20): error TS7006: Parameter 'rows' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1635,39): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1661,47): error TS7006: Parameter 'o' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1662,49): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1663,33): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1668,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1668,73): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1669,61): error TS2345: Argument of type '{}' is not assignable to parameter of type 'bigint'.
+apps/api/src/food-service/restaurant.service.ts(1678,62): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'Pick<TransactionClient, "employee" | "restaurantOrder" | "employeePayAdjustment" | "restaurantCashOperation" | "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "employee" | "restaurantOrder" | "employeePayAdjustment" | "restaurantCashOperation" | "appointmentLine">'.
+apps/api/src/food-service/restaurant.service.ts(1684,29): error TS7031: Binding element 'e' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1684,32): error TS7031: Binding element 'setting' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1684,41): error TS7031: Binding element 'sales' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1684,48): error TS7031: Binding element 't' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1684,51): error TS7031: Binding element 'paid' implicitly has an 'any' type.
+apps/api/src/food-service/restaurant.service.ts(1718,37): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/hotel/branches.ts(145,60): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/hotel/organization-summary.ts(69,60): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/marketing-site/site-facts.service.ts(261,39): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/marketing-site/site-facts.service.ts(286,60): error TS2345: Argument of type 'Db' is not assignable to parameter of type 'BeautyAccessDb'.
+  Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'BeautyAccessDb'.
+apps/api/src/onboarding/onboarding.module.ts(75,25): error TS2741: Property 'beautyPositionAssignment' is missing in type 'PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>' but required in type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+apps/api/src/onboarding/onboarding.module.ts(75,40): error TS2344: Type '"location" | "beautyPositionAssignment"' does not satisfy the constraint 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+  Type '"beautyPositionAssignment"' is not assignable to type 'symbol | "$executeRaw" | "$executeRawUnsafe" | "$queryRaw" | "$queryRawUnsafe" | "$transaction" | "business" | "location" | "propertyMedia" | "marketingExpense" | "marketingCampaign" | ... 131 more ... | "siteLead"'.
+apps/api/src/onboarding/onboarding.module.ts(190,42): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+apps/api/src/onboarding/onboarding.module.ts(316,41): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+apps/api/src/onboarding/onboarding.module.ts(401,45): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+  Property 'beautyPositionAssignment' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'Pick<TransactionClient, "location" | "beautyPositionAssignment">'.
+apps/api/src/site-forms/site-forms.service.ts(275,52): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'BeautyDb'.
+  Type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is missing the following properties from type 'BeautyDb': appointmentLine, beautyLocationHours, employeeServicePrice
+apps/api/src/site-forms/site-forms.service.ts(276,34): error TS2345: Argument of type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+apps/api/src/site-forms/site-forms.service.ts(355,50): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'BeautyDb'.
+  Type 'TransactionClient' is missing the following properties from type 'BeautyDb': appointmentLine, beautyLocationHours, employeeServicePrice
+apps/api/src/site-forms/site-forms.service.ts(356,34): error TS2345: Argument of type 'TransactionClient' is not assignable to parameter of type 'Pick<TransactionClient, "appointmentLine">'.
+  Property 'appointmentLine' is missing in type 'TransactionClient' but required in type 'Pick<TransactionClient, "appointmentLine">'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/customers/beauty-table.test.ts(12,35): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'canImportPreview' does not exist in type 'Attributes & { items: BeautyCustomerRow[]; canCreate?: boolean; canEdit?: boolean; scopeKey?: string; businessId?: string; }'.
+apps/web/src/app/customers/customer-actions-scope.test.ts(2,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+apps/web/src/app/customers/xlsx.test.ts(2,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+apps/web/src/app/customers/xlsx.ts(4,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+apps/web/src/app/customers/xlsx.ts(152,32): error TS7006: Parameter 'cell' implicitly has an 'any' type.
+apps/web/src/app/customers/xlsx.ts(157,35): error TS7006: Parameter 'row' implicitly has an 'any' type.
+
+# код выхода 1 · 1 мин 32 с

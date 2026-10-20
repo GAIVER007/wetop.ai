@@ -134,11 +134,11 @@ test('вложенные разделы: раскрытие, один актив
   // переход закрывает панель; кнопка показывает раздел текущего экрана
   await expect(page.locator('.sidenav__panel')).toBeHidden();
   await expect(page.locator('.sidenav__current')).toHaveText('Продвижение');
-  // «Номера» (экран «Номерной фонд»): прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
+  // номерной фонд это «Каталог» раздела «Услуги»; вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Номера');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Каталог');
   // вкладка модуля сайта подсвечивает один пункт «Сайт и SEO» группы «Маркетинг» (MKT2)
   await page.goto('/website/settings');
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
@@ -287,7 +287,7 @@ test('показатели за период: готовые отрезки и �
   await openMenu.click();
   await page
     .getByRole('dialog', { name: 'Навигация' })
-    .getByRole('link', { name: 'Шахматка', exact: true })
+    .getByRole('link', { name: 'Журнал', exact: true })
     .click();
   await expect(page).toHaveURL(/\/chessboard/);
   await expect(page.getByRole('dialog', { name: 'Навигация' })).not.toBeVisible();

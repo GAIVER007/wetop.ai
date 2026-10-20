@@ -29,6 +29,8 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/connections': H,
   '/incidents': H,
   '/hotel-settings': H,
+  '/beauty-settings': B,
+  '/customers/[id]': B,
   '/onboarding': H,
   '/market': H,
   '/website': H,
@@ -49,6 +51,7 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/appointments': B,
   '/services': B,
   '/beauty': B,
+  '/bar/consumables': B,
   // салон и ресторан
   '/customers': BF,
   '/employees': BF,
@@ -72,6 +75,14 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
 export function featureVerticals(path: string): readonly WebVertical[] {
   let best: string | undefined;
   for (const route of Object.keys(FEATURES))
-    if ((path === route || path.startsWith(`${route}/`)) && (!best || route.length > best.length)) best = route;
+    if (matchesFeatureRoute(route, path) && (!best || route.length > best.length)) best = route;
   return best ? FEATURES[best]! : ALL_VERTICALS;
+}
+
+function matchesFeatureRoute(route: string, path: string): boolean {
+  const prefix = route.split('/');
+  const actual = path.split('/');
+  return actual.length >= prefix.length && prefix.every((part, index) =>
+    /^\[[A-Za-z][A-Za-z0-9_]*\]$/.test(part) ? Boolean(actual[index]) : part === actual[index],
+  );
 }

@@ -1,3 +1,4 @@
+import { customerImportFixture, resetCustomerImportFixture } from './customer-import-fixture';
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
@@ -13,6 +14,10 @@ import { fixtureAssetById, resetSiteAssetsFixture, siteAssetsFixture } from './f
 import { createServer } from 'node:http';
 import {
   parseMoney,
+  customerPhoneKey,
+  parseCustomerInput,
+  nextStatuses,
+  statusChange,
   parseReceiptNumber,
   assertAllocationsMatch,
   buildDashboard,
@@ -2138,6 +2143,10 @@ let registrationEnabled = true;
 const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 /** Сессии стенда: ключ → кто вошёл. Вход один — по паролю (ADR-053). */
 const uiSessions = new Map<string, UiUser>();
+// Stable synthetic session lifetime, matching /auth/me without remounting recovery on each read.
+const uiSessionExpiresAt = new Date(Date.now() + 24 * 3600_000).toISOString();
+// Как настоящий /auth/me (#719): время выдачи сессии не меняется при продлении
+const uiSessionIssuedAt = new Date().toISOString();
 // ── Роли, главный администратор и расширение «ИИ-продавец» (ADR-083) — как отвечает API. Меняются через
 // `POST /__test/control { role, platformAdmin, sellerExtension, sellerDaysLeft, sellerTrial }`, сбрасываются `reset`.
 let uiRole: MembershipRole = 'OWNER';
@@ -4960,6 +4969,10 @@ const fixtureCampaigns: FixtureCampaign[] = [];
 let fixtureMeta: { adAccountId: string; status: 'ACTIVE' | 'FAILED'; lastSyncedAt: string } | null = null;
 /** Запуск ИИ-таргетолога (§57): один на прогон, готов со второго просмотра экрана шагов */
 let fixtureLaunch: { id: string; headline: string; dailyBudgetMinor: string; views: number } | null = null;
+/** Засеянные прошлые запуски (`__test/marketing-budget` → `launches`) и отказ источника списка (`launchesFail`) */
+type FixtureLaunchRow = { id: string; status: 'RUNNING' | 'SUCCEEDED' | 'FAILED'; step: string; headline: string; dailyBudgetMinor: string; currency: string; error: string | null; createdAt: string };
+let fixtureLaunches: FixtureLaunchRow[] = [];
+let fixtureLaunchesFail: number | null = null;
 /** Разбивка плана по каналам (§52): первое число месяца → строки */
 const budgetLines = new Map<string, Array<{ platform: string; amount: string }>>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
@@ -4975,6 +4988,8 @@ const resetMarketingBudget = () => {
   fixtureCampaigns.length = 0;
   fixtureMeta = null;
   fixtureLaunch = null;
+  fixtureLaunches = [];
+  fixtureLaunchesFail = null;
   budgetLines.clear();
   budgetResults.clear();
 };
@@ -5657,15 +5672,7 @@ interface FixtureAppointment {
 }
 const fixtureBeautyAppointments: Array<{ employeeId: string; date: string }> = [];
 const fixtureAppointments: FixtureAppointment[] = [];
-const NEXT_STATUS: Record<string, string[]> = {
-  BOOKED: ['CONFIRMED', 'IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED'],
-  CONFIRMED: ['IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED'],
-  // как в домене (§58)
-  IN_PROGRESS: ['DONE', 'CANCELLED'],
-  DONE: [],
-  NO_SHOW: [],
-  CANCELLED: [],
-};
+const fixtureCustomerProfiles: Array<{ id: string; firstName: string; lastName: string | null; phone: string; status: string; businessIds: string[] }> = [];
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
@@ -5896,7 +5903,16 @@ createServer(async (req, res) => {
         fixtureLaunch = { id, headline: String(body['headline']), dailyBudgetMinor: String(body['dailyBudgetMinor']), views: 0 };
         return send(202, { id });
       }
+      // список последних запусков филиала (ad-launch.ts list): новые сверху, не больше 20
+      if (req.method === 'GET' && path === '/marketing/ads/launches') {
+        if (fixtureLaunchesFail) return send(fixtureLaunchesFail, { message: 'Источник запусков недоступен' });
+        const rows = fixtureLaunches.map((l) => ({ ...l, destination: 'WHATSAPP', campaignId: null, externalCampaignId: null, finishedAt: l.status === 'RUNNING' ? null : l.createdAt }));
+        return send(200, rows.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 20));
+      }
       const launchMatch = /^\/marketing\/ads\/launches\/([^/]+)$/.exec(path);
+      const seeded = launchMatch ? fixtureLaunches.find((l) => l.id === launchMatch[1]) : undefined;
+      if (req.method === 'GET' && seeded)
+        return send(200, { ...seeded, destination: 'WHATSAPP', campaignId: null, externalCampaignId: null, finishedAt: seeded.status === 'RUNNING' ? null : seeded.createdAt });
       if (req.method === 'GET' && launchMatch) {
         if (!fixtureLaunch || fixtureLaunch.id !== launchMatch[1]) return send(404, { message: 'Запуск не найден' });
         // первый просмотр: идёт запуск, второй: готово и кампания в кабинете
@@ -6027,6 +6043,8 @@ createServer(async (req, res) => {
           countedInBudget: input.countedInBudget,
         });
       }
+      fixtureLaunches = ((body['launches'] as FixtureLaunchRow[] | undefined) ?? []).map((l) => ({ ...l }));
+      fixtureLaunchesFail = typeof body['launchesFail'] === 'number' ? body['launchesFail'] : null;
       const plan = body['plan'] as { month?: unknown; amount?: unknown } | undefined;
       if (plan) {
         const input = parseMarketingBudgetInput(plan as Record<string, unknown>);
@@ -6096,6 +6114,8 @@ createServer(async (req, res) => {
       fixtureBeautyTimeOffs.length = 0;
       fixtureBeautyAppointments.length = 0;
       fixtureAppointments.length = 0;
+      fixtureCustomerProfiles.length = 0;
+      resetCustomerImportFixture();
       resetMarket();
       resetMarketingBudget();
       resetAgentFixture();
@@ -6207,6 +6227,8 @@ createServer(async (req, res) => {
       if (Array.isArray(body['beautyAppointments'])) {
         fixtureBeautyAppointments.length = 0;
         fixtureAppointments.length = 0;
+      fixtureCustomerProfiles.length = 0;
+      resetCustomerImportFixture();
         for (const row of body['beautyAppointments'] as Array<Record<string, unknown>>)
           fixtureBeautyAppointments.push({
             employeeId: String(row['employeeId'] ?? ''),
@@ -6856,6 +6878,8 @@ createServer(async (req, res) => {
       return send(200, {
         user,
         organization,
+        expiresAt: uiSessionExpiresAt,
+        sessionIssuedAt: uiSessionIssuedAt,
         access: { aiSeller: aiSellerView(who.organizationId) },
         context: {
           scope: scoped ? 'LOCATION' : 'ORGANIZATION',
@@ -7263,10 +7287,12 @@ createServer(async (req, res) => {
             startMinutes: a.startMinutes,
             endMinutes: a.endMinutes,
             status: a.status,
-            next: NEXT_STATUS[a.status] ?? [],
+            next: nextStatuses(a.status, { startsAt: new Date(isoOf(a.date, a.startMinutes)), now: new Date() }),
             priceMinor: a.priceMinor,
             // касса филиала (§49) у подставного салона пуста
             paidMinor: '0',
+            paidCashMinor: '0',
+            paidNonCashMinor: '0',
             refundedMinor: '0',
             currency: a.currency,
             notes: a.notes,
@@ -7303,12 +7329,34 @@ createServer(async (req, res) => {
           },
         };
       };
+      const customerBusinessId = /^business=([^;]+)/.exec(String(req.headers['x-wetop-scope'] ?? ''))?.[1] ?? '';
+      const importResponse = customerImportFixture({ path, method: req.method, body, businessId: customerBusinessId, role: uiRole, customerProfiles: fixtureCustomerProfiles });
+      if (importResponse) return send(importResponse.status, importResponse.body);
+      if (path === '/beauty/customers' && req.method === 'POST') {
+        if (!customerBusinessId) return send(403, { message: 'Выберите бизнес салона' });
+        const parsed = parseCustomerInput(body);
+        if (!parsed.ok) return send(400, { message: parsed.reason });
+        const key = customerPhoneKey(parsed.value.phone);
+        let known = fixtureCustomerProfiles.find((c) => customerPhoneKey(c.phone) === key);
+        const existing = fixtureAppointments.find((a) => customerPhoneKey(a.customer.phone) === key)?.customer;
+        const created = !known && !existing;
+        if (!known) {
+          known = existing
+            ? { id: existing.id, firstName: existing.name, lastName: null, phone: existing.phone!, status: 'ACTIVE', businessIds: [] }
+            : { id: crypto.randomUUID(), ...parsed.value, status: 'ACTIVE', businessIds: [] };
+          fixtureCustomerProfiles.push(known);
+        }
+        if (!known.businessIds.includes(customerBusinessId)) known.businessIds.push(customerBusinessId);
+        return send(201, { id: known.id, created });
+      }
       if (path === '/beauty/customers' && req.method === 'GET') {
         // как настоящий API: визиты, последний визит и средний чек по DONE (снимки цен, Q-252)
         const mine = fixtureAppointments.filter((a) => a.locationId === locationId);
-        const customers = new Map(mine.map((a) => [a.customer.id, {
+        const customers = new Map<string, { id: string; firstName: string; lastName: string | null; phone: string | null; status: string }>(mine.map((a) => [a.customer.id, {
           id: a.customer.id, firstName: a.customer.name, lastName: null,
           phone: a.customer.phone, status: 'ACTIVE' }]));
+        for (const profile of fixtureCustomerProfiles.filter((c) => c.businessIds.includes(customerBusinessId)))
+          customers.set(profile.id, { id: profile.id, firstName: profile.firstName, lastName: profile.lastName, phone: profile.phone, status: profile.status });
         const items = [...customers.values()].map((c) => {
           const done = mine.filter((a) => a.customer.id === c.id && a.status === 'DONE');
           const sum = done.reduce((t, a) => t + BigInt(a.priceMinor), 0n);
@@ -7338,11 +7386,17 @@ createServer(async (req, res) => {
           ),
         );
       if (path === '/beauty/appointments' && req.method === 'POST') {
+        // Веб с f8a912681 шлёт выбор строками `items: [{ employeeId, serviceId }]`, как принимает настоящий API
+        // (apps/api/src/beauty/appointments.ts). Стенд ведёт одну строку; плоские поля остаются для старых вызовов.
+        const rawItems = body['items'];
+        if (rawItems !== undefined && (!Array.isArray(rawItems) || rawItems.length !== 1))
+          return send(400, { message: 'Стенд принимает одну услугу в записи' });
+        const line = (Array.isArray(rawItems) ? rawItems[0] : body) as Record<string, unknown>;
         const employee = fixtureBeautyEmployees.find(
-          (e) => e.id === String(body['employeeId'] ?? ''),
+          (e) => e.id === String(line['employeeId'] ?? ''),
         );
         if (!employee) return send(404, { message: 'Мастер не найден' });
-        const svc = fixtureBeautyServices.find((s) => s.id === String(body['serviceId'] ?? ''));
+        const svc = fixtureBeautyServices.find((s) => s.id === String(line['serviceId'] ?? ''));
         if (!svc) return send(404, { message: 'Услуга не найдена' });
         const eff = effectiveOf(svc);
         if (!eff.sellable) return send(409, { message: 'Филиал эту услугу не оказывает' });
@@ -7384,9 +7438,10 @@ createServer(async (req, res) => {
         if (!String(body['customerId'] ?? '') && !name)
           return send(400, { message: 'Выберите клиента или впишите имя' });
         const customerId = String(body['customerId'] ?? '');
-        const existingCustomer = customerId ? fixtureAppointments.find(
+        const profile = fixtureCustomerProfiles.find((c) => c.id === customerId && c.businessIds.includes(customerBusinessId));
+        const existingCustomer = customerId ? (fixtureAppointments.find(
           (a) => a.locationId === locationId && a.customer.id === customerId,
-        )?.customer : null;
+        )?.customer ?? (profile ? { id: profile.id, name: [profile.firstName, profile.lastName].filter(Boolean).join(' '), phone: profile.phone } : null)) : null;
         if (customerId && !existingCustomer)
           return send(404, { message: 'Клиент не найден' });
         fixtureAppointments.push({
@@ -7415,7 +7470,7 @@ createServer(async (req, res) => {
           (a) => a.id === decodeURIComponent(moveAppointment[1]!),
         );
         if (!row) return send(404, { message: 'Запись не найдена' });
-        if (!(NEXT_STATUS[row.status] ?? []).length)
+        if (!nextStatuses(row.status).length)
           return send(409, { message: 'Запись закрыта, переносить её уже нельзя' });
         const startsAt = String(body['startsAt'] ?? '');
         const length = row.endMinutes - row.startMinutes;
@@ -7447,10 +7502,12 @@ createServer(async (req, res) => {
           (a) => a.id === decodeURIComponent(appointmentStatus[1]!),
         );
         if (!row) return send(404, { message: 'Запись не найдена' });
-        const to = String(body['status'] ?? '');
-        if (!(NEXT_STATUS[row.status] ?? []).includes(to))
-          return send(409, { message: 'Из этого состояния запись так не меняют' });
-        row.status = to as FixtureAppointment['status'];
+        const to = String(body['status'] ?? '') as FixtureAppointment['status'];
+        const change = statusChange(row.status, to, {
+          startsAt: new Date(isoOf(row.date, row.startMinutes)), now: new Date(),
+        });
+        if (!change.ok) return send(409, { message: change.reason });
+        row.status = to;
         return send(200, dayView(row.date));
       }
       const employeeLocations = /^\/beauty\/employees\/([^/]+)\/locations$/.exec(path);

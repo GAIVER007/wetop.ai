@@ -10,35 +10,33 @@ describe('Food workspace isolation', () => {
     const sections = menuSectionsFor(owner, 'FOOD_SERVICE');
     expect(sections.map((s) => [s.label, s.items.map((i) => i.href)])).toEqual([
       ['Главная', ['/today']],
-      ['Зал', ['/floor-plan', '/table-reservations', '/dining-areas']],
-      ['Персонал', ['/employees', '/team', '/payroll']],
-      ['Гости', ['/customers']],
-      ['Заказы', ['/orders', '/kitchen', '/drinks', '/menu']],
+      // журнал ресторана это живой план зала; брони столов это «Записи» клиентов
+      ['Журнал', ['/floor-plan']],
+      ['Персонал', ['/employees', '/team', '/employees/shifts', '/payroll']],
+      ['Клиенты', ['/customers', '/table-reservations']],
+      ['Услуги', ['/menu', '/orders', '/kitchen', '/drinks', '/dining-areas']],
       // `/reports` ресторану перенаправляет на «Аналитику бизнеса» (аудит 17.10.2026, Д2)
       ['Статистика', ['/management/analytics']],
-      ['Склад', ['/stock', '/bar/products', '/bar', '/bar/operations', '/bar/suppliers']],
+      ['Склад', ['/stock', '/bar', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
       // `/finance` ресторану не свой экран: «Финансы» ресторана (аудит 17.10.2026, Д2)
       ['Финансы', ['/cashbox', '/restaurant-finance']],
-      // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
       ['Настройки', ['/restaurant-settings', '/journal']],
       ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/ai-agents', '/sales', '/marketing/budget', '/marketing/analytics']],
       ['Помощь', ['/help']],
     ]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
-      ['/floor-plan', 'Зал'],
-      ['/customers', 'Гости'],
-      ['/orders', 'Заказы'],
+      ['/floor-plan', 'Журнал'],
+      ['/customers', 'Клиенты'],
+      ['/menu', 'Услуги'],
     ]);
     const labels = sections.flatMap((s) => s.items);
-    expect(labels.find((i) => i.href === '/orders')?.label).toBe('Заказы');
-    expect(labels.find((i) => i.href === '/kitchen')?.label).toBe('Кухня');
-    expect(labels.find((i) => i.href === '/menu')?.label).toBe('Меню');
+    expect(labels.find((i) => i.href === '/menu')?.label).toBe('Каталог');
     expect(labels.find((i) => i.href === '/stock')?.label).toBe('Склад кухни');
     expect(labels.find((i) => i.href === '/employees')?.label).toBe('Специалисты');
-    expect(labels.find((i) => i.href === '/payroll')?.label).toBe('Зарплата');
-    expect(labels.find((i) => i.href === '/cashbox')?.label).toBe('Движение денег');
-    expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Брони столов');
+    expect(labels.find((i) => i.href === '/employees/shifts')?.label).toBe('График работы');
+    expect(labels.find((i) => i.href === '/cashbox')?.label).toBe('Касса');
+    expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Записи');
   });
   it('does not expose Food to existing verticals', () => {
     for (const v of ['BEAUTY', 'HOSPITALITY'] as const) {

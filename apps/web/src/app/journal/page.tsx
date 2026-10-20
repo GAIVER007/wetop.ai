@@ -158,13 +158,13 @@ export default async function JournalPage({
         </Notice>
       )}
       <details className="journal-filter-panel">
-        <summary>Фильтры журнала</summary>
+        <summary>Фильтры истории</summary>
         <form method="get" className="control-toolbar control-journal-search">
-          <Field label="Поиск в журнале">
+          <Field label="Поиск в истории">
             <Input
               key={`q-${needle}`}
               name="q"
-              aria-label="Поиск в журнале"
+              aria-label="Поиск в истории"
               placeholder={
                 desk.vertical === 'HOSPITALITY' ? 'Номер брони' : 'Действие или сотрудник'
               }
@@ -218,7 +218,7 @@ export default async function JournalPage({
             >
               <option value="">Все разделы</option>
               <option value="finance">Касса и финансы</option>
-              <option value="staff">Сотрудники и доступ</option>
+              <option value="staff">Сотрудники</option>
             </Select>
           </Field>
           <Field label="Действие">
@@ -254,7 +254,7 @@ export default async function JournalPage({
           )}
         </form>
       </details>
-      <nav className="chips" aria-label="Раздел журнала">
+      <nav className="chips" aria-label="Раздел истории">
         {filters.map(([t, label]) => (
           <Link
             key={label}
@@ -400,7 +400,7 @@ async function JournalEntries({
         </Table>
       )}
       {rows && (hasMore || older) && (
-        <nav className="journal-pagination" aria-label="Страницы журнала">
+        <nav className="journal-pagination" aria-label="Страницы истории">
           {older && (
             <Link href={pageHref} className="btn btn--secondary">
               К новым операциям

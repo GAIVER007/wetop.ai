@@ -195,5 +195,14 @@ export async function seedBeautyFoodWorld(admin: Db): Promise<BeautyFoodWorld> {
     'foreignOwner',
     actorOf(await user('OWNER', 'foreignowner', foreignOrg), foreignOrg, 'OWNER'),
   );
+  // Seed actual assignments once, matching the synthetic actors' legitimate claims.
+  // Never synchronize them in request/auth helpers: stale/revoked claims must stay denied.
+  for (const actor of actors.values()) {
+    for (const scope of actor.scopes ?? []) {
+      await admin.membershipScope.create({
+        data: { userId: actor.id, organizationId: actor.organizationId, ...scope },
+      });
+    }
+  }
   return { org, foreignOrg, ids, actors };
 }

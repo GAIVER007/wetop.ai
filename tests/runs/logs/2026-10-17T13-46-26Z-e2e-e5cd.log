@@ -1,0 +1,72 @@
+# Сквозные (e2e) · 17.10.2026 18:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5413b09 (codex/calendar-quick-report), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/beauty-journal.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--grep' 'быстрый отчёт календаря: пустой'
+[WebServer] (node:14731) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:14770) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:14771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:14783) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:14833) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:14842) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1596ms. If /private/tmp/wetop-calendar-quick-report/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:14896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/beauty-journal.spec.ts:230:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (46.6s)
+
+
+  1) tests/ui/beauty-journal.spec.ts:230:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Быстрый отчёт', exact: true })
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Быстрый отчёт', exact: true }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Быстрый отчёт', exact: true })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      232 |   await openDay(page);
+      233 |   const trigger = page.getByRole('button', { name: 'Быстрый отчёт', exact: true });
+    > 234 |   await expect(trigger).toBeVisible();
+          |                         ^
+      235 |   await page.getByRole('button', { name: 'Открыть календарь', exact: true }).click();
+      236 |   const calendar = page.getByRole('dialog', { name: 'Календарь', exact: true });
+      237 |   await expect(calendar).toBeVisible();
+        at /private/tmp/wetop-calendar-quick-report/tests/ui/beauty-journal.spec.ts:234:25
+
+    Error Context: test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-journal.spec.ts:230:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон 
+
+# код выхода 1 · 1 мин 44 с

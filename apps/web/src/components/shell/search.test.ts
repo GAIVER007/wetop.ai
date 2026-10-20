@@ -14,10 +14,11 @@ describe('быстрый переход поиска', () => {
     expect(hrefs('BEAUTY', 'шах')).toEqual([]);
   });
   it('ресторан: свои разделы, гостиничных нет', () => {
-    expect(hrefs('FOOD_SERVICE', 'план')).toEqual(['/floor-plan']);
+    // журнал ресторана это живой план зала (одно меню у всех направлений, 17.10.2026)
+    expect(hrefs('FOOD_SERVICE', 'жур')).toEqual(['/floor-plan']);
     expect(hrefs('FOOD_SERVICE', 'кал')).toEqual([]);
   });
-  it('гостиница: шахматка своим словом', () => {
-    expect(hrefs('HOSPITALITY', 'шах')).toEqual(['/chessboard']);
+  it('гостиница: журнал это шахматка', () => {
+    expect(hrefs('HOSPITALITY', 'жур')).toEqual(['/chessboard']);
   });
 });

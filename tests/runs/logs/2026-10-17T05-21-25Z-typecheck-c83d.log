@@ -1,4 +1,4 @@
-# Типы (typecheck) · 17.10.2026 10:21 Алматы · srv1719674
+# Типы (typecheck) · 17.10.2026 10:21 Алматы · <сервер>
 # коммит a6c7381 (fix/supplier-payment-retry-20261017), незакоммиченных файлов набора: 3
 # npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
 

@@ -92,6 +92,55 @@ test('мастер: ИИ заполняет текст, запуск с подт
   await expect(row.getByRole('button', { name: 'Остановить' })).toBeVisible();
 });
 
+test('последние запуски: вернуться к незавершённому и неудачному запуску после потери адреса', async ({ page, request }) => {
+  await request.post(`${API}/__test/marketing-budget`, {
+    data: {
+      launches: [
+        { id: '00000000-0000-4000-a000-0000000a0011', status: 'FAILED', step: 'ADSET', headline: 'Зимние выходные', dailyBudgetMinor: '500', currency: 'USD', error: 'Meta отклонила аудиторию', createdAt: '2026-10-18T19:30:00Z' },
+        { id: '00000000-0000-4000-a000-0000000a0012', status: 'RUNNING', step: 'CREATIVE', headline: 'Осень у гор', dailyBudgetMinor: '300', currency: 'USD', error: null, createdAt: '2026-10-17T04:05:00Z' },
+      ],
+    },
+  });
+  const main = page.getByRole('main');
+  const posts: string[] = [];
+  page.on('request', (r) => {
+    if (r.method() === 'POST' && /\/marketing\/ads\//.test(r.url())) posts.push(r.url());
+  });
+  await page.goto('/marketing/ads');
+  const list = main.getByTestId('ad-launches');
+  await expect(list.getByRole('heading', { name: 'Последние запуски с ИИ' })).toBeVisible();
+  const failed = list.getByRole('row', { name: /Зимние выходные/ });
+  await expect(failed).toContainText('Не удался');
+  await expect(failed).toContainText('5 USD');
+  // время в поясе филиала (Asia/Almaty, UTC+5), не UTC сервера
+  await expect(failed).toContainText('19.10 00:30');
+  await expect(list.getByRole('row', { name: /Осень у гор/ })).toContainText('Идёт');
+  await failed.getByRole('link', { name: 'Открыть запуск Зимние выходные' }).click();
+  await page.waitForURL(/\/marketing\/ads\/launch\/00000000-0000-4000-a000-0000000a0011$/);
+  await expect(main.getByTestId('ad-launch-failed')).toContainText('Meta отклонила аудиторию');
+  await page.reload();
+  await expect(main.getByTestId('ad-launch-failed')).toContainText('Meta отклонила аудиторию');
+  await axe(page);
+  expect(posts).toEqual([]);
+});
+
+test('последние запуски: пусто и ошибка источника не ломают кампании', async ({ page, request }) => {
+  await request.post(`${API}/__test/marketing-budget`, { data: {} });
+  const main = page.getByRole('main');
+  await page.goto('/marketing/ads');
+  await expect(main.getByTestId('ad-launches-empty')).toBeVisible();
+  await request.post(`${API}/__test/marketing-budget`, { data: { launchesFail: 503 } });
+  await page.reload();
+  await expect(main.getByTestId('ad-launches-error')).toBeVisible();
+  await expect(main.getByTestId('ad-launches-empty')).toHaveCount(0);
+  await expect(main.getByTestId('ads-empty')).toBeVisible();
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  }
+});
+
 test('мастер на телефоне: без горизонтальной прокрутки', async ({ page, request }) => {
   await request.post(`${API}/__test/marketing-budget`, { data: {} });
   await page.setViewportSize({ width: 390, height: 844 });

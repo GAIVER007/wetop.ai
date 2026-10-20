@@ -16,6 +16,7 @@ type WebServer = {
   url: string;
   reuseExistingServer: boolean;
   timeout?: number;
+  stdout?: 'pipe' | 'ignore';
 };
 
 const browserUse = {
@@ -37,11 +38,17 @@ const webServers = selectedWorkers.flatMap((worker): WebServer[] => [
   {
     command: `npm exec -w apps/web -- next dev --port ${worker.webPort} --hostname 127.0.0.1`,
     cwd: worker.root,
+    // Playwright ignores stdout by default; expose only the opt-in CI correlation run.
+    stdout: process.env.CI === 'true' && process.env.WETOP_DIAG_HOTEL_SETTINGS === '1' ? 'pipe' : 'ignore',
     env: {
       APP_UI_TEST: '1',
       APP_DEMO_MODE: '',
       APP_API_URL: worker.fixtureOrigin,
       APP_ALLOW_TEST_DATA: '1',
+      // вымышленные контакты поддержки (SUP1): блок «Связаться с поддержкой» виден стенду
+      SUPPORT_WHATSAPP: '77000000000',
+      SUPPORT_TELEGRAM: 'wetop_support_test',
+      SUPPORT_HOURS: 'Ежедневно 9:00–21:00 по Алматы',
       APP_URL: worker.webOrigin,
       WETOP_SITE_URL: worker.siteOrigin,
       SITE_ORIGINS: worker.siteOrigin,

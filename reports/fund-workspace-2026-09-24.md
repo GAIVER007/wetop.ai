@@ -43,7 +43,7 @@ fund-workspace-categories-dark.png, fund-workspace-availability-dark.png, fund-w
 
 ## Выкладка
 
-SSH к серверу WETOP 187.77.145.152:5555 повторно отклонён (publickey).
+SSH к серверу WETOP <адрес сервера>:<порт SSH> повторно отклонён (publickey).
 Push/merge в GitHub не является обновлением публичного сайта. Деплой не подтверждён.
 
 Финальная проверка: 7/7 новых и адаптированных браузерных сценариев (17:53:29 UTC),

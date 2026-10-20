@@ -1,0 +1,34 @@
+# Модульные (unit) · 18.10.2026 15:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 22
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-25-37Z-unit-fd6b.json' 'packages/domain/src/customer-import-job.test.ts' 'packages/domain/src/customer-import.test.ts' 'packages/domain/src/customers.test.ts' 'apps/api/src/beauty/customer-import.test.ts' 'apps/api/src/beauty/customer-import.worker.test.ts' 'apps/api/src/beauty/customers-create.test.ts' 'apps/web/src/app/customers/customer-import-actions.test.ts' 'apps/web/src/app/customers/beauty-table.test.ts' 'tests/unit/migrations-hold.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ✓ |unit| packages/domain/src/customer-import.test.ts (13 tests) 549ms
+   ✓ M4-B1 CSV: проверка без записи (13)
+     ✓ ограничивает количество строк 50 000 437ms
+ ✓ |unit| apps/api/src/beauty/customer-import.worker.test.ts (5 tests) 239ms
+ ✓ |unit| apps/api/src/beauty/customer-import.test.ts (7 tests) 120ms
+ ✓ |unit| packages/domain/src/customer-import-job.test.ts (10 tests) 18ms
+ ✓ |unit| apps/api/src/beauty/customers-create.test.ts (13 tests) 6795ms
+   ✓ POST /beauty/customers: клиент без записи (13)
+     ✓ создаёт клиента в серверном scope, сохраняет исходный номер и audit без контактов 3800ms
+     ✓ отклоняет некорректный ввод {"firstName":"Тест"} 424ms
+     ✓ не пишет в read-only организации 1211ms
+ ✓ |unit| apps/web/src/app/customers/beauty-table.test.ts (3 tests) 786ms
+   ✓ Дата последнего визита клиента салона (3)
+     ✓ позволяет добавить клиента без визита, если разрешена запись 596ms
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 1594ms
+   ✓ миграции отдельного релиза ждут вне общей цепочки (ADR-137) (4)
+     ✓ в migrations/ метка «ОТДЕЛЬНЫЙ РЕЛИЗ» только у выпущенных: новая такая миграция лежит в migrations-hold/ 1344ms
+ ✓ |unit| apps/web/src/app/customers/customer-import-actions.test.ts (6 tests) 323ms
+ ✓ |unit| packages/domain/src/customers.test.ts (14 tests) 288ms
+
+ Test Files  9 passed (9)
+      Tests  75 passed (75)
+   Start at  03:26:04
+   Duration  6395.81s (import 51%, transform 48%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-25-37Z-unit-fd6b.json
+
+# код выхода 0 · 1 ч 47 мин

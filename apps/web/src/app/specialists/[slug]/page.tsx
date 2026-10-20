@@ -40,8 +40,14 @@ export default async function SpecialistPage({ params, searchParams }: {
       </form> : <p>Филиалы для записи пока недоступны.</p>}
       {!data.locationId ? <p>Выберите филиал, чтобы увидеть действующие цены.</p> : data.services.length ? <ul className="portal-list">
         {data.services.map(service => {
-          const href = specialistServiceBookingUrl(data.bookingUrl, service.id);
-          return <li key={service.id}><strong>{service.name}</strong><span>{service.durationMinutes} мин</span><span>{formatMoney(service.priceMinor, service.currency)}</span>{href && <a className="btn btn--secondary" href={href} aria-label={`Выбрать время: ${service.name}`}>Выбрать время</a>}</li>;
+          const finalPrice = service.priceMinor !== null && service.priceType !== 'RANGE' && service.priceType !== 'UNFIXED';
+          const href = finalPrice ? specialistServiceBookingUrl(data.bookingUrl, service.id) : null;
+          let priceLabel = 'Цена уточняется';
+          if (service.priceType === 'FREE') priceLabel = 'Бесплатно';
+          else if (service.priceType === 'RANGE' && service.priceMinor !== null && service.priceMaxMinor != null)
+            priceLabel = `${formatMoney(service.priceMinor, service.currency)} – ${formatMoney(service.priceMaxMinor, service.currency)}`;
+          else if (finalPrice && service.priceMinor !== null) priceLabel = formatMoney(service.priceMinor, service.currency);
+          return <li key={service.id}><strong>{service.name}</strong><span>{service.durationMinutes} мин</span><span>{priceLabel}</span>{href && <a className="btn btn--secondary" href={href} aria-label={`Выбрать время: ${service.name}`}>Выбрать время</a>}</li>;
         })}
       </ul> : <p>В выбранном филиале пока нет доступных услуг.</p>}
       {data.bookingUrl ? <a className="btn" href={data.bookingUrl}>Записаться</a> : <p>Онлайн-запись пока недоступна.</p>}

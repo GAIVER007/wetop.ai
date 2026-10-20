@@ -1,9 +1,11 @@
 import { requireFeature } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { deskShell } from '../../../lib/desk-shell';
-import { mayAccess } from '../../../lib/navigation';
+import { barActionAccess } from '../action-access';
 import { barApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
+import { workspaceTimezone } from '../../../lib/workspace-context';
+import { propertyClock } from '../../../lib/property-time';
 import { Tabs } from '../../../components/tabs';
 import { Page } from '../../../components/page';
 import { Badge, EmptyState, SectionTitle, Table } from '../../../components/ui';
@@ -45,24 +47,28 @@ export default async function BarOperationsPage() {
     deskShell(),
   ]);
   // Сохраняем проверку refunds и readOnly из актуального main (ADR-181).
-  const canReverse = mayAccess(shell.access, 'refunds') && !shell.readOnly;
-  // UI-FIX-01: списание и инвентаризация пишут остаток, поэтому нужны право desk и не режим чтения.
-  const canMutate = mayAccess(shell.access, 'desk') && !shell.readOnly;
+  const rights = barActionAccess(shell, shell.vertical);
+  const canReverse = rights.refundFinance;
+  const canMutate = rights.operateStock;
   const failed = [stock, sales, movements].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!stock.ok || !sales.ok || !movements.ok) return null;
   // контекст денежных форм: сервер сверяет объект и валюту (D-CUR); у салона вместо объекта филиал
   const context = await loadBarContext();
+  // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
+  const sectionName = 'Склад';
+  const sectionGenitive = shell.vertical === 'BEAUTY' ? 'склада' : 'бара';
+  const clock = propertyClock(await workspaceTimezone());
   return (
     <Page
       width="wide"
       className="bar-subpage"
-      title="Бар: операции"
+      title={`${sectionName}: движение товаров`}
       subtitle="Списание и инвентаризация, журнал продаж с возвратами, лента движений остатка."
     >
       <BarTabs current="operations" />
       <Tabs
-        label="Операции бара"
+        label={`Операции ${sectionGenitive}`}
         panels={[
           {
             id: 'bar-sales',
@@ -76,7 +82,7 @@ export default async function BarOperationsPage() {
                     Первую продажу можно записать на «Обзоре».
                   </EmptyState>
                 ) : (
-                  <Table density="compact" sticky="header" aria-label="Продажи бара">
+                  <Table density="compact" sticky="header" aria-label={`Продажи ${sectionGenitive}`}>
                     <thead>
                       <tr>
                         <th>Дата</th>
@@ -91,7 +97,7 @@ export default async function BarOperationsPage() {
                     <tbody>
                       {sales.value.map((sale) => (
                         <tr key={sale.id}>
-                          <td>{sale.createdAt.slice(0, 10)}</td>
+                          <td>{clock.full(sale.createdAt)}</td>
                           <td>
                             {sale.lines
                               .map((line) => `${line.product.name} × ${line.quantityUnits}`)
@@ -111,6 +117,7 @@ export default async function BarOperationsPage() {
                                 saleId={sale.id}
                                 context={context}
                                 amountText={formatMoney(sale.totalRevenue, context.currency)}
+                                canRestock={shell.vertical === 'BEAUTY' ? rights.updateStock : true}
                               />
                             )}
                           </td>
@@ -134,7 +141,7 @@ export default async function BarOperationsPage() {
                     Лента заполнится с первым приходом или продажей.
                   </EmptyState>
                 ) : (
-                  <Table density="compact" sticky="header" aria-label="Движения остатка бара">
+                  <Table density="compact" sticky="header" aria-label={`Движения остатка ${sectionGenitive}`}>
                     <thead>
                       <tr>
                         <th>Время</th>
@@ -148,7 +155,7 @@ export default async function BarOperationsPage() {
                     <tbody>
                       {movements.value.map((movement) => (
                         <tr key={movement.id}>
-                          <td>{movement.createdAt.slice(0, 16).replace('T', ' ')}</td>
+                          <td>{clock.full(movement.createdAt)}</td>
                           <td>{movement.product.name}</td>
                           <td>{MOVEMENT_LABEL[movement.kind] ?? movement.kind}</td>
                           <td>{movement.units}</td>

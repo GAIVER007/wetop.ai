@@ -1,0 +1,128 @@
+# Сквозные (e2e) · 18.10.2026 11:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 870563d (claude/main-red-after-nav), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 2648ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 24 tests using 1 worker
+
+  ✘   1 tests/onboarding-real/beauty-onboarding.spec.ts:70:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar (41.2s)
+[WebServer] (node:83850) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   2 tests/onboarding-real/beauty-onboarding.spec.ts:232:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (44.9s)
+  ✓   3 tests/onboarding-real/beauty-onboarding.spec.ts:282:1 › O07c: a closed employee card leaves the router on the list, so later actions cannot restore it (17.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓   4 tests/onboarding-real/beauty-onboarding.spec.ts:313:1 › O07/O08: partial assignment and a lost create response recover one Employee ID (32.8s)
+  ✓   5 tests/onboarding-real/beauty-onboarding.spec.ts:456:1 › O02/O17: unverified and expired confirmation do not bypass real guards (5.9s)
+  ✓   6 tests/onboarding-real/guest-editor-real.spec.ts:81:1 › REALGUEST owner edits in-card citizenship through server actions without changing occupancy or money (57.5s)
+  ✓   7 tests/onboarding-real/guest-editor-real.spec.ts:102:1 › REALGUEST READ_ONLY hides cached editor and real PATCH is forbidden without guest or ledger mutation (21.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓   8 tests/onboarding-real/guest-editor-real.spec.ts:112:1 › REALGUEST restricted branch membership denies own and foreign guest reads/writes and discards cached form (1.0m)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓   9 tests/onboarding-real/onboarding-compatibility.spec.ts:36:1 › O21 Food v1 real registration, saved location and completion (11.4s)
+  ✓  10 tests/onboarding-real/onboarding-compatibility.spec.ts:53:1 › O21 Hospitality v1 real registration, category persistence and provisioning (14.6s)
+  ✓  11 tests/onboarding-real/onboarding-compatibility.spec.ts:68:1 › O22/O23 Beauty extreme widths, reduced motion, keyboard and accessible errors (15.5s)
+  ✓  12 tests/onboarding-real/onboarding-compatibility.spec.ts:95:1 › O02/O03 confirmation in fresh browser and repeated link preserve original context (5.4s)
+  ✓  13 tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab keeps its native dialog open (30.7s)
+  ✓  14 tests/onboarding-real/onboarding-compatibility.spec.ts:172:1 › Employee mobile typography, confirmed scope and create cancellation (10.3s)
+  ✘  15 tests/onboarding-real/recovery-real.spec.ts:43:1 › U07 real authenticated API uses non-owning restricted tenant role (3.9s)
+  ✓  16 tests/onboarding-real/recovery-real.spec.ts:52:3 › U07 real FOOD_SERVICE: outage retains draft and retry persists (6.1s)
+  ✓  17 tests/onboarding-real/recovery-real.spec.ts:73:3 › U07 real FOOD_SERVICE: postcommit lost acknowledgement is read back without duplicate version (4.8s)
+  ✓  18 tests/onboarding-real/recovery-real.spec.ts:52:3 › U07 real HOSPITALITY: outage retains draft and retry persists (8.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2567475469'
+[WebServer] }
+  ✓  19 tests/onboarding-real/recovery-real.spec.ts:73:3 › U07 real HOSPITALITY: postcommit lost acknowledgement is read back without duplicate version (4.8s)
+  ✓  20 tests/onboarding-real/recovery-real.spec.ts:93:1 › U07 real two-page 409 preserves local input until explicit saved load (4.8s)
+  ✓  21 tests/onboarding-real/recovery-real.spec.ts:114:3 › U07 real expire: guarded denial leaves persisted draft unchanged (16.2s)
+  ✓  22 tests/onboarding-real/recovery-real.spec.ts:114:3 › U07 real STAFF: guarded denial leaves persisted draft unchanged (42.3s)
+  ✓  23 tests/onboarding-real/recovery-real.spec.ts:114:3 › U07 real READ_ONLY: guarded denial leaves persisted draft unchanged (29.2s)
+  ✓  24 tests/onboarding-real/recovery-real.spec.ts:159:1 › U07 real foreign business and location pointers never expose or adopt another organization (40.3s)
+
+
+  1) tests/onboarding-real/beauty-onboarding.spec.ts:70:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 20000ms exceeded while waiting on the predicate
+
+      37 |       return Boolean((await reply.json()).link);
+      38 |     })
+    > 39 |     .toBe(true);
+         |      ^
+      40 |   const reply = await page.request.get(
+      41 |     `${api}/__onboarding-test/mail?email=${encodeURIComponent(email)}`,
+      42 |   );
+        at register (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/onboarding-real/beauty-onboarding.spec.ts:39:6)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/onboarding-real/beauty-onboarding.spec.ts:73:17
+
+    Error Context: test-results/beauty-onboarding-O01-O04--a6119-auty-setup-working-calendar/error-context.md
+
+  2) tests/onboarding-real/recovery-real.spec.ts:43:1 › U07 real authenticated API uses non-owning restricted tenant role 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 3
+
+      Array [
+        Object {
+          "owned": 0,
+    -     "rolbypassrls": false,
+    -     "role": "wetop_app",
+    -     "rolsuper": false,
+    +     "rolbypassrls": true,
+    +     "role": "postgres",
+    +     "rolsuper": true,
+        },
+      ]
+
+      45 |   const reply = await page.request.get(`${api}/__onboarding-test/runtime-role`, { headers: await headers(page) });
+      46 |   expect(reply.status()).toBe(200);
+    > 47 |   expect(await reply.json()).toEqual([{ role: 'wetop_app', rolsuper: false, rolbypassrls: false, owned: 0 }]);
+         |                              ^
+      48 | });
+      49 | const button = (page: Page, name: string) => page.getByRole('main').getByRole('button', { name, exact: true });
+      50 | const saved = (page: Page) => expect(page.getByRole('main').getByRole('status').filter({ hasText: /^Сохранено$/ })).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/tests/onboarding-real/recovery-real.spec.ts:47:30
+
+    Error Context: test-results/recovery-real-U07-real-aut-96915-ning-restricted-tenant-role/error-context.md
+
+  2 failed
+    tests/onboarding-real/beauty-onboarding.spec.ts:70:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar 
+    tests/onboarding-real/recovery-real.spec.ts:43:1 › U07 real authenticated API uses non-owning restricted tenant role 
+  22 passed (9.8m)
+
+# код выхода 1 · 9 мин 57 с

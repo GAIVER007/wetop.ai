@@ -82,7 +82,7 @@ describe('страницы отчётов закрыты для салона и 
     // охрана по реестру функций (У1): `/reports` открыт всем направлениям
     const guard = src.indexOf("requireFeature('/reports')");
     const food = src.indexOf("redirect('/restaurant-finance')");
-    const beauty = src.indexOf("redirect('/management/analytics')");
+    const beauty = src.indexOf('return <SalonReportsScreen');
     const hotel = src.indexOf('await hotelToday()');
     expect(guard).toBeGreaterThan(-1);
     expect(food).toBeGreaterThan(guard);

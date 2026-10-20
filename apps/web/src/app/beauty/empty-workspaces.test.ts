@@ -3,12 +3,13 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import type { BeautyDay } from '../../lib/api';
 
-vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh() {} }), unstable_rethrow() {} }));
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh() {} }), useSearchParams: () => new URLSearchParams(), usePathname: () => '/calendar', unstable_rethrow() {} }));
 vi.mock('../../components/overlay', () => ({ Overlay: () => null }));
 vi.mock('./appointment-form', () => ({ AppointmentForm: () => null }));
 vi.mock('./appointment-card', () => ({ AppointmentCard: () => null }));
 vi.mock('./date-bar', () => ({ DateBar: () => null }));
 vi.mock('./actions', () => ({}));
+vi.mock('../customers/actions', () => ({ markBeautyCustomer: vi.fn(), applyBeautyCustomerImport: vi.fn(), createBeautyCustomer: vi.fn(), createBeautyCustomerState: vi.fn(), previewBeautyCustomerImport: vi.fn() }));
 vi.mock('../../components/use-confirm', () => ({ useConfirm: () => ({}) }));
 
 import { JournalBoard } from './journal';
@@ -127,6 +128,6 @@ describe('Пустые рабочие экраны салона', () => {
     expect(html).toContain('<table');
     expect(html).toContain('12 октября, пн');
     expect(html).toContain('18 октября, вс');
-    expect(html).toContain('В этом филиале пока нет мастеров');
+    expect(html).toContain('В этом филиале пока нет специалистов');
   });
 });

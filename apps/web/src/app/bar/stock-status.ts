@@ -1,3 +1,4 @@
+import { salePriceFromMarkup } from '@pms/domain';
 import type { BarStockRow } from '../../lib/api';
 
 /** Статус остатка (макет владельца 09.10.2026): В норме, Заканчивается, Нет в наличии */
@@ -27,10 +28,9 @@ export function markupPercent(salePriceMinor: string, unitCostMinor: string | nu
   return Number(roundDiv((BigInt(salePriceMinor) - cost) * 100n, cost));
 }
 
-/** Цена по наценке из базисных пунктов: вверх до 10 тенге (Q-BAR-2), как при проведении прихода */
-export function recommendedPriceMinor(unitCostMinor: string, markupBasis: bigint): string {
-  const exact = (BigInt(unitCostMinor) * (10_000n + markupBasis) + 9_999n) / 10_000n;
-  return (((exact + 999n) / 1_000n) * 1_000n).toString();
+/** Цена по наценке в валюте филиала, то же правило, что при проведении прихода (домен, ADR-187) */
+export function recommendedPriceMinor(unitCostMinor: string, markupBasis: bigint, currency = 'KZT'): string {
+  return salePriceFromMarkup(BigInt(unitCostMinor), markupBasis, currency).toString();
 }
 
 /** Доля в целых процентах: прибыль к выручке для «маржинальности»; без выручки null */

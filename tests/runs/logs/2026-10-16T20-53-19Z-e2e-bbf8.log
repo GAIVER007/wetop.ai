@@ -1,4 +1,4 @@
-# Сквозные (e2e) · 17.10.2026 01:53 Алматы · srv1719674
+# Сквозные (e2e) · 17.10.2026 01:53 Алматы · <сервер>
 # коммит d02dcbf (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 2
 # npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' 'tests/employee-portal-ui/playwright.config.ts' '--grep' 'personal finance'
 [WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.

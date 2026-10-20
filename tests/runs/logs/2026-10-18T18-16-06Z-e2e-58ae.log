@@ -1,0 +1,50 @@
+# Сквозные (e2e) · 18.10.2026 23:16 Алматы · <сервер>
+# коммит 5b409d1 (feat/salon-draft-implementation-20261018)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/schedule-persistence.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:3524180) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/schedule-persistence.spec.ts:6:1 › desktop › owner saves initially empty master week through onboarding schedule and reloads persisted hours (1.2m)
+
+
+  1) tests/beauty-ui/schedule-persistence.spec.ts:6:1 › desktop › owner saves initially empty master week through onboarding schedule and reloads persisted hours 
+
+    Test was interrupted.
+
+    Error: locator.fill: Test ended.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Имя мастера', { exact: true })
+
+
+      38 |   await page.goto(`/employees?employee=${employee.id}#profile`);
+      39 |   const card=page.getByRole('dialog');
+    > 40 |   await card.getByLabel('Имя мастера',{exact:true}).fill('Synthetic updated master');
+         |                                                     ^
+      41 |   await card.getByRole('button',{name:'Сохранить изменения',exact:true}).click();
+      42 |   await expect(page.getByRole('status').filter({hasText:'Профиль сохранён'})).toBeVisible();
+      43 |   await card.getByRole('tab',{name:'График',exact:true}).click();
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/beauty-ui/schedule-persistence.spec.ts:40:53
+
+    Error Context: test-results/schedule-persistence-deskt-3e2d9-and-reloads-persisted-hours/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/schedule-persistence-deskt-3e2d9-and-reloads-persisted-hours/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/schedule-persistence-deskt-3e2d9-and-reloads-persisted-hours/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 interrupted
+    tests/beauty-ui/schedule-persistence.spec.ts:6:1 › desktop › owner saves initially empty master week through onboarding schedule and reloads persisted hours 
+  1 did not run
+
+# код выхода 130 · 1 мин 25 с

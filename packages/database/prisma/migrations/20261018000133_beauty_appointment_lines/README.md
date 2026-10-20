@@ -1,0 +1,13 @@
+# PREPARED ordinary133, former HELD 131, Beauty appointment lines
+
+Подготовка одобрена18.10.2026; в production НЕ применено. Точные десять SQL SHA и отдельные обязательные cutover-допуски: `packages/database/prisma/beauty-release-preparation.json`, `docs/ops/beauty-zapis-release.md`.
+
+Отдельный релиз для BEAUTY-ZAPIS-20261017 A1/A2/A3/E2. Production application остаётся за владельцем.
+
+При подготовке release эта папка получает свободное имя после последней обычной миграции. Для текущей вершины, где уже есть `20261018000131_customer_phone_normalized` и `20261018000132_customer_imports`, предварительное имя: `20261018000133_beauty_appointment_lines`. Итоговый порядок фиксируется в `docs/ops/beauty-zapis-release.md`.
+
+Зависимости: обычные миграции Beauty domain 044, website appointments 109 и appointment status 130. До применения нужны свежая резервная копия с проверенным восстановлением и остановленные Beauty writers. `migration.sql` выполняется в собственной транзакции. Старый API совместим с новой схемой: legacy INSERT/UPDATE одной услуги синхронизируется триггером, а legacy UPDATE многострочного визита отклоняется. Новый API запускается только после успешного применения и validation.
+
+Проверить до запуска нового API: backfill count/sum/interval; стойка, сайт, бот и импорт создают line; CANCELLED/NO_SHOW освобождают время; реактивация с пересечением отклоняется; RLS режет соседнюю организацию; новый total не ниже чистой оплаты; online booking replay сохраняет прежний ответ.
+
+Rollback empty-only. Он допустим только до появления цен мастеров и когда у каждого визита ровно одна строка, полностью представимая legacy Appointment. После первой многострочной записи, скидки, доплаты или цены мастера `down.sql` обязан отказать. Тогда применяют совместимый forward repair или восстанавливают проверенную резервную копию в отдельно согласованное окно. Данные не очищают ради принудительного down.

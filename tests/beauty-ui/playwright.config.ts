@@ -9,6 +9,7 @@ export default defineConfig({
   workers: 1,
   timeout: 90000,
   use: {
+    actionTimeout: 15000,
     baseURL: web,
     viewport: { width: 1440, height: 1000 },
     trace: 'retain-on-failure',
@@ -29,6 +30,7 @@ export default defineConfig({
       env: {
         APP_API_URL: api,
         APP_ALLOW_TEST_DATA: '1',
+        APP_UI_TEST: '1',
         APP_URL: web,
       },
     },

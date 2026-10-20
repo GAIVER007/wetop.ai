@@ -1,0 +1,198 @@
+# Модульные (unit) · 18.10.2026 12:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит fb0e786 (codex/salons-tz4-m6a), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T07-46-21Z-unit-eaf3.json' 'apps/api/src/beauty/appointment-status.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| apps/api/src/beauty/appointment-status.test.ts (13 tests | 5 failed) 125ms
+   ❯ Неявка только после наступления начала визита (13)
+     × BOOKED: отказывает за миллисекунду до начала без изменения записи и истории 8ms
+     ✓ BOOKED: разрешает на границе начала +0 мс и пишет один audit 1ms
+     × BOOKED: разрешает на границе начала +1 мс и пишет один audit 1ms
+     × CONFIRMED: отказывает за миллисекунду до начала без изменения записи и истории 1ms
+     ✓ CONFIRMED: разрешает на границе начала +0 мс и пишет один audit 0ms
+     × CONFIRMED: разрешает на границе начала +1 мс и пишет один audit 0ms
+     ✓ не предлагает неявку в журнале будущего визита в поясе салона 1ms
+     ✓ предлагает неявку после наступления начала 1ms
+     ✓ сохраняет конфликт при конкурентном изменении и не пишет ложный audit 1ms
+     ✓ не раскрывает чужую запись и не изменяет её 0ms
+     ✓ не обходит режим только чтение организации 0ms
+     ✓ отказывает пользователю без роли до чтения визита 0ms
+     × отвечает HTTP 409 на прямую попытку преждевременной неявки 110ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-status.test.ts > Неявка только после наступления начала визита > BOOKED: отказывает за миллисекунду до начала без изменения записи и истории
+AssertionError: promise resolved "{ …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "appointments": [
++     {
++       "currency": "KZT",
++       "customer": {
++         "id": "customer",
++         "name": "Тестовый клиент",
++         "phone": null,
++       },
++       "employeeId": "employee",
++       "endMinutes": 1140,
++       "endsAt": "2026-10-18T14:00:00.000Z",
++       "id": "00000000-0000-4000-8000-000000000001",
++       "next": [
++         "CONFIRMED",
++         "IN_PROGRESS",
++         "DONE",
++         "CANCELLED",
++       ],
++       "notes": null,
++       "paidCashMinor": "0",
++       "paidMinor": "0",
++       "paidNonCashMinor": "0",
++       "priceMinor": "100000",
++       "refundedMinor": "0",
++       "serviceId": "service",
++       "serviceName": "Тестовая услуга",
++       "startMinutes": 1080,
++       "startsAt": "2026-10-18T13:00:00.000Z",
++       "status": "BOOKED",
++     },
++   ],
++   "bounds": {
++     "fromMinutes": 480,
++     "toMinutes": 1200,
++   },
++   "columns": [],
++   "date": "2026-10-18",
++   "location": {
++     "currency": "KZT",
++     "id": "location",
++     "name": "Тестовый салон",
++     "timezone": "Asia/Almaty",
++   },
++   "services": [],
+  }
+
+ ❯ apps/api/src/beauty/appointment-status.test.ts:47:80
+     45|     it(`${status}: отказывает за миллисекунду до начала без изменения …
+     46|       const f = fixture(status);
+     47|       await expect(f.run(() => f.service.setStatus(id, { status: 'NO_S…
+       |                                                                                ^
+     48|       expect(f.db.appointment.updateMany).not.toHaveBeenCalled();
+     49|       expect(f.db.auditLog.create).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-status.test.ts > Неявка только после наступления начала визита > BOOKED: разрешает на границе начала +1 мс и пишет один audit
+ FAIL  |unit| apps/api/src/beauty/appointment-status.test.ts > Неявка только после наступления начала визита > CONFIRMED: разрешает на границе начала +1 мс и пишет один audit
+ConflictException: Можно после начала визита
+ ❯ BeautyAppointmentsService.setStatus apps/api/src/beauty/appointments.ts:327:27
+    325|     const to = String(body['status'] ?? '') as AppointmentStatus;
+    326|     const change = statusChange(row.status as AppointmentStatus, to, {…
+    327|     if (!change.ok) throw new ConflictException(change.reason);
+       |                           ^
+    328|
+    329|     await beautyTransaction(this.prisma, scope, async (tx) => {
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ apps/api/src/beauty/appointment-status.test.ts:56:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-status.test.ts > Неявка только после наступления начала визита > CONFIRMED: отказывает за миллисекунду до начала без изменения записи и истории
+AssertionError: promise resolved "{ …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "appointments": [
++     {
++       "currency": "KZT",
++       "customer": {
++         "id": "customer",
++         "name": "Тестовый клиент",
++         "phone": null,
++       },
++       "employeeId": "employee",
++       "endMinutes": 1140,
++       "endsAt": "2026-10-18T14:00:00.000Z",
++       "id": "00000000-0000-4000-8000-000000000001",
++       "next": [
++         "IN_PROGRESS",
++         "DONE",
++         "CANCELLED",
++       ],
++       "notes": null,
++       "paidCashMinor": "0",
++       "paidMinor": "0",
++       "paidNonCashMinor": "0",
++       "priceMinor": "100000",
++       "refundedMinor": "0",
++       "serviceId": "service",
++       "serviceName": "Тестовая услуга",
++       "startMinutes": 1080,
++       "startsAt": "2026-10-18T13:00:00.000Z",
++       "status": "CONFIRMED",
++     },
++   ],
++   "bounds": {
++     "fromMinutes": 480,
++     "toMinutes": 1200,
++   },
++   "columns": [],
++   "date": "2026-10-18",
++   "location": {
++     "currency": "KZT",
++     "id": "location",
++     "name": "Тестовый салон",
++     "timezone": "Asia/Almaty",
++   },
++   "services": [],
+  }
+
+ ❯ apps/api/src/beauty/appointment-status.test.ts:47:80
+     45|     it(`${status}: отказывает за миллисекунду до начала без изменения …
+     46|       const f = fixture(status);
+     47|       await expect(f.run(() => f.service.setStatus(id, { status: 'NO_S…
+       |                                                                                ^
+     48|       expect(f.db.appointment.updateMany).not.toHaveBeenCalled();
+     49|       expect(f.db.auditLog.create).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/api/src/beauty/appointment-status.test.ts > Неявка только после наступления начала визита > отвечает HTTP 409 на прямую попытку преждевременной неявки
+Error: expected 409 "Conflict", got 201 "Created"
+ ❯ apps/api/src/beauty/appointment-status.test.ts:126:38
+    124|       await app.listen(0, '127.0.0.1');
+    125|       const result = await request(app.getHttpServer()).post(`/beauty/…
+    126|         .send({ status: 'NO_SHOW' }).expect(409);
+       |                                      ^
+    127|       expect(result.body.message).toBe('Можно после начала визита');
+    128|       expect(f.db.appointment.updateMany).not.toHaveBeenCalled();
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:892:12
+ ❯ callback node_modules/superagent/src/node/index.js:1183:18
+ ❯ fn node_modules/superagent/src/node/parsers/json.js:19:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 8 passed (13)
+   Start at  00:46:23
+   Duration  1.19s (transform 45%, import 44%, tests 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T07-46-21Z-unit-eaf3.json
+
+# код выхода 1 · 3 с

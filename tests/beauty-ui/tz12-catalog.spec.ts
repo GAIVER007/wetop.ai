@@ -14,7 +14,9 @@ test('catalog customers mobile contact cards retain secondary existing metrics',
   await expect(table.locator('thead')).not.toBeVisible();
   await expect(table.locator('[data-label="Последний визит"]')).toBeVisible();
   await expect(table.locator('[data-label="Средний чек"]')).toBeVisible();
-  await expect(table.getByRole('link')).toHaveCount(0);
+  // единственная ссылка строки ведёт в карточку клиента (её проверяет customer-detail.spec)
+  await expect(table.getByRole('link')).toHaveCount(1);
+  await expect(table.getByRole('link')).toHaveAttribute('href', /^\/customers\/[0-9a-f-]+$/);
 });
 
 test('catalog services branch price duration precede secondary full catalog data', async ({
@@ -33,14 +35,14 @@ test('catalog services branch price duration precede secondary full catalog data
   await expect(search).toBeVisible();
   expect((await search.boundingBox())!.width).toBeGreaterThanOrEqual(260);
   await page.setViewportSize({ width: 1440, height: 1000 });
-  const table = page.getByRole('table');
-  const headers = await table.getByRole('columnheader').allTextContents();
-  expect(headers[1]).toBe('В этом филиале');
-  const row = table.locator('tbody tr').filter({ hasText: 'Тест стрижка' });
-  await expect(row.locator('[data-label="В этом филиале"]')).toContainText('75 мин');
-  await expect(row.locator('[data-label="Каталог"]')).toContainText('60 мин');
-  await expect(row).toContainText('Нет завершённых визитов');
-  await expect(row).not.toContainText('0%');
+  const salon = page.locator('[data-service-list="salon"]');
+  const catalog = page.locator('[data-service-list="catalog"]');
+  const salonItem = salon.locator('.beauty-service-item').filter({ hasText: 'Тест стрижка' });
+  const catalogItem = catalog.locator('.beauty-service-item').filter({ hasText: 'Тест стрижка' });
+  await expect(salonItem).toContainText('75 мин');
+  await expect(catalogItem).toContainText('60 мин');
+  await expect(catalogItem).toContainText('Нет завершённых визитов');
+  await expect(catalogItem).not.toContainText('0%');
 });
 
 for (const width of [390, 768, 1440])
@@ -52,7 +54,8 @@ for (const width of [390, 768, 1440])
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       for (const route of ['customers', 'services']) {
         await page.goto(`/${route}?date=${date}`);
-        await expect(page.getByRole('table')).toBeVisible();
+        if (route === 'customers') await expect(page.getByRole('table')).toBeVisible();
+        else await expect(page.locator('.beauty-service-transfer-board')).toBeVisible();
         const axe = await new AxeBuilder({ page })
           .include('main')
           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])

@@ -1,0 +1,50 @@
+# Модульные (unit) · 18.10.2026 09:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 33b587c (claude/bar-money-currency-rules), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-46-12Z-unit-fbf1.json' 'packages/domain/src/bar/bar.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ❯ |unit| packages/domain/src/bar/bar.test.ts (8 tests | 1 failed) 5ms
+   ✓ бар: цена по наценке (DATA_MODEL § 27, Q-BAR-2...Q-BAR-3) (2)
+     ✓ считает без float и округляет вверх до 10 тенге 1ms
+     ✓ отклоняет неположительную себестоимость и отрицательную наценку 0ms
+   ✓ бар: FIFO и остаток (Q-BAR-1, Q-BAR-8) (2)
+     ✓ списывает сначала самую старую партию и фиксирует себестоимость 0ms
+     ✓ не разрешает уйти в минус 0ms
+   ✓ бар: упаковки (Q-BAR-7) (2)
+     ✓ переводит целые упаковки в штуки 0ms
+     ✓ не принимает ноль 0ms
+   ❯ цена по наценке в валюте филиала (ADR-187) (2)
+     ✓ тенге: вверх до 10 ₸, как раньше (Q-BAR-2) 0ms
+     × доллар, дирхам, риал: вверх до целой единицы 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/bar/bar.test.ts > цена по наценке в валюте филиала (ADR-187) > доллар, дирхам, риал: вверх до целой единицы
+AssertionError: expected 1000n to be 500n // Object.is equality
+
+- Expected
++ Received
+
+- 500n
++ 1000n
+
+ ❯ packages/domain/src/bar/bar.test.ts:63:54
+     61|   });
+     62|   it('доллар, дирхам, риал: вверх до целой единицы', () => {
+     63|     expect(salePriceFromMarkup(300n, 4_000n, 'USD')).toBe(500n); // 3,…
+       |                                                      ^
+     64|     expect(salePriceFromMarkup(250n, 10_000n, 'AED')).toBe(500n); // 2…
+     65|     expect(salePriceFromMarkup(301n, 0n, 'QAR')).toBe(400n); // 3,01 →…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  21:46:13
+   Duration  99ms (transform 55%, import 18%, tests 18%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-46-12Z-unit-fbf1.json
+
+# код выхода 1 · 1 с

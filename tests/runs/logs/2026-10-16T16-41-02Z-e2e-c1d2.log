@@ -1,4 +1,4 @@
-# Сквозные (e2e) · 16.10.2026 21:41 Алматы · srv1719674
+# Сквозные (e2e) · 16.10.2026 21:41 Алматы · <сервер>
 # коммит eaf0b57 (fix/calendar-release-20261016), незакоммиченных файлов набора: 4
 # npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' '/srv/hermes/workspace/wetop-calendar-release-evidence-20261016/pass3/beauty.config.mjs'
 [WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.

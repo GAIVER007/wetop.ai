@@ -8,17 +8,24 @@ export class BarRuleError extends Error {
 
 const BASIS_POINTS = 10_000n;
 const TEN_TENGE_MINOR = 1_000n;
+const WHOLE_UNIT_MINOR = 100n;
 
 function ceilDiv(value: bigint, divisor: bigint): bigint {
   return (value + divisor - 1n) / divisor;
 }
 
-/** Цена после наценки, округленная вверх до 10 тенге, без float. */
-export function salePriceFromMarkup(unitCostMinor: bigint, markupBasisPoints: bigint): bigint {
+/** Шаг округления цены после наценки: тенге вверх до 10 ₸ (Q-BAR-2), другие валюты вверх до целой единицы (ADR-187). */
+export function priceStepMinor(currency = 'KZT'): bigint {
+  return currency === 'KZT' ? TEN_TENGE_MINOR : WHOLE_UNIT_MINOR;
+}
+
+/** Цена после наценки в валюте филиала, округленная вверх по priceStepMinor, без float. */
+export function salePriceFromMarkup(unitCostMinor: bigint, markupBasisPoints: bigint, currency = 'KZT'): bigint {
   if (unitCostMinor <= 0n) throw new BarRuleError('Себестоимость должна быть больше нуля');
   if (markupBasisPoints < 0n) throw new BarRuleError('Наценка не может быть отрицательной');
   const markedUp = ceilDiv(unitCostMinor * (BASIS_POINTS + markupBasisPoints), BASIS_POINTS);
-  return ceilDiv(markedUp, TEN_TENGE_MINOR) * TEN_TENGE_MINOR;
+  const step = priceStepMinor(currency);
+  return ceilDiv(markedUp, step) * step;
 }
 
 export interface FifoLot {

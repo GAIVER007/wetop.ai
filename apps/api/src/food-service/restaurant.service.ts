@@ -1245,7 +1245,11 @@ export class RestaurantService {
       this.balances(db, s),
       db.restaurantCashOperation.findMany({
         where: { locationId: s.locationId, ...(period ? { occurredAt: period } : {}) },
-        include: { employee: { select: { name: true } } },
+        include: {
+          employee: { select: { name: true } },
+          // H1 (паритет с zapis.kz): операция оплаты или возврата записи ссылается на неё
+          appointment: { select: { startsAt: true } },
+        },
         orderBy: { occurredAt: 'desc' },
         ...(period ? {} : { take: 100 }),
       }),
@@ -1277,6 +1281,8 @@ export class RestaurantService {
         refund: o.kind === 'EXPENSE' && (o.orderId !== null || o.appointmentId !== null),
         status: o.status,
         occurredAt: o.occurredAt,
+        appointmentId: o.appointmentId,
+        appointmentStartsAt: o.appointment?.startsAt.toISOString() ?? null,
       })),
       payments: payments.map((p) => ({
         id: p.id,
@@ -1603,7 +1609,7 @@ export class RestaurantService {
 
   /** К выплате за месяц по сотрудникам бизнеса (§33.4) и выплачено из кассы филиала (§35.3) */
   private async monthPayroll(
-    db: Pick<DbTx, 'employee' | 'restaurantOrder' | 'appointment' | 'employeePayAdjustment' | 'restaurantCashOperation'>,
+    db: Pick<DbTx, 'employee' | 'restaurantOrder' | 'appointmentLine' | 'employeePayAdjustment' | 'restaurantCashOperation'>,
     s: FoodScope,
     month: unknown,
   ) {
@@ -1620,17 +1626,19 @@ export class RestaurantService {
       // иначе бизнес с двумя филиалами показывает и может выплатить один оклад дважды
       // база процента: у ресторана закрытые заказы официанта, у салона выполненные записи мастера (§19.2)
       s.vertical === 'BEAUTY'
-        ? db.appointment
+        ? db.appointmentLine
             .groupBy({
               by: ['employeeId'],
               where: {
-                location: { businessId: s.businessId },
-                status: 'DONE',
-                startsAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
+                appointment: {
+                  location: { businessId: s.businessId },
+                  status: 'DONE',
+                  startsAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
+                },
               },
-              _sum: { price: true },
+              _sum: { priceMinor: true },
             })
-            .then((rows) => rows.map((r) => ({ waiterId: r.employeeId, _sum: { total: r._sum.price } })))
+            .then((rows) => rows.map((r) => ({ waiterId: r.employeeId, _sum: { total: r._sum.priceMinor } })))
         : db.restaurantOrder.groupBy({
             by: ['waiterId'],
             where: {

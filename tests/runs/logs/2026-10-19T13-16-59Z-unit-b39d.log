@@ -1,0 +1,31 @@
+# Модульные (unit) · 19.10.2026 18:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит b19e9e9 (claude/pwa1), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-16-59Z-unit-b39d.json' 'apps/web/src/app/manifest.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/support-whatsnew
+
+ ❯ |unit| apps/web/src/app/manifest.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/manifest.test.ts [ apps/web/src/app/manifest.test.ts ]
+Error: Cannot find module './manifest' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/support-whatsnew/apps/web/src/app/manifest.test.ts
+ ❯ apps/web/src/app/manifest.test.ts:4:1
+      2| import { join } from 'node:path';
+      3| import { describe, expect, it } from 'vitest';
+      4| import manifest from './manifest';
+       | ^
+      5| import { PWA_THEME } from '../lib/pwa';
+      6|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  06:17:00
+   Duration  79ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-16-59Z-unit-b39d.json
+
+# код выхода 1 · 1 с

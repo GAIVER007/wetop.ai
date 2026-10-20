@@ -85,7 +85,8 @@ describe.skipIf(process.env.A23_RUNTIME_AUDIT !== '1')('A3 approved money audit 
     const a = await actor('USD'); const c = await legacyStocked(a, '2', '1000', '2000'); const sold = await sell(a, c.product); expect(sold.status).toBe(201);
     const s = await snapshot(a, 'USD property retail and cash'); const cash = await ok(a, '/finance/cash'); note('property currency path', { propertyCurrency: a.currency, cash, sale: s.state.sales[0] });
     expect(s.state.sales[0]!.currency, 'A retail sale cannot relabel USD property prices as KZT').toBe('USD'); expect(cash.currency).toBe('USD'); expect(cash.totalMinor).toBe('2000');
-    const before=await snapshot(a,'USD explicit price operations'); const auto=await request(a,'/bar/receipts','POST',{supplierId:c.supplier,documentNumber:randomUUID(),documentDate:'2026-10-07',receivedDate:'2026-10-07',currency:'USD',lines:[{productId:c.product,quantityUnits:'1',unitCostMinor:'1000',markupBasis:0}]});expect(auto.status).toBe(409);expect((await snapshot(a,'USD auto price rejected')).state).toEqual(before.state);
+    // ADR-187 (18.10.2026): автоцена не в тенге утверждена, вверх до целой единицы валюты филиала: 10,20 USD → 11,00 USD
+    const auto=await request(a,'/bar/receipts','POST',{supplierId:c.supplier,documentNumber:randomUUID(),documentDate:'2026-10-07',receivedDate:'2026-10-07',currency:'USD',lines:[{productId:c.product,quantityUnits:'1',unitCostMinor:'1020',markupBasis:0}]});expect(auto.status).toBe(201);expect((auto.body as {lines:Array<{calculatedPrice:string}>}).lines[0]!.calculatedPrice).toBe('1100');
   });
 
   auditCase('D-CUR legacy cash sources never produce a false scalar total', 'Approved D-CUR existing historical settlement guard', async () => {

@@ -1,0 +1,65 @@
+# Интеграционные (integration) · 19.10.2026 14:21 Алматы · <сервер>
+# коммит da36321 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T09-21-41Z-integration-630e.json' 'tests/integration/beauty-appointment-lines.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+(node:831647) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/beauty-appointment-lines.test.ts (28 tests | 1 failed) 4093ms
+   ❯ Beauty: строки услуг записи и совместимость старых writers (28)
+     ✓ equal-total edits preserve complete immutable previous and next service-line snapshots 399ms
+     ✓ создаёт две последовательные строки, сумму визита и сегменты календаря по каждому мастеру 61ms
+     ✓ читает период одним срезом филиала, включая пересечение границы в его часовом поясе 24ms
+     ✓ RLS скрывает строки услуг и цены мастера другой организации 35ms
+     ✓ кабинет второго мастера показывает только его строку, цену и интервал 69ms
+     ✓ проверяет занятость каждого сегмента, но разрешает ту же услугу другому мастеру 60ms
+     ✓ не принимает мастера или услугу другого бизнеса внутри строки 12ms
+     ✓ гонка двух созданий одного слота оставляет ровно одну строку 54ms
+     ✓ старый INSERT и UPDATE поддерживают одну строку, а поля строк многострочного визита меняются только через API 66ms
+     ✓ legacy перенос первой строки сохраняет остальные строки и все снимки цены 166ms
+     ✓ не даёт администратору сбросить скидку и ручную длительность заменой items без права rates 78ms
+     ✓ перечитывает цену услуги после получения транзакционных замков 58ms
+     ✓ не создаёт новую строку после архивации мастера между планом и транзакцией 22ms
+     ✓ legacy writer не создаёт новую строку для архивного мастера или услуги 19ms
+     ✓ явно отклоняет перенос старой записи в валюте, отличной от текущей валюты филиала 61ms
+     ✓ отмена освобождает интервалы, но реактивация не создаёт пересечение 141ms
+     ✓ гонка двух правок принимает одну и отклоняет zero-row optimistic update 103ms
+     ✓ переиспользует канонический телефон без перезаписи имени и не восстанавливает архивную карточку 184ms
+     ✓ задаёт цену мастера в валюте филиала и отдаёт effective price форме записи 103ms
+     ✓ хранит один отзыв мастеру за DONE-визит и показывает только отзывы выбранного мастера 527ms
+     × выдаёт ссылку на 30 дней от первого DONE, не хранит raw token и ротирует только неотправленную ссылку 27ms
+     ✓ отклоняет истёкший DONE и атомарно принимает выбранных мастеров только один раз 280ms
+     ✓ сохраняет техкарту по revision, считает FIFO и списывает материалы только при первом DONE 393ms
+     ✓ new bookings respect salon breaks while existing visits remain unchanged 94ms
+     ✓ salon hours configuration rejects lost updates, checks rights and reports existing conflicts 71ms
+     ✓ salon hours RLS hides another organization and the rollback refuses saved configuration 47ms
+     ✓ authorized salon hours writes work through the real restricted application role 141ms
+     ✓ authorized private review links work through the real restricted application role 256ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-appointment-lines.test.ts > Beauty: строки услуг записи и совместимость старых writers > выдаёт ссылку на 30 дней от первого DONE, не хранит raw token и ротирует только неотправленную ссылку
+ConflictException: Мастер в это время уже занят
+ ❯ BeautyAppointmentsService.assertFree apps/api/src/beauty/appointments.ts:881:13
+    879|   ) {
+    880|     if (await employeeBusy(db, employeeId, startsAt, endsAt, exceptId))
+    881|       throw new ConflictException('Мастер в это время уже занят');
+       |             ^
+    882|   }
+    883| }
+ ❯ BeautyAppointmentsService.create apps/api/src/beauty/appointments.ts:347:7
+ ❯ apps/api/src/auth/request-context.ts:76:41
+ ❯ tests/integration/beauty-appointment-lines.test.ts:1021:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 passed (28)
+   Start at  09:21:43
+   Duration  7.96s (tests 64%, transform 25%, import 11%)
+
+JSON report written to /tmp/pms-test-2026-10-19T09-21-41Z-integration-630e.json
+
+# код выхода 1 · 10 с

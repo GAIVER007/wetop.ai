@@ -99,12 +99,60 @@
     align-items: center;
     flex-wrap: wrap;
   }
+  .beauty-customer-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+    margin-bottom: var(--space-4);
+  }
+  .beauty-customer-tools .muted {
+    flex: 1 1 240px;
+  }
+  .beauty-customer-head {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: var(--space-4);
+    margin: 0 0 var(--space-6);
+  }
+  .beauty-customer-head > div {
+    min-width: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+  }
+  .beauty-customer-head dt {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .beauty-customer-head dd {
+    margin: var(--space-1) 0 0;
+    overflow-wrap: anywhere;
+  }
+  .beauty-customer-notes {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
   @media (max-width: 600px) {
     .beauty-customers-controls {
       width: 100%;
     }
     .beauty-customers-controls > * {
       flex: 1 1 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+    .beauty-customers-controls > .btn {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    .beauty-customer-tools > .btn {
+      flex: 1 1 100%;
+      min-width: 0;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
   }
   /* «Мастера» карточками (ТЗ салона 09.10.2026): сетка вместо таблицы, drawer правки прежний */
@@ -190,6 +238,23 @@
     gap: var(--space-2);
     align-items: center;
     margin-bottom: var(--space-2);
+  }
+  @media (max-width: 600px) {
+    .beauty-week-nav {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .beauty-week-nav > span {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .beauty-week-nav > a {
+      min-width: 0;
+      white-space: normal;
+      text-align: center;
+    }
   }
   .beauty-week-grid td.is-on {
     background: var(--success-soft);
@@ -667,6 +732,23 @@
     width: 10rem;
     max-width: 100%;
   }
+  .beauty-calendar-wide {
+    display: contents;
+  }
+  .beauty-calendar-narrow {
+    display: none;
+  }
+  @media (max-width: 600px) {
+    .beauty-calendar-wide {
+      display: none;
+    }
+    .beauty-calendar-narrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+    }
+  }
   .beauty-page .beauty-calendar-toolbar .beauty-filters {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
@@ -1033,19 +1115,23 @@
   .beauty-contact a {
     white-space: nowrap;
   }
-  .appointment-editor.ui-overlay {
+  .appointment-editor.ui-overlay,
+  .appointment-card-modal.ui-overlay {
     display: flex;
     flex-direction: column;
     overflow: hidden;
     background: var(--surface);
   }
-  .appointment-editor.ui-overlay:not([open]) {
+  .appointment-editor.ui-overlay:not([open]),
+  .appointment-card-modal.ui-overlay:not([open]) {
     display: none;
   }
-  .appointment-editor > .overlay-heading {
+  .appointment-editor > .overlay-heading,
+  .appointment-card-modal > .overlay-heading {
     flex: none;
   }
-  .appointment-editor > .overlay-content {
+  .appointment-editor > .overlay-content,
+  .appointment-card-modal > .overlay-content {
     min-height: 0;
     flex: 1;
     overflow-y: auto;
@@ -1066,6 +1152,42 @@
   .appointment-form legend {
     font-weight: var(--weight-semibold);
     padding: 0 0 var(--space-2);
+  }
+  .appointment-form .appointment-service-line {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .appointment-form .appointment-customer-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .appointment-line-adjustments {
+    grid-column: 1 / -1;
+  }
+  .appointment-line-adjustments > summary {
+    cursor: pointer;
+    padding-block: var(--space-2);
+    color: var(--text-2);
+  }
+  .appointment-line-adjustments[open] > summary {
+    margin-bottom: var(--space-2);
+  }
+  .appointment-service-line > legend,
+  .appointment-service-line > .beauty-fields-pair,
+  .appointment-service-line > p,
+  .appointment-service-line > .btn {
+    grid-column: 1 / -1;
+  }
+  .appointment-service-line > p {
+    margin: 0;
+    font-weight: var(--weight-semibold);
+  }
+  .appointment-service-line > .btn {
+    justify-self: end;
   }
   .appointment-form .beauty-fields-pair {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1099,6 +1221,10 @@
     }
   }
   @media (max-width: 600px) {
+    .appointment-form .appointment-service-line,
+    .appointment-form .appointment-customer-fields {
+      grid-template-columns: minmax(0, 1fr);
+    }
     .beauty-page:has(.beauty-calendar-toolbar) > .page__head {
       margin-bottom: var(--space-1);
     }
@@ -1154,9 +1280,6 @@
       margin: var(--space-1) 0;
       font-size: var(--text-xs);
     }
-    .beauty-mobile-calendar .beauty-current-master {
-      display: none;
-    }
     .beauty-mobile-calendar .beauty-current-master + .beauty-note {
       margin: var(--space-1) 0;
     }
@@ -1208,12 +1331,12 @@
     }
     .beauty-appointments-table td[data-label='Телефон'],
     .beauty-appointments-table td[data-label='Услуга'],
-    .beauty-appointments-table td[data-label='Мастер'] {
+    .beauty-appointments-table td[data-label='Специалист'] {
       grid-column: 1 / -1;
     }
-    .beauty-appointments-table td[data-label='Мастер']::before {
+    .beauty-appointments-table td[data-label='Специалист']::before {
       display: inline;
-      content: 'Мастер: ';
+      content: 'Специалист: ';
     }
     .beauty-appointments-table .beauty-contact--empty {
       display: none;
@@ -1241,4 +1364,53 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
+}
+
+
+@layer sections {
+  .beauty-period-filter {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .beauty-period-filter .field {
+    min-width: 0;
+  }
+  @media (max-width: 600px) {
+    .beauty-period-filter {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+    }
+    .beauty-period-filter .inp {
+      min-width: 0;
+      width: 100%;
+    }
+  }
+}
+
+@layer sections {
+  .appointment-form .appointment-duration-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .appointment-service-line > .beauty-fields-pair { align-items: end; }
+}
+
+@layer sections {
+  @media (max-width: 600px) {
+    .appointment-form .appointment-duration-price {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+/* A5 (паритет с zapis.kz): подсказки поиска клиента и быстрые кнопки «Гость» / «Последний клиент» */
+.appointment-customer-suggest,
+.appointment-customer-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }

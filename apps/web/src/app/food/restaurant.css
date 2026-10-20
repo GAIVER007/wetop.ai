@@ -1582,6 +1582,19 @@
     align-items: center;
     gap: var(--space-2);
   }
+  /* «Сотрудники»: строка в одну линию (замечание владельца 20.10.2026 «кривые переносы»); узкий экран прокручивает таблицу */
+  .rest-staff-table .rest-staff-kind {
+    width: auto;
+    min-width: 11rem;
+  }
+  .rest-staff-actions {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .rest-staff-branch {
+    margin: 0;
+  }
   .rest-avatar {
     display: grid;
     place-items: center;

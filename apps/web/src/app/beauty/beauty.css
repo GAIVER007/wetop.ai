@@ -205,6 +205,11 @@
     align-items: center;
     flex-wrap: wrap;
   }
+  /* выбор назначения в строке: на всю ширину карточки, ошибка под ним */
+  .beauty-master-card__kind {
+    display: grid;
+    gap: var(--space-1);
+  }
   .beauty-master-card__skills {
     color: var(--text-2);
     font-size: var(--text-sm);

@@ -28,7 +28,7 @@ export async function GET(request: Request) {
         422,
         `Операций за период больше ${MAX_ROWS.toLocaleString('ru-RU')} — укоротите период и выгрузите по частям.`,
       );
-    return new Response(operationsCsv(ops.rows), {
+    return new Response(operationsCsv(ops.rows, ops.currency), {
       headers: {
         'content-type': 'text/csv; charset=utf-8',
         'content-disposition': `attachment; filename="wetop-operations-${from}_${to}.csv"`,

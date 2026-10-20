@@ -14,10 +14,56 @@ import {
   Select,
   Table,
 } from '../../components/ui';
+import { Tabs } from '../../components/tabs';
+import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs, type PersonnelKind } from '@pms/domain';
 import { pluralRu } from '../../lib/plural';
 import { wholeTenge } from '../../lib/dashboard-format';
 import type { FoodEmployee } from '../../lib/food-types';
-import { mutateStaff } from './restaurant-actions';
+import { assignFoodPersonnelKind, mutateStaff } from './restaurant-actions';
+
+/**
+ * Назначение строки (DATA_MODEL.md, решения 18.10 и 20.10.2026): руководитель выбирает «специалист», «другой
+ * сотрудник» или «оба», остальные видят только метку. Право считает сервер, PATCH проверяет его ещё раз.
+ */
+function KindCell({ scopeKey, employee, canAssign }: { scopeKey: string; employee: FoodEmployee; canAssign: boolean }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [error, setError] = useState('');
+  const kind = employee.personnelKind ?? null;
+  if (!canAssign) return <Badge>{kind ? PERSONNEL_KIND_LABELS[kind] : 'Не назначено'}</Badge>;
+  return (
+    <>
+      <Select
+        className="rest-staff-kind"
+        aria-label={`Назначение: ${employee.name}`}
+        value={kind ?? ''}
+        disabled={pending}
+        aria-busy={pending || undefined}
+        onChange={(e) => {
+          const next = e.target.value;
+          setError('');
+          start(async () => {
+            const result = await assignFoodPersonnelKind(scopeKey, employee.id, next, employee.profileRevision);
+            if (result.error) setError(result.error);
+            router.refresh();
+          });
+        }}
+      >
+        {kind === null && (
+          <option value="" disabled>
+            Не назначено
+          </option>
+        )}
+        {PERSONNEL_KINDS.map((value) => (
+          <option key={value} value={value}>
+            {PERSONNEL_KIND_LABELS[value]}
+          </option>
+        ))}
+      </Select>
+      {error && <Alert>{error}</Alert>}
+    </>
+  );
+}
 
 function EmployeeDrawer({
   scopeKey,
@@ -36,6 +82,8 @@ function EmployeeDrawer({
   const [phone, setPhone] = useState(employee?.phone ?? '');
   const [email, setEmail] = useState(employee?.email ?? '');
   const [status, setStatus] = useState(employee?.status ?? 'ACTIVE');
+  // назначение нового сотрудника выбирает руководитель; по умолчанию «Другой сотрудник»: у ресторана это чаще
+  const [personnelKind, setPersonnelKind] = useState<PersonnelKind>('OTHER_EMPLOYEE');
   const [expectedProfileRevision] = useState(employee?.profileRevision ?? '');
   function submit() {
     setError('');
@@ -53,7 +101,7 @@ function EmployeeDrawer({
         scopeKey,
         employee
           ? { kind: 'edit', id: employee.id, body: { ...body, status, expectedProfileRevision } }
-          : { kind: 'create', body },
+          : { kind: 'create', body: { ...body, personnelKind } },
       );
       if (result.error) setError(result.error);
       else {
@@ -94,6 +142,17 @@ function EmployeeDrawer({
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </Field>
         </div>
+        {!employee && (
+          <Field label="Кто это">
+            <Select value={personnelKind} onChange={(e) => setPersonnelKind(e.target.value as PersonnelKind)}>
+              {PERSONNEL_KINDS.map((value) => (
+                <option key={value} value={value}>
+                  {PERSONNEL_KIND_LABELS[value]}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
         {employee && (
           <Field label="Статус">
             <Select value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -122,11 +181,13 @@ export function EmployeesBoard({
   write,
   employees,
   branchName,
+  canAssignPersonnelKind = false,
 }: {
   scopeKey: string;
   write: boolean;
   employees: FoodEmployee[];
   branchName: string;
+  canAssignPersonnelKind?: boolean;
 }) {
   const [search, setSearch] = useState('');
   const [onlyShift, setOnlyShift] = useState(false);
@@ -137,6 +198,8 @@ export function EmployeesBoard({
       (!needle || `${e.name} ${e.phone ?? ''}`.toLocaleLowerCase('ru').includes(needle)) &&
       (!onlyShift || e.onShift),
   );
+  // старые записи без назначения не прячутся и не угадываются: своя вкладка, пока они есть
+  const tabs = personnelTabs(list.map((e) => ({ ...e, personnelKind: e.personnelKind ?? null })));
   const initials = (name: string) =>
     name
       .split(/\s+/)
@@ -144,6 +207,71 @@ export function EmployeesBoard({
       .map((w) => w[0] ?? '')
       .join('')
       .toUpperCase();
+  const table = (rows: FoodEmployee[]) => (
+          <Table density="compact" caption="Сотрудники ресторана" captionHidden nowrap className="rest-staff-table">
+            <thead>
+              <tr>
+                {['Сотрудник', 'Назначение', 'Телефон', 'Смена сегодня', 'Статус', 'Продажи сегодня', 'Рейтинг'].map(
+                  (h) => (
+                    <th key={h} scope="col">
+                      {h}
+                    </th>
+                  ),
+                )}
+                <th scope="col">
+                  <span className="sr-only">Действия</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((e) => (
+                <tr key={e.id}>
+                  <td>
+                    <span className="rest-person">
+                      <span className="rest-avatar" aria-hidden="true">
+                        {initials(e.name)}
+                      </span>
+                      <strong>{e.name}</strong>
+                      {e.status === 'ARCHIVED' && <Badge>В архиве</Badge>}
+                    </span>
+                  </td>
+                  <td>
+                    <KindCell scopeKey={scopeKey} employee={e} canAssign={canAssignPersonnelKind && write} />
+                  </td>
+                  <td>{e.phone ?? '—'}</td>
+                  <td>{e.shift ?? 'Выходной'}</td>
+                  <td>
+                    <Badge tone={e.onShift ? 'ok' : 'neutral'}>
+                      {e.onShift ? 'На смене' : 'Не на смене'}
+                    </Badge>
+                  </td>
+                  <td>{wholeTenge(e.salesTodayMinor)}</td>
+                  <td data-testid="employee-rating">
+                    {e.rating?.average != null
+                      ? `${String(e.rating.average).replace('.', ',')} ★, ${pluralRu(e.rating.count, ['оценка', 'оценки', 'оценок'])}`
+                      : <span className="muted" title="Оценок нет">—</span>}
+                  </td>
+                  <td>
+                    {write && (
+                      <span className="rest-staff-actions">
+                        <a
+                          className="btn btn--secondary btn--sm"
+                          href={`/employees/${encodeURIComponent(e.id)}/profile`}
+                          aria-label={`Карточка сотрудника: ${e.name}`}
+                        >
+                          Карточка
+                        </a>
+                        <Button tone="ghost" size="sm" onClick={() => setDraft(e)} aria-label={`Изменить: ${e.name}`}>
+                          Изменить
+                        </Button>
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+  );
   return (
     <div className="food-workspace rest-ws" data-testid="employees-board">
       {write && (
@@ -152,6 +280,7 @@ export function EmployeesBoard({
         </div>
       )}
       <div className="rest-card">
+        <p className="muted rest-staff-branch">Филиал: {branchName}</p>
         <div className="rest-card__tools">
           <Field label={<span className="sr-only">Поиск по сотрудникам</span>}>
             <IconField icon="search">
@@ -184,59 +313,31 @@ export function EmployeesBoard({
             }
           />
         ) : (
-          <Table density="compact" caption="Сотрудники ресторана" captionHidden>
-            <thead>
-              <tr>
-                {['Сотрудник', 'Телефон', 'Филиал', 'Смена сегодня', 'Статус', 'Продажи сегодня', 'Рейтинг'].map(
-                  (h) => (
-                    <th key={h} scope="col">
-                      {h}
-                    </th>
-                  ),
-                )}
-                <th scope="col">
-                  <span className="sr-only">Действия</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.map((e) => (
-                <tr key={e.id}>
-                  <td>
-                    <span className="rest-person">
-                      <span className="rest-avatar" aria-hidden="true">
-                        {initials(e.name)}
-                      </span>
-                      <strong>{e.name}</strong>
-                      {e.status === 'ARCHIVED' && <Badge>В архиве</Badge>}
-                    </span>
-                  </td>
-                  <td>{e.phone ?? '—'}</td>
-                  <td>{branchName}</td>
-                  <td>{e.shift ?? 'Выходной'}</td>
-                  <td>
-                    <Badge tone={e.onShift ? 'ok' : 'neutral'}>
-                      {e.onShift ? 'На смене' : 'Не на смене'}
-                    </Badge>
-                  </td>
-                  <td>{wholeTenge(e.salesTodayMinor)}</td>
-                  <td data-testid="employee-rating">
-                    {e.rating?.average != null
-                      ? `${String(e.rating.average).replace('.', ',')} ★, ${pluralRu(e.rating.count, ['оценка', 'оценки', 'оценок'])}`
-                      : 'Оценок нет'}
-                  </td>
-                  <td>
-                    {write && <a href={`/employees/${encodeURIComponent(e.id)}/profile`}>Карточка сотрудника</a>}
-                    {write && (
-                      <Button tone="ghost" size="sm" onClick={() => setDraft(e)}>
-                        Изменить
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <Tabs
+            key={tabs.map((t) => t.key).join(' ')}
+            label="Назначение в персонале"
+            panels={tabs.map((t) => ({
+              id: t.key,
+              label: t.label,
+              ...(t.key === 'unassigned' ? {} : { count: t.count }),
+              content: (
+                <>
+                  {t.key === 'unassigned' && (
+                    <p className="muted">
+                      Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет смены, оплату и права.
+                    </p>
+                  )}
+                  {t.items.length === 0 ? (
+                    <p className="muted">
+                      {t.key === 'specialists' ? 'Специалистов пока нет.' : 'Других сотрудников пока нет.'}
+                    </p>
+                  ) : (
+                    table(t.items)
+                  )}
+                </>
+              ),
+            }))}
+          />
         )}
       </div>
       {draft && (

@@ -84,6 +84,7 @@ export default async function BeautyMastersPage({
         canCreate={may('employees', 'create')}
         canUpdate={may('employees', 'update')}
         canManagePrices={may('services', 'update')}
+        canAssignPersonnelKind={employees.canAssignPersonnelKind === true && !shell.readOnly}
         initialEmployeeId={employeeId}
         unavailable={Boolean(requested) && !employees.items.some((row) => row.id === employeeId)}
       />

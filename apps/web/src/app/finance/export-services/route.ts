@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     return text(400, 'Проверьте даты: окончание периода должно быть не раньше начала.');
   try {
     const report = await financeApi.servicesReport(from, to);
-    return new Response(servicesCsv(report.rows), {
+    return new Response(servicesCsv(report.rows, report.currency), {
       headers: {
         'content-type': 'text/csv; charset=utf-8',
         'content-disposition': `attachment; filename="wetop-services-${from}_${to}.csv"`,

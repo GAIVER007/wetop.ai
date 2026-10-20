@@ -75,3 +75,20 @@ it('отказ API с кодом поля показывается админи�
     error: 'Поле «Описание»: за что начисление',
   });
 });
+
+it('сообщение об оплате в валюте счёта, а не всегда в тенге (решение владельца 20.10.2026)', async () => {
+  const { payAction } = await import('./finance-actions');
+  vi.spyOn(financeApi, 'pay').mockResolvedValue({} as Awaited<ReturnType<typeof financeApi.pay>>);
+  const usd = new FormData();
+  usd.set('amount', '1250');
+  usd.set('method', 'CASH');
+  usd.set('currency', 'USD');
+  const paid = await payAction('TEST', 'folio', { error: null, ok: 0 }, usd);
+  expect(paid.message?.replace(/\s/g, ' ')).toBe('Оплата принята: 1 250 USD. Баланс счёта ниже пересчитан.');
+  const kzt = new FormData();
+  kzt.set('amount', '1250');
+  kzt.set('method', 'CASH');
+  expect((await payAction('TEST', 'folio', { error: null, ok: 0 }, kzt)).message?.replace(/\s/g, ' ')).toBe(
+    'Оплата принята: 1 250 ₸. Баланс счёта ниже пересчитан.',
+  );
+});

@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { parseEmployeeInput } from '@pms/domain';
+import { parseEmployeeInput, type PersonnelKind } from '@pms/domain';
 import type { BeautyEmployeeRow } from '../../lib/api';
 import { loadBeautyEmployee, saveBeautyEmployee } from '../../app/beauty/actions';
 import { useCreationKey } from '../../app/beauty/creation-key';
@@ -35,6 +35,8 @@ export function EmployeeProfile({
   const [error, setError] = useState<string | null>(null);
   const [current, setCurrent] = useState<BeautyEmployeeRow | null>(null);
   const [pending, setPending] = useState(false);
+  // по умолчанию «Специалист»: руководитель видит выбор и может сменить его до создания
+  const [personnelKind, setPersonnelKind] = useState<PersonnelKind>('SPECIALIST');
   const form = useRef<HTMLFormElement>(null);
   const alive = useRef(true);
   const busy = useRef(false);
@@ -112,7 +114,10 @@ export function EmployeeProfile({
           ),
         ),
       );
-    } else data.set('creationId', creation.id);
+    } else {
+      data.set('creationId', creation.id);
+      data.set('personnelKind', personnelKind);
+    }
     try {
       const result = await saveBeautyEmployee(null, data);
       if (!alive.current || version !== requestVersion.current) return;
@@ -191,6 +196,7 @@ export function EmployeeProfile({
         error={error || creation.error || null}
         current={current ? fields(current) : null}
         formRef={form}
+        {...(row ? {} : { personnelKind, onPersonnelKindChange: setPersonnelKind })}
       />
     </>
   );

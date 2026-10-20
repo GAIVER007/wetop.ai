@@ -184,6 +184,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
     phone?: string | null;
     position?: string | null;
     scopes?: ScopeAssignment[];
+    employeeId?: string | null;
   }): Promise<InviteRecord> {
     return this.prisma.db.$transaction(async (tx) => {
       const { scopes, ...rest } = input;
@@ -201,11 +202,38 @@ export class PrismaAccountsRepository implements AccountsRepository {
           entityType: 'organization',
           entityId: input.organizationId,
           action: 'invite.created',
-          after: { inviteId: row.id, role: input.role, scopes: input.scopes?.length ?? 0 },
+          after: {
+            inviteId: row.id,
+            role: input.role,
+            scopes: input.scopes?.length ?? 0,
+            ...(input.employeeId ? { employeeId: input.employeeId } : {}),
+          },
         },
       });
       return toInviteRecord(row);
     });
+  }
+
+  async employeeForInvite(organizationId: string, employeeId: string) {
+    const row = await this.prisma.db.employee.findFirst({
+      where: { id: employeeId, business: { organizationId } },
+      select: {
+        id: true,
+        businessId: true,
+        name: true,
+        userId: true,
+        locations: { select: { locationId: true } },
+      },
+    });
+    return row
+      ? {
+          id: row.id,
+          businessId: row.businessId,
+          name: row.name,
+          userId: row.userId,
+          locationIds: row.locations.map((l) => l.locationId),
+        }
+      : null;
   }
 
   async pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]> {
@@ -338,6 +366,34 @@ export class PrismaAccountsRepository implements AccountsRepository {
             },
             data: { role: membershipRoleFor(live, invite.role) },
           });
+        }
+      }
+      // приглашение из формы «Новый сотрудник» (уровни доступа, 20.10.2026): аккаунт сам привязывается к сотруднику,
+      // если тот ещё ни к кому не привязан и этот человек не привязан к другому сотруднику того же бизнеса
+      if (invite.employeeId) {
+        const employee = await tx.employee.findUnique({
+          where: { id: invite.employeeId },
+          select: { id: true, userId: true, businessId: true, business: { select: { organizationId: true } } },
+        });
+        const taken = employee
+          ? await tx.employee.count({ where: { businessId: employee.businessId, userId: user.id } })
+          : 1;
+        if (employee && employee.userId === null && taken === 0 && employee.business.organizationId === invite.organizationId) {
+          const linked = await tx.employee.updateMany({
+            where: { id: employee.id, userId: null },
+            data: { userId: user.id },
+          });
+          if (linked.count === 1)
+            await tx.auditLog.create({
+              data: {
+                organizationId: invite.organizationId,
+                userId: user.id,
+                entityType: 'employee',
+                entityId: employee.id,
+                action: 'employee.account_linked',
+                after: { inviteId: invite.id, userId: user.id },
+              },
+            });
         }
       }
       const passwordTokenIssued = user.status === 'ACTIVE' && user.passwordHash === '';
@@ -742,6 +798,7 @@ const INVITE_SELECT = {
   phone: true,
   position: true,
   scopes: true,
+  employeeId: true,
   organization: { select: { name: true } },
 } as const;
 
@@ -759,7 +816,8 @@ function parseStoredScopes(raw: unknown): ScopeAssignment[] {
   for (const item of raw) {
     if (!item || typeof item !== 'object') continue;
     const o = item as Record<string, unknown>;
-    if ((o.role !== 'MANAGER' && o.role !== 'STAFF') || typeof o.businessId !== 'string') continue;
+    if ((o.role !== 'MANAGER' && o.role !== 'STAFF' && o.role !== 'EMPLOYEE') || typeof o.businessId !== 'string')
+      continue;
     out.push({
       role: o.role,
       businessId: o.businessId,
@@ -782,6 +840,7 @@ function toInviteRecord(row: {
   phone: string | null;
   position: string | null;
   scopes: unknown;
+  employeeId?: string | null;
   organization: { name: string };
 }): InviteRecord {
   return {
@@ -798,6 +857,7 @@ function toInviteRecord(row: {
     phone: row.phone,
     position: row.position,
     scopes: parseStoredScopes(row.scopes),
+    employeeId: row.employeeId ?? null,
   };
 }
 

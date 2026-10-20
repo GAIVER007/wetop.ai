@@ -117,7 +117,7 @@
   background: var(--surface);
   height: auto;
   max-height: calc(100dvh - 24px);
-  margin: var(--space-4) var(--space-4) var(--space-4) auto;
+  margin: auto;
   border-radius: var(--radius-lg);
 }
 .drawer :global(.overlay-heading) {

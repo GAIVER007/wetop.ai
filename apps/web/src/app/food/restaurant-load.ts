@@ -3,6 +3,7 @@ import { deskShell } from '../../lib/desk-shell';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
 import { mayAccess } from '../../lib/navigation';
 import { localInput } from '../beauty/time';
+import { accessLevelsFor, type AccessLevel } from '@pms/domain';
 
 /** Общая обвязка ресторанных экранов (ADR-159): вертикаль, филиал, права, дата дня филиала */
 export interface RestaurantShell {
@@ -18,6 +19,10 @@ export interface RestaurantShell {
   canRefunds: boolean;
   /** Направление филиала: касса (§48) открыта и салону */
   vertical: 'FOOD_SERVICE' | 'BEAUTY';
+  /** Уровни доступа, которые может выдать вошедший при добавлении сотрудника (решение 20.10.2026) */
+  accessLevels: AccessLevel[];
+  /** «Все филиалы» в «Доступе в WETOP»: только владелец и сотрудник без ограничения по филиалам */
+  canAllBranches: boolean;
 }
 
 export async function restaurantShell(
@@ -46,5 +51,7 @@ export async function restaurantShell(
     canStaff: mayAccess(shell.access, 'staff'),
     canRefunds: mayAccess(shell.access, 'refunds'),
     vertical,
+    accessLevels: shell.access.role ? accessLevelsFor(shell.access.role) : [],
+    canAllBranches: shell.access.role === 'OWNER' || (mayAccess(shell.access, 'staff') && shell.access.restricted !== true),
   };
 }

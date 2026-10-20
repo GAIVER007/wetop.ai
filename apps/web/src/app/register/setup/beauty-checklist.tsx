@@ -309,6 +309,41 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
           {!state.readiness?.ready && (
             <p>Чтобы завершить настройку, выполните оставшиеся шаги в этом филиале.</p>
           )}
+          {/* полная настройка салона (решение владельца 20.10.2026): после обязательных шагов то, без чего салон
+              не принимает клиентов сам; не влияют на «Завершить настройку» */}
+          <section aria-labelledby="setup-next-heading" className="setup-next" data-testid="beauty-setup-next">
+            <h2 id="setup-next-heading">Дальше: чтобы клиенты записывались сами</h2>
+            <ul className="setup-next__list">
+              <li className="panel">
+                <strong>Часы работы салона</strong>
+                <span>Журнал и онлайн-запись показывают время только внутри этих часов.</span>
+                <Link className="btn btn--secondary" href="/beauty-settings">
+                  Указать часы
+                </Link>
+              </li>
+              <li className="panel">
+                <strong>Сайт с онлайн-записью</strong>
+                <span>Шаблон за минуту: услуги, мастера и цены берутся из WETOP, запись сразу попадает в журнал.</span>
+                <Link className="btn btn--secondary" href="/marketing/site/editor">
+                  Сделать сайт
+                </Link>
+              </li>
+              <li className="panel">
+                <strong>Вход для мастеров</strong>
+                <span>Личный кабинет: свои записи, график, зарплата и отзывы. Почта мастера в его карточке.</span>
+                <Link className="btn btn--secondary" href="/employees">
+                  Открыть персонал
+                </Link>
+              </li>
+              <li className="panel">
+                <strong>Оплата труда</strong>
+                <span>Оклад и процент с услуг: зарплата считается сама по выполненным записям.</span>
+                <Link className="btn btn--secondary" href="/payroll">
+                  Настроить зарплату
+                </Link>
+              </li>
+            </ul>
+          </section>
           <div className="onboarding__actions">
             <Link className="btn btn--secondary" href="/today">
               {completed && !state.readiness?.ready

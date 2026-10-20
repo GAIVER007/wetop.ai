@@ -40,3 +40,36 @@
     .setup-shell .btn { min-height: 44px; white-space: normal; }
   }
 }
+
+/* «Дальше» в настройке салона (20.10.2026): необязательные шаги карточками в две колонки */
+@layer sections {
+  .setup-next {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+  .setup-next h2 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .setup-next__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .setup-next__list > li {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+  .setup-next__list span {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .setup-next__list .btn {
+    justify-self: start;
+  }
+}

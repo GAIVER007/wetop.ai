@@ -2200,6 +2200,8 @@ interface FixtureInvite {
   lastName?: string | null;
   position?: string | null;
   scopes?: ScopeAssignment[];
+  /** сотрудник из формы «Новый сотрудник» (уровни доступа, 20.10.2026) */
+  employeeId?: string;
 }
 /** Бизнесы и филиалы вымышленной организации для области доступа (DATA_MODEL §31.1) */
 const FIXTURE_STRUCTURE = {
@@ -4301,6 +4303,18 @@ function read(path: string, q: URLSearchParams): unknown {
       truncated: picked.length > limit,
     };
   }
+  if (path === '/finance/staff-revenue') {
+    // «Сколько принёс» гостиницы (решение 20.10.2026): по создавшему бронь; синтетика стенда, как формат API
+    const period = ['week', 'month'].includes(q.get('period') ?? '') ? q.get('period')! : 'day';
+    const k = period === 'day' ? 1n : period === 'week' ? 5n : 20n;
+    return {
+      period, fromDate: today, toDate: today,
+      items: [
+        { employeeId: 'ui-admin', currency: 'KZT', paidMinor: String(3_000_000n * k), refundedMinor: String(500_000n * k), netMinor: String(2_500_000n * k), name: 'Юрий Тестов' },
+        { employeeId: null, currency: 'KZT', paidMinor: String(1_200_000n * k), refundedMinor: '0', netMinor: String(1_200_000n * k), name: null },
+      ],
+    };
+  }
   if (path === '/finance/cashflow') {
     // Как у API (RPT2.4a): деньги за период по дням из той же ленты, что у «Оплат»; период и предел те же
     const from = q.get('from') || today;
@@ -5716,6 +5730,8 @@ createServer(async (req, res) => {
         ],
       });
     }
+    // приглашения как есть, с сотрудником и областью: проверка формы «Новый сотрудник» (уровни доступа, 20.10.2026)
+    if (path === '/__test/invites' && req.method === 'GET') return send(200, uiInvites);
     if (path === '/__test/hits')
       return send(200, {
         total: [...hits.values()].reduce((a, b) => a + b, 0),
@@ -6714,6 +6730,17 @@ createServer(async (req, res) => {
           });
           if (!check.ok) return send(400, { message: check.reason });
         }
+        // приглашение из формы «Новый сотрудник» (уровни доступа, 20.10.2026): филиал и имя сотрудника, как в API
+        const employeeId = typeof body['employeeId'] === 'string' ? body['employeeId'] : null;
+        const employee = employeeId ? fixtureBeautyEmployees.find((e) => e.id === employeeId) : null;
+        if (employeeId && !employee) return send(400, { message: 'Сотрудник не найден в вашей организации.' });
+        if (employee && parsedScopes.assignments.length === 0 && body['allBranches'] !== true)
+          parsedScopes.assignments = (employee.locationIds.length ? employee.locationIds : [null]).map((locationId) => ({
+            role,
+            businessId: FIXTURE_STRUCTURE.businesses.find((b) => b.locations.some((l) => l.id === locationId))?.id
+              ?? FIXTURE_STRUCTURE.businesses[0]!.id,
+            locationId,
+          }));
         const invite: FixtureInvite = {
           id: `inv-${Date.now()}`,
           email,
@@ -6727,7 +6754,13 @@ createServer(async (req, res) => {
           lastName: typeof body['lastName'] === 'string' ? body['lastName'] : null,
           position: null,
           scopes: parsedScopes.assignments,
+          ...(employee ? { employeeId: employee.id } : {}),
         };
+        if (employee && !invite.firstName) {
+          const [first, ...rest] = employee.name.split(' ');
+          invite.firstName = first ?? null;
+          invite.lastName = rest.join(' ') || null;
+        }
         uiInvites.unshift(invite);
         return send(201, view(invite));
       }
@@ -6935,6 +6968,16 @@ createServer(async (req, res) => {
       });
     }
     // Каталог салона (DATA_MODEL §19.1, срез B3): услуги сети и мастера, цена филиала переопределением
+    if (path === '/food-service/staff-revenue' && req.method === 'GET') {
+      // «Сколько принёс» салона (решение 20.10.2026): первому активному мастеру синтетическая сумма за период
+      const period = url.searchParams.get('period') || 'day';
+      const first = fixtureBeautyEmployees.find((e) => e.active);
+      const k = period === 'day' ? 1n : period === 'week' ? 5n : 20n;
+      return send(200, {
+        period, fromDate: '', toDate: '',
+        items: first ? [{ employeeId: first.id, currency: 'KZT', paidMinor: String(800_000n * k), refundedMinor: '0', netMinor: String(800_000n * k) }] : [],
+      });
+    }
     if (path.startsWith('/beauty/')) {
       const current = fixtureBranches.find((b) =>
         String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`),

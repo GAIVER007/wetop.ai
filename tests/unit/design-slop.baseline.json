@@ -32,7 +32,7 @@
     "apps/web/src/app/components.css": 7,
     "apps/web/src/app/directory.css": 1,
     "apps/web/src/app/management/analytics/analytics.css": 3,
-    "apps/web/src/app/premium.css": 17,
+    "apps/web/src/app/premium.css": 16,
     "apps/web/src/app/workspace.css": 11
   },
   "z-index-literal": {

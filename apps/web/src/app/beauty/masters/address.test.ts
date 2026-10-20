@@ -17,7 +17,8 @@ vi.mock('next/link', () => ({
   default: ({ href, children, ...props }: { href: string; children: ReactNode }) =>
     createElement('a', { href, ...props }, children),
 }));
-vi.mock('../../../components/ui', () => ({
+vi.mock('../../../components/ui', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../components/ui')>()),
   Button: ({ children, ...props }: { children?: ReactNode }) =>
     createElement('button', props, children),
   Alert: ({ children }: { children?: ReactNode }) => createElement('div', null, children),

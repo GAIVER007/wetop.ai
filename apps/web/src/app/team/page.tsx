@@ -8,7 +8,9 @@ import { Notice } from '../../components/ui';
 import { RefreshButton } from '../../components/refresh-button';
 import { validAccessStructure } from './scope-model';
 import { currentMe } from '../../lib/desk-shell';
-import { InviteButton, MembersTable, PendingInvites, TeamProvider, TeamStats } from './team-board';
+import { InviteButton, MembersTable, PendingInvites, TeamProvider } from './team-board';
+import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../lib/staff-revenue-load';
+import { revenuePeriodParam } from '../../lib/staff-revenue';
 import './team.css';
 
 /**
@@ -19,7 +21,9 @@ import './team.css';
  * замком сюда без сессии не попасть); без права — строка, кто ведает командой. Личные сеансы
  * остались в «Профиль → Доступ». Ошибка загрузки — границей ошибок, не пустой командой.
  */
-export default async function TeamPage() {
+export default async function TeamPage({
+  searchParams,
+}: { searchParams?: Promise<{ period?: string | string[] }> } = {}) {
   const token = await sessionToken();
   const me = await currentMe().catch((error: unknown) => {
     unstable_rethrow(error);
@@ -43,12 +47,17 @@ export default async function TeamPage() {
             }),
         ])
       : [[], [], null];
+  // «сколько принёс» гостиницы (решение 20.10.2026): по создавшему бронь; у салона и ресторана свод на своих экранах
+  const period = revenuePeriodParam((await searchParams)?.period);
+  const revenue =
+    team && 'context' in me && me.context?.vertical === 'HOSPITALITY' ? await loadStaffRevenue('hotel', period) : null;
   return (
     <TeamProvider
       key={me.user?.organizationId ?? 'unknown'}
       role={team && role ? role : null}
       structure={structure}
       expectedOrganizationId={me.user?.organizationId ?? null}
+      vertical={'context' in me && typeof me.context?.vertical === 'string' ? me.context.vertical : 'HOSPITALITY'}
     >
       <Page
         title="Сотрудники"
@@ -69,8 +78,13 @@ export default async function TeamPage() {
                 <RefreshButton label="Повторить загрузку" />
               </Notice>
             )}
-            <TeamStats members={members} invites={invites} />
-            <MembersTable members={members} structure={structure} actorRole={role} />
+            <MembersTable
+              members={members}
+              structure={structure}
+              actorRole={role}
+              revenue={revenue}
+              revenueNav={<StaffRevenuePeriodNav path="/team" period={period} />}
+            />
             <PendingInvites invites={invites} />
           </>
         ) : (

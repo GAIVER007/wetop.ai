@@ -3464,6 +3464,10 @@ export interface AuthInviteExtra {
   phone?: string;
   position?: string;
   scopes?: AuthScope[];
+  /** Сотрудник из формы «Новый сотрудник»: имя и филиал берутся из карточки, вход привяжется сам (20.10.2026) */
+  employeeId?: string;
+  /** «Все филиалы» вместо филиала сотрудника */
+  allBranches?: boolean;
 }
 
 /** Бизнесы и филиалы организации для назначений */

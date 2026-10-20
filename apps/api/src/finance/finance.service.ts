@@ -32,6 +32,9 @@ import {
   stayExtraDefaultMinor,
   stayExtraPercent,
   adjacentNight,
+  parseRevenuePeriod,
+  revenueSummary,
+  type RevenuePeriod,
 } from '@pms/domain';
 import { freeTextForStorage, maskContacts } from '@pms/shared';
 import { actorMay } from '../auth/request-context';
@@ -619,6 +622,26 @@ export class FinanceService {
    * Деньги за период по дням (RPT2.4a, ADR-155, `docs/metrics.md` §2): та же лента, что у «Оплат», сведённая по дням.
    * Читает все строки периода до предела выгрузки; если их больше, ответ помечен `truncated`.
    */
+  /** «Сколько принёс сотрудник» гостиницы: оплачено минус возвраты по создавшему бронь (решение 20.10.2026) */
+  async staffRevenue(periodParam?: string, now = new Date()) {
+    let period: RevenuePeriod;
+    try {
+      period = parseRevenuePeriod(periodParam);
+    } catch (e) {
+      throw new BadRequestException((e as Error).message);
+    }
+    const r = await this.repo.staffRevenueEntries(period, now);
+    return {
+      period,
+      fromDate: r.fromDate,
+      toDate: r.toDate,
+      items: revenueSummary(r.entries).map((x) => ({
+        ...x,
+        name: x.employeeId === null ? null : (r.names[x.employeeId] ?? null),
+      })),
+    };
+  }
+
   async periodCashFlow(fromParam?: string, toParam?: string): Promise<PeriodCashFlowView> {
     const { from, to } = checkedPeriod(fromParam, toParam);
     const r = await this.repo.periodOperations(from, to, { limit: MAX_OPERATION_ROWS });

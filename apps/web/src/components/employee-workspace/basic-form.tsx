@@ -1,5 +1,5 @@
 'use client';
-import { useId, type FormEvent, type RefObject } from 'react';
+import { useId, type FormEvent, type ReactNode, type RefObject } from 'react';
 import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, type PersonnelKind } from '@pms/domain';
 import { Alert, Button, Field, Input, Select } from '../ui';
 
@@ -24,6 +24,7 @@ export function EmployeeBasicForm({
   formRef,
   personnelKind,
   onPersonnelKindChange,
+  access = null,
 }: {
   draft: EmployeeProfileDraft;
   onChange: (draft: EmployeeProfileDraft) => void;
@@ -38,6 +39,8 @@ export function EmployeeBasicForm({
   /** Назначение нового сотрудника: явный выбор руководителя в форме создания (решение 20.10.2026) */
   personnelKind?: PersonnelKind;
   onPersonnelKindChange?: (kind: PersonnelKind) => void;
+  /** блок «Доступ в WETOP» под назначением (решение 20.10.2026) */
+  access?: ReactNode;
 }) {
   const prefix = useId();
   const problem =
@@ -135,6 +138,7 @@ export function EmployeeBasicForm({
           </Select>
         </Field>
       )}
+      {creating && access}
       {creating && (
         <p className="employee-workspace-note">
           Услуги и рабочее время можно настроить после создания.

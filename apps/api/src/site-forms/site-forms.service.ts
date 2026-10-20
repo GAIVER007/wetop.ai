@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -281,7 +282,14 @@ export class SiteFormsService {
             locationCurrency: fs.currency,
           };
           const employeeId = req.employeeId ?? (await this.freeEmployee(tx, fs, req));
-          const plan = await planBeautyAppointment(tx, scope, employeeId, req.serviceId, req.startsAt);
+          // услуги визита подряд к одному мастеру: строка за строкой, каждая начинается концом прошлой
+          const lines = await this.planVisit(tx, scope, employeeId, req.serviceIds, req.startsAt);
+          const plan = {
+            startsAt: lines[0]!.startsAt,
+            endsAt: lines.at(-1)!.endsAt,
+            priceMinor: lines.reduce((sum, l) => sum + l.priceMinor, 0n),
+            currency: lines[0]!.currency,
+          };
           if (await employeeBusy(tx, employeeId, plan.startsAt, plan.endsAt, null))
             throw new ConflictException('Это время уже занято, выберите другое');
           const { id: customerId } = await findOrCreateCustomer(
@@ -291,6 +299,9 @@ export class SiteFormsService {
             'Запись по этому телефону недоступна, позвоните нам',
           );
           await tx.customerBusiness.createMany({ data: [{ customerId, businessId: fs.businessId }], skipDuplicates: true });
+          // несколько строк пишем сами (как стойка), одну по-прежнему создаёт триггер базы
+          const multi = lines.length > 1;
+          if (multi) await tx.$queryRaw`SELECT set_config('wetop.appointment_lines_write','on',true)`;
           const created = await tx.appointment.create({
             data: {
               locationId: fs.locationId,
@@ -309,6 +320,26 @@ export class SiteFormsService {
             },
             select: { id: true },
           });
+          if (multi) {
+            await tx.appointmentLine.deleteMany({ where: { appointmentId: created.id } });
+            await tx.appointmentLine.createMany({
+              data: lines.map((l, position) => ({
+                id: randomUUID(),
+                appointmentId: created.id,
+                position,
+                employeeId,
+                serviceId: l.serviceId,
+                startsAt: l.startsAt,
+                endsAt: l.endsAt,
+                basePriceMinor: l.priceMinor,
+                discountMinor: 0n,
+                surchargeMinor: 0n,
+                priceMinor: l.priceMinor,
+                currency: l.currency,
+                discountPercent: null,
+              })),
+            });
+          }
           await tx.auditLog.create({
             data: {
               organizationId: fs.organizationId,
@@ -320,6 +351,7 @@ export class SiteFormsService {
                 locationId: fs.locationId,
                 employeeId,
                 serviceId: req.serviceId,
+                ...(multi ? { serviceIds: req.serviceIds } : {}),
                 startsAt: plan.startsAt.toISOString(),
                 endsAt: plan.endsAt.toISOString(),
                 priceMinor: plan.priceMinor.toString(),
@@ -352,7 +384,8 @@ export class SiteFormsService {
         businessId: fs.businessId,
         status: 'ACTIVE',
         locations: { some: { locationId: fs.locationId } },
-        services: { some: { serviceId: req.serviceId } },
+        // «любой мастер» для визита из нескольких услуг: тот, кто оказывает их все
+        AND: req.serviceIds.map((serviceId) => ({ services: { some: { serviceId } } })),
       },
       orderBy: [{ name: 'asc' }, { id: 'asc' }],
       select: { id: true },
@@ -361,16 +394,37 @@ export class SiteFormsService {
     let reason: string | null = null;
     for (const c of candidates) {
       try {
-        const plan = await planBeautyAppointment(tx, scope, c.id, req.serviceId, req.startsAt);
-        if (!(await employeeBusy(tx, c.id, plan.startsAt, plan.endsAt, null))) return c.id;
+        const lines = await this.planVisit(tx, scope, c.id, req.serviceIds, req.startsAt);
+        if (!(await employeeBusy(tx, c.id, lines[0]!.startsAt, lines.at(-1)!.endsAt, null))) return c.id;
         reason = 'Это время уже занято, выберите другое';
       } catch (e) {
         if (!(e instanceof HttpException)) throw e;
         reason ??= e.message;
       }
     }
-    if (!candidates.length) throw new NotFoundException('Услуга в этом филиале не оказывается');
+    if (!candidates.length)
+      throw new NotFoundException(
+        req.serviceIds.length > 1 ? 'Эти услуги вместе у одного мастера не оказываются' : 'Услуга в этом филиале не оказывается',
+      );
     throw new ConflictException(reason ?? 'Это время уже занято, выберите другое');
+  }
+
+  /** Услуги визита подряд у одного мастера: цена, длительность и график по каждой, как у стойки */
+  private async planVisit(
+    tx: DbTx,
+    scope: Parameters<typeof planBeautyAppointment>[1],
+    employeeId: string,
+    serviceIds: readonly string[],
+    startsAt: Date,
+  ) {
+    const lines: { serviceId: string; startsAt: Date; endsAt: Date; priceMinor: bigint; currency: string }[] = [];
+    let cursor = startsAt;
+    for (const serviceId of serviceIds) {
+      const p = await planBeautyAppointment(tx, scope, employeeId, serviceId, cursor);
+      lines.push({ serviceId, startsAt: p.startsAt, endsAt: p.endsAt, priceMinor: p.priceMinor, currency: p.currency });
+      cursor = p.endsAt;
+    }
+    return lines;
   }
 
   private async appointmentReplay(

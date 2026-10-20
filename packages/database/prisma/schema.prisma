@@ -2663,6 +2663,8 @@ enum MembershipRole {
   OWNER
   MANAGER
   STAFF
+  /// «Личный кабинет»: только своё (миграция 139, решение владельца 20.10.2026)
+  EMPLOYEE
 }
 
 /// Человек в организации. Роль — §16.1: у самого раннего участника организации `OWNER` (миграция 20260925000020).
@@ -2757,13 +2759,17 @@ model Invite {
   position       String?        @db.VarChar(100)
   /// `[{role, businessId, locationId|null}]`; NULL или пусто: вся организация
   scopes         Json?
+  /// Миграция 139: приглашение из формы «Новый сотрудник»; после принятия ставит employees.user_id
+  employeeId     String?        @map("employee_id") @db.Uuid
   createdBy      String         @map("created_by") @db.Uuid
   createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
 
   organization Organization @relation(fields: [organizationId], references: [id])
   creator      User         @relation("InviteCreatedBy", fields: [createdBy], references: [id])
+  employee     Employee?    @relation(fields: [employeeId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   @@index([organizationId])
+  @@index([employeeId])
   @@map("invites")
 }
 
@@ -3194,6 +3200,7 @@ model Employee {
   publicProfile    EmployeePublicProfile?
   portalMedia      EmployeeMedia[]
   portfolio        EmployeePortfolioItem[]
+  invites          Invite[]
 
   @@index([businessId])
   @@map("employees")

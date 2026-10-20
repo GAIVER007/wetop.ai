@@ -68,7 +68,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
     label: 'Рабочее место',
     items: [
-      { href: '/my-work', label: 'Моя работа', icon: 'person', requires: 'desk', description: 'Личный профиль, собственный график и оплата труда.' },
+      // «Личный кабинет» (роль EMPLOYEE, 20.10.2026) открывает только своё: пункт по праву `self`
+      { href: '/my-work', label: 'Моя работа', icon: 'person', requires: 'self', description: 'Личный профиль, собственный график и оплата труда.' },
       { href: '/floor-plan', label: 'План зала', icon: 'board', requires: 'desk', description: 'Столы зала сейчас: свободны, забронированы, заняты, ждут уборки.' },
       { href: '/table-reservations', label: 'Бронирования', icon: 'booking', requires: 'desk', description: 'Брони столов на день: время, гости, стол и статус.' },
       { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы, столы и их вместимость.' },
@@ -811,7 +812,8 @@ function beautyRouteAccess(path: string): BeautyRouteAccess | undefined {
 function personalBeautyWork(access: NavigationAccess): boolean {
   if (access.role === 'OWNER') return true;
   const projection = access.beautyAccess;
-  if (!projection || projection.mode === 'LEGACY') return mayAccess(access, 'desk');
+  // «Личный кабинет» (EMPLOYEE): только своя работа, другие разделы закрыты правами роли
+  if (!projection || projection.mode === 'LEGACY') return mayAccess(access, 'desk') || access.role === 'EMPLOYEE';
   if (!projection.assigned) return false;
   return projection.permissions.some(
     (permission) =>
@@ -859,7 +861,9 @@ export function allowedItem(
 
 /** Право, открытое всем ролям, страницу не закрывает: проверять его незачем */
 export function openToEveryRole(requires: NavigationRequirement | undefined): boolean {
-  return !requires || (requires !== 'platform' && rolesWith(requires).length === 3);
+  // «Личный кабинет» (EMPLOYEE) в счёт не идёт: его пускают только в «Мою работу» (`employeeHome`), а ради него не
+  // заставляем каждую рабочую страницу ждать `/auth/me`
+  return !requires || (requires !== 'platform' && rolesWith(requires).filter((r) => r !== 'EMPLOYEE').length === 3);
 }
 
 /**

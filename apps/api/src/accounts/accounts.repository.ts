@@ -68,6 +68,8 @@ export interface InviteRecord {
   position: string | null;
   /** Назначения (§31.1); пусто: вся организация */
   scopes: ScopeAssignment[];
+  /** Сотрудник, к которому привяжется аккаунт после принятия (уровни доступа, 20.10.2026); иначе null */
+  employeeId?: string | null;
 }
 
 /** Бизнесы и филиалы организации для назначений (DATA_MODEL §31.1): только действующие */
@@ -135,7 +137,16 @@ export interface AccountsRepository {
     phone?: string | null;
     position?: string | null;
     scopes?: ScopeAssignment[];
+    employeeId?: string | null;
   }): Promise<InviteRecord>;
+  /**
+   * Сотрудник организации для приглашения из формы «Новый сотрудник» (уровни доступа, 20.10.2026): имя, бизнес,
+   * филиалы и привязанный аккаунт; `null`: такого сотрудника в этой организации нет.
+   */
+  employeeForInvite(
+    organizationId: string,
+    employeeId: string,
+  ): Promise<{ id: string; businessId: string; name: string; locationIds: string[]; userId: string | null } | null>;
   /** Не принятые и не просроченные на момент `now`, новые сверху. */
   pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]>;
   inviteByTokenHash(tokenHash: string): Promise<InviteRecord | null>;

@@ -358,16 +358,11 @@
   .ui-drawer.ui-overlay--lg {
     width: min(var(--drawer-w-lg), calc(100vw - 32px));
   }
-  .ui-drawer > .overlay-content {
-    overflow: auto;
-  }
   @keyframes dialog-in {
     from {
-      opacity: 0;
       transform: translateY(8px);
     }
     to {
-      opacity: 1;
       transform: none;
     }
   }

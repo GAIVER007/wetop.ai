@@ -414,10 +414,8 @@ export class BeautyAppointmentsService {
             select: { id: true, status: true, firstName: true, lastName: true },
           });
           if (known && known.status !== 'ACTIVE') throw new ConflictException('Клиент в архиве');
-          if (known && customerFullName(known) !== customerFullName(input.customer))
-            throw new ConflictException(
-              'Клиент с этим телефоном сохранён под другим именем. Выберите существующего клиента из списка.',
-            );
+          // SL4-M4A (утверждено 18.10.2026): ACTIVE карточка с этим телефоном переиспользуется
+          // без перезаписи её имени и контактов; введённое имя канонической карточки не меняет
           customerId = known?.id
             ?? (await findOrCreateCustomer(tx, scope.organizationId, input.customer)).id;
         } else {

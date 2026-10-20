@@ -120,13 +120,13 @@ function portal(active: boolean): EmployeePortalDto {
 beforeEach(() => captured.replace.mockClear());
 
 describe('beauty master profile boundary', () => {
-  it('opens the canonical master profile directly without a second preview card', () => {
+  it('карточка мастера открывается диалогом поверх списка, как у zapis.kz (решение владельца 19.10)', () => {
     const html = renderBoard();
 
-    expect(html).toContain('href="/employees/11111111-1111-4111-8111-111111111111/profile"');
-    expect(html).not.toContain('data-testid="master-preview"');
-    expect(html).not.toContain('Краткая карточка');
-    expect(html).not.toContain('Открыть полную карточку');
+    // «Открыть» это кнопка диалога; со списка нет ухода на отдельную страницу.
+    expect(html).toContain('>Открыть<');
+    expect(html).not.toContain('href="/employees/11111111-1111-4111-8111-111111111111/profile"');
+    // Диалог живёт за useEffect по адресу ?employee=…#profile, его механику держат спеки employee-workspace.
     expect(html).toContain('Мария Тестова');
     expect(html).toContain('На смене');
   });

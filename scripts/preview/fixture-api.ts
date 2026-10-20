@@ -7108,6 +7108,71 @@ createServer(async (req, res) => {
         fixtureBranches
           .filter((b) => b['vertical'] === 'BEAUTY')
           .map((b) => ({ id: String(b['locationId']), name: String(b['name']) }));
+      // Портал сотрудника (минимум для стендов): после «Создать мастера» стойка открывает
+      // карточку диалогом /employees?employee=…#profile, и ей нужен настоящий ответ портала.
+      const portalDto = (row: FixtureBeautyEmployee) => ({
+        access: 'MANAGER' as const,
+        canUpload: false,
+        employee: {
+          id: row.id, name: row.name, phone: row.phone, email: row.email,
+          active: row.active, accountLinked: false,
+          profileRevision: row.profileRevision ?? '2026-10-18T00:00:00.000000Z',
+        },
+        business: { id: 'fixture-business', name: 'Салон', vertical: 'BEAUTY' as const },
+        location: locationId
+          ? { id: locationId, name: 'Салон', timezone: 'Asia/Almaty', currency: 'KZT' }
+          : null,
+        profile: {
+          headline: '', biography: '', practiceSinceYear: null,
+          slug: `master-${row.id.slice(-6)}`, published: false, publicationConsent: false,
+          revision: row.profileRevision ?? '2026-10-18T00:00:00.000000Z',
+        },
+        avatar: null,
+        portfolio: [],
+        services: fixtureBeautyServices.map((s) => ({
+          id: s.id, name: s.name, durationMinutes: s.durationMinutes,
+          priceMinor: s.location?.priceOverrideMinor ?? s.priceMinor, currency: s.currency,
+          assigned: row.serviceIds.includes(s.id),
+          available: s.active && s.location?.enabled !== false,
+        })),
+        servicesRevision: [...row.serviceIds].sort().join(',') || 'none',
+        week: week(row.id),
+        weekRevision: 'fixture-week',
+        scheduleConflicts: { items: [], checkedFrom: '2026-10-01', checkedCount: 0, truncated: false },
+        reviews: { averageStars: null, count: 0, hasMore: false, items: [] },
+        timeOffs: timeOffsOf(row.id).map((t) => ({ id: t.id, dateFrom: t.dateFrom, dateTo: t.dateTo, reason: t.reason })),
+        appointments: [],
+        orders: [],
+        pay: {
+          status: 'NOT_CONFIGURED' as const, month: '2026-10', currency: 'KZT',
+          model: null, fixedMinor: null, percent: null, percentBasis: null, policyRevision: null,
+          earnedMinor: null, bonusMinor: null, penaltyMinor: null, paidMinor: null, remainingMinor: null,
+          explanation: 'Условия оплаты не настроены.', adjustments: [],
+        },
+      });
+      const portalEmployee = /^\/employee-portal\/employees\/([^/]+)(\/.*)?$/.exec(path);
+      if (portalEmployee) {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(portalEmployee[1]!));
+        if (!row) return send(404, { message: 'Сотрудник не найден' });
+        const tail = portalEmployee[2] ?? '';
+        if (tail === '/account-options' && req.method === 'GET') return send(200, []);
+        if (tail === '' && req.method === 'GET') return send(200, portalDto(row));
+        if (tail === '/services' && req.method === 'PUT') {
+          const ids = Array.isArray(body['serviceIds']) ? (body['serviceIds'] as string[]) : [];
+          if (ids.some((id) => !fixtureBeautyServices.some((s) => s.id === id)))
+            return send(400, { message: 'Среди выбранных услуг есть чужая' });
+          row.serviceIds = [...new Set(ids)];
+          return send(200, portalDto(row));
+        }
+        if (tail === '/profile' && req.method === 'PATCH') {
+          if (body['name'] !== undefined) row.name = String(body['name']).trim();
+          if (body['phone'] !== undefined) row.phone = String(body['phone']).trim() || null;
+          if (body['email'] !== undefined) row.email = String(body['email']).trim().toLowerCase() || null;
+          row.profileRevision = new Date().toISOString().replace(/(\.\d{3})Z$/, '$1000Z');
+          return send(200, portalDto(row));
+        }
+        return send(404, { message: 'Этого действия у стенда нет' });
+      }
       const scheduleView = (employeeId: string | null) => {
         const chosen = employeeId
           ? (fixtureBeautyEmployees.find((e) => e.id === employeeId) ?? null)

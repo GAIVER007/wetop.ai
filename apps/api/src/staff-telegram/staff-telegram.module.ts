@@ -3,6 +3,8 @@ import { Body, Controller, Delete, Get, Headers, HttpCode, Inject, Module, Patch
 import { Access } from '../auth/access.decorator';
 import { Public } from '../auth/public.decorator';
 import { PrismaService } from '../database/prisma.provider';
+import { INCIDENTS_REPOSITORY, PrismaIncidentsRepository } from '../guard/incidents.repository';
+import { StaffNotifyWorker } from './staff-notify.worker';
 import { STAFF_BOT, StaffTelegramService, staffBotFromEnv } from './staff-telegram.service';
 
 /**
@@ -63,8 +65,11 @@ export class StaffTelegramWebhookController {
   providers: [
     PrismaService,
     StaffTelegramService,
+    StaffNotifyWorker,
     // токен и секрет из окружения сервера (SECURITY.md §3); без токена null: экран говорит «подключается администратором»
     { provide: STAFF_BOT, useFactory: () => staffBotFromEnv() },
+    // журнал неисправностей для staff.notify.failed: своя привязка порта, как у брони с сайта
+    { provide: INCIDENTS_REPOSITORY, useClass: PrismaIncidentsRepository },
   ],
 })
 export class StaffTelegramModule {}

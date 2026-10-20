@@ -86,6 +86,7 @@ try {
           API_PORT: String(config.apiPort),
           CHANNEX_PULL: 'off',
           CHANNEX_OUTBOX_WORKER: 'off',
+          STAFF_NOTIFY_WORKER: 'off',
           CHANNEX_FULL_SYNC: 'off',
           CHANNEX_WEBHOOK_HEALTH: 'off',
           GUARD: 'off',

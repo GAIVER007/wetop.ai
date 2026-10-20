@@ -1096,7 +1096,8 @@ kind              вид неисправности, ровно виды POLICY 
                   outbox.failed | outbox.stuck | ari.delta.lost | event.failed | event.rejected |
                   sync.missing | db.down | stay.overbooked | stay.unassigned | api.error |
                   reconciliation.fail | tests.failing | web.down | ari.oversell | backup.stale |
-                  booking.flood     (v1.10: брони с сайта упёрлись в предел за час — С-7 ТЗ аудита)
+                  booking.flood     (v1.10: брони с сайта упёрлись в предел за час, С-7 ТЗ аудита) |
+                  staff.notify.failed (STAFF-TG-20261020: уведомление сотруднику в Telegram не ушло за шесть попыток)
 class             A | B | C        A — техника, сторож чинит сам; B — данные, будит человека;
                                    C — код, исправляет дежурный агент в ветке без выката
 severity          CRITICAL | WARNING

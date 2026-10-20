@@ -36,8 +36,8 @@ const routes = [
   '/ai-agents',
   '/market',
   '/sales',
+  // «Бюджет и аналитика» одним пунктом (20.10.2026): аналитика вкладкой раздела
   '/marketing/budget',
-  '/marketing/analytics',
   '/help',
 ];
 

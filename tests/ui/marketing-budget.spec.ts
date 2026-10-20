@@ -53,23 +53,29 @@ async function seed(
   return { today, month };
 }
 
+/** Вкладка «План» раздела «Бюджет и аналитика» (до 20.10.2026 обзор на `/marketing/budget`) */
 async function openBudget(page: Page) {
-  await page.goto('/marketing/budget');
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Бюджет маркетинга');
+  await page.goto('/marketing/budget/plan');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Бюджет и аналитика');
 }
 
-test('хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный', async ({ page }) => {
+test('хаб: карточка «Бюджет и аналитика» живая и ведёт в сводку; пустой месяц честный', async ({ page }) => {
   await page.goto('/marketing');
   const card = page.getByTestId('marketing-budget');
   await expect(card.getByTestId('marketing-budget-status')).toHaveText('Доступно');
-  await card.getByRole('link', { name: 'Открыть: Бюджет' }).click();
+  await card.getByRole('link', { name: 'Открыть: Бюджет и аналитика' }).click();
   await page.waitForURL('**/marketing/budget');
   const main = page.getByRole('main');
+  await expect(main.getByTestId('budget-summary')).toBeVisible();
+  await expect(main.getByTestId('summary-channels-empty')).toBeVisible();
+  // вкладки раздела и переключатель месяца на месте
+  const tabs = main.getByRole('navigation', { name: 'Разделы бюджета и аналитики' });
+  await expect(tabs.getByRole('link')).toHaveText(['Сводка', 'План', 'Расходы', 'Аналитика']);
+  await expect(main.getByTestId('budget-month-name')).not.toHaveText('');
+  await tabs.getByRole('link', { name: 'План' }).click();
+  await page.waitForURL('**/marketing/budget/plan?month=*');
   await expect(main.getByTestId('budget-plan')).toHaveText('Не задан');
   await expect(main.getByTestId('budget-recent-empty')).toContainText('расходов ещё нет');
-  // вкладки раздела и переключатель месяца на месте
-  await expect(main.getByRole('navigation', { name: 'Разделы бюджета' })).toBeVisible();
-  await expect(main.getByTestId('budget-month-name')).not.toHaveText('');
 });
 
 test('первый расход и план месяца: суммы, остаток, прогноз и распределение оживают', async ({ page }) => {
@@ -158,7 +164,10 @@ test('аналитика маркетинга: воронка, CPL, стоимо
   await page.goto(`/marketing/budget/analytics?month=${month}`);
   await page.waitForURL(`**/marketing/analytics?month=${month}`);
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика маркетинга');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Бюджет и аналитика');
+  await expect(
+    main.getByRole('navigation', { name: 'Разделы бюджета и аналитики' }).getByRole('link', { name: 'Аналитика' }),
+  ).toHaveAttribute('aria-current', 'page');
   // учтено 720 + 480 + 50 000 = 51 200 ₸; прошлый месяц 600 → рост
   await expect(main.getByTestId('man-spent')).toContainText('51 200');
   await expect(main.getByText('к прошлому месяцу')).toBeVisible();
@@ -246,7 +255,7 @@ test('план по каналам: разбивка прошлого месяц
   const main = page.getByRole('main');
 
   // прошлый месяц без общего плана: сумма каналов и есть план месяца
-  await page.goto(`/marketing/budget?month=${prev}`);
+  await page.goto(`/marketing/budget/plan?month=${prev}`);
   await expect(main.getByTestId('budget-lines-empty')).toBeVisible();
   await main.getByTestId('budget-lines-edit').click();
   let form = page.getByTestId('budget-lines-form');
@@ -258,7 +267,7 @@ test('план по каналам: разбивка прошлого месяц
   await expect(main.getByTestId('budget-plan')).toContainText('500 ₸');
 
   // текущий месяц (общий план 3 000 ₸): взять из прошлого, дописать, превысить план
-  await page.goto(`/marketing/budget?month=${month}`);
+  await page.goto(`/marketing/budget/plan?month=${month}`);
   await main.getByTestId('budget-lines-edit').click();
   form = page.getByTestId('budget-lines-form');
   await form.getByTestId('budget-lines-copy').click();
@@ -436,7 +445,7 @@ for (const theme of ['light', 'dark'] as const) {
       ],
       days: [{ date: day, leads: 10, bookings: 4, newGuests: 3, revenue: '1050000' }],
     }));
-    await page.goto(`/marketing/budget?month=${month}`);
+    await page.goto(`/marketing/budget/plan?month=${month}`);
     await expect(page.getByTestId('budget-shares')).toBeVisible();
     await axe();
     await shot('overview');

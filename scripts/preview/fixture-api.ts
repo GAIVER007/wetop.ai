@@ -5973,7 +5973,10 @@ createServer(async (req, res) => {
                 startsOn: c.startsOn,
                 endsOn: c.endsOn,
                 fromCabinet: external,
-                cabinetSpend: external ? String(533950 * days.length) : null,
+                // расход кабинета за день в центах: засев может задать свой, иначе прежние 5 339,50 $
+                cabinetSpend: external
+                  ? String(((c as FixtureCampaign & { cabinetDaySpend?: number }).cabinetDaySpend ?? 533950) * days.length)
+                  : null,
                 cabinetCurrency: external ? 'USD' : null,
                 spend: spend.toString(),
                 impressions: days.reduce((sum, d) => sum + d.impressions, 0),
@@ -6055,6 +6058,24 @@ createServer(async (req, res) => {
       if (seededLines) {
         const input = parseMarketingBudgetLinesInput(seededLines);
         budgetLines.set(input.month, input.lines.map((l) => ({ platform: l.platform, amount: l.amount.toString() })));
+      }
+      // кампании (§53, §55) для сводки «Бюджет и аналитика»: { id, platform, name, external?, cabinetDaySpend?, days }
+      for (const c of (body['campaigns'] as Array<Record<string, unknown>> | undefined) ?? []) {
+        const days = new Map<string, { impressions: number; clicks: number; leads: number }>();
+        for (const d of (c['days'] as Array<{ date: string; impressions: number; clicks: number; leads: number }> | undefined) ?? [])
+          days.set(d.date, { impressions: d.impressions, clicks: d.clicks, leads: d.leads });
+        const row: FixtureCampaign & { external?: boolean; cabinetDaySpend?: number } = {
+          id: String(c['id']),
+          platform: String(c['platform']),
+          name: String(c['name']),
+          status: 'ACTIVE',
+          startsOn: null,
+          endsOn: null,
+          days,
+        };
+        if (c['external'] === true) row.external = true;
+        if (typeof c['cabinetDaySpend'] === 'number') row.cabinetDaySpend = c['cabinetDaySpend'];
+        fixtureCampaigns.push(row);
       }
       const seededResults = body['results'] as
         | { month: string; supported?: boolean; channels?: FixtureChannelResult[]; days?: FixtureDayResult[] }

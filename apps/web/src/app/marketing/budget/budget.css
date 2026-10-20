@@ -231,6 +231,20 @@
     font-size: var(--text-sm);
   }
 
+  /* «Сводка» (20.10.2026): пропуск в ячейке словами «Нет данных», причина при наведении и для программы чтения.
+     Опора `position: relative` держит скрытую причину (sr-only, absolute) внутри прокрутки таблицы */
+  .budget-cell-missing {
+    position: relative;
+    color: var(--muted);
+  }
+
+  /* «Сводка»: пять плиток в ряд на широком экране, на узком по сетке `Stats` */
+  @media (min-width: 1280px) {
+    .budget-summary-stats {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
   /* «Аналитика маркетинга»: восемь плиток ровно 4 + 4 на компьютере, без сироты во втором ряду */
   @media (min-width: 961px) {
     .man-stats {

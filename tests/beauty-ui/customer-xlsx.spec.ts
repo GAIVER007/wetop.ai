@@ -28,8 +28,8 @@ test('customers: real XLSX preview, import, duplicate detection and filtered exp
   await expect(dialog.getByRole('status')).toHaveCount(1);
   const source = file([
     ['Имя', 'Телефон'],
-    ['Тестовый Первый', '+770****0001'],
-    ['Тестовый Второй', '+770****0002'],
+    ['Тестовый Первый', '+77000000001'],
+    ['Тестовый Второй', '+77000000002'],
   ]);
   await upload.setInputFiles(source);
   await dialog.getByRole('button', { name: 'Проверить строки', exact: true }).click();

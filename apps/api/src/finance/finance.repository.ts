@@ -12,6 +12,7 @@ import {
   folioBalance,
   zonedStartOfDay,
   revenueWindow,
+  previousRevenueWindow,
   type RevenueEntry,
   type RevenuePeriod,
 } from '@pms/domain';
@@ -305,6 +306,8 @@ export interface FinanceRepository {
   staffRevenueEntries(
     period: RevenuePeriod,
     now: Date,
+    /** прошлый период для сравнения на плитках: та же доля периода */
+    previous?: boolean,
   ): Promise<{ fromDate: string; toDate: string; entries: RevenueEntry[]; names: Record<string, string> }>;
   /** Ячейка проживания по счёту; null — ячейка не назначена */
   stayUnitCode(reservationItemId: string): Promise<StayUnitRef | null>;
@@ -529,9 +532,10 @@ export class PrismaFinanceRepository implements FinanceRepository {
   async today(): Promise<string> {
     return propertyToday(this.prisma.db, this.propertyName);
   }
-  async staffRevenueEntries(period: RevenuePeriod, now: Date) {
+  async staffRevenueEntries(period: RevenuePeriod, now: Date, previous = false) {
     const { id: propertyId } = await this.property();
-    const w = revenueWindow(period, now, await this.timezone());
+    const tz = await this.timezone();
+    const w = previous ? previousRevenueWindow(period, now, tz) : revenueWindow(period, now, tz);
     // сотрудник брони: первая запись журнала о создании; нет записи или без пользователя: каналы и сайт
     const paid = await this.prisma.db.$queryRaw<Array<{ userId: string | null; amount: bigint; currency: string }>>`
       SELECT c.user_id::text AS "userId", pa.amount, p.currency

@@ -11,7 +11,7 @@ import { StaffBoard, type StaffColumn } from '../../../components/staff-board';
 import { Alert, Badge, Button, Select } from '../../../components/ui';
 import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs } from '@pms/domain';
 import { assignBeautyPersonnelKind } from '../actions';
-import { periodTitle, revenueCells, revenueTotal, unattributedLabel, type StaffRevenue } from '../../../lib/staff-revenue';
+import { periodTitle, revenueCells, staffSummaryStats, unattributedLabel, type StaffRevenue } from '../../../lib/staff-revenue';
 import type {
   BeautyEmployeeRow,
   BeautyServiceRow,
@@ -275,18 +275,15 @@ export function MastersBoard({
             </Button>
           ) : null
         }
-        stats={[
-          { label: 'В персонале', value: items.length, testId: 'staff-count' },
-          {
-            label: 'На смене сейчас',
-            value: items.filter(
-              (row) => row.active && beautyMasterDayStatus(scheduleAvailable ? today : null, row.id).state === 'ON_SHIFT',
-            ).length,
-          },
-          ...(revenue ? [{ label: `Принесли ${periodTitle(revenue.period)}`, value: revenueTotal(revenue.items), testId: 'staff-total' }] : []),
-          { label: 'В архиве', value: items.filter((i) => !i.active).length },
-          { label: 'Не назначено', value: unassigned, ...(unassigned ? { tone: 'warning' as const } : {}) },
-        ]}
+        stats={staffSummaryStats({
+          revenue,
+          names: new Map(items.map((row) => [row.id, row.name])),
+          earners: items.filter(
+            (row) => row.active && (row.personnelKind === 'SPECIALIST' || row.personnelKind === 'BOTH'),
+          ).length,
+          unassigned,
+          people: items.length,
+        })}
         tabs={[
           { id: 'all', label: 'Все', rows: items, empty: 'Добавьте первого специалиста' },
           ...tabs.map((tab) => ({

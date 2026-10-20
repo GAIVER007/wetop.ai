@@ -4306,6 +4306,9 @@ function read(path: string, q: URLSearchParams): unknown {
         { employeeId: 'ui-admin', currency: 'KZT', paidMinor: String(3_000_000n * k), refundedMinor: String(500_000n * k), netMinor: String(2_500_000n * k), name: 'Юрий Тестов' },
         { employeeId: null, currency: 'KZT', paidMinor: String(1_200_000n * k), refundedMinor: '0', netMinor: String(1_200_000n * k), name: null },
       ],
+      totals: [{ currency: 'KZT', paidMinor: String(4_200_000n * k), refundedMinor: String(500_000n * k), netMinor: String(3_700_000n * k) }],
+      // та же доля прошлого периода: на четверть меньше, чтобы плитка показала рост
+      previous: { fromDate: today, toDate: today, totals: [{ currency: 'KZT', paidMinor: String(2_960_000n * k), refundedMinor: '0', netMinor: String(2_960_000n * k) }] },
     };
   }
   if (path === '/finance/cashflow') {
@@ -6950,6 +6953,9 @@ createServer(async (req, res) => {
       return send(200, {
         period, fromDate: '', toDate: '',
         items: first ? [{ employeeId: first.id, currency: 'KZT', paidMinor: String(800_000n * k), refundedMinor: '0', netMinor: String(800_000n * k) }] : [],
+        totals: first ? [{ currency: 'KZT', paidMinor: String(800_000n * k), refundedMinor: '0', netMinor: String(800_000n * k) }] : [],
+        // та же доля прошлого периода: больше, чтобы плитка показала падение
+        previous: { fromDate: '', toDate: '', totals: first ? [{ currency: 'KZT', paidMinor: String(1_000_000n * k), refundedMinor: '0', netMinor: String(1_000_000n * k) }] : [] },
       });
     }
     if (path.startsWith('/beauty/')) {

@@ -7,7 +7,7 @@ import { Alert, Badge, Button, Field, Input, Select } from '../../components/ui'
 import { StaffBoard, type StaffColumn } from '../../components/staff-board';
 import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs, type PersonnelKind } from '@pms/domain';
 import { pluralRu } from '../../lib/plural';
-import { periodTitle, revenueCells, revenueTotal, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
+import { periodTitle, revenueCells, staffSummaryStats, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import type { FoodEmployee } from '../../lib/food-types';
 import { assignFoodPersonnelKind, mutateStaff } from './restaurant-actions';
 
@@ -191,7 +191,6 @@ export function EmployeesBoard({
   const [draft, setDraft] = useState<FoodEmployee | null | 'new'>(null);
   const earned = revenue ? revenueCells(revenue.items) : null;
   const unattributed = revenue ? unattributedLabel(revenue.items, 'FOOD_SERVICE') : null;
-  const total = revenue ? revenueTotal(revenue.items) : null;
   // старые записи без назначения не прячутся и не угадываются: своя вкладка, пока они есть
   const groups = personnelTabs(employees.map((e) => ({ ...e, personnelKind: e.personnelKind ?? null })));
   const initials = (name: string) =>
@@ -274,14 +273,15 @@ export function EmployeesBoard({
       <StaffBoard<FoodEmployee>
         caption="Сотрудники ресторана"
         actions={write ? <Button onClick={() => setDraft('new')}>+ Добавить сотрудника</Button> : null}
-        stats={[
-          { label: 'В персонале', value: employees.length },
-          { label: 'На смене сейчас', value: employees.filter((e) => e.onShift).length },
-          ...(revenue && total !== null
-            ? [{ label: `Принесли ${periodTitle(revenue.period)}`, value: total, testId: 'staff-total' }]
-            : []),
-          { label: 'Не назначено', value: unassigned, ...(unassigned ? { tone: 'warning' as const } : {}) },
-        ]}
+        stats={staffSummaryStats({
+          revenue,
+          names: new Map(employees.map((e) => [e.id, e.name])),
+          earners: employees.filter(
+            (e) => e.status !== 'ARCHIVED' && (e.personnelKind === 'SPECIALIST' || e.personnelKind === 'BOTH'),
+          ).length,
+          unassigned,
+          people: employees.length,
+        })}
         tabs={[
           { id: 'all', label: 'Все', rows: employees, empty: 'Сотрудников пока нет' },
           ...groups.map((g) => ({

@@ -34,6 +34,7 @@ import {
   adjacentNight,
   parseRevenuePeriod,
   revenueSummary,
+  revenueTotals,
   type RevenuePeriod,
 } from '@pms/domain';
 import { freeTextForStorage, maskContacts } from '@pms/shared';
@@ -630,11 +631,16 @@ export class FinanceService {
     } catch (e) {
       throw new BadRequestException((e as Error).message);
     }
-    const r = await this.repo.staffRevenueEntries(period, now);
+    const [r, before] = await Promise.all([
+      this.repo.staffRevenueEntries(period, now),
+      this.repo.staffRevenueEntries(period, now, true),
+    ]);
     return {
       period,
       fromDate: r.fromDate,
       toDate: r.toDate,
+      totals: revenueTotals(r.entries),
+      previous: { fromDate: before.fromDate, toDate: before.toDate, totals: revenueTotals(before.entries) },
       items: revenueSummary(r.entries).map((x) => ({
         ...x,
         name: x.employeeId === null ? null : (r.names[x.employeeId] ?? null),

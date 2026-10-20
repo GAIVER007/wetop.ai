@@ -53,7 +53,10 @@ export async function llmKeySaveAction(
   }
 }
 
-/** «Проверить» — живой вызов роутера с этим ключом делает бот; наружу — вердикт словами */
+/**
+ * «Проверить»: живой вызов модели делает бот: с ключом из поля или, если поле пустое, с сохранённым.
+ * Проверка сохранённого обновляет его состояние на экране; наружу вердикт словами.
+ */
 export async function llmKeyCheckAction(
   prev: LlmKeyResult | null,
   form: FormData,
@@ -62,9 +65,10 @@ export async function llmKeyCheckAction(
   const key = String(form.get('key') ?? '').trim();
   try {
     const verdict = await sellerApi.checkLlmKey(key);
+    if (!key) refresh();
     return {
       error: verdict.valid ? null : (verdict.reason ?? 'Роутер не принял ключ'),
-      message: verdict.valid ? 'Ключ действителен' : null,
+      message: verdict.valid ? 'Ключ работает: модель ответила' : null,
       set: null,
       last4: null,
       attempt,

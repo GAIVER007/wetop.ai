@@ -411,6 +411,11 @@ export class BotPanelClient {
     });
   }
 
+  /** Расход модели гостиницы за месяц по учёту ответов бота (не счёт поставщика) */
+  llmUsage(orgId: string): Promise<Json> {
+    return this.json('GET', `/seller/organizations/${encodeURIComponent(orgId)}/llm-usage`);
+  }
+
   /** Подключение WhatsApp (С3): токен и секрет Meta бот хранит шифрованными и назад не отдаёт */
   telegram(orgId: string, action: 'status' | 'check' | 'connect' | 'disconnect', body?: unknown): Promise<Json> {
     const path = `/seller/organizations/${encodeURIComponent(orgId)}/telegram`;

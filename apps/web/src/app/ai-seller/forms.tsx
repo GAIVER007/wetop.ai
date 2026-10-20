@@ -2,6 +2,8 @@
 import { useActionState, useState, useTransition } from 'react';
 import {
   Alert,
+  Badge,
+  type BadgeTone,
   Button,
   Field,
   Input,
@@ -10,7 +12,16 @@ import {
   Stack,
   Textarea,
 } from '../../components/ui';
-import type { SellerWhatsAppView } from '../../lib/api';
+import type { SellerKeyState, SellerLlmKeyStatus, SellerWhatsAppView } from '../../lib/api';
+
+/** Состояние ключа модели словом и тоном; null: ещё не проверялся и ходов не было */
+const KEY_STATE: Record<SellerKeyState, { label: string; tone: BadgeTone }> = {
+  ok: { label: 'Работает', tone: 'ok' },
+  no_credits: { label: 'Закончились деньги', tone: 'danger' },
+  invalid_key: { label: 'Ключ не принят', tone: 'danger' },
+  rate_limited: { label: 'Предел запросов', tone: 'warn' },
+  error: { label: 'Провайдер отказал', tone: 'warn' },
+};
 import {
   restoreVersionAction,
   assigneeAction,
@@ -392,11 +403,14 @@ export function SandboxForm({
 export function LlmKeyForm({
   status,
   readOnly,
+  checkedLabel = null,
   save = llmKeySaveAction,
   check = llmKeyCheckAction,
 }: {
-  status: { set: boolean; last4: string | null };
+  status: SellerLlmKeyStatus;
   readOnly: string | null;
+  /** Время последней проверки по поясу объекта: считает сервер, строка одна на сервере и в браузере */
+  checkedLabel?: string | null;
   save?: (prev: LlmKeyResult | null, form: FormData) => Promise<LlmKeyResult>;
   check?: (prev: LlmKeyResult | null, form: FormData) => Promise<LlmKeyResult>;
 }) {
@@ -418,7 +432,25 @@ export function LlmKeyForm({
           <>Ключ не задан: продавец ходит ключом платформы.</>
         )}
       </p>
-      <p className="settings-note">Проверка не сохраняет ключ. После ввода нажмите «Сохранить». Сохранённый секрет не показывается повторно — пустое поле после перезагрузки нормально.</p>
+      <div data-testid="seller-llm-key-health" className="stack stack--sm">
+        <Row>
+          <span>Состояние:</span>
+          {status.state ? (
+            <Badge tone={KEY_STATE[status.state].tone}>{KEY_STATE[status.state].label}</Badge>
+          ) : (
+            <Badge>Ещё не проверялся</Badge>
+          )}
+          {checkedLabel && <span className="settings-note">проверено {checkedLabel}</span>}
+        </Row>
+        {status.reason && status.state !== 'ok' && (
+          <Alert data-testid="seller-llm-key-health-reason">{status.reason}</Alert>
+        )}
+      </div>
+      <p className="settings-note">
+        Остаток денег на счёте провайдер по API не сообщает: здесь видно, отвечает ли модель с этим
+        ключом. Пустое поле и «Проверить» проверяют сохранённый ключ, введённый ключ проверяется без
+        сохранения. Сохранённый секрет не показывается повторно.
+      </p>
       <form key={saved?.attempt ?? 0} className="stack stack--sm">
         <Field label="API-ключ модели">
           <Input

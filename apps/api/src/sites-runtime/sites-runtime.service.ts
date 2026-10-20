@@ -8,6 +8,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import {
+  liveSiteSpec,
   normalizeSiteHost,
   SITE_SPEC_SCHEMA_VERSION,
   siteSpecAssetRefs,
@@ -88,9 +89,10 @@ export class SitesRuntimeService {
       throw new BadRequestException('knownSpecHash: sha256 в hex');
     const siteId = await this.siteIdFor(query.host);
     if (!siteId) throw new NotFoundException(SITE_NOT_FOUND);
-    const row = await withServiceDatabase(() => this.repo.publishedSite(siteId));
-    if (!row) throw new NotFoundException(SITE_NOT_FOUND);
-    const defaultLocale = this.checkedLocale(row);
+    const published = await withServiceDatabase(() => this.repo.publishedSite(siteId));
+    if (!published) throw new NotFoundException(SITE_NOT_FOUND);
+    const defaultLocale = this.checkedLocale(published);
+    const row = await this.live(published);
     return {
       siteId: row.siteId,
       state: 'PUBLISHED',
@@ -151,6 +153,24 @@ export class SitesRuntimeService {
       publicFacts: await this.facts(row, now),
       expiresAt: new Date(checked.exp * 1000).toISOString(),
     };
+  }
+
+  /**
+   * SITE-1, живые данные: на опубликованный документ накладываются свежие услуги, цены, мастера, меню, часы и контакты
+   * филиала из WETOP (`liveSiteSpec`). Хэш у живого документа свой, поэтому рантайм сайтов сам заберёт новый документ
+   * при следующей сверке. Не прочитались факты или итог не прошёл валидатор: документ как опубликован
+   */
+  private async live(row: PublishedSiteRow): Promise<PublishedSiteRow> {
+    if (!this.repo.liveFacts) return row;
+    try {
+      const facts = await withServiceDatabase(() => this.repo.liveFacts!(row));
+      if (!facts) return row;
+      const spec = liveSiteSpec(row.spec, facts);
+      return spec === row.spec ? row : { ...row, spec, specHash: siteSpecHash(spec) };
+    } catch (error) {
+      console.error(JSON.stringify({ event: 'sites_runtime.live_failed', siteId: row.siteId, error: (error as Error).name }));
+      return row;
+    }
   }
 
   /** Тот же валидатор, что у сохранения, плюс совпадение версии схемы и хэша; иначе 503 и строка в лог */
